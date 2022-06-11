@@ -224,8 +224,8 @@ public class DefaultTaskSetup implements DefaultSetup {
     // build the new global group
     var groupConfiguration = GroupConfiguration.builder()
       .name(groupName)
-      .addTargetEnvironment(environment.name())
-      .addTemplates(Set.of(groupTemplate));
+      .modifyTargetEnvironments(env -> env.add(environment.name()))
+      .templates(Set.of(groupTemplate));
 
     // check if we are executing the step for the "Global-Server" group
     if (GLOBAL_SERVER_GROUP_NAME.equals(groupName)) {
@@ -237,7 +237,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     // create a group specifically for the task
     Node.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
-      .addTemplates(Set.of(template))
+      .templates(Set.of(template))
       .build());
 
     // install the service template

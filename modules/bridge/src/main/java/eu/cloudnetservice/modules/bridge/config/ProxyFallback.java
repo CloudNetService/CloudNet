@@ -17,17 +17,18 @@
 package eu.cloudnetservice.modules.bridge.config;
 
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 public record ProxyFallback(
   int priority,
   @NonNull String task,
   @Nullable String permission,
   @Nullable String forcedHost,
-  @NonNull Collection<String> availableOnGroups
+  @Unmodifiable @NonNull Set<String> availableOnGroups
 ) implements Comparable<ProxyFallback> {
 
   public static @NonNull Builder builder() {
@@ -56,7 +57,7 @@ public record ProxyFallback(
     private String permission;
     private String forcedHost;
 
-    private Collection<String> availableOnGroups = new ArrayList<>();
+    private Set<String> availableOnGroups = new HashSet<>();
 
     public @NonNull Builder priority(int priority) {
       this.priority = priority;
@@ -78,15 +79,20 @@ public record ProxyFallback(
       return this;
     }
 
-    public @NonNull Builder availableOnGroups(@NonNull Collection<String> availableOnGroups) {
-      this.availableOnGroups = new ArrayList<>(availableOnGroups);
+    public @NonNull Builder availableOnGroups(@NonNull Set<String> availableOnGroups) {
+      this.availableOnGroups = new HashSet<>(availableOnGroups);
       return this;
     }
 
     public @NonNull ProxyFallback build() {
       Preconditions.checkNotNull(this.task, "Missing task");
 
-      return new ProxyFallback(this.priority, this.task, this.permission, this.forcedHost, this.availableOnGroups);
+      return new ProxyFallback(
+        this.priority,
+        this.task,
+        this.permission,
+        this.forcedHost,
+        Set.copyOf(this.availableOnGroups));
     }
   }
 }

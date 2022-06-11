@@ -106,7 +106,7 @@ public class SignCommand {
       ? SignConfigurationType.BEDROCK.createEntry(targetGroup)
       : SignConfigurationType.JAVA.createEntry(targetGroup);
     this.signManagement.signsConfiguration(SignsConfiguration.builder(this.signManagement.signsConfiguration())
-      .addEntry(entry)
+      .modifyEntries(entries -> entries.add(entry))
       .build());
     source.sendMessage(I18n.trans("module-sign-command-create-entry-success"));
   }
