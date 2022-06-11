@@ -40,9 +40,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
 
   private Pair<Pos, Instance> signLocation;
 
-  public MinestomPlatformSign(
-    @NonNull Sign base
-  ) {
+  public MinestomPlatformSign(@NonNull Sign base) {
     super(base, input -> {
       var coloredComponent = AdventureSerializerUtil.serialize(input);
       return GsonComponentSerializer.gson().serialize(coloredComponent);

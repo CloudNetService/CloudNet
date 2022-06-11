@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.platform.minestom.functionality;
 
+import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
@@ -45,7 +46,7 @@ public class SignsCommand extends Command {
         .stream()
         .filter(group -> group.name().equalsIgnoreCase(input))
         .findFirst()
-        .orElseThrow(() -> new ArgumentSyntaxException("Help", input, -1))
+        .orElseThrow(() -> new ArgumentSyntaxException(I18n.trans("command-general-group-does-not-exist"), input, -1))
         .name();
     }
   };
@@ -55,7 +56,7 @@ public class SignsCommand extends Command {
     public @NotNull String parse(@NotNull String input) throws ArgumentSyntaxException {
       var template = ServiceTemplate.parse(input);
       if (template == null) {
-        throw new ArgumentSyntaxException("Help", input, -1);
+        throw new ArgumentSyntaxException(I18n.trans("command-template-not-valid"), input, -1);
       }
 
       return template.toString();

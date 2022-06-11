@@ -89,7 +89,6 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<
     return new WorldPosition(pos.x(), pos.y(), pos.z(), 0, 0, identifier, entry.targetGroup());
   }
 
-
   @Override
   protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
     return new MinestomPlatformSign(base);
