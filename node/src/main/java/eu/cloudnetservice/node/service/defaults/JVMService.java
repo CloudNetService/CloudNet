@@ -135,6 +135,9 @@ public class JVMService extends AbstractService {
     arguments.add("-javaagent:" + wrapperInformation.first().toAbsolutePath());
     arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
 
+    // fabric specific class path
+    arguments.add(String.format("-Dfabric.systemLibraries=%s", wrapperInformation.first().toAbsolutePath()));
+
     // add the class path and the main class of the wrapper
     arguments.add("-cp");
     arguments.add(classPath);
