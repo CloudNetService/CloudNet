@@ -22,13 +22,13 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A redirect log handler, to the origin output and error stream. The LogOutputStream will replace the System.out and
  * System.err stream after this initialization by the Wrapper
  */
-@Internal
+@ApiStatus.Internal
 public final class InternalPrintStreamLogHandler extends AbstractHandler {
 
   private final PrintStream outputStream;

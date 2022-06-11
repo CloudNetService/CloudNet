@@ -30,7 +30,6 @@ import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
-import eu.cloudnetservice.node.console.animation.setup.answer.Parsers.ParserException;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.module.ModuleEntry;
@@ -69,7 +68,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             if (I18n.knownLanguages().contains(input)) {
               return input;
             } else {
-              throw ParserException.INSTANCE;
+              throw Parsers.ParserException.INSTANCE;
             }
           })
           .addResultListener((__, language) -> I18n.language(language)))
@@ -87,7 +86,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             if (input.equalsIgnoreCase("yes")) {
               return true;
             } else {
-              throw ParserException.INSTANCE;
+              throw Parsers.ParserException.INSTANCE;
             }
           }))
         .build(),
@@ -143,14 +142,14 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
               // get the associated entry
               var moduleEntry = Node.instance().modulesHolder()
                 .findByName(entry)
-                .orElseThrow(() -> ParserException.INSTANCE);
+                .orElseThrow(() -> Parsers.ParserException.INSTANCE);
               // check for depending on modules
               if (!moduleEntry.dependingModules().isEmpty()) {
                 moduleEntry.dependingModules().forEach(module -> {
                   // resolve and add the depending on module
                   var dependEntry = Node.instance().modulesHolder()
                     .findByName(module)
-                    .orElseThrow(() -> ParserException.INSTANCE);
+                    .orElseThrow(() -> Parsers.ParserException.INSTANCE);
                   result.add(dependEntry);
                 });
               }

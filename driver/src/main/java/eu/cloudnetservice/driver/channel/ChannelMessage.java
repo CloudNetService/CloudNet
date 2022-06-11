@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget.Type;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
@@ -28,7 +27,7 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Experimental;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,7 +140,8 @@ public record ChannelMessage(
 
   /**
    * Sends this channel message as a query and suspends the calling thread until all responses is available or the query
-   * timeout of 30 seconds is exceeded. This method is a shortcut for {@link CloudMessenger#sendChannelMessageQuery(ChannelMessage)}.
+   * timeout of 30 seconds is exceeded. This method is a shortcut for
+   * {@link CloudMessenger#sendChannelMessageQuery(ChannelMessage)}.
    *
    * @return all responses of all components this channel message is targeting.
    * @see CloudNetDriver#messenger()
@@ -258,7 +258,7 @@ public record ChannelMessage(
      * @param prioritized if the channel message is prioritized
      * @return the same builder as used to call the method, for chaining.
      */
-    @Experimental
+    @ApiStatus.Experimental
     public @NonNull Builder prioritized(boolean prioritized) {
       this.prioritized = prioritized;
       return this;
@@ -293,9 +293,9 @@ public record ChannelMessage(
      * @param type the type of the receiver.
      * @param name the name of the receiver.
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link Type#ENVIRONMENT}
+     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
      * @throws NullPointerException     if the given target type is null.
-     * @see ChannelMessageTarget#of(Type, String)
+     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
      */
     public @NonNull Builder target(@NonNull ChannelMessageTarget.Type type, @Nullable String name) {
       return this.target(ChannelMessageTarget.of(type, name));
@@ -307,9 +307,9 @@ public record ChannelMessage(
      * @param environment the driver environment to target.
      * @param name        the name of the target, might be null to target all components with the given environment.
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link Type#ENVIRONMENT}
+     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
      * @throws NullPointerException     if the given environment is null.
-     * @see ChannelMessageTarget#of(Type, String)
+     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
      */
     public @NonNull Builder target(@NonNull DriverEnvironment environment, @Nullable String name) {
       return this.target(environment == DriverEnvironment.NODE
@@ -322,9 +322,9 @@ public record ChannelMessage(
      *
      * @param type the type of the receivers to target.
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link Type#ENVIRONMENT}
+     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
      * @throws NullPointerException     if the given target type is null.
-     * @see ChannelMessageTarget#of(Type, String)
+     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
      */
     public @NonNull Builder targetAll(@NonNull ChannelMessageTarget.Type type) {
       return this.target(type, null);
@@ -334,8 +334,8 @@ public record ChannelMessage(
      * Targets all components within the network.
      *
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link Type#ENVIRONMENT}
-     * @see ChannelMessageTarget#of(Type, String)
+     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
+     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
      */
     public @NonNull Builder targetAll() {
       return this.target(ChannelMessageTarget.Type.ALL, null);
@@ -345,8 +345,8 @@ public record ChannelMessage(
      * Targets all services within the network.
      *
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link Type#ENVIRONMENT}
-     * @see ChannelMessageTarget#of(Type, String)
+     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
+     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
      */
     public @NonNull Builder targetServices() {
       return this.targetAll(ChannelMessageTarget.Type.SERVICE);

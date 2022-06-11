@@ -20,7 +20,6 @@ import static eu.cloudnetservice.modules.bridge.BridgeServiceHelper.fillCommonPl
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper.ServiceInfoState;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignGroupConfiguration;
@@ -79,9 +78,9 @@ public final class LayoutUtil {
     }
     // return the correct layout based on the state
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
-    if (state == ServiceInfoState.STOPPED) {
+    if (state == BridgeServiceHelper.ServiceInfoState.STOPPED) {
       return entry.searchingLayout();
-    } else if (state == ServiceInfoState.STARTING) {
+    } else if (state == BridgeServiceHelper.ServiceInfoState.STARTING) {
       return entry.startingLayout();
     } else {
       // check for an overriding group configuration

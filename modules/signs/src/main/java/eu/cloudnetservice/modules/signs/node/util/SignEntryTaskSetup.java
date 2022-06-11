@@ -25,9 +25,9 @@ import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
-@Internal
+@ApiStatus.Internal
 public final class SignEntryTaskSetup {
 
   private static final QuestionListEntry<Boolean> CREATE_ENTRY_QUESTION_LIST = QuestionListEntry.<Boolean>builder()
@@ -73,8 +73,9 @@ public final class SignEntryTaskSetup {
         var entry = ServiceEnvironmentType.JAVA_SERVER.get(environment.properties())
           ? SignConfigurationType.JAVA.createEntry(taskName)
           : SignConfigurationType.BEDROCK.createEntry(taskName);
-        configuration.entries().add(entry);
-        signManagement.signsConfiguration(configuration);
+
+        var builder = SignsConfiguration.builder(configuration).modifyEntries(entries -> entries.add(entry));
+        signManagement.signsConfiguration(builder.build());
       }
     }
   }

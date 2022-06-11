@@ -20,12 +20,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandler;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.net.http.HttpResponse.BodySubscriber;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -35,7 +31,7 @@ import lombok.NonNull;
 public final class HttpUtil {
 
   private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
-    .followRedirects(Redirect.NORMAL)
+    .followRedirects(HttpClient.Redirect.NORMAL)
     .connectTimeout(Duration.ofSeconds(20))
     .build();
   private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -45,7 +41,10 @@ public final class HttpUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull <T> HttpResponse<T> get(@NonNull URI url, @NonNull BodyHandler<T> body) throws Exception {
+  public static @NonNull <T> HttpResponse<T> get(
+    @NonNull URI url,
+    @NonNull HttpResponse.BodyHandler<T> body
+  ) throws Exception {
     var request = HttpRequest.newBuilder()
       .GET()
       .uri(url)
@@ -55,7 +54,7 @@ public final class HttpUtil {
     return HTTP_CLIENT.send(request, body);
   }
 
-  public static @NonNull BodyHandler<Path> handlerForFile(@NonNull Path filePath) {
+  public static @NonNull HttpResponse.BodyHandler<Path> handlerForFile(@NonNull Path filePath) {
     // we need to create the directory ourselves if it doesn't exist yet
     var parent = filePath.getParent();
     if (parent != null && Files.notExists(parent)) {
@@ -67,14 +66,16 @@ public final class HttpUtil {
       }
     }
     // redirect to BodyHandlers.ofFile with a few options set by default
-    return BodyHandlers.ofFile(
+    return HttpResponse.BodyHandlers.ofFile(
       filePath,
       StandardOpenOption.CREATE,
       StandardOpenOption.WRITE,
       StandardOpenOption.TRUNCATE_EXISTING);
   }
 
-  public static @NonNull <T> BodyHandler<T> handlerFromSubscriber(@NonNull BodySubscriber<T> subscriber) {
+  public static @NonNull <T> HttpResponse.BodyHandler<T> handlerFromSubscriber(
+    @NonNull HttpResponse.BodySubscriber<T> subscriber
+  ) {
     return info -> {
       // only apply the subscriber for successful responses
       if (info.statusCode() == 200) {

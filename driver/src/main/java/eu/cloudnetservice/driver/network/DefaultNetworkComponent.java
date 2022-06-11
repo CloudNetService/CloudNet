@@ -21,7 +21,7 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import java.util.Collection;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A delegate default interface for a network component implementation.
@@ -39,7 +39,7 @@ public interface DefaultNetworkComponent extends NetworkComponent {
    *
    * @return all channels which are connected to this component, modifiable.
    */
-  @Internal
+  @ApiStatus.Internal
   @NonNull Collection<NetworkChannel> modifiableChannels();
 
   /**

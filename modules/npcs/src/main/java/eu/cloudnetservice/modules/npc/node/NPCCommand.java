@@ -22,6 +22,7 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
@@ -78,7 +79,13 @@ public class NPCCommand {
     @NonNull CommandContext<CommandSource> $,
     @NonNull String input
   ) {
-    return this.npcManagement.npcConfiguration().entries().stream().map(NPCConfigurationEntry::targetGroup).toList();
+    return Node.instance().groupConfigurationProvider().groupConfigurations().stream()
+      .map(Nameable::name)
+      .filter(group -> this.npcManagement.npcConfiguration()
+        .entries()
+        .stream()
+        .noneMatch(entry -> entry.targetGroup().equals(group)))
+      .toList();
   }
 
   @CommandMethod("npc|npcs list|l")
@@ -87,7 +94,10 @@ public class NPCCommand {
   }
 
   @CommandMethod("npc|npcs create entry <targetGroup>")
-  public void createEntry(@NonNull CommandSource source, @NonNull @Argument("targetGroup") String targetGroup) {
+  public void createEntry(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "targetGroup", parserName = "newConfiguration") String targetGroup
+  ) {
     var entry = NPCConfigurationEntry.builder().targetGroup(targetGroup).build();
     this.npcManagement.npcConfiguration().entries().add(entry);
     this.npcManagement.npcConfiguration(this.npcManagement.npcConfiguration());

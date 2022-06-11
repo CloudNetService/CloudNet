@@ -21,7 +21,7 @@ import eu.cloudnetservice.common.Nameable;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a repository for a module dependency, the dependency is locatable at this repository.
@@ -53,7 +53,7 @@ public class ModuleRepository implements Nameable {
    * This constructor is for internal use only. The name and url of this repository is required. Creating a repository
    * using this constructor will cause an exception when loading the module. See {@link #assertComplete()}.
    */
-  @Internal
+  @ApiStatus.Internal
   public ModuleRepository() {
   }
 

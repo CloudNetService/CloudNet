@@ -16,13 +16,11 @@
 
 package eu.cloudnetservice.driver.ap;
 
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
@@ -42,7 +40,7 @@ import javax.lang.model.util.Elements;
 public class RPCValidationProcessor extends AbstractProcessor {
 
   private volatile Elements eu;
-  private volatile Map<Element, List<Entry<String, Integer>>> elements;
+  private volatile Map<Element, List<Map.Entry<String, Integer>>> elements;
 
   @Override
   public void init(ProcessingEnvironment processingEnv) {
@@ -91,7 +89,7 @@ public class RPCValidationProcessor extends AbstractProcessor {
           }
 
           this.elements.computeIfAbsent(element, $ -> new ArrayList<>())
-            .add(new SimpleImmutableEntry<>(method.getSimpleName().toString(), method.getParameters().size()));
+            .add(Map.entry(method.getSimpleName().toString(), method.getParameters().size()));
         }
       }
     }
@@ -109,7 +107,7 @@ public class RPCValidationProcessor extends AbstractProcessor {
           throw new IllegalStateException(String.format(
             "Duplicate method names in %s: %s",
             entry.getKey().getSimpleName().toString(),
-            duplicates.stream().map(Entry::getKey).collect(Collectors.joining(", "))));
+            duplicates.stream().map(Map.Entry::getKey).collect(Collectors.joining(", "))));
         }
       }
       // reset the values

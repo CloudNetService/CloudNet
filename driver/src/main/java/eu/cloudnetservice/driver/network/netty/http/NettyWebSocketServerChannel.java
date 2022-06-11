@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -43,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@Internal
 final class NettyWebSocketServerChannel implements WebSocketChannel {
 
   private final Collection<WebSocketListener> webSocketListeners = new ConcurrentLinkedQueue<>();

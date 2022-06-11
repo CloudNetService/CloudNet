@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.signs.platform;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper.ServiceInfoState;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
@@ -66,7 +65,8 @@ public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C
 
     // get the current state from the service snapshot, ignore if the target is not yet ready to accept players
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(target);
-    if (state == ServiceInfoState.STOPPED || state == ServiceInfoState.STARTING) {
+    if (state == BridgeServiceHelper.ServiceInfoState.STOPPED
+      || state == BridgeServiceHelper.ServiceInfoState.STARTING) {
       return;
     }
 

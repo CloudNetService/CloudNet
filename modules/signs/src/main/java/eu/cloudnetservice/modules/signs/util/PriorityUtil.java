@@ -20,13 +20,11 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Util for priorities of signs on a sign wall
  */
-@Internal
 public final class PriorityUtil {
 
   private PriorityUtil() {

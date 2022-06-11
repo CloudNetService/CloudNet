@@ -20,7 +20,6 @@ import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig.TemplateInstaller;
 import eu.cloudnetservice.modules.smart.listener.CloudNetLocalServiceListener;
 import eu.cloudnetservice.modules.smart.listener.CloudNetLocalServiceTaskListener;
 import eu.cloudnetservice.modules.smart.listener.CloudNetTickListener;
@@ -46,7 +45,7 @@ public class CloudNetSmartModule extends DriverModule {
             .maxServices(smartEntry.getInt("maxServiceCount"))
             .preparedServices(smartEntry.getInt("preparedServices"))
 
-            .templateInstaller(smartEntry.get("templateInstaller", TemplateInstaller.class))
+            .templateInstaller(smartEntry.get("templateInstaller", SmartServiceTaskConfig.TemplateInstaller.class))
             .directTemplatesAndInclusionsSetup(smartEntry.getBoolean("directTemplatesAndInclusionsSetup"))
 
             .autoStopTimeByUnusedServiceInSeconds(smartEntry.getInt("autoStopTimeByUnusedServiceInSeconds"))

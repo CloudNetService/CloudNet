@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The bridge management is a shared management for all platform dependent bridge implementations.
@@ -73,6 +73,6 @@ public interface BridgeManagement {
    * <p>
    * Note: This method should not be used as part of the api and is for internal use only.
    */
-  @Internal
+  @ApiStatus.Internal
   void postInit();
 }

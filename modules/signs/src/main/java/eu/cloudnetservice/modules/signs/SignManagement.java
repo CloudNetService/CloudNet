@@ -20,7 +20,7 @@ import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import java.util.Collection;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -112,18 +112,18 @@ public interface SignManagement {
 
   // Internal methods
 
-  @Internal
+  @ApiStatus.Internal
   void registerToServiceRegistry();
 
-  @Internal
+  @ApiStatus.Internal
   void unregisterFromServiceRegistry();
 
-  @Internal
+  @ApiStatus.Internal
   void handleInternalSignCreate(@NonNull Sign sign);
 
-  @Internal
+  @ApiStatus.Internal
   void handleInternalSignRemove(@NonNull WorldPosition position);
 
-  @Internal
+  @ApiStatus.Internal
   void handleInternalSignConfigUpdate(@NonNull SignsConfiguration configuration);
 }

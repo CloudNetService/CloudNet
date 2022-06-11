@@ -22,7 +22,7 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.def.PacketClientAuthorization.PacketAuthorizationType;
+import eu.cloudnetservice.driver.network.def.PacketClientAuthorization;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.driver.service.ServiceId;
@@ -43,7 +43,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     // read the core data
-    var type = packet.content().readObject(PacketAuthorizationType.class);
+    var type = packet.content().readObject(PacketClientAuthorization.PacketAuthorizationType.class);
     try (var content = packet.content().readDataBuf()) {
       // handle the authorization
       switch (type) {

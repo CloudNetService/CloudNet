@@ -19,15 +19,11 @@ package eu.cloudnetservice.modules.bridge.platform.velocity;
 import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
 
 import com.velocitypowered.api.event.PostOrder;
-import com.velocitypowered.api.event.ResultedEvent.ComponentResult;
+import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
-import com.velocitypowered.api.event.connection.DisconnectEvent.LoginStatus;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
-import com.velocitypowered.api.event.player.KickedFromServerEvent.DisconnectPlayer;
-import com.velocitypowered.api.event.player.KickedFromServerEvent.Notify;
-import com.velocitypowered.api.event.player.KickedFromServerEvent.RedirectPlayer;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.proxy.Player;
@@ -66,7 +62,7 @@ public final class VelocityPlayerManagementListener {
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
-        event.setResult(ComponentResult.denied(serialize(this.management.configuration().message(
+        event.setResult(ResultedEvent.ComponentResult.denied(serialize(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance"))));
         return;
@@ -74,7 +70,7 @@ public final class VelocityPlayerManagementListener {
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
-        event.setResult(ComponentResult.denied(serialize(this.management.configuration().message(
+        event.setResult(ResultedEvent.ComponentResult.denied(serialize(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission"))));
         return;
@@ -84,7 +80,7 @@ public final class VelocityPlayerManagementListener {
     var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.permitLogin()) {
-      event.setResult(ComponentResult.denied(loginResult.result()));
+      event.setResult(ResultedEvent.ComponentResult.denied(loginResult.result()));
     }
   }
 
@@ -107,13 +103,13 @@ public final class VelocityPlayerManagementListener {
           var curServer = event.getPlayer().getCurrentServer().map(ServerConnection::getServerInfo).orElse(null);
           if (event.kickedDuringServerConnect() && curServer != null && curServer.equals(server.getServerInfo())) {
             // send the player a nice message - velocity will keep the connection to the current server
-            return Notify.create(this.extractReasonComponent(event));
+            return KickedFromServerEvent.Notify.create(this.extractReasonComponent(event));
           } else {
             // redirect the player to the next available hub server
-            return RedirectPlayer.create(server, this.extractReasonComponent(event));
+            return KickedFromServerEvent.RedirectPlayer.create(server, this.extractReasonComponent(event));
           }
         })
-        .orElse(DisconnectPlayer.create(serialize(this.management.configuration().message(
+        .orElse(KickedFromServerEvent.DisconnectPlayer.create(serialize(this.management.configuration().message(
           event.getPlayer().getEffectiveLocale(),
           "proxy-join-disconnect-because-no-hub")))));
     }
@@ -147,7 +143,8 @@ public final class VelocityPlayerManagementListener {
     // check if the player successfully connected to a server before
     // PRE_SERVER_JOIN will be used when the upstream server closes the connection to the player, we need to handle this
     var status = event.getLoginStatus();
-    if (status == LoginStatus.SUCCESSFUL_LOGIN || status == LoginStatus.PRE_SERVER_JOIN) {
+    if (status == DisconnectEvent.LoginStatus.SUCCESSFUL_LOGIN
+      || status == DisconnectEvent.LoginStatus.PRE_SERVER_JOIN) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
       Wrapper.instance().publishServiceInfoUpdate();
@@ -160,7 +157,7 @@ public final class VelocityPlayerManagementListener {
     var playerLocale = event.getPlayer().getEffectiveLocale();
     var message = event.getServerKickReason().orElse(null);
     // use the current result if it is Notify - velocity already created a friendly reason for us
-    if (message == null && event.getResult() instanceof Notify notify) {
+    if (message == null && event.getResult() instanceof KickedFromServerEvent.Notify notify) {
       message = notify.getMessageComponent();
     }
     // check if we have a reason component

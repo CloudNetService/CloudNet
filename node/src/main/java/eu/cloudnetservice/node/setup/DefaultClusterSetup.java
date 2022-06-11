@@ -30,7 +30,6 @@ import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
-import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry.Builder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
@@ -83,7 +82,7 @@ public class DefaultClusterSetup implements DefaultSetup {
                         .translatedQuestion("cloudnet-init-setup-cluster-node-host", node)
                         .answerType(QuestionAnswerType.<HostAndPort>builder()
                           .parser(validatedHostAndPort(true))))
-                      .map(Builder::build)
+                      .map(QuestionListEntry.Builder::build)
                       .toArray(QuestionListEntry[]::new))))
                   .build());
             }

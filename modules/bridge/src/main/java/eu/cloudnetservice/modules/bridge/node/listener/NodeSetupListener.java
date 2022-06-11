@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
 import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.console.animation.setup.answer.Parsers.ParserException;
+import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
@@ -38,7 +38,7 @@ public final class NodeSetupListener {
       .parser(input -> {
         // we allow an empty input or an existing task
         if (!input.isEmpty() && Node.instance().serviceTaskProvider().serviceTask(input) == null) {
-          throw ParserException.INSTANCE;
+          throw Parsers.ParserException.INSTANCE;
         }
         return input;
       })

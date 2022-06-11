@@ -23,9 +23,8 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget.Type;
+import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.buffer.DataBuf.Mutable;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.AbstractSignManagement;
@@ -50,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManagement {
@@ -110,7 +109,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   @Override
   public int deleteAllSigns(@NonNull String group, @Nullable String templatePath) {
     var response = this.channelMessage(SIGN_BULK_DELETE)
-      .buffer(DataBuf.empty().writeString(group).writeNullable(templatePath, Mutable::writeString))
+      .buffer(DataBuf.empty().writeString(group).writeNullable(templatePath, DataBuf.Mutable::writeString))
       .build().sendSingleQuery();
     return response == null ? 0 : response.content().readInt();
   }
@@ -170,7 +169,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
-    return super.channelMessage(message).target(Type.NODE, Wrapper.instance().nodeUniqueId());
+    return super.channelMessage(message).target(ChannelMessageTarget.Type.NODE, Wrapper.instance().nodeUniqueId());
   }
 
   public int removeMissingSigns() {
@@ -291,7 +290,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
     return false;
   }
 
-  @Internal
+  @ApiStatus.Internal
   protected void tick(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P, C>>> signsNeedingTicking) {
     this.currentTick.incrementAndGet();
 

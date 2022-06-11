@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.buffer;
 
-import eu.cloudnetservice.driver.network.buffer.DataBuf.Mutable;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.lang.reflect.Type;
 import lombok.NonNull;
@@ -29,7 +28,7 @@ import lombok.NonNull;
  * for the data reader to create an empty instance of it. The data of the buffer is then filled in using the read
  * method.
  *
- * @see ObjectMapper#writeObject(Mutable, Object)
+ * @see ObjectMapper#writeObject(DataBuf.Mutable, Object)
  * @see ObjectMapper#readObject(DataBuf, Type)
  * @since 4.0
  */

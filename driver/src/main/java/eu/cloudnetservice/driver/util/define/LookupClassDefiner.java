@@ -17,8 +17,7 @@
 package eu.cloudnetservice.driver.util.define;
 
 import dev.derklaro.reflexion.Reflexion;
-import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.invoke.MethodHandles.Lookup.ClassOption;
+import java.lang.invoke.MethodHandles;
 import lombok.NonNull;
 
 /**
@@ -33,8 +32,9 @@ final class LookupClassDefiner implements ClassDefiner {
    * The jvm trusted lookup instance. It allows access to every lookup even if the access to these classes is denied for
    * the current module.
    */
-  private static final Lookup TRUSTED_LOOKUP = Reflexion.on(Lookup.class).findField("IMPL_LOOKUP")
-    .map(accessor -> accessor.<Lookup>getValue().getOrElse(null))
+  private static final MethodHandles.Lookup TRUSTED_LOOKUP = Reflexion.on(MethodHandles.Lookup.class)
+    .findField("IMPL_LOOKUP")
+    .map(accessor -> accessor.<MethodHandles.Lookup>getValue().getOrElse(null))
     .orElse(null);
 
   /**
@@ -52,7 +52,10 @@ final class LookupClassDefiner implements ClassDefiner {
   @Override
   public @NonNull Class<?> defineClass(@NonNull String name, @NonNull Class<?> parent, byte[] bytecode) {
     try {
-      return TRUSTED_LOOKUP.in(parent).defineHiddenClass(bytecode, false, ClassOption.NESTMATE).lookupClass();
+      return TRUSTED_LOOKUP
+        .in(parent)
+        .defineHiddenClass(bytecode, false, MethodHandles.Lookup.ClassOption.NESTMATE)
+        .lookupClass();
     } catch (Throwable throwable) {
       throw new IllegalStateException("Exception defining class " + name, throwable);
     }

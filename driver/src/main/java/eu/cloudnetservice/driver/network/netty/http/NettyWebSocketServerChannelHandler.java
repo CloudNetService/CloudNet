@@ -29,14 +29,14 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import java.io.IOException;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The default netty based handler for web socket messages.
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
   private static final Logger LOGGER = LogManager.logger(NettyWebSocketServerChannelHandler.class);

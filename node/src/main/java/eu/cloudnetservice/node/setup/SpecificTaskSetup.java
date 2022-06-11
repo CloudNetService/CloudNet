@@ -135,7 +135,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .serviceEnvironmentType(environment)
       .startPort(animation.result("taskStartPort"))
       .javaCommand(javaVersion.first())
-      .addTemplates(Set.of(defaultTemplate))
+      .templates(Set.of(defaultTemplate))
       .nameSplitter(animation.result("taskNameSplitter"))
       .build();
     // create the default template for the task

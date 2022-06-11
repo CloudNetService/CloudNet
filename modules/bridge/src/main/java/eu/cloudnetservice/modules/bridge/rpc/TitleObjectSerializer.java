@@ -21,10 +21,10 @@ import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.time.Duration;
+import java.util.Objects;
 import lombok.NonNull;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.title.Title;
-import net.kyori.adventure.title.Title.Times;
 
 /**
  * A serializer to write titles to a data buf.
@@ -44,10 +44,7 @@ public final class TitleObjectSerializer implements ObjectSerializer<Title> {
     @NonNull ObjectMapper caller
   ) {
     // extract the times
-    var times = object.times();
-    if (times == null) {
-      times = Title.DEFAULT_TIMES;
-    }
+    var times = Objects.requireNonNullElse(object.times(), Title.DEFAULT_TIMES);
     // write the times
     dataBuf.writeLong(times.fadeIn().toMillis());
     dataBuf.writeLong(times.stay().toMillis());
@@ -67,7 +64,7 @@ public final class TitleObjectSerializer implements ObjectSerializer<Title> {
     @NonNull ObjectMapper caller
   ) {
     // read the times
-    var times = Times.times(
+    var times = Title.Times.times(
       Duration.ofMillis(source.readLong()),
       Duration.ofMillis(source.readLong()),
       Duration.ofMillis(source.readLong()));

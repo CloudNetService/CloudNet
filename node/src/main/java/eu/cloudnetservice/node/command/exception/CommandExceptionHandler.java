@@ -17,8 +17,7 @@
 package eu.cloudnetservice.node.command.exception;
 
 import cloud.commandframework.arguments.CommandArgument;
-import cloud.commandframework.arguments.compound.FlagArgument.FailureReason;
-import cloud.commandframework.arguments.compound.FlagArgument.FlagParseException;
+import cloud.commandframework.arguments.compound.FlagArgument;
 import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.CommandException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
@@ -76,11 +75,17 @@ public class CommandExceptionHandler {
     // determine the cause type and apply the specific handler
     if (cause instanceof CommandException) {
       if (cause instanceof InvalidSyntaxException invalidSyntaxException) {
+        // build the full command tree for the given input
+        var commandTree = this.collectCommandHelp(invalidSyntaxException.getCurrentChain());
         // call the event to allow an own response
         var event = this.eventManager.callEvent(new CommandInvalidSyntaxEvent(
           source,
           invalidSyntaxException.getCorrectSyntax(),
-          this.collectCommandHelp(invalidSyntaxException.getCurrentChain())));
+          commandTree,
+          // by default, we display the whole tree if we just have one argument
+          invalidSyntaxException.getCurrentChain().size() <= 1
+            ? commandTree
+            : List.of(invalidSyntaxException.getMessage())));
         // send the response of the event
         source.sendMessage(event.response());
       } else if (cause instanceof NoSuchCommandException noSuchCommandException) {
@@ -101,9 +106,9 @@ public class CommandExceptionHandler {
         source.sendMessage(deepCause.getMessage());
       } else if (deepCause instanceof CommandException) {
         // we need to handle this exception extra
-        if (deepCause instanceof FlagParseException flagParseException) {
+        if (deepCause instanceof FlagArgument.FlagParseException flagParseException) {
           // if no flag is supplied we should reply with the command tree
-          if (flagParseException.getFailureReason() == FailureReason.NO_FLAG_STARTED) {
+          if (flagParseException.getFailureReason() == FlagArgument.FailureReason.NO_FLAG_STARTED) {
             source.sendMessage(this.collectCommandHelp(parseException.getCurrentChain()));
             return;
           }

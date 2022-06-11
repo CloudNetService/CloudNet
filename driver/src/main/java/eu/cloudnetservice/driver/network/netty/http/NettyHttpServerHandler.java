@@ -20,7 +20,6 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
-import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer.HttpHandlerEntry;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -40,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The http server handler implementation responsible to handling http requests sent to the server and responding to
@@ -48,7 +47,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
   private static final Logger LOGGER = LogManager.logger(NettyHttpServerHandler.class);
@@ -141,7 +140,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     // get all handlers which should be tested if they can accept the http request
     var entries = new ArrayList<>(this.nettyHttpServer.registeredHandlers);
-    entries.sort(Comparator.comparingInt(HttpHandlerEntry::priority));
+    entries.sort(Comparator.comparingInt(NettyHttpServer.HttpHandlerEntry::priority));
 
     // build the context around the http request
     var pathEntries = fullPath.split("/");

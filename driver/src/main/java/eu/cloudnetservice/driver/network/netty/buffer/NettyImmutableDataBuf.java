@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.Function;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -287,7 +287,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    *
    * @return the wrapped netty byte buf.
    */
-  @Internal
+  @ApiStatus.Internal
   public @NonNull ByteBuf byteBuf() {
     return this.byteBuf;
   }

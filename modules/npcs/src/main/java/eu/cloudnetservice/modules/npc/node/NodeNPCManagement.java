@@ -33,7 +33,7 @@ import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -129,7 +129,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   public int deleteAllNPCs(@NonNull String group) {
     Collection<WorldPosition> positions = this.npcs.entrySet().stream()
       .filter(entry -> entry.getValue().targetGroup().equals(group))
-      .map(Entry::getKey)
+      .map(Map.Entry::getKey)
       .toList();
     positions.forEach(position -> {
       this.npcs.remove(position);

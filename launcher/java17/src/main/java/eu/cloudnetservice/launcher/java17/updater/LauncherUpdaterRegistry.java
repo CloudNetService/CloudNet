@@ -22,7 +22,7 @@ import eu.cloudnetservice.launcher.java17.CloudNetLauncher;
 import eu.cloudnetservice.launcher.java17.util.HttpUtil;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.http.HttpResponse.BodySubscribers;
+import java.net.http.HttpResponse;
 import java.util.Properties;
 import lombok.NonNull;
 
@@ -46,18 +46,20 @@ public final class LauncherUpdaterRegistry extends DefaultUpdaterRegistry<Launch
     // load the properties file which contains the checksum information
     return HttpUtil.get(
       GitHubUtil.buildUri(this.repo, this.branch, "checksums.properties"),
-      HttpUtil.handlerFromSubscriber(BodySubscribers.mapping(BodySubscribers.ofInputStream(), stream -> {
-        try {
-          // parse the checksum properties from the stream
-          var checksums = new Properties();
-          checksums.load(stream);
-          // create an updater context from the information
-          return new LauncherUpdaterContext(this.launcher, this.repo, this.branch, checksums);
-        } catch (IOException exception) {
-          // let the handler do the honors
-          throw new UncheckedIOException(exception);
-        }
-      }))
+      HttpUtil.handlerFromSubscriber(HttpResponse.BodySubscribers.mapping(
+        HttpResponse.BodySubscribers.ofInputStream(),
+        stream -> {
+          try {
+            // parse the checksum properties from the stream
+            var checksums = new Properties();
+            checksums.load(stream);
+            // create an updater context from the information
+            return new LauncherUpdaterContext(this.launcher, this.repo, this.branch, checksums);
+          } catch (IOException exception) {
+            // let the handler do the honors
+            throw new UncheckedIOException(exception);
+          }
+        }))
     ).body();
   }
 }

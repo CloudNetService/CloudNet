@@ -25,15 +25,18 @@ public class CommandInvalidSyntaxEvent extends Event {
 
   private final CommandSource source;
   private final String correctSyntax;
+  private final List<String> fullCommandTree;
   private List<String> response;
 
   public CommandInvalidSyntaxEvent(
     @NonNull CommandSource source,
     @NonNull String correctSyntax,
+    @NonNull List<String> fullCommandTree,
     @NonNull List<String> response
   ) {
     this.source = source;
     this.correctSyntax = correctSyntax;
+    this.fullCommandTree = fullCommandTree;
     this.response = response;
   }
 
@@ -49,6 +52,15 @@ public class CommandInvalidSyntaxEvent extends Event {
    */
   public @NonNull String correctSyntax() {
     return this.correctSyntax;
+  }
+
+  /**
+   * Gets the full command tree for the input that lead to this event.
+   *
+   * @return the command tree.
+   */
+  public @NonNull List<String> fullCommandTree() {
+    return this.fullCommandTree;
   }
 
   /**

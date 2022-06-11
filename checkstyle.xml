@@ -47,6 +47,11 @@
         value="Using Throwable#printStackTrace() is forbidden. Rethrow, log or handle the exception."/>
     </module>
     <module name="RegexpSinglelineJava">
+      <property name="format" value="^import [a-z.]*\.[A-Z]\w+(\.[A-Z]\w+)+;$"/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message" value="Using inner class imports is forbidden."/>
+    </module>
+    <module name="RegexpSinglelineJava">
       <property name="format" value="System\.(out|err)\..+;"/>
       <property name="ignoreComments" value="true"/>
       <property name="message"
@@ -122,7 +127,7 @@
     <module name="WhitespaceAfter">
       <property name="tokens"
         value="COMMA, SEMI, TYPECAST, LITERAL_IF, LITERAL_ELSE,
-                    LITERAL_WHILE, LITERAL_DO, LITERAL_FOR, DO_WHILE"/>
+                    LITERAL_WHILE, LITERAL_DO, LITERAL_FOR, DO_WHILE, LITERAL_CASE, LITERAL_YIELD"/>
     </module>
     <module name="WhitespaceAround">
       <message key="ws.notFollowed"

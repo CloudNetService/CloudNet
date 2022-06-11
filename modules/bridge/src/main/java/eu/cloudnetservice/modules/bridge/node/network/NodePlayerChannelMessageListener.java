@@ -21,6 +21,7 @@ import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.event.BridgeDeleteCloudOfflinePlayerEvent;
 import eu.cloudnetservice.modules.bridge.event.BridgeProxyPlayerDisconnectEvent;
@@ -31,7 +32,6 @@ import eu.cloudnetservice.modules.bridge.event.BridgeServerPlayerLoginEvent;
 import eu.cloudnetservice.modules.bridge.event.BridgeUpdateCloudOfflinePlayerEvent;
 import eu.cloudnetservice.modules.bridge.event.BridgeUpdateCloudPlayerEvent;
 import eu.cloudnetservice.modules.bridge.node.event.LocalPlayerPreLoginEvent;
-import eu.cloudnetservice.modules.bridge.node.event.LocalPlayerPreLoginEvent.Result;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
@@ -40,7 +40,6 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import java.util.Locale;
 import lombok.NonNull;
-import net.kyori.adventure.text.Component;
 
 public final class NodePlayerChannelMessageListener {
 
@@ -71,9 +70,10 @@ public final class NodePlayerChannelMessageListener {
           var preLoginEvent = new LocalPlayerPreLoginEvent(info);
           // set the event cancelled by default if the player is already connected
           if (this.playerManager.onlinePlayer(info.uniqueId()) != null) {
-            preLoginEvent.result(Result.denied(Component.text(this.bridgeManagement.configuration().message(
-              Locale.ENGLISH,
-              "already-connected"))));
+            preLoginEvent.result(LocalPlayerPreLoginEvent.Result.denied(AdventureSerializerUtil.serialize(
+              this.bridgeManagement.configuration().message(
+                Locale.ENGLISH,
+                "already-connected"))));
           }
           // publish the event
           var result = this.eventManager.callEvent(preLoginEvent).result();

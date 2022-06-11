@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.network.chunk;
 
 import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler.Callback;
+import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.node.Node;
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import lombok.NonNull;
 
-final class TemplateFileDeployCallback implements Callback {
+final class TemplateFileDeployCallback implements ChunkedPacketHandler.Callback {
 
   public static final TemplateFileDeployCallback INSTANCE = new TemplateFileDeployCallback();
 
