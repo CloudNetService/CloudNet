@@ -64,6 +64,7 @@ import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
 import eu.cloudnetservice.wrapper.transform.bukkit.BukkitCommodoreTransformer;
 import eu.cloudnetservice.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
 import eu.cloudnetservice.wrapper.transform.bukkit.PaperConfigTransformer;
+import eu.cloudnetservice.wrapper.transform.fabric.KnotClassDelegateTransformer;
 import eu.cloudnetservice.wrapper.transform.netty.OldEpollDisableTransformer;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -166,12 +167,22 @@ public class Wrapper extends CloudNetDriver {
     this.moduleProvider.loadAll().startAll();
 
     // register our default class transformers
-    this.transformerRegistry()
-      .registerTransformer("org/bukkit/craftbukkit", "Commodore", new BukkitCommodoreTransformer());
-    this.transformerRegistry()
-      .registerTransformer("org/bukkit/craftbukkit", "Main", new BukkitJavaVersionCheckTransformer());
-    this.transformerRegistry()
-      .registerTransformer("org/github/paperspigot", "PaperSpigotConfig", new PaperConfigTransformer());
+    this.transformerRegistry().registerTransformer(
+      "org/bukkit/craftbukkit",
+      "Commodore",
+      new BukkitCommodoreTransformer());
+    this.transformerRegistry().registerTransformer(
+      "org/bukkit/craftbukkit",
+      "Main",
+      new BukkitJavaVersionCheckTransformer());
+    this.transformerRegistry().registerTransformer(
+      "org/github/paperspigot",
+      "PaperSpigotConfig",
+      new PaperConfigTransformer());
+    this.transformerRegistry().registerTransformer(
+      "net/fabricmc/loader/impl/launch/knot",
+      "KnotClassDelegate",
+      new KnotClassDelegateTransformer());
     // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
     this.transformerRegistry().registerTransformer(
       name -> name.endsWith("Epoll") && name.startsWith("io") && name.contains("netty/channel/epoll/"),
