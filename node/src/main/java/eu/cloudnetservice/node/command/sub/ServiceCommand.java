@@ -48,6 +48,7 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -247,7 +248,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> toggle")
+  @CommandMethod(value = "service|ser <name> toggle", requiredSender = ConsoleCommandSource.class)
   public void toggleScreens(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
