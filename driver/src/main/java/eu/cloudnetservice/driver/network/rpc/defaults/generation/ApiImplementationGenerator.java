@@ -58,7 +58,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -337,7 +336,7 @@ public final class ApiImplementationGenerator {
    * @return all methods which need to get implemented.
    * @throws NullPointerException if the given context is null.
    */
-  static @NotNull Collection<Method> collectMethodsToVisit(@NotNull GenerationContext context) {
+  static @NonNull Collection<Method> collectMethodsToVisit(@NonNull GenerationContext context) {
     Map<String, Method> visitedMethods = new HashMap<>();
     // first travel the class we should extend (if given)
     if (context.extendingClass() != null) {

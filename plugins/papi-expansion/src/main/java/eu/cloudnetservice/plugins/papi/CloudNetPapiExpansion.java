@@ -18,30 +18,30 @@ package eu.cloudnetservice.plugins.papi;
 
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.Wrapper;
+import lombok.NonNull;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CloudNetPapiExpansion extends PlaceholderExpansion {
 
   @Override
-  public @NotNull String getIdentifier() {
+  public @NonNull String getIdentifier() {
     return "cloudnet";
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String getName() {
     return "CloudNet";
   }
 
   @Override
-  public @NotNull String getAuthor() {
+  public @NonNull String getAuthor() {
     return "CloudNetService";
   }
 
   @Override
-  public @NotNull String getVersion() {
+  public @NonNull String getVersion() {
     return "{project.build.version}";
   }
 
@@ -51,7 +51,7 @@ public class CloudNetPapiExpansion extends PlaceholderExpansion {
   }
 
   @Override
-  public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
+  public @Nullable String onRequest(OfflinePlayer player, @NonNull String params) {
     // This is a bit tricky - PlaceholderAPI requires us to return "null" if the placeholder is unknown.
     // The bridge will just replace all placeholders in the string with the correct association.
     // We can just return null if the resulting string matches the input string
