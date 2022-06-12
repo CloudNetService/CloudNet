@@ -33,7 +33,6 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ProxiedPlayer> {
@@ -124,7 +123,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String key, byte @NotNull [] data) {
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
     this.forEach(player -> player.sendData(key, data));
   }
 

@@ -52,6 +52,11 @@
       <property name="message" value="Using inner class imports is forbidden."/>
     </module>
     <module name="RegexpSinglelineJava">
+      <property name="format" value="^import (?!lombok).*(NotNull|NonNull|Nonnull);$"/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message" value="Any @NonNull annnotation should be imported from lombok."/>
+    </module>
+    <module name="RegexpSinglelineJava">
       <property name="format" value="System\.(out|err)\..+;"/>
       <property name="ignoreComments" value="true"/>
       <property name="message"
