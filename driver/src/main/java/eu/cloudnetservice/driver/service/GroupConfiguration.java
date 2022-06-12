@@ -22,9 +22,11 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * Represents a group configuration. A group is used to combine multiple tasks and/or environments together and allows
@@ -117,6 +119,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
    * {@inheritDoc}
    */
   @Override
+  @Unmodifiable
   public @NonNull Collection<String> jvmOptions() {
     return this.jvmOptions;
   }
@@ -125,6 +128,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
    * {@inheritDoc}
    */
   @Override
+  @Unmodifiable
   public @NonNull Collection<String> processParameters() {
     return this.processParameters;
   }
@@ -136,6 +140,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
    *
    * @return the environments to apply this group configuration always to.
    */
+  @Unmodifiable
   public @NonNull Collection<String> targetEnvironments() {
     return this.targetEnvironments;
   }
@@ -192,15 +197,15 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     }
 
     /**
-     * Adds a target environment to the group configuration. The group configuration will always be applied to all
-     * services having the given environment, even if the base task of them does not implement the group.
+     * Modifies the target environments of this group configuration. The group configuration will always be applied to
+     * all services having the given environment, even if the base task of them does not implement the group.
      *
-     * @param environmentType the environment to add.
+     * @param modifier the modifier to be applied to the already added target environments of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given environment is null.
      */
-    public @NonNull Builder addTargetEnvironment(@NonNull String environmentType) {
-      this.targetEnvironments.add(environmentType);
+    public @NonNull Builder modifyTargetEnvironments(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.targetEnvironments);
       return this;
     }
 
@@ -222,12 +227,12 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
       Preconditions.checkNotNull(this.name, "no name given");
       return new GroupConfiguration(
         this.name,
-        this.jvmOptions,
-        this.processParameters,
-        this.targetEnvironments,
-        this.templates,
-        this.deployments,
-        this.includes,
+        Set.copyOf(this.jvmOptions),
+        Set.copyOf(this.processParameters),
+        Set.copyOf(this.targetEnvironments),
+        Set.copyOf(this.templates),
+        Set.copyOf(this.deployments),
+        Set.copyOf(this.includes),
         this.properties);
     }
   }

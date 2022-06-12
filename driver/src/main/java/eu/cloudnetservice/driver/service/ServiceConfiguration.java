@@ -25,11 +25,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * The configuration based on which a service gets created. This configuration is completely lose from any service task
@@ -318,6 +320,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    *
    * @return the names of the group configurations to include their configurations before starting.
    */
+  @Unmodifiable
   public @NonNull Set<String> groups() {
     return this.groups;
   }
@@ -328,6 +331,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    *
    * @return a set of path to files/directories which should get deleted when stopping a service based on this config.
    */
+  @Unmodifiable
   public @NonNull Set<String> deletedFilesAfterStop() {
     return this.deletedFilesAfterStop;
   }
@@ -356,6 +360,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    * {@inheritDoc}
    */
   @Override
+  @Unmodifiable
   public @NonNull Collection<String> jvmOptions() {
     return this.processConfig.jvmOptions();
   }
@@ -364,6 +369,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    * {@inheritDoc}
    */
   @Override
+  @Unmodifiable
   public @NonNull Collection<String> processParameters() {
     return this.processConfig.processParameters();
   }
@@ -513,8 +519,8 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     }
 
     /**
-     * Sets the unique id of the any service created based on the service configuration. A random uuid will be chosen if
-     * the set unique id is already taken by any other service.
+     * Sets the unique id of any service created based on the service configuration. A random uuid will be chosen if the
+     * set unique id is already taken by any other service.
      *
      * @param uniqueId the base unique id for services created based on the service configuration.
      * @return the same instance as used to call the method, for chaining.
@@ -652,20 +658,17 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     }
 
     /**
-     * Adds the names of the groups which should get included onto any service created based on the service
+     * Modifies the names of the groups which should get included onto any service created based on the service
      * configuration. All groups targeting the environment of the builder will automatically get included onto all
      * services without the need of explicitly defining them. If a group gets specified which is not known to the node
      * picking up the service it will silently be ignored.
-     * <p>
-     * The given collection will get copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
      *
-     * @param groups the names of the groups to add to the included groups.
+     * @param modifier the modifier to be applied to the already added groups of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group name collection is null.
      */
-    public @NonNull Builder addGroups(@NonNull Collection<String> groups) {
-      this.groups.addAll(groups);
+    public @NonNull Builder modifyGroups(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.groups);
       return this;
     }
 
@@ -688,19 +691,16 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     }
 
     /**
-     * Adds the files which should get deleted when stopping a service created based on the configuration. Any path in
-     * the given collection can either represent a single file or directory, but must be inside the service directory.
-     * Path traversal to leave the service directory will result in an exception.
-     * <p>
-     * The given collection will be copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
+     * Modifies the files which should get deleted when stopping a service created based on the configuration. Any path
+     * in the given collection can either represent a single file or directory, but must be inside the service
+     * directory. Path traversal to leave the service directory will result in an exception.
      *
-     * @param deletedFilesAfterStop the files to delete when a service based on the configuration gets stopped.
+     * @param modifier the modifier to be applied to the already added files of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given file name collection is null.
      */
-    public @NonNull Builder addDeletedFilesAfterStop(@NonNull Collection<String> deletedFilesAfterStop) {
-      this.deletedFilesAfterStop.addAll(deletedFilesAfterStop);
+    public @NonNull Builder modifyDeletedFilesAfterStop(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.deletedFilesAfterStop);
       return this;
     }
 
@@ -718,17 +718,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     }
 
     /**
-     * Sets the jvm options which should get applied to the service command line. JVM options are there to configure the
-     * behaviour of the jvm, for example the garbage collector.
-     * <p>
-     * The XmX and XmS options will always get appended based on the configured maximum heap memory size.
-     * <p>
-     * This method will override all previously added jvm options. Furthermore, the given collection will be copied into
-     * this builder, meaning that changes to it will not reflect into the builder after the method call.
-     *
-     * @param jvmOptions the jvm options of the configuration.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given options collection is null.
+     * {@inheritDoc}
      */
     @Override
     public @NonNull Builder jvmOptions(@NonNull Collection<String> jvmOptions) {
@@ -737,34 +727,16 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     }
 
     /**
-     * Adds the given jvm options to this builder. JVM options are there to configure the behaviour of the jvm, for
-     * example the garbage collector.
-     * <p>
-     * The XmX and XmS options will always get appended based on the configured maximum heap memory size.
-     * <p>
-     * Duplicate options will be omitted by this method directly. <strong>HOWEVER,</strong> adding the same option twice
-     * with a changed value to it will most likely result in the jvm to crash, beware!
-     *
-     * @param jvmOptions the jvm options to add to the configuration.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given options collection is null.
+     * {@inheritDoc}
      */
     @Override
-    public @NonNull Builder addJvmOptions(@NonNull Collection<String> jvmOptions) {
-      this.processConfig.addJvmOptions(jvmOptions);
+    public @NonNull Builder modifyJvmOptions(@NonNull Consumer<Collection<String>> jvmOptions) {
+      this.processConfig.modifyJvmOptions(jvmOptions);
       return this;
     }
 
     /**
-     * Sets the process parameters which should get appended to the command line. Process parameters are there to
-     * configure the application, for example setting an option like --online-mode=true.
-     * <p>
-     * This method will override all previously added process parameters options. Furthermore, the given collection will
-     * be copied into this builder, meaning that changes to it will not reflect into the builder after the method call.
-     *
-     * @param processParameters the process parameters of the configuration.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given parameters' collection is null.
+     * {@inheritDoc}
      */
     @Override
     public @NonNull Builder processParameters(@NonNull Collection<String> processParameters) {
@@ -773,20 +745,11 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     }
 
     /**
-     * Adds the process parameters which should get appended to the command line. Process parameters are there to
-     * configure the application, for example setting an option like --online-mode=true.
-     * <p>
-     * This method will override all previously added process parameters options. Furthermore, the given collection will
-     * be copied into this builder, meaning that changes to it will not reflect into the builder after the method call.
-     * Duplicate parameters will get omitted by this method directly.
-     *
-     * @param processParameters the process parameters to add to the configuration.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given parameters' collection is null.
+     * {@inheritDoc}
      */
     @Override
-    public @NonNull Builder addProcessParameters(@NonNull Collection<String> processParameters) {
-      this.processConfig.addProcessParameters(processParameters);
+    public @NonNull Builder modifyProcessParameters(@NonNull Consumer<Collection<String>> modifier) {
+      this.processConfig.modifyProcessParameters(modifier);
       return this;
     }
 
@@ -831,11 +794,11 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
         this.javaCommand,
         this.autoDeleteOnStop,
         this.staticService,
-        this.groups,
-        this.deletedFilesAfterStop,
-        this.templates,
-        this.deployments,
-        this.includes,
+        Set.copyOf(this.groups),
+        Set.copyOf(this.deletedFilesAfterStop),
+        Set.copyOf(this.templates),
+        Set.copyOf(this.deployments),
+        Set.copyOf(this.includes),
         this.properties);
     }
   }

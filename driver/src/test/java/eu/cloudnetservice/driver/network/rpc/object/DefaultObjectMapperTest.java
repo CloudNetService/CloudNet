@@ -118,7 +118,7 @@ public class DefaultObjectMapperTest {
         .taskName("Lobby")
         .nameSplitter("hello")
         .taskServiceId(156)
-        .addAllowedNodes(Set.of("Node-245"))
+        .allowedNodes(Set.of("Node-245"))
         .environment(ServiceEnvironmentType.WATERDOG_PE)
         .build()),
       Arguments.of(new ServiceInfoSnapshot(
