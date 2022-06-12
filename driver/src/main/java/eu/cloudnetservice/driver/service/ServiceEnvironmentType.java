@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.DocProperty;
@@ -24,6 +25,7 @@ import eu.cloudnetservice.common.document.property.FunctionalDocProperty;
 import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
@@ -262,7 +264,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     private String name;
     private int defaultServiceStartPort = 44955;
     private JsonDocument properties = JsonDocument.newDocument();
-    private Set<String> defaultProcessArguments = new HashSet<>();
+    private Set<String> defaultProcessArguments = new LinkedHashSet<>();
 
     /**
      * Sets the name of the service environment type.
@@ -347,7 +349,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
       return new ServiceEnvironmentType(
         this.name,
         this.defaultServiceStartPort,
-        this.defaultProcessArguments,
+        ImmutableSet.copyOf(this.defaultProcessArguments),
         this.properties);
     }
   }
