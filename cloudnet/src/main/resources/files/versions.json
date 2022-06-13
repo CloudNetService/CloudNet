@@ -26,7 +26,23 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18.2"
+            "versionGroup": "1.19"
+          }
+        },
+        {
+          "name": "1.19",
+          "minJavaVersion": 17,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.19"
           }
         },
         {
@@ -186,8 +202,13 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.18.2.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.jar",
           "cacheFiles": false,
+          "minJavaVersion": 17
+        },
+        {
+          "name": "1.19",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.jar",
           "minJavaVersion": 17
         },
         {
@@ -273,7 +294,21 @@
             },
             "parameters": [
               "--rev",
-              "1.18.2"
+              "1.19"
+            ]
+          }
+        },
+        {
+          "name": "1.19",
+          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
+          "minJavaVersion": 17,
+          "properties": {
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
+            "parameters": [
+              "--rev",
+              "%version%"
             ]
           }
         },
@@ -632,7 +667,7 @@
           "cacheFiles": false,
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18"
+            "versionGroup": "1.19"
           }
         }
       ]
