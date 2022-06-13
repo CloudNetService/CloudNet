@@ -30,6 +30,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public interface CloudServiceManager extends CloudServiceProvider {
@@ -72,6 +73,9 @@ public interface CloudServiceManager extends CloudServiceProvider {
   @Nullable CloudService localCloudService(@NonNull UUID uniqueId);
 
   @Nullable CloudService localCloudService(@NonNull ServiceInfoSnapshot snapshot);
+
+  @NonNull
+  @Unmodifiable Collection<String> defaultJvmOptions();
 
   @ApiStatus.Internal
   void registerLocalService(@NonNull CloudService service);

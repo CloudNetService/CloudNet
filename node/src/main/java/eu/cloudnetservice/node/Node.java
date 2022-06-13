@@ -86,7 +86,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Phaser;
@@ -157,7 +159,9 @@ public class Node extends CloudNetDriver {
     I18n.language(this.configuration.language());
 
     this.clusterNodeProvider = new NodeClusterNodeProvider(this);
-    this.cloudServiceProvider = new DefaultCloudServiceManager(this);
+    this.cloudServiceProvider = new DefaultCloudServiceManager(
+      this,
+      this.parseDefaultJvmOptions(this.commandLineArguments.remove(0)));
 
     this.messenger = new NodeMessenger(this);
     this.cloudServiceFactory = new NodeCloudServiceFactory(this);
@@ -553,6 +557,11 @@ public class Node extends CloudNetDriver {
         // auth failed to a node in the cluster - ignore
       }
     }
+  }
+
+  private @NonNull List<String> parseDefaultJvmOptions(@NonNull String input) {
+    // normally passed down by the launcher, these arguments are seperated by ;;
+    return Arrays.asList(input.split(";;"));
   }
 
   // TODO: remove in 4.1
