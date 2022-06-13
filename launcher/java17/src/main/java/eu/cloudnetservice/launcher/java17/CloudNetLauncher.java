@@ -29,14 +29,10 @@ import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherPatcherUpdate
 import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherUpdater;
 import eu.cloudnetservice.launcher.java17.util.CommandLineHelper;
 import eu.cloudnetservice.launcher.java17.util.Environment;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.jar.JarInputStream;
 import lombok.NonNull;
 
 @SuppressWarnings("unused") // called by reflection
@@ -148,25 +144,13 @@ public final class CloudNetLauncher {
       // run the updater - use a new object as a placeholder as we need no special context here
       this.registry.runUpdater(new Object(), !autoUpdaterEnabled);
     }
-    // start the application
-    this.startApplication(cloudNetJarPath, DependencyHelper.loadFromLibrariesFile(cloudNetJarPath));
-  }
 
-  private void startApplication(@NonNull Path cloudNetJarPath, @NonNull Set<URL> dependencies) throws Exception {
-    // create the launcher loader and append the cloudnet jar path to it
-    var launcherLoader = new LauncherClassLoader(dependencies.toArray(URL[]::new));
-    launcherLoader.addURL(cloudNetJarPath.toUri().toURL());
-    // get the main class from the application file
-    String mainClass;
-    try (var stream = new JarInputStream(Files.newInputStream(cloudNetJarPath))) {
-      mainClass = stream.getManifest().getMainAttributes().getValue("Main-Class");
-      Objects.requireNonNull(mainClass, "Unable to resolve main class in application file " + cloudNetJarPath);
-    }
-    // start the jar
-    var main = launcherLoader.loadClass(mainClass).getDeclaredMethod("main", String[].class);
-    main.setAccessible(true);
-    // let's start it!
-    main.invoke(null, (Object) this.originalArgs);
+    // resolve the debugger port; use -1 if not given to disable the debugger
+    int debugPort = CommandLineHelper.findProperty(this.commandLineArguments, "debug.port", "-1", Integer::parseInt);
+
+    // resolve all dependencies & start the application
+    var dependencies = DependencyHelper.loadFromLibrariesFile(cloudNetJarPath);
+    ApplicationBootstrap.bootstrap(cloudNetJarPath, dependencies, this.originalArgs, debugPort);
   }
 
   private void runCnlInterpreter() throws Exception {
