@@ -48,12 +48,12 @@ public final class MinestomPlayerManagementListener {
   }
 
   private void handleLogin(@NonNull AsyncPlayerPreLoginEvent event) {
+    var player = event.getPlayer();
     // ignore fake players
-    if (event.getPlayer() instanceof FakePlayer) {
+    if (player instanceof FakePlayer) {
       return;
     }
 
-    var player = event.getPlayer();
     var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {

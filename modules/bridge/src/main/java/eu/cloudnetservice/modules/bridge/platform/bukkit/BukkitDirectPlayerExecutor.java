@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
@@ -69,7 +70,9 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
 
   @Override
   public void kick(@NonNull Component message) {
-    this.forEach(player -> player.kickPlayer(legacySection().serialize(message)));
+    Bukkit.getScheduler().runTask(
+      this.plugin,
+      () -> this.forEach(player -> player.kickPlayer(legacySection().serialize(message))));
   }
 
   @Override
@@ -95,6 +98,6 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
 
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
-    this.forEach(player -> player.chat('/' + command));
+    Bukkit.getScheduler().runTask(this.plugin, () -> this.forEach(player -> Bukkit.dispatchCommand(player, command)));
   }
 }

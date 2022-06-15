@@ -34,6 +34,8 @@ final class MinestomSignBlockHandler implements BlockHandler {
     Tag.String("Text3"),
     Tag.String("Text4"));
 
+  private static final NamespaceID SIGN_NAMESPACE = NamespaceID.from("minecraft:sign");
+
   private MinestomSignBlockHandler() {
   }
 
@@ -44,6 +46,6 @@ final class MinestomSignBlockHandler implements BlockHandler {
 
   @Override
   public @NotNull NamespaceID getNamespaceId() {
-    return NamespaceID.from("minecraft:sign");
+    return SIGN_NAMESPACE;
   }
 }

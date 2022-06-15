@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,6 +88,6 @@ final class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
 
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
-    this.forEach(player -> player.chat('/' + command));
+    this.forEach(player -> MinecraftServer.getCommandManager().execute(player, command));
   }
 }

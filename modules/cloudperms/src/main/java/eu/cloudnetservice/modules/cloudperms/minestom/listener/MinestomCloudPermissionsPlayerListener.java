@@ -38,12 +38,12 @@ public final class MinestomCloudPermissionsPlayerListener {
   }
 
   private void handleAsyncPreLogin(@NonNull AsyncPlayerPreLoginEvent event) {
+    var player = event.getPlayer();
     // ignore fake players
-    if (event.getPlayer() instanceof FakePlayer) {
+    if (player instanceof FakePlayer) {
       return;
     }
 
-    var player = event.getPlayer();
     if (player.isOnline()) {
       // setup the permission user if the player wasn't kicked during the login process
       CloudPermissionsHelper.initPermissionUser(

@@ -72,9 +72,7 @@ public class SignsCommand extends Command {
 
   private final MinestomSignManagement signManagement;
 
-  public SignsCommand(
-    @NonNull MinestomSignManagement signManagement
-  ) {
+  public SignsCommand(@NonNull MinestomSignManagement signManagement) {
     super("cloudsign", "cs", "signs", "cloudsigns");
     this.signManagement = signManagement;
 

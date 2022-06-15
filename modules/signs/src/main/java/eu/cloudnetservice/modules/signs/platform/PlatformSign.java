@@ -36,7 +36,7 @@ public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C
   private static final PlayerManager PLAYER_MANAGER = ServiceRegistry.first(PlayerManager.class);
 
   protected final Sign base;
-  private final Function<String, C> lineMapper;
+  protected final Function<String, C> lineMapper;
   protected volatile ServiceInfoSnapshot target;
 
   public PlatformSign(@NonNull Sign base, @NonNull Function<String, C> lineMapper) {

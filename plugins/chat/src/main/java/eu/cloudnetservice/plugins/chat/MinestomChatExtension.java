@@ -18,6 +18,7 @@ package eu.cloudnetservice.plugins.chat;
 
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Properties;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -37,8 +38,9 @@ public class MinestomChatExtension extends Extension {
     try {
       this.format = this.readFormat();
     } catch (IOException exception) {
-      throw new UnsupportedOperationException("Unable to read cloudnet-chat format", exception);
+      throw new UncheckedIOException("Unable to read cloudnet-chat format", exception);
     }
+
     var node = EventNode.type("cloudnet-chat", EventFilter.PLAYER);
     MinecraftServer.getGlobalEventHandler().addChild(node.addListener(PlayerChatEvent.class, this::handleChat));
   }
@@ -49,12 +51,12 @@ public class MinestomChatExtension extends Extension {
   }
 
   private void handleChat(@NonNull PlayerChatEvent event) {
+    var player = event.getPlayer();
     // ignore fake players
-    if (event.getPlayer() instanceof FakePlayer) {
+    if (player instanceof FakePlayer) {
       return;
     }
 
-    var player = event.getPlayer();
     var format = ChatFormatter.buildFormat(
       player.getUuid(),
       player.getUsername(),

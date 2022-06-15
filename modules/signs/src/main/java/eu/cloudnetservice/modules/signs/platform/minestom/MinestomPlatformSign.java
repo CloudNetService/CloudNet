@@ -106,14 +106,17 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
   }
 
   public @Nullable Pair<Pos, Instance> signLocation() {
-    var instance = MinecraftServer.getInstanceManager().getInstance(UUID.fromString(this.base.location().world()));
+    // lazy init - if we have one use it
     if (this.signLocation != null) {
       return this.signLocation;
     }
+
+    var instance = MinecraftServer.getInstanceManager().getInstance(UUID.fromString(this.base.location().world()));
     // check if the instance of the sign is available
     if (instance == null) {
       return null;
     }
+
     var worldPos = this.base.location();
     return this.signLocation = new Pair<>(new Pos(worldPos.x(), worldPos.y(), worldPos.z()), instance);
   }
