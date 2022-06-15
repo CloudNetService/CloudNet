@@ -17,6 +17,7 @@
 package eu.cloudnetservice.ext.adventure;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
@@ -57,7 +58,7 @@ public final class AdventureTextFormatLookup {
     formats.put(TextDecoration.ITALIC, "o");
 
     // copy into immutable, this method prevents us from (un-) boxing in runtime
-    FORMATS = List.copyOf(formats.keySet());
+    FORMATS = new LinkedList<>(formats.keySet());
     ALL_CHARS = String.join("", formats.values());
   }
 
