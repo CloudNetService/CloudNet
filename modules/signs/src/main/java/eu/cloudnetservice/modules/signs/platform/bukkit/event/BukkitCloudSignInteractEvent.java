@@ -29,18 +29,18 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
   public static final HandlerList HANDLER_LIST = new HandlerList();
 
-  private final PlatformSign<Player> clickedSign;
+  private final PlatformSign<Player, String> clickedSign;
 
   private boolean cancelled;
   private ServiceInfoSnapshot target;
 
-  public BukkitCloudSignInteractEvent(@NonNull Player who, @NonNull PlatformSign<Player> clickedSign) {
+  public BukkitCloudSignInteractEvent(@NonNull Player who, @NonNull PlatformSign<Player, String> clickedSign) {
     super(who);
     this.clickedSign = clickedSign;
     this.target = clickedSign.currentTarget();
   }
 
-  public @NonNull PlatformSign<Player> clickedSign() {
+  public @NonNull PlatformSign<Player, String> clickedSign() {
     return this.clickedSign;
   }
 

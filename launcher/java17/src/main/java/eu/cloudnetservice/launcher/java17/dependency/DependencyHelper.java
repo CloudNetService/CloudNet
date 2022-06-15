@@ -19,7 +19,6 @@ package eu.cloudnetservice.launcher.java17.dependency;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -40,7 +39,7 @@ public final class DependencyHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull Set<URL> loadFromLibrariesFile(@NonNull Path jarPath) throws IOException {
+  public static @NonNull Set<Path> loadFromLibrariesFile(@NonNull Path jarPath) throws IOException {
     // load the cloudnet.cnl file from the jar
     Collection<Dependency> dependencies = new HashSet<>();
     Map<String, Repository> repositories = new HashMap<>();
@@ -85,11 +84,11 @@ public final class DependencyHelper {
     return load(repositories, dependencies);
   }
 
-  public static @NonNull Set<URL> load(
+  public static @NonNull Set<Path> load(
     @NonNull Map<String, Repository> repositories,
     @NonNull Collection<Dependency> dependencies
   ) throws IOException {
-    Set<URL> loadedDependencyPaths = new HashSet<>();
+    Set<Path> loadedDependencyPaths = new HashSet<>();
     for (var dependency : dependencies) {
       // get the associated repository
       var repo = repositories.get(dependency.repo());
@@ -118,7 +117,7 @@ public final class DependencyHelper {
         }
       }
       // the dependency is available for loading now
-      loadedDependencyPaths.add(targetFile.toUri().toURL());
+      loadedDependencyPaths.add(targetFile);
     }
     return loadedDependencyPaths;
   }

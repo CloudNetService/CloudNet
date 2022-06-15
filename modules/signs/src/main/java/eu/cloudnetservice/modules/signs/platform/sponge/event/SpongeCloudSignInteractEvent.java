@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.signs.platform.sponge.event;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Cancellable;
@@ -30,7 +31,7 @@ public class SpongeCloudSignInteractEvent implements Event, Cancellable {
   protected final Cause cause;
   protected final ServerPlayer player;
 
-  protected final PlatformSign<ServerPlayer> sign;
+  protected final PlatformSign<ServerPlayer, Component> sign;
 
   protected boolean cancelled;
   protected ServiceInfoSnapshot target;
@@ -38,7 +39,7 @@ public class SpongeCloudSignInteractEvent implements Event, Cancellable {
   public SpongeCloudSignInteractEvent(
     @NonNull Cause cause,
     @NonNull ServerPlayer player,
-    @NonNull PlatformSign<ServerPlayer> sign
+    @NonNull PlatformSign<ServerPlayer, Component> sign
   ) {
     this.cause = cause;
     this.player = player;
@@ -50,7 +51,7 @@ public class SpongeCloudSignInteractEvent implements Event, Cancellable {
     return this.player;
   }
 
-  public @NonNull PlatformSign<ServerPlayer> sign() {
+  public @NonNull PlatformSign<ServerPlayer, Component> sign() {
     return this.sign;
   }
 

@@ -10,6 +10,11 @@
 # are developing with or for cloudnet, not cloudnet then leave this option disabled.
 var cloudnet.dev false
 
+# sets the debugger port when a debugger is required to develop with cloudnet. If the given port is outside of the valid
+# port range (0 - 65535) then the debugger will not get enabled. Note: the debugger will be started with suspend enabled
+# meaning that you have to connect at least once to it in order to actually start the node.
+var cloudnet.debug.port -1
+
 # disables the automatic updates of the system as well as installed modules. When auto updates are disabled, the
 # checksums will still get downloaded from GitHub in case any other updating tool should get used.
 # We do not recommend to disable automatic updates as they might include security fixes / security related dependency

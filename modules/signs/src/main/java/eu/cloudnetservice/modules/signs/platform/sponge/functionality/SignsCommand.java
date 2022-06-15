@@ -39,9 +39,9 @@ public class SignsCommand implements CommandExecutor {
   public static final Parameter.Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
   public static final Parameter.Key<String> TARGET_TEMPLATE = Parameter.key("target_template_path", String.class);
 
-  protected final Supplier<PlatformSignManagement<?, ServerLocation>> signManagement;
+  protected final Supplier<PlatformSignManagement<?, ServerLocation, ?>> signManagement;
 
-  public SignsCommand(@NonNull Supplier<PlatformSignManagement<?, ServerLocation>> signManagement) {
+  public SignsCommand(@NonNull Supplier<PlatformSignManagement<?, ServerLocation, ?>> signManagement) {
     this.signManagement = signManagement;
   }
 

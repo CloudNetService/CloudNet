@@ -31,8 +31,6 @@ import lombok.NonNull;
 
 public final class NodeSetupListener {
 
-  private final BridgeManagement bridgeManagement;
-
   private static final QuestionListEntry<String> CREATE_BRIDGE_FALLBACK = QuestionListEntry.<String>builder()
     .key("generateBridgeFallback")
     .translatedQuestion("module-bridge-tasks-setup-default-fallback")
@@ -54,6 +52,8 @@ public final class NodeSetupListener {
         .map(Nameable::name)
         .toList()))
     .build();
+
+  private final BridgeManagement bridgeManagement;
 
   public NodeSetupListener(@NonNull BridgeManagement bridgeManagement) {
     this.bridgeManagement = bridgeManagement;

@@ -86,6 +86,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -157,7 +158,11 @@ public class Node extends CloudNetDriver {
     I18n.language(this.configuration.language());
 
     this.clusterNodeProvider = new NodeClusterNodeProvider(this);
-    this.cloudServiceProvider = new DefaultCloudServiceManager(this);
+    this.cloudServiceProvider = new DefaultCloudServiceManager(
+      this,
+      // passed down by the launcher, all arguments that we should append by default to service we're
+      // starting - these are seperated by ;;
+      Arrays.asList(this.commandLineArguments.remove(0).split(";;")));
 
     this.messenger = new NodeMessenger(this);
     this.cloudServiceFactory = new NodeCloudServiceFactory(this);

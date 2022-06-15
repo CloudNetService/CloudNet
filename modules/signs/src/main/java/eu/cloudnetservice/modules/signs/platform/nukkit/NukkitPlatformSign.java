@@ -35,14 +35,14 @@ import java.util.Arrays;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NukkitPlatformSign extends PlatformSign<Player> {
+public class NukkitPlatformSign extends PlatformSign<Player, String> {
 
   private final String[] lineBuffer = new String[4];
 
   private Location signLocation;
 
   public NukkitPlatformSign(@NonNull Sign base) {
-    super(base);
+    super(base, input -> TextFormat.colorize('&', input));
   }
 
   @Override
@@ -91,9 +91,7 @@ public class NukkitPlatformSign extends PlatformSign<Player> {
       Arrays.fill(lines, "");
 
       // set the sign lines
-      for (int i = 0; i < Math.min(4, layout.lines().size()); i++) {
-        lines[i] = TextFormat.colorize(layout.lines().get(i));
-      }
+      this.changeSignLines(layout, (index, line) -> lines[index] = line);
       sign.setText(lines);
 
       // change the block behind the sign

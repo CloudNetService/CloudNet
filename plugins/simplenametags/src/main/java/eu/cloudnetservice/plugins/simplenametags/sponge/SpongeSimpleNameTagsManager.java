@@ -18,12 +18,12 @@ package eu.cloudnetservice.plugins.simplenametags.sponge;
 
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -77,7 +77,7 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
     team.setPrefix(AdventureSerializerUtil.serialize(group.prefix()));
     team.setSuffix(AdventureSerializerUtil.serialize(group.suffix()));
     // set the team color if possible
-    var teamColor = NamedTextColor.namedColor(this.getColorChar(group));
+    var teamColor = AdventureTextFormatLookup.findColor(this.getColorChar(group));
     if (teamColor != null) {
       team.setColor(teamColor);
     }
