@@ -23,20 +23,25 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
+import eu.cloudnetservice.modules.signs.util.LayoutUtil;
 import eu.cloudnetservice.modules.signs.util.PriorityUtil;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class PlatformSign<P> implements Comparable<PlatformSign<P>> {
+public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C>> {
 
   private static final PlayerManager PLAYER_MANAGER = ServiceRegistry.first(PlayerManager.class);
 
   protected final Sign base;
+  protected final Function<String, C> lineMapper;
   protected volatile ServiceInfoSnapshot target;
 
-  public PlatformSign(@NonNull Sign base) {
+  public PlatformSign(@NonNull Sign base, @NonNull Function<String, C> lineMapper) {
     this.base = base;
+    this.lineMapper = lineMapper;
   }
 
   public @NonNull Sign base() {
@@ -92,8 +97,12 @@ public abstract class PlatformSign<P> implements Comparable<PlatformSign<P>> {
     return target == null ? 0 : PriorityUtil.priority(target, lowerFullToSearching);
   }
 
+  protected void changeSignLines(@NonNull SignLayout layout, @NonNull BiConsumer<Integer, C> lineSetter) {
+    LayoutUtil.updateSignLines(layout, this.base.targetGroup(), this.target, this.lineMapper, lineSetter);
+  }
+
   @Override
-  public int compareTo(@NonNull PlatformSign<P> sign) {
+  public int compareTo(@NonNull PlatformSign<P, C> sign) {
     return Integer.compare(this.priority(), sign.priority());
   }
 

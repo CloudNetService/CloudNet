@@ -29,11 +29,11 @@ import org.spongepowered.plugin.PluginContainer;
 public class SignInteractListener {
 
   protected final PluginContainer plugin;
-  protected final PlatformSignManagement<ServerPlayer, ServerLocation> signManagement;
+  protected final PlatformSignManagement<ServerPlayer, ServerLocation, ?> signManagement;
 
   public SignInteractListener(
     @NonNull PluginContainer plugin,
-    @NonNull PlatformSignManagement<ServerPlayer, ServerLocation> signManagement
+    @NonNull PlatformSignManagement<ServerPlayer, ServerLocation, ?> signManagement
   ) {
     this.plugin = plugin;
     this.signManagement = signManagement;

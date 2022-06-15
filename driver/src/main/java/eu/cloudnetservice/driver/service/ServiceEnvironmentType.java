@@ -108,6 +108,14 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     .properties(JsonDocument.newDocument().property(JAVA_SERVER, true).property(PLUGIN_DIR, "mods"))
     .build();
   /**
+   * The minestom service environment type. This applies to all services which are a server minestom instance allowing
+   * extensions running on it.
+   */
+  public static final ServiceEnvironmentType MINESTOM = ServiceEnvironmentType.builder()
+    .name("MINESTOM")
+    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true).property(PLUGIN_DIR, "extensions"))
+    .build();
+  /**
    * The default glowstone service environment type (Java Edition server).
    */
   public static final ServiceEnvironmentType GLOWSTONE = ServiceEnvironmentType.builder()

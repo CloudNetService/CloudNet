@@ -29,9 +29,9 @@ import lombok.NonNull;
 
 public class SignsCommand implements CommandExecutor {
 
-  private final PlatformSignManagement<?, Location> signManagement;
+  private final PlatformSignManagement<?, Location, ?> signManagement;
 
-  public SignsCommand(@NonNull PlatformSignManagement<?, Location> signManagement) {
+  public SignsCommand(@NonNull PlatformSignManagement<?, Location, ?> signManagement) {
     this.signManagement = signManagement;
   }
 

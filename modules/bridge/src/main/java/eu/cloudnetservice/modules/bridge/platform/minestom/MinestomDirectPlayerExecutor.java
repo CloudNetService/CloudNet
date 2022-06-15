@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.bridge.platform.bukkit;
-
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
+package eu.cloudnetservice.modules.bridge.platform.minestom;
 
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
@@ -25,22 +23,18 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+import net.kyori.adventure.title.Title;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
+final class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
-  private final Plugin plugin;
-
-  public BukkitDirectPlayerExecutor(
-    @NonNull Plugin plugin,
-    @NonNull UUID target,
-    @NonNull Supplier<Collection<? extends Player>> playerSupplier
+  public MinestomDirectPlayerExecutor(
+    @NonNull UUID uniqueId,
+    @NonNull Supplier<? extends Collection<? extends Player>> supplier
   ) {
-    super(target, playerSupplier);
-    this.plugin = plugin;
+    super(uniqueId, supplier);
   }
 
   @Override
@@ -70,34 +64,30 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
 
   @Override
   public void kick(@NonNull Component message) {
-    Bukkit.getScheduler().runTask(
-      this.plugin,
-      () -> this.forEach(player -> player.kickPlayer(legacySection().serialize(message))));
+    this.forEach(player -> player.kick(message));
   }
 
   @Override
-  protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
-    this.forEach(player -> player.sendTitle(
-      legacySection().serialize(title),
-      legacySection().serialize(subtitle)));
+  public void sendTitle(@NonNull Title title) {
+    this.forEach(player -> player.showTitle(title));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
-        player.sendMessage(legacySection().serialize(message));
+        player.sendMessage(message);
       }
     });
   }
 
   @Override
   public void sendPluginMessage(@NonNull String key, byte[] data) {
-    this.forEach(player -> player.sendPluginMessage(this.plugin, key, data));
+    this.forEach(player -> player.sendPluginMessage(key, data));
   }
 
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
-    Bukkit.getScheduler().runTask(this.plugin, () -> this.forEach(player -> Bukkit.dispatchCommand(player, command)));
+    this.forEach(player -> MinecraftServer.getCommandManager().execute(player, command));
   }
 }

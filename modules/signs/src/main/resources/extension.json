@@ -1,0 +1,8 @@
+{
+  "name": "cloudnet_signs",
+  "version": "{project.build.version}",
+  "entrypoint": "eu.cloudnetservice.modules.signs.platform.minestom.MinestomSignsExtension",
+  "dependencies": [
+    "cloudnet_bridge"
+  ]
+}

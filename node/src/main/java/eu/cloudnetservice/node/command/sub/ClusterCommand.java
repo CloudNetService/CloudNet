@@ -63,8 +63,6 @@ import org.jetbrains.annotations.Nullable;
 @Description("Manages the cluster and provides information about it")
 public final class ClusterCommand {
 
-  private static final Logger LOGGER = LogManager.logger(ClusterCommand.class);
-  private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
   public static final RowBasedFormatter<NodeServer> FORMATTER = RowBasedFormatter.<NodeServer>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "State", "Listeners", "Extra").build())
     .column(server -> server.info().uniqueId())
@@ -83,6 +81,9 @@ public final class ClusterCommand {
       return result;
     })
     .build();
+
+  private static final Logger LOGGER = LogManager.logger(ClusterCommand.class);
+  private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
   @Parser(suggestions = "clusterNodeServer")
   public @NonNull NodeServer defaultClusterNodeServerParser(
