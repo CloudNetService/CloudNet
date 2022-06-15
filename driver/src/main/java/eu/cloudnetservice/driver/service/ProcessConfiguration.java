@@ -17,8 +17,10 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
@@ -89,8 +91,8 @@ public record ProcessConfiguration(
     protected String environment;
     protected int maxHeapMemorySize = 512;
 
-    protected Set<String> jvmOptions = new HashSet<>();
-    protected Set<String> processParameters = new HashSet<>();
+    protected Set<String> jvmOptions = new LinkedHashSet<>();
+    protected Set<String> processParameters = new LinkedHashSet<>();
 
     /**
      * Sets the maximum amount of heap memory (in mb) the service is allowed to use. The given heap memory size must be
@@ -212,8 +214,8 @@ public record ProcessConfiguration(
       return new ProcessConfiguration(
         this.environment,
         this.maxHeapMemorySize,
-        Set.copyOf(this.jvmOptions),
-        Set.copyOf(this.processParameters));
+        ImmutableSet.copyOf(this.jvmOptions),
+        ImmutableSet.copyOf(this.processParameters));
     }
   }
 }

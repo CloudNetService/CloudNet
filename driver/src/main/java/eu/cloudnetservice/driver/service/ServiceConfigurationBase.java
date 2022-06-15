@@ -20,6 +20,7 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
@@ -128,8 +129,8 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
   public abstract static class Builder<T extends ServiceConfigurationBase, B extends Builder<T, B>> {
 
     protected JsonDocument properties = JsonDocument.newDocument();
-    protected Set<String> jvmOptions = new HashSet<>();
-    protected Set<String> processParameters = new HashSet<>();
+    protected Set<String> jvmOptions = new LinkedHashSet<>();
+    protected Set<String> processParameters = new LinkedHashSet<>();
     protected Set<ServiceTemplate> templates = new HashSet<>();
     protected Set<ServiceDeployment> deployments = new HashSet<>();
     protected Set<ServiceRemoteInclusion> includes = new HashSet<>();

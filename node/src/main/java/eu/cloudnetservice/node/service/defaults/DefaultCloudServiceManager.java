@@ -62,6 +62,7 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public class DefaultCloudServiceManager implements CloudServiceManager {
@@ -76,13 +77,15 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   private static final Logger LOGGER = LogManager.logger(CloudServiceManager.class);
 
   protected final RPCSender sender;
+  protected final Collection<String> defaultJvmOptions;
   protected final NodeServerProvider clusterNodeServerProvider;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
   protected final Map<String, CloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
-  public DefaultCloudServiceManager(@NonNull Node nodeInstance) {
+  public DefaultCloudServiceManager(@NonNull Node nodeInstance, @NonNull Collection<String> defaultJvmOptions) {
+    this.defaultJvmOptions = defaultJvmOptions;
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
     // rpc init
     this.sender = nodeInstance.rpcFactory().providerForClass(null, CloudServiceProvider.class);
@@ -313,6 +316,11 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   @Override
   public @Nullable CloudService localCloudService(@NonNull ServiceInfoSnapshot snapshot) {
     return this.localCloudService(snapshot.serviceId().uniqueId());
+  }
+
+  @Override
+  public @NonNull @Unmodifiable Collection<String> defaultJvmOptions() {
+    return this.defaultJvmOptions;
   }
 
   @Override

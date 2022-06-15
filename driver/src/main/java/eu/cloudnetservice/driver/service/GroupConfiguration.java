@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import java.util.Collection;
@@ -227,8 +228,8 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
       Preconditions.checkNotNull(this.name, "no name given");
       return new GroupConfiguration(
         this.name,
-        Set.copyOf(this.jvmOptions),
-        Set.copyOf(this.processParameters),
+        ImmutableSet.copyOf(this.jvmOptions),
+        ImmutableSet.copyOf(this.processParameters),
         Set.copyOf(this.targetEnvironments),
         Set.copyOf(this.templates),
         Set.copyOf(this.deployments),

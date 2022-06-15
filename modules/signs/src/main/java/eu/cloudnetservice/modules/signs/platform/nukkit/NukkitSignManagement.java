@@ -26,7 +26,6 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NukkitSignManagement extends PlatformSignManagement<Player, Location, String> {
@@ -82,7 +81,7 @@ public class NukkitSignManagement extends PlatformSignManagement<Player, Locatio
   }
 
   @Override
-  public @Nullable WorldPosition convertPosition(@NotNull Location location) {
+  public @Nullable WorldPosition convertPosition(@NonNull Location location) {
     var entry = this.applicableSignConfigurationEntry();
     if (entry == null) {
       return null;
