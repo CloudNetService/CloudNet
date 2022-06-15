@@ -21,7 +21,6 @@ import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import lombok.NonNull;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.trait.CancellableEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MinestomCloudSignInteractEvent implements CancellableEvent {
@@ -37,7 +36,7 @@ public class MinestomCloudSignInteractEvent implements CancellableEvent {
     this.sign = sign;
   }
 
-  public @NotNull Player player() {
+  public @NonNull Player player() {
     return this.player;
   }
 

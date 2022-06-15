@@ -19,36 +19,36 @@ package eu.cloudnetservice.modules.cloudperms.minestom;
 import eu.cloudnetservice.driver.permission.Permission;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.UUID;
+import lombok.NonNull;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.player.PlayerConnection;
 import net.minestom.server.permission.PermissionVerifier;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MinestomCloudPermissionsPlayer extends Player {
 
   public MinestomCloudPermissionsPlayer(
-    @NotNull UUID uuid,
-    @NotNull String username,
-    @NotNull PlayerConnection playerConnection
+    @NonNull UUID uuid,
+    @NonNull String username,
+    @NonNull PlayerConnection playerConnection
   ) {
     super(uuid, username, playerConnection);
   }
 
   @Override
-  public boolean hasPermission(@NotNull net.minestom.server.permission.Permission permission) {
+  public boolean hasPermission(@NonNull net.minestom.server.permission.Permission permission) {
     return this.hasPermission(permission.getPermissionName());
   }
 
   @Override
-  public boolean hasPermission(@NotNull String permissionName) {
+  public boolean hasPermission(@NonNull String permissionName) {
     var management = Wrapper.instance().permissionManagement();
     var user = management.user(this.uuid);
     return user != null && management.hasPermission(user, Permission.of(permissionName));
   }
 
   @Override
-  public boolean hasPermission(@NotNull String permissionName, @Nullable PermissionVerifier permissionVerifier) {
+  public boolean hasPermission(@NonNull String permissionName, @Nullable PermissionVerifier permissionVerifier) {
     return this.hasPermission(permissionName);
   }
 }

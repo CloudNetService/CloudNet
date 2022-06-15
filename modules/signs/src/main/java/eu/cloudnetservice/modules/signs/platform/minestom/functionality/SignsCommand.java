@@ -33,7 +33,6 @@ import net.minestom.server.command.builder.condition.CommandCondition;
 import net.minestom.server.command.builder.exception.ArgumentSyntaxException;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
-import org.jetbrains.annotations.NotNull;
 
 public class SignsCommand extends Command {
 
@@ -41,7 +40,7 @@ public class SignsCommand extends Command {
   private static final Argument<String> TARGET_GROUP = new ArgumentString("targetGroup") {
 
     @Override
-    public @NotNull String parse(@NotNull String input) throws ArgumentSyntaxException {
+    public @NonNull String parse(@NonNull String input) throws ArgumentSyntaxException {
       return Wrapper.instance().groupConfigurationProvider().groupConfigurations()
         .stream()
         .filter(group -> group.name().equalsIgnoreCase(input))
@@ -53,7 +52,7 @@ public class SignsCommand extends Command {
 
   private static final Argument<String> TEMPLATE = new ArgumentString("templatePath") {
     @Override
-    public @NotNull String parse(@NotNull String input) throws ArgumentSyntaxException {
+    public @NonNull String parse(@NonNull String input) throws ArgumentSyntaxException {
       var template = ServiceTemplate.parse(input);
       if (template == null) {
         throw new ArgumentSyntaxException(I18n.trans("command-template-not-valid"), input, -1);
