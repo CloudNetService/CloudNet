@@ -123,6 +123,7 @@ public class JVMService extends AbstractService {
     // add the java command to start the service
     var overriddenJavaCommand = this.serviceConfiguration().javaCommand();
     arguments.add(overriddenJavaCommand == null ? this.nodeConfiguration().javaCommand() : overriddenJavaCommand);
+
     // add the jvm flags of the service configuration
     arguments.addAll(this.cloudServiceManager().defaultJvmOptions());
     arguments.addAll(this.serviceConfiguration().processConfig().jvmOptions());
@@ -135,6 +136,9 @@ public class JVMService extends AbstractService {
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
     arguments.add("-javaagent:" + wrapperInformation.first().toAbsolutePath());
     arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
+
+    // fabric specific class path
+    arguments.add(String.format("-Dfabric.systemLibraries=%s", wrapperInformation.first().toAbsolutePath()));
 
     // set the used host and port as system property
     arguments.add("-Dservice.bind.host=" + this.nodeInstance.config().hostAddress());

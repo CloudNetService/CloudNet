@@ -20,6 +20,7 @@ plugins {
   id("cloudnet.parent-build-logic")
   alias(libs.plugins.licenser)
   alias(libs.plugins.nexusPublish)
+  alias(libs.plugins.fabricLoom) apply false
 }
 
 defaultTasks("build", "checkLicenses", "test", "shadowJar")

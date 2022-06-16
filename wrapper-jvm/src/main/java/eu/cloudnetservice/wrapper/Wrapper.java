@@ -166,12 +166,18 @@ public class Wrapper extends CloudNetDriver {
     this.moduleProvider.loadAll().startAll();
 
     // register our default class transformers
-    this.transformerRegistry()
-      .registerTransformer("org/bukkit/craftbukkit", "Commodore", new BukkitCommodoreTransformer());
-    this.transformerRegistry()
-      .registerTransformer("org/bukkit/craftbukkit", "Main", new BukkitJavaVersionCheckTransformer());
-    this.transformerRegistry()
-      .registerTransformer("org/github/paperspigot", "PaperSpigotConfig", new PaperConfigTransformer());
+    this.transformerRegistry().registerTransformer(
+      "org/bukkit/craftbukkit",
+      "Commodore",
+      new BukkitCommodoreTransformer());
+    this.transformerRegistry().registerTransformer(
+      "org/bukkit/craftbukkit",
+      "Main",
+      new BukkitJavaVersionCheckTransformer());
+    this.transformerRegistry().registerTransformer(
+      "org/github/paperspigot",
+      "PaperSpigotConfig",
+      new PaperConfigTransformer());
     // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
     this.transformerRegistry().registerTransformer(
       name -> name.endsWith("Epoll") && name.startsWith("io") && name.contains("netty/channel/epoll/"),
