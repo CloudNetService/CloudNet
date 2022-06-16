@@ -28,7 +28,7 @@
   ],
   "accessWidener": "cloudnet_bridge.accesswidener",
   "depends": {
-    "fabricloader": ">=0.14.6",
+    "fabricloader": ">=0.14.8",
     "minecraft": "~1.19",
     "java": ">=17"
   }
