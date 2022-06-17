@@ -19,9 +19,9 @@ package eu.cloudnetservice.node.command.exception;
 import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.arguments.compound.FlagArgument;
 import cloud.commandframework.exceptions.ArgumentParseException;
-import cloud.commandframework.exceptions.CommandException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
+import eu.cloudnetservice.CaptionedCommandException;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.command.CommandInfo;
@@ -73,7 +73,7 @@ public class CommandExceptionHandler {
     }
 
     // determine the cause type and apply the specific handler
-    if (cause instanceof CommandException) {
+    if (cause instanceof CaptionedCommandException) {
       if (cause instanceof InvalidSyntaxException invalidSyntaxException) {
         // build the full command tree for the given input
         var commandTree = this.collectCommandHelp(invalidSyntaxException.getCurrentChain());
@@ -104,7 +104,7 @@ public class CommandExceptionHandler {
       var deepCause = cause.getCause();
       if (deepCause instanceof ArgumentNotAvailableException) {
         source.sendMessage(deepCause.getMessage());
-      } else if (deepCause instanceof CommandException) {
+      } else if (deepCause instanceof CaptionedCommandException) {
         // we need to handle this exception extra
         if (deepCause instanceof FlagArgument.FlagParseException flagParseException) {
           // if no flag is supplied we should reply with the command tree
