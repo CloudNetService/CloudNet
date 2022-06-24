@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.CopyOption;
-import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -42,13 +42,13 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public final class FileUtil {
 
   public static final Path TEMP_DIR = Path.of(System.getProperty("cloudnet.tempDir", "temp"));
 
   private static final Logger LOGGER = LogManager.logger(FileUtil.class);
-  private static final Filter<Path> ACCEPTING_FILTER = $ -> true;
+  private static final DirectoryStream.Filter<Path> ACCEPTING_FILTER = $ -> true;
 
   private static final FileSystemProvider JAR_FILE_SYSTEM_PROVIDER;
   private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of("create", "false", "encoding", "UTF-8");
@@ -180,7 +180,11 @@ public final class FileUtil {
    * @param filter the filter to use while walking the file tree.
    * @throws NullPointerException if any of the given paths is null.
    */
-  public static void copyDirectory(@NonNull Path from, @NonNull Path to, @Nullable Filter<Path> filter) {
+  public static void copyDirectory(
+    @NonNull Path from,
+    @NonNull Path to,
+    @Nullable DirectoryStream.Filter<Path> filter
+  ) {
     walkFileTree(from, ($, current) -> {
       if (!Files.isDirectory(current)) {
         FileUtil.copy(current, to.resolve(from.relativize(current)));
@@ -287,7 +291,7 @@ public final class FileUtil {
     @NonNull Path root,
     @NonNull BiConsumer<Path, Path> consumer,
     boolean visitDirectories,
-    @NonNull Filter<Path> filter
+    @NonNull DirectoryStream.Filter<Path> filter
   ) {
     if (Files.exists(root)) {
       try (var stream = Files.newDirectoryStream(root, filter)) {

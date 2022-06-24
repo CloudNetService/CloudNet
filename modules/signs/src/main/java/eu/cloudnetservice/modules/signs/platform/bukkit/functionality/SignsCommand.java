@@ -34,9 +34,9 @@ import org.bukkit.entity.Player;
 
 public class SignsCommand extends BaseTabExecutor {
 
-  protected final PlatformSignManagement<?, Location> signManagement;
+  protected final PlatformSignManagement<?, Location, ?> signManagement;
 
-  public SignsCommand(@NonNull PlatformSignManagement<?, Location> signManagement) {
+  public SignsCommand(@NonNull PlatformSignManagement<?, Location, ?> signManagement) {
     this.signManagement = signManagement;
   }
 

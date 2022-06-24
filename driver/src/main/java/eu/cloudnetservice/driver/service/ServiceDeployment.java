@@ -21,6 +21,9 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -36,8 +39,13 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneable {
 
+  public static final Set<Pattern> DEFAULT_EXCLUSIONS = Set.of(
+    Pattern.compile("wrapper\\.jar"),
+    Pattern.compile("\\.wrapper/"));
+
   protected final ServiceTemplate template;
-  protected final Collection<String> excludes;
+  protected final Collection<Pattern> excludes;
+  protected final Collection<Pattern> includes;
 
   /**
    * Constructs a new service deployment instance.
@@ -49,12 +57,14 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
    */
   protected ServiceDeployment(
     @NonNull ServiceTemplate template,
-    @NonNull Collection<String> excludes,
+    @NonNull Collection<Pattern> excludes,
+    @NonNull Collection<Pattern> includes,
     @NonNull JsonDocument properties
   ) {
     super(properties);
     this.template = template;
     this.excludes = excludes;
+    this.includes = includes;
   }
 
   /**
@@ -81,7 +91,8 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
     return builder()
       .template(deployment.template())
       .excludes(deployment.excludes())
-      .properties(deployment.properties().clone());
+      .includes(deployment.includes())
+      .properties(deployment.properties());
   }
 
   /**
@@ -99,8 +110,18 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
    *
    * @return the regular expressions of file names which should get excluded from a deployment.
    */
-  public @NonNull Collection<String> excludes() {
+  public @NonNull Collection<Pattern> excludes() {
     return this.excludes;
+  }
+
+  /**
+   * Get a collection of file names (in a regular expression format) which should be included in a deployment.
+   * Directories must be suffixed with a {@literal /}.
+   *
+   * @return the regular expressions of file names which should be included in a deployment.
+   */
+  public @NonNull Collection<Pattern> includes() {
+    return this.includes;
   }
 
   /**
@@ -123,7 +144,8 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
   public static class Builder {
 
     protected ServiceTemplate template;
-    protected Collection<String> excludes = new HashSet<>();
+    protected Collection<Pattern> excludes = new HashSet<>();
+    protected Collection<Pattern> includes = new HashSet<>();
     protected JsonDocument properties = JsonDocument.newDocument();
 
     /**
@@ -143,6 +165,9 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * Sets the file names (in a regular expression form) which should be ignored when deploying a service. Directories
      * must be suffixed with a {@literal /}.
      * <p>
+     * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
+     * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
+     * <p>
      * The given exclusion collection will get copied into the builder, meaning that further modification of it will not
      * reflect into the builder and vice-versa.
      *
@@ -150,24 +175,74 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if then given exclusion collection is null.
      */
-    public @NonNull Builder excludes(@NonNull Collection<String> excludes) {
+    public @NonNull Builder excludes(@NonNull Collection<Pattern> excludes) {
       this.excludes = new HashSet<>(excludes);
       return this;
     }
 
     /**
-     * Adds the file names (in a regular expression form) which should be ignored when deploying a service. Directories
-     * must be suffixed with a {@literal /}.
+     * Modifies the file names (in a regular expression form) which should be ignored when deploying a service.
+     * Directories must be suffixed with a {@literal /}.
      * <p>
-     * The given exclusion collection will get copied into the builder, meaning that further modification of it will not
-     * reflect into the builder and vice-versa.
+     * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
+     * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
      *
-     * @param excludes the excludes to add to the deployment.
+     * @param modifier the modifier to be applied to the already added exclusions of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if then given exclusion collection is null.
      */
-    public @NonNull Builder addExcludes(@NonNull Collection<String> excludes) {
-      this.excludes.addAll(excludes);
+    public @NonNull Builder modifyExcludes(@NonNull Consumer<Collection<Pattern>> modifier) {
+      modifier.accept(this.excludes);
+      return this;
+    }
+
+    /**
+     * Adds the {@code wrapper.jar} file and the {@code .wrapper/} directory to the files which should be ignored when
+     * deploying a service into the target template.
+     * <p>
+     * Overriding the excludes of the exclusion using {@link #excludes(Collection)} results in a removal of the default
+     * exclusions as well, therefore setting the excludes must be done before calling this method. Later adds of
+     * excluded files or directories via {@link #modifyExcludes(Consumer)} will keep the default exclusions.
+     *
+     * @return the same instance as used to call the method, for chaining.
+     */
+    public @NonNull Builder withDefaultExclusions() {
+      this.excludes.addAll(ServiceDeployment.DEFAULT_EXCLUSIONS);
+      return this;
+    }
+
+    /**
+     * Sets the file names (in a regular expression form) which should be included when deploying a service. Directories
+     * must be suffixed with a {@literal /}.
+     * <p>
+     * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
+     * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
+     * <p>
+     * The given includes collection will get copied into the builder, meaning that further modification of it will not
+     * reflect into the builder and vice-versa.
+     *
+     * @param includes the includes of the deployment.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if then given includes collection is null.
+     */
+    public @NonNull Builder includes(@NonNull Collection<Pattern> includes) {
+      this.includes = new HashSet<>(includes);
+      return this;
+    }
+
+    /**
+     * Modifies the file names (in a regular expression form) which should be included when deploying a service.
+     * Directories must be suffixed with a {@literal /}.
+     * <p>
+     * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
+     * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
+     *
+     * @param modifier the modifier to be applied to the already added inclusions of this builder.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if then given includes collection is null.
+     */
+    public @NonNull Builder modifyIncludes(@NonNull Consumer<Collection<Pattern>> modifier) {
+      modifier.accept(this.includes);
       return this;
     }
 
@@ -192,7 +267,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      */
     public @NonNull ServiceDeployment build() {
       Preconditions.checkNotNull(this.template, "no target template given");
-      return new ServiceDeployment(this.template, this.excludes, this.properties);
+      return new ServiceDeployment(this.template, this.excludes, this.includes, this.properties);
     }
   }
 }

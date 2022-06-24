@@ -27,9 +27,10 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public interface CloudServiceManager extends CloudServiceProvider {
@@ -73,18 +74,21 @@ public interface CloudServiceManager extends CloudServiceProvider {
 
   @Nullable CloudService localCloudService(@NonNull ServiceInfoSnapshot snapshot);
 
-  @Internal
+  @NonNull
+  @Unmodifiable Collection<String> defaultJvmOptions();
+
+  @ApiStatus.Internal
   void registerLocalService(@NonNull CloudService service);
 
-  @Internal
+  @ApiStatus.Internal
   void unregisterLocalService(@NonNull CloudService service);
 
-  @Internal
+  @ApiStatus.Internal
   void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @UnknownNullability NetworkChannel source);
 
-  @Internal
+  @ApiStatus.Internal
   @NonNull CloudService createLocalCloudService(@NonNull ServiceConfiguration serviceConfiguration);
 
-  @Internal
+  @ApiStatus.Internal
   @NonNull SpecificCloudServiceProvider selectOrCreateService(@NonNull ServiceTask task);
 }

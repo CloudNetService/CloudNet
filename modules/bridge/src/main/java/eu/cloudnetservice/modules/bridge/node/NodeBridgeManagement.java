@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
+import eu.cloudnetservice.modules.bridge.node.listener.NodeSetupListener;
 import eu.cloudnetservice.modules.bridge.node.network.NodeBridgeChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
@@ -55,6 +56,7 @@ public class NodeBridgeManagement implements BridgeManagement {
     // init the player manager
     this.playerManager = new NodePlayerManager(BRIDGE_PLAYER_DB_NAME, eventManager, registry, providerFactory, this);
     // register the listeners
+    eventManager.registerListener(new NodeSetupListener(this));
     eventManager.registerListener(new NodeBridgeChannelMessageListener(this, eventManager));
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-bridge",

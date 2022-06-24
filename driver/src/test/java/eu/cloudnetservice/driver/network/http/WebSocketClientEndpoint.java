@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.network.http;
 
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.CloseReason;
-import jakarta.websocket.CloseReason.CloseCodes;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.PongMessage;
@@ -56,7 +55,7 @@ public class WebSocketClientEndpoint {
   @OnClose
   public void onClose(CloseReason closeReason) {
     Assertions.assertEquals(2, this.eventCounter.get());
-    Assertions.assertEquals(CloseCodes.GOING_AWAY, closeReason.getCloseCode());
+    Assertions.assertEquals(CloseReason.CloseCodes.GOING_AWAY, closeReason.getCloseCode());
     Assertions.assertEquals("Successful close", closeReason.getReasonPhrase());
   }
 }

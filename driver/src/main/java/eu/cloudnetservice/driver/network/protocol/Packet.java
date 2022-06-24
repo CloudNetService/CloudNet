@@ -20,7 +20,7 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -86,7 +86,7 @@ public interface Packet {
    *
    * @param uniqueId the new unique id of this packet or null if this packet is not a query packet.
    */
-  @Internal
+  @ApiStatus.Internal
   void uniqueId(@Nullable UUID uniqueId);
 
   /**

@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 
 import eu.cloudnetservice.driver.network.rpc.RPCHandler;
-import eu.cloudnetservice.driver.network.rpc.RPCHandler.HandlingResult;
 import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,7 @@ public record DefaultHandlingResult(
   @Nullable Object invocationResult,
   @NonNull RPCHandler invocationHandler,
   @NonNull MethodInformation targetMethodInformation
-) implements HandlingResult {
+) implements RPCHandler.HandlingResult {
 
   /**
    * Constructs a new successful invocation result with the information provided.
@@ -47,7 +46,7 @@ public record DefaultHandlingResult(
    * @return the constructed method invocation result.
    * @throws NullPointerException if either the given method information or handler is null.
    */
-  public static @NonNull HandlingResult success(
+  public static @NonNull RPCHandler.HandlingResult success(
     @NonNull MethodInformation methodInformation,
     @NonNull RPCHandler invocationHandler,
     @Nullable Object result
@@ -65,7 +64,7 @@ public record DefaultHandlingResult(
    * @return the constructed method invocation result.
    * @throws NullPointerException if either the given method information, handler or exception is null.
    */
-  public static @NonNull HandlingResult failure(
+  public static @NonNull RPCHandler.HandlingResult failure(
     @NonNull MethodInformation information,
     @NonNull RPCHandler invocationHandler,
     @NonNull Throwable result

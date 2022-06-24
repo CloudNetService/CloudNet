@@ -25,7 +25,8 @@ import io.netty5.buffer.api.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.ByteToMessageDecoderForBuffer;
 import java.util.UUID;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * An internal implementation of the packet decoder used for client to server communication. This decoder reverses the
@@ -41,7 +42,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public final class NettyPacketDecoder extends ByteToMessageDecoderForBuffer {
 
   private static final Logger LOGGER = LogManager.logger(NettyPacketDecoder.class);
@@ -50,7 +51,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoderForBuffer {
    * {@inheritDoc}
    */
   @Override
-  protected void decode(ChannelHandlerContext ctx, Buffer in) {
+  protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer in) {
     // validates that the channel associated to this decoder call is still active and actually transferred data before
     // beginning to read.
     if (!ctx.channel().isActive() || in.readableBytes() <= 0) {
@@ -66,7 +67,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoderForBuffer {
       // extract the body
       var bodyLength = NettyUtil.readVarInt(in);
       var body = new NettyImmutableDataBuf(in.copy(in.readerOffset(), bodyLength, true));
-      in.skipReadable(bodyLength);
+      in.skipReadableBytes(bodyLength);
 
       // construct the packet
       var packet = new BasePacket(channel, prioritized, body);

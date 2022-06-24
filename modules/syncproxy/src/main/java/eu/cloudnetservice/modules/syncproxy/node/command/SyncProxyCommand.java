@@ -38,6 +38,7 @@ import eu.cloudnetservice.node.command.source.CommandSource;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
+import java.util.function.Consumer;
 import lombok.NonNull;
 
 @CommandAlias("sp")
@@ -114,10 +115,9 @@ public final class SyncProxyCommand {
     var loginConfiguration = SyncProxyLoginConfiguration.createDefault(name);
     var tabListConfiguration = SyncProxyTabListConfiguration.createDefault(name);
 
-    this.syncProxyManagement.configuration(SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
-      .addLoginConfiguration(loginConfiguration)
-      .addTabListConfiguration(tabListConfiguration)
-      .build());
+    this.updateConfig(builder -> builder
+      .modifyLoginConfigurations(logins -> logins.add(loginConfiguration))
+      .modifyTabListConfigurations(tabLists -> tabLists.add(tabListConfiguration)));
 
     source.sendMessage(I18n.trans("module-syncproxy-command-create-entry-success"));
   }
@@ -136,14 +136,13 @@ public final class SyncProxyCommand {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("amount") int amount
   ) {
-    var updatedLoginConfiguration = SyncProxyLoginConfiguration.builder(loginConfiguration)
-      .maxPlayers(amount)
-      .build();
-
-    this.syncProxyManagement.configuration(
-      SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
-        .addLoginConfiguration(updatedLoginConfiguration)
-        .build());
+    this.updateConfig(builder -> builder.modifyLoginConfigurations(logins -> {
+      var config = SyncProxyLoginConfiguration.builder(loginConfiguration)
+        .maxPlayers(amount)
+        .build();
+      logins.remove(config);
+      logins.add(config);
+    }));
 
     source.sendMessage(I18n.trans("module-syncproxy-command-set-maxplayers",
       loginConfiguration.targetGroup(),
@@ -156,11 +155,13 @@ public final class SyncProxyCommand {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("name") String name
   ) {
-    this.syncProxyManagement.configuration(SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
-      .addLoginConfiguration(SyncProxyLoginConfiguration.builder(loginConfiguration)
-        .addWhitelist(name)
-        .build())
-      .build());
+    this.updateConfig(builder -> builder.modifyLoginConfigurations(logins -> {
+      var config = SyncProxyLoginConfiguration.builder(loginConfiguration)
+        .modifyWhitelist(list -> list.add(name))
+        .build();
+      logins.remove(config);
+      logins.add(config);
+    }));
 
     source.sendMessage(I18n.trans("module-syncproxy-command-add-whitelist-entry",
       name,
@@ -173,9 +174,13 @@ public final class SyncProxyCommand {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("name") String name
   ) {
-    if (loginConfiguration.whitelist().remove(name)) {
-      this.syncProxyManagement.configuration(this.syncProxyManagement.configuration());
-    }
+    this.updateConfig(builder -> builder.modifyLoginConfigurations(logins -> {
+      var config = SyncProxyLoginConfiguration.builder(loginConfiguration)
+        .modifyWhitelist(list -> list.remove(name))
+        .build();
+      logins.remove(config);
+      logins.add(config);
+    }));
 
     source.sendMessage(I18n.trans("module-syncproxy-command-remove-whitelist-entry",
       name,
@@ -188,14 +193,13 @@ public final class SyncProxyCommand {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("enabled") @Liberal boolean enabled
   ) {
-    var updatedLoginConfiguration = SyncProxyLoginConfiguration.builder(loginConfiguration)
-      .maintenance(enabled)
-      .build();
-
-    this.syncProxyManagement.configuration(
-      SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
-        .addLoginConfiguration(updatedLoginConfiguration)
-        .build());
+    this.updateConfig(builder -> builder.modifyLoginConfigurations(logins -> {
+      var config = SyncProxyLoginConfiguration.builder(loginConfiguration)
+        .maintenance(enabled)
+        .build();
+      logins.remove(config);
+      logins.add(config);
+    }));
 
     source.sendMessage(I18n.trans("module-syncproxy-command-set-maintenance",
       loginConfiguration.targetGroup(),
@@ -206,8 +210,7 @@ public final class SyncProxyCommand {
     @NonNull CommandSource source,
     @NonNull SyncProxyConfiguration syncProxyConfiguration
   ) {
-    for (var syncProxyLoginConfiguration : syncProxyConfiguration
-      .loginConfigurations()) {
+    for (var syncProxyLoginConfiguration : syncProxyConfiguration.loginConfigurations()) {
       this.displayConfiguration(source, syncProxyLoginConfiguration);
     }
 
@@ -263,8 +266,10 @@ public final class SyncProxyCommand {
       "PlayerInfo: "
     );
 
-    for (var playerInfoItem : syncProxyMotd.playerInfo()) {
-      source.sendMessage("- " + playerInfoItem);
+    if (syncProxyMotd.playerInfo() != null) {
+      for (var playerInfoItem : syncProxyMotd.playerInfo()) {
+        source.sendMessage("- " + playerInfoItem);
+      }
     }
   }
 
@@ -274,5 +279,10 @@ public final class SyncProxyCommand {
     for (var whitelistEntry : whitelistEntries) {
       source.sendMessage("- " + whitelistEntry);
     }
+  }
+
+  private void updateConfig(@NonNull Consumer<SyncProxyConfiguration.Builder> modifier) {
+    modifier.andThen(builder -> this.syncProxyManagement.configuration(builder.build()))
+      .accept(SyncProxyConfiguration.builder(this.syncProxyManagement.configuration()));
   }
 }

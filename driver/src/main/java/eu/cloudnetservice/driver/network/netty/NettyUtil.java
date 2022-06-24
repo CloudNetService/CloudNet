@@ -27,6 +27,8 @@ import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.ServerChannel;
 import io.netty5.channel.ServerChannelFactory;
 import io.netty5.util.ResourceLeakDetector;
+import io.netty5.util.concurrent.Future;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -34,7 +36,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Range;
 
 /**
@@ -42,7 +44,7 @@ import org.jetbrains.annotations.Range;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public final class NettyUtil {
 
   // pre-computed var int byte lengths
@@ -181,6 +183,16 @@ public final class NettyUtil {
    */
   public static int varIntBytes(int contentLength) {
     return VAR_INT_BYTE_LENGTHS[Integer.numberOfLeadingZeros(contentLength)];
+  }
+
+  public static @NonNull <T> Future<T> awaitFuture(@NonNull Future<T> future) {
+    try {
+      // await the future and rethrow exceptions if any occur
+      return future.sync();
+    } catch (InterruptedException exception) {
+      Thread.currentThread().interrupt(); // not much we can do
+      throw new CompletionException(exception);
+    }
   }
 
   /**

@@ -27,7 +27,7 @@ import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import io.netty5.channel.Channel;
 import io.netty5.util.concurrent.Future;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements NetworkChannel {
 
   private final Channel channel;
@@ -82,7 +82,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
     for (var packet : packets) {
       var future = this.writePacket(packet, false);
       if (future != null) {
-        future.awaitUninterruptibly();
+        NettyUtil.awaitFuture(future);
       }
     }
     this.channel.flush(); // reduces i/o load
@@ -107,7 +107,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   public void sendPacketSync(@NonNull Packet packet) {
     var future = this.writePacket(packet, true);
     if (future != null) {
-      future.awaitUninterruptibly();
+      NettyUtil.awaitFuture(future);
     }
   }
 

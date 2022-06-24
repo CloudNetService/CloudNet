@@ -24,14 +24,11 @@ import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.modules.npc.NPC;
-import eu.cloudnetservice.modules.npc.NPC.ClickAction;
-import eu.cloudnetservice.modules.npc.NPC.ProfileProperty;
 import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc._deprecated.CloudNPC;
 import eu.cloudnetservice.modules.npc._deprecated.NPCConstants;
 import eu.cloudnetservice.modules.npc._deprecated.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
-import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration.ItemLayoutHolder;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCPoolOptions;
@@ -65,7 +62,7 @@ public class CloudNetNPCModule extends DriverModule {
               .maxEmoteDelayTicks(entry.labyModEmotes().maxEmoteDelayTicks())
               .build())
             .inventoryConfiguration(InventoryConfiguration.builder()
-              .defaultItems(new ItemLayoutHolder(
+              .defaultItems(new InventoryConfiguration.ItemLayoutHolder(
                 this.convertItemLayout(entry.emptyItem()),
                 this.convertItemLayout(entry.onlineItem()),
                 this.convertItemLayout(entry.fullItem())))
@@ -103,7 +100,7 @@ public class CloudNetNPCModule extends DriverModule {
         theOldOnes.stream()
           .map(npc -> NPC.builder()
             .profileProperties(npc.profileProperties().stream()
-              .map(property -> new ProfileProperty(property.name(), property.value(), property.signature()))
+              .map(property -> new NPC.ProfileProperty(property.name(), property.value(), property.signature()))
               .collect(Collectors.toSet()))
             .location(npc.position())
             .displayName(npc.displayName())
@@ -112,8 +109,8 @@ public class CloudNetNPCModule extends DriverModule {
             .items(ImmutableMap.of(0, npc.itemInHand()))
             .lookAtPlayer(npc.lookAtPlayer())
             .imitatePlayer(npc.imitatePlayer())
-            .rightClickAction(ClickAction.valueOf(npc.rightClickAction().name()))
-            .leftClickAction(ClickAction.valueOf(npc.leftClickAction().name()))
+            .rightClickAction(NPC.ClickAction.valueOf(npc.rightClickAction().name()))
+            .leftClickAction(NPC.ClickAction.valueOf(npc.leftClickAction().name()))
             .build())
           .forEach(npc -> target.insert(
             NodeNPCManagement.documentKey(npc.location()),

@@ -21,7 +21,13 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * The bridge management is a shared management for all platform dependent bridge implementations.
+ *
+ * @since 4.0
+ */
 @RPCValidation
 public interface BridgeManagement {
 
@@ -31,13 +37,42 @@ public interface BridgeManagement {
   String BRIDGE_PLAYER_CHANNEL_NAME = "bridge_internal_player_channel";
   String BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME = "bridge_internal_player_executor_channel";
 
+  /**
+   * Gets the bridge configuration that is currently loaded and applied.
+   *
+   * @return the currently loaded configuration.
+   */
   @NonNull BridgeConfiguration configuration();
 
+  /**
+   * Sets the bridge configuration for every connected component in the cluster that is running the bridge.
+   *
+   * @param configuration the configuration to set.
+   * @throws NullPointerException if the given configuration is null.
+   */
   void configuration(@NonNull BridgeConfiguration configuration);
 
+  /**
+   * Gets the player manager provided by this bridge management instance. The player manager is registered in the
+   * {@link ServiceRegistry} too.
+   *
+   * @return the player manager of this bridge management.
+   */
   @NonNull PlayerManager playerManager();
 
+  /**
+   * Registers all services provided by this bridge management to the given service registry.
+   *
+   * @param registry the registry to register the services in.
+   * @throws NullPointerException if the given registry is null.
+   */
   void registerServices(@NonNull ServiceRegistry registry);
 
+  /**
+   * Execute the post initialization of the bridge management. Populating the caches and applying startup time actions.
+   * <p>
+   * Note: This method should not be used as part of the api and is for internal use only.
+   */
+  @ApiStatus.Internal
   void postInit();
 }

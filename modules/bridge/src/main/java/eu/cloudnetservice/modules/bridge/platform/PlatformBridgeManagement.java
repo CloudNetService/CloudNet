@@ -103,7 +103,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       GenerationContext.forClass(PlatformPlayerManager.class).component(wrapper.networkClient()).build());
     this.sender = wrapper.rpcFactory().providerForClass(wrapper.networkClient(), BridgeManagement.class);
     // create the network service info of this service
-    this.ownNetworkServiceInfo = BridgeServiceHelper.createServiceInfo(wrapper.currentServiceInfo());
+    this.ownNetworkServiceInfo = NetworkServiceInfo.fromServiceInfoSnapshot(wrapper.currentServiceInfo());
     // load the configuration using rpc - all updates will be received from the channel message
     this.configurationSilently(this.sender.invokeMethod("configuration").fireSync());
     // register the common listeners

@@ -23,6 +23,7 @@ import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
@@ -81,9 +82,12 @@ public class SignCommand {
     @NonNull CommandContext<CommandSource> $,
     @NonNull String input
   ) {
-    return this.signManagement.signsConfiguration().entries()
-      .stream()
-      .map(SignConfigurationEntry::targetGroup)
+    return Node.instance().groupConfigurationProvider().groupConfigurations().stream()
+      .map(Nameable::name)
+      .filter(group -> this.signManagement.signsConfiguration()
+        .entries()
+        .stream()
+        .noneMatch(entry -> entry.targetGroup().equals(group)))
       .toList();
   }
 
@@ -95,14 +99,14 @@ public class SignCommand {
   @CommandMethod("sign|signs create entry <targetGroup>")
   public void createEntry(
     @NonNull CommandSource source,
-    @NonNull @Argument("targetGroup") String targetGroup,
+    @NonNull @Argument(value = "targetGroup", parserName = "newConfiguration") String targetGroup,
     @Flag("nukkit") boolean nukkit
   ) {
     var entry = nukkit
       ? SignConfigurationType.BEDROCK.createEntry(targetGroup)
       : SignConfigurationType.JAVA.createEntry(targetGroup);
     this.signManagement.signsConfiguration(SignsConfiguration.builder(this.signManagement.signsConfiguration())
-      .addEntry(entry)
+      .modifyEntries(entries -> entries.add(entry))
       .build());
     source.sendMessage(I18n.trans("module-sign-command-create-entry-success"));
   }

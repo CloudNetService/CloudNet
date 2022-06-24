@@ -28,7 +28,7 @@ import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public class NodePlayerExecutor implements PlayerExecutor {
@@ -38,7 +38,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   protected final UUID targetUniqueId;
   protected final PlayerManager playerManager;
 
-  @Internal
+  @ApiStatus.Internal
   protected NodePlayerExecutor(@NonNull UUID targetUniqueId) {
     this.targetUniqueId = targetUniqueId;
     this.playerManager = null;
@@ -118,11 +118,6 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendMessage(@NonNull Component message) {
-    this.sendChatMessage(message, null);
-  }
-
-  @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.toProxy()
       .message("send_chat_message")
@@ -135,10 +130,10 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
     this.toProxy()
       .message("send_plugin_message")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(tag).writeByteArray(data))
+      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(key).writeByteArray(data))
       .build()
       .send();
   }

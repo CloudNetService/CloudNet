@@ -25,6 +25,7 @@ import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import com.google.common.base.Splitter;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.WildcardUtil;
 import eu.cloudnetservice.common.collection.Pair;
@@ -47,14 +48,17 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +70,7 @@ public final class ServiceCommand {
 
   private static final Logger LOGGER = LogManager.logger(ServiceCommand.class);
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+  private static final Splitter SEMICOLON_SPLITTER = Splitter.on(';').omitEmptyStrings().trimResults();
 
   // there are different ways to display the services
   private static final RowBasedFormatter<ServiceInfoSnapshot> NAMES_ONLY = RowBasedFormatter.<ServiceInfoSnapshot>builder()
@@ -84,6 +89,13 @@ public final class ServiceCommand {
 
   public ServiceCommand() {
     Node.instance().eventManager().registerListener(this);
+  }
+
+  public static @NonNull Collection<Pattern> parseDeploymentPatterns(@Nullable String input, boolean caseSensitive) {
+    return input == null ? Set.of() : SEMICOLON_SPLITTER.splitToStream(input)
+      .map(pattern -> WildcardUtil.fixPattern(pattern, caseSensitive))
+      .filter(Objects::nonNull)
+      .toList();
   }
 
   @Suggestions("service")
@@ -177,12 +189,14 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> copy|cp [template]")
+  @CommandMethod("service|ser <name> copy|cp")
   public void copyService(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "name") Collection<ServiceInfoSnapshot> services,
-    @Nullable @Argument("template") ServiceTemplate template,
-    @Nullable @Flag("excludes") @Quoted String excludes
+    @Nullable @Flag("template") ServiceTemplate template,
+    @Nullable @Flag("excludes") @Quoted String excludes,
+    @Nullable @Flag("includes") @Quoted String includes,
+    @Flag("case-sensitive") boolean caseSensitive
   ) {
     // associate all services with a template
     Collection<Pair<SpecificCloudServiceProvider, ServiceTemplate>> targets = services.stream()
@@ -205,11 +219,15 @@ public final class ServiceCommand {
       source.sendMessage(I18n.trans("command-service-copy-no-default-template"));
       return;
     }
-
+    // split on a semicolon and try to fix the patterns the user entered
+    var parsedExcludes = parseDeploymentPatterns(excludes, caseSensitive);
+    var parsedIncludes = parseDeploymentPatterns(includes, caseSensitive);
     for (var target : targets) {
       target.first().addServiceDeployment(ServiceDeployment.builder()
         .template(target.second())
-        .excludes(this.parseExcludes(excludes))
+        .excludes(parsedExcludes)
+        .includes(parsedIncludes)
+        .withDefaultExclusions()
         .build());
       target.first().removeAndExecuteDeployments();
       // send a message for each service we did copy the template of
@@ -230,7 +248,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> toggle")
+  @CommandMethod(value = "service|ser <name> toggle", requiredSender = ConsoleCommandSource.class)
   public void toggleScreens(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
@@ -344,7 +362,7 @@ public final class ServiceCommand {
       return;
     }
 
-    Collection<String> list = new ArrayList<>(Arrays.asList(
+    Collection<String> list = new ArrayList<>(List.of(
       " ",
       "* CloudService: " + service.serviceId().uniqueId(),
       "* Name: " + service.serviceId().name(),
@@ -398,10 +416,9 @@ public final class ServiceCommand {
     list.add(" ");
     list.add("* ServiceInfoSnapshot | " + DATE_FORMAT.format(service.creationTime()));
 
-    list.addAll(Arrays.asList(
+    list.addAll(List.of(
       "PID: " + service.processSnapshot().pid(),
-      "CPU usage: " + CPUUsageResolver.FORMAT
-        .format(service.processSnapshot().cpuUsage()) + "%",
+      "CPU usage: " + CPUUsageResolver.FORMAT.format(service.processSnapshot().cpuUsage()) + "%",
       "Threads: " + service.processSnapshot().threads().size(),
       "Heap usage: " + (service.processSnapshot().heapUsageMemory() / 1048576) + "/" +
         (service.processSnapshot().maxHeapMemory() / 1048576) + "MB",
@@ -415,13 +432,5 @@ public final class ServiceCommand {
     }
 
     source.sendMessage(list);
-  }
-
-  private @NonNull Collection<String> parseExcludes(@Nullable String excludes) {
-    if (excludes == null) {
-      return Collections.emptyList();
-    }
-
-    return Arrays.asList(excludes.split(";"));
   }
 }

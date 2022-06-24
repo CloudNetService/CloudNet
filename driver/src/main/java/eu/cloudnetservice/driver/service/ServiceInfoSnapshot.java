@@ -27,7 +27,7 @@ import eu.cloudnetservice.driver.service.property.ServiceProperty;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -68,7 +68,7 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
    * @param properties      the properties of the service.
    * @throws NullPointerException if one of the constructor parameters is null.
    */
-  @Internal
+  @ApiStatus.Internal
   public ServiceInfoSnapshot(
     long creationTime,
     @NonNull HostAndPort address,

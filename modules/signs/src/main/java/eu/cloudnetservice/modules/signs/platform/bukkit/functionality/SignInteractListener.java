@@ -27,9 +27,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SignInteractListener implements Listener {
 
-  protected final PlatformSignManagement<Player, Location> signManagement;
+  protected final PlatformSignManagement<Player, Location, ?> signManagement;
 
-  public SignInteractListener(@NonNull PlatformSignManagement<Player, Location> signManagement) {
+  public SignInteractListener(@NonNull PlatformSignManagement<Player, Location, ?> signManagement) {
     this.signManagement = signManagement;
   }
 

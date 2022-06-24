@@ -24,7 +24,6 @@ import io.netty5.channel.ChannelHandlerContext;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * The default netty based implementation of the netty network handler responsible to provide basic access to the
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  *
  * @since 4.0
  */
-@Internal
 public class NettyNetworkServerHandler extends NettyNetworkHandler {
 
   private final HostAndPort serverLocalAddress;

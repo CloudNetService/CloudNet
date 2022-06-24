@@ -49,7 +49,7 @@ final class NettyIdleStateHandler extends IdleStateHandler {
   @Override
   protected void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) {
     if (!this.closed) {
-      ctx.fireExceptionCaught(ReadTimeoutException.INSTANCE);
+      ctx.fireChannelExceptionCaught(ReadTimeoutException.INSTANCE);
       ctx.close();
       this.closed = true;
     }

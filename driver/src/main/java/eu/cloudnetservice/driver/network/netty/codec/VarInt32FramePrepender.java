@@ -20,9 +20,10 @@ import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import io.netty5.buffer.api.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.MessageToByteEncoderForBuffer;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
-@Internal
+@ApiStatus.Internal
 public final class VarInt32FramePrepender extends MessageToByteEncoderForBuffer<Buffer> {
 
   public static final VarInt32FramePrepender INSTANCE = new VarInt32FramePrepender();
@@ -31,7 +32,7 @@ public final class VarInt32FramePrepender extends MessageToByteEncoderForBuffer<
    * {@inheritDoc}
    */
   @Override
-  protected Buffer allocateBuffer(ChannelHandlerContext ctx, Buffer msg) {
+  protected Buffer allocateBuffer(@NonNull ChannelHandlerContext ctx, @NonNull Buffer msg) {
     var bufferSize = NettyUtil.varIntBytes(msg.readableBytes()) + msg.readableBytes();
     return ctx.bufferAllocator().allocate(bufferSize);
   }
@@ -40,7 +41,7 @@ public final class VarInt32FramePrepender extends MessageToByteEncoderForBuffer<
    * {@inheritDoc}
    */
   @Override
-  protected void encode(ChannelHandlerContext ctx, Buffer msg, Buffer out) {
+  protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer msg, @NonNull Buffer out) {
     NettyUtil.writeVarInt(out, msg.readableBytes());
     out.writeBytes(msg);
   }

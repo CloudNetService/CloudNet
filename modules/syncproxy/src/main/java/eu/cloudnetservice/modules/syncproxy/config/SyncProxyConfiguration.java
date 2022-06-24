@@ -25,15 +25,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Unmodifiable;
 
 public record SyncProxyConfiguration(
-  @NonNull Set<SyncProxyLoginConfiguration> loginConfigurations,
-  @NonNull Set<SyncProxyTabListConfiguration> tabListConfigurations,
-  @NonNull Map<String, String> messages,
+  @Unmodifiable @NonNull Set<SyncProxyLoginConfiguration> loginConfigurations,
+  @Unmodifiable @NonNull Set<SyncProxyTabListConfiguration> tabListConfigurations,
+  @Unmodifiable @NonNull Map<String, String> messages,
   boolean ingameServiceStartStopMessages
 ) {
 
@@ -57,8 +59,8 @@ public record SyncProxyConfiguration(
 
   public static @NonNull SyncProxyConfiguration createDefault(@NonNull String targetGroup) {
     return builder()
-      .addLoginConfiguration(SyncProxyLoginConfiguration.createDefault(targetGroup))
-      .addTabListConfiguration(SyncProxyTabListConfiguration.createDefault(targetGroup))
+      .modifyLoginConfigurations(login -> login.add(SyncProxyLoginConfiguration.createDefault(targetGroup)))
+      .modifyTabListConfigurations(tabList -> tabList.add(SyncProxyTabListConfiguration.createDefault(targetGroup)))
       .messages(DEFAULT_MESSAGES)
       .ingameStartStopMessages(true)
       .build();
@@ -110,10 +112,8 @@ public record SyncProxyConfiguration(
       return this;
     }
 
-    public @NonNull Builder addLoginConfiguration(@NonNull SyncProxyLoginConfiguration configuration) {
-      // as the configuration is identified by the name we have to remove it to really do an update
-      this.loginConfigurations.remove(configuration);
-      this.loginConfigurations.add(configuration);
+    public @NonNull Builder modifyLoginConfigurations(@NonNull Consumer<Set<SyncProxyLoginConfiguration>> modifier) {
+      modifier.accept(this.loginConfigurations);
       return this;
     }
 
@@ -122,10 +122,8 @@ public record SyncProxyConfiguration(
       return this;
     }
 
-    public @NonNull Builder addTabListConfiguration(@NonNull SyncProxyTabListConfiguration configuration) {
-      // as the configuration is identified by the name we have to remove it to really do an update
-      this.tabListConfigurations.remove(configuration);
-      this.tabListConfigurations.add(configuration);
+    public @NonNull Builder modifyTabListConfigurations(@NonNull Consumer<Set<SyncProxyTabListConfiguration>> modifier) {
+      modifier.accept(this.tabListConfigurations);
       return this;
     }
 
@@ -134,8 +132,8 @@ public record SyncProxyConfiguration(
       return this;
     }
 
-    public @NonNull Builder addMessage(@NonNull String key, @NonNull String message) {
-      this.messages.put(key, message);
+    public @NonNull Builder modifyMessages(@NonNull Consumer<Map<String, String>> modifier) {
+      modifier.accept(this.messages);
       return this;
     }
 
@@ -146,9 +144,9 @@ public record SyncProxyConfiguration(
 
     public @NonNull SyncProxyConfiguration build() {
       return new SyncProxyConfiguration(
-        this.loginConfigurations,
-        this.tabListConfigurations,
-        this.messages,
+        Set.copyOf(this.loginConfigurations),
+        Set.copyOf(this.tabListConfigurations),
+        Map.copyOf(this.messages),
         this.ingameServiceStartStopMessages);
     }
   }

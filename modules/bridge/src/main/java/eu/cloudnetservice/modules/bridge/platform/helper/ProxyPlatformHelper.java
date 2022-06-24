@@ -19,30 +19,34 @@ package eu.cloudnetservice.modules.bridge.platform.helper;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
-import eu.cloudnetservice.modules.bridge.node.event.LocalPlayerPreLoginEvent.Result;
+import eu.cloudnetservice.modules.bridge.node.event.LocalPlayerPreLoginEvent;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-@Internal
+@ApiStatus.Internal
 public final class ProxyPlatformHelper {
 
   private ProxyPlatformHelper() {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull Result sendChannelMessagePreLogin(@NonNull NetworkPlayerProxyInfo playerInfo) {
+  public static @NonNull LocalPlayerPreLoginEvent.Result sendChannelMessagePreLogin(
+    @NonNull NetworkPlayerProxyInfo playerInfo
+  ) {
     var result = toCurrentNode()
       .message("proxy_player_pre_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
       .buffer(DataBuf.empty().writeObject(playerInfo))
       .build()
       .sendSingleQuery();
-    return result == null ? Result.allowed() : result.content().readObject(Result.class);
+    return result == null
+      ? LocalPlayerPreLoginEvent.Result.allowed()
+      : result.content().readObject(LocalPlayerPreLoginEvent.Result.class);
   }
 
   public static void sendChannelMessageLoginSuccess(

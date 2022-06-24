@@ -44,7 +44,7 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 public class SpongeSignsPlugin {
 
   private final PluginContainer plugin;
-  private PlatformSignManagement<ServerPlayer, ServerLocation> signManagement;
+  private PlatformSignManagement<ServerPlayer, ServerLocation, Component> signManagement;
 
   @Inject
   public SpongeSignsPlugin(@NonNull PluginContainer plugin) {

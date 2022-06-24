@@ -32,7 +32,6 @@ import eu.cloudnetservice.driver.network.rpc.defaults.sender.DefaultRPCSender;
 import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
-import java.lang.StackWalker.StackFrame;
 import java.util.Objects;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -128,7 +127,7 @@ public class DefaultRPCFactory implements RPCFactory {
       baseSender,
       StackWalker.getInstance().walk(stream -> stream
         .skip(1)
-        .map(StackFrame::getMethodName)
+        .map(StackWalker.StackFrame::getMethodName)
         .findFirst()
         .orElseThrow()),
       chainBaseClass,

@@ -20,7 +20,7 @@ import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget.Type;
+import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -80,7 +80,7 @@ public final class NodeServerUtil {
     var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
     for (var service : services) {
-      builder.target(Type.SERVICE, service.serviceId().name());
+      builder.target(ChannelMessageTarget.Type.SERVICE, service.serviceId().name());
     }
     // for chaining
     return builder;

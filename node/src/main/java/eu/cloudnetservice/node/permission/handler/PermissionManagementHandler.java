@@ -36,9 +36,7 @@ public interface PermissionManagementHandler {
 
   void handleDeleteGroup(@NonNull PermissionManagement management, @NonNull PermissionGroup group);
 
-  void handleSetGroups(
-    @NonNull PermissionManagement management,
-    @NonNull Collection<? extends PermissionGroup> groups);
+  void handleSetGroups(@NonNull PermissionManagement management, @NonNull Collection<? extends PermissionGroup> groups);
 
   void handleReloaded(@NonNull PermissionManagement management);
 }

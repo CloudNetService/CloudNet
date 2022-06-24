@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import eu.cloudnetservice.driver.network.rpc.RPCHandler.HandlingResult;
+import eu.cloudnetservice.driver.network.rpc.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.RPCInvocationContext;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
@@ -65,7 +65,7 @@ public class RPCPacketListener implements PacketListener {
       // get the chain size
       var chainSize = buf.readInt();
       // invoke the method on the current result
-      HandlingResult lastResult = null;
+      RPCHandler.HandlingResult lastResult = null;
       for (var i = 1; i < chainSize; i++) {
         if (i == 1) {
           // always invoke the first method
@@ -147,7 +147,7 @@ public class RPCPacketListener implements PacketListener {
    * @throws NullPointerException if one of the given parameters is null.
    */
   protected @Nullable DataBuf serializeResult(
-    @NonNull HandlingResult result,
+    @NonNull RPCHandler.HandlingResult result,
     @NonNull DataBufFactory dataBufFactory,
     @NonNull ObjectMapper objectMapper,
     @NonNull RPCInvocationContext context
@@ -182,7 +182,10 @@ public class RPCPacketListener implements PacketListener {
    * @throws NullPointerException  if either the given class or invocation context is null.
    * @throws CannotDecideException if none or multiple methods are matching the method to call in the given class.
    */
-  protected @Nullable HandlingResult handleRaw(@NonNull String clazz, @NonNull RPCInvocationContext context) {
+  protected @Nullable RPCHandler.HandlingResult handleRaw(
+    @NonNull String clazz,
+    @NonNull RPCInvocationContext context
+  ) {
     // get the handler associated with the class of the rpc
     var handler = this.rpcHandlerRegistry.handler(clazz);
     // invoke the handler with the information

@@ -24,14 +24,14 @@ import eu.cloudnetservice.driver.event.events.permission.PermissionSetGroupsEven
 import eu.cloudnetservice.driver.event.events.permission.PermissionUpdateGroupEvent;
 import eu.cloudnetservice.driver.event.events.permission.PermissionUpdateUserEvent;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
-@Internal
+@ApiStatus.Internal
 public final class PermissionCacheListener {
 
   private final WrapperPermissionManagement permissionManagement;
 
-  public PermissionCacheListener(WrapperPermissionManagement permissionManagement) {
+  public PermissionCacheListener(@NonNull WrapperPermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }
 

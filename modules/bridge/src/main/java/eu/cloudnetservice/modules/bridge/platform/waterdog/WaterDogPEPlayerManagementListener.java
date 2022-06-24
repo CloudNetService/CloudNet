@@ -22,10 +22,10 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.TransferCompleteEvent;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
+import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Locale;
 import lombok.NonNull;
@@ -84,7 +84,7 @@ public final class WaterDogPEPlayerManagementListener {
       this.management.createPlayerInformation(event.getPlayer()),
       this.management
         .cachedService(service -> service.name().equals(event.getInitialDownstream().getServerInfo().getServerName()))
-        .map(BridgeServiceHelper::createServiceInfo)
+        .map(NetworkServiceInfo::fromServiceInfoSnapshot)
         .orElse(null));
     // update the service info
     Wrapper.instance().publishServiceInfoUpdate();
@@ -95,7 +95,7 @@ public final class WaterDogPEPlayerManagementListener {
   private void handleTransfer(@NonNull TransferCompleteEvent event) {
     this.management
       .cachedService(service -> service.name().equals(event.getNewClient().getServerInfo().getServerName()))
-      .map(BridgeServiceHelper::createServiceInfo)
+      .map(NetworkServiceInfo::fromServiceInfoSnapshot)
       .ifPresent(serviceInfo -> {
         // the player switched the service
         ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), serviceInfo);

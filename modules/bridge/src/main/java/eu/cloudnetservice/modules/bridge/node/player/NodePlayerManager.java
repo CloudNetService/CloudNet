@@ -55,7 +55,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -141,18 +140,16 @@ public class NodePlayerManager implements PlayerManager {
   public @NonNull List<? extends CloudPlayer> onlinePlayers(@NonNull String name) {
     return this.onlinePlayers.values().stream()
       .filter(cloudPlayer -> cloudPlayer.name().equalsIgnoreCase(name))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
   public @NonNull List<? extends CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment) {
     return this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer ->
-        (cloudPlayer.loginService() != null && cloudPlayer.loginService().environment() == environment)
-          || (cloudPlayer.connectedService() != null
-          && cloudPlayer.connectedService().environment() == environment))
-      .collect(Collectors.toList());
+      .filter(cloudPlayer -> cloudPlayer.loginService().environment().equals(environment)
+        || (cloudPlayer.connectedService() != null && cloudPlayer.connectedService().environment().equals(environment)))
+      .toList();
   }
 
   @Override
@@ -164,20 +161,21 @@ public class NodePlayerManager implements PlayerManager {
   public @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer -> cloudPlayer.connectedService().taskName().equalsIgnoreCase(task)
-        || cloudPlayer.loginService().taskName().equalsIgnoreCase(task)));
+      .filter(
+        player -> (player.connectedService() != null && player.connectedService().taskName().equalsIgnoreCase(task))
+          || player.loginService().taskName().equalsIgnoreCase(task)));
   }
 
   @Override
   public @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer -> cloudPlayer.connectedService().groups().contains(group)
-        || cloudPlayer.loginService().groups().contains(group)));
+      .filter(player -> (player.connectedService() != null && player.connectedService().groups().contains(group))
+        || player.loginService().groups().contains(group)));
   }
 
   @Override
-  public CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId) {
+  public @Nullable CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId) {
     return this.offlinePlayerCache.get(uniqueId).orElse(null);
   }
 
@@ -188,14 +186,17 @@ public class NodePlayerManager implements PlayerManager {
       .map(Optional::get)
       .filter(player -> player.name().equalsIgnoreCase(name))
       .findFirst()
-      .orElseGet(() -> PlayerManager.super.firstOfflinePlayer(name));
+      .orElseGet(() -> {
+        var players = this.offlinePlayers(name);
+        return players.isEmpty() ? null : players.get(0);
+      });
   }
 
   @Override
   public @NonNull List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name) {
     return this.database().find(JsonDocument.newDocument("name", name)).stream()
       .map(document -> document.toInstanceOf(CloudOfflinePlayer.class))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -203,7 +204,7 @@ public class NodePlayerManager implements PlayerManager {
     return this.database().entries().values().stream()
       .map(doc -> doc.toInstanceOf(CloudOfflinePlayer.class))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -321,11 +322,11 @@ public class NodePlayerManager implements PlayerManager {
     if (cloudPlayer == null) {
       // try to load the player using the name and the login service
       for (var player : this.players().values()) {
-        if (player.name().equals(connectionInfo.name())
-          && player.loginService() != null
-          && player.loginService().uniqueId().equals(connectionInfo.networkService().uniqueId())) {
-          cloudPlayer = player;
-          break;
+        if (player.name().equals(connectionInfo.name())) {
+          if (player.loginService().uniqueId().equals(connectionInfo.networkService().uniqueId())) {
+            cloudPlayer = player;
+            break;
+          }
         }
       }
       // there is no loaded player, so try to load it using the offline association
@@ -384,16 +385,13 @@ public class NodePlayerManager implements PlayerManager {
       } else {
         var needsUpdate = false;
         // check if the player has a known login service
-        if (cloudPlayer.loginService() != null) {
-          var newLoginService = cloudPlayer.loginService();
-          var loginService = registeredPlayer.loginService();
-          // check if we already know the same service
-          if (!Objects.equals(newLoginService, loginService)
-            && ServiceEnvironmentType.minecraftProxy(newLoginService.environment())
-            && (loginService == null || !ServiceEnvironmentType.minecraftProxy(loginService.environment()))) {
-            cloudPlayer.loginService(newLoginService);
-            needsUpdate = true;
-          }
+        var newLoginService = cloudPlayer.loginService();
+        var loginService = registeredPlayer.loginService();
+        // check if we already know the same service
+        if (!Objects.equals(newLoginService, loginService) && ServiceEnvironmentType.minecraftProxy(
+          newLoginService.environment()) && !ServiceEnvironmentType.minecraftProxy(loginService.environment())) {
+          cloudPlayer.loginService(newLoginService);
+          needsUpdate = true;
         }
         // check if the player has a known connected service which is not a proxy
         if (cloudPlayer.connectedService() != null

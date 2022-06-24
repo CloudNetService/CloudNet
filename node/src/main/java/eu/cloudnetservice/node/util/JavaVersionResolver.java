@@ -18,6 +18,8 @@ package eu.cloudnetservice.node.util;
 
 import com.google.common.io.CharStreams;
 import eu.cloudnetservice.common.JavaVersion;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +30,8 @@ import org.jetbrains.annotations.Nullable;
  * An util class for resolving the java version for a given path.
  */
 public final class JavaVersionResolver {
+
+  private static final Logger LOGGER = LogManager.logger(JavaVersionResolver.class);
 
   // https://regex101.com/r/6Z4jZT/1
   private static final Pattern JAVA_REGEX = Pattern.compile("^.* version \"(\\d+)\\.?(\\d+)?\\.?([\\d_]+)?\".*",
@@ -66,7 +70,8 @@ public final class JavaVersionResolver {
       } finally {
         process.destroyForcibly();
       }
-    } catch (IOException ignored) {
+    } catch (IOException exception) {
+      LOGGER.warning("Unable to read input from process", exception);
     }
 
     return null;

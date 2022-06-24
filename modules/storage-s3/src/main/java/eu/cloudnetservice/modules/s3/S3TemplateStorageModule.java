@@ -33,7 +33,20 @@ public final class S3TemplateStorageModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void handleInit() {
-    this.config = this.readConfig(S3TemplateStorageConfig.class, S3TemplateStorageConfig::new);
+    this.config = this.readConfig(
+      S3TemplateStorageConfig.class,
+      () -> new S3TemplateStorageConfig(
+        "s3",
+        "cloudnet",
+        "eu-west-1",
+        "key",
+        "secret",
+        null,
+        false,
+        false,
+        true,
+        true,
+        false));
     // init the storage
     this.storage = new S3TemplateStorage(this);
     this.serviceRegistry().registerProvider(TemplateStorage.class, this.config.name(), this.storage);

@@ -24,7 +24,6 @@ import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType.Parser;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
 import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionType;
@@ -131,7 +130,7 @@ public final class Parsers {
   }
 
   @SafeVarargs
-  public static @NonNull <T> QuestionAnswerType.Parser<T> allOf(@NonNull Parser<T>... parsers) {
+  public static @NonNull <T> QuestionAnswerType.Parser<T> allOf(@NonNull QuestionAnswerType.Parser<T>... parsers) {
     return input -> {
       T result = null;
       for (var parser : parsers) {

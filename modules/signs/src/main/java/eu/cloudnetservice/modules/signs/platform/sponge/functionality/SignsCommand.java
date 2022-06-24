@@ -28,7 +28,6 @@ import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.parameter.Parameter.Key;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.util.blockray.RayTrace;
@@ -36,13 +35,13 @@ import org.spongepowered.api.world.server.ServerLocation;
 
 public class SignsCommand implements CommandExecutor {
 
-  public static final Key<String> ACTION = Parameter.key("action", String.class);
-  public static final Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
-  public static final Key<String> TARGET_TEMPLATE = Parameter.key("target_template_path", String.class);
+  public static final Parameter.Key<String> ACTION = Parameter.key("action", String.class);
+  public static final Parameter.Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
+  public static final Parameter.Key<String> TARGET_TEMPLATE = Parameter.key("target_template_path", String.class);
 
-  protected final Supplier<PlatformSignManagement<?, ServerLocation>> signManagement;
+  protected final Supplier<PlatformSignManagement<?, ServerLocation, ?>> signManagement;
 
-  public SignsCommand(@NonNull Supplier<PlatformSignManagement<?, ServerLocation>> signManagement) {
+  public SignsCommand(@NonNull Supplier<PlatformSignManagement<?, ServerLocation, ?>> signManagement) {
     this.signManagement = signManagement;
   }
 

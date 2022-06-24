@@ -23,55 +23,81 @@ import java.util.UUID;
 import lombok.NonNull;
 
 /**
- * This interface extends the player access of the {@link PlayerManager} This {@link PlayerProvider} can be global, but
- * for certain tasks and groups too
+ * The player provider offers the possibility to get already filtered cloud players. In addition, not always the whole
+ * {@link CloudPlayer} object must be sent over the network, but only the really desired result, such as all unique
+ * ids.
+ * <p>
+ * Currently, there are these player providers:
+ * <ul>
+ *   <li>a player provider for all players {@link PlayerManager#onlinePlayers()}</li>
+ *   <li>a player provider for all players on a certain task {@link PlayerManager#taskOnlinePlayers(String)}</li>
+ *   <li>a player provider for all players on a certain group {@link PlayerManager#groupOnlinePlayers(String)}</li>
+ * </ul>
+ *
+ * @since 4.0
  */
 @RPCValidation
 public interface PlayerProvider {
 
   /**
-   * @return all players as {@link CloudPlayer}
+   * Gets all players supplied by this player provider as cloud players.
+   *
+   * @return all supplied cloud players.
    */
   @NonNull Collection<? extends CloudPlayer> players();
 
   /**
-   * @return the uniqueIds of all players
+   * Gets all unique ids of the players supplied by this player provider.
+   *
+   * @return all supplied unique ids.
    */
   @NonNull Collection<UUID> uniqueIds();
 
   /**
-   * @return the names of all players
+   * Gets all player names for all players supplied by this player provider.
+   *
+   * @return all supplied player names.
    */
   @NonNull Collection<String> names();
 
   /**
-   * @return the player count
+   * Gets the count of supplied players by this player provider.
+   *
+   * @return the amount of supplied players.
    */
   int count();
 
   /**
-   * @return all players as {@link CloudPlayer}
+   * Gets all players supplied by this player provider as cloud players asynchronously.
+   *
+   * @return a task containing all supplied cloud players.
    */
   default @NonNull Task<Collection<? extends CloudPlayer>> playersAsync() {
     return Task.supply(this::players);
   }
 
   /**
-   * @return the uniqueIds of all players
+   * Gets all unique ids of the players supplied by this player provider asynchronously.
+   *
+   * @return a task containing all supplied unique ids.
    */
   default @NonNull Task<Collection<UUID>> uniqueIdsAsync() {
     return Task.supply(this::uniqueIds);
   }
 
   /**
-   * @return the names of all players
+   * Gets all player names for all players supplied by this player provider asynchronously.
+   *
+   * @return a task containing all supplied player names.
    */
   default @NonNull Task<Collection<String>> namesAsync() {
     return Task.supply(this::names);
   }
 
   /**
-   * @return the player count
+   * Gets the count of supplied players by this player provider asynchronously.
+   *
+   * @return a task containing the amount of supplied players.
    */
   default @NonNull Task<Integer> countAsync() {
     return Task.supply(this::count);

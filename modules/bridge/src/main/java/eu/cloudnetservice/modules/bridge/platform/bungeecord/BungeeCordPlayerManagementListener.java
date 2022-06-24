@@ -19,10 +19,10 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 import static eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper.translateToComponent;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
+import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Locale;
@@ -147,7 +147,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   public void handle(@NonNull ServerConnectedEvent event) {
     var joinedServiceInfo = this.management
       .cachedService(service -> service.name().equals(event.getServer().getInfo().getName()))
-      .map(BridgeServiceHelper::createServiceInfo)
+      .map(NetworkServiceInfo::fromServiceInfoSnapshot)
       .orElse(null);
     // check if the player connection was initial
     if (event.getPlayer().getServer() == null) {

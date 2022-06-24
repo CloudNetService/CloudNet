@@ -29,14 +29,14 @@ import io.netty5.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty5.handler.codec.http.websocketx.WebSocketFrame;
 import java.io.IOException;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The default netty based handler for web socket messages.
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
   private static final Logger LOGGER = LogManager.logger(NettyWebSocketServerChannelHandler.class);
@@ -57,7 +57,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
    * {@inheritDoc}
    */
   @Override
-  public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
+  public void channelExceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception was caught", cause);
     }

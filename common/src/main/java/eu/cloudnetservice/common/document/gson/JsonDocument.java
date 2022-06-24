@@ -35,8 +35,9 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Pattern;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -46,13 +47,14 @@ import org.jetbrains.annotations.UnknownNullability;
  */
 public class JsonDocument implements Document<JsonDocument> {
 
-  @Internal
+  @ApiStatus.Internal
   public static final Gson GSON = new GsonBuilder()
     .serializeNulls()
     .setPrettyPrinting()
     .disableHtmlEscaping()
     .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
     .registerTypeHierarchyAdapter(Path.class, new PathTypeAdapter())
+    .registerTypeHierarchyAdapter(Pattern.class, new PatternTypeAdapter())
     .registerTypeHierarchyAdapter(SimpleDateFormat.class, new SimpleDateFormatTypeAdapter())
     .registerTypeHierarchyAdapter(JsonDocument.class, new JsonDocumentTypeAdapter())
     .create();

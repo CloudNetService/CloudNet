@@ -31,10 +31,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-@Internal
+@ApiStatus.Internal
 final class RecordTypeAdapterFactory implements TypeAdapterFactory {
 
   @Override

@@ -20,10 +20,13 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * The base configuration class for everything which can configure a service in any way. It holds the most common
@@ -66,6 +69,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
    *
    * @return the jvm options to set for services created based on this configuration.
    */
+  @Unmodifiable
   public abstract @NonNull Collection<String> jvmOptions();
 
   /**
@@ -74,6 +78,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
    *
    * @return the process parameters to set for services created based on this configuration.
    */
+  @Unmodifiable
   public abstract @NonNull Collection<String> processParameters();
 
   /**
@@ -82,6 +87,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
    *
    * @return all inclusions which should get added initially to services created based on this configuration.
    */
+  @Unmodifiable
   public @NonNull Collection<ServiceRemoteInclusion> inclusions() {
     return this.includes;
   }
@@ -96,6 +102,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
    *
    * @return all templates to include when preparing a service based on this configuration.
    */
+  @Unmodifiable
   public @NonNull Collection<ServiceTemplate> templates() {
     return this.templates;
   }
@@ -107,6 +114,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
    *
    * @return all deployments which should get added initially when preparing a service.
    */
+  @Unmodifiable
   public @NonNull Collection<ServiceDeployment> deployments() {
     return this.deployments;
   }
@@ -121,8 +129,8 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
   public abstract static class Builder<T extends ServiceConfigurationBase, B extends Builder<T, B>> {
 
     protected JsonDocument properties = JsonDocument.newDocument();
-    protected Set<String> jvmOptions = new HashSet<>();
-    protected Set<String> processParameters = new HashSet<>();
+    protected Set<String> jvmOptions = new LinkedHashSet<>();
+    protected Set<String> processParameters = new LinkedHashSet<>();
     protected Set<ServiceTemplate> templates = new HashSet<>();
     protected Set<ServiceDeployment> deployments = new HashSet<>();
     protected Set<ServiceRemoteInclusion> includes = new HashSet<>();
@@ -162,7 +170,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     }
 
     /**
-     * Adds the given jvm options to this builder. JVM options are there to configure the behaviour of the jvm, for
+     * Modifies the jvm options of this builder. JVM options are there to configure the behaviour of the jvm, for
      * example the garbage collector.
      * <p>
      * The XmX and XmS options will always get appended based on the configured maximum heap memory size.
@@ -170,12 +178,12 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
      * Duplicate options will be omitted by this method directly. <strong>HOWEVER,</strong> adding the same option twice
      * with a changed value to it will most likely result in the jvm to crash, beware!
      *
-     * @param jvmOptions the jvm options to add to the configuration.
+     * @param modifier the modifier to be applied to the already added jvm options of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given options collection is null.
      */
-    public @NonNull B addJvmOptions(@NonNull Collection<String> jvmOptions) {
-      this.jvmOptions.addAll(jvmOptions);
+    public @NonNull B modifyJvmOptions(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.jvmOptions);
       return this.self();
     }
 
@@ -196,19 +204,17 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     }
 
     /**
-     * Adds the process parameters which should get appended to the command line. Process parameters are there to
+     * Modifies the process parameters which should get appended to the command line. Process parameters are there to
      * configure the application, for example setting an option like --online-mode=true.
      * <p>
-     * This method will override all previously added process parameters options. Furthermore, the given collection will
-     * be copied into this builder, meaning that changes to it will not reflect into the builder after the method call.
      * Duplicate parameters will get omitted by this method directly.
      *
-     * @param processParameters the process parameters to add to the configuration.
+     * @param modifier the modifier to be applied to the already added process parameters of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given parameters' collection is null.
      */
-    public @NonNull B addProcessParameters(@NonNull Collection<String> processParameters) {
-      this.processParameters.addAll(processParameters);
+    public @NonNull B modifyProcessParameters(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.processParameters);
       return this.self();
     }
 
@@ -231,19 +237,16 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     }
 
     /**
-     * Adds all templates which should get loaded onto a service before it starts. The given collection sorting is
+     * Modifies the templates which should get loaded onto a service before it starts. The given collection sorting is
      * ignored and the templates will get re-sorted based on their priority. Templates will override existing files from
      * any source if they are present in them, make sure to use an appropriate order for them.
-     * <p>
-     * The given collection will be copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
      *
-     * @param templates the templates to include onto all services before starting them.
+     * @param modifier the modifier to be applied to the already added templates of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given template collection is null.
      */
-    public @NonNull B addTemplates(@NonNull Collection<ServiceTemplate> templates) {
-      this.templates.addAll(templates);
+    public @NonNull B modifyTemplates(@NonNull Consumer<Collection<ServiceTemplate>> modifier) {
+      modifier.accept(this.templates);
       return this.self();
     }
 
@@ -265,18 +268,15 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     }
 
     /**
-     * Adds the deployments to execute when a service based on the configuration gets stopped or when explicitly
+     * Modifies the deployments to execute when a service based on the configuration gets stopped or when explicitly
      * requested by calling the associated method on the service provider.
-     * <p>
-     * The given collection will be copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
      *
-     * @param deployments the deployments to add to every service created based on the configuration.
+     * @param modifier the modifier to be applied to the already added deployments of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given deployment collection is null.
      */
-    public @NonNull B addDeployments(@NonNull Collection<ServiceDeployment> deployments) {
-      this.deployments.addAll(deployments);
+    public @NonNull B modifyDeployments(@NonNull Consumer<Collection<ServiceDeployment>> modifier) {
+      modifier.accept(this.deployments);
       return this.self();
     }
 
@@ -300,20 +300,17 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     }
 
     /**
-     * Adds all inclusions which should get loaded onto a service created based on the service configuration before it
+     * Modifies the inclusions which should get loaded onto a service created based on the service configuration before it
      * starts. Inclusions get cached based on their download url. If you need a clean copy of your inclusion you should
      * change the download url of it. If the node is unable to download an inclusion based on the given url it will be
      * ignored and a warning gets printed into the console.
-     * <p>
-     * The given collection will be copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
      *
-     * @param inclusions the inclusions to add include to the previously set inclusions.
+     * @param modifier the modifier to be applied to the already added inclusions of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given inclusion collection is null.
      */
-    public @NonNull B addInclusions(@NonNull Collection<ServiceRemoteInclusion> inclusions) {
-      this.includes.addAll(inclusions);
+    public @NonNull B modifyInclusions(@NonNull Consumer<Collection<ServiceRemoteInclusion>> modifier) {
+      modifier.accept(this.includes);
       return this.self();
     }
 

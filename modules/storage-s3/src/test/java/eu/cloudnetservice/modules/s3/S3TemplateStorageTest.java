@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -35,8 +35,8 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@TestMethodOrder(OrderAnnotation.class)
 @Testcontainers(disabledWithoutDocker = true)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class S3TemplateStorageTest {
 
   // default localstack port, maps all services to that port
@@ -65,10 +65,14 @@ class S3TemplateStorageTest {
       "s3",
       "cn-testing",
       "us-east-1",
-      false,
       "accesskey",
       "secretkey",
-      String.format("http://%s:%d", runningAddress, S3.getMappedPort(PORT))));
+      String.format("http://%s:%d", runningAddress, S3.getMappedPort(PORT)),
+      false,
+      false,
+      true,
+      true,
+      false));
 
     storage = new S3TemplateStorage(module);
   }

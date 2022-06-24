@@ -20,6 +20,7 @@ plugins {
   id("cloudnet.parent-build-logic")
   alias(libs.plugins.licenser)
   alias(libs.plugins.nexusPublish)
+  alias(libs.plugins.fabricLoom) apply false
 }
 
 defaultTasks("build", "checkLicenses", "test", "shadowJar")
@@ -33,7 +34,6 @@ allprojects {
     mavenCentral()
     maven("https://jitpack.io/")
     maven("https://repo.spongepowered.org/maven/")
-    maven("https://oss.sonatype.org/content/repositories/snapshots/")
   }
 }
 

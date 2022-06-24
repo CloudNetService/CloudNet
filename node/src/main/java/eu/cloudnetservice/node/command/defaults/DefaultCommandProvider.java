@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.command.defaults;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.annotations.AnnotationParser;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
-import cloud.commandframework.meta.CommandMeta.Key;
+import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
@@ -73,10 +73,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DefaultCommandProvider implements CommandProvider {
 
-  private static final Key<Set<String>> ALIAS_KEY = Key.of(new TypeToken<Set<String>>() {
+  private static final CommandMeta.Key<Set<String>> ALIAS_KEY = CommandMeta.Key.of(new TypeToken<Set<String>>() {
   }, "cloudnet:alias");
-  private static final Key<String> DESCRIPTION_KEY = Key.of(String.class, "cloudnet:description");
-  private static final Key<String> DOCUMENTATION_KEY = Key.of(String.class, "cloudnet:documentation");
+  private static final CommandMeta.Key<String> DESCRIPTION_KEY = CommandMeta.Key.of(
+    String.class,
+    "cloudnet:description");
+  private static final CommandMeta.Key<String> DOCUMENTATION_KEY = CommandMeta.Key.of(
+    String.class,
+    "cloudnet:documentation");
 
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
@@ -93,8 +97,7 @@ public class DefaultCommandProvider implements CommandProvider {
   public DefaultCommandProvider(@NonNull Console console, @NonNull EventManager eventManager) {
     this.console = console;
     this.commandManager = new DefaultCommandManager();
-    this.commandManager.captionVariableReplacementHandler(
-      (caption, variables) -> I18n.trans(caption.getKey(), variables));
+    this.commandManager.captionVariableReplacementHandler(new DefaultCaptionVariableReplacementHandler());
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
     this.registeredCommands = Multimaps.newSetMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
@@ -118,7 +121,7 @@ public class DefaultCommandProvider implements CommandProvider {
     // register pre- and post-processor to call our events
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
-    this.commandManager.setCommandSuggestionProcessor(new DefaultSuggestionProcessor(this));
+    this.commandManager.commandSuggestionProcessor(new DefaultSuggestionProcessor(this));
     // register the command confirmation handling
     this.registerCommandConfirmation();
     this.exceptionHandler = new CommandExceptionHandler(this, eventManager);
@@ -287,14 +290,14 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   protected @NonNull List<String> commandUsageOfRoot(@NonNull String root) {
     List<String> commandUsage = new ArrayList<>();
-    for (var command : this.commandManager.getCommands()) {
+    for (var command : this.commandManager.commands()) {
       var arguments = command.getArguments();
       // the first argument is the root, check if it matches
       if (arguments.isEmpty() || !arguments.get(0).getName().equalsIgnoreCase(root)) {
         continue;
       }
 
-      commandUsage.add(this.commandManager.getCommandSyntaxFormatter().apply(arguments, null));
+      commandUsage.add(this.commandManager.commandSyntaxFormatter().apply(arguments, null));
     }
 
     Collections.sort(commandUsage);

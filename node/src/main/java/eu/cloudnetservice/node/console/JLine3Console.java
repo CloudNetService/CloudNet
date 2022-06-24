@@ -41,11 +41,9 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.LineReader;
-import org.jline.reader.LineReader.Option;
-import org.jline.reader.LineReader.SuggestionType;
 import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -88,15 +86,15 @@ public final class JLine3Console implements Console {
     this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
     this.lineReader = new InternalLineReader(this.terminal);
 
-    this.lineReader.setAutosuggestion(SuggestionType.COMPLETER);
+    this.lineReader.setAutosuggestion(LineReader.SuggestionType.COMPLETER);
     this.lineReader.setCompleter(new JLine3Completer(this));
 
-    this.lineReader.option(Option.AUTO_GROUP, false);
-    this.lineReader.option(Option.AUTO_MENU_LIST, true);
-    this.lineReader.option(Option.AUTO_FRESH_LINE, true);
-    this.lineReader.option(Option.EMPTY_WORD_OPTIONS, false);
-    this.lineReader.option(Option.HISTORY_TIMESTAMPED, false);
-    this.lineReader.option(Option.DISABLE_EVENT_EXPANSION, true);
+    this.lineReader.option(LineReader.Option.AUTO_GROUP, false);
+    this.lineReader.option(LineReader.Option.AUTO_MENU_LIST, true);
+    this.lineReader.option(LineReader.Option.AUTO_FRESH_LINE, true);
+    this.lineReader.option(LineReader.Option.EMPTY_WORD_OPTIONS, false);
+    this.lineReader.option(LineReader.Option.HISTORY_TIMESTAMPED, false);
+    this.lineReader.option(LineReader.Option.DISABLE_EVENT_EXPANSION, true);
 
     this.lineReader.variable(LineReader.BELL_STYLE, "none");
     this.lineReader.variable(LineReader.HISTORY_SIZE, 500);
@@ -384,17 +382,17 @@ public final class JLine3Console implements Console {
     }
   }
 
-  @Internal
+  @ApiStatus.Internal
   @NonNull LineReader lineReader() {
     return this.lineReader;
   }
 
-  @Internal
+  @ApiStatus.Internal
   @NonNull Map<UUID, ConsoleInputHandler> consoleInputHandler() {
     return this.consoleInputHandler;
   }
 
-  @Internal
+  @ApiStatus.Internal
   @NonNull Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandlers() {
     return this.tabCompleteHandler;
   }

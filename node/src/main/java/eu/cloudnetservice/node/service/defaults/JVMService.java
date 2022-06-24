@@ -27,7 +27,6 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
-import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent.StreamType;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
@@ -45,9 +44,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
@@ -65,11 +64,7 @@ public class JVMService extends AbstractService {
     "-Dfile.encoding=UTF-8",
     "-Dlog4j2.formatMsgNoLookups=true",
     "-DIReallyKnowWhatIAmDoingISwear=true",
-    "-Djline.terminal=jline.UnsupportedTerminal",
-    // TODO: remove after testing
-    "-Dio.netty.allocator.smallCacheSize=0",
-    "-Dio.netty.allocator.normalCacheSize=0",
-    "-Dio.netty.allocator.maxCachedBufferCapacity=0");
+    "-Djline.terminal=jline.UnsupportedTerminal");
 
   protected static final Path LIB_PATH = Path.of("launcher", "libs");
   protected static final Path WRAPPER_TEMP_FILE = FileUtil.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
@@ -123,12 +118,14 @@ public class JVMService extends AbstractService {
       wrapperInformation.first().toAbsolutePath());
 
     // prepare the service startup
-    List<String> arguments = new ArrayList<>();
+    List<String> arguments = new LinkedList<>();
 
     // add the java command to start the service
     var overriddenJavaCommand = this.serviceConfiguration().javaCommand();
     arguments.add(overriddenJavaCommand == null ? this.nodeConfiguration().javaCommand() : overriddenJavaCommand);
+
     // add the jvm flags of the service configuration
+    arguments.addAll(this.cloudServiceManager().defaultJvmOptions());
     arguments.addAll(this.serviceConfiguration().processConfig().jvmOptions());
 
     // set the maximum heap memory setting. Xms matching Xmx because if not there is unused memory
@@ -139,6 +136,13 @@ public class JVMService extends AbstractService {
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
     arguments.add("-javaagent:" + wrapperInformation.first().toAbsolutePath());
     arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
+
+    // fabric specific class path
+    arguments.add(String.format("-Dfabric.systemLibraries=%s", wrapperInformation.first().toAbsolutePath()));
+
+    // set the used host and port as system property
+    arguments.add("-Dservice.bind.host=" + this.nodeInstance.config().hostAddress());
+    arguments.add("-Dservice.bind.port=" + this.serviceConfiguration().port());
 
     // add the class path and the main class of the wrapper
     arguments.add("-cp");
@@ -229,7 +233,7 @@ public class JVMService extends AbstractService {
           this.eventManager.callEvent(logTarget.second(), new CloudServiceLogEntryEvent(
             this.currentServiceInfo,
             line,
-            stderr ? StreamType.STDERR : StreamType.STDOUT));
+            stderr ? CloudServiceLogEntryEvent.StreamType.STDERR : CloudServiceLogEntryEvent.StreamType.STDOUT));
         } else {
           // the listener is listening remotely, send the line to the network component
           ChannelMessage.builder()

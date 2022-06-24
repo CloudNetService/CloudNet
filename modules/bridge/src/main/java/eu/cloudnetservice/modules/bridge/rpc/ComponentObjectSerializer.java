@@ -24,8 +24,16 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
+/**
+ * A serializer to write adventure components to a data buf.
+ *
+ * @since 4.0
+ */
 public final class ComponentObjectSerializer implements ObjectSerializer<Component> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,
@@ -36,6 +44,9 @@ public final class ComponentObjectSerializer implements ObjectSerializer<Compone
     dataBuf.writeString(GsonComponentSerializer.gson().serialize(object));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Object read(
     @NonNull DataBuf source,

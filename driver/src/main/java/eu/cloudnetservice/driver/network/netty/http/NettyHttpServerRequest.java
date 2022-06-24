@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@Internal
 final class NettyHttpServerRequest extends NettyHttpMessage implements HttpRequest {
 
   private final NettyHttpServerContext context;

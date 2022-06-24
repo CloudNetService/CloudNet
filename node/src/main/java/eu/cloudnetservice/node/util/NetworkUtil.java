@@ -54,7 +54,7 @@ public final class NetworkUtil {
     }
   }
 
-  public static String localAddress() {
+  public static @NonNull String localAddress() {
     return LOCAL_ADDRESS;
   }
 

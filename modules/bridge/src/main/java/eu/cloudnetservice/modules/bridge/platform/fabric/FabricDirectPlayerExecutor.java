@@ -24,10 +24,9 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.minecraft.Util;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -69,25 +68,20 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   @Override
   public void kick(@NonNull Component message) {
-    var reason = new TextComponent(LegacyComponentSerializer.legacySection().serialize(message));
+    var reason = this.vanillaFromAdventure(message);
     this.forEach(player -> player.connection.disconnect(reason));
-  }
-
-  @Override
-  public void sendMessage(@NonNull Component message) {
-    var text = new TextComponent(LegacyComponentSerializer.legacySection().serialize(message));
-    this.forEach(player -> player.sendMessage(text, Util.NIL_UUID));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     // we're unable to check the permission for the player
-    this.sendMessage(message);
+    var text = this.vanillaFromAdventure(message);
+    this.forEach(player -> player.sendSystemMessage(text, ChatType.SYSTEM));
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String tag, byte[] data) {
-    var identifier = new ResourceLocation(tag);
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
+    var identifier = new ResourceLocation(key);
     this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(
       identifier,
       new FriendlyByteBuf(Unpooled.wrappedBuffer(data)))));
@@ -95,6 +89,15 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
-    this.forEach(player -> player.connection.handleCommand(command));
+    this.forEach(player -> {
+      var stack = player.createCommandSourceStack();
+      player.server.getCommands().performCommand(stack, command);
+    });
+  }
+
+  private @NonNull net.minecraft.network.chat.Component vanillaFromAdventure(@NonNull Component adventure) {
+    var adventureAsJson = GsonComponentSerializer.gson().serializeToTree(adventure);
+    var vanilla = net.minecraft.network.chat.Component.Serializer.fromJson(adventureAsJson);
+    return vanilla == null ? net.minecraft.network.chat.Component.empty() : vanilla;
   }
 }

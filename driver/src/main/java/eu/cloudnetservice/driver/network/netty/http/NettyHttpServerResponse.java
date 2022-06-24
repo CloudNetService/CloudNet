@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.HttpVersion;
 import io.netty5.buffer.api.DefaultBufferAllocators;
 import io.netty5.handler.codec.http.DefaultFullHttpResponse;
+import io.netty5.handler.codec.http.FullHttpResponse;
 import io.netty5.handler.codec.http.HttpRequest;
 import io.netty5.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
@@ -39,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
  */
 final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResponse {
 
-  final DefaultFullHttpResponse httpResponse;
+  final FullHttpResponse httpResponse;
   private final NettyHttpServerContext context;
 
   private InputStream responseInputStream;

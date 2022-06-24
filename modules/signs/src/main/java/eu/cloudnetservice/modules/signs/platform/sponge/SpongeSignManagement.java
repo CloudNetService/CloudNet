@@ -22,6 +22,7 @@ import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Entity;
@@ -31,7 +32,7 @@ import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.math.vector.Vector3d;
 import org.spongepowered.plugin.PluginContainer;
 
-public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, ServerLocation> {
+public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, ServerLocation, Component> {
 
   protected final PluginContainer plugin;
   protected final TaskExecutorService syncExecutor;
@@ -110,7 +111,7 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
   }
 
   @Override
-  protected @NonNull PlatformSign<ServerPlayer> createPlatformSign(@NonNull Sign base) {
+  protected @NonNull PlatformSign<ServerPlayer, Component> createPlatformSign(@NonNull Sign base) {
     return new SpongePlatformSign(base);
   }
 }

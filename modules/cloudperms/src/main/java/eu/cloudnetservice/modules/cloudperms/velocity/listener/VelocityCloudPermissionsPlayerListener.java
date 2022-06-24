@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.cloudperms.velocity.listener;
 
 import com.velocitypowered.api.event.PostOrder;
-import com.velocitypowered.api.event.ResultedEvent.ComponentResult;
+import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
@@ -54,7 +54,7 @@ public final class VelocityCloudPermissionsPlayerListener {
       event.getPlayer().getUsername(),
       message -> {
         var reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
-        event.setResult(ComponentResult.denied(reasonComponent));
+        event.setResult(ResultedEvent.ComponentResult.denied(reasonComponent));
       },
       this.proxyServer.getConfiguration().isOnlineMode());
   }

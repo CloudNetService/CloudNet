@@ -26,14 +26,14 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The default netty inbound handler used to call downstream packet listeners when receiving a packet.
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<BasePacket> {
 
   private static final Logger LOGGER = LogManager.logger(NettyNetworkHandler.class);
@@ -57,7 +57,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
    * {@inheritDoc}
    */
   @Override
-  public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
+  public void channelExceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception in network handler", cause);
     }

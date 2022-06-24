@@ -21,14 +21,14 @@ import eu.cloudnetservice.common.io.ZipUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler.Callback;
+import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.node.Node;
 import java.io.InputStream;
 import java.nio.file.Files;
 import lombok.NonNull;
 
-final class StaticServiceDeployCallback implements Callback {
+final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback {
 
   public static final StaticServiceDeployCallback INSTANCE = new StaticServiceDeployCallback();
 

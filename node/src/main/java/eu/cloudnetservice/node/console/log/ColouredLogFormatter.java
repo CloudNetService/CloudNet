@@ -30,7 +30,7 @@ public final class ColouredLogFormatter extends Formatter {
   private final DateFormat dateFormat = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");
 
   @Override
-  public String format(LogRecord record) {
+  public String format(@NonNull LogRecord record) {
     var builder = new StringBuilder()
       .append(ConsoleColor.DARK_GRAY)
       .append('[')

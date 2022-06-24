@@ -32,15 +32,20 @@ public class DefaultHttpSession implements HttpSession {
   protected final AtomicLong expireTime;
   protected final Map<String, Object> properties;
 
-  public DefaultHttpSession(long expireTime, UUID userId) {
+  public DefaultHttpSession(long expireTime, @NonNull UUID userId) {
     this(expireTime, UUID.randomUUID().toString(), userId);
   }
 
-  public DefaultHttpSession(long expireTime, String uniqueId, UUID userId) {
+  public DefaultHttpSession(long expireTime, @NonNull String uniqueId, @NonNull UUID userId) {
     this(expireTime, uniqueId, userId, new HashMap<>());
   }
 
-  public DefaultHttpSession(long expireTime, String uniqueId, UUID userId, Map<String, Object> properties) {
+  public DefaultHttpSession(
+    long expireTime,
+    @NonNull String uniqueId,
+    @NonNull UUID userId,
+    @NonNull Map<String, Object> properties
+  ) {
     this.expireTime = new AtomicLong(expireTime);
     this.uniqueId = uniqueId;
     this.userId = userId;

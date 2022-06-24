@@ -445,7 +445,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       @NonNull WebSocketChannel channel,
       @NonNull WebSocketFrameType type,
       byte[] bytes
-    ) throws Exception {
+    ) {
       if (type == WebSocketFrameType.TEXT) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
         this.service.runCommand(commandLine);

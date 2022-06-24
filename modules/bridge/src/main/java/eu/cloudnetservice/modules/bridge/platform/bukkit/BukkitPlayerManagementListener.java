@@ -28,7 +28,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 
@@ -52,7 +51,7 @@ public final class BukkitPlayerManagementListener implements Listener {
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
-        event.setResult(Result.KICK_WHITELIST);
+        event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
         event.setKickMessage(this.management.configuration().message(
           Locale.forLanguageTag(BukkitUtil.playerLocale(event.getPlayer())),
           "server-join-cancel-because-maintenance"));
@@ -61,7 +60,7 @@ public final class BukkitPlayerManagementListener implements Listener {
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
-        event.setResult(Result.KICK_WHITELIST);
+        event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
         event.setKickMessage(this.management.configuration().message(
           Locale.forLanguageTag(BukkitUtil.playerLocale(event.getPlayer())),
           "server-join-cancel-because-permission"));

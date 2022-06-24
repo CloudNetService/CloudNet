@@ -19,7 +19,7 @@ package eu.cloudnetservice.common.unsafe;
 import com.sun.management.OperatingSystemMXBean;
 import java.lang.management.ManagementFactory;
 import java.text.DecimalFormat;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * This class includes the methods to getDef the CPU load exactly from the com.sun.management.OperatingSystemMXBean
@@ -27,7 +27,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  *
  * @see com.sun.management.OperatingSystemMXBean
  */
-@Internal
+@ApiStatus.Internal
 public final class CPUUsageResolver {
 
   /**

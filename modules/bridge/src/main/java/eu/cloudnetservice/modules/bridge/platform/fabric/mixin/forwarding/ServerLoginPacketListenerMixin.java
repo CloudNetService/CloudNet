@@ -30,7 +30,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -49,7 +48,7 @@ public final class ServerLoginPacketListenerMixin {
     at = @At(
       ordinal = 0,
       value = "FIELD",
-      shift = Shift.AFTER,
+      shift = At.Shift.AFTER,
       opcode = Opcodes.PUTFIELD,
       target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;gameProfile:Lcom/mojang/authlib/GameProfile;"
     ),
@@ -59,7 +58,7 @@ public final class ServerLoginPacketListenerMixin {
     if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
       var bridged = (BridgedClientConnection) this.connection;
       // update the profile according to the forwarded data
-      this.gameProfile = new GameProfile(bridged.forwardedUniqueId(), this.gameProfile.getName());
+      this.gameProfile = new GameProfile(bridged.forwardedUniqueId(), packet.name());
       for (var property : bridged.forwardedProfile()) {
         this.gameProfile.getProperties().put(property.getName(), property);
       }

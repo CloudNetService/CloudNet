@@ -17,9 +17,7 @@
 package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
 import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
-import com.github.juliarn.npc.event.PlayerNPCInteractEvent.EntityUseAction;
-import com.github.juliarn.npc.event.PlayerNPCInteractEvent.Hand;
-import com.github.juliarn.npc.modifier.LabyModModifier.LabyModAction;
+import com.github.juliarn.npc.modifier.LabyModModifier;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
@@ -44,12 +42,13 @@ public final class BukkitFunctionalityListener implements Listener {
 
   @EventHandler
   public void handle(@NonNull PlayerNPCInteractEvent event) {
-    if (event.getHand() == Hand.MAIN_HAND && event.getUseAction() != EntityUseAction.INTERACT_AT) {
+    if (event.getHand() == PlayerNPCInteractEvent.Hand.MAIN_HAND
+      && event.getUseAction() != PlayerNPCInteractEvent.EntityUseAction.INTERACT_AT) {
       this.handleClick(
         event.getPlayer(),
         null,
         event.getNPC().getEntityId(),
-        event.getUseAction() == EntityUseAction.ATTACK);
+        event.getUseAction() == PlayerNPCInteractEvent.EntityUseAction.ATTACK);
     }
   }
 
@@ -109,10 +108,10 @@ public final class BukkitFunctionalityListener implements Listener {
           if (npc.getLocation().getWorld().getUID().equals(event.getPlayer().getWorld().getUID())) {
             // check if the emote id is fixed
             if (selectedNpcId != -1) {
-              npc.labymod().queue(LabyModAction.EMOTE, selectedNpcId).send(event.getPlayer());
+              npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, selectedNpcId).send(event.getPlayer());
             } else {
               var randomEmote = onJoinEmoteIds[ThreadLocalRandom.current().nextInt(0, onJoinEmoteIds.length)];
-              npc.labymod().queue(LabyModAction.EMOTE, randomEmote).send(event.getPlayer());
+              npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, randomEmote).send(event.getPlayer());
             }
           }
         }

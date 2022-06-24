@@ -18,8 +18,7 @@ package eu.cloudnetservice.modules.npc.platform;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessage.Builder;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget.Type;
+import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
@@ -163,11 +162,11 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   }
 
   @Override
-  protected @NonNull Builder channelMessage(@NonNull String message) {
+  protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message)
-      .target(Type.NODE, Wrapper.instance().nodeUniqueId());
+      .target(ChannelMessageTarget.Type.NODE, Wrapper.instance().nodeUniqueId());
   }
 
   public void initialize() {

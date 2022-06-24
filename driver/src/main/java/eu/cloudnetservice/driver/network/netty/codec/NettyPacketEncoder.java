@@ -22,7 +22,8 @@ import eu.cloudnetservice.driver.network.protocol.Packet;
 import io.netty5.buffer.api.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.MessageToByteEncoderForBuffer;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * An internal implementation of the packet encoder used for client to server communication.
@@ -36,7 +37,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public final class NettyPacketEncoder extends MessageToByteEncoderForBuffer<Packet> {
 
   public static final NettyPacketEncoder INSTANCE = new NettyPacketEncoder();
@@ -45,7 +46,7 @@ public final class NettyPacketEncoder extends MessageToByteEncoderForBuffer<Pack
    * {@inheritDoc}
    */
   @Override
-  protected Buffer allocateBuffer(ChannelHandlerContext ctx, Packet msg) {
+  protected Buffer allocateBuffer(@NonNull ChannelHandlerContext ctx, @NonNull Packet msg) {
     // we allocate 2 booleans (prioritized and isQuery) + content length + channel in advance
     var bufferLength = 2
       + msg.content().readableBytes()
@@ -64,7 +65,7 @@ public final class NettyPacketEncoder extends MessageToByteEncoderForBuffer<Pack
    * {@inheritDoc}
    */
   @Override
-  protected void encode(ChannelHandlerContext ctx, Packet msg, Buffer out) {
+  protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull Packet msg, @NonNull Buffer out) {
     // channel
     NettyUtil.writeVarInt(out, msg.channel());
     // packet priority
@@ -85,7 +86,7 @@ public final class NettyPacketEncoder extends MessageToByteEncoderForBuffer<Pack
     NettyUtil.writeVarInt(out, length);
     // copy the content and move the cursor of the destination buffer
     content.copyInto(0, out, out.writerOffset(), length);
-    out.skipWritable(length);
+    out.skipWritableBytes(length);
     // release the content of the packet now, don't use the local field to respect if releasing was disabled in the
     // original buffer.
     msg.content().release();

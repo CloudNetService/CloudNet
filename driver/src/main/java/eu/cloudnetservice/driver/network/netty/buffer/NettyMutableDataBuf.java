@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.network.netty.buffer;
 
 import com.google.common.base.Utf8;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.buffer.DataBuf.Mutable;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import io.netty5.buffer.api.Buffer;
@@ -33,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class NettyMutableDataBuf extends NettyImmutableDataBuf implements Mutable {
+public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBuf.Mutable {
 
   /**
    * Constructs a new mutable data buf instance.

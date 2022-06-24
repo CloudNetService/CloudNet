@@ -22,15 +22,15 @@ import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCFactory;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.DefaultRPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import eu.cloudnetservice.driver.network.rpc.handler.DefaultRPCHandlerTest.TestApiClass;
+import eu.cloudnetservice.driver.network.rpc.handler.DefaultRPCHandlerTest;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-@TestMethodOrder(OrderAnnotation.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DefaultRPCHandlerRegistryTest {
 
   @Test
@@ -39,16 +39,19 @@ public class DefaultRPCHandlerRegistryTest {
     var factory = this.provideFactory();
     RPCHandlerRegistry registry = new DefaultRPCHandlerRegistry();
 
-    registry.registerHandler(factory.newHandler(TestApiClass.class, new TestApiClass(new AtomicLong())));
+    registry.registerHandler(factory.newHandler(
+      DefaultRPCHandlerTest.TestApiClass.class,
+      new DefaultRPCHandlerTest.TestApiClass(new AtomicLong())));
 
     Assertions.assertEquals(1, registry.registeredHandlers().size());
-    Assertions.assertNotNull(registry.registeredHandlers().get(TestApiClass.class.getCanonicalName()));
+    Assertions.assertNotNull(
+      registry.registeredHandlers().get(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
 
-    Assertions.assertTrue(registry.hasHandler(TestApiClass.class));
-    Assertions.assertTrue(registry.hasHandler(TestApiClass.class.getCanonicalName()));
+    Assertions.assertTrue(registry.hasHandler(DefaultRPCHandlerTest.TestApiClass.class));
+    Assertions.assertTrue(registry.hasHandler(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
 
-    Assertions.assertNotNull(registry.handler(TestApiClass.class));
-    Assertions.assertNotNull(registry.handler(TestApiClass.class.getCanonicalName()));
+    Assertions.assertNotNull(registry.handler(DefaultRPCHandlerTest.TestApiClass.class));
+    Assertions.assertNotNull(registry.handler(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
   }
 
   @Test
@@ -57,15 +60,19 @@ public class DefaultRPCHandlerRegistryTest {
     var factory = this.provideFactory();
     RPCHandlerRegistry registry = new DefaultRPCHandlerRegistry();
 
-    registry.registerHandler(factory.newHandler(TestApiClass.class, new TestApiClass(new AtomicLong())));
+    registry.registerHandler(factory.newHandler(
+      DefaultRPCHandlerTest.TestApiClass.class,
+      new DefaultRPCHandlerTest.TestApiClass(new AtomicLong())));
 
     Assertions.assertEquals(1, registry.registeredHandlers().size());
-    Assertions.assertNotNull(registry.registeredHandlers().get(TestApiClass.class.getCanonicalName()));
+    Assertions.assertNotNull(
+      registry.registeredHandlers().get(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
 
-    registry.unregisterHandler(TestApiClass.class);
+    registry.unregisterHandler(DefaultRPCHandlerTest.TestApiClass.class);
 
     Assertions.assertEquals(0, registry.registeredHandlers().size());
-    Assertions.assertNull(registry.registeredHandlers().get(TestApiClass.class.getCanonicalName()));
+    Assertions.assertNull(
+      registry.registeredHandlers().get(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
   }
 
   private RPCFactory provideFactory() {

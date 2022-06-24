@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.bridge.node.event;
 import eu.cloudnetservice.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import lombok.NonNull;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -65,8 +65,8 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
   }
 
   /**
-   * Sets the result of the login process. To deny a login use {@link Result#denied(TextComponent)} and {@link
-   * Result#allowed()} to allow the login.
+   * Sets the result of the login process. To deny a login use {@link Result#denied(Component)} and
+   * {@link Result#allowed()} to allow the login.
    *
    * @param result the result to set for the login.
    * @throws NullPointerException if the result is null.
@@ -85,7 +85,7 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
     private static final Result ALLOWED = new Result(true, null);
 
     private final boolean allowed;
-    private final TextComponent result;
+    private final Component result;
 
     /**
      * Constructs a new result for the player pre login event.
@@ -93,7 +93,7 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
      * @param allowed whether the player is allowed to connect or not.
      * @param result  the reason for denying the login.
      */
-    private Result(boolean allowed, @Nullable TextComponent result) {
+    private Result(boolean allowed, @Nullable Component result) {
       this.allowed = allowed;
       this.result = result;
     }
@@ -113,7 +113,7 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
      * @param reason the reason for denying the login.
      * @return the new result denying the login.
      */
-    public static @NonNull Result denied(@Nullable TextComponent reason) {
+    public static @NonNull Result denied(@Nullable Component reason) {
       return new Result(false, reason);
     }
 
@@ -131,7 +131,7 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
      *
      * @return the reason to display to the player, might be null if the component is not set.
      */
-    public @UnknownNullability TextComponent result() {
+    public @UnknownNullability Component result() {
       return this.result;
     }
   }

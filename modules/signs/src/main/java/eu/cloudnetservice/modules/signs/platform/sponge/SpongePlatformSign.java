@@ -23,6 +23,7 @@ import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
@@ -34,13 +35,13 @@ import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.world.server.ServerLocation;
 
-final class SpongePlatformSign extends PlatformSign<ServerPlayer> {
+final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
 
   // lazy initialized once available
   private ServerLocation signLocation;
 
   public SpongePlatformSign(@NonNull Sign base) {
-    super(base);
+    super(base, AdventureSerializerUtil::serialize);
   }
 
   @Override
@@ -82,9 +83,7 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer> {
       sign.glowingText().set(layout.glowingColor() != null);
 
       // set the sign lines
-      for (int i = 0; i < Math.min(4, layout.lines().size()); i++) {
-        sign.lines().set(i, AdventureSerializerUtil.serialize(layout.lines().get(i)));
-      }
+      this.changeSignLines(layout, sign.lines()::set);
 
       // change the block behind the sign
       var type = Sponge.game()

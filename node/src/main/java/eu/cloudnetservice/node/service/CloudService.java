@@ -28,7 +28,7 @@ import eu.cloudnetservice.driver.service.ServiceTemplate;
 import java.nio.file.Path;
 import java.util.Queue;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public interface CloudService extends SpecificCloudServiceProvider {
@@ -60,7 +60,7 @@ public interface CloudService extends SpecificCloudServiceProvider {
 
   @Nullable NetworkChannel networkChannel();
 
-  @Internal
+  @ApiStatus.Internal
   void networkChannel(@Nullable NetworkChannel channel);
 
   @NonNull ServiceInfoSnapshot lastServiceInfoSnapshot();
@@ -71,6 +71,6 @@ public interface CloudService extends SpecificCloudServiceProvider {
 
   void publishServiceInfoSnapshot();
 
-  @Internal
+  @ApiStatus.Internal
   void updateServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

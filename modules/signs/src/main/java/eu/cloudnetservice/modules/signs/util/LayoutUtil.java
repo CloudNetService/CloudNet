@@ -16,14 +16,17 @@
 
 package eu.cloudnetservice.modules.signs.util;
 
+import static eu.cloudnetservice.modules.bridge.BridgeServiceHelper.fillCommonPlaceholders;
+
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper.ServiceInfoState;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignGroupConfiguration;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,9 +78,9 @@ public final class LayoutUtil {
     }
     // return the correct layout based on the state
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
-    if (state == ServiceInfoState.STOPPED) {
+    if (state == BridgeServiceHelper.ServiceInfoState.STOPPED) {
       return entry.searchingLayout();
-    } else if (state == ServiceInfoState.STARTING) {
+    } else if (state == BridgeServiceHelper.ServiceInfoState.STARTING) {
       return entry.startingLayout();
     } else {
       // check for an overriding group configuration
@@ -97,6 +100,20 @@ public final class LayoutUtil {
           : groupConfiguration == null ? entry.fullLayout() : groupConfiguration.fullLayout();
         default -> throw new IllegalStateException("Unexpected service state: " + state);
       };
+    }
+  }
+
+  public static <C> void updateSignLines(
+    @NonNull SignLayout layout,
+    @NonNull String signTargetGroup,
+    @Nullable ServiceInfoSnapshot target,
+    @NonNull Function<String, C> lineMapper,
+    @NonNull BiConsumer<Integer, C> lineSetter
+  ) {
+    var lines = layout.lines();
+    for (int i = 0; i < Math.min(4, lines.size()); i++) {
+      var converted = lineMapper.apply(fillCommonPlaceholders(lines.get(i), signTargetGroup, target));
+      lineSetter.accept(i, converted);
     }
   }
 }

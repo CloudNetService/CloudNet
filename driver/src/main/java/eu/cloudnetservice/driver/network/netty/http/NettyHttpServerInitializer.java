@@ -22,15 +22,16 @@ import io.netty5.channel.ChannelInitializer;
 import io.netty5.handler.codec.http.HttpObjectAggregator;
 import io.netty5.handler.codec.http.HttpRequestDecoder;
 import io.netty5.handler.codec.http.HttpResponseEncoder;
+import io.netty5.handler.stream.ChunkedWriteHandler;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The default channel initializer used to initialize http server connections.
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
 
   private final NettyHttpServer nettyHttpServer;
@@ -62,7 +63,7 @@ final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
       .addLast("http-request-decoder", new HttpRequestDecoder())
       .addLast("http-object-aggregator", new HttpObjectAggregator<>(Short.MAX_VALUE))
       .addLast("http-response-encoder", new HttpResponseEncoder())
-      // TODO .addLast("http-chunk-handler", new ChunkedWriteHandler())
+      .addLast("http-chunk-handler", new ChunkedWriteHandler())
       .addLast("http-server-handler", new NettyHttpServerHandler(this.nettyHttpServer, this.hostAndPort));
   }
 }

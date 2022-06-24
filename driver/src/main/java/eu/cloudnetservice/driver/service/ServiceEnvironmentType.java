@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.DocProperty;
@@ -24,7 +25,9 @@ import eu.cloudnetservice.common.document.property.FunctionalDocProperty;
 import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -83,7 +86,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    */
   public static final ServiceEnvironmentType NUKKIT = ServiceEnvironmentType.builder()
     .name("NUKKIT")
-    .addDefaultProcessArguments(Set.of("disable-ansi"))
+    .defaultProcessArguments(Set.of("disable-ansi"))
     .properties(JsonDocument.newDocument().property(PE_SERVER, true))
     .build();
   /**
@@ -92,7 +95,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    */
   public static final ServiceEnvironmentType MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MINECRAFT_SERVER")
-    .addDefaultProcessArguments(Set.of("nogui"))
+    .defaultProcessArguments(Set.of("nogui"))
     .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))
     .build();
   /**
@@ -101,8 +104,16 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    */
   public static final ServiceEnvironmentType MODDED_MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MODDED_MINECRAFT_SERVER")
-    .addDefaultProcessArguments(Set.of("nogui"))
+    .defaultProcessArguments(Set.of("nogui"))
     .properties(JsonDocument.newDocument().property(JAVA_SERVER, true).property(PLUGIN_DIR, "mods"))
+    .build();
+  /**
+   * The minestom service environment type. This applies to all services which are a server minestom instance allowing
+   * extensions running on it.
+   */
+  public static final ServiceEnvironmentType MINESTOM = ServiceEnvironmentType.builder()
+    .name("MINESTOM")
+    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true).property(PLUGIN_DIR, "extensions"))
     .build();
   /**
    * The default glowstone service environment type (Java Edition server).
@@ -261,7 +272,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     private String name;
     private int defaultServiceStartPort = 44955;
     private JsonDocument properties = JsonDocument.newDocument();
-    private Set<String> defaultProcessArguments = new HashSet<>();
+    private Set<String> defaultProcessArguments = new LinkedHashSet<>();
 
     /**
      * Sets the name of the service environment type.
@@ -319,18 +330,15 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     }
 
     /**
-     * Adds the default process arguments which should get appended to the command line of all services created using
-     * the service environment type.
-     * <p>
-     * The collection will be copied into this builder, meaning that changes made to the given collection after the
-     * method call will not reflect into the builder and vice-versa.
+     * Modifies the default process arguments which should get appended to the command line of all services created
+     * using the service environment type.
      *
-     * @param defaultProcessArguments the default process arguments to apply to a service command line.
+     * @param modifier the modifier to be applied to the already added default process arguments of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given argument collection is null.
      */
-    public @NonNull Builder addDefaultProcessArguments(@NonNull Collection<String> defaultProcessArguments) {
-      this.defaultProcessArguments.addAll(defaultProcessArguments);
+    public @NonNull Builder modifyDefaultProcessArguments(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.defaultProcessArguments);
       return this;
     }
 
@@ -349,7 +357,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
       return new ServiceEnvironmentType(
         this.name,
         this.defaultServiceStartPort,
-        this.defaultProcessArguments,
+        ImmutableSet.copyOf(this.defaultProcessArguments),
         this.properties);
     }
   }

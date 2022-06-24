@@ -22,6 +22,8 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
@@ -40,7 +42,9 @@ import eu.cloudnetservice.node.version.ServiceVersionType;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +59,9 @@ public final class TemplateCommand {
     .column(ServiceTemplate::prefix)
     .column(ServiceTemplate::name)
     .build();
+  private static final LoadingCache<TemplateStorage, Collection<ServiceTemplate>> STORED_TEMPLATES = Caffeine.newBuilder()
+    .expireAfterWrite(30, TimeUnit.SECONDS)
+    .build(TemplateStorage::templates);
 
   @Parser(suggestions = "serviceTemplate")
   public @NonNull ServiceTemplate defaultServiceTemplateParser(
@@ -70,8 +77,10 @@ public final class TemplateCommand {
 
   @Suggestions("serviceTemplate")
   public @NonNull List<String> suggestServiceTemplate(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().templateStorageProvider().localTemplateStorage().templates()
-      .stream()
+    return Node.instance().templateStorageProvider().availableTemplateStorages().stream()
+      .map(storage -> Node.instance().templateStorageProvider().templateStorage(storage))
+      .filter(Objects::nonNull)
+      .flatMap(storage -> STORED_TEMPLATES.get(storage).stream())
       .map(ServiceTemplate::toString)
       .toList();
   }

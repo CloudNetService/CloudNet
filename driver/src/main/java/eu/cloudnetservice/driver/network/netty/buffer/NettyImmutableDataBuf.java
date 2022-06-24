@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.Function;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -159,7 +159,7 @@ public class NettyImmutableDataBuf implements DataBuf {
       var content = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), length, true));
 
       // skip the amount of bytes we're read and return the content
-      buf.skipReadable(length);
+      buf.skipReadableBytes(length);
       return content;
     });
   }
@@ -302,7 +302,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    *
    * @return the wrapped netty byte buf.
    */
-  @Internal
+  @ApiStatus.Internal
   public @NonNull Buffer buffer() {
     return this.buffer;
   }

@@ -1,0 +1,22 @@
+
+## System Information
+  Microsoft Windows 11 build 22621 x64
+  Uptime: 06:36:01
+  
+  CPU: AMD Ryzen 7 5800X 8-Core Processor; Physical Cores: 8; Logical Cores: 16
+  Memory: 31,9 GiB; Available: 9,2 GiB
+  
+  Disks: 3:
+    \\.\PHYSICALDRIVE2 1,0 TB
+    Partitions (1):
+      - Datenträgernr. 2, Partitionsnr. 2 (GPT: Standarddaten); Mounted at C:\; Size: 999,0 GB
+  
+    \\.\PHYSICALDRIVE0 500,1 GB
+    Partitions (1):
+      - Datenträgernr. 0, Partitionsnr. 2 (GPT: Standarddaten); Mounted at D:\; Size: 498,0 GB
+  
+    \\.\PHYSICALDRIVE1 2,0 TB
+    Partitions (1):
+      - Datenträgernr. 1, Partitionsnr. 0 (GPT: Standarddaten); Mounted at E:\; Size: 2,0 TB
+  
+  

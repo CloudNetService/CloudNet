@@ -24,7 +24,6 @@ import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
-import eu.cloudnetservice.modules.npc.NPC.ClickAction;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
@@ -256,7 +255,7 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   @Override
-  public void executeAction(@NonNull Player player, @NonNull ClickAction action) {
+  public void executeAction(@NonNull Player player, @NonNull NPC.ClickAction action) {
     this.handleClickAction(player, action);
   }
 
@@ -307,7 +306,7 @@ public abstract class BukkitPlatformSelectorEntity
     return this.npcLocation.getWorld() != null && this.npcLocation.getWorld().isChunkLoaded(chunkX, chunkZ);
   }
 
-  protected void handleClickAction(@NonNull Player player, @NonNull ClickAction action) {
+  protected void handleClickAction(@NonNull Player player, @NonNull NPC.ClickAction action) {
     switch (action) {
       case OPEN_INVENTORY:
         player.openInventory(this.inventory);

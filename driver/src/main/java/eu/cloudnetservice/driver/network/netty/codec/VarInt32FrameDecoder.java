@@ -21,9 +21,10 @@ import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import io.netty5.buffer.api.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.ByteToMessageDecoderForBuffer;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
-@Internal
+@ApiStatus.Internal
 public final class VarInt32FrameDecoder extends ByteToMessageDecoderForBuffer {
 
   private static final SilentDecoderException BAD_LENGTH = new SilentDecoderException("Bad packet length");
@@ -32,7 +33,7 @@ public final class VarInt32FrameDecoder extends ByteToMessageDecoderForBuffer {
    * {@inheritDoc}
    */
   @Override
-  protected void decode(ChannelHandlerContext ctx, Buffer in) {
+  protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer in) {
     // ensure that the channel we're reading from is still open
     if (!ctx.channel().isActive()) {
       in.close();
@@ -54,7 +55,7 @@ public final class VarInt32FrameDecoder extends ByteToMessageDecoderForBuffer {
 
     // skip empty packets silently
     if (length == 0) {
-      in.skipReadable(1);
+      in.skipReadableBytes(1);
       return;
     }
 
@@ -62,7 +63,7 @@ public final class VarInt32FrameDecoder extends ByteToMessageDecoderForBuffer {
     if (in.readableBytes() >= length) {
       // fire the channel read
       ctx.fireChannelRead(in.copy(in.readerOffset(), length, true));
-      in.skipReadable(length);
+      in.skipReadableBytes(length);
     } else {
       // reset the reader index, there is still data missing
       in.readerOffset(readerIndex);

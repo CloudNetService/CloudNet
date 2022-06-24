@@ -58,7 +58,7 @@ public final class NodeSignsConfigurationHelper {
     if (configurationDocument.empty()) {
       // create a new configuration entry
       var configuration = SignsConfiguration.builder()
-        .addEntry(SignConfigurationType.JAVA.createEntry("Lobby"))
+        .modifyEntries(entries -> entries.add(SignConfigurationType.JAVA.createEntry("Lobby")))
         .build();
       write(configuration, path);
       return configuration;

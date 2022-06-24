@@ -76,7 +76,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic driver functions and the setup of
@@ -166,12 +166,18 @@ public class Wrapper extends CloudNetDriver {
     this.moduleProvider.loadAll().startAll();
 
     // register our default class transformers
-    this.transformerRegistry()
-      .registerTransformer("org/bukkit/craftbukkit", "Commodore", new BukkitCommodoreTransformer());
-    this.transformerRegistry()
-      .registerTransformer("org/bukkit/craftbukkit", "Main", new BukkitJavaVersionCheckTransformer());
-    this.transformerRegistry()
-      .registerTransformer("org/github/paperspigot", "PaperSpigotConfig", new PaperConfigTransformer());
+    this.transformerRegistry().registerTransformer(
+      "org/bukkit/craftbukkit",
+      "Commodore",
+      new BukkitCommodoreTransformer());
+    this.transformerRegistry().registerTransformer(
+      "org/bukkit/craftbukkit",
+      "Main",
+      new BukkitJavaVersionCheckTransformer());
+    this.transformerRegistry().registerTransformer(
+      "org/github/paperspigot",
+      "PaperSpigotConfig",
+      new PaperConfigTransformer());
     // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
     this.transformerRegistry().registerTransformer(
       name -> name.endsWith("Epoll") && name.startsWith("io") && name.contains("netty/channel/epoll/"),
@@ -257,7 +263,7 @@ public class Wrapper extends CloudNetDriver {
       this.currentServiceInfoSnapshot.properties());
   }
 
-  @Internal
+  @ApiStatus.Internal
   public @NonNull ServiceInfoSnapshot configureServiceInfoSnapshot() {
     var serviceInfoSnapshot = this.createServiceInfoSnapshot();
     this.configureServiceInfoSnapshot(serviceInfoSnapshot);

@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.channel;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget.Type;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
@@ -89,13 +88,16 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
   }
 
   /**
-   * Converts this sender to a target. The target has either the type {@link Type#NODE} if this sender represents a
-   * node, or the type {@link Type#SERVICE} if this sender represents a wrapper (or is running embedded).
+   * Converts this sender to a target. The target has either the type {@link ChannelMessageTarget.Type#NODE} if this
+   * sender represents a node, or the type {@link ChannelMessageTarget.Type#SERVICE} if this sender represents a wrapper
+   * (or is running embedded).
    *
    * @return a new {@link ChannelMessageTarget} based on the information of this sender.
    */
   public @NonNull ChannelMessageTarget toTarget() {
-    var type = this.type.equals(DriverEnvironment.NODE) ? Type.NODE : Type.SERVICE;
+    var type = this.type.equals(DriverEnvironment.NODE)
+      ? ChannelMessageTarget.Type.NODE
+      : ChannelMessageTarget.Type.SERVICE;
     return new ChannelMessageTarget(type, this.name);
   }
 }

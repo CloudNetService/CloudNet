@@ -15,7 +15,7 @@
  */
 
 @Deprecated
-@ScheduledForRemoval
+@ApiStatus.ScheduledForRemoval
 package eu.cloudnetservice.modules.npc._deprecated;
 
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.ApiStatus;

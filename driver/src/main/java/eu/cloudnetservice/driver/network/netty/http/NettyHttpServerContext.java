@@ -40,7 +40,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -48,7 +47,6 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@Internal
 final class NettyHttpServerContext implements HttpContext {
 
   final NettyHttpServerResponse httpServerResponse;

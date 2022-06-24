@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.service.defaults;
 
 import com.google.common.collect.ComparisonChain;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget.Type;
+import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
@@ -113,7 +113,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   ) {
     // send a request to the node to start a service
     var result = ChannelMessage.builder()
-      .target(Type.NODE, targetNode)
+      .target(ChannelMessageTarget.Type.NODE, targetNode)
       .message(message)
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBuf.empty().writeObject(configuration))
@@ -191,12 +191,12 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       if (config != null) {
         output
           // components
-          .addInclusions(config.inclusions())
-          .addTemplates(config.templates())
-          .addDeployments(config.deployments())
+          .modifyInclusions(inclusions -> inclusions.addAll(config.inclusions()))
+          .modifyTemplates(templates -> templates.addAll(config.templates()))
+          .modifyDeployments(deployments -> deployments.addAll(config.deployments()))
           // append process configuration settings
-          .addJvmOptions(config.jvmOptions())
-          .addProcessParameters(config.processParameters());
+          .modifyJvmOptions(jvmOptions -> jvmOptions.addAll(config.jvmOptions()))
+          .modifyProcessParameters(processParameters -> processParameters.addAll(config.processParameters()));
       }
     }
   }

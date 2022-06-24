@@ -17,11 +17,10 @@
 package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
 import com.github.juliarn.npc.NPCPool;
-import com.github.juliarn.npc.modifier.AnimationModifier.EntityAnimation;
-import com.github.juliarn.npc.modifier.MetadataModifier.EntityMetadata;
+import com.github.juliarn.npc.modifier.AnimationModifier;
+import com.github.juliarn.npc.modifier.MetadataModifier;
 import com.github.juliarn.npc.modifier.NPCModifier;
 import com.github.juliarn.npc.profile.Profile;
-import com.github.juliarn.npc.profile.Profile.Property;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import java.util.stream.Collectors;
@@ -75,17 +74,17 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
         this.uniqueId,
         this.npc.displayName(),
         this.npc.profileProperties().stream()
-          .map(prop -> new Property(prop.name(), prop.value(), prop.signature()))
+          .map(prop -> new Profile.Property(prop.name(), prop.value(), prop.signature()))
           .collect(Collectors.toSet())
       ))
       .location(this.npcLocation)
       .spawnCustomizer((spawnedNpc, player) -> {
         // just because the client is stupid sometimes
         spawnedNpc.rotation().queueRotate(this.npcLocation.getYaw(), this.npcLocation.getPitch()).send(player);
-        spawnedNpc.animation().queue(EntityAnimation.SWING_MAIN_ARM).send(player);
+        spawnedNpc.animation().queue(AnimationModifier.EntityAnimation.SWING_MAIN_ARM).send(player);
         var metadataModifier = spawnedNpc.metadata()
-          .queue(EntityMetadata.SKIN_LAYERS, true)
-          .queue(EntityMetadata.SNEAKING, false);
+          .queue(MetadataModifier.EntityMetadata.SKIN_LAYERS, true)
+          .queue(MetadataModifier.EntityMetadata.SNEAKING, false);
         // apply glowing effect if possible
         if (NPCModifier.MINECRAFT_VERSION >= 9) {
           if (this.npc.glowing() && this.npc.flyingWithElytra()) {

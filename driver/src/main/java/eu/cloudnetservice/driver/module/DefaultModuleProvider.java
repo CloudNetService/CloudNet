@@ -157,7 +157,7 @@ public class DefaultModuleProvider implements ModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public ModuleWrapper module(@NonNull String name) {
+  public @Nullable ModuleWrapper module(@NonNull String name) {
     return this.modules.stream()
       .filter(module -> module.moduleConfiguration().name().equals(name))
       .findFirst().orElse(null);
@@ -167,7 +167,7 @@ public class DefaultModuleProvider implements ModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public ModuleWrapper loadModule(@NonNull URL url) {
+  public @Nullable ModuleWrapper loadModule(@NonNull URL url) {
     try {
       // check if there is any other module loaded from the same url
       if (this.findModuleBySource(url).isPresent()) {
@@ -201,7 +201,7 @@ public class DefaultModuleProvider implements ModuleProvider {
       var dataDirectory = moduleConfiguration.dataFolder(this.moduleDirectory);
       // create an instance of the class and the main module wrapper
       var moduleInstance = (Module) mainModuleClass.getConstructor().newInstance();
-      ModuleWrapper moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
+      var moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
         this, loader, dependencies.second(), moduleConfiguration);
       // initialize the module instance now
       moduleInstance.init(loader, moduleWrapper, moduleConfiguration);
@@ -219,7 +219,7 @@ public class DefaultModuleProvider implements ModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public ModuleWrapper loadModule(@NonNull Path path) {
+  public @Nullable ModuleWrapper loadModule(@NonNull Path path) {
     try {
       return this.loadModule(path.toUri().toURL());
     } catch (MalformedURLException exception) {
