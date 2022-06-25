@@ -108,7 +108,7 @@ public class CommandExceptionHandler {
         // we need to handle this exception extra
         if (deepCause instanceof FlagArgument.FlagParseException flagParseException) {
           // if no flag is supplied we should reply with the command tree
-          if (flagParseException.getFailureReason() == FlagArgument.FailureReason.NO_FLAG_STARTED) {
+          if (flagParseException.failureReason() == FlagArgument.FailureReason.NO_FLAG_STARTED) {
             source.sendMessage(this.collectCommandHelp(parseException.getCurrentChain()));
             return;
           }
