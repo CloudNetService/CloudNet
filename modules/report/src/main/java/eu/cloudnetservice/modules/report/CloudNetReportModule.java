@@ -17,99 +17,91 @@
 package eu.cloudnetservice.modules.report;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.service.GroupConfiguration;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.report.command.ReportCommand;
-import eu.cloudnetservice.modules.report.config.RecordConfiguration;
+import eu.cloudnetservice.modules.report.config.PasteServer;
 import eu.cloudnetservice.modules.report.config.ReportConfiguration;
-import eu.cloudnetservice.modules.report.listener.RecordReportListener;
-import eu.cloudnetservice.modules.report.paste.emitter.EmitterRegistry;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.ConsoleLogEmitter;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.ModuleEmitter;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.NodeConfigurationEmitter;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.NodeSnapshotEmitter;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.NodeStateEmitter;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.service.ServiceInfoSnapshotEmitter;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.service.ServiceLogEmitter;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.service.ServiceOverviewEmitter;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.service.ServiceTaskEmitter;
+import eu.cloudnetservice.modules.report.emitter.EmitterRegistry;
+import eu.cloudnetservice.modules.report.emitter.defaults.GroupConfigDataEmitter;
+import eu.cloudnetservice.modules.report.emitter.defaults.HeapDumpDataEmitter;
+import eu.cloudnetservice.modules.report.emitter.defaults.LocalModuleDataEmitter;
+import eu.cloudnetservice.modules.report.emitter.defaults.LocalNodeConfigDataEmitter;
+import eu.cloudnetservice.modules.report.emitter.defaults.NodeServerDataEmitter;
+import eu.cloudnetservice.modules.report.emitter.defaults.ServiceInfoDataEmitter;
+import eu.cloudnetservice.modules.report.emitter.defaults.ServiceTasksDataEmitter;
+import eu.cloudnetservice.modules.report.emitter.defaults.SystemInfoDataEmitter;
+import eu.cloudnetservice.modules.report.emitter.defaults.ThreadInfoDataEmitter;
 import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.service.CloudService;
-import java.nio.file.Path;
+import eu.cloudnetservice.node.cluster.NodeServer;
+import java.util.Map;
+import java.util.Set;
 import lombok.NonNull;
 
 public final class CloudNetReportModule extends DriverModule {
 
-  private EmitterRegistry registry;
   private ReportConfiguration configuration;
 
-  @ModuleTask(event = ModuleLifeCycle.LOADED)
-  public void convertConfig() {
+  @ModuleTask(order = 127)
+  public void prepareEmitterRegistry() {
+    var emitterRegistry = new EmitterRegistry();
+    this.driver().serviceRegistry().registerProvider(EmitterRegistry.class, "ReportEmitterRegistry", emitterRegistry);
+  }
+
+  @ModuleTask(order = 64)
+  public void registerDefaultEmitters() {
+    var emitterRegistry = ServiceRegistry.first(EmitterRegistry.class);
+    emitterRegistry
+      // general emitters
+      .registerEmitter(new SystemInfoDataEmitter())
+      .registerEmitter(new ThreadInfoDataEmitter())
+      .registerEmitter(new HeapDumpDataEmitter())
+      .registerEmitter(new LocalNodeConfigDataEmitter())
+      // specific class emitters
+      .registerSpecificEmitter(NodeServer.class, new NodeServerDataEmitter())
+      .registerSpecificEmitter(ModuleWrapper.class, new LocalModuleDataEmitter())
+      .registerSpecificEmitter(ServiceTask.class, new ServiceTasksDataEmitter())
+      .registerSpecificEmitter(GroupConfiguration.class, new GroupConfigDataEmitter())
+      .registerSpecificEmitter(ServiceInfoSnapshot.class, new ServiceInfoDataEmitter());
+  }
+
+  @ModuleTask(order = 46)
+  public void convertConfiguration() {
     var config = this.readConfig();
     if (config.contains("savingRecords")) {
-      this.writeConfig(JsonDocument.newDocument(
-        ReportConfiguration.builder()
-          .records(RecordConfiguration.builder()
-            .saveRecords(config.getBoolean("savingRecords"))
-            .recordDestination(config.get("recordDestinationDirectory", Path.class, Path.of("records")))
-            .serviceLifetime(config.getLong("serviceLifetimeLogPrint", 5000L))
-            .build()
-          ).build()
-      ));
+      // old configuration, convert now
+      this.writeConfig(JsonDocument.newDocument(new ReportConfiguration(Set.of(new PasteServer(
+        "cloudnet",
+        config.getString("pasteServerUrl"),
+        "documents",
+        "POST",
+        Map.of(),
+        "key")))));
     }
   }
 
   @ModuleTask
-  public void init() {
-    // read the configuration from the file and convert it if necessary
-    this.reloadConfiguration();
-    // create a new registry for our report data emitters
-    this.registry = new EmitterRegistry();
-    // register all emitters that are used for the ICloudService report
-    this.registry.registerDataEmitter(CloudService.class, new ServiceLogEmitter())
-      .registerDataEmitter(CloudService.class, new ServiceInfoSnapshotEmitter())
-      .registerDataEmitter(CloudService.class, new ServiceOverviewEmitter())
-      .registerDataEmitter(CloudService.class, new ServiceTaskEmitter());
-    // register all emitters that are used for the Node report
-    this.registry.registerDataEmitter(NodeInfoSnapshot.class, new ConsoleLogEmitter())
-      .registerDataEmitter(NodeInfoSnapshot.class, new NodeStateEmitter())
-      .registerDataEmitter(NodeInfoSnapshot.class, new NodeSnapshotEmitter())
-      .registerDataEmitter(NodeInfoSnapshot.class, new NodeConfigurationEmitter())
-      .registerDataEmitter(NodeInfoSnapshot.class, new ModuleEmitter());
-    // register our listener to handle stopping and deleted services
-    this.registerListener(new RecordReportListener(this));
-    this.serviceRegistry().registerProvider(EmitterRegistry.class, "EmitterRegistry", this.registry);
-    // register the command of the module at the node
+  public void finishStartup() {
+    this.configuration = this.readConfig(
+      ReportConfiguration.class,
+      () -> new ReportConfiguration(Set.of(PasteServer.DEFAULT_PASTER_SERVER)));
     Node.instance().commandProvider().register(new ReportCommand(this));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
-  public void reload() {
-    this.reloadConfiguration();
+  public void handleReload() {
+    this.configuration = this.readConfig(
+      ReportConfiguration.class,
+      () -> new ReportConfiguration(Set.of(PasteServer.DEFAULT_PASTER_SERVER)));
   }
 
-  public @NonNull EmitterRegistry emitterRegistry() {
-    return this.registry;
-  }
-
-  public @NonNull ReportConfiguration reportConfiguration() {
+  public @NonNull ReportConfiguration configuration() {
     return this.configuration;
-  }
-
-  public @NonNull Path currentRecordDirectory() {
-    // resolve the target record directory
-    var recordConfig = this.configuration.records();
-    var date = recordConfig.dateFormat().format(System.currentTimeMillis());
-    var dir = this.moduleWrapper.dataDirectory().resolve(recordConfig.recordDestination()).resolve(date);
-    // create the directory if it does not yet exist
-    FileUtil.createDirectory(dir);
-    return dir;
-  }
-
-  private void reloadConfiguration() {
-    this.configuration = this.readConfig(ReportConfiguration.class, () -> ReportConfiguration.builder().build());
   }
 }
