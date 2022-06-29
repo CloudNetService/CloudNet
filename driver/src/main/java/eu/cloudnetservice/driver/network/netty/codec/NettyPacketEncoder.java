@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import io.netty5.buffer.api.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
-import io.netty5.handler.codec.MessageToByteEncoderForBuffer;
+import io.netty5.handler.codec.MessageToByteEncoder;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @since 4.0
  */
 @ApiStatus.Internal
-public final class NettyPacketEncoder extends MessageToByteEncoderForBuffer<Packet> {
+public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
 
   public static final NettyPacketEncoder INSTANCE = new NettyPacketEncoder();
 

@@ -17,10 +17,12 @@
 package eu.cloudnetservice.driver.network.netty.http;
 
 import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.handler.timeout.IdleState;
 import io.netty5.handler.timeout.IdleStateEvent;
 import io.netty5.handler.timeout.IdleStateHandler;
 import io.netty5.handler.timeout.ReadTimeoutException;
 import java.util.concurrent.TimeUnit;
+import lombok.NonNull;
 
 /**
  * A custom idle state handler which closes a connection after the given seconds of client inactivity while also
@@ -40,15 +42,15 @@ final class NettyIdleStateHandler extends IdleStateHandler {
    * @param timeoutSeconds the seconds a client is allowed to idle before a forced disconnect.
    */
   public NettyIdleStateHandler(int timeoutSeconds) {
-    super(true, timeoutSeconds, 0, 0, TimeUnit.SECONDS);
+    super(0, 0, timeoutSeconds, TimeUnit.SECONDS);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  protected void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) {
-    if (!this.closed) {
+  protected void channelIdle(@NonNull ChannelHandlerContext ctx, @NonNull IdleStateEvent evt) {
+    if (!this.closed && evt.state() == IdleState.ALL_IDLE) {
       ctx.fireChannelExceptionCaught(ReadTimeoutException.INSTANCE);
       ctx.close();
       this.closed = true;

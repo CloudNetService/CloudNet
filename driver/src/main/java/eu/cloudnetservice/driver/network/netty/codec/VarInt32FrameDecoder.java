@@ -20,12 +20,12 @@ import eu.cloudnetservice.driver.network.exception.SilentDecoderException;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import io.netty5.buffer.api.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
-import io.netty5.handler.codec.ByteToMessageDecoderForBuffer;
+import io.netty5.handler.codec.ByteToMessageDecoder;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public final class VarInt32FrameDecoder extends ByteToMessageDecoderForBuffer {
+public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
 
   private static final SilentDecoderException BAD_LENGTH = new SilentDecoderException("Bad packet length");
 

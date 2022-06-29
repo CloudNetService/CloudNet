@@ -19,12 +19,12 @@ package eu.cloudnetservice.driver.network.netty.codec;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import io.netty5.buffer.api.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
-import io.netty5.handler.codec.MessageToByteEncoderForBuffer;
+import io.netty5.handler.codec.MessageToByteEncoder;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public final class VarInt32FramePrepender extends MessageToByteEncoderForBuffer<Buffer> {
+public final class VarInt32FramePrepender extends MessageToByteEncoder<Buffer> {
 
   public static final VarInt32FramePrepender INSTANCE = new VarInt32FramePrepender();
 

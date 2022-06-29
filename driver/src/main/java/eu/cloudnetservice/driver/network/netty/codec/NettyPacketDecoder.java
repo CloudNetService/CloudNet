@@ -23,7 +23,7 @@ import eu.cloudnetservice.driver.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
 import io.netty5.buffer.api.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
-import io.netty5.handler.codec.ByteToMessageDecoderForBuffer;
+import io.netty5.handler.codec.ByteToMessageDecoder;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -43,7 +43,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @since 4.0
  */
 @ApiStatus.Internal
-public final class NettyPacketDecoder extends ByteToMessageDecoderForBuffer {
+public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
   private static final Logger LOGGER = LogManager.logger(NettyPacketDecoder.class);
 

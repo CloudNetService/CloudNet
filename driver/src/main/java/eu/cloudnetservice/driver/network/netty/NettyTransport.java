@@ -115,7 +115,7 @@ public enum NettyTransport {
   public static @NonNull NettyTransport availableTransport(boolean noNative) {
     for (var transport : values()) {
       // ignore native transports if no-native is selected
-      if (noNative && transport.nativeTransport) {
+      if (noNative && transport.nativeTransport()) {
         continue;
       }
 
