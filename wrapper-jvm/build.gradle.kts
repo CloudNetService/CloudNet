@@ -25,17 +25,12 @@ tasks.withType<ShadowJar> {
   archiveVersion.set(null as String?)
 
   // do not shade dependencies which we don't need to shade
-  val ignoredGroupIds = arrayOf("io.netty", "com.google.guava", "com.google.code.gson")
+  val ignoredGroupIds = arrayOf("com.google.guava", "com.google.code.gson")
   dependencies {
     exclude {
       it.moduleGroup != project.group && !ignoredGroupIds.contains(it.moduleGroup)
     }
   }
-
-  // netty relocation
-  relocate("io.netty5", "eu.cloudnetservice.relocate.io.netty")
-  relocate("META-INF/native/netty", "META-INF/native/eu_cloudnetservice_relocate_netty")
-  relocate("META-INF/native/libnetty", "META-INF/native/libeu_cloudnetservice_relocate_netty")
 
   // google lib relocation
   relocate("com.google.gson", "eu.cloudnetservice.relocate.gson")
