@@ -51,7 +51,7 @@ public final class MeCommand {
     var nodeInfoSnapshot = nodeInstance.nodeServerProvider().localNode().nodeInfoSnapshot();
 
     // hide the middle parts of the uuid if not explicitly requested to show them
-    String clusterId = nodeInstance.config().clusterConfig().clusterId().toString();
+    var clusterId = nodeInstance.config().clusterConfig().clusterId().toString();
     if (!showFullClusterId) {
       var matcher = UUID_REPLACE_PATTERN.matcher(clusterId);
       clusterId = matcher.replaceAll("-****-");
