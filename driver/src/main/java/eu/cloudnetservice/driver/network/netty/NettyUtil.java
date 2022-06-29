@@ -52,9 +52,9 @@ public final class NettyUtil {
   private static final int[] VAR_INT_BYTE_LENGTHS = new int[33];
   // transport
   private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudnet.no-native");
+  private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
   // var int codec
   private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
-  private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
   // packet thread handling
   private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 

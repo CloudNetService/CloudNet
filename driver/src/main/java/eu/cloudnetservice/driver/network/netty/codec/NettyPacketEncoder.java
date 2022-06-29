@@ -97,7 +97,6 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
    */
   @Override
   public boolean isSharable() {
-    // do this instead of @Sharable to prevent reflective calls
     return true;
   }
 }

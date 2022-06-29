@@ -51,7 +51,6 @@ public final class VarInt32FramePrepender extends MessageToByteEncoder<Buffer> {
    */
   @Override
   public boolean isSharable() {
-    // do this instead of @Sharable to prevent reflective calls
     return true;
   }
 }
