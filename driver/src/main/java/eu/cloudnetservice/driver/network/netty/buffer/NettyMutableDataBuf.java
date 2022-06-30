@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.driver.network.netty.buffer;
 
+import com.google.common.base.Utf8;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
+import io.netty5.buffer.api.Buffer;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -37,11 +37,11 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
   /**
    * Constructs a new mutable data buf instance.
    *
-   * @param byteBuf the netty buffer to wrap.
+   * @param buffer the netty buffer to wrap.
    * @throws NullPointerException if the given buffer is null.
    */
-  public NettyMutableDataBuf(@NonNull ByteBuf byteBuf) {
-    super(byteBuf);
+  public NettyMutableDataBuf(@NonNull Buffer buffer) {
+    super(buffer);
   }
 
   /**
@@ -49,7 +49,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeBoolean(boolean b) {
-    this.byteBuf.writeBoolean(b);
+    this.buffer.writeBoolean(b);
     return this;
   }
 
@@ -58,7 +58,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeInt(int integer) {
-    this.byteBuf.writeInt(integer);
+    this.buffer.writeInt(integer);
     return this;
   }
 
@@ -67,7 +67,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeByte(byte b) {
-    this.byteBuf.writeByte(b);
+    this.buffer.writeByte(b);
     return this;
   }
 
@@ -76,7 +76,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeShort(short s) {
-    this.byteBuf.writeShort(s);
+    this.buffer.writeShort(s);
     return this;
   }
 
@@ -85,7 +85,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeLong(long l) {
-    this.byteBuf.writeLong(l);
+    this.buffer.writeLong(l);
     return this;
   }
 
@@ -94,7 +94,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeFloat(float f) {
-    this.byteBuf.writeFloat(f);
+    this.buffer.writeFloat(f);
     return this;
   }
 
@@ -103,7 +103,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeDouble(double d) {
-    this.byteBuf.writeDouble(d);
+    this.buffer.writeDouble(d);
     return this;
   }
 
@@ -112,7 +112,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeChar(char c) {
-    this.byteBuf.writeChar(c);
+    this.buffer.writeChar(c);
     return this;
   }
 
@@ -129,8 +129,8 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeByteArray(byte[] b, int amount) {
-    NettyUtil.writeVarInt(this.byteBuf, amount);
-    this.byteBuf.writeBytes(b, 0, amount);
+    NettyUtil.writeVarInt(this.buffer, amount);
+    this.buffer.writeBytes(b, 0, amount);
     return this;
   }
 
@@ -147,8 +147,8 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeString(@NonNull String string) {
-    NettyUtil.writeVarInt(this.byteBuf, ByteBufUtil.utf8Bytes(string));
-    this.byteBuf.writeCharSequence(string, StandardCharsets.UTF_8);
+    NettyUtil.writeVarInt(this.buffer, Utf8.encodedLength(string));
+    this.buffer.writeCharSequence(string, StandardCharsets.UTF_8);
     return this;
   }
 
@@ -160,7 +160,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
     buf.startTransaction();
     // write the content
     this.writeInt(buf.readableBytes());
-    this.byteBuf.writeBytes(((NettyImmutableDataBuf) buf).byteBuf);
+    this.buffer.writeBytes(((NettyImmutableDataBuf) buf).buffer);
     // reset the data for later use
     buf.redoTransaction();
 
@@ -192,6 +192,6 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf asImmutable() {
-    return new NettyImmutableDataBuf(this.byteBuf);
+    return new NettyImmutableDataBuf(this.buffer);
   }
 }

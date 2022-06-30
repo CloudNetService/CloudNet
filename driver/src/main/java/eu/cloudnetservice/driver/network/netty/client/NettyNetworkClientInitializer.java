@@ -19,10 +19,10 @@ package eu.cloudnetservice.driver.network.netty.client;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.netty.codec.NettyPacketDecoder;
 import eu.cloudnetservice.driver.network.netty.codec.NettyPacketEncoder;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
-import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
+import eu.cloudnetservice.driver.network.netty.codec.VarInt32FrameDecoder;
+import eu.cloudnetservice.driver.network.netty.codec.VarInt32FramePrepender;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelInitializer;
 import lombok.NonNull;
 
 /**
@@ -54,16 +54,16 @@ public class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
   protected void initChannel(@NonNull Channel channel) {
     if (this.nettyNetworkClient.sslContext != null) {
       channel.pipeline().addLast("ssl-handler", this.nettyNetworkClient.sslContext.newHandler(
-        channel.alloc(),
+        channel.bufferAllocator(),
         this.hostAndPort.host(),
         this.hostAndPort.port()));
     }
 
     channel.pipeline()
-      .addLast("packet-length-deserializer", new ProtobufVarint32FrameDecoder())
+      .addLast("packet-length-deserializer", new VarInt32FrameDecoder())
       .addLast("packet-decoder", new NettyPacketDecoder())
-      .addLast("packet-length-serializer", new ProtobufVarint32LengthFieldPrepender())
-      .addLast("packet-encoder", new NettyPacketEncoder())
+      .addLast("packet-length-serializer", VarInt32FramePrepender.INSTANCE)
+      .addLast("packet-encoder", NettyPacketEncoder.INSTANCE)
       .addLast("network-client-handler", new NettyNetworkClientHandler(this.nettyNetworkClient, this.hostAndPort));
   }
 }

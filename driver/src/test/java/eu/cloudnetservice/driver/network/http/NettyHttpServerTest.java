@@ -22,10 +22,9 @@ import eu.cloudnetservice.common.function.ThrowableConsumer;
 import eu.cloudnetservice.driver.network.NetworkTestCase;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketFrameType;
 import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
-import io.netty.handler.codec.http.cookie.ClientCookieDecoder;
-import io.netty.handler.codec.http.cookie.ClientCookieEncoder;
-import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
+import io.netty5.handler.codec.http.cookie.ClientCookieDecoder;
+import io.netty5.handler.codec.http.cookie.ClientCookieEncoder;
+import io.netty5.handler.codec.http.cookie.DefaultCookie;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -254,7 +253,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     var connection = this.connectTo(port, "test", urlConnection -> {
-      Cookie cookie = new DefaultCookie("request_cookie", "request_value");
+      var cookie = new DefaultCookie("request_cookie", "request_value");
       urlConnection.setRequestProperty("Cookie", ClientCookieEncoder.LAX.encode(cookie));
     });
     Assertions.assertEquals(200, connection.getResponseCode());

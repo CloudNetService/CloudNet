@@ -21,10 +21,9 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
-import java.util.List;
+import io.netty5.buffer.api.Buffer;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.handler.codec.ByteToMessageDecoder;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -52,27 +51,30 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
    * {@inheritDoc}
    */
   @Override
-  protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull ByteBuf buf, @NonNull List<Object> out) {
+  protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer in) {
     // validates that the channel associated to this decoder call is still active and actually transferred data before
     // beginning to read.
-    if (!ctx.channel().isActive() || !buf.isReadable()) {
-      buf.clear();
+    if (!ctx.channel().isActive() || in.readableBytes() <= 0) {
       return;
     }
 
     try {
       // read the required base data from the buffer
-      var channel = NettyUtil.readVarInt(buf);
-      var prioritized = buf.readBoolean();
-      var queryUniqueId = buf.readBoolean() ? new UUID(buf.readLong(), buf.readLong()) : null;
-      var body = new NettyImmutableDataBuf(buf.readBytes(NettyUtil.readVarInt(buf)));
+      var channel = NettyUtil.readVarInt(in);
+      var prioritized = in.readBoolean();
+      var queryUniqueId = in.readBoolean() ? new UUID(in.readLong(), in.readLong()) : null;
+
+      // extract the body
+      var bodyLength = NettyUtil.readVarInt(in);
+      var body = new NettyImmutableDataBuf(in.copy(in.readerOffset(), bodyLength, true));
+      in.skipReadableBytes(bodyLength);
 
       // construct the packet
       var packet = new BasePacket(channel, prioritized, body);
       packet.uniqueId(queryUniqueId);
 
       // register the packet for further downstream handling
-      out.add(packet);
+      ctx.fireChannelRead(packet);
     } catch (Exception exception) {
       LOGGER.severe("Exception while decoding packet", exception);
     }

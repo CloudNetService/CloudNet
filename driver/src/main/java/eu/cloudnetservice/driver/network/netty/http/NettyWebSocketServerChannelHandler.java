@@ -19,14 +19,14 @@ package eu.cloudnetservice.driver.network.netty.http;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketFrameType;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.channel.SimpleChannelInboundHandler;
+import io.netty5.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.WebSocketFrame;
 import java.io.IOException;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -57,7 +57,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
    * {@inheritDoc}
    */
   @Override
-  public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
+  public void channelExceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception was caught", cause);
     }
@@ -85,7 +85,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
    * {@inheritDoc}
    */
   @Override
-  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull WebSocketFrame webSocketFrame) {
+  protected void messageReceived(@NonNull ChannelHandlerContext ctx, @NonNull WebSocketFrame webSocketFrame) {
     if (webSocketFrame instanceof PingWebSocketFrame) {
       this.invoke0(WebSocketFrameType.PING, webSocketFrame);
     }
@@ -133,8 +133,8 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
    * @throws NullPointerException if the given frame is null.
    */
   private byte[] readContentFromWebSocketFrame(@NonNull WebSocketFrame frame) {
-    var bytes = new byte[frame.content().readableBytes()];
-    frame.content().getBytes(frame.content().readerIndex(), bytes);
+    var bytes = new byte[frame.binaryData().readableBytes()];
+    frame.binaryData().readBytes(bytes, 0, bytes.length);
     return bytes;
   }
 }

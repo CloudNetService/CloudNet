@@ -16,22 +16,26 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.ServerChannel;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.kqueue.KQueue;
-import io.netty.channel.kqueue.KQueueEventLoopGroup;
-import io.netty.channel.kqueue.KQueueServerSocketChannel;
-import io.netty.channel.kqueue.KQueueSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import java.util.function.Function;
+import com.google.common.base.Suppliers;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelFactory;
+import io.netty5.channel.EventLoopGroup;
+import io.netty5.channel.IoHandlerFactory;
+import io.netty5.channel.MultithreadEventLoopGroup;
+import io.netty5.channel.ServerChannel;
+import io.netty5.channel.ServerChannelFactory;
+import io.netty5.channel.epoll.Epoll;
+import io.netty5.channel.epoll.EpollHandler;
+import io.netty5.channel.epoll.EpollServerSocketChannel;
+import io.netty5.channel.epoll.EpollSocketChannel;
+import io.netty5.channel.kqueue.KQueue;
+import io.netty5.channel.kqueue.KQueueHandler;
+import io.netty5.channel.kqueue.KQueueServerSocketChannel;
+import io.netty5.channel.kqueue.KQueueSocketChannel;
+import io.netty5.channel.nio.NioHandler;
+import io.netty5.channel.socket.nio.NioServerSocketChannel;
+import io.netty5.channel.socket.nio.NioSocketChannel;
+import java.util.function.Supplier;
 import lombok.NonNull;
 
 /**
@@ -45,7 +49,7 @@ public enum NettyTransport {
     "epoll",
     Epoll.isAvailable(),
     true,
-    EpollEventLoopGroup::new,
+    EpollHandler::newFactory,
     EpollSocketChannel::new,
     EpollServerSocketChannel::new
   ),
@@ -53,7 +57,7 @@ public enum NettyTransport {
     "kqueue",
     KQueue.isAvailable(),
     true,
-    KQueueEventLoopGroup::new,
+    KQueueHandler::newFactory,
     KQueueSocketChannel::new,
     KQueueServerSocketChannel::new
   ),
@@ -61,7 +65,7 @@ public enum NettyTransport {
     "nio",
     true,
     false,
-    NioEventLoopGroup::new,
+    NioHandler::newFactory,
     NioSocketChannel::new,
     NioServerSocketChannel::new
   );
@@ -69,9 +73,9 @@ public enum NettyTransport {
   private final String name;
   private final boolean available;
   private final boolean nativeTransport;
-  private final Function<Integer, EventLoopGroup> eventLoopFactory;
+  private final Supplier<IoHandlerFactory> ioHandlerFactory;
   private final ChannelFactory<? extends Channel> clientChannelFactory;
-  private final ChannelFactory<? extends ServerChannel> serverChannelFactory;
+  private final ServerChannelFactory<? extends ServerChannel> serverChannelFactory;
 
   /**
    * Constructs a new netty transport instance.
@@ -79,7 +83,7 @@ public enum NettyTransport {
    * @param name                 the display name of the transport.
    * @param available            if the transport is available.
    * @param nativeTransport      if the transport is native.
-   * @param eventLoopFactory     the factory for event loop groups.
+   * @param ioHandlerFactory     the factory for io handlers.
    * @param clientChannelFactory the factory for client channels.
    * @param serverChannelFactory the factory for server channels.
    * @throws NullPointerException if one of the given parameters is null.
@@ -88,14 +92,14 @@ public enum NettyTransport {
     @NonNull String name,
     boolean available,
     boolean nativeTransport,
-    @NonNull Function<Integer, EventLoopGroup> eventLoopFactory,
+    @NonNull Supplier<IoHandlerFactory> ioHandlerFactory,
     @NonNull ChannelFactory<? extends Channel> clientChannelFactory,
-    @NonNull ChannelFactory<? extends ServerChannel> serverChannelFactory
+    @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory
   ) {
     this.name = name;
     this.available = available;
     this.nativeTransport = nativeTransport;
-    this.eventLoopFactory = eventLoopFactory;
+    this.ioHandlerFactory = Suppliers.memoize(ioHandlerFactory::get);
     this.clientChannelFactory = clientChannelFactory;
     this.serverChannelFactory = serverChannelFactory;
   }
@@ -111,7 +115,7 @@ public enum NettyTransport {
   public static @NonNull NettyTransport availableTransport(boolean noNative) {
     for (var transport : values()) {
       // ignore native transports if no-native is selected
-      if (noNative && transport.nativeTransport) {
+      if (noNative && transport.nativeTransport()) {
         continue;
       }
 
@@ -132,7 +136,7 @@ public enum NettyTransport {
    * @throws IllegalArgumentException if the given number of threads is negative.
    */
   public @NonNull EventLoopGroup createEventLoopGroup(int threads) {
-    return this.eventLoopFactory.apply(threads);
+    return new MultithreadEventLoopGroup(threads, this.ioHandlerFactory.get());
   }
 
   /**
@@ -167,7 +171,7 @@ public enum NettyTransport {
    *
    * @return the factory for server channels of this transport.
    */
-  public @NonNull ChannelFactory<? extends ServerChannel> serverChannelFactory() {
+  public @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory() {
     return this.serverChannelFactory;
   }
 }

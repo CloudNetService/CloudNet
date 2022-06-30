@@ -28,12 +28,11 @@ import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.WriteBufferWaterMark;
+import io.netty5.bootstrap.ServerBootstrap;
+import io.netty5.channel.ChannelOption;
+import io.netty5.channel.EventLoopGroup;
+import io.netty5.channel.WriteBufferWaterMark;
+import io.netty5.util.concurrent.Future;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -57,7 +56,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
   protected final EventLoopGroup workerEventLoopGroup = NettyUtil.newEventLoopGroup(0);
 
   protected final Collection<NetworkChannel> channels = new ConcurrentLinkedQueue<>();
-  protected final Map<HostAndPort, ChannelFuture> channelFutures = new ConcurrentHashMap<>();
+  protected final Map<HostAndPort, Future<Void>> channelFutures = new ConcurrentHashMap<>();
 
   protected final Executor packetDispatcher = NettyUtil.newPacketDispatcher();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
@@ -129,12 +128,11 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
       .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
 
       .bind(hostAndPort.host(), hostAndPort.port())
-      .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-      .addListener((ChannelFutureListener) future -> {
+      .addListener(future -> {
         if (future.isSuccess()) {
           // ok, we bound successfully
           result.complete(null);
-          this.channelFutures.put(hostAndPort, future.channel().closeFuture());
+          this.channelFutures.put(hostAndPort, future.getNow().closeFuture());
         } else {
           // something went wrong
           result.completeExceptionally(future.cause());
@@ -152,7 +150,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
     this.closeChannels();
 
     for (var entry : this.channelFutures.values()) {
-      entry.cancel(true);
+      entry.cancel();
     }
 
     this.bossEventLoopGroup.shutdownGracefully();

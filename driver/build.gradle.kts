@@ -49,7 +49,7 @@ dependencies {
   "implementation"(libs.bundles.netty)
 
   // native transports
-  "implementation"(variantOf(libs.nettyNativeKqueue) { classifier("osx-x86_64") })
+  "implementation"(libs.nettyNativeKqueue)
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
 

@@ -20,10 +20,11 @@ import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponse;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.HttpVersion;
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty5.buffer.api.DefaultBufferAllocators;
+import io.netty5.handler.codec.http.DefaultFullHttpResponse;
+import io.netty5.handler.codec.http.FullHttpResponse;
+import io.netty5.handler.codec.http.HttpRequest;
+import io.netty5.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
  */
 final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResponse {
 
-  final DefaultFullHttpResponse httpResponse;
+  final FullHttpResponse httpResponse;
   private final NettyHttpServerContext context;
 
   private InputStream responseInputStream;
@@ -56,7 +57,7 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
     this.httpResponse = new DefaultFullHttpResponse(
       httpRequest.protocolVersion(),
       HttpResponseStatus.NOT_FOUND,
-      Unpooled.buffer());
+      DefaultBufferAllocators.offHeapAllocator().allocate(0));
   }
 
   /**
@@ -178,7 +179,15 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
    */
   @Override
   public byte[] body() {
-    return this.httpResponse.content().array();
+    var payload = this.httpResponse.payload();
+
+    // initialize the body
+    var length = payload.readableBytes();
+    var body = new byte[length];
+
+    // copy out the bytes of the buffer
+    payload.copyInto(payload.readableBytes(), body, 0, length);
+    return body;
   }
 
   /**
@@ -194,8 +203,10 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
    */
   @Override
   public @NonNull HttpResponse body(byte[] byteArray) {
-    this.httpResponse.content().clear();
-    this.httpResponse.content().writeBytes(byteArray);
+    this.httpResponse.payload()
+      .resetOffsets()
+      .fill((byte) 0)
+      .writeBytes(byteArray);
     return this;
   }
 
@@ -204,9 +215,7 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
    */
   @Override
   public @NonNull HttpResponse body(@NonNull String text) {
-    this.httpResponse.content().clear();
-    this.httpResponse.content().writeBytes(text.getBytes(StandardCharsets.UTF_8));
-    return this;
+    return this.body(text.getBytes(StandardCharsets.UTF_8));
   }
 
   /**
@@ -238,6 +247,6 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
    */
   @Override
   public boolean hasBody() {
-    return this.httpResponse.content().readableBytes() > 0 || this.responseInputStream != null;
+    return this.httpResponse.payload().readableBytes() > 0 || this.responseInputStream != null;
   }
 }

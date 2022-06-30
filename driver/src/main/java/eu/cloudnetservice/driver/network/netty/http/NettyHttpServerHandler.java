@@ -20,19 +20,20 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.HttpChunkedInput;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.stream.ChunkedStream;
-import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelFutureListeners;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.channel.SimpleChannelInboundHandler;
+import io.netty5.handler.codec.http.DefaultHttpResponse;
+import io.netty5.handler.codec.http.EmptyLastHttpContent;
+import io.netty5.handler.codec.http.HttpChunkedInput;
+import io.netty5.handler.codec.http.HttpHeaderNames;
+import io.netty5.handler.codec.http.HttpHeaderValues;
+import io.netty5.handler.codec.http.HttpRequest;
+import io.netty5.handler.codec.http.HttpUtil;
+import io.netty5.handler.stream.ChunkedStream;
+import io.netty5.handler.timeout.ReadTimeoutException;
+import io.netty5.util.concurrent.Future;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -92,7 +93,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
    * {@inheritDoc}
    */
   @Override
-  public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
+  public void channelExceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException) && !(cause instanceof ReadTimeoutException)) {
       LOGGER.severe("Exception caught during processing of http request", cause);
     }
@@ -110,7 +111,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
    * {@inheritDoc}
    */
   @Override
-  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull HttpRequest msg) {
+  protected void messageReceived(@NonNull ChannelHandlerContext ctx, @NonNull HttpRequest msg) {
     // validate that the request was actually decoded before processing
     if (msg.decoderResult().isFailure()) {
       ctx.channel().close();
@@ -178,32 +179,30 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
       }
 
       // transfer the data chunked to the client if a response stream was set, indicating a huge data chunk
-      ChannelFuture channelFuture;
+      Future<Void> future;
       if (response.bodyStream() != null) {
         // set the chunk transfer header
         HttpUtil.setTransferEncodingChunked(netty, true);
 
         // write the initial response to the client, use a void future as no monitoring is required
-        channel.write(
-          new DefaultHttpResponse(netty.protocolVersion(), netty.status(), netty.headers()),
-          channel.voidPromise());
+        channel.write(new DefaultHttpResponse(netty.protocolVersion(), netty.status(), netty.headers()));
         // write the actual content of the transfer into the channel using a progressive future
-        channelFuture = channel.writeAndFlush(
-          new HttpChunkedInput(new ChunkedStream(response.bodyStream())),
-          channel.newProgressivePromise());
+        future = channel.writeAndFlush(new HttpChunkedInput(
+          new ChunkedStream(response.bodyStream()),
+          new EmptyLastHttpContent(channel.bufferAllocator())));
       } else {
         // do not mark the request data as chunked
         HttpUtil.setTransferEncodingChunked(netty, false);
         // Set the content length of the response and transfer the data to the client
-        HttpUtil.setContentLength(netty, netty.content().readableBytes());
-        channelFuture = channel.writeAndFlush(netty);
+        HttpUtil.setContentLength(netty, netty.payload().readableBytes());
+        future = channel.writeAndFlush(netty);
       }
 
       // add the listener that fires the exception if an error occurs during writing of the response
-      channelFuture.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+      future.addListener(channel, ChannelFutureListeners.FIRE_EXCEPTION_ON_FAILURE);
       // if a close is requested, close the channel after the write process finished (either by succeeding or failing)
       if (context.closeAfter) {
-        channelFuture.addListener(ChannelFutureListener.CLOSE);
+        future.addListener(channel, ChannelFutureListeners.CLOSE);
       }
     }
   }

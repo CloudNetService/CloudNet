@@ -24,8 +24,8 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
+import io.netty5.channel.Channel;
+import io.netty5.util.concurrent.Future;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -82,7 +82,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
     for (var packet : packets) {
       var future = this.writePacket(packet, false);
       if (future != null) {
-        future.syncUninterruptibly();
+        NettyUtil.awaitFuture(future);
       }
     }
     this.channel.flush(); // reduces i/o load
@@ -93,10 +93,10 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    */
   @Override
   public void sendPacket(@NonNull Packet packet) {
-    if (this.channel.eventLoop().inEventLoop()) {
+    if (this.channel.executor().inEventLoop()) {
       this.writePacket(packet, true);
     } else {
-      this.channel.eventLoop().execute(() -> this.writePacket(packet, true));
+      this.channel.executor().execute(() -> this.writePacket(packet, true));
     }
   }
 
@@ -107,7 +107,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   public void sendPacketSync(@NonNull Packet packet) {
     var future = this.writePacket(packet, true);
     if (future != null) {
-      future.syncUninterruptibly();
+      NettyUtil.awaitFuture(future);
     }
   }
 
@@ -144,7 +144,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    * @return the future completed once the write operation (and flush) of the channel succeeded, null if cancelled.
    * @throws NullPointerException if the given packet is null.
    */
-  private @Nullable ChannelFuture writePacket(@NonNull Packet packet, boolean flushAfter) {
+  private @Nullable Future<Void> writePacket(@NonNull Packet packet, boolean flushAfter) {
     var event = CloudNetDriver.instance().eventManager().callEvent(new NetworkChannelPacketSendEvent(this, packet));
     if (!event.cancelled()) {
       return flushAfter ? this.channel.writeAndFlush(packet) : this.channel.write(packet);

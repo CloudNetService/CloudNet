@@ -35,8 +35,8 @@ public abstract class NettyHttpMessage {
    * @return the associated CloudNet http version.
    * @throws NullPointerException if the given netty http version is null.
    */
-  protected @NonNull HttpVersion versionFromNetty(@NonNull io.netty.handler.codec.http.HttpVersion httpVersion) {
-    if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_1) {
+  protected @NonNull HttpVersion versionFromNetty(@NonNull io.netty5.handler.codec.http.HttpVersion httpVersion) {
+    if (httpVersion == io.netty5.handler.codec.http.HttpVersion.HTTP_1_1) {
       return HttpVersion.HTTP_1_1;
     } else {
       return HttpVersion.HTTP_1_0;
@@ -50,11 +50,11 @@ public abstract class NettyHttpMessage {
    * @return the associated netty http version.
    * @throws NullPointerException if the given CloudNet http version is null.
    */
-  protected @NonNull io.netty.handler.codec.http.HttpVersion versionToNetty(@NonNull HttpVersion httpVersion) {
+  protected @NonNull io.netty5.handler.codec.http.HttpVersion versionToNetty(@NonNull HttpVersion httpVersion) {
     if (httpVersion == HttpVersion.HTTP_1_1) {
-      return io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+      return io.netty5.handler.codec.http.HttpVersion.HTTP_1_1;
     } else {
-      return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
+      return io.netty5.handler.codec.http.HttpVersion.HTTP_1_0;
     }
   }
 }

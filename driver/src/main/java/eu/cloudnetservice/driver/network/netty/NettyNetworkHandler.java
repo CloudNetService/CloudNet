@@ -20,8 +20,8 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -57,7 +57,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
    * {@inheritDoc}
    */
   @Override
-  public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
+  public void channelExceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception in network handler", cause);
     }
@@ -75,7 +75,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
    * {@inheritDoc}
    */
   @Override
-  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull BasePacket msg) {
+  protected void messageReceived(@NonNull ChannelHandlerContext ctx, @NonNull BasePacket msg) {
     // post directly if the packet has a high priority
     if (msg.prioritized()) {
       this.doHandlePacket(msg);

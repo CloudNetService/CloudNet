@@ -46,9 +46,9 @@ awsSdk = "2.17.220"
 reflexion = "1.3.0"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
-netty = "4.1.78.Final"
 annotations = "23.0.0"
 influxClient = "6.2.0"
+netty = "5.0.0.Alpha3-SNAPSHOT"
 
 # platform api versions
 sponge = "9.0.0"
@@ -117,10 +117,10 @@ dockerJavaApi = { group = "com.github.docker-java", name = "docker-java-core", v
 dockerJavaHttpclient5 = { group = "com.github.docker-java", name = "docker-java-transport-httpclient5", version.ref = "dockerJava" }
 
 # netty
-nettyHandler = { group = "io.netty", name = "netty-handler", version.ref = "netty" }
-nettyCodecHttp = { group = "io.netty", name = "netty-codec-http", version.ref = "netty" }
-nettyNativeEpoll = { group = "io.netty", name = "netty-transport-native-epoll", version.ref = "netty" }
-nettyNativeKqueue = { group = "io.netty", name = "netty-transport-native-kqueue", version.ref = "netty" }
+nettyHandler = { group = "io.netty", name = "netty5-handler", version.ref = "netty" }
+nettyCodecHttp = { group = "io.netty", name = "netty5-codec-http", version.ref = "netty" }
+nettyNativeEpoll = { group = "io.netty", name = "netty5-transport-native-epoll", version.ref = "netty" }
+nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue", version.ref = "netty" }
 
 # general
 asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
