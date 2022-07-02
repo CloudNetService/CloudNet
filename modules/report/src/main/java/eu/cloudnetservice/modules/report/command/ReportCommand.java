@@ -73,7 +73,7 @@ public final class ReportCommand {
     var name = input.remove();
     return this.reportModule.configuration().pasteServers()
       .stream()
-      .filter(service -> service.name().equalsIgnoreCase(name))
+      .filter(server -> server.name().equalsIgnoreCase(name))
       .findFirst()
       .orElseThrow(
         () -> new ArgumentNotAvailableException(I18n.trans("module-report-command-paste-server-not-found", name)));
