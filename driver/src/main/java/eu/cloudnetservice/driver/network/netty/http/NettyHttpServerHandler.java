@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.network.netty.http;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFutureListeners;
@@ -150,10 +151,11 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     // loop over each handler, posting the message to the handlers which are matching the request uri
     for (var httpHandlerEntry : entries) {
       // prepare the context to post to the handler
-      var handlerPathEntries = httpHandlerEntry.path().split("/");
+      context.invocationHints.clear();
       context.pathPrefix(httpHandlerEntry.path());
 
       // check and post to the handler if matching
+      var handlerPathEntries = httpHandlerEntry.path().split("/");
       if (this.handleMessage0(httpHandlerEntry, context, fullPath, pathEntries, handlerPathEntries)) {
         // update the last handler in the pipeline which handled the request
         context.pushChain(httpHandlerEntry.httpHandler());
@@ -220,11 +222,13 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
    */
   private boolean handleMessage0(
     @NonNull NettyHttpServer.HttpHandlerEntry httpHandlerEntry,
-    @NonNull NettyHttpServerContext context,
+    @NonNull HttpContext context,
     @NonNull String fullPath,
     @NonNull String[] pathEntries,
     @NonNull String[] handlerPathEntries
   ) {
+    var path = fullPath.toLowerCase();
+
     // validate that the port (if given) of the server and entry are matching
     if (httpHandlerEntry.port() != null && httpHandlerEntry.port() != this.connectedAddress.port()) {
       return false;
@@ -269,14 +273,26 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
       }
     }
 
+    // post the context to the invocation handlers (if any registered)
+    var preprocessors = httpHandlerEntry.httpHandler().preprocessors();
+    if (!preprocessors.isEmpty()) {
+      for (var preprocessor : preprocessors) {
+        // process & check if the handler requested to cancel the request
+        context = preprocessor.preProcessContext(path, context);
+        if (context == null) {
+          return false;
+        }
+      }
+    }
+
     try {
       // post the request to the handler as it does match
-      httpHandlerEntry.httpHandler().handle(fullPath.toLowerCase(), context);
+      httpHandlerEntry.httpHandler().handle(path, context);
       return true;
-    } catch (Exception exception) {
+    } catch (Throwable throwable) {
       LOGGER.finer(
         "Exception posting http request to handler %s",
-        exception,
+        throwable,
         httpHandlerEntry.httpHandler().getClass().getName());
       // assume that the request was bad so that the handler was unable to handle it
       context.response().status(HttpResponseCode.BAD_REQUEST);

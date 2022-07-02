@@ -24,13 +24,13 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public interface MethodHttpHandler extends HttpHandler {
+public abstract class MethodHttpHandler extends HttpHandler {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  default void handle(@NonNull String path, @NonNull HttpContext context) throws Exception {
+  public void handle(@NonNull String path, @NonNull HttpContext context) throws Exception {
     switch (context.request().method().toUpperCase()) {
       case "GET" -> this.handleGet(path, context);
       case "POST" -> this.handlePost(path, context);
@@ -56,7 +56,7 @@ public interface MethodHttpHandler extends HttpHandler {
    * @throws Exception            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handlePost(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handlePost(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
   /**
    * Handles a get http request whose path (and other supplied attributes) while registering is matching the requested
@@ -68,7 +68,7 @@ public interface MethodHttpHandler extends HttpHandler {
    * @throws Exception            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handleGet(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handleGet(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
   /**
    * Handles a put http request whose path (and other supplied attributes) while registering is matching the requested
@@ -80,7 +80,7 @@ public interface MethodHttpHandler extends HttpHandler {
    * @throws Exception            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handlePut(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handlePut(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
   /**
    * Handles a head http request whose path (and other supplied attributes) while registering is matching the requested
@@ -92,7 +92,7 @@ public interface MethodHttpHandler extends HttpHandler {
    * @throws Exception            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handleHead(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handleHead(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
   /**
    * Handles a delete http request whose path (and other supplied attributes) while registering is matching the
@@ -104,7 +104,7 @@ public interface MethodHttpHandler extends HttpHandler {
    * @throws Exception            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handleDelete(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handleDelete(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
   /**
    * Handles a patch http request whose path (and other supplied attributes) while registering is matching the requested
@@ -116,7 +116,7 @@ public interface MethodHttpHandler extends HttpHandler {
    * @throws Exception            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handlePatch(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handlePatch(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
   /**
    * Handles a trace http request whose path (and other supplied attributes) while registering is matching the requested
@@ -128,7 +128,7 @@ public interface MethodHttpHandler extends HttpHandler {
    * @throws Exception            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handleTrace(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handleTrace(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
   /**
    * Handles an options http request whose path (and other supplied attributes) while registering is matching the
@@ -140,7 +140,7 @@ public interface MethodHttpHandler extends HttpHandler {
    * @throws Exception            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handleOptions(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handleOptions(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
   /**
    * Handles a connect http request whose path (and other supplied attributes) while registering is matching the
@@ -152,5 +152,5 @@ public interface MethodHttpHandler extends HttpHandler {
    * @throws Exception            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handleConnect(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handleConnect(@NonNull String path, @NonNull HttpContext context) throws Exception;
 }

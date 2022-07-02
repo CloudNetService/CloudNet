@@ -25,10 +25,18 @@ import lombok.NonNull;
  * A http handler which provides the requested content from the http request uri using the given content stream
  * provider.
  *
- * @param provider the content stream provider which serves the requested content.
  * @since 4.0
  */
-public record StaticContentHttpHandler(@NonNull ContentStreamProvider provider) implements HttpHandler {
+public final class StaticContentHttpHandler extends HttpHandler {
+
+  private final @NonNull ContentStreamProvider provider;
+
+  /**
+   * @param provider the content stream provider which serves the requested content.
+   */
+  public StaticContentHttpHandler(@NonNull ContentStreamProvider provider) {
+    this.provider = provider;
+  }
 
   /**
    * {@inheritDoc}

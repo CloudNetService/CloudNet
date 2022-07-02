@@ -23,7 +23,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public class MethodHttpHandlerAdapter implements MethodHttpHandler {
+public class MethodHttpHandlerAdapter extends MethodHttpHandler {
 
   /**
    * {@inheritDoc}
