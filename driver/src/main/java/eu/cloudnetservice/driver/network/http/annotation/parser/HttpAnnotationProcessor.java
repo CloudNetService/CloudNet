@@ -31,7 +31,7 @@ public interface HttpAnnotationProcessor {
 
   /**
    * Builds a preprocessor for the annotation which is supported by this processor. The preprocessor will be called
-   * before the actual http handler is called, allowing the parser to modify or event abort the request.
+   * before the actual http handler is called, allowing the parser to modify or even abort the request.
    * <p>
    * All processors will be called for a method, unless this processor overrides the {@code shouldProcess} method and
    * decides whether to handle the method or not.
