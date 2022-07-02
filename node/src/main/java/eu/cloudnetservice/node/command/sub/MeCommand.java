@@ -26,8 +26,9 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.RuntimeMXBean;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 
@@ -36,23 +37,24 @@ import lombok.NonNull;
 @Description("Displays all important information about this process and the JVM")
 public final class MeCommand {
 
-  private static final Pattern UUID_REPLACE = Pattern.compile("-\\w{4}-");
-  private static final String VM_NAME = System.getProperty("java.vm.name");
-  private static final String VM_VERSION = System.getProperty("java.vm.version");
+  private static final Pattern UUID_REPLACE_PATTERN = Pattern.compile("-\\w{4}-");
+
+  private static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
+  private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
 
   private static final String UPDATE_BRANCH = System.getProperty("cloudnet.updateBranch", "release");
   private static final String UPDATE_REPO = System.getProperty("cloudnet.updateRepo", "CloudNetService/launchermeta");
 
   @CommandMethod("me|info")
   public void me(@NonNull CommandSource source, @Flag("showClusterId") boolean showFullClusterId) {
-    var cloudNet = Node.instance();
-    var memoryMXBean = ManagementFactory.getMemoryMXBean();
-    var nodeInfoSnapshot = cloudNet.nodeServerProvider().localNode().nodeInfoSnapshot();
+    var nodeInstance = Node.instance();
+    var nodeInfoSnapshot = nodeInstance.nodeServerProvider().localNode().nodeInfoSnapshot();
 
-    String clusterId = cloudNet.config().clusterConfig().clusterId().toString();
-    // hide the middle parts of the uuid if specified
+    // hide the middle parts of the uuid if not explicitly requested to show them
+    var clusterId = nodeInstance.config().clusterConfig().clusterId().toString();
     if (!showFullClusterId) {
-      clusterId = this.removeUUIDParts(cloudNet.config().clusterConfig().clusterId());
+      var matcher = UUID_REPLACE_PATTERN.matcher(clusterId);
+      clusterId = matcher.replaceAll("-****-");
     }
 
     source.sendMessage(List.of(
@@ -61,8 +63,8 @@ public final class MeCommand {
       "Discord: <https://discord.cloudnetservice.eu/>",
       " ",
       "ClusterId: " + clusterId,
-      "NodeId: " + cloudNet.config().identity().uniqueId(),
-      "Head-NodeId: " + cloudNet.nodeServerProvider().headNode().info().uniqueId(),
+      "NodeId: " + nodeInstance.config().identity().uniqueId(),
+      "Head-NodeId: " + nodeInstance.nodeServerProvider().headNode().info().uniqueId(),
       "CPU usage: (P/S) "
         + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage())
         + "/"
@@ -76,21 +78,24 @@ public final class MeCommand {
         + nodeInfoSnapshot.maxMemory() + " MB",
       "Threads: " + ProcessSnapshot.THREAD_MX_BEAN.getThreadCount(),
       "Heap usage: "
-        + (memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024))
+        + (MEMORY_MX_BEAN.getHeapMemoryUsage().getUsed() / (1024 * 1024))
         + "/"
-        + (memoryMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024))
+        + (MEMORY_MX_BEAN.getHeapMemoryUsage().getMax() / (1024 * 1024))
         + "MB",
-      "JVM: " + VM_NAME + " " + VM_VERSION,
+      "JVM: "
+        + RUNTIME_MX_BEAN.getVmVendor()
+        + " "
+        + RUNTIME_MX_BEAN.getSpecVersion()
+        + " ("
+        + RUNTIME_MX_BEAN.getVmName()
+        + " "
+        + RUNTIME_MX_BEAN.getVmVersion()
+        + ")",
       "Update Repo: "
         + UPDATE_REPO
         + ", Update Branch: "
         + UPDATE_BRANCH
-        + (cloudNet.dev() ? " (development mode)" : ""),
+        + (nodeInstance.dev() ? " (development mode)" : ""),
       " "));
-  }
-
-  private @NonNull String removeUUIDParts(@NonNull UUID uuid) {
-    var matcher = UUID_REPLACE.matcher(uuid.toString());
-    return matcher.replaceAll("-****-");
   }
 }
