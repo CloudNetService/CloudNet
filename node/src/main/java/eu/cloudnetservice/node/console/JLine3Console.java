@@ -38,6 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -48,6 +49,7 @@ import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
+import org.jline.utils.StyleResolver;
 import org.jline.utils.WCWidth;
 
 public final class JLine3Console implements Console {
@@ -82,6 +84,12 @@ public final class JLine3Console implements Console {
       AnsiConsole.systemInstall();
     } catch (Throwable ignored) {
     }
+
+    // disable the logging of jline, as log messages will be redirected into this console
+    // which will trigger a log message (when debug is enabled) etc.
+    // in short: it triggers a StackOverflow exception when enabling debug logging
+    java.util.logging.Logger.getLogger("org.jline").setLevel(Level.OFF);
+    java.util.logging.Logger.getLogger(StyleResolver.class.getName()).setLevel(Level.OFF);
 
     this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
     this.lineReader = new InternalLineReader(this.terminal);
