@@ -219,7 +219,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
         this.body = new byte[length];
 
         // copy out the bytes of the buffer
-        request.payload().copyInto(request.payload().readableBytes(), this.body, 0, length);
+        request.payload().copyInto(request.payload().readerOffset(), this.body, 0, length);
       }
 
       return this.body;

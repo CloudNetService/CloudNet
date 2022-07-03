@@ -38,6 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -48,6 +49,7 @@ import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
+import org.jline.utils.StyleResolver;
 import org.jline.utils.WCWidth;
 
 public final class JLine3Console implements Console {
@@ -57,6 +59,7 @@ public final class JLine3Console implements Console {
   private static final String VERSION = Node.class.getPackage().getImplementationVersion();
   private static final String HISTORY_FILE = System.getProperty("cloudnet.history.file", "local/.consolehistory");
 
+  private final boolean ansiSupported;
   private final Lock printLock = new ReentrantLock(true);
 
   private final Map<UUID, ConsoleInputHandler> consoleInputHandler = new ConcurrentHashMap<>();
@@ -76,12 +79,13 @@ public final class JLine3Console implements Console {
   private boolean matchingHistorySearch = true;
 
   public JLine3Console() throws Exception {
-    System.setProperty("library.jansi.version", "CloudNET");
+    this.ansiSupported = installAnsi();
 
-    try {
-      AnsiConsole.systemInstall();
-    } catch (Throwable ignored) {
-    }
+    // disable the logging of jline, as log messages will be redirected into this console
+    // which will trigger a log message (when debug is enabled) etc.
+    // in short: it triggers a StackOverflow exception when enabling debug logging
+    java.util.logging.Logger.getLogger("org.jline").setLevel(Level.OFF);
+    java.util.logging.Logger.getLogger(StyleResolver.class.getName()).setLevel(Level.OFF);
 
     this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
     this.lineReader = new InternalLineReader(this.terminal);
@@ -104,6 +108,17 @@ public final class JLine3Console implements Console {
 
     this.updatePrompt();
     this.consoleReadThread.start();
+  }
+
+  private static boolean installAnsi() {
+    try {
+      // try to load the system libraries
+      AnsiConsole.systemInstall();
+      return true;
+    } catch (Throwable throwable) {
+      // something went wrong during loading - unable to install
+      return false;
+    }
   }
 
   @Override
@@ -234,7 +249,7 @@ public final class JLine3Console implements Console {
   public @NonNull Console writeRaw(@NonNull Supplier<String> rawText) {
     this.printLock.lock();
     try {
-      this.print(ConsoleColor.toColouredString('&', rawText.get()));
+      this.print(this.formatText(rawText.get(), ""));
       return this;
     } finally {
       this.printLock.unlock();
@@ -255,12 +270,15 @@ public final class JLine3Console implements Console {
     this.printLock.lock();
     try {
       // ensure that the given text is formatted properly
-      text = ConsoleColor.toColouredString('&', text);
-      if (!text.endsWith(System.lineSeparator())) {
-        text += System.lineSeparator();
+      var content = this.formatText(text, System.lineSeparator());
+
+      // use ansi only if supported
+      if (this.ansiSupported) {
+        this.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + content + Ansi.ansi().reset().toString());
+      } else {
+        this.print('\r' + content);
       }
 
-      this.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + text + Ansi.ansi().reset().toString());
       // increases the amount of lines the running animations is off the current printed lines
       if (!this.runningAnimations.isEmpty()) {
         for (var animation : this.runningAnimations.values()) {
@@ -276,7 +294,7 @@ public final class JLine3Console implements Console {
 
   @Override
   public boolean hasColorSupport() {
-    return true;
+    return this.ansiSupported;
   }
 
   @Override
@@ -380,6 +398,15 @@ public final class JLine3Console implements Console {
     for (var handler : handlers) {
       handler.enabled(enabled);
     }
+  }
+
+  private @NonNull String formatText(@NonNull String input, @NonNull String ensureEndsWith) {
+    var content = this.ansiSupported ? ConsoleColor.toColouredString('&', input) : ConsoleColor.stripColor('&', input);
+    if (!content.endsWith(ensureEndsWith)) {
+      content += ensureEndsWith;
+    }
+
+    return content;
   }
 
   @ApiStatus.Internal

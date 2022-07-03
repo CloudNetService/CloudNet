@@ -186,7 +186,7 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
     var body = new byte[length];
 
     // copy out the bytes of the buffer
-    payload.copyInto(payload.readableBytes(), body, 0, length);
+    payload.copyInto(payload.readerOffset(), body, 0, length);
     return body;
   }
 
