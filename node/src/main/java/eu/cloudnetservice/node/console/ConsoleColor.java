@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.console;
 
-import java.awt.Color;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
@@ -61,65 +60,51 @@ public enum ConsoleColor {
     this.ansiCode = ansiCode;
   }
 
-  public static @NonNull String toColouredString(char triggerChar, @NonNull String text) {
-    var content = convertRGBColors(triggerChar, text);
+  public static @NonNull String toColouredString(char triggerChar, @NonNull String input) {
+    var contentBuilder = new StringBuilder(convertRGBColors(triggerChar, input));
 
-    var breakIndex = content.length() - 1;
+    var breakIndex = contentBuilder.length() - 1;
     for (var i = 0; i < breakIndex; i++) {
-      if (content.charAt(i) == triggerChar) {
-        var format = LOOKUP.indexOf(content.charAt(i + 1));
+      if (contentBuilder.charAt(i) == triggerChar) {
+        var format = LOOKUP.indexOf(contentBuilder.charAt(i + 1));
         if (format != -1) {
           var ansiCode = VALUES[format].ansiCode();
 
-          content.delete(i, i + 2).insert(i, ansiCode);
+          contentBuilder.delete(i, i + 2).insert(i, ansiCode);
           breakIndex += ansiCode.length() - 2;
         }
       }
     }
 
-    return content.toString();
+    return contentBuilder.toString();
   }
 
-  private static @NonNull StringBuffer convertRGBColors(char triggerChar, @NonNull String input) {
-    var matcher = Pattern.compile(triggerChar + "#([\\da-fA-F]){6}").matcher(input);
-    var stringBuffer = new StringBuffer();
-
-    while (matcher.find()) {
-      var temp = matcher.group().replace(String.valueOf(triggerChar), "");
-      var color = Color.decode(temp);
-
-      matcher.appendReplacement(stringBuffer,
-        String.format(RGB_ANSI, color.getRed(), color.getGreen(), color.getBlue()));
-    }
-
-    matcher.appendTail(stringBuffer);
-    return stringBuffer;
+  private static @NonNull String convertRGBColors(char triggerChar, @NonNull String input) {
+    var replacePattern = Pattern.compile(triggerChar + "#([\\da-fA-F]){6}");
+    return replacePattern.matcher(input).replaceAll(result -> {
+      // we could use java.awt.Color but that would load unnecessary native libraries
+      int hexInput = Integer.decode(result.group().substring(1));
+      return String.format(RGB_ANSI, (hexInput >> 16) & 0xFF, (hexInput >> 8) & 0xFF, hexInput & 0xFF);
+    });
   }
 
   public static @NonNull String stripColor(char triggerChar, @NonNull String input) {
-    var content = stripRGBColors(triggerChar, input);
+    var contentBuilder = new StringBuilder(stripRGBColors(triggerChar, input));
 
-    var breakIndex = content.length() - 1;
+    var breakIndex = contentBuilder.length() - 1;
     for (var i = 0; i < breakIndex; i++) {
-      if (content.charAt(i) == triggerChar && LOOKUP.indexOf(content.charAt(i + 1)) != -1) {
-        content.delete(i, i + 2);
+      if (contentBuilder.charAt(i) == triggerChar && LOOKUP.indexOf(contentBuilder.charAt(i + 1)) != -1) {
+        contentBuilder.delete(i, i + 2);
         breakIndex -= 2;
       }
     }
 
-    return content.toString();
+    return contentBuilder.toString();
   }
 
-  private static @NonNull StringBuffer stripRGBColors(char triggerChar, @NonNull String input) {
-    var matcher = Pattern.compile(triggerChar + "#([\\da-fA-F]){6}").matcher(input);
-    var stringBuffer = new StringBuffer();
-
-    while (matcher.find()) {
-      matcher.appendReplacement(stringBuffer, "");
-    }
-
-    matcher.appendTail(stringBuffer);
-    return stringBuffer;
+  private static @NonNull String stripRGBColors(char triggerChar, @NonNull String input) {
+    var replacePattern = Pattern.compile(triggerChar + "#([\\da-fA-F]){6}");
+    return replacePattern.matcher(input).replaceAll("");
   }
 
   public static @Nullable ConsoleColor byChar(char index) {
