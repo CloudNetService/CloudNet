@@ -35,7 +35,7 @@ import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class V2HttpHandler implements HttpHandler {
+public abstract class V2HttpHandler extends HttpHandler {
 
   protected static final Logger LOGGER = LogManager.logger(V2HttpHandler.class);
   protected static final V2HttpAuthentication DEFAULT_AUTH = new V2HttpAuthentication();

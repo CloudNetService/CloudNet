@@ -16,7 +16,12 @@
 
 package eu.cloudnetservice.driver.network.http;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.LinkedList;
 import lombok.NonNull;
+import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * A handler for a http request. Each request, matching the given attributes supplied when registering, will be called
@@ -25,13 +30,52 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-@FunctionalInterface
-public interface HttpHandler {
+public abstract class HttpHandler {
 
-  int PRIORITY_HIGH = 64;
-  int PRIORITY_NORMAL = 32;
-  int PRIORITY_LOW = 16;
-  int PRIORITY_LOWEST = 0;
+  public static final int PRIORITY_HIGH = 64;
+  public static final int PRIORITY_NORMAL = 32;
+  public static final int PRIORITY_LOW = 16;
+  public static final int PRIORITY_LOWEST = 0;
+
+  private final Deque<HttpContextPreprocessor> preprocessors = new LinkedList<>();
+
+  /**
+   * Adds a preprocessor which is applied to the context before calling this handler. The pre-processors are called in
+   * the order they were added, using this method the handler is put at the head of the listeners, meaning that all
+   * other previously added handlers will be called after.
+   *
+   * @param preprocessor the context preprocessor to register.
+   * @return the same instance as used to call the method, for chaining.
+   * @throws NullPointerException if the given preprocessor is null.
+   */
+  public @NonNull HttpHandler addPreProcessorHead(@NonNull HttpContextPreprocessor preprocessor) {
+    this.preprocessors.addFirst(preprocessor);
+    return this;
+  }
+
+  /**
+   * Adds a preprocessor which is applied to the context before calling this handler. The pre-processors are called in
+   * the order they were added, using this method the handler is put at the tail of the listeners, meaning that all
+   * other previously added handlers will be called first.
+   *
+   * @param preprocessor the context preprocessor to register.
+   * @return the same instance as used to call the method, for chaining.
+   * @throws NullPointerException if the given preprocessor is null.
+   */
+  public @NonNull HttpHandler addPreProcessorTail(@NonNull HttpContextPreprocessor preprocessor) {
+    this.preprocessors.addLast(preprocessor);
+    return this;
+  }
+
+  /**
+   * Gets all preprocessors which were added to this http handler.
+   *
+   * @return all registered preprocessors.
+   */
+  @UnmodifiableView
+  public @NonNull Collection<HttpContextPreprocessor> preprocessors() {
+    return Collections.unmodifiableCollection(this.preprocessors);
+  }
 
   /**
    * Handles a http request whose path (and other supplied attributes) while registering is matching the requested path
@@ -40,8 +84,8 @@ public interface HttpHandler {
    *
    * @param path    the full path of the client request.
    * @param context the current context of the request.
-   * @throws Exception            if any exception occurs during the request handling.
+   * @throws Throwable            if any exception occurs during the request handling.
    * @throws NullPointerException if the given path or context is null.
    */
-  void handle(@NonNull String path, @NonNull HttpContext context) throws Exception;
+  public abstract void handle(@NonNull String path, @NonNull HttpContext context) throws Throwable;
 }

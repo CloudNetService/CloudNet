@@ -209,4 +209,45 @@ public interface HttpContext {
    * @return the path of the handler handling the request.
    */
   @NonNull String pathPrefix();
+
+  /**
+   * Get all invocation hints which are registered for the given key. Invocation hints are only valid for the current
+   * handler call chain, and will be reset after a handler was called. Hints can for example get registered in a http
+   * context preprocessor.
+   * <p>
+   * This method never returns null. If no hints are registered for the given key then an empty collection is returned.
+   *
+   * @param key the key of the hints to retrieve.
+   * @return the registered hints for the given key, or an empty collection if no hints are registered.
+   * @throws NullPointerException if the given key is null.
+   */
+  @NonNull Collection<Object> invocationHints(@NonNull String key);
+
+  /**
+   * Adds an invocation hint for the current handler call chain. Invocation hints are only valid for the current handler
+   * call chain, and will be reset after a handler was called. Hints can for example get registered in a http context
+   * preprocessor.
+   * <p>
+   * One key can be mapped to multiple hints.
+   *
+   * @param key   the key of the hint to register.
+   * @param value the hint.
+   * @return the same instance as used to call the method, for chaining.
+   * @throws NullPointerException if the given key or hint is null.
+   */
+  @NonNull HttpContext addInvocationHint(@NonNull String key, @NonNull Object value);
+
+  /**
+   * Adds an invocation hint for the current handler call chain. Invocation hints are only valid for the current handler
+   * call chain, and will be reset after a handler was called. Hints can for example get registered in a http context
+   * preprocessor.
+   * <p>
+   * One key can be mapped to multiple hints.
+   *
+   * @param key   the key of the hint to register.
+   * @param value the hints to add.
+   * @return the same instance as used to call the method, for chaining.
+   * @throws NullPointerException if the given key or hint is null.
+   */
+  @NonNull <T> HttpContext addInvocationHints(@NonNull String key, @NonNull Collection<T> value);
 }

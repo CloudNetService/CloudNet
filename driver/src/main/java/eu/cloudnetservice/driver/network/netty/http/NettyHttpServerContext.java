@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.driver.network.netty.http;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.http.HttpChannel;
 import eu.cloudnetservice.driver.network.http.HttpComponent;
@@ -50,6 +52,7 @@ import org.jetbrains.annotations.Nullable;
 final class NettyHttpServerContext implements HttpContext {
 
   final NettyHttpServerResponse httpServerResponse;
+  final Multimap<String, Object> invocationHints = ArrayListMultimap.create();
 
   private final Channel nettyChannel;
   private final io.netty5.handler.codec.http.HttpRequest httpRequest;
@@ -330,6 +333,32 @@ final class NettyHttpServerContext implements HttpContext {
   @Override
   public @NonNull String pathPrefix() {
     return this.pathPrefix;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull Collection<Object> invocationHints(@NonNull String key) {
+    return this.invocationHints.get(key);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull HttpContext addInvocationHint(@NonNull String key, @NonNull Object value) {
+    this.invocationHints.put(key, value);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull <T> HttpContext addInvocationHints(@NonNull String key, @NonNull Collection<T> value) {
+    this.invocationHints.putAll(key, value);
+    return this;
   }
 
   /**

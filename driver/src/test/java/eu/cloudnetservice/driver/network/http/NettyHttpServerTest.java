@@ -41,25 +41,56 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Timeout;
 
+@SuppressWarnings("NullableProblems")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class NettyHttpServerTest extends NetworkTestCase {
 
   private static final List<String> SUPPORTED_METHODS = Arrays.asList(
     "GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE", "TRACE");
 
+  static HttpURLConnection connectTo(int port, String path) throws Exception {
+    return connectTo(port, path, $ -> {
+    });
+  }
+
+  static HttpURLConnection connectTo(
+    int port,
+    String path,
+    ThrowableConsumer<HttpURLConnection, Exception> modifier
+  ) throws Exception {
+    var connection = (HttpURLConnection) httpUrl(port, path).openConnection();
+    connection.setUseCaches(false);
+    connection.setReadTimeout(5000);
+    connection.setConnectTimeout(5000);
+
+    modifier.accept(connection);
+    connection.connect();
+    return connection;
+  }
+
+  static URL httpUrl(int port, String path) throws Exception {
+    return new URL(String.format("http://127.0.0.1:%d/%s", port, path == null ? "" : path));
+  }
+
   @Test
   @Order(0)
   void testHttpHandlerRegister() {
     HttpServer server = new NettyHttpServer();
 
-    server.registerHandler("/users/info", ($, $1) -> {
-    }, ($, $1) -> {
+    server.registerHandler("/users/info", new HttpHandler() {
+      @Override
+      public void handle(String path, HttpContext context) {
+
+      }
     });
-    server.registerHandler("users/{user}/info", ($, $1) -> {
-    }, ($, $1) -> {
+    server.registerHandler("users/{user}/info", new HttpHandler() {
+      @Override
+      public void handle(String path, HttpContext context) {
+
+      }
     });
 
-    Assertions.assertEquals(4, server.httpHandlers().size());
+    Assertions.assertEquals(2, server.httpHandlers().size());
 
     server.removeHandler(this.getClass().getClassLoader());
     Assertions.assertEquals(0, server.httpHandlers().size());
@@ -87,16 +118,19 @@ public class NettyHttpServerTest extends NetworkTestCase {
     var handledTypes = new AtomicInteger();
     server.registerHandler(
       "/test",
-      ($, context) -> {
-        Assertions.assertEquals(SUPPORTED_METHODS.get(handledTypes.getAndIncrement()), context.request().method());
-        context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          Assertions.assertEquals(SUPPORTED_METHODS.get(handledTypes.getAndIncrement()), context.request().method());
+          context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
+        }
       });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     for (var supportedMethod : SUPPORTED_METHODS) {
-      var connection = this.connectTo(port, "test", con -> con.setRequestMethod(supportedMethod));
+      var connection = connectTo(port, "test", con -> con.setRequestMethod(supportedMethod));
       connection.connect();
       Assertions.assertEquals(200, connection.getResponseCode());
     }
@@ -110,16 +144,19 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
     server.registerHandler(
       "/test/{id}",
-      ($, context) -> {
-        Assertions.assertEquals("1234", context.request().pathParameters().get("id"));
-        context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          Assertions.assertEquals("1234", context.request().pathParameters().get("id"));
+          context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
+        }
       });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
-    Assertions.assertEquals(200, this.connectTo(port, "test/1234").getResponseCode());
-    Assertions.assertEquals(404, this.connectTo(port, "test1234").getResponseCode());
+    Assertions.assertEquals(200, connectTo(port, "test/1234").getResponseCode());
+    Assertions.assertEquals(404, connectTo(port, "test1234").getResponseCode());
   }
 
   @Test
@@ -130,17 +167,20 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
     server.registerHandler(
       "/test",
-      ($, context) -> {
-        Assertions.assertEquals("1234", Iterables.getFirst(context.request().queryParameters().get("id"), null));
-        Assertions.assertIterableEquals(Arrays.asList("1", "2"), context.request().queryParameters().get("array"));
-        context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          Assertions.assertEquals("1234", Iterables.getFirst(context.request().queryParameters().get("id"), null));
+          Assertions.assertIterableEquals(Arrays.asList("1", "2"), context.request().queryParameters().get("array"));
+          context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
+        }
       });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
-    Assertions.assertEquals(200, this.connectTo(port, "test?id=1234&array=1&array=2").getResponseCode());
-    Assertions.assertEquals(404, this.connectTo(port, "test1234").getResponseCode());
+    Assertions.assertEquals(200, connectTo(port, "test?id=1234&array=1&array=2").getResponseCode());
+    Assertions.assertEquals(404, connectTo(port, "test1234").getResponseCode());
   }
 
   @Test
@@ -152,23 +192,29 @@ public class NettyHttpServerTest extends NetworkTestCase {
     server.registerHandler(
       "/test1",
       HttpHandler.PRIORITY_LOW,
-      ($, context) -> {
-        var cancelNext = Boolean.parseBoolean(
-          Iterables.getFirst(context.request().queryParameters().get("cancelNext"), null));
-        context.response().status(HttpResponseCode.OK).context().cancelNext(cancelNext);
-      }
-    );
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          var cancelNext = Boolean.parseBoolean(
+            Iterables.getFirst(context.request().queryParameters().get("cancelNext"), null));
+          context.response().status(HttpResponseCode.OK).context().cancelNext(cancelNext);
+        }
+      });
     server.registerHandler(
       "/test1",
       HttpHandler.PRIORITY_HIGH,
-      ($, context) -> context.response().status(HttpResponseCode.CREATED).context().closeAfter()
-    );
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          context.response().status(HttpResponseCode.CREATED).context().closeAfter();
+        }
+      });
 
     Assertions.assertEquals(2, server.httpHandlers().size());
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
-    Assertions.assertEquals(200, this.connectTo(port, "test1?cancelNext=true").getResponseCode());
-    Assertions.assertEquals(201, this.connectTo(port, "test1?cancelNext=false").getResponseCode());
+    Assertions.assertEquals(200, connectTo(port, "test1?cancelNext=true").getResponseCode());
+    Assertions.assertEquals(201, connectTo(port, "test1?cancelNext=false").getResponseCode());
   }
 
   @Test
@@ -179,26 +225,28 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
     server.registerHandler(
       "/test",
-      ($, context) -> {
-        Assertions.assertEquals("derklaro_was_here", context.request().header("derklaro_status"));
-        Assertions.assertEquals(
-          JsonDocument.newDocument("test", true),
-          JsonDocument.newDocument(context.request().bodyStream()));
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          Assertions.assertEquals("derklaro_was_here", context.request().header("derklaro_status"));
+          Assertions.assertEquals(
+            JsonDocument.newDocument("test", true),
+            JsonDocument.newDocument(context.request().bodyStream()));
 
-        context.response()
-          .status(HttpResponseCode.CREATED)
-          .header("derklaro_response_status", "derklaro_was_there")
-          .body(JsonDocument.newDocument("test", "passed").toString().getBytes(StandardCharsets.UTF_8))
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      }
-    );
+          context.response()
+            .status(HttpResponseCode.CREATED)
+            .header("derklaro_response_status", "derklaro_was_there")
+            .body(JsonDocument.newDocument("test", "passed").toString().getBytes(StandardCharsets.UTF_8))
+            .context()
+            .closeAfter(true)
+            .cancelNext();
+        }
+      });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
-    var connection = this.connectTo(port, "test", urlConnection -> {
+    var connection = connectTo(port, "test", urlConnection -> {
       urlConnection.setRequestProperty("derklaro_status", "derklaro_was_here");
       urlConnection.setDoOutput(true);
     });
@@ -223,36 +271,38 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
     server.registerHandler(
       "/test",
-      ($, context) -> {
-        var cookie = context.cookie("request_cookie");
-        Assertions.assertNotNull(cookie);
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          var cookie = context.cookie("request_cookie");
+          Assertions.assertNotNull(cookie);
 
-        Assertions.assertEquals("request_cookie", cookie.name());
-        Assertions.assertEquals("request_value", cookie.value());
+          Assertions.assertEquals("request_cookie", cookie.name());
+          Assertions.assertEquals("request_value", cookie.value());
 
-        context
-          .response()
-          .status(HttpResponseCode.OK)
-          .context()
-          .cancelNext(true)
-          .closeAfter(true)
-          .addCookie(new HttpCookie(
-            "response_cookie",
-            "response_value",
-            "test1.com",
-            "response_path",
-            false,
-            true,
-            true,
-            60_000
-          ));
-      }
-    );
+          context
+            .response()
+            .status(HttpResponseCode.OK)
+            .context()
+            .cancelNext(true)
+            .closeAfter(true)
+            .addCookie(new HttpCookie(
+              "response_cookie",
+              "response_value",
+              "test1.com",
+              "response_path",
+              false,
+              true,
+              true,
+              60_000
+            ));
+        }
+      });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
-    var connection = this.connectTo(port, "test", urlConnection -> {
+    var connection = connectTo(port, "test", urlConnection -> {
       var cookie = new DefaultCookie("request_cookie", "request_value");
       urlConnection.setRequestProperty("Cookie", ClientCookieEncoder.LAX.encode(cookie));
     });
@@ -282,34 +332,46 @@ public class NettyHttpServerTest extends NetworkTestCase {
     // global handler
     server.registerHandler(
       "/global",
-      ($, context) -> context.response().status(HttpResponseCode.CREATED).context().cancelNext(true).closeAfter()
-    );
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          context.response().status(HttpResponseCode.CREATED).context().cancelNext(true).closeAfter();
+        }
+      });
     // port specific handlers
     server.registerHandler(
       "/test1",
       port,
       HttpHandler.PRIORITY_NORMAL,
-      ($, context) -> context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter()
-    );
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
+        }
+      });
     server.registerHandler(
       "/test2",
       secondPort,
       HttpHandler.PRIORITY_NORMAL,
-      ($, context) -> context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter()
-    );
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
+        }
+      });
 
     Assertions.assertEquals(3, server.httpHandlers().size());
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
     Assertions.assertDoesNotThrow(() -> server.addListener(secondPort).join());
 
-    Assertions.assertEquals(201, this.connectTo(port, "global").getResponseCode());
-    Assertions.assertEquals(201, this.connectTo(secondPort, "global").getResponseCode());
+    Assertions.assertEquals(201, connectTo(port, "global").getResponseCode());
+    Assertions.assertEquals(201, connectTo(secondPort, "global").getResponseCode());
 
-    Assertions.assertEquals(200, this.connectTo(port, "test1").getResponseCode());
-    Assertions.assertEquals(404, this.connectTo(secondPort, "test1").getResponseCode());
+    Assertions.assertEquals(200, connectTo(port, "test1").getResponseCode());
+    Assertions.assertEquals(404, connectTo(secondPort, "test1").getResponseCode());
 
-    Assertions.assertEquals(404, this.connectTo(port, "test2").getResponseCode());
-    Assertions.assertEquals(200, this.connectTo(secondPort, "test2").getResponseCode());
+    Assertions.assertEquals(404, connectTo(port, "test2").getResponseCode());
+    Assertions.assertEquals(200, connectTo(secondPort, "test2").getResponseCode());
   }
 
   @Test
@@ -321,20 +383,25 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
     server.registerHandler(
       "/test",
-      ($, context) -> context.upgrade().thenAccept(ch -> {
-          ch.addListener((channel, type, content) -> {
-            switch (type) {
-              case PING -> channel.sendWebSocketFrame(WebSocketFrameType.PONG, "response2");
-              case BINARY -> {
-                Assertions.assertArrayEquals(new byte[]{0, 5, 6}, content);
-                channel.close(1001, "Successful close");
-              }
-              default -> Assertions.fail("Unexpected frame type " + type);
+      new HttpHandler() {
+        @Override
+        public void handle(String path, HttpContext context) {
+          context.upgrade().thenAccept(ch -> {
+              ch.addListener((channel, type, content) -> {
+                switch (type) {
+                  case PING -> channel.sendWebSocketFrame(WebSocketFrameType.PONG, "response2");
+                  case BINARY -> {
+                    Assertions.assertArrayEquals(new byte[]{0, 5, 6}, content);
+                    channel.close(1001, "Successful close");
+                  }
+                  default -> Assertions.fail("Unexpected frame type " + type);
+                }
+              });
+              ch.sendWebSocketFrame(WebSocketFrameType.TEXT, "hello");
             }
-          });
-          ch.sendWebSocketFrame(WebSocketFrameType.TEXT, "hello");
+          );
         }
-      ));
+      });
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     var session = ClientManager.createClient().connectToServer(
@@ -345,27 +412,5 @@ public class NettyHttpServerTest extends NetworkTestCase {
       //noinspection BusyWait
       Thread.sleep(50);
     }
-  }
-
-  private HttpURLConnection connectTo(int port, String path) throws Exception {
-    return this.connectTo(port, path, $ -> {
-    });
-  }
-
-  private HttpURLConnection connectTo(
-    int port,
-    String path,
-    ThrowableConsumer<HttpURLConnection, Exception> modifier
-  ) throws Exception {
-    var connection = (HttpURLConnection) this.httpUrl(port, path).openConnection();
-    connection.setReadTimeout(5000);
-    connection.setConnectTimeout(5000);
-
-    modifier.accept(connection);
-    return connection;
-  }
-
-  private URL httpUrl(int port, String path) throws Exception {
-    return new URL(String.format("http://127.0.0.1:%d/%s", port, path == null ? "" : path));
   }
 }

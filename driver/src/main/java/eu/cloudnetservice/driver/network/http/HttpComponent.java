@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.http;
 
+import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationParser;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * @see HttpServer
  * @since 4.0
  */
-public interface HttpComponent<T extends HttpComponent<?>> extends AutoCloseable {
+public interface HttpComponent<T extends HttpComponent<T>> extends AutoCloseable {
 
   /**
    * Gets whether this component has ssl enabled or not.
@@ -35,6 +36,14 @@ public interface HttpComponent<T extends HttpComponent<?>> extends AutoCloseable
    * @return whether this component has ssl enabled or not.
    */
   boolean sslEnabled();
+
+  /**
+   * Get a http annotation parser which is associated with this component and can therefore be used to register
+   * annotated handlers to this component.
+   *
+   * @return the associated http annotation parser instance.
+   */
+  @NonNull HttpAnnotationParser<T> annotationParser();
 
   /**
    * Registers the given handlers to this component. The given handlers will get called when a request matches the given

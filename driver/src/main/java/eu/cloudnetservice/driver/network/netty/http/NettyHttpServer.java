@@ -22,6 +22,8 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.http.HttpHandler;
 import eu.cloudnetservice.driver.network.http.HttpServer;
+import eu.cloudnetservice.driver.network.http.annotation.parser.DefaultHttpAnnotationParser;
+import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationParser;
 import eu.cloudnetservice.driver.network.netty.NettySslServer;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
@@ -51,6 +53,8 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
   protected final EventLoopGroup bossGroup = NettyUtil.newEventLoopGroup(1);
   protected final EventLoopGroup workerGroup = NettyUtil.newEventLoopGroup(0);
 
+  protected final HttpAnnotationParser<HttpServer> annoParser = DefaultHttpAnnotationParser.withDefaultProcessors(this);
+
   /**
    * Constructs a new instance of a netty http server instance. Equivalent to {@code new NettyHttpServer(null)}.
    */
@@ -79,6 +83,14 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
   @Override
   public boolean sslEnabled() {
     return this.sslContext != null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull HttpAnnotationParser<HttpServer> annotationParser() {
+    return this.annoParser;
   }
 
   /**
@@ -157,17 +169,7 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
     }
 
     // register each handler
-    register:
     for (var httpHandler : handlers) {
-      // validate  that we are not registering a handler twice, except if the handler is another class
-      for (var knownHandler : this.registeredHandlers) {
-        if (knownHandler.path.equals(path) && knownHandler.httpHandler.getClass().equals(httpHandler.getClass())) {
-          // a handler already exists - continue registering the provided handlers
-          continue register;
-        }
-      }
-
-      // register the handler
       this.registeredHandlers.add(new HttpHandlerEntry(path, httpHandler, port, priority));
     }
 
