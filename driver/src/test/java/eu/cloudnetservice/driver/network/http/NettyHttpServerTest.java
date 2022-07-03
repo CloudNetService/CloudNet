@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
 import io.netty5.handler.codec.http.cookie.ClientCookieDecoder;
 import io.netty5.handler.codec.http.cookie.ClientCookieEncoder;
 import io.netty5.handler.codec.http.cookie.DefaultCookie;
+import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -33,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
 import org.glassfish.tyrus.client.ClientManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
@@ -376,6 +378,48 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
   @Test
   @Order(90)
+  @Timeout(20)
+  void testCompressionRequest() throws Exception {
+    var port = this.randomFreePort();
+    HttpServer server = new NettyHttpServer();
+
+    server.registerHandler("/test/plain", new HttpHandler() {
+      @Override
+      public void handle(String path, HttpContext context) {
+        context.response().status(HttpResponseCode.OK).body("Hello World").context().cancelNext(true);
+      }
+    });
+    server.registerHandler("/test/stream", new HttpHandler() {
+      @Override
+      public void handle(String path, HttpContext context) {
+        context.response()
+          .status(HttpResponseCode.OK)
+          .body(new ByteArrayInputStream("Hello World".getBytes(StandardCharsets.UTF_8)))
+          .context()
+          .cancelNext(true);
+      }
+    });
+
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
+
+    // without compression
+    var connection = connectTo(port, "test/plain");
+    Assertions.assertEquals(200, connection.getResponseCode());
+    Assertions.assertEquals("Hello World", new String(connection.getInputStream().readAllBytes()));
+
+    // with compression, plain, gzip
+    connection = connectTo(port, "test/plain", con -> con.setRequestProperty("accept-encoding", "gzip"));
+    Assertions.assertEquals(200, connection.getResponseCode());
+    Assertions.assertEquals("Hello World", new String(new GZIPInputStream(connection.getInputStream()).readAllBytes()));
+
+    // with compression, stream, gzip
+    connection = connectTo(port, "test/stream", con -> con.setRequestProperty("accept-encoding", "gzip"));
+    Assertions.assertEquals(200, connection.getResponseCode());
+    Assertions.assertEquals("Hello World", new String(new GZIPInputStream(connection.getInputStream()).readAllBytes()));
+  }
+
+  @Test
+  @Order(100)
   @Timeout(20)
   void testWebSocketHandling() throws Exception {
     var port = this.randomFreePort();
