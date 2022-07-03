@@ -21,17 +21,25 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import lombok.NonNull;
 
 /**
- * Tries to authenticate a permission user based on the required basic credentials in the request and passes the user
- * instance for the annotated method parameter. Annotating a handler method will ensure that the requesting user exists,
- * but will not pass into any parameter.
+ * Enforces a permission for the annotated http handler. If this annotation is present on class and method level, then
+ * the annotation on method level is used.
+ * <p>
+ * This annotation must be used in combination with {@code @BasicAuth} or {@code @BearerAuth} to have any effect.
  *
  * @since 4.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER, ElementType.METHOD})
-public @interface BasicAuth {
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface HandlerPermission {
 
+  /**
+   * Get the permission that the user must have in order to send a request to the handler(s).
+   *
+   * @return the required permission for the http handler(s).
+   */
+  @NonNull String value();
 }

@@ -24,13 +24,14 @@ import java.lang.annotation.Target;
 
 /**
  * Tries to authenticate a permission user based on the required bearer token in the request and passes the associated
- * session instance for the annotated method parameter.
+ * session instance for the annotated method parameter. Annotating a handler method will ensure that the requesting user
+ * exists, but will not pass into any parameter.
  *
  * @since 4.0
  */
 @Documented
-@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.PARAMETER, ElementType.METHOD})
 public @interface BearerAuth {
 
 }

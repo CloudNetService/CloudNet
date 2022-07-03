@@ -16,15 +16,16 @@
 
 package eu.cloudnetservice.driver.network.http.annotation.parser;
 
+import eu.cloudnetservice.driver.network.http.HttpHandleException;
+import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A stackless exception which can be thrown when processing a http handler annotation.
  *
  * @since 4.0
  */
-public final class AnnotationHttpHandleException extends IllegalArgumentException {
+public final class AnnotationHttpHandleException extends HttpHandleException {
 
   /**
    * Constructs a new AnnotationHttpHandleException instance.
@@ -34,22 +35,24 @@ public final class AnnotationHttpHandleException extends IllegalArgumentExceptio
    * @throws NullPointerException if the given path or reason is null.
    */
   public AnnotationHttpHandleException(@NonNull String path, @NonNull String reason) {
-    super(String.format("Unable to handle http request on path \"%s\": %s", path, reason));
+    this(path, reason, HttpResponseCode.BAD_REQUEST, null);
   }
 
   /**
-   * {@inheritDoc}
+   * Constructs a new AnnotationHttpHandleException instance.
+   *
+   * @param path         the path to which the request was sent during which the handling error occurred.
+   * @param reason       the reason why the error occurred.
+   * @param responseCode the http status code to set in the response.
+   * @param responseBody the response body to set.
+   * @throws NullPointerException if the given path, reason or status is null.
    */
-  @Override
-  public @NonNull Throwable fillInStackTrace() {
-    return this;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull Throwable initCause(@Nullable Throwable cause) {
-    return this;
+  public AnnotationHttpHandleException(
+    @NonNull String path,
+    @NonNull String reason,
+    @NonNull HttpResponseCode responseCode,
+    byte[] responseBody
+  ) {
+    super(responseCode, responseBody, String.format("Unable to handle http request on path \"%s\": %s", path, reason));
   }
 }
