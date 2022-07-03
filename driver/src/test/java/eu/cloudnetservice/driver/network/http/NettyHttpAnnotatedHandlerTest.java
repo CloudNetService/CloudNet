@@ -18,16 +18,19 @@ package eu.cloudnetservice.driver.network.http;
 
 import static eu.cloudnetservice.driver.network.http.NettyHttpServerTest.connectTo;
 
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.NetworkTestCase;
 import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.Optional;
+import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestHeader;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPath;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.network.http.annotation.RequestQueryParam;
 import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -74,6 +77,29 @@ public class NettyHttpAnnotatedHandlerTest extends NetworkTestCase {
     Assertions.assertEquals("Response2", connection3.getHeaderField("Test"));
   }
 
+  @Test
+  void testHandlerCalledCorrectlyWithBody() throws Exception {
+    var port = this.randomFreePort();
+    var server = new NettyHttpServer();
+
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
+    Assertions.assertDoesNotThrow(() -> server.annotationParser().parseAndRegister(new AnnotatedHandler()));
+
+    var connection = Assertions.assertDoesNotThrow(() -> connectTo(port, "test/body"));
+    Assertions.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
+
+    var connection2 = Assertions.assertDoesNotThrow(() -> connectTo(port, "test/body", con -> {
+      con.setDoOutput(true);
+      con.setRequestMethod("POST");
+    }));
+    try (var out = connection2.getOutputStream()) {
+      out.write(JsonDocument.newDocument().append("test", "hello world!").toString().getBytes(StandardCharsets.UTF_8));
+      out.flush();
+    }
+
+    Assertions.assertEquals(HttpURLConnection.HTTP_ACCEPTED, connection2.getResponseCode());
+  }
+
   public static final class AnnotatedHandler {
 
     @HttpRequestHandler(paths = "/test/hello/{id}", priority = 0)
@@ -112,6 +138,13 @@ public class NettyHttpAnnotatedHandlerTest extends NetworkTestCase {
       Assertions.assertNull(testValue6);
 
       context.cancelNext(true).response().status(HttpResponseCode.CREATED).header("Test", "Response" + id);
+    }
+
+    @HttpRequestHandler(paths = "/test/body", methods = "POST")
+    public void handleBody(HttpContext context, @RequestBody String body, @RequestBody JsonDocument bodyDoc) {
+      Assertions.assertTrue(body.startsWith("{") && body.endsWith("}"));
+      Assertions.assertEquals("hello world!", bodyDoc.getString("test"));
+      context.response().status(HttpResponseCode.ACCEPTED);
     }
   }
 }
