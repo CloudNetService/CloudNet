@@ -18,16 +18,19 @@ package eu.cloudnetservice.driver.network.http.annotation.parser;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.http.HttpComponent;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpContextPreprocessor;
 import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.Optional;
+import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestHeader;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPath;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.network.http.annotation.RequestQueryParam;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -104,6 +107,7 @@ public final class DefaultHttpAnnotationParser<T extends HttpComponent<T>> imple
   public @NonNull HttpAnnotationParser<T> registerDefaultProcessors() {
     return this
       .registerAnnotationProcessor(new FirstRequestQueryParamProcessor())
+      .registerAnnotationProcessor(new RequestBodyProcessor())
       .registerAnnotationProcessor(new RequestHeaderProcessor())
       .registerAnnotationProcessor(new RequestPathProcessor())
       .registerAnnotationProcessor(new RequestPathParamProcessor())
@@ -246,6 +250,46 @@ public final class DefaultHttpAnnotationParser<T extends HttpComponent<T>> imple
           return applyDefault(
             annotation.def(),
             queryParameters == null ? null : Iterables.getFirst(queryParameters, null));
+        });
+      return (path, context) -> context.addInvocationHints(PARAM_INVOCATION_HINT_KEY, hints);
+    }
+  }
+
+  /**
+   * A processor for the {@code @RequestBody} annotation.
+   *
+   * @since 4.0
+   */
+  private static final class RequestBodyProcessor implements HttpAnnotationProcessor {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NonNull HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {
+      var hints = HttpAnnotationProcessorUtil.mapParameters(
+        method,
+        RequestBody.class,
+        (param, annotation) -> (path, context) -> {
+          // match the type of the parameter in order to inject the correct value
+          if (String.class.isAssignableFrom(param.getType())) {
+            return context.request().bodyAsString();
+          }
+
+          if (byte[].class.isAssignableFrom(param.getType())) {
+            return context.request().body();
+          }
+
+          if (InputStream.class.isAssignableFrom(param.getType())) {
+            return context.request().bodyStream();
+          }
+
+          if (JsonDocument.class.isAssignableFrom(param.getType())) {
+            return JsonDocument.newDocument(context.request().bodyStream());
+          }
+
+          // unable to handle the type
+          throw new AnnotationHttpHandleException(path, "Unable to inject body of type " + param.getType().getName());
         });
       return (path, context) -> context.addInvocationHints(PARAM_INVOCATION_HINT_KEY, hints);
     }
