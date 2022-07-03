@@ -20,6 +20,7 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.http.HttpContext;
+import eu.cloudnetservice.driver.network.http.HttpHandleException;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFutureListeners;
@@ -40,6 +41,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -290,11 +292,19 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
       httpHandlerEntry.httpHandler().handle(path, context);
       return true;
     } catch (Throwable throwable) {
+      // catch a http handle exception - that one is expected to be thrown
+      if (throwable instanceof HttpHandleException handleException) {
+        context.response()
+          .status(handleException.responseCode())
+          .body(Objects.requireNonNullElse(handleException.responseBody(), new byte[0]));
+        return false;
+      }
+
+      // assume that the request was bad so that the handler was unable to handle it
       LOGGER.finer(
         "Exception posting http request to handler %s",
         throwable,
         httpHandlerEntry.httpHandler().getClass().getName());
-      // assume that the request was bad so that the handler was unable to handle it
       context.response().status(HttpResponseCode.BAD_REQUEST);
       // continue with the next handler in the chain
       return false;
