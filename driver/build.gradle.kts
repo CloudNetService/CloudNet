@@ -43,12 +43,17 @@ dependencies {
   "api"(projects.common)
   "api"(projects.ext.updater)
 
-  "api"(libs.asm)
   "api"(libs.caffeine)
   "api"(libs.reflexion)
-  "implementation"(libs.bundles.netty)
+  "api"(libs.bundles.unirest)
 
-  // native transports
+  // internal libraries
+  "implementation"(libs.asm)
+  "implementation"(libs.gson)
+  "implementation"(libs.guava)
+
+  // netty
+  "implementation"(libs.bundles.netty)
   "implementation"(libs.nettyNativeKqueue)
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
