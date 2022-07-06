@@ -19,6 +19,7 @@ tasks.withType<Jar> {
 }
 
 dependencies {
+  "compileOnly"(libs.asm)
   "moduleLibrary"(libs.oshi)
 }
 
