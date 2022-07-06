@@ -35,20 +35,21 @@ tasks.withType<Jar> {
 dependencies {
   "api"(projects.driver)
   "api"(projects.ext.updater)
-  // console
-  "api"(libs.jline)
-  "api"(libs.jansi)
-  // javers - diff finder for java objects (used for cluster data sync)
+
+  // dependencies which are available for modules
+  "api"(libs.guava)
   "api"(libs.javers)
-  // default database implementations
-  "api"(libs.h2)
-  "api"(libs.xodus)
-  // just for slf4j to disable the warning message
-  "api"(libs.slf4jNop)
-  // jwt for rest api
-  "api"(libs.bundles.jjwt)
-  // commands
   "api"(libs.bundles.cloud)
+
+  // internal libraries
+  "implementation"(libs.h2)
+  "implementation"(libs.asm)
+  "implementation"(libs.gson)
+  "implementation"(libs.xodus)
+  "implementation"(libs.jline)
+  "implementation"(libs.jansi)
+  "implementation"(libs.slf4jNop)
+  "implementation"(libs.bundles.jjwt)
 }
 
 applyJarMetadata("eu.cloudnetservice.node.BootLogic", "eu.cloudnetservice.node")

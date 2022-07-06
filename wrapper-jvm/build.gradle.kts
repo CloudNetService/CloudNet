@@ -37,7 +37,7 @@ tasks.withType<ShadowJar> {
   relocate("com.google.common", "eu.cloudnetservice.relocate.guava")
 
   // asm relocation to fix forge discovery:
-  // https://github.com/MinecraftForge/MinecraftForge/blob/1.16.x/src/fmllauncher/java/net/minecraftforge/fml/loading/LibraryFinder.java#L39
+  // https://github.com/MinecraftForge/MinecraftForge/blob/1.16.x/src/fmllauncher/java/net/minecraftforge/fml/loading/LibraryFinder.java#L25-L27
   relocate("org.objectweb.asm.Opcodes", "eu.cloudnetservice.relocate.asm.Opcodes")
 
   // drop unused classes which are making the jar bigger
@@ -53,6 +53,11 @@ tasks.withType<ShadowJar> {
 dependencies {
   "api"(projects.driver)
   "api"(projects.ext.modlauncher)
+
+  // internal libraries
+  "implementation"(libs.asm)
+  "implementation"(libs.gson)
+  "implementation"(libs.guava)
 }
 
 applyJarMetadata(

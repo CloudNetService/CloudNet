@@ -40,6 +40,9 @@ subprojects {
   dependencies {
     "compileOnly"(rootProject.projects.node)
     "testImplementation"(rootProject.projects.node)
+
+    // internal dependencies
+    "implementation"(rootProject.libs.guava)
   }
 
   tasks.named<Copy>("processResources") {

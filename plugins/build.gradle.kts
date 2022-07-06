@@ -34,4 +34,8 @@ subprojects {
         .replace("{project.perms.build.version}", projects.modules.cloudperms.version.toString())
     }
   }
+
+  dependencies {
+    "implementation"(rootProject.libs.guava)
+  }
 }
