@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.report.paste.emitter.defaults.service;
+package eu.cloudnetservice.modules.report.util;
 
-import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
-import eu.cloudnetservice.node.service.CloudService;
-import lombok.NonNull;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
-public class ServiceLogEmitter implements ReportDataEmitter<CloudService> {
+public final class ReportConstants {
 
-  @Override
-  public void emitData(@NonNull StringBuilder builder, @NonNull CloudService context) {
-    for (var cachedLogMessage : context.cachedLogMessages()) {
-      builder.append(cachedLogMessage).append("\n");
-    }
-    builder.append("\n");
-  }
+  public static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 }

@@ -37,6 +37,7 @@ mysqlConnector = "8.0.29"
 
 # general
 asm = "9.3"
+oshi = "6.1.6"
 sshj = "0.33.0"
 jjwt = "0.11.5"
 slf4j = "1.7.36"
@@ -128,6 +129,7 @@ sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 slf4jNop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 javers = { group = "org.javers", name = "javers-core", version.ref = "javers" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
+oshi = { group = "com.github.oshi", name = "oshi-core-java11", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
 reflexion = { group = "dev.derklaro.reflexion", name = "reflexion", version.ref = "reflexion" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }

@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.report.config;
+package eu.cloudnetservice.modules.report.emitter.defaults;
 
-import java.util.Collection;
+import eu.cloudnetservice.modules.report.emitter.ReportDataEmitter;
+import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
+import eu.cloudnetservice.node.Node;
 import lombok.NonNull;
 
-public record ReportConfiguration(@NonNull Collection<PasteServer> pasteServers) {
+public final class LocalNodeConfigDataEmitter implements ReportDataEmitter {
 
+  @Override
+  public @NonNull ReportDataWriter emitData(@NonNull ReportDataWriter writer) {
+    return writer.beginSection("Node Configuration").appendAsJson(Node.instance().config()).endSection();
+  }
 }
