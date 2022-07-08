@@ -202,7 +202,7 @@ public final class NettyUtil {
   public static @NonNull <T> Future<T> awaitFuture(@NonNull Future<T> future) {
     try {
       // await the future and rethrow exceptions if any occur
-      return future.asStage().await().future();
+      return future.asStage().sync().future();
     } catch (InterruptedException exception) {
       Thread.currentThread().interrupt(); // not much we can do
       throw new IllegalThreadStateException();
