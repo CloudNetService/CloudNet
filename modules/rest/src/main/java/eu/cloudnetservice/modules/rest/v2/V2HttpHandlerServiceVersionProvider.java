@@ -16,79 +16,61 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.http.HttpContext;
-import eu.cloudnetservice.modules.rest.RestUtil;
-import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.driver.network.http.annotation.Optional;
+import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
+import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import java.io.IOException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
+@HandlerPermission("http.v2.service.provider")
+public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
-  public V2HttpHandlerServiceVersionProvider(@Nullable String requiredPermission) {
-    super(requiredPermission, "GET", "POST");
-  }
-
-  @Override
-  protected void handleBearerAuthorized(
-    @NonNull String path,
-    @NonNull HttpContext context,
-    @NonNull HttpSession session
-  ) {
-    if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.endsWith("/serviceversion")) {
-        this.handleVersionListRequest(context);
-      } else if (path.contains("/load")) {
-        this.handleVersionLoadRequest(context);
-      } else {
-        this.handleVersionRequest(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("POST")) {
-      this.handleVersionAddRequest(context);
-    }
-  }
-
-  protected void handleVersionListRequest(@NonNull HttpContext context) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/serviceversion")
+  private void handleVersionListRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("versions", this.versionProvider().serviceVersionTypes()).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleVersionRequest(@NonNull HttpContext context) {
-    var version = context.request().pathParameters().get("version");
-    if (version == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing version identifier").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/serviceversion/{version}")
+  private void handleVersionRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("version") String version) {
     var serviceVersion = this.versionProvider().getServiceVersionType(version);
     if (serviceVersion == null) {
-      this.badRequest(context)
+      this.badRequest(ctx)
         .body(this.failure().append("reason", "Unknown service version").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
-    this.ok(context)
+    this.ok(ctx)
       .body(this.success().append("version", serviceVersion).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleVersionLoadRequest(@NonNull HttpContext context) {
-    var url = RestUtil.first(context.request().queryParameters().get("url"), null);
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/serviceversion/load")
+  private void handleVersionLoadRequest(
+    @NonNull HttpContext context,
+    @Nullable @Optional @FirstRequestQueryParam("url") String url
+  ) {
     if (url == null) {
       this.versionProvider().loadDefaultVersionTypes();
     } else {
@@ -98,7 +80,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
             .body(this.failure().toString())
             .context()
             .closeAfter(true)
-            .cancelNext();
+            .cancelNext(true);
           return;
         }
       } catch (IOException exception) {
@@ -106,22 +88,24 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
           .body(this.failure().append("reason", "Unable to load versions from provided url").toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
         return;
       }
     }
 
-    this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+    this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext(true);
   }
 
-  protected void handleVersionAddRequest(@NonNull HttpContext context) {
-    var type = this.body(context.request()).toInstanceOf(ServiceVersionType.class);
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/serviceversion/add", methods = "POST")
+  private void handleVersionAddRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+    var type = body.toInstanceOf(ServiceVersionType.class);
     if (type == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing specific data").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
@@ -130,10 +114,11 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       .body(this.success().toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected @NonNull ServiceVersionProvider versionProvider() {
+  @NonNull
+  private ServiceVersionProvider versionProvider() {
     return this.node().serviceVersionProvider();
   }
 }

@@ -17,112 +17,113 @@
 package eu.cloudnetservice.modules.rest.v2;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.network.http.HttpContext;
-import eu.cloudnetservice.modules.rest.RestUtil;
-import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
+import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
-public class V2HttpHandlerDatabase extends V2HttpHandler {
+@HandlerPermission("http.v2.database")
+public final class V2HttpHandlerDatabase extends V2HttpHandler {
 
-  public V2HttpHandlerDatabase(@Nullable String requiredPermission) {
-    super(requiredPermission, "GET", "POST", "PUT", "DELETE");
-  }
-
-  @Override
-  protected void handleBearerAuthorized(
-    @NonNull String path,
-    @NonNull HttpContext context,
-    @NonNull HttpSession session
-  ) {
-    if (context.request().method().equals("GET")) {
-      if (path.endsWith("/contains")) {
-        // contains in a specific database
-        this.handleContainsRequest(context);
-      } else if (path.endsWith("/database")) {
-        // names of the database
-        this.handleNamesRequest(context);
-      } else if (path.endsWith("/clear")) {
-        // clear of a specific database
-        this.handleClearRequest(context);
-      } else if (path.endsWith("/keys")) {
-        // list all keys in database
-        this.handleKeysRequest(context);
-      } else if (path.endsWith("/count")) {
-        // count of documents in database
-        this.handleCountRequest(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("POST")) {
-      if (path.endsWith("/get")) {
-        // get a value from the database
-        this.handleGetRequest(context);
-      } else {
-        // insert of a document into a database
-        this.handleInsertRequest(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("DELETE")) {
-      // deletes a document from the database
-      this.handleDeleteRequest(context);
-    }
-  }
-
-  protected void handleNamesRequest(@NonNull HttpContext context) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/database")
+  private void handleNamesRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("names", this.databaseProvider().databaseNames()).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleClearRequest(@NonNull HttpContext context) {
-    var database = this.database(context);
-    if (database == null) {
-      this.sendInvalidDatabaseName(context);
-      return;
-    }
-
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/database/{name}/clear")
+  private void handleClearRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
+    var database = this.databaseProvider().database(name);
     database.clear();
+
     this.ok(context)
       .body(this.success().toString())
       .context().closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleContainsRequest(@NonNull HttpContext context) {
-    var database = this.database(context);
-    if (database == null) {
-      this.sendInvalidDatabaseName(context);
-      return;
-    }
-
-    var key = RestUtil.first(context.request().queryParameters().get("key"));
-    if (key == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing key in request").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-    } else {
-      this.ok(context)
-        .body(this.success().append("result", database.contains(key)).toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-    }
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/database/{name}/contains")
+  private void handleContainsRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("name") String name,
+    @NonNull @FirstRequestQueryParam("key") String key
+  ) {
+    var database = this.databaseProvider().database(name);
+    this.ok(context)
+      .body(this.success().append("result", database.contains(key)).toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext(true);
   }
 
-  protected void handleGetRequest(@NonNull HttpContext context) {
-    var database = this.database(context);
-    if (database == null) {
-      this.sendInvalidDatabaseName(context);
-      return;
-    }
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/database/{name}/keys")
+  private void handleKeysRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
+    var database = this.databaseProvider().database(name);
+    this.ok(context)
+      .body(this.success().append("keys", database.keys()).toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext(true);
+  }
 
-    var body = this.body(context.request());
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/database/{name}/count")
+  private void handleCountRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
+    var database = this.databaseProvider().database(name);
+    this.ok(context)
+      .body(this.success().append("count", database.documentCount()).toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext(true);
+  }
+
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/database/{name}", methods = "POST")
+  private void handleInsertRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("name") String name,
+    @NonNull @RequestBody JsonDocument document
+  ) {
+    var database = this.databaseProvider().database(name);
+    this.withContextData(context, document, (key, data) -> {
+      if (database.insert(key, data)) {
+        this.ok(context)
+          .body(this.success().toString())
+          .context()
+          .closeAfter(true)
+          .cancelNext(true);
+      } else {
+        this.ok(context)
+          .body(this.failure().toString())
+          .context()
+          .closeAfter(true)
+          .cancelNext(true);
+      }
+    });
+  }
+
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/database/{name}/get", methods = "POST")
+  private void handleGetRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("name") String name,
+    @NonNull @RequestBody JsonDocument body
+  ) {
+    var database = this.databaseProvider().database(name);
     var filter = body.getDocument("filter");
 
     var result = database.find(filter);
@@ -130,87 +131,37 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .body(this.success().append("result", result).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleKeysRequest(@NonNull HttpContext context) {
-    var database = this.database(context);
-    if (database == null) {
-      this.sendInvalidDatabaseName(context);
-      return;
-    }
-
-    this.ok(context)
-      .body(this.success().append("keys", database.keys()).toString())
-      .context()
-      .closeAfter(true)
-      .cancelNext();
-
-  }
-
-  protected void handleCountRequest(@NonNull HttpContext context) {
-    var database = this.database(context);
-    if (database == null) {
-      this.sendInvalidDatabaseName(context);
-      return;
-    }
-
-    this.ok(context)
-      .body(this.success().append("count", database.documentCount()).toString())
-      .context()
-      .closeAfter(true)
-      .cancelNext();
-  }
-
-  protected void handleInsertRequest(@NonNull HttpContext context) {
-    var database = this.database(context);
-    if (database == null) {
-      this.sendInvalidDatabaseName(context);
-      return;
-    }
-
-    this.withContextData(context, (key, data) -> {
-      if (database.insert(key, data)) {
-        this.ok(context)
-          .body(this.success().toString())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      } else {
-        this.ok(context)
-          .body(this.failure().toString())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      }
-    });
-  }
-
-  protected void handleDeleteRequest(@NonNull HttpContext context) {
-    var database = this.database(context);
-    if (database == null) {
-      this.sendInvalidDatabaseName(context);
-      return;
-    }
-
-    var key = RestUtil.first(context.request().queryParameters().get("key"));
-    if (key != null && database.delete(key)) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/database/{name}", methods = "DELETE")
+  private void handleDeleteRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("name") String name,
+    @NonNull @FirstRequestQueryParam("key") String key
+  ) {
+    var database = this.databaseProvider().database(name);
+    if (database.delete(key)) {
       this.ok(context)
         .body(this.success().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     } else {
       this.ok(context)
         .body(this.failure().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     }
   }
 
-  protected void withContextData(@NonNull HttpContext context, @NonNull BiConsumer<String, JsonDocument> handler) {
-    var body = this.body(context.request());
+  private void withContextData(
+    @NonNull HttpContext context,
+    @NonNull JsonDocument body,
+    @NonNull BiConsumer<String, JsonDocument> handler
+  ) {
     var key = body.getString("key");
     var data = body.getDocument("document");
 
@@ -219,31 +170,15 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
         .body(this.failure().append("reason", "Missing key").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
     handler.accept(key, data);
   }
 
-  protected void sendInvalidDatabaseName(@NonNull HttpContext context) {
-    this.badRequest(context)
-      .body(this.failure().append("reason", "No such database").toString())
-      .context()
-      .closeAfter(true)
-      .cancelNext();
-  }
-
-  protected @NonNull DatabaseProvider databaseProvider() {
+  @NonNull
+  private DatabaseProvider databaseProvider() {
     return this.node().databaseProvider();
-  }
-
-  protected @Nullable Database database(@NonNull HttpContext context) {
-    var name = context.request().pathParameters().get("name");
-    return name == null ? null : this.database(name);
-  }
-
-  protected @NonNull Database database(@NonNull String name) {
-    return this.databaseProvider().database(name);
   }
 }

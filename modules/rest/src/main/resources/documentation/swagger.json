@@ -331,8 +331,6 @@
     "/node" : {
       "get" : {
         "security" : [ { }, {
-          "basicAuth" : [ ]
-        }, {
           "bearerAuth" : [ ]
         } ],
         "tags" : [ "Node" ],
@@ -532,47 +530,6 @@
         },
         "tags" : [ "Database" ],
         "summary" : "Creates a new document in a database",
-        "responses" : {
-          "200" : {
-            "$ref" : "#/components/responses/Success"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      },
-      "put" : {
-        "requestBody" : {
-          "required" : true,
-          "description" : "The document key and value to update",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "type" : "object",
-                "properties" : {
-                  "key" : {
-                    "type" : "string",
-                    "example" : "Signs 0utplayyyy"
-                  },
-                  "document" : {
-                    "type" : "object",
-                    "example" : {
-                      "Name" : "Peter"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags" : [ "Database" ],
-        "summary" : "Updates a document in a database",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -1672,7 +1629,7 @@
       } ],
       "get" : {
         "tags" : [ "Tasks" ],
-        "summary" : "Get a task by it's name",
+        "summary" : "Get a task by its name",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1789,44 +1746,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/LoginSuccess"
-                }
-              }
-            }
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
-    "/wsTicket" : {
-      "post" : {
-        "tags" : [ "Session Management" ],
-        "summary" : "Requests a one time ticket to authorize a web socket request",
-        "description" : "Gives a one time ticket bound to the requesting user allowing the\nauthorize of a web socket open request without providing the bearer\nauth header as normally. This is needed when working with java script\nas js does not give a possibility to provide custom headers to a\nweb socket request.\n",
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "allOf" : [ {
-                    "$ref" : "#/components/schemas/Success"
-                  }, {
-                    "properties" : {
-                      "id" : {
-                        "type" : "string",
-                        "example" : "GRNHGRW343GMNIULK25454VR3534GSNR"
-                      },
-                      "expire" : {
-                        "type" : "number",
-                        "example" : 1627024556
-                      }
-                    }
-                  } ]
                 }
               }
             }
@@ -2814,7 +2733,7 @@
       }
     },
     "/template/{storage}/{prefix}/{name}/create" : {
-      "get" : {
+      "put" : {
         "parameters" : [ {
           "name" : "storage",
           "in" : "path",
@@ -3178,7 +3097,7 @@
         }
       }
     },
-    "/template/{storage}/{prefix}/{name}/" : {
+    "/template/{storage}/{prefix}/{name}" : {
       "delete" : {
         "parameters" : [ {
           "name" : "storage",
@@ -3252,56 +3171,7 @@
           }
         } ],
         "tags" : [ "Templates" ],
-        "summary" : "Deletes a file from a template",
-        "responses" : {
-          "200" : {
-            "$ref" : "#/components/responses/Success"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
-    "/template/{storage}/{prefix}/{name}/directory" : {
-      "delete" : {
-        "parameters" : [ {
-          "name" : "storage",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "prefix",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "name",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "path",
-          "in" : "query",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "tags" : [ "Templates" ],
-        "summary" : "Deletes a directory from a template",
+        "summary" : "Deletes a file or directory from a template",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3645,7 +3515,7 @@
           }
         }
       },
-      "post" : {
+      "put" : {
         "requestBody" : {
           "required" : true,
           "description" : "The updated configuration file of the module",
