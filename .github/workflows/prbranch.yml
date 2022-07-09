@@ -2,9 +2,7 @@ name: Validate target PR branch
 
 on:
   pull_request:
-    types:
-      - opened
-      - edited
+    types: [ opened, edited ]
 
 jobs:
   check-branch:
