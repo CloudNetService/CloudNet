@@ -20,6 +20,7 @@ import static eu.cloudnetservice.driver.service.property.JsonServiceProperty.cre
 import static eu.cloudnetservice.driver.service.property.JsonServiceProperty.createFromType;
 
 import com.google.gson.reflect.TypeToken;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
@@ -251,7 +252,7 @@ public final class BridgeServiceProperties {
    * @throws NullPointerException if the given value is null.
    */
   private static boolean matchesInGameString(@NonNull String value) {
-    value = value.toLowerCase();
+    value = StringUtil.toLower(value);
     return value.contains("ingame") || value.contains("running") || value.contains("playing");
   }
 }

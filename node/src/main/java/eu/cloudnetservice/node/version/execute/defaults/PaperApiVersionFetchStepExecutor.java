@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.version.execute.defaults;
 
 import com.google.gson.reflect.TypeToken;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
@@ -85,6 +86,6 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
   @NonNull
   private String decideApiProjectName(@NonNull ServiceVersionType type) {
-    return type.name().toLowerCase();
+    return StringUtil.toLower(type.name());
   }
 }

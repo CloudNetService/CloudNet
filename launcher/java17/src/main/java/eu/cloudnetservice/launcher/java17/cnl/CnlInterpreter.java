@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
@@ -31,7 +32,7 @@ public final class CnlInterpreter {
   private final Map<String, CnlCommand> commands = new HashMap<>();
 
   public void registerCommand(@NonNull String alias, @NonNull CnlCommand command) {
-    this.commands.put(alias.toLowerCase(), command);
+    this.commands.put(alias.toLowerCase(Locale.ROOT), command);
   }
 
   public void interpret(@NonNull Path filePath) throws Exception {
@@ -41,7 +42,7 @@ public final class CnlInterpreter {
         var parts = line.split(" ");
         Objects.checkIndex(0, parts.length);
         // get the command of the line
-        var command = this.commands.get(parts[0].toLowerCase());
+        var command = this.commands.get(parts[0].toLowerCase(Locale.ROOT));
         Objects.requireNonNull(command, "Cnl file at " + filePath + " used unknown cnl command " + parts[0]);
         // prepare the arguments
         Queue<String> args;

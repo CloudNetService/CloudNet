@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.signs.platform.bukkit;
 import com.google.common.base.Enums;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import lombok.NonNull;
 import org.bukkit.DyeColor;
@@ -78,7 +79,7 @@ public final class BukkitCompatibility {
   public static void signGlowing(@NonNull org.bukkit.block.Sign sign, @NonNull SignLayout layout) {
     if (SET_GLOWING != null && SET_DYE_COLOR != null && layout.glowingColor() != null) {
       // try to find the defined dye color
-      var color = Enums.getIfPresent(DyeColor.class, layout.glowingColor().toUpperCase()).orNull();
+      var color = Enums.getIfPresent(DyeColor.class, StringUtil.toUpper(layout.glowingColor())).orNull();
       if (color != null) {
         // enable the glowing of the sign
         SET_GLOWING.invoke(sign, Boolean.TRUE);

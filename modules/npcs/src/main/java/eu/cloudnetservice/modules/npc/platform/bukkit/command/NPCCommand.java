@@ -20,6 +20,7 @@ import com.github.juliarn.npc.profile.Profile;
 import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
@@ -102,7 +103,7 @@ public final class NPCCommand extends BaseTabExecutor {
       // 0: target group
       var targetGroup = args[1];
       // 1: mob type
-      var npcType = Enums.getIfPresent(NPC.NPCType.class, args[2].toUpperCase()).orNull();
+      var npcType = Enums.getIfPresent(NPC.NPCType.class, StringUtil.toUpper(args[2])).orNull();
       if (npcType == null) {
         sender.sendMessage("§cNo such NPC type, use one of: " + String.join(", ", NPC_TYPES));
         return true;
@@ -133,7 +134,7 @@ public final class NPCCommand extends BaseTabExecutor {
         this.management.createNPC(npc);
       } else {
         // get the entity type
-        var entityType = Enums.getIfPresent(EntityType.class, args[3].toUpperCase()).orNull();
+        var entityType = Enums.getIfPresent(EntityType.class, StringUtil.toUpper(args[3])).orNull();
         if (entityType == null
           || !entityType.isSpawnable()
           || !entityType.isAlive()
@@ -159,7 +160,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
     // npc operations
     if (args.length == 1) {
-      switch (args[0].toLowerCase()) {
+      switch (StringUtil.toLower(args[0])) {
         // remove the nearest npc
         case "rm", "remove" -> {
           var npc = this.getNearestNPC(player.getLocation());
@@ -282,7 +283,7 @@ public final class NPCCommand extends BaseTabExecutor {
       }
       NPC updatedNpc;
       // find the option the player is trying to edit
-      switch (args[1].toLowerCase()) {
+      switch (StringUtil.toLower(args[1])) {
         // edit of the display name
         case "display" -> {
           var displayName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
@@ -383,7 +384,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // the left click action
         case "lca", "leftclickaction" -> {
-          var action = Enums.getIfPresent(NPC.ClickAction.class, args[2].toUpperCase()).orNull();
+          var action = Enums.getIfPresent(NPC.ClickAction.class, StringUtil.toUpper(args[2])).orNull();
           if (action == null) {
             sender.sendMessage(String.format(
               "§cNo such click action. Use one of: §6%s§c.",
@@ -396,7 +397,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // the right click action
         case "rca", "rightclickaction" -> {
-          var action = Enums.getIfPresent(NPC.ClickAction.class, args[2].toUpperCase()).orNull();
+          var action = Enums.getIfPresent(NPC.ClickAction.class, StringUtil.toUpper(args[2])).orNull();
           if (action == null) {
             sender.sendMessage(String.format(
               "§cNo such click action. Use one of: §6%s§c.",
@@ -414,7 +415,7 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
           // parse the slot
-          var slot = VALID_ITEM_SLOTS.get(args[2].toUpperCase());
+          var slot = VALID_ITEM_SLOTS.get(StringUtil.toUpper(args[2]));
           if (slot == null) {
             sender.sendMessage(String.format(
               "§cNo such item slot! Use one of §6%s§7.",
@@ -513,7 +514,7 @@ public final class NPCCommand extends BaseTabExecutor {
                 ))).build());
                 sender.sendMessage(String.format(
                   "§7The option §6%s §7was updated §asuccessfully§7! It may take a few seconds for the change to become visible.",
-                  args[1].toLowerCase()));
+                  StringUtil.toLower(args[1])));
               } else {
                 // invalid response
                 sender.sendMessage("§cUnable to convert the given string url to actual texture data!");
@@ -532,9 +533,9 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // change the entity type (will force-set the entity type to entity)
         case "et", "entitytype" -> {
-          var entityType = Enums.getIfPresent(EntityType.class, args[2].toUpperCase()).orNull();
+          var entityType = Enums.getIfPresent(EntityType.class, StringUtil.toUpper(args[2])).orNull();
           if (entityType == null) {
-            sender.sendMessage(String.format("§cNo such entity type: §6%s§c.", args[2].toUpperCase()));
+            sender.sendMessage(String.format("§cNo such entity type: §6%s§c.", StringUtil.toUpper(args[2])));
             return true;
           } else {
             updatedNpc = NPC.builder(npc).entityType(entityType.name()).build();
@@ -546,7 +547,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // unknown option
         default -> {
-          sender.sendMessage(String.format("§cNo option with name §6%s §cfound!", args[1].toLowerCase()));
+          sender.sendMessage(String.format("§cNo option with name §6%s §cfound!", StringUtil.toLower(args[1])));
           return true;
         }
       }
@@ -554,7 +555,7 @@ public final class NPCCommand extends BaseTabExecutor {
       this.management.createNPC(updatedNpc);
       sender.sendMessage(String.format(
         "§7The option §6%s §7was updated §asuccessfully§7! It may take a few seconds for the change to become visible.",
-        args[1].toLowerCase()));
+        StringUtil.toLower(args[1])));
       return true;
     }
 
@@ -584,7 +585,7 @@ public final class NPCCommand extends BaseTabExecutor {
           return NPC_TYPES;
         case 4: {
           // try to give a suggestion based on the previous input
-          var type = Enums.getIfPresent(NPC.NPCType.class, args[2].toUpperCase()).orNull();
+          var type = Enums.getIfPresent(NPC.NPCType.class, StringUtil.toUpper(args[2])).orNull();
           if (type != null) {
             if (type == NPC.NPCType.ENTITY) {
               return Arrays.stream(EntityType.values())
@@ -627,7 +628,7 @@ public final class NPCCommand extends BaseTabExecutor {
       }
       // value options
       if (args.length == 3) {
-        return switch (args[1].toLowerCase()) {
+        return switch (StringUtil.toLower(args[1])) {
           // true-false options
           case "lap", "lookatplayer", "ip", "imitateplayer", "ups", "useplayerskin",
             "hn", "hideentityname", "fwe", "flyingwithelytra" -> TRUE_FALSE;

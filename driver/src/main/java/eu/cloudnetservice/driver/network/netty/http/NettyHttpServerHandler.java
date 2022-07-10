@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.netty.http;
 
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -229,7 +230,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     @NonNull String[] pathEntries,
     @NonNull String[] handlerPathEntries
   ) {
-    var path = fullPath.toLowerCase();
+    var path = StringUtil.toLower(fullPath);
 
     // validate that the port (if given) of the server and entry are matching
     if (httpHandlerEntry.port() != null && httpHandlerEntry.port() != this.connectedAddress.port()) {

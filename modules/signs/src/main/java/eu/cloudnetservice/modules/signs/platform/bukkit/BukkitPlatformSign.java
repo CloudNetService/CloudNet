@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.platform.bukkit;
 
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
@@ -89,7 +90,7 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
       sign.update();
 
       // change the block behind the sign
-      var material = Material.getMaterial(layout.blockMaterial().toUpperCase());
+      var material = Material.getMaterial(StringUtil.toUpper(layout.blockMaterial()));
       if (material != null && material.isBlock()) {
         var facing = BukkitCompatibility.facing(sign);
         if (facing != null) {

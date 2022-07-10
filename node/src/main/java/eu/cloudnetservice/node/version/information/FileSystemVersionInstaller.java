@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.version.information;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionType;
@@ -61,7 +62,7 @@ public final class FileSystemVersionInstaller extends VersionInstaller {
       for (var path : stream) {
         var fileName = path.getFileName().toString();
         for (var environment : knownTypes) {
-          if (fileName.toLowerCase().contains(environment.name())) {
+          if (StringUtil.toLower(fileName).contains(environment.name())) {
             Files.deleteIfExists(path);
           }
         }

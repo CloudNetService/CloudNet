@@ -17,8 +17,11 @@
 package eu.cloudnetservice.common;
 
 import com.google.common.base.Preconditions;
+import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility class all around strings to shortcut longer methods within the project.
@@ -74,6 +77,28 @@ public final class StringUtil {
    */
   public static boolean startsWithIgnoreCase(@NonNull String s, @NonNull String prefix) {
     return s.regionMatches(true, 0, prefix, 0, prefix.length());
+  }
+
+  /**
+   * Converts all the characters in the given string to lower case using a locale sensitive operation.
+   *
+   * @param s the string to convert, or null.
+   * @return the same string as given with all characters converted to lower case.
+   */
+  @Contract("!null -> !null; null -> null")
+  public static @Nullable String toLower(@Nullable String s) {
+    return s == null ? null : s.toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   * Converts all the characters in the given string to upper case using a locale sensitive operation.
+   *
+   * @param s the string to convert, or null.
+   * @return the same string as given with all characters converted to upper case.
+   */
+  @Contract("!null -> !null; null -> null")
+  public static @Nullable String toUpper(@Nullable String s) {
+    return s == null ? null : s.toUpperCase(Locale.ROOT);
   }
 
   public static @NonNull String repeat(char c, int times) {
