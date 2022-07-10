@@ -204,6 +204,16 @@ public final class Parsers {
         normalizedInput = normalizedInput.substring(0, portSeparatorIndex);
       }
 
+      // check if the host is wrapped in brackets
+      if (normalizedInput.startsWith("[")) {
+        normalizedInput = normalizedInput.substring(1);
+      }
+
+      // extracting this check allows accidental typos to happen like [2001:db8::1
+      if (normalizedInput.endsWith("]")) {
+        normalizedInput = normalizedInput.substring(0, normalizedInput.length() - 1);
+      }
+
       try {
         // try to parse an ipv 4 or 6 address from the input string
         var address = InetAddresses.forString(normalizedInput);
