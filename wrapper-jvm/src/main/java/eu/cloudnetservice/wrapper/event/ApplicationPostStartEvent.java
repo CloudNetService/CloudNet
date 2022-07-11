@@ -21,35 +21,27 @@ import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 
 /**
- * This event is only interesting for wrapper modules. It will called if the app is successful started and will called
- * parallel to the application thread.
+ * An event called when the underlying application of the wrapper was started. This event cannot be used by platform
+ * plugins or extensions, as this event is fired before they get enabled.
  *
- * @see DriverEvent
+ * @since 4.0
  */
 public final class ApplicationPostStartEvent extends DriverEvent {
 
-  /**
-   * The current singleton instance of the Wrapper class
-   *
-   * @see Wrapper
-   */
   private final Wrapper cloudNetWrapper;
-
-  /**
-   * The class, which is set in the manifest as 'Main-Class' by the archive of the wrapped application
-   */
   private final Class<?> applicationMainClass;
-
-  /**
-   * The application thread, which invoked the main() method of the Main-Class from the application
-   */
   private final Thread applicationThread;
-
-  /**
-   * The used ClassLoader
-   */
   private final ClassLoader classLoader;
 
+  /**
+   * Constructs a new ApplicationPostStartEvent instance.
+   *
+   * @param cloudNetWrapper      the wrapper instance which will start the application.
+   * @param applicationMainClass the main class instance which will be invoked to start the application.
+   * @param applicationThread    the thread in which the application was started.
+   * @param classLoader          the class loader which loaded the application main class.
+   * @throws NullPointerException if the given wrapper instance, app main, app thread or class loader is null.
+   */
   public ApplicationPostStartEvent(
     @NonNull Wrapper cloudNetWrapper,
     @NonNull Class<?> applicationMainClass,
@@ -62,18 +54,39 @@ public final class ApplicationPostStartEvent extends DriverEvent {
     this.classLoader = classLoader;
   }
 
+  /**
+   * Get the wrapper instance which started the application.
+   *
+   * @return the wrapper instance.
+   */
   public @NonNull Wrapper wrapper() {
     return this.cloudNetWrapper;
   }
 
+  /**
+   * Get the main class which was invoked when starting the application.
+   *
+   * @return the invoked main class of the application.
+   */
   public @NonNull Class<?> applicationMainClass() {
     return this.applicationMainClass;
   }
 
+  /**
+   * Get the tread in which the application is running.
+   *
+   * @return the thread of the application.
+   */
   public @NonNull Thread applicationThread() {
     return this.applicationThread;
   }
 
+  /**
+   * Get the class loader which was used to load the main class of the application (and all other classes of the
+   * application in the runtime unless the application decides to switch to another loader).
+   *
+   * @return the class loader of the application main class.
+   */
   public @NonNull ClassLoader classLoader() {
     return this.classLoader;
   }

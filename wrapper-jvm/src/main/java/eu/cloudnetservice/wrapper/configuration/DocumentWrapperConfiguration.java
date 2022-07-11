@@ -24,12 +24,6 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import java.nio.file.Path;
 import lombok.NonNull;
 
-/**
- * The default json based wrapper configuration for the service. It loads only the configuration with the constructor
- * all properties once.
- *
- * @see WrapperConfiguration
- */
 public record DocumentWrapperConfiguration(
   @NonNull String connectionKey,
   @NonNull HostAndPort targetListener,
