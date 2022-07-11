@@ -73,7 +73,7 @@ public final class ApplicationPostStartEvent extends DriverEvent {
   }
 
   /**
-   * Get the tread in which the application is running.
+   * Get the thread in which the application is running.
    *
    * @return the thread of the application.
    */
