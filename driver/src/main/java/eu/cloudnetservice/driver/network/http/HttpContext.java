@@ -45,9 +45,6 @@ public interface HttpContext {
    * Supported web socket versions are:
    * <ol>
    *   <li>Wire protocol version 13 (RFC-6455/draft version 17 of the hybi specification)
-   *   <li>Wire protocol version 08 (draft version 10 of the hybi specification)
-   *   <li>Wire protocol version 08 (draft version 07 of the hybi specification)
-   *   <li>Wire protocol version 08 (draft version 00 of the hybi specification), fallback when no version is specified
    * </ol>
    * <p>
    * If the upgrade fails this method returns a task which is completed exceptionally and sends a response to the client
