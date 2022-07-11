@@ -77,6 +77,7 @@ just append the `-SNAPSHOT` suffix to the version.
 - [Support Discord](https://discord.cloudnetservice.eu)
 - [General Discussion](https://github.com/CloudNetService/CloudNet-v3/discussions)
 - [Latest Release](https://github.com/CloudNetService/CloudNet-v3/releases/latest)
+- [SpigotMC](https://www.spigotmc.org/resources/42059)
 
 ## Compile from source
 
