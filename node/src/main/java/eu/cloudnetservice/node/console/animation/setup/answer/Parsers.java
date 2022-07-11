@@ -175,7 +175,7 @@ public final class Parsers {
   public static @NonNull QuestionAnswerType.Parser<HostAndPort> validatedHostAndPort(boolean withPort) {
     return input -> {
       // convert the input to an ascii string if needed (for example ☃.net -> xn--n3h.net)
-      var normalizedInput = IDN.toASCII(input).toLowerCase();
+      var normalizedInput = StringUtil.toLower(IDN.toASCII(input));
 
       // extract the port from the input if required
       var port = -1;
