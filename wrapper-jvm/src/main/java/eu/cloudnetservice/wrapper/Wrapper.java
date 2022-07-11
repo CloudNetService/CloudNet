@@ -283,7 +283,7 @@ public class Wrapper extends CloudNetDriver {
    * This method will (unlike the {@code createServiceInfoSnapshot} method) change the current and old service snapshot
    * to the newly created and configured one.
    * <p>
-   * This method call is equivalent to {@code Wrapper#configureServiceInfoSnapshot(Wrapper#createServiceInfoSnapshot)}.
+   * This method call is equivalent to {@code wrapper.configureServiceInfoSnapshot(wrapper.createServiceInfoSnapshot)}.
    *
    * @return the newly created service snapshot for this service.
    */
