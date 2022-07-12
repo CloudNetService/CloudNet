@@ -341,6 +341,24 @@ public abstract class AbstractService implements CloudService {
     }
   }
 
+  @Override
+  public void updateProperties(@NonNull JsonDocument properties) {
+    // check if the service is able to serve the request
+    if (this.networkChannel != null) {
+      ChannelMessage.builder()
+        .targetService(this.serviceId().name())
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .message("request_update_service_information_with_new_properties")
+        .buffer(DataBuf.empty().writeObject(properties))
+        .build()
+        .send();
+      return;
+    }
+
+    // not connected - just update
+    this.pushServiceInfoSnapshotUpdate(this.lastServiceInfo.lifeCycle(), properties, true);
+  }
+
   protected void doDelete() {
     // stop the process if it's running
     if (this.currentServiceInfo.lifeCycle() == ServiceLifeCycle.RUNNING || this.alive()) {
@@ -541,6 +559,14 @@ public abstract class AbstractService implements CloudService {
   }
 
   protected void pushServiceInfoSnapshotUpdate(@NonNull ServiceLifeCycle lifeCycle, boolean sendUpdate) {
+    this.pushServiceInfoSnapshotUpdate(lifeCycle, this.lastServiceInfo.properties(), sendUpdate);
+  }
+
+  protected void pushServiceInfoSnapshotUpdate(
+    @NonNull ServiceLifeCycle lifeCycle,
+    @NonNull JsonDocument properties,
+    boolean sendUpdate
+  ) {
     // save the current service info
     this.lastServiceInfo = this.currentServiceInfo;
     // update the current info
@@ -552,7 +578,7 @@ public abstract class AbstractService implements CloudService {
       this.lastServiceInfo.configuration(),
       this.connectionTimestamp,
       lifeCycle,
-      this.lastServiceInfo.properties());
+      properties);
     // remove the service in the local manager if the service was deleted
     if (lifeCycle == ServiceLifeCycle.DELETED) {
       this.cloudServiceManager.unregisterLocalService(this);
