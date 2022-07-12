@@ -609,7 +609,7 @@ public abstract class AbstractService implements CloudService {
     // load the ssl configuration if enabled
     var sslConfiguration = this.nodeConfiguration().serverSSLConfig();
     if (sslConfiguration.enabled()) {
-      this.copySslConfiguration(sslConfiguration);
+      sslConfiguration = this.prepareSslConfiguration(sslConfiguration);
     }
     // add all components
     this.waitingTemplates.addAll(this.serviceConfiguration.templates());
@@ -628,7 +628,7 @@ public abstract class AbstractService implements CloudService {
       .append("connectionKey", this.connectionKey())
       .append("serviceInfoSnapshot", this.currentServiceInfo)
       .append("serviceConfiguration", this.serviceConfiguration())
-      .append("sslConfiguration", this.nodeConfiguration().serverSSLConfig())
+      .append("sslConfiguration", sslConfiguration)
       .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
   }
 
@@ -649,7 +649,7 @@ public abstract class AbstractService implements CloudService {
     }
   }
 
-  protected void copySslConfiguration(@NonNull SSLConfiguration configuration) {
+  protected @NonNull SSLConfiguration prepareSslConfiguration(@NonNull SSLConfiguration configuration) {
     var wrapperDir = this.serviceDirectory.resolve(".wrapper");
     // copy the certificate if available
     if (configuration.certificatePath() != null && Files.exists(configuration.certificatePath())) {
@@ -663,6 +663,14 @@ public abstract class AbstractService implements CloudService {
     if (configuration.trustCertificatePath() != null && Files.exists(configuration.trustCertificatePath())) {
       FileUtil.copy(configuration.trustCertificatePath(), wrapperDir.resolve("trustCertificate"));
     }
+
+    // recreate the configuration object with the new paths
+    return new SSLConfiguration(
+      configuration.enabled(),
+      configuration.clientAuth(),
+      configuration.trustCertificatePath() == null ? null : wrapperDir.resolve("trustCertificate"),
+      configuration.certificatePath() == null ? null : wrapperDir.resolve("certificate"),
+      configuration.privateKeyPath() == null ? null : wrapperDir.resolve("privateKey"));
   }
 
   protected @NonNull Object[] serviceReplacement() {
