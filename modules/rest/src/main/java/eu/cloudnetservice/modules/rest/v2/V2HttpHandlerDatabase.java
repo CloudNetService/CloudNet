@@ -177,8 +177,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
     handler.accept(key, data);
   }
 
-  @NonNull
-  private DatabaseProvider databaseProvider() {
+  private @NonNull DatabaseProvider databaseProvider() {
     return this.node().databaseProvider();
   }
 }

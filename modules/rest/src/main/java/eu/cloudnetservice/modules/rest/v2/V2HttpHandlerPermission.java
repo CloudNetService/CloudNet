@@ -219,8 +219,7 @@ public final class V2HttpHandlerPermission extends V2HttpHandler {
     handler.accept(user);
   }
 
-  @NonNull
-  private PermissionManagement permissionManagement() {
+  private @NonNull PermissionManagement permissionManagement() {
     return this.node().permissionManagement();
   }
 }

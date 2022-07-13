@@ -205,8 +205,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
     handler.accept(wrapper);
   }
 
-  @NonNull
-  private ModuleProvider moduleProvider() {
+  private @NonNull ModuleProvider moduleProvider() {
     return this.node().moduleProvider();
   }
 }

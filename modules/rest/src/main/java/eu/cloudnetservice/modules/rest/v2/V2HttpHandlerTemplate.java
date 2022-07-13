@@ -407,16 +407,14 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
       .cancelNext(true);
   }
 
-  @NonNull
-  private HttpResponse ok(@NonNull HttpContext context, @NonNull String contentType) {
+  private @NonNull HttpResponse ok(@NonNull HttpContext context, @NonNull String contentType) {
     return context.response()
       .status(HttpResponseCode.OK)
       .header("Content-Type", contentType)
       .header("Access-Control-Allow-Origin", this.restConfiguration.corsPolicy());
   }
 
-  @Nullable
-  private String guessFileName(@NonNull String path) {
+  private @Nullable String guessFileName(@NonNull String path) {
     var index = path.lastIndexOf('/');
     if (index == -1 || index + 1 == path.length()) {
       return null;

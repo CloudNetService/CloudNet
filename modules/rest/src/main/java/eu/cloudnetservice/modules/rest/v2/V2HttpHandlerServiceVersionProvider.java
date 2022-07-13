@@ -117,8 +117,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       .cancelNext(true);
   }
 
-  @NonNull
-  private ServiceVersionProvider versionProvider() {
+  private @NonNull ServiceVersionProvider versionProvider() {
     return this.node().serviceVersionProvider();
   }
 }

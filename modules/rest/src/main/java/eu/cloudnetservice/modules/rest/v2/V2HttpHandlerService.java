@@ -372,13 +372,11 @@ public final class V2HttpHandlerService extends V2HttpHandler {
       .cancelNext(true);
   }
 
-  @NonNull
-  private CloudServiceProvider generalServiceProvider() {
+  private @NonNull CloudServiceProvider generalServiceProvider() {
     return this.node().cloudServiceProvider();
   }
 
-  @NonNull
-  private CloudServiceFactory serviceFactory() {
+  private @NonNull CloudServiceFactory serviceFactory() {
     return this.node().cloudServiceFactory();
   }
 

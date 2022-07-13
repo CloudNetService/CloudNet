@@ -190,8 +190,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
     }
   }
 
-  @NonNull
-  private JsonDocument createNodeInfoDocument(@NonNull NodeServer node) {
+  private @NonNull JsonDocument createNodeInfoDocument(@NonNull NodeServer node) {
     return JsonDocument.newDocument("node", node.info())
       .append("state", node.state())
       .append("head", node.head())
@@ -199,8 +198,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
       .append("nodeInfoSnapshot", node.nodeInfoSnapshot());
   }
 
-  @NonNull
-  private NodeServerProvider nodeProvider() {
+  private @NonNull NodeServerProvider nodeProvider() {
     return this.node().nodeServerProvider();
   }
 }
