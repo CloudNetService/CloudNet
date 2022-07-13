@@ -119,7 +119,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HttpRequestHandler(paths = "/api/v2/service/{id}/lifecycle")
+  @HttpRequestHandler(paths = "/api/v2/service/{id}/include")
   private void handleIncludeRequest(
     @NonNull HttpContext context,
     @NonNull @RequestPathParam("id") String id,
