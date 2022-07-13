@@ -16,85 +16,77 @@
 
 package eu.cloudnetservice.modules.bridge.node.http;
 
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
+import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
-import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
-public class V2HttpHandlerBridge extends V2HttpHandler {
+@HandlerPermission("http.v2.bridge")
+public final class V2HttpHandlerBridge extends V2HttpHandler {
 
   private final PlayerManager playerManager = ServiceRegistry.first(PlayerManager.class);
 
-  public V2HttpHandlerBridge(String requiredPermission) {
-    super(requiredPermission, "GET", "POST", "DELETE");
-  }
-
-  @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context, @NonNull HttpSession ses) {
-    if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.endsWith("/exists")) {
-        this.handleCloudPlayerExistsRequest(context);
-      } else if (path.endsWith("/onlinecount")) {
-        this.handleOnlinePlayerCountRequest(context);
-      } else if (path.endsWith("/registeredcount")) {
-        this.handleRegisteredPlayerCountRequest(context);
-      } else {
-        this.handleCloudPlayerRequest(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("POST")) {
-      this.handleCreateCloudPlayerRequest(context);
-    } else if (context.request().method().equalsIgnoreCase("DELETE")) {
-      this.handleDeleteCloudPlayerRequest(context);
-    }
-  }
-
-  protected void handleOnlinePlayerCountRequest(HttpContext context) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/player/onlineCount")
+  private void handleOnlinePlayerCountRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("onlineCount", this.playerManager.onlineCount()).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleRegisteredPlayerCountRequest(HttpContext context) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/player/registeredCount")
+  private void handleRegisteredPlayerCountRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("registeredCount", this.playerManager.registeredCount()).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleCloudPlayerExistsRequest(HttpContext context) {
-    this.handleWithCloudPlayerContext(context, true, player -> this.ok(context)
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/player/{id}/exists")
+  private void handleCloudPlayerExistsRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("id") String id) {
+    this.handleWithCloudPlayerContext(ctx, id, true, player -> this.ok(ctx)
       .body(this.success().append("result", player != null).toString())
       .context()
       .closeAfter(true)
-      .cancelNext()
-    );
+      .cancelNext(true));
   }
 
-  protected void handleCloudPlayerRequest(HttpContext context) {
-    this.handleWithCloudPlayerContext(context, false, player -> this.ok(context)
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/player/{id}")
+  private void handleCloudPlayerRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("id") String id) {
+    this.handleWithCloudPlayerContext(ctx, id, false, player -> this.ok(ctx)
       .body(this.success().append("player", player).toString())
       .context()
       .closeAfter(true)
-      .cancelNext());
+      .cancelNext(true));
   }
 
-  protected void handleCreateCloudPlayerRequest(HttpContext context) {
-    var cloudOfflinePlayer = this.body(context.request()).toInstanceOf(CloudOfflinePlayer.class);
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/player/{id}", methods = "POST")
+  private void handleCreateCloudPlayerRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+    var cloudOfflinePlayer = body.toInstanceOf(CloudOfflinePlayer.class);
     if (cloudOfflinePlayer == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing player configuration").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
@@ -103,34 +95,28 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
       .body(this.success().toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleDeleteCloudPlayerRequest(HttpContext context) {
-    this.handleWithCloudPlayerContext(context, false, player -> {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/player/{id}", methods = "DELETE")
+  private void handleCloudPlayerDeleteRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("id") String id) {
+    this.handleWithCloudPlayerContext(ctx, id, false, player -> {
       this.playerManager.deleteCloudOfflinePlayer(player);
-      this.ok(context)
+      this.ok(ctx)
         .body(this.success().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     });
   }
 
-  protected void handleWithCloudPlayerContext(
-    HttpContext context,
+  private void handleWithCloudPlayerContext(
+    @NonNull HttpContext context,
+    @NonNull String identifier,
     boolean mayBeNull,
-    Consumer<CloudOfflinePlayer> handler
+    @NonNull Consumer<CloudOfflinePlayer> handler
   ) {
-    var identifier = context.request().pathParameters().get("identifier");
-    if (identifier == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing player identifier").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
     // try to find a matching player
     CloudOfflinePlayer player;
     try {
@@ -140,17 +126,18 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     } catch (Exception exception) {
       player = this.playerManager.firstOfflinePlayer(identifier);
     }
+
     // check if a player is present before applying to the handler
     if (player == null && !mayBeNull) {
       this.ok(context)
         .body(this.failure().append("reason", "No player with provided uniqueId/name").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
+
     // post to handler
     handler.accept(player);
   }
-
 }

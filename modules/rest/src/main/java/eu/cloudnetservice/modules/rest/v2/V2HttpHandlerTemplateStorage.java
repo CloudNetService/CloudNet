@@ -17,35 +17,21 @@
 package eu.cloudnetservice.modules.rest.v2;
 
 import eu.cloudnetservice.driver.network.http.HttpContext;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.template.TemplateStorage;
-import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import java.util.function.Consumer;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
-public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
+@HandlerPermission("http.v2.template.storage")
+public final class V2HttpHandlerTemplateStorage extends V2HttpHandler {
 
-  public V2HttpHandlerTemplateStorages(@Nullable String requiredPermission) {
-    super(requiredPermission, "GET");
-  }
-
-  @Override
-  protected void handleBearerAuthorized(
-    @NonNull String path,
-    @NonNull HttpContext context,
-    @NonNull HttpSession session
-  ) {
-    if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.endsWith("/templatestorage")) {
-        this.handleStorageListRequest(context);
-      } else if (path.endsWith("/templates")) {
-        this.handleTemplateListRequest(context);
-      }
-    }
-  }
-
-  protected void handleStorageListRequest(@NonNull HttpContext context) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/templateStorage")
+  private void handleStorageListRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success()
         .append("storages", this.node().templateStorageProvider().availableTemplateStorages())
@@ -55,25 +41,24 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleTemplateListRequest(@NonNull HttpContext context) {
-    this.handleWithStorageContext(context, templateStorage -> this.ok(context)
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/templateStorage/{storage}/templates")
+  private void handleTemplateListRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storage
+  ) {
+    this.handleWithStorageContext(context, storage, templateStorage -> this.ok(context)
       .body(this.success().append("templates", templateStorage.templates()).toString())
       .context()
       .closeAfter(true)
       .cancelNext());
   }
 
-  protected void handleWithStorageContext(@NonNull HttpContext context, @NonNull Consumer<TemplateStorage> handler) {
-    var storage = context.request().pathParameters().get("storage");
-    if (storage == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing template storage in path params").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
+  private void handleWithStorageContext(
+    @NonNull HttpContext context,
+    @NonNull String storage,
+    @NonNull Consumer<TemplateStorage> handler
+  ) {
     var templateStorage = this.node().templateStorageProvider().templateStorage(storage);
     if (templateStorage == null) {
       this.badRequest(context)

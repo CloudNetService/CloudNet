@@ -46,4 +46,6 @@ public interface HttpSession {
   boolean hasProperty(@NonNull String key);
 
   @NonNull Map<String, Object> properties();
+
+  @NonNull V2HttpAuthentication issuer();
 }

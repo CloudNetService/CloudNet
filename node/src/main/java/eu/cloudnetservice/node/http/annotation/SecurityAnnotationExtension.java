@@ -33,13 +33,14 @@ import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class SecurityAnnotationExtensions {
+public final class SecurityAnnotationExtension {
 
-  private SecurityAnnotationExtensions() {
+  private SecurityAnnotationExtension() {
     throw new UnsupportedOperationException();
   }
 
@@ -58,7 +59,7 @@ public final class SecurityAnnotationExtensions {
     // if the auth succeeded check if the user has the required permission
     if (result.succeeded()) {
       var user = userExtractor.apply(result.result());
-      if (validatePermission(user, permission)) {
+      if (!validatePermission(user, permission)) {
         // the user has no permission for the handler
         context
           .cancelNext(true)
@@ -93,9 +94,9 @@ public final class SecurityAnnotationExtensions {
     return permission == null ? method.getDeclaringClass().getAnnotation(HandlerPermission.class) : permission;
   }
 
-  private static byte[] buildErrorResponse(@NonNull String reason) {
+  private static byte[] buildErrorResponse(@Nullable String reason) {
     return JsonDocument.newDocument("success", false)
-      .append("reason", reason)
+      .append("reason", Objects.requireNonNullElse(reason, "undefined"))
       .toString()
       .getBytes(StandardCharsets.UTF_8);
   }

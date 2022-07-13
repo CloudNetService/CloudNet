@@ -23,124 +23,100 @@ import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
-import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
+import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class V2HttpHandlerModule extends V2HttpHandler {
+@HandlerPermission("http.v2.module")
+public final class V2HttpHandlerModule extends V2HttpHandler {
 
-  public V2HttpHandlerModule(@Nullable String requiredPermission) {
-    super(requiredPermission, "GET", "POST");
-  }
-
-  @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context, @NonNull HttpSession ses) {
-    if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.endsWith("/module")) {
-        this.handleModuleListRequest(context);
-      } else if (path.endsWith("/module/reload")) {
-        this.handleReloadRequest(context);
-      } else if (path.endsWith("/reload")) {
-        this.handleModuleReloadRequest(context);
-      } else if (path.endsWith("/unload")) {
-        this.handleModuleUnloadRequest(context);
-      } else if (path.endsWith("/config")) {
-        this.handleModuleConfigRequest(context);
-      } else {
-        this.handleModuleRequest(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("POST")) {
-      if (path.endsWith("/load")) {
-        this.handleModuleLoadRequest(context);
-      } else if (path.endsWith("/config")) {
-        this.handleConfigUpdateRequest(context);
-      }
-    }
-  }
-
-  protected void handleReloadRequest(@NonNull HttpContext context) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/module/reload")
+  private void handleReloadRequest(@NonNull HttpContext context) {
     this.node().moduleProvider().reloadAll();
 
     this.ok(context)
       .body(this.success().toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleModuleListRequest(@NonNull HttpContext context) {
-    this.ok(context).body(this.success().append("modules", this.moduleProvider().modules().stream()
-        .map(module -> JsonDocument.newDocument("lifecycle", module.moduleLifeCycle())
-          .append("configuration", module.moduleConfiguration()))
-        .collect(Collectors.toList()))
-      .toString()
-    ).context().closeAfter(true).cancelNext();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/module")
+  private void handleModuleListRequest(@NonNull HttpContext context) {
+    this.ok(context)
+      .body(this.success()
+        .append("modules", this.moduleProvider().modules().stream()
+          .map(module -> JsonDocument.newDocument()
+            .append("lifecycle", module.moduleLifeCycle())
+            .append("configuration", module.moduleConfiguration()))
+          .toList())
+        .toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext(true);
   }
 
-  protected void handleModuleRequest(@NonNull HttpContext context) {
-    this.handleWithModuleContext(context, module -> this.showModule(context, module));
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/module/{module}")
+  private void handleModuleRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("module") String name) {
+    this.handleWithModuleContext(context, name, module -> this.showModule(context, module));
   }
 
-  protected void handleModuleReloadRequest(@NonNull HttpContext context) {
-    this.handleWithModuleContext(context, module -> {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/module/{module}/reload")
+  private void handleModuleReloadRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("module") String name) {
+    this.handleWithModuleContext(ctx, name, module -> {
       module.reloadModule();
-
-      this.ok(context)
+      this.ok(ctx)
         .body(this.success().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     });
   }
 
-  protected void handleModuleUnloadRequest(@NonNull HttpContext context) {
-    this.handleWithModuleContext(context, module -> {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/module/{module}/unload")
+  private void handleModuleUnloadRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("module") String name) {
+    this.handleWithModuleContext(ctx, name, module -> {
       module.unloadModule();
-      this.ok(context)
+      this.ok(ctx)
         .body(this.success().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     });
   }
 
-  protected void handleModuleLoadRequest(@NonNull HttpContext context) {
-    var moduleStream = context.request().bodyStream();
-    if (moduleStream == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing module data in body").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
-    var name = context.request().pathParameters().get("name");
-    if (name == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing module name in path").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/module/{module}/load", methods = "PUT")
+  private void handleModuleLoadRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("module") String name,
+    @NonNull @RequestBody InputStream body
+  ) {
     var moduleTarget = this.moduleProvider().moduleDirectoryPath().resolve(name);
     FileUtil.ensureChild(this.moduleProvider().moduleDirectoryPath(), moduleTarget);
 
     try (var outputStream = Files.newOutputStream(moduleTarget)) {
-      FileUtil.copy(moduleStream, outputStream);
+      FileUtil.copy(body, outputStream);
     } catch (IOException exception) {
       this.response(context, HttpResponseCode.INTERNAL_SERVER_ERROR)
         .body(this.failure().append("reason", "Unable to copy module file").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       FileUtil.delete(moduleTarget);
       return;
     }
@@ -148,97 +124,88 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     this.showModule(context, this.moduleProvider().loadModule(moduleTarget));
   }
 
-  protected void handleModuleConfigRequest(@NonNull HttpContext context) {
-    this.handleWithModuleContext(context, module -> {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/module/{module}/config")
+  private void handleModuleConfigRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("module") String name) {
+    this.handleWithModuleContext(ctx, name, module -> {
       if (module.module() instanceof DriverModule) {
         var config = ((DriverModule) module.module()).readConfig();
-        this.ok(context)
+        this.ok(ctx)
           .body(this.success().append("config", config).toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       } else {
-        this.ok(context)
+        this.ok(ctx)
           .body(this.failure().append("reason", "Module was not loaded by CloudNet").toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       }
     });
   }
 
-  protected void handleConfigUpdateRequest(@NonNull HttpContext context) {
-    this.handleWithModuleContext(context, module -> {
-      if (module.module() instanceof DriverModule) {
-        var stream = context.request().bodyStream();
-        if (stream == null) {
-          this.badRequest(context)
-            .body(this.failure().append("reason", "Missing data in body").toString())
-            .context()
-            .closeAfter(true)
-            .cancelNext();
-        } else {
-          var driverModule = (DriverModule) module.module();
-          driverModule.writeConfig(JsonDocument.newDocument(stream));
-
-          this.ok(context)
-            .body(this.success().toString())
-            .context()
-            .closeAfter(true)
-            .cancelNext();
-        }
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/module/{module}/config", methods = "POST")
+  private void handleConfigUpdateRequest(
+    @NonNull HttpContext ctx,
+    @NonNull @RequestPathParam("module") String name,
+    @NonNull @RequestBody InputStream body
+  ) {
+    this.handleWithModuleContext(ctx, name, module -> {
+      if (module.module() instanceof DriverModule driverModule) {
+        driverModule.writeConfig(JsonDocument.newDocument(body));
+        this.ok(ctx)
+          .body(this.success().toString())
+          .context()
+          .closeAfter(true)
+          .cancelNext(true);
       } else {
-        this.ok(context)
+        this.ok(ctx)
           .body(this.failure().append("reason", "Module was not loaded by CloudNet").toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       }
     });
   }
 
-  protected void showModule(@NonNull HttpContext context, @Nullable ModuleWrapper wrapper) {
+  private void showModule(@NonNull HttpContext context, @Nullable ModuleWrapper wrapper) {
     if (wrapper == null) {
       this.ok(context)
         .body(this.failure().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     } else {
       this.ok(context)
         .body(this.success()
           .append("lifecycle", wrapper.moduleLifeCycle())
           .append("configuration", wrapper.moduleConfiguration())
           .toString()
-        ).context().closeAfter(true).cancelNext();
+        ).context().closeAfter(true).cancelNext(true);
     }
   }
 
-  protected void handleWithModuleContext(@NonNull HttpContext context, @NonNull Consumer<ModuleWrapper> handler) {
-    var name = context.request().pathParameters().get("name");
-    if (name == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing module name in path").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
+  private void handleWithModuleContext(
+    @NonNull HttpContext context,
+    @NonNull String name,
+    @NonNull Consumer<ModuleWrapper> handler
+  ) {
     var wrapper = this.moduleProvider().module(name);
     if (wrapper == null) {
       this.notFound(context)
         .body(this.failure().append("reason", "No such module").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
     handler.accept(wrapper);
   }
 
-  protected @NonNull ModuleProvider moduleProvider() {
+  private @NonNull ModuleProvider moduleProvider() {
     return this.node().moduleProvider();
   }
 }

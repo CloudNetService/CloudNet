@@ -26,7 +26,6 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.network.http.HttpHandler;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
@@ -173,11 +172,7 @@ public final class CloudNetBridgeModule extends DriverModule {
       .currentGetter($ -> management.configuration())
       .build());
     // register the bridge rest handler
-    Node.instance().httpServer()
-      .registerHandler("/api/v2/player", new V2HttpHandlerBridge("http.v2.bridge"))
-      .registerHandler("/api/v2/player/{identifier}", new V2HttpHandlerBridge("http.v2.bridge"))
-      .registerHandler("/api/v2/player/{identifier}/exists", HttpHandler.PRIORITY_LOW,
-        new V2HttpHandlerBridge("http.v2.bridge"));
+    Node.instance().httpServer().annotationParser().parseAndRegister(new V2HttpHandlerBridge());
   }
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
