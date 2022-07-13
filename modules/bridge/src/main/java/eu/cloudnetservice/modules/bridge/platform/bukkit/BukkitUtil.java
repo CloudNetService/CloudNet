@@ -18,13 +18,18 @@ package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 final class BukkitUtil {
 
   private static final Function<Player, String> LOCALE_GETTER;
+  private static final Map<String, Locale> LOCALE_CACHE = new HashMap<>();
 
   static {
     Function<Player, String> localeGetter;
@@ -57,7 +62,14 @@ final class BukkitUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull String playerLocale(@NonNull Player player) {
-    return LOCALE_GETTER.apply(player);
+  public static @Nullable Locale playerLocale(@NonNull Player player) {
+    // resolve the language using the getter, do nothing if we were not able to resolve the language for some reason
+    var localeTag = LOCALE_GETTER.apply(player);
+    if (localeTag == null) {
+      return null;
+    }
+
+    // resolve the locale tag from the cache, put it in if missing
+    return LOCALE_CACHE.computeIfAbsent(localeTag, tag -> Locale.forLanguageTag(tag.replace('_', '-')));
   }
 }

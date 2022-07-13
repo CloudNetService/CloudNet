@@ -20,7 +20,6 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.wrapper.Wrapper;
-import java.util.Locale;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -53,7 +52,7 @@ public final class BukkitPlayerManagementListener implements Listener {
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
         event.setKickMessage(this.management.configuration().message(
-          Locale.forLanguageTag(BukkitUtil.playerLocale(event.getPlayer())),
+          BukkitUtil.playerLocale(event.getPlayer()),
           "server-join-cancel-because-maintenance"));
         return;
       }
@@ -62,7 +61,7 @@ public final class BukkitPlayerManagementListener implements Listener {
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
         event.setKickMessage(this.management.configuration().message(
-          Locale.forLanguageTag(BukkitUtil.playerLocale(event.getPlayer())),
+          BukkitUtil.playerLocale(event.getPlayer()),
           "server-join-cancel-because-permission"));
       }
     }
