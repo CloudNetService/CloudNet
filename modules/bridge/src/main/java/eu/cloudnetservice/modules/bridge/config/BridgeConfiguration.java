@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.config;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
@@ -27,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -108,16 +108,25 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
   }
 
   public @NonNull String message(@Nullable Locale locale, @NonNull String key, boolean withPrefix) {
-    // try to get the messages of in the specified locale
-    var messages = this.localizedMessages.get(locale == null ? "default" : locale.getLanguage());
-    if (messages == null) {
-      // get the default locale (they have to be present)
-      messages = Preconditions.checkNotNull(this.localizedMessages.get("default"));
+    Map<String, String> messages = null;
+    // don't bother resolving if no locale is present
+    if (locale != null) {
+      // try to get the messages of the specified locale, with country
+      messages = this.localizedMessages.get(locale.toString());
+      if (messages == null) {
+        // try to resolve the messages without country
+        messages = this.localizedMessages.get(locale.getLanguage());
+      }
     }
-    // get the message from the map
-    return String.format(
-      "%s%s",
-      withPrefix ? this.prefix : "",
-      messages.getOrDefault(key, DEFAULT_MESSAGES.get("default").get(key)));
+
+    // validate that there are registered messages for the locale, fall back to the default messages if not
+    if (messages == null) {
+      messages = Objects.requireNonNullElseGet(
+        this.localizedMessages.get("default"),
+        () -> DEFAULT_MESSAGES.get("default"));
+    }
+
+    // format the final message
+    return String.format("%s%s", withPrefix ? this.prefix : "", messages.get(key));
   }
 }
