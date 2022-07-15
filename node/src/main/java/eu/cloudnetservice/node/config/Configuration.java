@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.network.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import java.util.Collection;
+import java.util.Map;
 import lombok.NonNull;
 
 public interface Configuration {
@@ -46,6 +47,10 @@ public interface Configuration {
 
   void connectHostAddress(@NonNull String connectHostAddress);
 
+  @NonNull Map<String, String> ipAliases();
+
+  void ipAliases(@NonNull Map<String, String> alias);
+
   @NonNull NetworkClusterNode identity();
 
   void identity(@NonNull NetworkClusterNode identity);
@@ -54,8 +59,7 @@ public interface Configuration {
 
   void clusterConfig(@NonNull NetworkCluster clusterConfig);
 
-  @NonNull
-  Collection<String> ipWhitelist();
+  @NonNull Collection<String> ipWhitelist();
 
   void ipWhitelist(@NonNull Collection<String> whitelist);
 

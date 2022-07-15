@@ -16,6 +16,12 @@
 
 package eu.cloudnetservice.node.util;
 
+import com.google.common.net.InetAddresses;
+import com.google.common.primitives.Ints;
+import eu.cloudnetservice.driver.network.HostAndPort;
+import java.io.IOException;
+import java.net.BindException;
+import java.net.IDN;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -26,6 +32,7 @@ import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class NetworkUtil {
 
@@ -65,6 +72,86 @@ public final class NetworkUtil {
       return false;
     } catch (Exception exception) {
       return true;
+    }
+  }
+
+  public static @Nullable HostAndPort assignableHostAndPort(@NonNull HostAndPort hostAndPort) {
+    try (var socket = new ServerSocket()) {
+      // try to bind on the given address
+      socket.bind(new InetSocketAddress(hostAndPort.host(), 45555));
+      return hostAndPort;
+    } catch (IOException exception) {
+      return exception instanceof BindException
+        && exception.getMessage() != null
+        && exception.getMessage().startsWith("Address already in use") ? hostAndPort : null;
+    }
+  }
+
+  public static @Nullable HostAndPort assignableHostAndPort(@NonNull String address, boolean withPort) {
+    var hostAndPort = parseHostAndPort(address, withPort);
+    // could not parse host and port from string
+    if (hostAndPort == null) {
+      return null;
+    }
+    return assignableHostAndPort(hostAndPort);
+  }
+
+  public static @Nullable HostAndPort parseHostAndPort(@NonNull String input, boolean withPort) {
+    // convert the input to an ascii string if needed (for example ☃.net -> xn--n3h.net)
+    var normalizedInput = IDN.toASCII(input).toLowerCase();
+
+    // extract the port from the input if required
+    var port = -1;
+    if (withPort) {
+      var portSeparatorIndex = normalizedInput.lastIndexOf(':');
+      if (portSeparatorIndex == -1) {
+        // missing port
+        return null;
+      }
+
+      // extract the port part
+      var portPart = normalizedInput.substring(portSeparatorIndex + 1);
+      if (portPart.isEmpty()) {
+        // missing port
+        return null;
+      }
+
+      // try to get the port
+      var possiblePort = Ints.tryParse(portPart);
+      if (possiblePort == null || possiblePort < 0 || possiblePort > 65535) {
+        // invalid port
+        return null;
+      }
+
+      // store the port and remove the port part from the input string
+      port = possiblePort;
+      normalizedInput = normalizedInput.substring(0, portSeparatorIndex);
+    }
+
+    // check if the host is wrapped in brackets
+    if (normalizedInput.startsWith("[")) {
+      normalizedInput = normalizedInput.substring(1);
+    }
+
+    // extracting this check allows accidental typos to happen like [2001:db8::1
+    if (normalizedInput.endsWith("]")) {
+      normalizedInput = normalizedInput.substring(0, normalizedInput.length() - 1);
+    }
+
+    try {
+      // try to parse an ipv 4 or 6 address from the input string
+      var address = InetAddresses.forString(normalizedInput);
+      return new HostAndPort(address.getHostAddress(), port);
+    } catch (IllegalArgumentException ignored) {
+    }
+
+    try {
+      // not the end of the world - might still be a domain name
+      var address = InetAddress.getByName(normalizedInput);
+      return new HostAndPort(address.getHostAddress(), port);
+    } catch (UnknownHostException exception) {
+      // okay that's it
+      return null;
     }
   }
 

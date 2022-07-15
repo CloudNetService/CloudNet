@@ -43,8 +43,8 @@ import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import eu.cloudnetservice.node.util.NetworkUtil;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -128,24 +128,46 @@ public final class ClusterCommand {
       .toList();
   }
 
-  @Parser
+  @Parser(name = "anyHostAndPort")
   public @NonNull HostAndPort defaultHostAndPortParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var address = input.remove();
-    try {
-      // create an uri with the tpc protocol
-      var uri = URI.create("tcp://" + address);
-
-      var host = uri.getHost();
-      // check if the host and port are valid
-      if (host == null || uri.getPort() == -1) {
-        throw new ArgumentNotAvailableException(I18n.trans("command-cluster-invalid-host"));
-      }
-
-      var inetAddress = InetAddresses.forUriString(host);
-      return new HostAndPort(inetAddress.getHostAddress(), uri.getPort());
-    } catch (IllegalArgumentException exception) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-invalid-host"));
+    var hostAndPort = NetworkUtil.parseHostAndPort(address, true);
+    if (hostAndPort == null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-any-host-and-port-invalid", address));
     }
+
+    return hostAndPort;
+  }
+
+  @Parser(name = "assignableHostAndPort", suggestions = "assignableHostAndPort")
+  public @NonNull HostAndPort assignableHostAndPortParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
+    var address = input.remove();
+    var hostAndPort = NetworkUtil.parseHostAndPort(address, false);
+    // check if we can parse a host and port form the given input
+    if (hostAndPort == null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-any-host-invalid", address));
+    }
+    // check if we can assign the parsed host and port
+    if (NetworkUtil.assignableHostAndPort(hostAndPort) == null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-assignable-host-invalid", address));
+    }
+    // success
+    return hostAndPort;
+  }
+
+  @Suggestions("assignableHostAndPort")
+  public @NonNull List<String> suggestAssignableHostAndPort(@NonNull CommandContext<?> $, @NonNull String input) {
+    return List.copyOf(NetworkUtil.availableIPAddresses());
+  }
+
+  @Parser(name = "anyHost")
+  public @NonNull String anyHostParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
+    var address = input.remove();
+    if (InetAddresses.isInetAddress(address)) {
+      return address;
+    }
+
+    throw new ArgumentNotAvailableException(I18n.trans("command-any-host-invalid", address));
   }
 
   @Parser(name = "noNodeId", suggestions = "clusterNode")
@@ -192,7 +214,7 @@ public final class ClusterCommand {
   public void addNodeToCluster(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
-    @NonNull @Argument("host") HostAndPort hostAndPort
+    @NonNull @Argument(value = "host", parserName = "anyHostAndPort") HostAndPort hostAndPort
   ) {
     Node.instance().clusterNodeProvider().addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
     source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId));

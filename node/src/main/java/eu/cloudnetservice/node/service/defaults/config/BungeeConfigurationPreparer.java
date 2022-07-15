@@ -34,7 +34,7 @@ public class BungeeConfigurationPreparer extends AbstractServiceConfigurationPre
         if (line.trim().startsWith("host:")) {
           line = String.format(
             "    host: %s:%d",
-            nodeInstance.config().hostAddress(),
+            cloudService.serviceInfo().address().host(),
             cloudService.serviceConfiguration().port());
         }
         return line;

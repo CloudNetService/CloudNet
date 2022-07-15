@@ -33,7 +33,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -58,6 +60,19 @@ public final class JsonConfiguration implements Configuration {
     return null;
   };
 
+  private static final Function<String, Map<String, String>> MAP_PARSER = value -> {
+    var values = value.split(";;");
+    Map<String, String> results = new HashMap<>();
+
+    for (var pair : values) {
+      var entry = pair.split(";", 2);
+      if (entry.length == 2) {
+        results.put(entry[0], entry[1]);
+      }
+    }
+    return results;
+  };
+
   private String language;
 
   private NetworkClusterNode identity;
@@ -78,6 +93,7 @@ public final class JsonConfiguration implements Configuration {
   private String jvmCommand;
   private String hostAddress;
   private String connectHostAddress;
+  private Map<String, String> ipAliases;
 
   private RestConfiguration restConfiguration;
   private Collection<HostAndPort> httpListeners;
@@ -104,7 +120,7 @@ public final class JsonConfiguration implements Configuration {
 
   public static @NonNull Configuration loadFromFile(@NonNull Node nodeInstance) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
-      // register the setup if the file does not exists
+      // register the setup if the file does not exist
       nodeInstance.installation().registerSetup(new DefaultConfigSetup());
       return new JsonConfiguration().load();
     } else {
@@ -225,6 +241,10 @@ public final class JsonConfiguration implements Configuration {
       this.connectHostAddress = ConfigurationUtil.get("cloudnet.config.connectHostAddress", this.hostAddress);
     }
 
+    if (this.ipAliases == null) {
+      this.ipAliases = ConfigurationUtil.get("cloudnet.config.ipAliases", new HashMap<>(), MAP_PARSER);
+    }
+
     if (this.httpListeners == null) {
       this.httpListeners = ConfigurationUtil.get(
         "cloudnet.config.httpListeners",
@@ -331,6 +351,8 @@ public final class JsonConfiguration implements Configuration {
     this.jvmCommand = configuration.javaCommand();
     this.hostAddress = configuration.hostAddress();
     this.connectHostAddress = configuration.connectHostAddress();
+
+    this.ipAliases = configuration.ipAliases();
 
     this.properties = configuration.properties();
     this.restConfiguration = configuration.restConfiguration();
@@ -464,6 +486,16 @@ public final class JsonConfiguration implements Configuration {
   @Override
   public void connectHostAddress(@NonNull String connectHostAddress) {
     this.connectHostAddress = connectHostAddress;
+  }
+
+  @Override
+  public @NonNull Map<String, String> ipAliases() {
+    return this.ipAliases != null ? this.ipAliases : (this.ipAliases = new HashMap<>());
+  }
+
+  @Override
+  public void ipAliases(@NonNull Map<String, String> alias) {
+    this.ipAliases = new HashMap<>(alias);
   }
 
   @Override

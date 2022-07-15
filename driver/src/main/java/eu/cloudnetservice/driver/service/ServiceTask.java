@@ -51,6 +51,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
 
   private final String name;
   private final String runtime;
+  private final String hostAddress;
   private final String javaCommand;
   private final String nameSplitter;
 
@@ -73,6 +74,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
    *
    * @param name                  the name of the service task.
    * @param runtime               the runtime, used to determine the service factory for services of the task.
+   * @param hostAddress           the host address all services of this task are bound to.
    * @param javaCommand           the overridden java command to use, if null the node specific one will be used.
    * @param nameSplitter          the splitter to put into the service name, between the task name and service id.
    * @param disableIpRewrite      true if the ip set in a service configuration file should not get touched.
@@ -94,6 +96,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
   protected ServiceTask(
     @NonNull String name,
     @NonNull String runtime,
+    @Nullable String hostAddress,
     @Nullable String javaCommand,
     @NonNull String nameSplitter,
     boolean disableIpRewrite,
@@ -114,6 +117,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     super(templates, deployments, includes, properties);
     this.name = name;
     this.runtime = runtime;
+    this.hostAddress = hostAddress;
     this.javaCommand = javaCommand;
     this.nameSplitter = nameSplitter;
     this.disableIpRewrite = disableIpRewrite;
@@ -152,6 +156,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
       .name(serviceTask.name())
       .javaCommand(serviceTask.javaCommand())
       .runtime(serviceTask.runtime())
+      .hostAddress(serviceTask.hostAddress())
       .nameSplitter(serviceTask.nameSplitter())
 
       .maintenance(serviceTask.maintenance())
@@ -193,6 +198,17 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
    */
   public @NonNull String runtime() {
     return this.runtime;
+  }
+
+  /**
+   * Get the host address that all services of this task are bound to. The host address is not required to be an ip
+   * address, it is possible that the host address is just an ip alias which needs to be resolved using the
+   * configuration of the node. The host address might be null, in that case the fallback host of the node is used.
+   *
+   * @return the host address all services of this task are bound to.
+   */
+  public @Nullable String hostAddress() {
+    return this.hostAddress;
   }
 
   /**
@@ -369,6 +385,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
   public static class Builder extends ServiceConfigurationBase.Builder<ServiceTask, Builder> {
 
     private String name;
+    private String hostAddress;
     private String javaCommand;
     private String runtime = "jvm";
     private String nameSplitter = "-";
@@ -414,6 +431,23 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
      */
     public @NonNull Builder runtime(@Nullable String runtime) {
       this.runtime = runtime;
+      return this;
+    }
+
+    /**
+     * Sets the host address which all services of this task are bound to. The host address is required to be assignable
+     * on every node a service can start. In order to achieve this a cluster with multiple nodes so called ip aliases
+     * can be used. Define your ip alias in the config of each node and set this host address to the name of the alias.
+     * If null is supplied as host address the fallback address of the node is used.
+     * <p>
+     * Note: if the host address is not assignable or the alias is not resolvable on the node which is picking up the
+     * service it will result in an error.
+     *
+     * @param hostAddress the host address to bind services of this task to.
+     * @return the same instance as used to call the method, for chaining.
+     */
+    public @NonNull Builder hostAddress(@Nullable String hostAddress) {
+      this.hostAddress = hostAddress;
       return this;
     }
 
@@ -686,6 +720,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
       return new ServiceTask(
         this.name,
         this.runtime,
+        this.hostAddress,
         this.javaCommand,
         this.nameSplitter,
         this.disableIpRewrite,

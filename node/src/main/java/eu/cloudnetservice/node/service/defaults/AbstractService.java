@@ -57,6 +57,7 @@ import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
+import eu.cloudnetservice.node.util.NetworkUtil;
 import java.net.Inet6Address;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -88,6 +89,7 @@ public abstract class AbstractService implements CloudService {
 
   protected final EventManager eventManager;
 
+  protected final String resolvedHostAddress;
   protected final String connectionKey;
   protected final Path serviceDirectory;
   protected final Path pluginDirectory;
@@ -124,6 +126,7 @@ public abstract class AbstractService implements CloudService {
     this.serviceConfiguration = configuration;
     this.serviceConfigurationPreparer = serviceConfigurationPreparer;
 
+    this.resolvedHostAddress = this.resolveHostAddress();
     this.connectionKey = StringUtil.generateRandomString(64);
     this.serviceDirectory = resolveServicePath(configuration.serviceId(), manager, configuration.staticService());
     this.pluginDirectory = this.serviceDirectory
@@ -131,7 +134,7 @@ public abstract class AbstractService implements CloudService {
 
     this.currentServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      new HostAndPort(this.nodeConfiguration().hostAddress(), configuration.port()),
+      new HostAndPort(this.resolvedHostAddress, configuration.port()),
       new HostAndPort(this.nodeConfiguration().connectHostAddress(), configuration.port()),
       ProcessSnapshot.empty(),
       configuration,
@@ -671,6 +674,34 @@ public abstract class AbstractService implements CloudService {
       configuration.trustCertificatePath() == null ? null : wrapperDir.resolve("trustCertificate"),
       configuration.certificatePath() == null ? null : wrapperDir.resolve("certificate"),
       configuration.privateKeyPath() == null ? null : wrapperDir.resolve("privateKey"));
+  }
+
+  protected @NonNull String resolveHostAddress() {
+    var hostAddress = this.serviceConfiguration.hostAddress();
+    var fallbackHostAddress = this.nodeInstance.config().hostAddress();
+    // if null is supplied use fallback address
+    if (hostAddress == null) {
+      return fallbackHostAddress;
+    }
+    // use the supplied host address if it is an inet address
+    if (NetworkUtil.assignableHostAndPort(hostAddress, false) != null) {
+      return hostAddress;
+    }
+    // retrieve the alias from the node
+    var alias = this.nodeInstance.config().ipAliases().get(hostAddress);
+    // we cant find an alias with this name use fallback
+    if (alias == null) {
+      return fallbackHostAddress;
+    }
+    // check if the alias is a valid inet address
+    if (NetworkUtil.assignableHostAndPort(alias, false) != null) {
+      return alias;
+    }
+    // explode, resolved alias is not an address
+    throw new IllegalArgumentException(String.format(
+      "The host address %s of the alias %s is not a valid inet address.",
+      alias,
+      hostAddress));
   }
 
   protected @NonNull Object[] serviceReplacement() {
