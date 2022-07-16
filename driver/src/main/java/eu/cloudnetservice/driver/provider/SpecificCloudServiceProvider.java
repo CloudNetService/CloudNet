@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.provider;
 
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
@@ -224,6 +225,36 @@ public interface SpecificCloudServiceProvider {
   default void removeAndExecuteDeployments() {
     this.deployResources(true);
   }
+
+  /**
+   * Updates the properties of the current service info to include all properties set in the given document. All
+   * existing properties will be overridden when using this method. If the associated service is currently running, a
+   * request will be sent to update the current service information to use the given properties. Plugins on the service
+   * can decide to ignore values set in the given document and override them.
+   * <p>
+   * Example use in an async context might look like this:
+   * <pre>
+   * {@code
+   * public void updateCustomProperties(@NonNull SpecificCloudServiceProvider provider) {
+   *   provider.serviceInfoAsync().thenAcceptAsync(info -> {
+   *     var properties = info.properties();
+   *     properties.append("hello", "world");
+   *     properties.append("world", 123);
+   *     provider.updateProperties(properties);
+   *   });
+   * }
+   * }
+   * </pre>
+   * The difference to using the {@link #updatePropertiesAsync(JsonDocument)} method is that the update operation is
+   * executed in the same async context as the service info retrieval, rather than moving the update (without a need)
+   * into a separate thread.
+   * <p>
+   * Update request of the properties might not reflect instantly into new service snapshots produced by the service.
+   *
+   * @param properties the new properties of the service to cleanly set.
+   * @throws NullPointerException if the given properties document is null.
+   */
+  void updateProperties(@NonNull JsonDocument properties);
 
   /**
    * Get the last reported service info snapshot of the service. This snapshot is updated on an event basis, therefore
@@ -458,5 +489,21 @@ public interface SpecificCloudServiceProvider {
    */
   default @NonNull Task<Void> executeAndRemoveDeploymentsAsync() {
     return this.deployResourcesAsync(true);
+  }
+
+  /**
+   * Updates the properties of the current service info to include all properties set in the given document. All
+   * existing properties will be overridden when using this method. If the associated service is currently running, a
+   * request will be sent to update the current service information to use the given properties. Plugins on the service
+   * can decide to ignore values set in the given document and override them.
+   * <p>
+   * Update request of the properties might not reflect instantly into new service snapshots produced by the service.
+   *
+   * @param properties the new properties of the service to cleanly set.
+   * @return a task completed when the update request was received and processed by the node the service runs on.
+   * @throws NullPointerException if the given properties document is null.
+   */
+  default @NonNull Task<Void> updatePropertiesAsync(@NonNull JsonDocument properties) {
+    return Task.supply(() -> this.updateProperties(properties));
   }
 }

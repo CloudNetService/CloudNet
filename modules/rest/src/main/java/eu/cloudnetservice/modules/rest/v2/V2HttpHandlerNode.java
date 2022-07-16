@@ -16,75 +16,46 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.AbstractHandler;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.http.HttpContext;
+import eu.cloudnetservice.driver.network.http.HttpHandler;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
+import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.driver.network.http.annotation.Optional;
+import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketChannel;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketFrameType;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketListener;
-import eu.cloudnetservice.driver.permission.PermissionUser;
-import eu.cloudnetservice.modules.rest.RestUtil;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.config.JsonConfiguration;
 import eu.cloudnetservice.node.http.HttpSession;
-import eu.cloudnetservice.node.http.WebSocketAbleV2HttpHandler;
+import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
-import java.util.stream.Collectors;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
-public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
+@HandlerPermission("http.v2.node")
+public final class V2HttpHandlerNode extends V2HttpHandler {
 
-  public V2HttpHandlerNode(@Nullable String requiredPermission) {
-    super(
-      requiredPermission,
-      (context, path) -> context.request().method().equalsIgnoreCase("GET") && path.endsWith("/liveconsole"),
-      "GET", "PUT");
+  @HttpRequestHandler(paths = "/api/v2/node", priority = HttpHandler.PRIORITY_HIGH)
+  private void handleNodePing(@NonNull HttpContext context) {
+    this.response(context, HttpResponseCode.NO_CONTENT).context().closeAfter(true).cancelNext(true);
   }
 
-  @Override
-  protected void handleUnauthorizedRequest(@NonNull String path, @NonNull HttpContext context) {
-    this.response(context, HttpResponseCode.NO_CONTENT).context().closeAfter(true).cancelNext();
-  }
-
-  @Override
-  protected void handleBasicAuthorized(@NonNull String path, @NonNull HttpContext context, @NonNull PermissionUser u) {
-    this.sendNodeInformation(context);
-  }
-
-  @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context, @NonNull HttpSession ses) {
-    if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.endsWith("/liveconsole")) {
-        this.handleLiveConsoleRequest(context, ses);
-      } else if (path.endsWith("/config")) {
-        this.handleNodeConfigRequest(context);
-      } else if (path.endsWith("/reload")) {
-        this.handleReloadRequest(context);
-      } else {
-        this.sendNodeInformation(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("PUT")) {
-      if (path.endsWith("/config")) {
-        this.handleNodeConfigUpdateRequest(context);
-      }
-    }
-  }
-
-  @Override
-  protected void handleTicketAuthorizedRequest(@NonNull String $, @NonNull HttpContext con, @NonNull HttpSession ses) {
-    this.handleLiveConsoleRequest(con, ses);
-  }
-
-  protected void sendNodeInformation(@NonNull HttpContext context) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/node")
+  private void sendNodeInformation(@NonNull HttpContext context) {
     var nodeServer = this.node().nodeServerProvider().localNode();
 
     var information = this.success()
@@ -94,43 +65,51 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       .append("serviceCount", this.node().cloudServiceProvider().serviceCount())
       .append("clientConnections", super.node().networkClient().channels().stream()
         .map(NetworkChannel::serverAddress)
-        .collect(Collectors.toList()));
-    this.ok(context).body(information.toString()).context().closeAfter(true).cancelNext();
+        .toList());
+    this.ok(context).body(information.toString()).context().closeAfter(true).cancelNext(true);
   }
 
-  protected void handleNodeConfigRequest(@NonNull HttpContext context) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/node/config")
+  private void handleNodeConfigRequest(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("config", this.configuration()).toString())
+      .body(this.success().append("config", this.nodeConfig()).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleNodeConfigUpdateRequest(@NonNull HttpContext context) {
-    var configuration = this.body(context.request()).toInstanceOf(JsonConfiguration.class);
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/node/config", methods = "PUT")
+  private void handleNodeConfigUpdateRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+    var configuration = body.toInstanceOf(JsonConfiguration.class);
     if (configuration == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing configuration in body").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
     // a little workaround here, write the configuration to the file and load the used from there
     configuration.save();
-    this.configuration().load();
+    this.nodeConfig().load();
 
     this.ok(context)
       .body(this.success().toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleReloadRequest(@NonNull HttpContext context) {
-    var type = RestUtil.first(context.request().queryParameters().get("type"), "all").toLowerCase();
-    switch (type) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/node/reload")
+  private void handleReloadRequest(
+    @NonNull HttpContext context,
+    @NonNull @Optional @FirstRequestQueryParam(value = "type", def = "all") String type
+  ) {
+    switch (type.toLowerCase()) {
       case "all" -> {
         this.reloadConfig();
         this.node().moduleProvider().reloadAll();
@@ -141,7 +120,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
           .body(this.failure().append("reason", "Invalid reload type").toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
         return;
       }
     }
@@ -150,10 +129,11 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       .body(this.success().toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleLiveConsoleRequest(@NonNull HttpContext context, @NonNull HttpSession session) {
+  @HttpRequestHandler(paths = "/api/v2/node/liveConsole")
+  private void handleLiveConsoleRequest(@NonNull HttpContext context, @NonNull @BearerAuth HttpSession session) {
     context.upgrade().thenAccept(channel -> {
       var handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.END_LINE_SEPARATOR);
       channel.addListener(handler);
@@ -161,7 +141,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void reloadConfig() {
+  private void reloadConfig() {
     this.node().reloadConfigFrom(JsonConfiguration.loadFromFile(this.node()));
     this.node().serviceTaskProvider().reload();
     this.node().groupConfigurationProvider().reload();

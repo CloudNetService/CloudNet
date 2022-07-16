@@ -20,65 +20,23 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
+import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
-import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
-public class V2HttpHandlerCluster extends V2HttpHandler {
+@HandlerPermission("http.v2.cluster")
+public final class V2HttpHandlerCluster extends V2HttpHandler {
 
-  public V2HttpHandlerCluster(@Nullable String requiredPermission) {
-    super(requiredPermission, "GET", "POST", "DELETE", "PUT");
-  }
-
-  @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context, @NonNull HttpSession ses) {
-    if (context.request().method().equalsIgnoreCase("GET")) {
-      if (context.request().pathParameters().containsKey("node")) {
-        // specific node was requested
-        this.handleNodeRequest(context);
-      } else {
-        // a list of all nodes was requested
-        this.handleNodeListRequest(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("POST")) {
-      if (path.endsWith("/command")) {
-        // a command should be executed on the node
-        this.handleNodeCommandRequest(context);
-      } else {
-        // post is used for creation of nodes
-        this.handleNodeCreateRequest(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("DELETE")) {
-      // delete a cluster server from the configuration
-      this.handleNodeDeleteRequest(context);
-    } else if (context.request().method().equalsIgnoreCase("PUT")) {
-      // put (modifies) an existing cluster node
-      this.handleNodeUpdateRequest(context);
-    }
-  }
-
-  protected void handleNodeRequest(@NonNull HttpContext context) {
-    var server = this.nodeServer(context);
-    if (server != null) {
-      this.ok(context)
-        .body(this.success().append("node", this.createNodeInfoDocument(server)).toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-    } else {
-      this.response(context, HttpResponseCode.NOT_FOUND)
-        .body(this.failure().append("reason", "No such node found").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-    }
-  }
-
-  protected void handleNodeListRequest(@NonNull HttpContext context) {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/cluster")
+  private void handleNodeListRequest(@NonNull HttpContext context) {
     var nodes = this.nodeProvider().nodeServers().stream()
       .map(this::createNodeInfoDocument)
       .toList();
@@ -87,19 +45,44 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .body(this.success().append("nodes", nodes).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleNodeCommandRequest(@NonNull HttpContext context) {
-    var nodeServer = this.nodeServer(context);
-    var commandLine = this.body(context.request()).getString("command");
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/cluster/{node}")
+  private void handleNodeRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("node") String node) {
+    var server = this.nodeProvider().node(node);
+    if (server != null) {
+      this.ok(context)
+        .body(this.success().append("node", this.createNodeInfoDocument(server)).toString())
+        .context()
+        .closeAfter(true)
+        .cancelNext(true);
+    } else {
+      this.response(context, HttpResponseCode.NOT_FOUND)
+        .body(this.failure().append("reason", "No such node found").toString())
+        .context()
+        .closeAfter(true)
+        .cancelNext(true);
+    }
+  }
+
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/cluster/{node}", methods = "POST")
+  private void handleNodeCommandRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("node") String node,
+    @NonNull @RequestBody JsonDocument body
+  ) {
+    var nodeServer = this.nodeProvider().node(node);
+    var commandLine = body.getString("command");
     if (commandLine == null || nodeServer == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", nodeServer == null ? "Unknown node server" : "Missing command line")
           .toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
@@ -108,17 +91,19 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .body(this.success().append("result", result).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleNodeCreateRequest(@NonNull HttpContext context) {
-    var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/cluster", methods = "POST")
+  private void handleNodeCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+    var server = body.toInstanceOf(NetworkClusterNode.class);
     if (server == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing node server information").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
@@ -127,66 +112,59 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
         .body(this.failure().append("reason", "The node server is already registered").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
-    var configuration = this.configuration();
+    var configuration = this.nodeConfig();
     configuration.clusterConfig().nodes().add(server);
     configuration.save();
 
     this.nodeProvider().registerNodes(configuration.clusterConfig());
-
     this.response(context, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleNodeDeleteRequest(@NonNull HttpContext context) {
-    var uniqueId = context.request().pathParameters().get("node");
-    if (uniqueId == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "No node unique id provided").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
-    var removed = this.configuration().clusterConfig().nodes().removeIf(
-      node -> node.uniqueId().equals(uniqueId));
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/cluster/{node}", methods = "DELETE")
+  private void handleNodeDeleteRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("node") String node) {
+    var removed = this.nodeConfig().clusterConfig().nodes()
+      .removeIf(clusterNode -> clusterNode.uniqueId().equals(node));
     if (removed) {
-      this.configuration().save();
-      this.nodeProvider().registerNodes(this.configuration().clusterConfig());
+      this.nodeConfig().save();
+      this.nodeProvider().registerNodes(this.nodeConfig().clusterConfig());
 
       this.response(context, HttpResponseCode.OK)
         .body(this.success().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     } else {
       this.response(context, HttpResponseCode.NOT_FOUND)
         .body(this.failure().append("reason", "No node with that unique id present").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     }
   }
 
-  protected void handleNodeUpdateRequest(@NonNull HttpContext context) {
-    var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/cluster", methods = "PUT")
+  private void handleNodeUpdateRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+    var server = body.toInstanceOf(NetworkClusterNode.class);
     if (server == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing node server information").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
-    var registered = this.configuration().clusterConfig().nodes()
+    var registered = this.nodeConfig().clusterConfig().nodes()
       .stream()
       .filter(node -> node.uniqueId().equals(server.uniqueId()))
       .findFirst()
@@ -196,23 +174,23 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
         .body(this.failure().append("reason", "No node with that unique id present").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     } else {
-      this.configuration().clusterConfig().nodes().remove(registered);
-      this.configuration().clusterConfig().nodes().add(server);
+      this.nodeConfig().clusterConfig().nodes().remove(registered);
+      this.nodeConfig().clusterConfig().nodes().add(server);
 
-      this.configuration().save();
-      this.nodeProvider().registerNodes(this.configuration().clusterConfig());
+      this.nodeConfig().save();
+      this.nodeProvider().registerNodes(this.nodeConfig().clusterConfig());
 
       this.ok(context)
         .body(this.success().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     }
   }
 
-  protected @NonNull JsonDocument createNodeInfoDocument(@NonNull NodeServer node) {
+  private @NonNull JsonDocument createNodeInfoDocument(@NonNull NodeServer node) {
     return JsonDocument.newDocument("node", node.info())
       .append("state", node.state())
       .append("head", node.head())
@@ -220,12 +198,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .append("nodeInfoSnapshot", node.nodeInfoSnapshot());
   }
 
-  protected @Nullable NodeServer nodeServer(@NonNull HttpContext context) {
-    var nodeName = context.request().pathParameters().get("node");
-    return this.nodeProvider().node(nodeName);
-  }
-
-  protected @NonNull NodeServerProvider nodeProvider() {
+  private @NonNull NodeServerProvider nodeProvider() {
     return this.node().nodeServerProvider();
   }
 }

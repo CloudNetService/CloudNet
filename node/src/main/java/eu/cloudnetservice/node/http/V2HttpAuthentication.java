@@ -23,7 +23,6 @@ import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
 import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.http.ticket.WebSocketTicketManager;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
@@ -62,22 +61,12 @@ public class V2HttpAuthentication {
     "Unable to process bearer login: user gone");
   protected static final LoginResult<PermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
-
-  protected final WebSocketTicketManager webSocketTicketManager;
   protected final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
-
-  public V2HttpAuthentication() {
-    this(WebSocketTicketManager.memoryCached());
-  }
-
-  public V2HttpAuthentication(@NonNull WebSocketTicketManager webSocketTicketManager) {
-    this.webSocketTicketManager = webSocketTicketManager;
-  }
 
   public @NonNull String createJwt(@NonNull PermissionUser subject, long sessionTimeMillis) {
     var session = this.sessions().computeIfAbsent(
       subject.uniqueId().toString(),
-      userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.uniqueId()));
+      userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.uniqueId(), this));
     return this.generateJwt(subject, session);
   }
 
@@ -201,10 +190,6 @@ public class V2HttpAuthentication {
   public @NonNull Map<String, HttpSession> sessions() {
     this.cleanup();
     return this.sessions;
-  }
-
-  public @NonNull WebSocketTicketManager webSocketTicketManager() {
-    return this.webSocketTicketManager;
   }
 
   public record LoginResult<T>(@UnknownNullability T result, @UnknownNullability String errorMessage) {

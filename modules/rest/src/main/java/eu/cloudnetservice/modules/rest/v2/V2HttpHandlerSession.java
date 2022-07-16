@@ -17,45 +17,35 @@
 package eu.cloudnetservice.modules.rest.v2;
 
 import eu.cloudnetservice.driver.network.http.HttpContext;
-import eu.cloudnetservice.driver.network.http.HttpResponseCode;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
-public class V2HttpHandlerSession extends V2HttpHandler {
+public final class V2HttpHandlerSession extends V2HttpHandler {
 
-  public V2HttpHandlerSession() {
-    super(null, "POST");
-  }
-
-  @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context, @NonNull HttpSession ses) {
-    if (path.startsWith("/api/v2/session/logout")) {
-      this.handleLogout(context, ses);
-    } else if (path.startsWith("/api/v2/session/refresh")) {
-      this.handleRefresh(context, ses);
-    } else {
-      this.response(context, HttpResponseCode.NOT_FOUND).context().closeAfter(true).cancelNext();
-    }
-  }
-
-  protected void handleRefresh(@NonNull HttpContext context, @NonNull HttpSession session) {
-    var jwt = this.authentication.refreshJwt(session, TimeUnit.HOURS.toMillis(1));
+  @HttpRequestHandler(paths = "/api/v2/session/refresh")
+  private void handleRefresh(@NonNull HttpContext context, @NonNull @BearerAuth HttpSession session) {
+    var jwt = session.issuer().refreshJwt(
+      session,
+      TimeUnit.MINUTES.toMillis(this.restConfiguration.jwtValidTimeMinutes()));
     this.ok(context)
       .body(this.success().append("token", jwt).append("uniqueId", session.user().uniqueId()).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected void handleLogout(@NonNull HttpContext context, @NonNull HttpSession session) {
-    if (this.authentication.expireSession(session)) {
+  @HttpRequestHandler(paths = "/api/v2/session/logout")
+  private void handleLogout(@NonNull HttpContext context, @NonNull @BearerAuth HttpSession session) {
+    if (session.issuer().expireSession(session)) {
       this.ok(context)
         .body(this.success().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     } else {
       this.send403(context, "Unable to close unknown session");
     }
