@@ -54,7 +54,7 @@ public final class ConfigCommand {
     return address;
   }
 
-  @Suggestions("whitelistIps")
+  @Suggestions("whitelistedIps")
   public @NonNull List<String> suggestWhitelistIps(@NonNull CommandContext<?> $, @NonNull String input) {
     return List.copyOf(this.nodeConfig().ipWhitelist());
   }
@@ -91,7 +91,7 @@ public final class ConfigCommand {
   @CommandMethod("config|cfg node remove ip <ip>")
   public void removeIpWhitelist(
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "ip", suggestions = "whitelistIps") String ip
+    @NonNull @Argument(value = "ip", suggestions = "whitelistedIps") String ip
   ) {
     var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we remove the given ip
