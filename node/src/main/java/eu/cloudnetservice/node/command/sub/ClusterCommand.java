@@ -161,8 +161,9 @@ public final class ClusterCommand {
   @Parser(name = "anyHost")
   public @NonNull String anyHostParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var address = input.remove();
-    if (NetworkUtil.parseHostAndPort(address, false) != null) {
-      return address;
+    var hostAndPort = NetworkUtil.parseHostAndPort(address, false);
+    if (hostAndPort != null) {
+      return hostAndPort.host();
     }
 
     throw new ArgumentNotAvailableException(I18n.trans("command-any-host-invalid", address));

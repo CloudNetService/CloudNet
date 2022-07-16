@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 public final class NetworkUtil {
 
@@ -43,6 +44,7 @@ public final class NetworkUtil {
     throw new UnsupportedOperationException();
   }
 
+  @Unmodifiable
   public static @NonNull Set<String> availableIPAddresses() {
     return AVAILABLE_IP_ADDRESSES;
   }

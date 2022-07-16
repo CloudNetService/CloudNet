@@ -34,7 +34,7 @@ public class VelocityConfigurationPreparer extends AbstractServiceConfigurationP
         if (line.startsWith("bind =")) {
           line = String.format(
             "bind = \"%s:%d\"",
-            cloudService.serviceInfo().address().host(),
+            cloudService.serviceConfiguration().hostAddress(),
             cloudService.serviceConfiguration().port());
         }
         return line;

@@ -173,8 +173,9 @@ public final class TasksCommand {
       return address;
     }
     // check if the host address is parsable and assignable
-    if (NetworkUtil.parseAssignableHostAndPort(address, false) != null) {
-      return address;
+    var hostAndPort = NetworkUtil.parseAssignableHostAndPort(address, false);
+    if (hostAndPort != null) {
+      return hostAndPort.host();
     }
     // could not parse
     throw new ArgumentNotAvailableException(I18n.trans("command-tasks-unknown-host-address-or-alias", address));

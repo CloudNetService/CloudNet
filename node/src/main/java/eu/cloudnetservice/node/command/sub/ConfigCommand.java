@@ -46,10 +46,10 @@ public final class ConfigCommand {
   @Parser(name = "ipAlias")
   public @NonNull String ipAliasParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var alias = input.remove();
-
     if (this.nodeConfig().ipAliases().containsKey(alias)) {
       throw new ArgumentNotAvailableException(I18n.trans("command-config-node-ip-alias-already-existing", alias));
     }
+
     return alias;
   }
 

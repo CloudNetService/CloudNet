@@ -31,6 +31,7 @@ import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
@@ -322,10 +323,14 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    * Get the host address that all services based on this configuration are bound to. The host address is not required
    * to be an ip address, it is possible that the host address is just an ip alias which needs to be resolved using the
    * configuration of the node. The host address might be null, in that case the fallback host of the node is used.
+   * <p>
+   * Note: Might be null until the host address was resolved during the preparation of a service based on this
+   * configuration. The resolved host address is not reflected into the original configuration, only into the
+   * configuration which is available through the service information snapshot.
    *
-   * @return the host address that all services based on this configuration are bound to.
+   * @return the host address that all services based on this configuration are bound to, null if not resolved yet.
    */
-  public @Nullable String hostAddress() {
+  public @UnknownNullability String hostAddress() {
     return this.hostAddress;
   }
 
