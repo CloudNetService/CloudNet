@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.service.defaults.provider;
 
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
@@ -99,5 +100,9 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
 
   @Override
   public void deployResources(boolean removeDeployments) {
+  }
+
+  @Override
+  public void updateProperties(@NonNull JsonDocument properties) {
   }
 }

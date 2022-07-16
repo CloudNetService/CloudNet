@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper;
 
 import com.google.common.collect.Lists;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.CloudNetDriver;
@@ -252,6 +253,10 @@ public class Wrapper extends CloudNetDriver {
    * @return the new ServiceInfoSnapshot instance
    */
   public @NonNull ServiceInfoSnapshot createServiceInfoSnapshot() {
+    return this.createServiceInfoSnapshot(this.currentServiceInfoSnapshot.properties());
+  }
+
+  public @NonNull ServiceInfoSnapshot createServiceInfoSnapshot(@NonNull JsonDocument properties) {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
       this.currentServiceInfoSnapshot.address(),
@@ -260,7 +265,7 @@ public class Wrapper extends CloudNetDriver {
       this.serviceConfiguration(),
       this.currentServiceInfoSnapshot.connectedTime(),
       ServiceLifeCycle.RUNNING,
-      this.currentServiceInfoSnapshot.properties());
+      properties);
   }
 
   @ApiStatus.Internal
