@@ -125,7 +125,7 @@ public final class ConfigCommand {
   ) {
     this.nodeConfig().ipAliases().put(alias, hostAddress.host());
     this.nodeConfig().save();
-    source.sendMessage(I18n.trans("command-config-node-ip-alias-added", alias, hostAddress));
+    source.sendMessage(I18n.trans("command-config-node-ip-alias-added", alias, hostAddress.host()));
   }
 
   @CommandMethod("config|cfg node remove ipalias|ipa <name>")
