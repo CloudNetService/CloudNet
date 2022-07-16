@@ -43,6 +43,7 @@ import eu.cloudnetservice.driver.template.TemplateStorageProvider;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
@@ -60,27 +61,29 @@ public abstract class CloudNetDriver {
   @VisibleForTesting
   static CloudNetDriver instance;
 
+  static {
+    // the default locale used when formatting a string (f. ex. via String.format).
+    // this ensures that the result is always consistent when formatting anywhere.
+    // we could as well set the global default locale, but that would affect every locale
+    // sensitive operation which we be unsafe (f. ex. calling String#toLowerCase).
+    Locale.setDefault(Locale.Category.FORMAT, Locale.ROOT);
+  }
+
   protected final CloudNetVersion cloudNetVersion;
   protected final List<String> commandLineArguments;
   protected final DriverEnvironment driverEnvironment;
-
   protected final EventManager eventManager = new DefaultEventManager();
   protected final ModuleProvider moduleProvider = new DefaultModuleProvider();
   protected final ServiceRegistry serviceRegistry = new DefaultServiceRegistry();
   protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
-
   protected final RPCHandlerRegistry rpcHandlerRegistry = new DefaultRPCHandlerRegistry();
   protected final RPCFactory rpcFactory = new DefaultRPCFactory(
     DefaultObjectMapper.DEFAULT_MAPPER,
     DataBufFactory.defaultFactory());
-
   protected PermissionManagement permissionManagement;
-
   protected NetworkClient networkClient;
-
   protected CloudMessenger messenger;
   protected CloudServiceFactory cloudServiceFactory;
-
   protected DatabaseProvider databaseProvider;
   protected ClusterNodeProvider clusterNodeProvider;
   protected ServiceTaskProvider serviceTaskProvider;
