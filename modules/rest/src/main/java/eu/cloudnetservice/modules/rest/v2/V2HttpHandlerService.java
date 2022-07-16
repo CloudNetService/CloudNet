@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
@@ -78,7 +79,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
     @NonNull @FirstRequestQueryParam("target") String targetState
   ) {
     this.handleWithServiceContext(context, id, service -> {
-      switch (targetState.toLowerCase()) {
+      switch (StringUtil.toLower(targetState)) {
         case "start" -> service.provider().start();
         case "stop" -> service.provider().stop();
         case "restart" -> service.provider().restart();
@@ -126,7 +127,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
     @NonNull @FirstRequestQueryParam("type") String includeType
   ) {
     this.handleWithServiceContext(context, id, service -> {
-      switch (includeType.toLowerCase()) {
+      switch (StringUtil.toLower(includeType)) {
         case "templates" -> service.provider().includeWaitingServiceTemplates();
         case "inclusions" -> service.provider().includeWaitingServiceInclusions();
         default -> {
@@ -260,7 +261,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   ) {
     this.handleWithServiceContext(context, id, service -> {
       var flushAfter = Boolean.parseBoolean(flush);
-      switch (type.toLowerCase()) {
+      switch (StringUtil.toLower(type)) {
         case "template" -> {
           var template = body.get("template", ServiceTemplate.class);
           if (template == null) {
