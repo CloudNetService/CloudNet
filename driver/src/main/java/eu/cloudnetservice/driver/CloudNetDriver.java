@@ -72,18 +72,24 @@ public abstract class CloudNetDriver {
   protected final CloudNetVersion cloudNetVersion;
   protected final List<String> commandLineArguments;
   protected final DriverEnvironment driverEnvironment;
+
   protected final EventManager eventManager = new DefaultEventManager();
   protected final ModuleProvider moduleProvider = new DefaultModuleProvider();
   protected final ServiceRegistry serviceRegistry = new DefaultServiceRegistry();
   protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+
   protected final RPCHandlerRegistry rpcHandlerRegistry = new DefaultRPCHandlerRegistry();
   protected final RPCFactory rpcFactory = new DefaultRPCFactory(
     DefaultObjectMapper.DEFAULT_MAPPER,
     DataBufFactory.defaultFactory());
+
   protected PermissionManagement permissionManagement;
+
   protected NetworkClient networkClient;
+
   protected CloudMessenger messenger;
   protected CloudServiceFactory cloudServiceFactory;
+
   protected DatabaseProvider databaseProvider;
   protected ClusterNodeProvider clusterNodeProvider;
   protected ServiceTaskProvider serviceTaskProvider;
