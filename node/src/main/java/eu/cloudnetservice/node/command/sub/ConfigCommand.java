@@ -21,6 +21,7 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Range;
+import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.JavaVersion;
@@ -33,6 +34,7 @@ import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.config.JsonConfiguration;
+import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
@@ -50,6 +52,11 @@ public final class ConfigCommand {
     }
 
     return address;
+  }
+
+  @Suggestions("whitelistIps")
+  public @NonNull List<String> suggestWhitelistIps(@NonNull CommandContext<?> $, @NonNull String input) {
+    return List.copyOf(this.nodeConfig().ipWhitelist());
   }
 
   @CommandMethod("config|cfg reload")
@@ -82,7 +89,10 @@ public final class ConfigCommand {
   }
 
   @CommandMethod("config|cfg node remove ip <ip>")
-  public void removeIpWhitelist(@NonNull CommandSource source, @NonNull @Argument(value = "ip") String ip) {
+  public void removeIpWhitelist(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "ip", suggestions = "whitelistIps") String ip
+  ) {
     var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we remove the given ip
     if (ipWhitelist.remove(ip)) {
