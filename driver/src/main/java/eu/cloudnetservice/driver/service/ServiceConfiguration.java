@@ -626,9 +626,10 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
 
     /**
      * Sets the host address which all services based on this configuration are bound to. The host address is required
-     * to be assignable on every node a service can start. In order to achieve this a cluster with multiple nodes so
-     * called ip aliases can be used. Define your ip alias in the config of each node and set this host address to the
-     * name of the alias. If null is supplied as host address the fallback address of the node is used.
+     * to be assignable on every node a service can be started on. In order to ensure that the host address is
+     * assignable on every node, ip aliases can be used. Ip aliases can be defined in the config of each node. To use
+     * them set the host address to the name of the alias. If null is supplied the fallback address of the node is
+     * used.
      * <p>
      * Note: if the host address is not assignable or the alias is not resolvable on the node which is picking up the
      * service it will result in an error.
