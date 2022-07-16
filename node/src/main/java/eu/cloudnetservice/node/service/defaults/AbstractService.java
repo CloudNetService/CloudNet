@@ -63,6 +63,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -559,12 +560,12 @@ public abstract class AbstractService implements CloudService {
   }
 
   protected void pushServiceInfoSnapshotUpdate(@NonNull ServiceLifeCycle lifeCycle, boolean sendUpdate) {
-    this.pushServiceInfoSnapshotUpdate(lifeCycle, this.lastServiceInfo.properties(), sendUpdate);
+    this.pushServiceInfoSnapshotUpdate(lifeCycle, null, sendUpdate);
   }
 
   protected void pushServiceInfoSnapshotUpdate(
     @NonNull ServiceLifeCycle lifeCycle,
-    @NonNull JsonDocument properties,
+    @Nullable JsonDocument properties,
     boolean sendUpdate
   ) {
     // save the current service info
@@ -578,7 +579,7 @@ public abstract class AbstractService implements CloudService {
       this.lastServiceInfo.configuration(),
       this.connectionTimestamp,
       lifeCycle,
-      properties);
+      Objects.requireNonNullElse(properties, this.lastServiceInfo.properties()));
     // remove the service in the local manager if the service was deleted
     if (lifeCycle == ServiceLifeCycle.DELETED) {
       this.cloudServiceManager.unregisterLocalService(this);
