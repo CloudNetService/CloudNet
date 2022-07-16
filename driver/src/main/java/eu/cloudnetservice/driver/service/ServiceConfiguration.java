@@ -369,7 +369,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    *
    * @return the port number to start the service on, might be counted up when the port is already taken.
    */
-  public @Range(from = 0, to = 65535) int port() {
+  public @Range(from = 0, to = 0xFFFF) int port() {
     return this.port;
   }
 
@@ -797,7 +797,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      * @param startPort the port to start services upwards from.
      * @return the same instance as used to call the method, for chaining.
      */
-    public @NonNull Builder startPort(@Range(from = 0, to = 65535) int startPort) {
+    public @NonNull Builder startPort(@Range(from = 0, to = 0xFFFF) int startPort) {
       this.port = startPort;
       return this;
     }
@@ -821,7 +821,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      */
     @Override
     public @NonNull ServiceConfiguration build() {
-      Preconditions.checkArgument(this.port > 0 && this.port <= 65535, "invalid port provided");
+      Preconditions.checkArgument(this.port > 0 && this.port <= 0xFFFF, "invalid port provided");
       return new ServiceConfiguration(
         this.serviceId.build(),
         this.processConfig.build(),

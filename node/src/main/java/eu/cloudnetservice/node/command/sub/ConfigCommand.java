@@ -44,7 +44,7 @@ import lombok.NonNull;
 public final class ConfigCommand {
 
   @Parser(name = "ipAlias")
-  public @NonNull String ipAlias(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
+  public @NonNull String ipAliasParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var alias = input.remove();
 
     if (this.nodeConfig().ipAliases().containsKey(alias)) {
@@ -54,7 +54,7 @@ public final class ConfigCommand {
   }
 
   @Suggestions("ipAlias")
-  public @NonNull List<String> suggestIpAlias(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull List<String> ipAliasSuggestions(@NonNull CommandContext<?> $, @NonNull String input) {
     return List.copyOf(this.nodeConfig().ipAliases().keySet());
   }
 

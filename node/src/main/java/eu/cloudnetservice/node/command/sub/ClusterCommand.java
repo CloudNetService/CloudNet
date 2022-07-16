@@ -147,11 +147,10 @@ public final class ClusterCommand {
       throw new ArgumentNotAvailableException(I18n.trans("command-any-host-invalid", address));
     }
     // check if we can assign the parsed host and port
-    if (NetworkUtil.checkAssignable(hostAndPort) == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-assignable-host-invalid", address));
+    if (NetworkUtil.checkAssignable(hostAndPort)) {
+      return hostAndPort;
     }
-    // success
-    return hostAndPort;
+    throw new ArgumentNotAvailableException(I18n.trans("command-assignable-host-invalid", address));
   }
 
   @Suggestions("assignableHostAndPort")

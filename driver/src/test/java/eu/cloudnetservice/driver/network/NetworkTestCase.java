@@ -29,7 +29,7 @@ public abstract class NetworkTestCase {
     var port = 1024; // first non restricted (to root user) port
     while (true) {
       // check for out of range port
-      if (port > 65535) {
+      if (port > 0xFFFF) {
         Assertions.fail("No free port found in range 1024 to 65535 which causes tests to break");
       }
       // check if the port is ignored

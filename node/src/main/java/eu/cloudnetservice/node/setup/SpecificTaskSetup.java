@@ -88,7 +88,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .key("taskStartPort")
         .translatedQuestion("command-tasks-setup-question-startport")
         .answerType(QuestionAnswerType.<Integer>builder()
-          .parser(Parsers.ranged(0, 65535))
+          .parser(Parsers.ranged(0, 0xFFFF))
           .possibleResults("[0, 65535]")
           .recommendation(44955))
         .build(),
@@ -99,12 +99,11 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
           .recommendation(Node.instance().config().hostAddress())
           .parser(Parsers.assignableHostAndPortOrAlias())
           .possibleResults(() -> NetworkUtil.availableIPAddresses()
-              .stream()
-              .collect(Collectors.collectingAndThen(Collectors.toSet(),
-                ips -> {
-                  ips.addAll(Node.instance().config().ipAliases().keySet());
-                  return ips;
-                }))))
+            .stream()
+            .collect(Collectors.collectingAndThen(Collectors.toSet(), ips -> {
+              ips.addAll(Node.instance().config().ipAliases().keySet());
+              return ips;
+            }))))
         .build(),
       QuestionListEntry.<Pair<String, JavaVersion>>builder()
         .key("taskJavaCommand")

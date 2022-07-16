@@ -37,26 +37,7 @@ import org.jetbrains.annotations.Nullable;
 public final class NetworkUtil {
 
   private static final String LOCAL_ADDRESS = findLocalAddress();
-  private static Set<String> AVAILABLE_IP_ADDRESSES;
-
-  static {
-    try {
-      Set<String> addresses = new HashSet<>();
-      // try to resolve all ip addresses available on the system
-      var networkInterfaces = NetworkInterface.getNetworkInterfaces();
-      while (networkInterfaces.hasMoreElements()) {
-        // get all addresses of the interface
-        var inetAddresses = networkInterfaces.nextElement().getInetAddresses();
-        while (inetAddresses.hasMoreElements()) {
-          addresses.add(hostAddress(inetAddresses.nextElement()));
-        }
-      }
-      // return the located addresses
-      AVAILABLE_IP_ADDRESSES = addresses;
-    } catch (SocketException exception) {
-      AVAILABLE_IP_ADDRESSES = Set.of("127.0.0.1", "127.0.1.1");
-    }
-  }
+  private static final Set<String> AVAILABLE_IP_ADDRESSES = resolveAvailableAddresses();
 
   private NetworkUtil() {
     throw new UnsupportedOperationException();
@@ -80,22 +61,22 @@ public final class NetworkUtil {
     }
   }
 
-  public static @Nullable HostAndPort checkAssignable(@NonNull HostAndPort hostAndPort) {
+  public static boolean checkAssignable(@NonNull HostAndPort hostAndPort) {
     try (var socket = new ServerSocket()) {
       // try to bind on the given address
       socket.bind(new InetSocketAddress(hostAndPort.host(), 0));
-      return hostAndPort;
+      return true;
     } catch (IOException exception) {
       return exception instanceof BindException
         && exception.getMessage() != null
-        && exception.getMessage().startsWith("Address already in use") ? hostAndPort : null;
+        && exception.getMessage().startsWith("Address already in use");
     }
   }
 
   public static @Nullable HostAndPort parseAssignableHostAndPort(@NonNull String address, boolean withPort) {
     // try to parse host and port from the given string
     var hostAndPort = parseHostAndPort(address, withPort);
-    return hostAndPort != null ? checkAssignable(hostAndPort) : null;
+    return hostAndPort != null && checkAssignable(hostAndPort) ? hostAndPort : null;
   }
 
   public static @Nullable HostAndPort parseHostAndPort(@NonNull String input, boolean withPort) {
@@ -120,7 +101,7 @@ public final class NetworkUtil {
 
       // try to get the port
       var possiblePort = Ints.tryParse(portPart);
-      if (possiblePort == null || possiblePort < 0 || possiblePort > 65535) {
+      if (possiblePort == null || possiblePort < 0 || possiblePort > 0xFFFF) {
         // invalid port
         return null;
       }
@@ -180,6 +161,25 @@ public final class NetworkUtil {
     } else {
       // just add the address
       return address.getHostAddress();
+    }
+  }
+
+  private static @NonNull Set<String> resolveAvailableAddresses() {
+    try {
+      Set<String> addresses = new HashSet<>();
+      // try to resolve all ip addresses available on the system
+      var networkInterfaces = NetworkInterface.getNetworkInterfaces();
+      while (networkInterfaces.hasMoreElements()) {
+        // get all addresses of the interface
+        var inetAddresses = networkInterfaces.nextElement().getInetAddresses();
+        while (inetAddresses.hasMoreElements()) {
+          addresses.add(hostAddress(inetAddresses.nextElement()));
+        }
+      }
+      // return the located addresses
+      return Set.copyOf(addresses);
+    } catch (SocketException exception) {
+      return Set.of("127.0.0.1", "127.0.1.1");
     }
   }
 }

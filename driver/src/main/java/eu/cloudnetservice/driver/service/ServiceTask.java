@@ -350,7 +350,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
    *
    * @return the port number to start the service on, might be counted up when the port is already taken.
    */
-  public @Range(from = 1, to = 65535) int startPort() {
+  public @Range(from = 1, to = 0xFFFF) int startPort() {
     return this.startPort;
   }
 
@@ -715,7 +715,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     @Override
     public @NonNull ServiceTask build() {
       Preconditions.checkNotNull(this.name, "no name given");
-      Preconditions.checkArgument(this.startPort > 0 && this.startPort <= 65535, "Invalid start port given");
+      Preconditions.checkArgument(this.startPort > 0 && this.startPort <= 0xFFFF, "Invalid start port given");
 
       return new ServiceTask(
         this.name,
