@@ -16,81 +16,51 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponse;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
+import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.driver.network.http.annotation.Optional;
+import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
+import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
-import eu.cloudnetservice.modules.rest.RestUtil;
-import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.information.TemplateVersionInstaller;
 import java.io.IOException;
+import java.io.InputStream;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class V2HttpHandlerTemplate extends V2HttpHandler {
+@HandlerPermission("http.v2.template")
+public final class V2HttpHandlerTemplate extends V2HttpHandler {
 
-  public V2HttpHandlerTemplate(@Nullable String requiredPermission) {
-    super(requiredPermission, "GET", "POST", "DELETE");
-  }
+  private static final Logger LOGGER = LogManager.logger(V2HttpHandlerTemplate.class);
 
-  @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context, @NonNull HttpSession ses) {
-    if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.contains("/file/")) {
-        if (path.contains("/download")) {
-          this.handleFileDownloadRequest(context);
-        } else if (path.contains("/info")) {
-          this.handleFileInfoRequest(context);
-        } else if (path.contains("/exists")) {
-          this.handleFileExistsRequest(context);
-        }
-      } else if (path.endsWith("/download")) {
-        this.handleDownloadRequest(context);
-      } else if (path.contains("/directory/")) {
-        if (path.contains("/list")) {
-          this.handleFileListRequest(context);
-        }
-      } else if (path.endsWith("/create")) {
-        this.handleCreateRequest(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("POST")) {
-      if (path.endsWith("/deploy")) {
-        this.handleDeployRequest(context);
-      } else if (path.contains("/file/")) {
-        if (path.contains("/create")) {
-          this.handleFileWriteRequest(context, false);
-        } else if (path.contains("/append")) {
-          this.handleFileWriteRequest(context, true);
-        }
-      } else if (path.contains("/directory/")) {
-        if (path.contains("/create")) {
-          this.handleDirectoryCreateRequest(context);
-        }
-      } else if (path.endsWith("/install")) {
-        this.handleInstallationRequest(context);
-      }
-    } else if (context.request().method().equalsIgnoreCase("DELETE")) {
-      if (path.contains("/file") || path.contains("/directory")) {
-        this.handleFileDeleteRequest(context);
-      } else {
-        this.handleTemplateDeleteRequest(context);
-      }
-    }
-  }
-
-  protected void handleDownloadRequest(@NonNull HttpContext context) {
-    this.handleWithTemplateContext(context, (template, storage) -> {
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/download")
+  private void handleDownloadRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
       var stream = storage.zipTemplateAsync(template).get();
       if (stream == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unable to zip template").toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       } else {
         this.ok(context, "application/zip; charset=UTF-8")
           .body(stream)
@@ -98,20 +68,28 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
             + template.toString().replace('/', '_') + ".zip")
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       }
     });
   }
 
-  protected void handleFileDownloadRequest(@NonNull HttpContext context) {
-    this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      var stream = storage.newInputStreamAsync(template, path).get();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/download")
+  private void handleFileDownloadRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @FirstRequestQueryParam("path") String path
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      var stream = storage.newInputStream(template, path);
       if (stream == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Missing file or path is directory").toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       } else {
         var fileName = this.guessFileName(path);
         this.ok(context, "application/octet-stream")
@@ -120,113 +98,161 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
           .body(stream)
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       }
     });
   }
 
-  protected void handleFileInfoRequest(@NonNull HttpContext context) {
-    this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      var info = storage.fileInfoAsync(template, path).get();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/info")
+  private void handleFileInfoRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @FirstRequestQueryParam("path") String path
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      var info = storage.fileInfo(template, path);
       if (info == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unknown file or directory").toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       } else {
         this.ok(context)
           .body(this.success().append("info", info).toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       }
     });
   }
 
-  protected void handleFileExistsRequest(@NonNull HttpContext context) {
-    this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      boolean status = storage.hasFileAsync(template, path).get();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/exists")
+  private void handleFileExistsRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @FirstRequestQueryParam("path") String path
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      boolean status = storage.hasFile(template, path);
       this.ok(context)
         .body(this.success().append("exists", status).toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     });
   }
 
-  protected void handleFileListRequest(@NonNull HttpContext context) {
-    this.handleWithTemplateContext(context, (template, storage) -> {
-      var dir = RestUtil.first(context.request().queryParameters().get("directory"), "");
-      var deep = Boolean.parseBoolean(RestUtil.first(context.request().queryParameters().get("deep"), "false"));
-
-      var files = storage.listFilesAsync(template, dir, deep).get();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/directory/list")
+  private void handleFileListRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @Optional @FirstRequestQueryParam(value = "directory", def = "") String directory,
+    @NonNull @Optional @FirstRequestQueryParam(value = "deep", def = "false") String deep
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      var files = storage.listFiles(template, directory, Boolean.parseBoolean(deep));
       this.ok(context)
         .body(this.success().append("files", files).toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     });
   }
 
-  protected void handleCreateRequest(@NonNull HttpContext context) {
-    this.handleWithTemplateContext(context, (template, storage) -> {
-      boolean status = storage.createAsync(template).get();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/create", methods = "PUT")
+  private void handleCreateRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      boolean status = storage.create(template);
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     });
   }
 
-  protected void handleDeployRequest(@NonNull HttpContext context) {
-    var stream = context.request().bodyStream();
-    if (stream == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing data in body").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
-    this.handleWithTemplateContext(context, (template, storage) -> {
-      boolean status = storage.deployAsync(template, stream).get();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/deploy", methods = "POST")
+  private void handleDeployRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @RequestBody InputStream body
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      boolean status = storage.deploy(template, body);
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     });
   }
 
-  protected void handleFileDeleteRequest(@NonNull HttpContext context) {
-    this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      boolean status = storage.deleteFileAsync(template, path).get();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file", methods = "DELETE")
+  private void handleFileDeleteRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @FirstRequestQueryParam("path") String path
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      boolean status = storage.deleteFile(template, path);
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     });
   }
 
-  protected void handleTemplateDeleteRequest(@NonNull HttpContext context) {
-    this.handleWithTemplateContext(context, (template, storage) -> {
-      boolean status = storage.deleteAsync(template).get();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}", methods = "DELETE")
+  private void handleTemplateDeleteRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      boolean status = storage.delete(template);
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
     });
   }
 
-  protected void handleInstallationRequest(@NonNull HttpContext context) {
-    this.handleWithTemplateContext(context, (template, storage) -> {
-      var body = this.body(context.request());
-
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/install", methods = "POST")
+  private void handleInstallationRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @RequestBody JsonDocument body
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
       var versionType = body.get("type", ServiceVersionType.class);
       if (versionType == null) {
         versionType = this.node().serviceVersionProvider().getServiceVersionType(body.getString("typeName", ""));
@@ -235,7 +261,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
             .body(this.failure().append("reason", "No service type or type name provided").toString())
             .context()
             .closeAfter(true)
-            .cancelNext();
+            .cancelNext(true);
           return;
         }
       }
@@ -248,7 +274,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
             .body(this.failure().append("reason", "Missing version or version name").toString())
             .context()
             .closeAfter(true)
-            .cancelNext();
+            .cancelNext(true);
           return;
         }
       }
@@ -264,39 +290,81 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
         .build();
 
       if (this.node().serviceVersionProvider().installServiceVersion(installer, forceInstall)) {
-        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext(true);
       } else {
-        this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext(true);
       }
     });
   }
 
-  protected void handleFileWriteRequest(@NonNull HttpContext context, boolean append) {
-    var content = context.request().bodyStream();
-    if (content == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing input from body").toString())
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/directory/create", methods = "POST")
+  private void handleDirectoryCreateRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @FirstRequestQueryParam("path") String path
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      boolean status = storage.createDirectory(template, path);
+      this.ok(context)
+        .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
-      return;
-    }
+        .cancelNext(true);
+    });
+  }
 
-    this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      var task = append
-        ? storage.appendOutputStreamAsync(template, path)
-        : storage.newOutputStreamAsync(template, path);
-      var stream = task.get();
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/create", methods = "POST")
+  private void handleFileCreateRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @FirstRequestQueryParam("path") String path,
+    @NonNull @RequestBody InputStream body
+  ) {
+    this.handleFileWriteRequest(context, storageName, prefix, templateName, path, body, false);
+  }
+
+  @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/append", methods = "POST")
+  private void handleFileAppendRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @FirstRequestQueryParam("path") String path,
+    @NonNull @RequestBody InputStream body
+  ) {
+    this.handleFileWriteRequest(context, storageName, prefix, templateName, path, body, true);
+  }
+
+  private void handleFileWriteRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @FirstRequestQueryParam("path") String path,
+    @NonNull @RequestBody InputStream body,
+    boolean append
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      var stream = append
+        ? storage.appendOutputStream(template, path)
+        : storage.newOutputStream(template, path);
       if (stream == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unable to open file stream").toString())
           .context()
           .closeAfter(true)
-          .cancelNext();
+          .cancelNext(true);
       } else {
         try {
-          content.transferTo(stream);
-          this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+          body.transferTo(stream);
+          this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext(true);
         } catch (IOException exception) {
           this.notifyException(context, exception);
         }
@@ -304,34 +372,13 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleDirectoryCreateRequest(@NonNull HttpContext context) {
-    this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      boolean status = storage.createDirectoryAsync(template, path).get();
-      this.ok(context)
-        .body(status ? this.success().toString() : this.failure().toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-    });
-  }
-
-  protected void handleWithTemplateContext(
+  private void handleWithTemplateContext(
     @NonNull HttpContext context,
+    @NonNull String storage,
+    @NonNull String prefix,
+    @NonNull String name,
     @NonNull ThrowableBiConsumer<ServiceTemplate, TemplateStorage, Exception> handler
   ) {
-    var storage = context.request().pathParameters().get("storage");
-    var prefix = context.request().pathParameters().get("prefix");
-    var name = context.request().pathParameters().get("name");
-
-    if (storage == null || prefix == null || name == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing storage, prefix or name in path parameters").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
     var template = ServiceTemplate.builder().prefix(prefix).name(name).storage(storage).build();
     var templateStorage = template.findStorage();
 
@@ -340,7 +387,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
         .body(this.failure().append("reason", "Unknown template storage").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 
@@ -351,42 +398,23 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
   }
 
-  protected void handleWithFileTemplateContext(
-    @NonNull HttpContext context,
-    @NonNull ThrowableTriConsumer<ServiceTemplate, TemplateStorage, String, Exception> handler
-  ) {
-    this.handleWithTemplateContext(context, (template, storage) -> {
-      var fileName = RestUtil.first(context.request().queryParameters().get("path"), null);
-      if (fileName == null) {
-        this.badRequest(context)
-          .body(this.failure().append("reason", "Missing file name in path").toString())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-        return;
-      }
-
-      handler.accept(template, storage, fileName);
-    });
-  }
-
-  protected void notifyException(@NonNull HttpContext context, @NonNull Exception exception) {
+  private void notifyException(@NonNull HttpContext context, @NonNull Exception exception) {
     LOGGER.fine("Exception handling template request", exception);
     this.response(context, HttpResponseCode.INTERNAL_SERVER_ERROR)
       .body(this.failure().append("reason", "Exception processing request").toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  protected @NonNull HttpResponse ok(@NonNull HttpContext context, @NonNull String contentType) {
+  private @NonNull HttpResponse ok(@NonNull HttpContext context, @NonNull String contentType) {
     return context.response()
       .status(HttpResponseCode.OK)
       .header("Content-Type", contentType)
       .header("Access-Control-Allow-Origin", this.restConfiguration.corsPolicy());
   }
 
-  protected @Nullable String guessFileName(@NonNull String path) {
+  private @Nullable String guessFileName(@NonNull String path) {
     var index = path.lastIndexOf('/');
     if (index == -1 || index + 1 == path.length()) {
       return null;
@@ -396,14 +424,8 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @FunctionalInterface
-  protected interface ThrowableBiConsumer<T, U, E extends Throwable> {
+  private interface ThrowableBiConsumer<T, U, E extends Throwable> {
 
     void accept(T t, U u) throws E;
-  }
-
-  @FunctionalInterface
-  protected interface ThrowableTriConsumer<T, U, F, E extends Throwable> {
-
-    void accept(T t, U u, F f) throws E;
   }
 }

@@ -21,7 +21,6 @@ import eu.cloudnetservice.driver.permission.PermissionUser;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,37 +28,46 @@ public class DefaultHttpSession implements HttpSession {
 
   protected final String uniqueId;
   protected final UUID userId;
-  protected final AtomicLong expireTime;
+  protected final V2HttpAuthentication issuer;
   protected final Map<String, Object> properties;
 
-  public DefaultHttpSession(long expireTime, @NonNull UUID userId) {
-    this(expireTime, UUID.randomUUID().toString(), userId);
-  }
+  protected long expireTime;
 
-  public DefaultHttpSession(long expireTime, @NonNull String uniqueId, @NonNull UUID userId) {
-    this(expireTime, uniqueId, userId, new HashMap<>());
+  public DefaultHttpSession(long expireTime, @NonNull UUID userId, @NonNull V2HttpAuthentication issuer) {
+    this(expireTime, UUID.randomUUID().toString(), userId, issuer);
   }
 
   public DefaultHttpSession(
     long expireTime,
     @NonNull String uniqueId,
     @NonNull UUID userId,
+    @NonNull V2HttpAuthentication issuer
+  ) {
+    this(expireTime, uniqueId, userId, issuer, new HashMap<>());
+  }
+
+  public DefaultHttpSession(
+    long expireTime,
+    @NonNull String uniqueId,
+    @NonNull UUID userId,
+    @NonNull V2HttpAuthentication issuer,
     @NonNull Map<String, Object> properties
   ) {
-    this.expireTime = new AtomicLong(expireTime);
+    this.expireTime = expireTime;
     this.uniqueId = uniqueId;
     this.userId = userId;
+    this.issuer = issuer;
     this.properties = properties;
   }
 
   @Override
   public long expireTime() {
-    return this.expireTime.get();
+    return this.expireTime;
   }
 
   @Override
   public long refreshFor(long liveMillis) {
-    return this.expireTime.addAndGet(liveMillis);
+    return this.expireTime += liveMillis;
   }
 
   @Override
@@ -108,5 +116,10 @@ public class DefaultHttpSession implements HttpSession {
   @Override
   public @NonNull Map<String, Object> properties() {
     return this.properties;
+  }
+
+  @Override
+  public @NonNull V2HttpAuthentication issuer() {
+    return this.issuer;
   }
 }

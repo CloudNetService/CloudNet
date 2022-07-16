@@ -18,49 +18,51 @@ package eu.cloudnetservice.modules.rest.v2;
 
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.node.http.V2HttpAuthentication;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.BasicAuth;
+import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
-public class V2HttpHandlerAuthorization extends V2HttpHandler {
+public final class V2HttpHandlerAuthorization extends V2HttpHandler {
 
-  public V2HttpHandlerAuthorization() {
-    super(null, "POST");
+  private final V2HttpAuthentication authentication;
+
+  public V2HttpHandlerAuthorization(@NonNull V2HttpAuthentication authentication) {
+    this.authentication = authentication;
   }
 
-  @Override
-  protected void handleUnauthorized(@NonNull String path, @NonNull HttpContext context) {
-    this.response(context, HttpResponseCode.UNAUTHORIZED)
+  @HttpRequestHandler(paths = "/api/v2/auth")
+  private void handleWithoutAuth(@NonNull HttpContext ctx) {
+    this.response(ctx, HttpResponseCode.UNAUTHORIZED)
       .header("WWW-Authenticate", "Basic realm=\"CloudNet Rest\"")
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  @Override
-  protected void handleBasicAuthorized(@NonNull String path, @NonNull HttpContext con, @NonNull PermissionUser user) {
+  @HttpRequestHandler(paths = "/api/v2/auth", methods = "POST")
+  private void handleWithBasicAuth(@NonNull HttpContext ctx, @NonNull @BasicAuth PermissionUser user) {
     var jwt = this.authentication.createJwt(
       user,
       TimeUnit.MINUTES.toMillis(this.restConfiguration.jwtValidTimeMinutes()));
-    this.ok(con)
+    this.ok(ctx)
       .body(this.success().append("token", jwt).append("id", user.uniqueId()).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
-  @Override
-  protected void handleBearerAuthorized(
-    @NonNull String path,
-    @NonNull HttpContext context,
-    @NonNull HttpSession session
-  ) {
-    this.ok(context)
+  @HttpRequestHandler(paths = "/api/v2/auth", methods = "POST")
+  private void handleWithBearerAuth(@NonNull HttpContext ctx, @NonNull @BearerAuth HttpSession session) {
+    this.ok(ctx)
       .body(this.success().append("id", session.user().uniqueId()).toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 }
