@@ -151,7 +151,7 @@ public class Wrapper extends CloudNetDriver {
   }
 
   /**
-   * Get the singleton instance of the currently running CloudNet Wrapper. This instance is initialized once when
+   * Get the singleton instance of the currently running CloudNet wrapper. This instance is initialized once when
    * starting the wrapper and will never change during the lifetime of the jvm. Therefore, the instance of the wrapper
    * can be safely cached.
    *
@@ -255,10 +255,7 @@ public class Wrapper extends CloudNetDriver {
 
   /**
    * Creates a new service snapshot of this service, copying over the properties of the current service info snapshot.
-   * Only the creation time and process snapshot of the new snapshot differs from the old snapshot.
-   * <p>
-   * Changes made to the current service snapshot (like modifying the properties of it) will not reflect into the
-   * snapshot returned by this method.
+   * Only the creation time and process snapshot of the new snapshot differ from the old snapshot.
    *
    * @return the newly created service snapshot for this service.
    */
@@ -266,6 +263,15 @@ public class Wrapper extends CloudNetDriver {
     return this.createServiceInfoSnapshot(this.currentServiceInfoSnapshot.properties());
   }
 
+  /**
+   * Creates a new service snapshot of this service using the provided properties for the new snapshot.
+   * Only the creation time and process snapshot and properties of the new snapshot differ from the old snapshot.
+   * <p>
+   * Changes made to the current service snapshot (like modifying the properties of it) will not reflect into the
+   * snapshot returned by this method.
+   *
+   * @return the newly created service snapshot for this service.
+   */
   public @NonNull ServiceInfoSnapshot createServiceInfoSnapshot(@NonNull JsonDocument properties) {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
@@ -275,7 +281,7 @@ public class Wrapper extends CloudNetDriver {
       this.serviceConfiguration(),
       this.currentServiceInfoSnapshot.connectedTime(),
       ServiceLifeCycle.RUNNING,
-      properties);
+      properties.clone());
   }
 
   /**

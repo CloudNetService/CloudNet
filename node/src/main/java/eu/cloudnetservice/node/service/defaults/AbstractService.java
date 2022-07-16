@@ -138,7 +138,7 @@ public abstract class AbstractService implements CloudService {
       configuration,
       -1,
       ServiceLifeCycle.PREPARED,
-      configuration.properties());
+      configuration.properties().clone());
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
 
     manager.registerLocalService(this);
