@@ -559,6 +559,9 @@ public abstract class AbstractService implements CloudService {
   }
 
   protected void pushServiceInfoSnapshotUpdate(@NonNull ServiceLifeCycle lifeCycle, boolean sendUpdate) {
+    if (this.lastServiceInfo == null) {
+      this.lastServiceInfo = this.currentServiceInfo;
+    }
     this.pushServiceInfoSnapshotUpdate(lifeCycle, this.lastServiceInfo.properties(), sendUpdate);
   }
 
