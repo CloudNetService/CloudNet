@@ -98,8 +98,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .answerType(QuestionAnswerType.<String>builder()
           .recommendation(Node.instance().config().hostAddress())
           .parser(Parsers.assignableHostAndPortOrAlias())
-          .possibleResults(() ->
-            NetworkUtil.availableIPAddresses()
+          .possibleResults(() -> NetworkUtil.availableIPAddresses()
               .stream()
               .collect(Collectors.collectingAndThen(Collectors.toSet(),
                 ips -> {

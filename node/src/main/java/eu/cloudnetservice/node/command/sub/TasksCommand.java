@@ -167,17 +167,16 @@ public final class TasksCommand {
   @Parser(suggestions = "ipAliasHostAddress", name = "ipAliasHostAddress")
   public @NonNull String hostAddressParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var address = input.remove();
-
     var alias = Node.instance().config().ipAliases().get(address);
-
+    // check if we can resolve the host address using our ip alias
     if (alias != null) {
       return address;
     }
-
-    if (NetworkUtil.assignableHostAndPort(address, false) != null) {
+    // check if the host address is parsable and assignable
+    if (NetworkUtil.parseAssignableHostAndPort(address, false) != null) {
       return address;
     }
-
+    // could not parse
     throw new ArgumentNotAvailableException(I18n.trans("command-tasks-unknown-host-address-or-alias", address));
   }
 

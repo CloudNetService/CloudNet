@@ -30,7 +30,6 @@ import eu.cloudnetservice.node.setup.DefaultConfigSetup;
 import eu.cloudnetservice.node.util.NetworkUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,10 +60,8 @@ public final class JsonConfiguration implements Configuration {
   };
 
   private static final Function<String, Map<String, String>> MAP_PARSER = value -> {
-    var values = value.split(";;");
     Map<String, String> results = new HashMap<>();
-
-    for (var pair : values) {
+    for (var pair : value.split(";;")) {
       var entry = pair.split(";", 2);
       if (entry.length == 2) {
         results.put(entry[0], entry[1]);
@@ -390,7 +387,7 @@ public final class JsonConfiguration implements Configuration {
 
   @Override
   public @NonNull Collection<String> ipWhitelist() {
-    return this.ipWhitelist != null ? this.ipWhitelist : (this.ipWhitelist = new HashSet<>());
+    return this.ipWhitelist;
   }
 
   @Override
@@ -460,7 +457,7 @@ public final class JsonConfiguration implements Configuration {
 
   @Override
   public @NonNull Collection<HostAndPort> httpListeners() {
-    return this.httpListeners != null ? this.httpListeners : (this.httpListeners = new ArrayList<>());
+    return this.httpListeners;
   }
 
   @Override
@@ -490,7 +487,7 @@ public final class JsonConfiguration implements Configuration {
 
   @Override
   public @NonNull Map<String, String> ipAliases() {
-    return this.ipAliases != null ? this.ipAliases : (this.ipAliases = new HashMap<>());
+    return this.ipAliases;
   }
 
   @Override
@@ -565,6 +562,6 @@ public final class JsonConfiguration implements Configuration {
 
   @Override
   public void properties(@NonNull JsonDocument properties) {
-    this.properties = properties;
+    this.properties = properties.clone();
   }
 }

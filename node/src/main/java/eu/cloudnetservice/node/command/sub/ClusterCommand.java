@@ -24,7 +24,6 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.io.ZipUtil;
@@ -148,7 +147,7 @@ public final class ClusterCommand {
       throw new ArgumentNotAvailableException(I18n.trans("command-any-host-invalid", address));
     }
     // check if we can assign the parsed host and port
-    if (NetworkUtil.assignableHostAndPort(hostAndPort) == null) {
+    if (NetworkUtil.checkAssignable(hostAndPort) == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-assignable-host-invalid", address));
     }
     // success
@@ -163,7 +162,7 @@ public final class ClusterCommand {
   @Parser(name = "anyHost")
   public @NonNull String anyHostParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var address = input.remove();
-    if (InetAddresses.isInetAddress(address)) {
+    if (NetworkUtil.parseHostAndPort(address, false) != null) {
       return address;
     }
 

@@ -37,12 +37,9 @@ import org.jetbrains.annotations.Nullable;
 public final class NetworkUtil {
 
   private static final String LOCAL_ADDRESS = findLocalAddress();
+  private static Set<String> AVAILABLE_IP_ADDRESSES;
 
-  private NetworkUtil() {
-    throw new UnsupportedOperationException();
-  }
-
-  public static @NonNull Set<String> availableIPAddresses() {
+  static {
     try {
       Set<String> addresses = new HashSet<>();
       // try to resolve all ip addresses available on the system
@@ -55,10 +52,18 @@ public final class NetworkUtil {
         }
       }
       // return the located addresses
-      return addresses;
+      AVAILABLE_IP_ADDRESSES = addresses;
     } catch (SocketException exception) {
-      return Set.of("127.0.0.1", "127.0.1.1");
+      AVAILABLE_IP_ADDRESSES = Set.of("127.0.0.1", "127.0.1.1");
     }
+  }
+
+  private NetworkUtil() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static @NonNull Set<String> availableIPAddresses() {
+    return AVAILABLE_IP_ADDRESSES;
   }
 
   public static @NonNull String localAddress() {
@@ -75,10 +80,10 @@ public final class NetworkUtil {
     }
   }
 
-  public static @Nullable HostAndPort assignableHostAndPort(@NonNull HostAndPort hostAndPort) {
+  public static @Nullable HostAndPort checkAssignable(@NonNull HostAndPort hostAndPort) {
     try (var socket = new ServerSocket()) {
       // try to bind on the given address
-      socket.bind(new InetSocketAddress(hostAndPort.host(), 45555));
+      socket.bind(new InetSocketAddress(hostAndPort.host(), 0));
       return hostAndPort;
     } catch (IOException exception) {
       return exception instanceof BindException
@@ -87,13 +92,10 @@ public final class NetworkUtil {
     }
   }
 
-  public static @Nullable HostAndPort assignableHostAndPort(@NonNull String address, boolean withPort) {
+  public static @Nullable HostAndPort parseAssignableHostAndPort(@NonNull String address, boolean withPort) {
+    // try to parse host and port from the given string
     var hostAndPort = parseHostAndPort(address, withPort);
-    // could not parse host and port from string
-    if (hostAndPort == null) {
-      return null;
-    }
-    return assignableHostAndPort(hostAndPort);
+    return hostAndPort != null ? checkAssignable(hostAndPort) : null;
   }
 
   public static @Nullable HostAndPort parseHostAndPort(@NonNull String input, boolean withPort) {

@@ -179,7 +179,7 @@ public final class Parsers {
 
   public static @NonNull QuestionAnswerType.Parser<HostAndPort> assignableHostAndPort(boolean withPort) {
     return input -> {
-      var host = NetworkUtil.assignableHostAndPort(input, withPort);
+      var host = NetworkUtil.parseAssignableHostAndPort(input, withPort);
       if (host == null) {
         throw ParserException.INSTANCE;
       }
@@ -195,7 +195,7 @@ public final class Parsers {
         return ipAlias;
       }
       // parse a host and check if it is assignable
-      var host = NetworkUtil.assignableHostAndPort(input, false);
+      var host = NetworkUtil.parseAssignableHostAndPort(input, false);
       // we've found an assignable host
       if (host != null) {
         return host.host();

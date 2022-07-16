@@ -684,7 +684,7 @@ public abstract class AbstractService implements CloudService {
       return fallbackHostAddress;
     }
     // use the supplied host address if it is an inet address
-    if (NetworkUtil.assignableHostAndPort(hostAddress, false) != null) {
+    if (NetworkUtil.parseAssignableHostAndPort(hostAddress, false) != null) {
       return hostAddress;
     }
     // retrieve the alias from the node
@@ -694,7 +694,7 @@ public abstract class AbstractService implements CloudService {
       return fallbackHostAddress;
     }
     // check if the alias is a valid inet address
-    if (NetworkUtil.assignableHostAndPort(alias, false) != null) {
+    if (NetworkUtil.parseAssignableHostAndPort(alias, false) != null) {
       return alias;
     }
     // explode, resolved alias is not an address
