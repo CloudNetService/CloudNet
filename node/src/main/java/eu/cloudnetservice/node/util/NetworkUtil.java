@@ -83,7 +83,7 @@ public final class NetworkUtil {
 
   public static @Nullable HostAndPort parseHostAndPort(@NonNull String input, boolean withPort) {
     // convert the input to an ascii string if needed (for example ☃.net -> xn--n3h.net)
-    var normalizedInput = IDN.toASCII(input).toLowerCase();
+    var normalizedInput = IDN.toASCII(input, IDN.ALLOW_UNASSIGNED).toLowerCase();
 
     // extract the port from the input if required
     var port = -1;
