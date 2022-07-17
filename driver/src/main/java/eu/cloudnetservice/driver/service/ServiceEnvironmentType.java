@@ -351,7 +351,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
      */
     public @NonNull ServiceEnvironmentType build() {
       Preconditions.checkNotNull(this.name, "no name given");
-      Preconditions.checkArgument(this.defaultServiceStartPort >= 0 && this.defaultServiceStartPort <= 65535,
+      Preconditions.checkArgument(this.defaultServiceStartPort >= 0 && this.defaultServiceStartPort <= 0xFFFF,
         "invalid default port");
 
       return new ServiceEnvironmentType(

@@ -21,11 +21,12 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Range;
+import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -33,6 +34,7 @@ import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.config.JsonConfiguration;
+import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
@@ -41,15 +43,24 @@ import lombok.NonNull;
 @Description("Administration of the cloudnet node configuration")
 public final class ConfigCommand {
 
-  @Parser(name = "ip")
-  public @NonNull String ipParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var address = input.remove();
-
-    if (!InetAddresses.isInetAddress(address)) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-config-node-ip-invalid"));
+  @Parser(name = "ipAlias")
+  public @NonNull String ipAliasParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
+    var alias = input.remove();
+    if (this.nodeConfig().ipAliases().containsKey(alias)) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-config-node-ip-alias-already-existing", alias));
     }
 
-    return address;
+    return alias;
+  }
+
+  @Suggestions("ipAlias")
+  public @NonNull List<String> ipAliasSuggestions(@NonNull CommandContext<?> $, @NonNull String input) {
+    return List.copyOf(this.nodeConfig().ipAliases().keySet());
+  }
+
+  @Suggestions("whitelistedIps")
+  public @NonNull List<String> suggestWhitelistIps(@NonNull CommandContext<?> $, @NonNull String input) {
+    return List.copyOf(this.nodeConfig().ipWhitelist());
   }
 
   @CommandMethod("config|cfg reload")
@@ -58,7 +69,7 @@ public final class ConfigCommand {
     Node.instance().serviceTaskProvider().reload();
     Node.instance().groupConfigurationProvider().reload();
     Node.instance().permissionManagement().reload();
-    source.sendMessage(I18n.trans("command-config-node-reload-config"));
+    source.sendMessage(I18n.trans("command-config-reload-config"));
   }
 
   @CommandMethod("config|cfg node reload")
@@ -70,7 +81,7 @@ public final class ConfigCommand {
   @CommandMethod("config|cfg node add ip <ip>")
   public void addIpWhitelist(
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "ip", parserName = "ip") String ip
+    @NonNull @Argument(value = "ip", parserName = "anyHost") String ip
   ) {
     var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we add the ip
@@ -82,7 +93,10 @@ public final class ConfigCommand {
   }
 
   @CommandMethod("config|cfg node remove ip <ip>")
-  public void removeIpWhitelist(@NonNull CommandSource source, @NonNull @Argument(value = "ip") String ip) {
+  public void removeIpWhitelist(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "ip", suggestions = "whitelistedIps") String ip
+  ) {
     var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we remove the given ip
     if (ipWhitelist.remove(ip)) {
@@ -96,7 +110,7 @@ public final class ConfigCommand {
   public void setMaxMemory(@NonNull CommandSource source, @Argument("maxMemory") @Range(min = "0") int maxMemory) {
     this.nodeConfig().maxMemory(maxMemory);
     this.nodeConfig().save();
-    source.sendMessage(I18n.trans("command-config-node-max-memory-set", maxMemory));
+    source.sendMessage(I18n.trans("command-config-node-set-max-memory", maxMemory));
   }
 
   @CommandMethod("config|cfg node set javaCommand <executable>")
@@ -109,6 +123,28 @@ public final class ConfigCommand {
     source.sendMessage(I18n.trans("command-config-node-set-java-command",
       executable.first(),
       executable.second().name()));
+  }
+
+  @CommandMethod("config|cfg node add ipalias|ipa <name> <hostAddress>")
+  public void addIpAlias(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "name", parserName = "ipAlias") String alias,
+    @NonNull @Argument(value = "hostAddress", parserName = "assignableHostAndPort") HostAndPort hostAddress
+  ) {
+    this.nodeConfig().ipAliases().put(alias, hostAddress.host());
+    this.nodeConfig().save();
+    source.sendMessage(I18n.trans("command-config-node-ip-alias-added", alias, hostAddress.host()));
+  }
+
+  @CommandMethod("config|cfg node remove ipalias|ipa <name>")
+  public void removeIpAlias(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "name", suggestions = "ipAlias") String alias
+  ) {
+    if (this.nodeConfig().ipAliases().remove(alias) != null) {
+      this.nodeConfig().save();
+    }
+    source.sendMessage(I18n.trans("command-config-node-ip-alias-remove", alias));
   }
 
   private @NonNull Configuration nodeConfig() {

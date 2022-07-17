@@ -32,7 +32,7 @@ public class GlowstoneConfigurationPreparer extends AbstractServiceConfiguration
       // rewrite the configuration file
       this.rewriteFile(configFile, line -> {
         if (line.trim().startsWith("ip:")) {
-          line = String.format("  ip: '%s'", nodeInstance.config().hostAddress());
+          line = String.format("  ip: '%s'", cloudService.serviceConfiguration().hostAddress());
         } else if (line.trim().startsWith("port:")) {
           line = String.format("  port: %d", cloudService.serviceConfiguration().port());
         }

@@ -42,7 +42,7 @@ public record HostAndPort(@NonNull String host, int port) {
    * @throws IllegalArgumentException if the given port exceeds the port range.
    */
   public HostAndPort {
-    Preconditions.checkArgument(this.port() >= -1 && this.port() <= 65535, "invalid port given");
+    Preconditions.checkArgument(this.port() >= -1 && this.port() <= 0xFFFF, "invalid port given");
   }
 
   /**

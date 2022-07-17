@@ -53,6 +53,7 @@ import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.setup.SpecificTaskSetup;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
+import eu.cloudnetservice.node.util.NetworkUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -163,6 +164,32 @@ public final class TasksCommand {
     return this.taskProvider().serviceTasks().stream().map(Nameable::name).toList();
   }
 
+  @Parser(suggestions = "ipAliasHostAddress", name = "ipAliasHostAddress")
+  public @NonNull String hostAddressParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
+    var address = input.remove();
+    var alias = Node.instance().config().ipAliases().get(address);
+    // check if we can resolve the host address using our ip alias
+    if (alias != null) {
+      return address;
+    }
+    // check if the host address is parsable and assignable
+    var hostAndPort = NetworkUtil.parseAssignableHostAndPort(address, false);
+    if (hostAndPort != null) {
+      return hostAndPort.host();
+    }
+    // could not parse
+    throw new ArgumentNotAvailableException(I18n.trans("command-tasks-unknown-host-address-or-alias", address));
+  }
+
+  @Suggestions("ipAliasHostAddress")
+  public @NonNull List<String> suggestHostAddress(@NonNull CommandContext<?> $, @NonNull String input) {
+    // all network addresses
+    var hostAddresses = new ArrayList<>(NetworkUtil.availableIPAddresses());
+    // all ip aliases
+    hostAddresses.addAll(Node.instance().config().ipAliases().keySet());
+    return hostAddresses;
+  }
+
   @Parser(suggestions = "serviceTask")
   public @NonNull Collection<ServiceTask> wildcardTaskParser(
     @NonNull CommandContext<?> $,
@@ -253,7 +280,7 @@ public final class TasksCommand {
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     if (this.taskProvider().serviceTask(taskName) != null) {
-      source.sendMessage(I18n.trans("command-tasks-task-already-existing"));
+      source.sendMessage(I18n.trans("command-tasks-task-already-existing", taskName));
       return;
     }
 
@@ -298,6 +325,22 @@ public final class TasksCommand {
     }
   }
 
+  @CommandMethod("tasks rename <oldName> <newName>")
+  public void renameTask(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "oldName") ServiceTask serviceTask,
+    @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("newName") String newName
+  ) {
+    if (this.taskProvider().serviceTask(newName) != null) {
+      source.sendMessage(I18n.trans("command-tasks-task-already-existing", newName));
+    } else {
+      // create a copy with the new name and remove the old task
+      this.taskProvider().removeServiceTask(serviceTask);
+      this.taskProvider().addServiceTask(ServiceTask.builder(serviceTask).name(newName).build());
+      source.sendMessage(I18n.trans("command-tasks-task-rename-success", serviceTask.name(), newName));
+    }
+  }
+
   @CommandMethod("tasks task <name> set nameSplitter <splitter>")
   public void setNameSplitter(
     @NonNull CommandSource source,
@@ -325,6 +368,21 @@ public final class TasksCommand {
         "minServiceCount",
         task.name(),
         amount));
+    }
+  }
+
+  @CommandMethod("tasks task <name> set hostAddress <hostAddress>")
+  public void setHostAddress(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument(value = "hostAddress", parserName = "ipAliasHostAddress") String hostAddress
+  ) {
+    for (var task : serviceTasks) {
+      this.updateTask(task, builder -> builder.hostAddress(hostAddress));
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "hostAddress",
+        task.name(),
+        hostAddress));
     }
   }
 

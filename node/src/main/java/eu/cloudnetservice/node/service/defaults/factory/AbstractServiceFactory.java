@@ -49,7 +49,40 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
       port++;
     }
     // set the port
-    return configurationBuilder.startPort(port).build();
+    return configurationBuilder.startPort(port).hostAddress(this.resolveHostAddress(configuration)).build();
+  }
+
+  protected @NonNull String resolveHostAddress(@NonNull ServiceConfiguration serviceConfiguration) {
+    var hostAddress = serviceConfiguration.hostAddress();
+    var fallbackHostAddress = Node.instance().config().hostAddress();
+    // if null is supplied use fallback address
+    if (hostAddress == null) {
+      return fallbackHostAddress;
+    }
+
+    // use the supplied host address if it is an inet address
+    var hostAndPort = NetworkUtil.parseAssignableHostAndPort(hostAddress, false);
+    if (hostAndPort != null) {
+      return hostAndPort.host();
+    }
+
+    // retrieve the alias from the node
+    var alias = Node.instance().config().ipAliases().get(hostAddress);
+    if (alias == null) {
+      return fallbackHostAddress;
+    }
+
+    // check if the alias is a valid inet address
+    var aliasHost = NetworkUtil.parseAssignableHostAndPort(alias, false);
+    if (aliasHost != null) {
+      return aliasHost.host();
+    }
+
+    // explode, resolved alias is not an address
+    throw new IllegalArgumentException(String.format(
+      "The host address %s of the alias %s is not a valid inet address.",
+      alias,
+      hostAddress));
   }
 
   protected boolean isPortInUse(@NonNull CloudServiceManager manager, int port) {

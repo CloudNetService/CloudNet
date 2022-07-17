@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
 import eu.cloudnetservice.driver.event.events.task.ServiceTaskAddEvent;
 import eu.cloudnetservice.driver.event.events.task.ServiceTaskRemoveEvent;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
-import eu.cloudnetservice.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
+import eu.cloudnetservice.wrapper.event.ServiceInfoSnapshotConfigureEvent;
 import lombok.NonNull;
 
 public final class PlatformInformationListener {

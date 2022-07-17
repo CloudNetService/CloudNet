@@ -23,46 +23,45 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
 
 /**
- * The configuration mirror of the .wrapper/wrapper.json file in the working folder from the service process. It
- * includes all important data for the Wrapper to connect with the local node.
- * <p>
- * The configuration style is defined in the specific implementation of this interface
+ * Represents the configuration which is passed from a node instance to the wrapper in form of a file before starting.
+ * It contains the most basic information in order to allow the wrapper to start and connect to the cluster.
+ *
+ * @since 4.0
  */
 public interface WrapperConfiguration {
 
   /**
-   * The key, for the connection, to authenticate with the provided node and the network
+   * Get the key which allows this wrapper to authenticate with the associated node.
    *
-   * @return the string which includes the key
+   * @return the key which allows this wrapper to authenticate with the associated node.
    */
   @NonNull String connectionKey();
 
   /**
-   * The address of a listener by the node
+   * Get the address of the node listener this wrapper should connect.
    *
-   * @return the target local listener address of the node
+   * @return the address of the node listener this wrapper should connect.
    */
   @NonNull HostAndPort targetListener();
 
   /**
-   * The first own serviceConfiguration with all important information about the service
+   * Get the service configuration which was used to create the service associated with this wrapper instance.
    *
-   * @return the instance of the ServiceConfiguration class
+   * @return the base service configuration of the associated service.
    */
   @NonNull ServiceConfiguration serviceConfiguration();
 
   /**
-   * The first serviceInfoSnapshot which has the important data for all next serviceInfoSnapshots, which the wrapper has
-   * to create
+   * Get the initial service info snapshot created by the node before the wrapper was started.
    *
-   * @return the serviceInfoSnapshot sample
+   * @return the initial service info snapshot created by the node before the wrapper was started.
    */
   @NonNull ServiceInfoSnapshot serviceInfoSnapshot();
 
   /**
-   * The ssl configuration, which needs for an optional ssl client connection.
+   * Get the ssl configuration which should be applied when connecting and communicating with the associated node.
    *
-   * @return the configuration instance, which includes all important ssl settings, for a client ssl connection
+   * @return the ssl configuration to apply to all client connection of this wrapper.
    */
   @NonNull SSLConfiguration sslConfiguration();
 }

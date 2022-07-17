@@ -190,7 +190,7 @@ public final class DefaultHttpAnnotationParser<T extends HttpComponent<T>> imple
 
         // sanatize the supplied arguments
         var supportedPaths = annotation.paths();
-        var boundPort = annotation.port() >= 0 && annotation.port() <= 65535 ? annotation.port() : null;
+        var boundPort = annotation.port() >= 0 && annotation.port() <= 0xFFFF ? annotation.port() : null;
         var supportedMethods = Arrays.stream(annotation.methods()).map(StringUtil::toUpper).toList();
 
         // validate the arguments

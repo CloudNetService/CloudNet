@@ -74,7 +74,7 @@ final class ApplicationBootstrap {
     RUNTIME_MX_BEAN.getSystemProperties().forEach((key, value) -> arguments.add("-D" + key + "=" + value));
 
     // enabled the debugger if requested
-    if (debuggerPort >= 0 && debuggerPort <= 65535) {
+    if (debuggerPort >= 0 && debuggerPort <= 0xFFFF) {
       arguments.add(String.format("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:%d", debuggerPort));
     }
 

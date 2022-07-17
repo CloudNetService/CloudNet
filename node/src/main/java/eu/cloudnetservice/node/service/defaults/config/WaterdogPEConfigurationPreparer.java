@@ -34,7 +34,7 @@ public class WaterdogPEConfigurationPreparer extends AbstractServiceConfiguratio
         if (line.trim().startsWith("host:")) {
           line = String.format(
             "  host: %s:%d",
-            nodeInstance.config().hostAddress(),
+            cloudService.serviceConfiguration().hostAddress(),
             cloudService.serviceConfiguration().port());
         }
         return line;
