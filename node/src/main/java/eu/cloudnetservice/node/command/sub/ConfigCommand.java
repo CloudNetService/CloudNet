@@ -58,6 +58,11 @@ public final class ConfigCommand {
     return List.copyOf(this.nodeConfig().ipAliases().keySet());
   }
 
+  @Suggestions("whitelistedIps")
+  public @NonNull List<String> suggestWhitelistIps(@NonNull CommandContext<?> $, @NonNull String input) {
+    return List.copyOf(this.nodeConfig().ipWhitelist());
+  }
+
   @CommandMethod("config|cfg reload")
   public void reloadConfigs(@NonNull CommandSource source) {
     Node.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
@@ -88,7 +93,10 @@ public final class ConfigCommand {
   }
 
   @CommandMethod("config|cfg node remove ip <ip>")
-  public void removeIpWhitelist(@NonNull CommandSource source, @NonNull @Argument(value = "ip") String ip) {
+  public void removeIpWhitelist(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "ip", suggestions = "whitelistedIps") String ip
+  ) {
     var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we remove the given ip
     if (ipWhitelist.remove(ip)) {
