@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.console.animation.setup.answer;
 import com.google.common.base.Enums;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.JavaVersion;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -57,7 +58,7 @@ public final class Parsers {
   }
 
   public static @NonNull <T extends Enum<T>> QuestionAnswerType.Parser<T> enumConstant(@NonNull Class<T> enumClass) {
-    return input -> Preconditions.checkNotNull(Enums.getIfPresent(enumClass, input.toUpperCase()).orNull());
+    return input -> Preconditions.checkNotNull(Enums.getIfPresent(enumClass, StringUtil.toUpper(input)).orNull());
   }
 
   public static @NonNull QuestionAnswerType.Parser<String> regex(@NonNull Pattern pattern) {

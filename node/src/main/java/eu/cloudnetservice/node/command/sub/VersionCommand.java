@@ -25,6 +25,7 @@ import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.JavaVersion;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
@@ -138,7 +139,7 @@ public final class VersionCommand {
         .toList();
     } else {
       versions = Node.instance().serviceVersionProvider().serviceVersionTypes()
-        .get(versionType.name().toLowerCase())
+        .get(StringUtil.toLower(versionType.name()))
         .versions()
         .stream()
         .sorted(Comparator.comparing(ServiceVersion::name))

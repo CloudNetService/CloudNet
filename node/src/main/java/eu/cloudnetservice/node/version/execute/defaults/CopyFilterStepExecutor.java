@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.version.execute.defaults;
 
 import com.google.gson.reflect.TypeToken;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
@@ -58,7 +59,7 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
         continue;
       }
 
-      var relativePath = workingDirectory.relativize(path).toString().replace("\\", "/").toLowerCase();
+      var relativePath = StringUtil.toLower(workingDirectory.relativize(path).toString().replace("\\", "/"));
       for (var patternEntry : patterns) {
         var pattern = patternEntry.first();
         var target = patternEntry.second();

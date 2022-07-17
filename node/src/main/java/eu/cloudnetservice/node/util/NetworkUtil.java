@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.util;
 
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Ints;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import java.io.IOException;
 import java.net.BindException;
@@ -83,7 +84,7 @@ public final class NetworkUtil {
 
   public static @Nullable HostAndPort parseHostAndPort(@NonNull String input, boolean withPort) {
     // convert the input to an ascii string if needed (for example ☃.net -> xn--n3h.net)
-    var normalizedInput = IDN.toASCII(input, IDN.ALLOW_UNASSIGNED).toLowerCase();
+    var normalizedInput = StringUtil.toLower(IDN.toASCII(input, IDN.ALLOW_UNASSIGNED));
 
     // extract the port from the input if required
     var port = -1;

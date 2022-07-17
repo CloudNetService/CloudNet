@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.util;
 
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -97,7 +98,7 @@ public final class DefaultModuleHelper {
       // select the input stream to copy the file from
       var in = clazz.getClassLoader().getResourceAsStream(String.format(
         "plugin.%s.yml",
-        type.name().toLowerCase()));
+        StringUtil.toLower(type.name())));
       // copy the file if the file exists
       if (in != null) {
         Files.copy(in, pluginPath);

@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.AbstractHandler;
 import eu.cloudnetservice.common.log.LogManager;
@@ -109,7 +110,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
     @NonNull HttpContext context,
     @NonNull @Optional @FirstRequestQueryParam(value = "type", def = "all") String type
   ) {
-    switch (type.toLowerCase()) {
+    switch (StringUtil.toLower(type)) {
       case "all" -> {
         this.reloadConfig();
         this.node().moduleProvider().reloadAll();
