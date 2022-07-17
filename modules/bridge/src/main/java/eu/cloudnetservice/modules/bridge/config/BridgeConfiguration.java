@@ -108,25 +108,29 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
   }
 
   public @NonNull String message(@Nullable Locale locale, @NonNull String key, boolean withPrefix) {
-    Map<String, String> messages = null;
+    String message = null;
     // don't bother resolving if no locale is present
     if (locale != null) {
       // try to get the messages of the specified locale, with country
-      messages = this.localizedMessages.get(locale.toString());
-      if (messages == null) {
+      message = this.resolveMessage(this.localizedMessages.get(locale.toString()), key);
+      if (message == null) {
         // try to resolve the messages without country
-        messages = this.localizedMessages.get(locale.getLanguage());
+        message = this.resolveMessage(this.localizedMessages.get(locale.getLanguage()), key);
       }
     }
 
     // validate that there are registered messages for the locale, fall back to the default messages if not
-    if (messages == null) {
-      messages = Objects.requireNonNullElseGet(
-        this.localizedMessages.get("default"),
-        () -> DEFAULT_MESSAGES.get("default"));
+    if (message == null) {
+      message = Objects.requireNonNullElseGet(
+        this.resolveMessage(this.localizedMessages.get("default"), key),
+        () -> this.resolveMessage(DEFAULT_MESSAGES.get("default"), key));
     }
 
     // format the final message
-    return String.format("%s%s", withPrefix ? this.prefix : "", messages.get(key));
+    return String.format("%s%s", withPrefix ? this.prefix : "", message);
+  }
+
+  private @Nullable String resolveMessage(@Nullable Map<String, String> messages, @NonNull String key) {
+    return messages == null ? null : messages.get(key);
   }
 }
