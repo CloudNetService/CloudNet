@@ -188,6 +188,19 @@ public final class Parsers {
     };
   }
 
+  public static @NonNull QuestionAnswerType.Parser<HostAndPort> nonWildcardHost(
+    @NonNull QuestionAnswerType.Parser<HostAndPort> parser
+  ) {
+    return input -> {
+      var hostAndPort = parser.parse(input);
+      if (hostAndPort == null || NetworkUtil.checkWildcard(hostAndPort)) {
+        throw ParserException.INSTANCE;
+      }
+
+      return hostAndPort;
+    };
+  }
+
   public static @NonNull QuestionAnswerType.Parser<String> assignableHostAndPortOrAlias() {
     return input -> {
       var ipAlias = Node.instance().config().ipAliases().get(input);

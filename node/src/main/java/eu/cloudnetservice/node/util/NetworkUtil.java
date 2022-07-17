@@ -64,6 +64,10 @@ public final class NetworkUtil {
     }
   }
 
+  public static boolean checkWildcard(@NonNull HostAndPort hostAndPort) {
+    return InetAddresses.forString(hostAndPort.host()).isAnyLocalAddress();
+  }
+
   public static boolean checkAssignable(@NonNull HostAndPort hostAndPort) {
     try (var socket = new ServerSocket()) {
       // try to bind on the given address

@@ -124,7 +124,6 @@ public class DefaultObjectMapperTest {
       Arguments.of(new ServiceInfoSnapshot(
         System.currentTimeMillis(),
         new HostAndPort("127.0.1.1", 99),
-        new HostAndPort("127.0.1.1", 45678),
         ProcessSnapshot.self(),
         ServiceConfiguration.builder()
           .taskName("Lobby")
