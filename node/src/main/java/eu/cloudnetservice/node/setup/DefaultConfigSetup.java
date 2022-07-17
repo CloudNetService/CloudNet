@@ -113,7 +113,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .possibleResults(addresses)
           .recommendation(NetworkUtil.localAddress())
-          .parser(Parsers.nonWildcardHost(Parsers.assignableHostAndPort(true))))
+          .parser(Parsers.nonWildcardHost(Parsers.assignableHostAndPort(false))))
         .build(),
       // maximum memory usage
       QuestionListEntry.<Integer>builder()
