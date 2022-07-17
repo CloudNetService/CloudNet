@@ -54,10 +54,11 @@ public final class NetworkUtil {
     return LOCAL_ADDRESS;
   }
 
-  public static boolean isInUse(int port) {
+  public static boolean isInUse(@NonNull String hostAddress, int port) {
     try (var serverSocket = new ServerSocket()) {
       // try to bind on the port, if successful the port is free
-      serverSocket.bind(new InetSocketAddress(port));
+      serverSocket.setReuseAddress(true);
+      serverSocket.bind(new InetSocketAddress(hostAddress, port));
       return false;
     } catch (Exception exception) {
       return true;
@@ -67,6 +68,7 @@ public final class NetworkUtil {
   public static boolean checkAssignable(@NonNull HostAndPort hostAndPort) {
     try (var socket = new ServerSocket()) {
       // try to bind on the given address
+      socket.setReuseAddress(true);
       socket.bind(new InetSocketAddress(hostAndPort.host(), 0));
       return true;
     } catch (IOException exception) {
