@@ -253,7 +253,7 @@ public final class TasksCommand {
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     if (this.taskProvider().serviceTask(taskName) != null) {
-      source.sendMessage(I18n.trans("command-tasks-task-already-existing"));
+      source.sendMessage(I18n.trans("command-tasks-task-already-existing", taskName));
       return;
     }
 
@@ -295,6 +295,22 @@ public final class TasksCommand {
 
       applyServiceConfigurationDisplay(messages, serviceTask);
       source.sendMessage(messages);
+    }
+  }
+
+  @CommandMethod("tasks rename <name> <new>")
+  public void renameTask(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "name") ServiceTask serviceTask,
+    @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("new") String newName
+  ) {
+    if (this.taskProvider().serviceTask(newName) != null) {
+      source.sendMessage(I18n.trans("command-tasks-task-already-existing", newName));
+    } else {
+      // create a copy with the new name and remove the old task
+      this.taskProvider().removeServiceTask(serviceTask);
+      this.taskProvider().addServiceTask(ServiceTask.builder(serviceTask).name(newName).build());
+      source.sendMessage(I18n.trans("command-tasks-task-rename-success", serviceTask.name(), newName));
     }
   }
 
