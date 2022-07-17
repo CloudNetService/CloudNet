@@ -298,11 +298,11 @@ public final class TasksCommand {
     }
   }
 
-  @CommandMethod("tasks rename <name> <new>")
+  @CommandMethod("tasks rename <oldName> <newName>")
   public void renameTask(
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "name") ServiceTask serviceTask,
-    @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("new") String newName
+    @NonNull @Argument(value = "oldName") ServiceTask serviceTask,
+    @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("newName") String newName
   ) {
     if (this.taskProvider().serviceTask(newName) != null) {
       source.sendMessage(I18n.trans("command-tasks-task-already-existing", newName));
