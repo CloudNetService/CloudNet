@@ -127,14 +127,14 @@ public final class NetworkUtil {
     try {
       // try to parse an ipv 4 or 6 address from the input string
       var address = InetAddresses.forString(normalizedInput);
-      return new HostAndPort(address.getHostAddress(), port);
+      return new HostAndPort(extractHostAddress(address), port);
     } catch (IllegalArgumentException ignored) {
     }
 
     try {
       // not the end of the world - might still be a domain name
       var address = InetAddress.getByName(normalizedInput);
-      return new HostAndPort(address.getHostAddress(), port);
+      return new HostAndPort(extractHostAddress(address), port);
     } catch (UnknownHostException exception) {
       // okay that's it
       return null;
@@ -143,13 +143,13 @@ public final class NetworkUtil {
 
   private static @NonNull String findLocalAddress() {
     try {
-      return hostAddress(InetAddress.getLocalHost());
+      return extractHostAddress(InetAddress.getLocalHost());
     } catch (UnknownHostException exception) {
       return "127.0.0.1";
     }
   }
 
-  private static @NonNull String hostAddress(@NonNull InetAddress address) {
+  private static @NonNull String extractHostAddress(@NonNull InetAddress address) {
     if (address instanceof Inet6Address) {
       // get the host address of the inet address
       var hostAddress = address.getHostAddress();
@@ -176,7 +176,7 @@ public final class NetworkUtil {
         // get all addresses of the interface
         var inetAddresses = networkInterfaces.nextElement().getInetAddresses();
         while (inetAddresses.hasMoreElements()) {
-          addresses.add(hostAddress(inetAddresses.nextElement()));
+          addresses.add(extractHostAddress(inetAddresses.nextElement()));
         }
       }
       // return the located addresses
