@@ -53,6 +53,7 @@ import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.setup.SpecificTaskSetup;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
+import eu.cloudnetservice.node.util.NetworkUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -161,6 +162,32 @@ public final class TasksCommand {
   @Suggestions("serviceTask")
   public @NonNull List<String> suggestTask(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.taskProvider().serviceTasks().stream().map(Nameable::name).toList();
+  }
+
+  @Parser(suggestions = "ipAliasHostAddress", name = "ipAliasHostAddress")
+  public @NonNull String hostAddressParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
+    var address = input.remove();
+    var alias = Node.instance().config().ipAliases().get(address);
+    // check if we can resolve the host address using our ip alias
+    if (alias != null) {
+      return address;
+    }
+    // check if the host address is parsable and assignable
+    var hostAndPort = NetworkUtil.parseAssignableHostAndPort(address, false);
+    if (hostAndPort != null) {
+      return hostAndPort.host();
+    }
+    // could not parse
+    throw new ArgumentNotAvailableException(I18n.trans("command-tasks-unknown-host-address-or-alias", address));
+  }
+
+  @Suggestions("ipAliasHostAddress")
+  public @NonNull List<String> suggestHostAddress(@NonNull CommandContext<?> $, @NonNull String input) {
+    // all network addresses
+    var hostAddresses = new ArrayList<>(NetworkUtil.availableIPAddresses());
+    // all ip aliases
+    hostAddresses.addAll(Node.instance().config().ipAliases().keySet());
+    return hostAddresses;
   }
 
   @Parser(suggestions = "serviceTask")
@@ -341,6 +368,21 @@ public final class TasksCommand {
         "minServiceCount",
         task.name(),
         amount));
+    }
+  }
+
+  @CommandMethod("tasks task <name> set hostAddress <hostAddress>")
+  public void setHostAddress(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument(value = "hostAddress", parserName = "ipAliasHostAddress") String hostAddress
+  ) {
+    for (var task : serviceTasks) {
+      this.updateTask(task, builder -> builder.hostAddress(hostAddress));
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "hostAddress",
+        task.name(),
+        hostAddress));
     }
   }
 

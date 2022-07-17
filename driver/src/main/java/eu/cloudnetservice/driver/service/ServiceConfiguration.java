@@ -31,6 +31,7 @@ import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
@@ -121,6 +122,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
 
   protected final int port;
   protected final String runtime;
+  protected final String hostAddress;
   protected final String javaCommand;
 
   protected final boolean autoDeleteOnStop;
@@ -136,6 +138,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    * @param processConfig         the process configuration of the service which gets created.
    * @param port                  the port of the service to start with, might get increased when already taken.
    * @param runtime               the runtime of the service to create it based on, for example {@code jvm}.
+   * @param hostAddress           the host address the service based on this configuration is bound to.
    * @param javaCommand           the java command to use when starting a service.
    * @param autoDeleteOnStop      if the service should get deleted when stopping.
    * @param staticService         if the service which gets created should be static (no file deletion when stopping).
@@ -152,6 +155,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     @NonNull ProcessConfiguration processConfig,
     int port,
     @NonNull String runtime,
+    @Nullable String hostAddress,
     @Nullable String javaCommand,
     boolean autoDeleteOnStop,
     boolean staticService,
@@ -167,6 +171,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     this.serviceId = serviceId;
     this.port = port;
     this.runtime = runtime;
+    this.hostAddress = hostAddress;
     this.javaCommand = javaCommand;
     this.autoDeleteOnStop = autoDeleteOnStop;
     this.staticService = staticService;
@@ -200,6 +205,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
       .taskName(task.name())
 
       .runtime(task.runtime())
+      .hostAddress(task.hostAddress())
       .javaCommand(task.javaCommand())
       .nameSplitter(task.nameSplitter())
 
@@ -236,6 +242,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     return builder()
       .serviceId(ServiceId.builder(configuration.serviceId()))
       .runtime(configuration.runtime())
+      .hostAddress(configuration.hostAddress())
       .javaCommand(configuration.javaCommand())
       .autoDeleteOnStop(configuration.autoDeleteOnStop())
       .staticService(configuration.staticService())
@@ -313,6 +320,21 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
   }
 
   /**
+   * Get the host address that all services based on this configuration are bound to. The host address is not required
+   * to be an ip address, it is possible that the host address is just an ip alias which needs to be resolved using the
+   * configuration of the node. The host address might be null, in that case the fallback host of the node is used.
+   * <p>
+   * Note: Might be null until the host address was resolved during the preparation of a service based on this
+   * configuration. The resolved host address is not reflected into the original configuration, only into the
+   * configuration which is available through the service information snapshot.
+   *
+   * @return the host address that all services based on this configuration are bound to, null if not resolved yet.
+   */
+  public @UnknownNullability String hostAddress() {
+    return this.hostAddress;
+  }
+
+  /**
    * Get the names of the groups whose configuration should get included when starting a service based on this
    * configuration. Each configuration is only included when it is present on the node starting the service, if not it
    * will silently be ignored. Note that groups targeting the same environment as this configuration will get included
@@ -352,7 +374,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    *
    * @return the port number to start the service on, might be counted up when the port is already taken.
    */
-  public @Range(from = 0, to = 65535) int port() {
+  public @Range(from = 0, to = 0xFFFF) int port() {
     return this.port;
   }
 
@@ -417,6 +439,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     protected ProcessConfiguration.Builder processConfig = ProcessConfiguration.builder();
 
     protected String javaCommand;
+    protected String hostAddress;
     protected String runtime = "jvm";
 
     protected boolean staticService;
@@ -607,6 +630,24 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     }
 
     /**
+     * Sets the host address which all services based on this configuration are bound to. The host address is required
+     * to be assignable on every node a service can be started on. In order to ensure that the host address is
+     * assignable on every node, ip aliases can be used. Ip aliases can be defined in the config of each node. To use
+     * them set the host address to the name of the alias. If null is supplied the fallback address of the node is
+     * used.
+     * <p>
+     * Note: if the host address is not assignable or the alias is not resolvable on the node which is picking up the
+     * service it will result in an error.
+     *
+     * @param hostAddress the host address all services based on this configuration should get bound to.
+     * @return the same instance as used to call the method, for chaining.
+     */
+    public @NonNull Builder hostAddress(@Nullable String hostAddress) {
+      this.hostAddress = hostAddress;
+      return this;
+    }
+
+    /**
      * Sets whether services created based on the service configuration should get deleted after being stopped. This
      * does only mean that the service gets unregistered and is no longer available for starting, but does not mean that
      * all service files get deleted when the service is static.
@@ -761,7 +802,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      * @param startPort the port to start services upwards from.
      * @return the same instance as used to call the method, for chaining.
      */
-    public @NonNull Builder startPort(@Range(from = 0, to = 65535) int startPort) {
+    public @NonNull Builder startPort(@Range(from = 0, to = 0xFFFF) int startPort) {
       this.port = startPort;
       return this;
     }
@@ -785,12 +826,13 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      */
     @Override
     public @NonNull ServiceConfiguration build() {
-      Preconditions.checkArgument(this.port > 0 && this.port <= 65535, "invalid port provided");
+      Preconditions.checkArgument(this.port > 0 && this.port <= 0xFFFF, "invalid port provided");
       return new ServiceConfiguration(
         this.serviceId.build(),
         this.processConfig.build(),
         this.port,
         this.runtime,
+        this.hostAddress,
         this.javaCommand,
         this.autoDeleteOnStop,
         this.staticService,

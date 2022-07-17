@@ -141,7 +141,7 @@ public class JVMService extends AbstractService {
     arguments.add(String.format("-Dfabric.systemLibraries=%s", wrapperInformation.first().toAbsolutePath()));
 
     // set the used host and port as system property
-    arguments.add("-Dservice.bind.host=" + this.nodeInstance.config().hostAddress());
+    arguments.add("-Dservice.bind.host=" + this.serviceConfiguration().hostAddress());
     arguments.add("-Dservice.bind.port=" + this.serviceConfiguration().port());
 
     // add the class path and the main class of the wrapper

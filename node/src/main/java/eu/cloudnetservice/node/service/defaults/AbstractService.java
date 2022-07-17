@@ -132,7 +132,7 @@ public abstract class AbstractService implements CloudService {
 
     this.currentServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      new HostAndPort(this.nodeConfiguration().hostAddress(), configuration.port()),
+      new HostAndPort(configuration.hostAddress(), configuration.port()),
       new HostAndPort(this.nodeConfiguration().connectHostAddress(), configuration.port()),
       ProcessSnapshot.empty(),
       configuration,
