@@ -95,7 +95,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .recommendation(NetworkUtil.localAddress() + ":1410")
           .possibleResults(addresses.stream().map(addr -> addr + ":1410").toList())
-          .parser(Parsers.nonWildcardHost(Parsers.assignableHostAndPort(true))))
+          .parser(Parsers.assignableHostAndPort(true)))
         .build(),
       // web server host
       QuestionListEntry.<HostAndPort>builder()
@@ -104,7 +104,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .recommendation(NetworkUtil.localAddress() + ":2812")
           .possibleResults(addresses.stream().map(addr -> addr + ":2812").toList())
-          .parser(Parsers.nonWildcardHost(Parsers.assignableHostAndPort(true))))
+          .parser(Parsers.assignableHostAndPort(true)))
         .build(),
       // service bind host address
       QuestionListEntry.<HostAndPort>builder()
