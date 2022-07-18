@@ -1,5 +1,5 @@
 server_connect_timeout: 5000
-enforce_secure_profile: true
+enforce_secure_profile: false
 remote_ping_cache: -1
 forge_support: true
 player_limit: -1
