@@ -93,7 +93,7 @@ public final class BungeeCordHelper {
   private static @NonNull ServerInfo constructServerInfo(@NonNull ServiceInfoSnapshot snapshot) {
     return ProxyServer.getInstance().constructServerInfo(
       snapshot.name(),
-      new InetSocketAddress(snapshot.connectAddress().host(), snapshot.connectAddress().port()),
+      new InetSocketAddress(snapshot.address().host(), snapshot.address().port()),
       "Just another CloudNet provided service info",
       false);
   }

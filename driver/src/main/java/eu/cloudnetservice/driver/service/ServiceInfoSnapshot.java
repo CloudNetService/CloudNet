@@ -46,7 +46,6 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
   protected final long creationTime;
 
   protected final HostAndPort address;
-  protected final HostAndPort connectAddress;
 
   protected final ProcessSnapshot processSnapshot;
   protected final ServiceConfiguration configuration;
@@ -60,7 +59,6 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
    *
    * @param creationTime    the unix timestamp of the snapshot creation time.
    * @param address         the address to which the service was bound if started.
-   * @param connectAddress  the address to use when trying to connect to the service if started.
    * @param processSnapshot the current snapshot of the process resource usage.
    * @param configuration   the configuration base used to create the service.
    * @param connectedTime   the time when the service connected to the node, -1 if not yet connected.
@@ -72,7 +70,6 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
   public ServiceInfoSnapshot(
     long creationTime,
     @NonNull HostAndPort address,
-    @NonNull HostAndPort connectAddress,
     @NonNull ProcessSnapshot processSnapshot,
     @NonNull ServiceConfiguration configuration,
     long connectedTime,
@@ -83,7 +80,6 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
     this.creationTime = creationTime;
     this.connectedTime = connectedTime;
     this.address = address;
-    this.connectAddress = connectAddress;
     this.lifeCycle = lifeCycle;
     this.processSnapshot = processSnapshot;
     this.configuration = configuration;
@@ -115,15 +111,6 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
    */
   public @NonNull HostAndPort address() {
     return this.address;
-  }
-
-  /**
-   * Get the connect-address of the service which will be used to connect players to the wrapped service.
-   *
-   * @return the connect-address of the wrapped service.
-   */
-  public @NonNull HostAndPort connectAddress() {
-    return this.connectAddress;
   }
 
   /**

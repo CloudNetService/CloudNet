@@ -370,11 +370,6 @@ public final class ServiceCommand {
       "* Address: " + service.address().host() + ":" + service.address().port()
     ));
 
-    if (!service.address().host().equals(service.connectAddress().host())) {
-      list.add("* Address for connections: " + service.connectAddress().host() + ":" + service
-        .connectAddress().port());
-    }
-
     if (service.connected()) {
       list.add("* Connected: " + DATE_FORMAT.format(service.connectedTime()));
     } else {

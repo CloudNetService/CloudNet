@@ -276,7 +276,6 @@ public class Wrapper extends CloudNetDriver {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
       this.currentServiceInfoSnapshot.address(),
-      this.currentServiceInfoSnapshot.connectAddress(),
       ProcessSnapshot.self(),
       this.serviceConfiguration(),
       this.currentServiceInfoSnapshot.connectedTime(),
@@ -405,7 +404,6 @@ public class Wrapper extends CloudNetDriver {
       this.currentServiceInfoSnapshot = new ServiceInfoSnapshot(
         System.currentTimeMillis(),
         this.currentServiceInfoSnapshot.address(),
-        this.currentServiceInfoSnapshot.connectAddress(),
         ProcessSnapshot.self(),
         this.serviceConfiguration(),
         System.currentTimeMillis(),

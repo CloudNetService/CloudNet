@@ -64,8 +64,8 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
       service.name(),
       new BedrockServerInfo(
         service.name(),
-        new InetSocketAddress(service.connectAddress().host(), service.connectAddress().port()),
-        new InetSocketAddress(service.connectAddress().host(), service.connectAddress().port())));
+        new InetSocketAddress(service.address().host(), service.address().port()),
+        new InetSocketAddress(service.address().host(), service.address().port())));
     // unregister each service matching the service cache tester
     this.cacheUnregisterListener = service -> ProxyServer.getInstance().getServerInfoMap().remove(service.name());
   }

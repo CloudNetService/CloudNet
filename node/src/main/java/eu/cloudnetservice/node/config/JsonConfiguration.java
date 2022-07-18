@@ -347,7 +347,6 @@ public final class JsonConfiguration implements Configuration {
 
     this.jvmCommand = configuration.javaCommand();
     this.hostAddress = configuration.hostAddress();
-    this.connectHostAddress = configuration.connectHostAddress();
 
     this.ipAliases = configuration.ipAliases();
 
@@ -473,16 +472,6 @@ public final class JsonConfiguration implements Configuration {
   @Override
   public void restConfiguration(@NonNull RestConfiguration configuration) {
     this.restConfiguration = configuration;
-  }
-
-  @Override
-  public @NonNull String connectHostAddress() {
-    return this.connectHostAddress;
-  }
-
-  @Override
-  public void connectHostAddress(@NonNull String connectHostAddress) {
-    this.connectHostAddress = connectHostAddress;
   }
 
   @Override

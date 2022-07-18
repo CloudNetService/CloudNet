@@ -49,7 +49,6 @@ public final class NodeServerUtil {
         var newSnapshot = new ServiceInfoSnapshot(
           System.currentTimeMillis(),
           snapshot.address(),
-          snapshot.connectAddress(),
           ProcessSnapshot.empty(),
           snapshot.configuration(),
           -1,

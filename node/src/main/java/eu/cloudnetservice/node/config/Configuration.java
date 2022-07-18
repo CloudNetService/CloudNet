@@ -43,10 +43,6 @@ public interface Configuration {
 
   void hostAddress(@NonNull String hostAddress);
 
-  @NonNull String connectHostAddress();
-
-  void connectHostAddress(@NonNull String connectHostAddress);
-
   @NonNull Map<String, String> ipAliases();
 
   void ipAliases(@NonNull Map<String, String> alias);
