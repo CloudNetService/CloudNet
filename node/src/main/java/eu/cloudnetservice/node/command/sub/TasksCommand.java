@@ -761,6 +761,48 @@ public final class TasksCommand {
     }
   }
 
+  @CommandMethod("tasks task <name> unset javaCommand")
+  public void unsetJavaCommand(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
+  ) {
+    for (var serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, builder -> builder.javaCommand(null));
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "javaCommand",
+        serviceTask.name(),
+        "null"));
+    }
+  }
+
+  @CommandMethod("tasks task <name> unset hostAddress")
+  public void unsetHostAddress(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
+  ) {
+    for (var serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, builder -> builder.hostAddress(null));
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "hostAddress",
+        serviceTask.name(),
+        "null"));
+    }
+  }
+
+  @CommandMethod("tasks task <name> unset runtime")
+  public void unsetRuntime(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
+  ) {
+    for (var serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, builder -> builder.runtime(null));
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "runtime",
+        serviceTask.name(),
+        "null"));
+    }
+  }
+
   private void updateTask(@NonNull ServiceTask task, @NonNull Consumer<ServiceTask.Builder> consumer) {
     consumer
       .andThen(result -> this.taskProvider().addServiceTask(result.build()))
