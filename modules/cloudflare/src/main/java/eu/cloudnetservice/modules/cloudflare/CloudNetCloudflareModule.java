@@ -28,6 +28,7 @@ import eu.cloudnetservice.modules.cloudflare.dns.DNSType;
 import eu.cloudnetservice.modules.cloudflare.dns.DefaultDNSRecord;
 import eu.cloudnetservice.modules.cloudflare.listener.CloudflareStartAndStopListener;
 import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.util.NetworkUtil;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -60,7 +61,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
           new CloudflareConfigurationEntry(
             false,
             CloudflareConfigurationEntry.AuthenticationMethod.GLOBAL_KEY,
-            this.initialHostAddress(),
+            NetworkUtil.localAddress(),
             "user@example.com",
             "api_token_string",
             "zoneId",
@@ -122,14 +123,6 @@ public final class CloudNetCloudflareModule extends DriverModule {
   @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
   public void removeRecordsOnDelete() {
     this.cloudFlareAPI.close();
-  }
-
-  private String initialHostAddress() {
-    try {
-      return InetAddress.getLocalHost().getHostAddress();
-    } catch (Exception ex) {
-      return "0.0.0.0";
-    }
   }
 
   public @NonNull CloudflareConfiguration cloudFlareConfiguration() {
