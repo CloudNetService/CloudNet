@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -35,7 +36,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public interface CloudServiceManager extends CloudServiceProvider {
 
-  @NonNull Collection<CloudServiceFactory> cloudServiceFactories();
+  @NonNull
+  @UnmodifiableView Map<String, CloudServiceFactory> cloudServiceFactories();
 
   @Nullable CloudServiceFactory cloudServiceFactory(@NonNull String runtime);
 
