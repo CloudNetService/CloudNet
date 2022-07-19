@@ -1,4 +1,5 @@
 server_connect_timeout: 5000
+enforce_secure_profile: false
 remote_ping_cache: -1
 forge_support: true
 player_limit: -1
@@ -11,9 +12,7 @@ permissions:
     - bungeecord.command.end
     - bungeecord.command.ip
     - bungeecord.command.reload
-    - cloudnet.command.cloudnet
-    - cloudnet.syncproxy.fulljoin
-    - cloudnet.syncproxy.maintenance
+    - bungeecord.command.kick
 timeout: 30000
 log_commands: false
 network_compression_threshold: 256

@@ -4,7 +4,7 @@
 
 settings:
   #Multi-language setting
-  #Available: eng, chs, cht, jpn, rus, spa, pol, bra, kor, ukr, deu, ltu, cze
+  #Available: eng, chs, cht, jpn, rus, spa, pol, bra, kor, ukr, deu, ltu, idn, cze, tur, fin
   language: "eng"
   #Whether to send all strings translated to server locale or let the device handle them
   force-language: false
@@ -117,8 +117,13 @@ aliases:
 #savestop: [save-all, stop]
 
 worlds:
-#These settings will override the generator set in server.properties and allows loading multiple levels
-#Example:
-#world:
-# seed: 404
-# generator: FLAT:2;7,59x1,3x3,2;1;decoration(treecount=80 grasscount=45)
+  #Worlds that the server will use. Options are specific to the chosen generator, and may result in broken generation or
+  #be ignored completely.
+  world:
+    seed: 404
+    generator: normal
+    options:
+  nether:
+    seed: my_cool_nether_seed
+    generator: nether
+    options:
