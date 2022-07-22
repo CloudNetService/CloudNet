@@ -35,18 +35,20 @@ import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.util.Collection;
 
-public class CloudNetSignsModule extends DriverModule {
+public final class CloudNetSignsModule extends DriverModule {
 
-  protected static final String DATABASE_NAME = "cloudnet_signs";
+  private static final String DATABASE_NAME = "cloudnet_signs";
 
   private static final Logger LOGGER = LogManager.logger(CloudNetSignsModule.class);
 
-  protected Database database;
-  protected SignsConfiguration configuration;
+  private final Node node = Node.instance();
+
+  private Database database;
+  private SignsConfiguration configuration;
 
   @ModuleTask(order = 50)
   public void initialize() {
-    this.database = Node.instance().databaseProvider().database(DATABASE_NAME);
+    this.database = this.node.databaseProvider().database(DATABASE_NAME);
   }
 
   @ModuleTask(order = 40)
@@ -59,7 +61,7 @@ public class CloudNetSignsModule extends DriverModule {
     var management = new NodeSignManagement(this.configuration, this.configPath(), this.database);
     management.registerToServiceRegistry();
 
-    Node.instance().commandProvider().register(new SignCommand(management));
+    this.node.commandProvider().register(new SignCommand(management, this.node));
     this.registerListener(new SharedChannelMessageListener(management), new NodeSignsListener(management));
     this.registerListener(new PluginIncludeListener(
       "cloudnet-signs",
@@ -78,7 +80,7 @@ public class CloudNetSignsModule extends DriverModule {
   @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)
   public void handleStopping() throws Exception {
     this.database.close();
-    Node.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+    this.node.eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
@@ -92,7 +94,7 @@ public class CloudNetSignsModule extends DriverModule {
   @Deprecated
   private void convertDatabaseIfNecessary() {
     // load old database document
-    var database = Node.instance().databaseProvider().database("cloudNet_module_configuration");
+    var database = this.node.databaseProvider().database("cloudNet_module_configuration");
     var document = database.get("signs_store");
     // when the document is null the conversation already happened
     if (document != null) {

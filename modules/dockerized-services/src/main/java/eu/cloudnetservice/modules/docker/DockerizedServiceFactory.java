@@ -28,7 +28,6 @@ import lombok.NonNull;
 
 public class DockerizedServiceFactory extends AbstractServiceFactory {
 
-  protected final Node nodeInstance;
   protected final EventManager eventManager;
   protected final DockerClient dockerClient;
   protected final DockerConfiguration configuration;
@@ -39,7 +38,7 @@ public class DockerizedServiceFactory extends AbstractServiceFactory {
     @NonNull DockerClient dockerClient,
     @NonNull DockerConfiguration configuration
   ) {
-    this.nodeInstance = nodeInstance;
+    super(nodeInstance);
     this.eventManager = eventManager;
     this.dockerClient = dockerClient;
     this.configuration = configuration;
@@ -59,7 +58,7 @@ public class DockerizedServiceFactory extends AbstractServiceFactory {
       config,
       manager,
       this.eventManager,
-      this.nodeInstance,
+      this.node,
       preparer,
       this.dockerClient,
       this.configuration);

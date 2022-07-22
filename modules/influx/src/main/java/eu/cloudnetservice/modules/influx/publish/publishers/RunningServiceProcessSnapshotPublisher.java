@@ -17,18 +17,18 @@
 package eu.cloudnetservice.modules.influx.publish.publishers;
 
 import com.influxdb.client.write.Point;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.util.PointUtil;
+import eu.cloudnetservice.node.Node;
 import java.util.Collection;
 import lombok.NonNull;
 
-public final class RunningServiceProcessSnapshotPublisher implements Publisher {
+public record RunningServiceProcessSnapshotPublisher(@NonNull Node node) implements Publisher {
 
   @Override
   public @NonNull Collection<Point> createPoints() {
-    return CloudNetDriver.instance().cloudServiceProvider().runningServices().stream()
+    return this.node.cloudServiceProvider().runningServices().stream()
       .map(service -> PointUtil.point("services")
         .addTag("Name", service.name())
         .addTag("Task", service.serviceId().taskName())

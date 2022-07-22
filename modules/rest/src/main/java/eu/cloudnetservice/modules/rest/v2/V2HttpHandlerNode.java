@@ -32,7 +32,6 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketChannel;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketFrameType;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketListener;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.config.JsonConfiguration;
 import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
@@ -60,7 +59,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
     var nodeServer = this.node().nodeServerProvider().localNode();
 
     var information = this.success()
-      .append("version", Node.instance().version())
+      .append("version", this.node().version())
       .append("nodeInfoSnapshot", nodeServer.nodeInfoSnapshot())
       .append("lastNodeInfoSnapshot", nodeServer.lastNodeInfoSnapshot())
       .append("serviceCount", this.node().cloudServiceProvider().serviceCount())

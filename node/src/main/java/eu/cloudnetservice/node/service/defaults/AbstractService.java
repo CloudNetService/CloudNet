@@ -604,7 +604,7 @@ public abstract class AbstractService implements CloudService {
       >= this.nodeConfiguration().maxMemory()) {
       // schedule a retry
       if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
-        Node.instance().mainThread().runTask(this::start);
+        this.nodeInstance.mainThread().runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloudnet-service-manager-max-memory-error"));
       }
@@ -615,7 +615,7 @@ public abstract class AbstractService implements CloudService {
     if (CPUUsageResolver.systemCPUUsage() >= this.nodeConfiguration().maxCPUUsageToStartServices()) {
       // schedule a retry
       if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
-        Node.instance().mainThread().runTask(this::start);
+        this.nodeInstance.mainThread().runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloudnet-service-manager-cpu-usage-to-high-error"));
       }

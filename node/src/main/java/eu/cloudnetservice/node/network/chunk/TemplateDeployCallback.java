@@ -35,15 +35,16 @@ final class TemplateDeployCallback implements ChunkedPacketHandler.Callback {
     @NonNull ChunkSessionInformation information,
     @NonNull InputStream dataInput
   ) {
+    var node = Node.instance();
     // get the information for the deployment
     var storageName = information.transferInformation().readString();
     var template = information.transferInformation().readObject(ServiceTemplate.class);
     var overrideTemplate = information.transferInformation().readBoolean();
     // get the storage of the template if present
-    var storage = Node.instance().templateStorageProvider().templateStorage(storageName);
+    var storage = node.templateStorageProvider().templateStorage(storageName);
     if (storage != null) {
       // pause the ticking of CloudNet before writing the file into the template
-      Node.instance().mainThread().pause();
+      node.mainThread().pause();
       try {
         // delete the template if requested
         if (overrideTemplate) {
@@ -53,7 +54,7 @@ final class TemplateDeployCallback implements ChunkedPacketHandler.Callback {
         storage.deploy(template, dataInput);
       } finally {
         // resume the main thread execution
-        Node.instance().mainThread().resume();
+        node.mainThread().resume();
       }
     }
   }

@@ -26,12 +26,11 @@ import lombok.NonNull;
 
 public class JVMServiceFactory extends AbstractServiceFactory {
 
-  private final Node nodeInstance;
   private final EventManager eventManager;
 
-  public JVMServiceFactory(@NonNull Node nodeInstance, @NonNull EventManager eventManager) {
-    this.nodeInstance = nodeInstance;
-    this.eventManager = eventManager;
+  public JVMServiceFactory(@NonNull Node nodeInstance) {
+    super(nodeInstance);
+    this.eventManager = nodeInstance.eventManager();
   }
 
   @Override
@@ -44,6 +43,6 @@ public class JVMServiceFactory extends AbstractServiceFactory {
     // select the configuration preparer for the environment
     var preparer = manager.servicePreparer(config.serviceId().environment());
     // create the service
-    return new JVMService(config, manager, this.eventManager, this.nodeInstance, preparer);
+    return new JVMService(config, manager, this.eventManager, this.node, preparer);
   }
 }

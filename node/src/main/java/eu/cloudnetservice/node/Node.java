@@ -124,7 +124,7 @@ public class Node extends CloudNetDriver {
   private final TickLoop mainThread = new TickLoop(this);
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final DefaultInstallation installation = new DefaultInstallation();
-  private final DataSyncRegistry dataSyncRegistry = new DefaultDataSyncRegistry();
+  private final DataSyncRegistry dataSyncRegistry = new DefaultDataSyncRegistry(this);
   private final QueuedConsoleLogHandler logHandler = new QueuedConsoleLogHandler();
 
   private volatile AbstractDatabaseProvider databaseProvider;
@@ -282,7 +282,7 @@ public class Node extends CloudNetDriver {
     // start modules
     this.moduleProvider.startAll();
     // register listeners & post node startup finish
-    this.eventManager.registerListener(new FileDeployCallbackListener());
+    this.eventManager.registerListener(new FileDeployCallbackListener(this));
     this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));
 
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));

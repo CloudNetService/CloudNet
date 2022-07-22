@@ -43,7 +43,12 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     .withListCompareAlgorithm(ListCompareAlgorithm.LEVENSHTEIN_DISTANCE)
     .build();
 
+  private final Node node;
   private final Map<String, DataSyncHandler<?>> handlers = new ConcurrentHashMap<>();
+
+  public DefaultDataSyncRegistry(@NonNull Node node) {
+    this.node = node;
+  }
 
   @Override
   public void registerHandler(@NonNull DataSyncHandler<?> handler) {
@@ -148,7 +153,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
             // print out the possibilities the user has now
             LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
-            switch (this.waitForCorrectMergeInput(Node.instance().console())) {
+            switch (this.waitForCorrectMergeInput(this.node.console())) {
               case 1 -> {
                 // accept theirs - write the change
                 handler.write(data);

@@ -49,10 +49,8 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     .addAll(NetworkUtil.availableIPAddresses())
     .build();
 
-  private final Node node;
-
   public DefaultConfigSetup(@NonNull Node node) {
-    this.node = node;
+    super(node);
   }
 
   @Override

@@ -38,6 +38,12 @@ import lombok.NonNull;
 
 public class DefaultClusterSetup implements DefaultSetup {
 
+  protected final Node node;
+
+  public DefaultClusterSetup(@NonNull Node node) {
+    this.node = node;
+  }
+
   @Override
   public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
@@ -93,7 +99,7 @@ public class DefaultClusterSetup implements DefaultSetup {
   @Override
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     if (animation.result("installCluster")) {
-      var config = Node.instance().config();
+      var config = this.node.config();
 
       // apply the cluster settings
       Collection<String> nodeNames = animation.result("nodesList");

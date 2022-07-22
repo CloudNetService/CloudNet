@@ -26,7 +26,7 @@ import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.defaults.DefaultNodeServerProvider;
 import lombok.NonNull;
 
-public record LocalNodeUpdateTask(@NonNull DefaultNodeServerProvider provider) implements Runnable {
+public record LocalNodeUpdateTask(@NonNull DefaultNodeServerProvider provider, @NonNull Node node) implements Runnable {
 
   private static final Logger LOGGER = LogManager.logger(LocalNodeUpdateTask.class);
 
@@ -56,7 +56,7 @@ public record LocalNodeUpdateTask(@NonNull DefaultNodeServerProvider provider) i
             .message("update_node_info_snapshot")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
             .buffer(DataBuf.empty().writeObject(localNode.nodeInfoSnapshot()))
-            .prioritized(Node.instance().mainThread().currentTick() % 10 == 0);
+            .prioritized(this.node.mainThread().currentTick() % 10 == 0);
           // add all targets
           targetNodes.forEach(message::targetNode);
           // send the update to all active nodes

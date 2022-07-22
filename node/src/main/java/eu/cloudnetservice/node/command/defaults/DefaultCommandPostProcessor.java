@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.command.defaults;
 
 import cloud.commandframework.execution.postprocessor.CommandPostprocessingContext;
 import cloud.commandframework.execution.postprocessor.CommandPostprocessor;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.event.command.CommandPostProcessEvent;
 import lombok.NonNull;
@@ -26,7 +26,7 @@ import lombok.NonNull;
 /**
  * {@inheritDoc}
  */
-final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandSource> {
+record DefaultCommandPostProcessor(@NonNull EventManager eventManager) implements CommandPostprocessor<CommandSource> {
 
   /**
    * {@inheritDoc}
@@ -36,7 +36,6 @@ final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandS
     var commandContext = context.getCommandContext();
     var source = commandContext.getSender();
 
-    Node.instance().eventManager()
-      .callEvent(new CommandPostProcessEvent(commandContext.getRawInputJoined(), source));
+    this.eventManager.callEvent(new CommandPostProcessEvent(commandContext.getRawInputJoined(), source));
   }
 }

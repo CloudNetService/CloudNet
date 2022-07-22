@@ -76,6 +76,8 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
 
   private static final Logger LOGGER = LogManager.logger(CloudServiceManager.class);
 
+  private final Node node;
+
   protected final RPCSender sender;
   protected final Collection<String> defaultJvmOptions;
   protected final NodeServerProvider clusterNodeServerProvider;
@@ -84,19 +86,20 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   protected final Map<String, CloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
-  public DefaultCloudServiceManager(@NonNull Node nodeInstance, @NonNull Collection<String> defaultJvmOptions) {
+  public DefaultCloudServiceManager(@NonNull Node node, @NonNull Collection<String> defaultJvmOptions) {
+    this.node = node;
     this.defaultJvmOptions = defaultJvmOptions;
-    this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
+    this.clusterNodeServerProvider = node.nodeServerProvider();
     // rpc init
-    this.sender = nodeInstance.rpcFactory().providerForClass(null, CloudServiceProvider.class);
-    nodeInstance.rpcFactory()
+    this.sender = node.rpcFactory().providerForClass(null, CloudServiceProvider.class);
+    node.rpcFactory()
       .newHandler(CloudServiceProvider.class, this)
       .registerToDefaultRegistry();
-    nodeInstance.rpcFactory()
+    node.rpcFactory()
       .newHandler(SpecificCloudServiceProvider.class, null)
       .registerToDefaultRegistry();
     // register the default factory
-    this.addCloudServiceFactory("jvm", new JVMServiceFactory(nodeInstance, nodeInstance.eventManager()));
+    this.addCloudServiceFactory("jvm", new JVMServiceFactory(node));
     // register the default configuration preparers
     this.addServicePreparer(ServiceEnvironmentType.NUKKIT, new NukkitConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.VELOCITY, new VelocityConfigurationPreparer());
@@ -106,7 +109,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
     // cluster data sync
-    nodeInstance.dataSyncRegistry().registerHandler(
+    node.dataSyncRegistry().registerHandler(
       DataSyncHandler.<ServiceInfoSnapshot>builder()
         .key("services")
         .alwaysForce()
@@ -115,15 +118,15 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         .convertObject(ServiceInfoSnapshot.class)
         .writer(ser -> {
           // ugly hack to get the channel of the service's associated node
-          var node = this.clusterNodeServerProvider.node(ser.serviceId().nodeUniqueId());
-          if (node != null && node.available()) {
-            this.handleServiceUpdate(ser, node.channel());
+          var nodeServer = this.clusterNodeServerProvider.node(ser.serviceId().nodeUniqueId());
+          if (nodeServer != null && nodeServer.available()) {
+            this.handleServiceUpdate(ser, nodeServer.channel());
           }
         })
         .currentGetter(group -> this.serviceProviderByName(group.name()).serviceInfo())
         .build());
     // schedule the updating of the local service log cache
-    nodeInstance.mainThread().scheduleTask(() -> {
+    node.mainThread().scheduleTask(() -> {
       for (var service : this.localCloudServices()) {
         // we only need to look at running services
         if (service.lifeCycle() == ServiceLifeCycle.RUNNING) {
@@ -132,7 +135,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
             service.serviceConsoleLogCache().update();
             LOGGER.fine("Updated service log cache of %s", null, service.serviceId().name());
           } else {
-            nodeInstance.eventManager().callEvent(new CloudServicePreForceStopEvent(service));
+            node.eventManager().callEvent(new CloudServicePreForceStopEvent(service));
             service.stop();
             LOGGER.fine("Stopped dead service %s", null, service.serviceId().name());
           }
@@ -443,7 +446,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       return prepared.first().provider();
     } else {
       // create a new service
-      var service = Node.instance()
+      var service = this.node
         .cloudServiceFactory()
         .createCloudService(ServiceConfiguration.builder(task).build());
       return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service.provider();

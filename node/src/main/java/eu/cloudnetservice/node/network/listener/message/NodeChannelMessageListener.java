@@ -95,7 +95,7 @@ public record NodeChannelMessageListener(
           var server = this.nodeServerProvider.node(event.networkChannel());
           if (server != null) {
             // do not force the sync - the user can decide which changes should be used
-            server.syncClusterData(Node.instance().config().forceInitialClusterDataSync());
+            server.syncClusterData(this.node.config().forceInitialClusterDataSync());
           }
         }
 

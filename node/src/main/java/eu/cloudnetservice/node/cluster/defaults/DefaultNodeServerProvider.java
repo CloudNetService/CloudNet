@@ -66,7 +66,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
     this.nodeServers.add(this.localNode);
 
     // start all update tasks
-    this.executor.scheduleAtFixedRate(new LocalNodeUpdateTask(this), 1, 1, TimeUnit.SECONDS);
+    this.executor.scheduleAtFixedRate(new LocalNodeUpdateTask(this, node), 1, 1, TimeUnit.SECONDS);
     this.executor.scheduleAtFixedRate(new NodeDisconnectTrackerTask(this), 5, 5, TimeUnit.SECONDS);
   }
 

@@ -31,8 +31,8 @@ public final class ConnectedNodeInfoPublisher implements Publisher {
 
   private final NodeServerProvider nodeServerProvider;
 
-  public ConnectedNodeInfoPublisher() {
-    this.nodeServerProvider = Node.instance().nodeServerProvider();
+  public ConnectedNodeInfoPublisher(@NonNull Node node) {
+    this.nodeServerProvider = node.nodeServerProvider();
   }
 
   @Override

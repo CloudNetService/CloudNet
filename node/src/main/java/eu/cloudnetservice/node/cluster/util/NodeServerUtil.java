@@ -42,7 +42,8 @@ public final class NodeServerUtil {
   }
 
   public static void handleNodeServerClose(@NonNull NodeServer server) {
-    for (var snapshot : Node.instance().cloudServiceProvider().services()) {
+    var node = Node.instance();
+    for (var snapshot : node.cloudServiceProvider().services()) {
       if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.name())) {
         // rebuild the service snapshot with a DELETED state
         var lifeCycle = snapshot.lifeCycle();
@@ -56,11 +57,11 @@ public final class NodeServerUtil {
           snapshot.properties());
 
         // publish the update to the local service manager
-        Node.instance().cloudServiceProvider().handleServiceUpdate(newSnapshot, null);
+        node.cloudServiceProvider().handleServiceUpdate(newSnapshot, null);
         // call the local change event
-        Node.instance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, newSnapshot));
+        node.eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, newSnapshot));
         // send the change to all service - all other nodes will handle the close as well (if there are any)
-        var localServices = Node.instance().cloudServiceProvider().localCloudServices();
+        var localServices = node.cloudServiceProvider().localCloudServices();
         if (!localServices.isEmpty()) {
           targetServices(localServices)
             .message("update_service_lifecycle")
