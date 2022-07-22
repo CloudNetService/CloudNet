@@ -42,7 +42,7 @@ public final class NodeNetworkUtil {
   public static void addDefaultPacketListeners(@NonNull PacketListenerRegistry registry, @NonNull Node node) {
     registry.addListener(
       NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
-      new PacketServerChannelMessageListener(node.messenger(), node.eventManager()));
+      new PacketServerChannelMessageListener(node.messenger(), node.eventManager(), node));
     registry.addListener(
       NetworkConstants.INTERNAL_RPC_COM_CHANNEL,
       new RPCPacketListener(node.rpcHandlerRegistry()));

@@ -26,7 +26,7 @@ import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
 import lombok.NonNull;
 
-public final class PacketClientServiceSyncAckListener implements PacketListener {
+public record PacketClientServiceSyncAckListener(@NonNull Node node) implements PacketListener {
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
@@ -34,12 +34,12 @@ public final class PacketClientServiceSyncAckListener implements PacketListener 
     var snapshot = packet.content().readObject(NodeInfoSnapshot.class);
     var syncData = packet.content().readDataBuf();
     // select the node server and validate that it is in the right state for the packet
-    var server = Node.instance().nodeServerProvider().node(snapshot.node().uniqueId());
+    var server = this.node.nodeServerProvider().node(snapshot.node().uniqueId());
     if (server != null && server.state() == NodeServerState.SYNCING) {
       // remove this listener
       channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL);
       // sync the data between the nodes
-      Node.instance().dataSyncRegistry().handle(syncData, syncData.readBoolean());
+      this.node.dataSyncRegistry().handle(syncData, syncData.readBoolean());
       if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
         queuedChannel.drainPacketQueue(channel);
       }
@@ -53,7 +53,7 @@ public final class PacketClientServiceSyncAckListener implements PacketListener 
       server.updateNodeInfoSnapshot(snapshot);
       server.state(NodeServerState.READY);
       // re-select the head node
-      Node.instance().nodeServerProvider().selectHeadNode();
+      this.node.nodeServerProvider().selectHeadNode();
     }
   }
 }

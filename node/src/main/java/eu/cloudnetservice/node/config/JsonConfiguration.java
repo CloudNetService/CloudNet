@@ -118,7 +118,7 @@ public final class JsonConfiguration implements Configuration {
   public static @NonNull Configuration loadFromFile(@NonNull Node nodeInstance) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exist
-      nodeInstance.installation().registerSetup(new DefaultConfigSetup());
+      nodeInstance.installation().registerSetup(new DefaultConfigSetup(nodeInstance));
       return new JsonConfiguration().load();
     } else {
       return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();

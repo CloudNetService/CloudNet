@@ -25,6 +25,7 @@ import eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule;
 import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.CloudflareGroupConfiguration;
 import eu.cloudnetservice.modules.cloudflare.dns.SRVRecord;
+import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.service.CloudService;
 import java.util.function.BiConsumer;
@@ -34,10 +35,12 @@ public final class CloudflareStartAndStopListener {
 
   private static final Logger LOGGER = LogManager.logger(CloudflareStartAndStopListener.class);
 
+  private final Node node;
   private final CloudNetCloudflareModule module;
 
-  public CloudflareStartAndStopListener(@NonNull CloudNetCloudflareModule module) {
+  public CloudflareStartAndStopListener(@NonNull CloudNetCloudflareModule module, @NonNull Node node) {
     this.module = module;
+    this.node = node;
   }
 
   @EventListener
@@ -48,7 +51,7 @@ public final class CloudflareStartAndStopListener {
         var recordDetail = this.module.cloudFlareAPI().createRecord(
           event.service().serviceId().uniqueId(),
           entry,
-          SRVRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port()));
+          SRVRecord.forConfiguration(entry, configuration, this.node, event.service().serviceConfiguration().port()));
         // publish a message to the node log if the record was created successfully
         if (recordDetail != null) {
           LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service", entry.domainName(),

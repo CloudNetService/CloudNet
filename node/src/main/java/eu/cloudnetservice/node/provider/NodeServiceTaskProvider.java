@@ -77,7 +77,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       this.loadServiceTasks();
     } else {
       FileUtil.createDirectory(TASKS_DIRECTORY);
-      nodeInstance.installation().registerSetup(new DefaultTaskSetup());
+      nodeInstance.installation().registerSetup(new DefaultTaskSetup(nodeInstance));
     }
   }
 

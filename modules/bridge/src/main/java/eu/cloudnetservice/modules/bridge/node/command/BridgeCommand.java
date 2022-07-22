@@ -24,7 +24,6 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -44,12 +43,14 @@ import lombok.NonNull;
 @Description("Management for the config of the bridge module")
 public class BridgeCommand {
 
+  private final Node node;
   private final BridgeManagement bridgeManagement;
   private final GroupConfigurationProvider groupConfigurationProvider;
 
-  public BridgeCommand(@NonNull BridgeManagement bridgeManagement) {
+  public BridgeCommand(@NonNull BridgeManagement bridgeManagement, @NonNull Node node) {
     this.bridgeManagement = bridgeManagement;
-    this.groupConfigurationProvider = Node.instance().groupConfigurationProvider();
+    this.groupConfigurationProvider = node.groupConfigurationProvider();
+    this.node = node;
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")
@@ -102,7 +103,7 @@ public class BridgeCommand {
     @NonNull @Argument("permission") String permission
   ) {
     for (var task : serviceTasks) {
-      CloudNetDriver.instance().serviceTaskProvider().addServiceTask(ServiceTask.builder(task)
+      this.node.serviceTaskProvider().addServiceTask(ServiceTask.builder(task)
         .properties(task.properties().append("requiredPermission", permission))
         .build());
       source.sendMessage(I18n.trans("command-tasks-set-property-success",

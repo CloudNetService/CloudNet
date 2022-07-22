@@ -27,6 +27,12 @@ import lombok.NonNull;
 
 public class PermissionGroupSetup implements DefaultSetup {
 
+  private final Node node;
+
+  public PermissionGroupSetup(@NonNull Node node) {
+    this.node = node;
+  }
+
   @Override
   public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
@@ -65,8 +71,8 @@ public class PermissionGroupSetup implements DefaultSetup {
         .sortId(99)
         .build();
 
-      Node.instance().permissionManagement().addPermissionGroup(adminGroup);
-      Node.instance().permissionManagement().addPermissionGroup(defaultGroup);
+      this.node.permissionManagement().addPermissionGroup(adminGroup);
+      this.node.permissionManagement().addPermissionGroup(defaultGroup);
     }
   }
 }

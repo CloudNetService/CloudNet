@@ -38,6 +38,10 @@ import lombok.NonNull;
 
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
 
+  public SpecificTaskSetup(@NonNull Node node) {
+    super(node);
+  }
+
   @Override
   public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
@@ -82,7 +86,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .translatedQuestion("command-tasks-setup-question-environment")
         .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
           .parser(Parsers.serviceEnvironmentType())
-          .possibleResults(Node.instance().serviceVersionProvider().knownEnvironments().keySet()))
+          .possibleResults(this.node.serviceVersionProvider().knownEnvironments().keySet()))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskStartPort")
@@ -96,12 +100,12 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .key("taskHostAddress")
         .translatedQuestion("command-tasks-setup-question-host-address")
         .answerType(QuestionAnswerType.<String>builder()
-          .recommendation(Node.instance().config().hostAddress())
+          .recommendation(this.node.config().hostAddress())
           .parser(Parsers.assignableHostAndPortOrAlias())
           .possibleResults(() -> NetworkUtil.availableIPAddresses()
             .stream()
             .collect(Collectors.collectingAndThen(Collectors.toSet(), ips -> {
-              ips.addAll(Node.instance().config().ipAliases().keySet());
+              ips.addAll(this.node.config().ipAliases().keySet());
               return ips;
             }))))
         .build(),
@@ -160,7 +164,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     // check if the user chose to install a version
     if (version != null) {
       // install the chosen version
-      Node.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
+      this.node.serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
         .serviceVersionType(version.first())
         .serviceVersion(version.second())
         .toTemplate(defaultTemplate)
@@ -168,10 +172,10 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .build(), false);
     }
     // add the task after the template is created
-    Node.instance().serviceTaskProvider().addServiceTask(task);
+    this.node.serviceTaskProvider().addServiceTask(task);
     // create a group with the same name
     var groupConfiguration = GroupConfiguration.builder().name(name).build();
-    Node.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration);
+    this.node.groupConfigurationProvider().addGroupConfiguration(groupConfiguration);
     LOGGER.info(I18n.trans("command-tasks-setup-create-success", task.name()));
   }
 }

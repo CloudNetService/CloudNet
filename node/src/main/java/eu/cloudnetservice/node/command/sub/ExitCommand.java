@@ -23,15 +23,16 @@ import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import lombok.NonNull;
 
 @CommandAlias({"shutdown", "stop"})
 @CommandPermission("cloudnet.command.exit")
 @Description("Stops the program and all managed subprocesses")
-public final class ExitCommand {
+public record ExitCommand(@NonNull Node node) {
 
   @Confirmation
   @CommandMethod(value = "exit|shutdown|stop", requiredSender = ConsoleCommandSource.class)
   public void exit() {
-    Node.instance().stop();
+    this.node.stop();
   }
 }

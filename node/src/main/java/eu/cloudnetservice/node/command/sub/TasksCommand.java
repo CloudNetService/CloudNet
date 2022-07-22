@@ -91,10 +91,12 @@ public final class TasksCommand {
     .column(ServiceTask::startPort)
     .build();
 
+  private final Node node;
   private final Console console;
 
-  public TasksCommand(@NonNull Console console) {
-    this.console = console;
+  public TasksCommand(@NonNull Node node) {
+    this.node = node;
+    this.console = node.console();
   }
 
   public static void applyServiceConfigurationDisplay(
@@ -151,7 +153,7 @@ public final class TasksCommand {
   @Parser(suggestions = "serviceTask")
   public @NonNull ServiceTask defaultTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
-    var task = Node.instance().serviceTaskProvider().serviceTask(name);
+    var task = this.node.serviceTaskProvider().serviceTask(name);
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -167,7 +169,7 @@ public final class TasksCommand {
   @Parser(suggestions = "ipAliasHostAddress", name = "ipAliasHostAddress")
   public @NonNull String hostAddressParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var address = input.remove();
-    var alias = Node.instance().config().ipAliases().get(address);
+    var alias = this.node.config().ipAliases().get(address);
     // check if we can resolve the host address using our ip alias
     if (alias != null) {
       return address;
@@ -187,7 +189,7 @@ public final class TasksCommand {
     // all network addresses
     var hostAddresses = new ArrayList<>(NetworkUtil.availableIPAddresses());
     // all ip aliases
-    hostAddresses.addAll(Node.instance().config().ipAliases().keySet());
+    hostAddresses.addAll(this.node.config().ipAliases().keySet());
     return hostAddresses;
   }
 
@@ -226,7 +228,7 @@ public final class TasksCommand {
   @Parser(name = "nodeId", suggestions = "clusterNode")
   public @NonNull String defaultClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : Node.instance().clusterNodeProvider().nodes()) {
+    for (var node : this.node.clusterNodeProvider().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         return nodeId;
       }
@@ -236,7 +238,7 @@ public final class TasksCommand {
 
   @Suggestions("clusterNode")
   public @NonNull List<String> suggestNode(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
-    return Node.instance().clusterNodeProvider().nodes()
+    return this.node.clusterNodeProvider().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
       .toList();
@@ -244,7 +246,7 @@ public final class TasksCommand {
 
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
   public void taskSetup(@NonNull CommandSource source) {
-    var setup = new SpecificTaskSetup();
+    var setup = new SpecificTaskSetup(this.node);
     setup.applyQuestions(TASK_SETUP);
 
     TASK_SETUP.addFinishHandler(() -> setup.handleResults(TASK_SETUP));
@@ -768,6 +770,6 @@ public final class TasksCommand {
   }
 
   private @NonNull ServiceTaskProvider taskProvider() {
-    return Node.instance().serviceTaskProvider();
+    return this.node.serviceTaskProvider();
   }
 }

@@ -30,15 +30,11 @@ import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class PacketServerChannelMessageListener implements PacketListener {
-
-  private final NodeMessenger messenger;
-  private final EventManager eventManager;
-
-  public PacketServerChannelMessageListener(@NonNull NodeMessenger messenger, @NonNull EventManager eventManager) {
-    this.messenger = messenger;
-    this.eventManager = eventManager;
-  }
+public record PacketServerChannelMessageListener(
+  @NonNull NodeMessenger messenger,
+  @NonNull EventManager eventManager,
+  @NonNull Node node
+) implements PacketListener {
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
@@ -49,7 +45,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
     // check if we should handle the message locally
     var handleLocally = message.targets().stream().anyMatch(target -> switch (target.type()) {
       case ALL -> true;
-      case NODE -> target.name() == null || target.name().equals(Node.instance().componentName());
+      case NODE -> target.name() == null || target.name().equals(this.node.componentName());
       default -> false;
     });
     if (handleLocally) {

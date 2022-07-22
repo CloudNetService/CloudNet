@@ -51,7 +51,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandAlias("t")
 @CommandPermission("cloudnet.command.template")
 @Description("Manages the templates and allows installation of application files")
-public final class TemplateCommand {
+public record TemplateCommand(@NonNull Node node) {
 
   private static final RowBasedFormatter<ServiceTemplate> LIST_FORMATTER = RowBasedFormatter.<ServiceTemplate>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Storage", "Prefix", "Name").build())
@@ -77,8 +77,8 @@ public final class TemplateCommand {
 
   @Suggestions("serviceTemplate")
   public @NonNull List<String> suggestServiceTemplate(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().templateStorageProvider().availableTemplateStorages().stream()
-      .map(storage -> Node.instance().templateStorageProvider().templateStorage(storage))
+    return this.node.templateStorageProvider().availableTemplateStorages().stream()
+      .map(storage -> this.node.templateStorageProvider().templateStorage(storage))
       .filter(Objects::nonNull)
       .flatMap(storage -> STORED_TEMPLATES.get(storage).stream())
       .map(ServiceTemplate::toString)
@@ -91,7 +91,7 @@ public final class TemplateCommand {
     @NonNull Queue<String> input
   ) {
     var storage = input.remove();
-    var templateStorage = Node.instance().templateStorageProvider().templateStorage(storage);
+    var templateStorage = this.node.templateStorageProvider().templateStorage(storage);
     if (templateStorage == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-template-storage-not-found", storage));
     }
@@ -101,7 +101,7 @@ public final class TemplateCommand {
 
   @Suggestions("templateStorage")
   public @NonNull List<String> suggestTemplateStorage(@NonNull CommandContext<?> $, @NonNull String input) {
-    return List.copyOf(Node.instance().templateStorageProvider().availableTemplateStorages());
+    return List.copyOf(this.node.templateStorageProvider().availableTemplateStorages());
   }
 
   @Parser(suggestions = "version")
@@ -136,7 +136,7 @@ public final class TemplateCommand {
     @NonNull Queue<String> input
   ) {
     var env = input.remove();
-    var type = Node.instance().serviceVersionProvider().getEnvironmentType(env);
+    var type = this.node.serviceVersionProvider().getEnvironmentType(env);
     if (type != null) {
       return type;
     }
@@ -146,7 +146,7 @@ public final class TemplateCommand {
 
   @Suggestions("serviceEnvironments")
   public @NonNull List<String> suggestServiceEnvironments(@NonNull CommandContext<?> context, @NonNull String input) {
-    return List.copyOf(Node.instance().serviceVersionProvider().knownEnvironments().keySet());
+    return List.copyOf(this.node.serviceVersionProvider().knownEnvironments().keySet());
   }
 
   @CommandMethod("template|t list [storage]")
@@ -157,7 +157,7 @@ public final class TemplateCommand {
     Collection<ServiceTemplate> templates;
     // get all templates if no specific template is given
     if (templateStorage == null) {
-      templates = Node.instance().serviceRegistry().providers(TemplateStorage.class).stream()
+      templates = this.node.serviceRegistry().providers(TemplateStorage.class).stream()
         .flatMap(storage -> storage.templates().stream())
         .toList();
     } else {
@@ -216,7 +216,7 @@ public final class TemplateCommand {
     var sourceStorage = sourceTemplate.storage();
     var targetStorage = targetTemplate.storage();
 
-    Node.instance().mainThread().runTask(() -> {
+    this.node.mainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-template-copy", sourceTemplate, targetTemplate));
 
       targetStorage.delete(targetTemplate);

@@ -48,13 +48,14 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
       nodeInstance.eventManager(),
       nodeInstance.dataSyncRegistry(),
       this,
-      nodeInstance.nodeServerProvider()));
+      nodeInstance.nodeServerProvider(),
+      this.nodeInstance));
     nodeInstance.rpcFactory().newHandler(ClusterNodeProvider.class, this).registerToDefaultRegistry();
   }
 
   @Override
   public @NonNull Collection<CommandInfo> consoleCommands() {
-    return Node.instance().commandProvider().commands();
+    return this.nodeInstance.commandProvider().commands();
   }
 
   @Override
@@ -133,18 +134,18 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var driverCommandSource = new DriverCommandSource();
-    Node.instance().commandProvider().execute(driverCommandSource, commandLine).getOrNull();
+    this.nodeInstance.commandProvider().execute(driverCommandSource, commandLine).getOrNull();
     return driverCommandSource.messages();
   }
 
   @Override
   public @Nullable CommandInfo consoleCommand(@NonNull String commandLine) {
-    return Node.instance().commandProvider().command(commandLine);
+    return this.nodeInstance.commandProvider().command(commandLine);
   }
 
   @Override
   public @NonNull Collection<String> consoleTabCompleteResults(@NonNull String commandLine) {
-    return Node.instance().commandProvider().suggest(CommandSource.console(), commandLine);
+    return this.nodeInstance.commandProvider().suggest(CommandSource.console(), commandLine);
   }
 
   public void addNodeSilently(@NonNull NetworkClusterNode node) {

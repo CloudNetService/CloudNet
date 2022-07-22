@@ -29,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class CloudNetSmartModule extends DriverModule {
 
+  private final Node node = Node.instance();
+
   @ModuleTask(event = ModuleLifeCycle.STARTED, order = Byte.MAX_VALUE)
   public void rewriteOldSmartTaskEntries() {
     for (var task : this.driver().serviceTaskProvider().serviceTasks()) {
@@ -71,7 +73,7 @@ public class CloudNetSmartModule extends DriverModule {
       if (!task.properties().contains("smartConfig")) {
         task.properties().append("smartConfig", SmartServiceTaskConfig.builder().build());
         // update the task
-        Node.instance().serviceTaskProvider().addServiceTask(task);
+        this.node.serviceTaskProvider().addServiceTask(task);
       }
     }
   }
@@ -79,11 +81,11 @@ public class CloudNetSmartModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void start() {
     this.registerListener(
-      new CloudNetTickListener(this),
+      new CloudNetTickListener(this, this.node),
       new CloudNetLocalServiceTaskListener(),
-      new CloudNetLocalServiceListener(this));
+      new CloudNetLocalServiceListener(this, this.node));
 
-    Node.instance().commandProvider().register(new SmartCommand());
+    this.node.commandProvider().register(new SmartCommand(this.node));
   }
 
   public @Nullable SmartServiceTaskConfig smartConfig(@NonNull ServiceTask task) {

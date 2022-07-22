@@ -86,9 +86,12 @@ public final class ServiceCommand {
     .column(service -> service.serviceId().nodeUniqueId())
     .column(service -> service.connected() ? "Connected" : "Not connected")
     .build();
+  
+  private final Node node;
 
-  public ServiceCommand() {
-    Node.instance().eventManager().registerListener(this);
+  public ServiceCommand(@NonNull Node node) {
+    this.node = node;
+    node.eventManager().registerListener(this);
   }
 
   public static @NonNull Collection<Pattern> parseDeploymentPatterns(@Nullable String input, boolean caseSensitive) {
@@ -100,7 +103,7 @@ public final class ServiceCommand {
 
   @Suggestions("service")
   public @NonNull List<String> suggestService(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().cloudServiceProvider().services()
+    return this.node.cloudServiceProvider().services()
       .stream()
       .map(Nameable::name)
       .toList();
@@ -112,7 +115,7 @@ public final class ServiceCommand {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var knownServices = Node.instance().cloudServiceProvider().services();
+    var knownServices = this.node.cloudServiceProvider().services();
     var matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
@@ -129,7 +132,7 @@ public final class ServiceCommand {
     @Nullable @Flag("group") String groupName,
     @Flag("names") boolean useNamesOnly
   ) {
-    Collection<ServiceInfoSnapshot> services = Node.instance().cloudServiceProvider().services()
+    Collection<ServiceInfoSnapshot> services = this.node.cloudServiceProvider().services()
       .stream()
       .filter(service -> id == null || service.serviceId().taskServiceId() == id)
       .filter(service -> taskName == null || service.serviceId().taskName().equalsIgnoreCase(taskName))

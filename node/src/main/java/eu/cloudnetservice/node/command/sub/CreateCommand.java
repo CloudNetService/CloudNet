@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.create")
 @Description("Creates one or more new services based on a task or completely independent")
-public final class CreateCommand {
+public record CreateCommand(@NonNull Node node) {
 
   @CommandMethod("create by <task> <amount>")
   public void createByTask(
@@ -88,8 +88,8 @@ public final class CreateCommand {
   ) {
     source.sendMessage(I18n.trans("command-create-by-task-starting", configuration.serviceId().taskName(), amount));
     // start the progress animation if needed
-    if (animation != null && !Node.instance().console().animationRunning()) {
-      Node.instance().console().startAnimation(animation);
+    if (animation != null && !this.node.console().animationRunning()) {
+      this.node.console().startAnimation(animation);
     }
     // try to start the provided amount of services based on the configuration
     for (var i = 0; i < amount; i++) {

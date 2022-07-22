@@ -59,7 +59,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandAlias("v")
 @CommandPermission("cloudnet.command.version")
 @Description("Manage service versions in templates or on static services")
-public final class VersionCommand {
+public record VersionCommand(@NonNull Node node) {
 
   private static final RowBasedFormatter<Pair<ServiceVersionType, ServiceVersion>> VERSIONS =
     RowBasedFormatter.<Pair<ServiceVersionType, ServiceVersion>>builder()
@@ -75,7 +75,7 @@ public final class VersionCommand {
 
   @Parser(suggestions = "serviceVersionType")
   public @NonNull ServiceVersionType parseVersionType(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var versionType = Node.instance().serviceVersionProvider().getServiceVersionType(input.remove());
+    var versionType = this.node.serviceVersionProvider().getServiceVersionType(input.remove());
     if (versionType != null) {
       return versionType;
     }
@@ -85,13 +85,13 @@ public final class VersionCommand {
 
   @Suggestions("serviceVersionType")
   public @NonNull List<String> suggestVersionType(@NonNull CommandContext<?> $, @NonNull String input) {
-    return new ArrayList<>(Node.instance().serviceVersionProvider().serviceVersionTypes().keySet());
+    return new ArrayList<>(this.node.serviceVersionProvider().serviceVersionTypes().keySet());
   }
 
   @Parser(name = "staticServiceDirectory", suggestions = "staticServices")
   public @NonNull Path parseStaticServiceDirectory(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var suppliedName = input.remove();
-    var baseDirectory = Node.instance().cloudServiceProvider().persistentServicesDirectory();
+    var baseDirectory = this.node.cloudServiceProvider().persistentServicesDirectory();
 
     // check for path traversal
     var serviceDirectory = baseDirectory.resolve(suppliedName);
@@ -110,7 +110,7 @@ public final class VersionCommand {
     @NonNull CommandContext<?> $,
     @NonNull String input
   ) {
-    var baseDirectory = Node.instance().cloudServiceProvider().persistentServicesDirectory();
+    var baseDirectory = this.node.cloudServiceProvider().persistentServicesDirectory();
     try {
       return Files.walk(baseDirectory, 1)
         .filter(Files::isDirectory)
@@ -130,7 +130,7 @@ public final class VersionCommand {
   ) {
     Collection<Pair<ServiceVersionType, ServiceVersion>> versions;
     if (versionType == null) {
-      versions = Node.instance().serviceVersionProvider()
+      versions = this.node.serviceVersionProvider()
         .serviceVersionTypes()
         .values().stream()
         .flatMap(type -> type.versions().stream()
@@ -138,7 +138,7 @@ public final class VersionCommand {
           .map(version -> new Pair<>(type, version)))
         .toList();
     } else {
-      versions = Node.instance().serviceVersionProvider().serviceVersionTypes()
+      versions = this.node.serviceVersionProvider().serviceVersionTypes()
         .get(StringUtil.toLower(versionType.name()))
         .versions()
         .stream()
@@ -237,10 +237,10 @@ public final class VersionCommand {
   }
 
   private void executeInstallation(@NonNull CommandSource source, @NonNull VersionInstaller installer, boolean force) {
-    Node.instance().mainThread().runTask(() -> {
+    this.node.mainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-version-install-try"));
 
-      if (Node.instance().serviceVersionProvider().installServiceVersion(installer, force)) {
+      if (this.node.serviceVersionProvider().installServiceVersion(installer, force)) {
         source.sendMessage(I18n.trans("command-version-install-success"));
       } else {
         source.sendMessage(I18n.trans("command-version-install-failed"));

@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.docker")
 @Description("Administration of the docker module configuration")
-public record DockerCommand(@NonNull DockerizedServicesModule module) {
+public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull Node node) {
 
   @CommandMethod("docker task <task> image <repository> [tag]")
   public void setImage(
@@ -308,7 +308,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module) {
     var task = ServiceTask.builder(serviceTask)
       .properties(serviceTask.properties().append("dockerConfig", property.build()))
       .build();
-    Node.instance().serviceTaskProvider().addServiceTask(task);
+    this.node.serviceTaskProvider().addServiceTask(task);
   }
 
   private void updateDockerConfig(

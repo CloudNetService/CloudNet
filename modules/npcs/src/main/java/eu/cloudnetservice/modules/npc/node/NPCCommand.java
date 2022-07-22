@@ -40,7 +40,7 @@ import lombok.NonNull;
 @CommandAlias("npcs")
 @CommandPermission("cloudnet.command.npc")
 @Description("Create new npc configurations")
-public class NPCCommand {
+public record NPCCommand(@NonNull NPCManagement npcManagement, @NonNull Node node) {
 
   private static final RowBasedFormatter<NPCConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<NPCConfigurationEntry>
       builder()
@@ -48,19 +48,13 @@ public class NPCCommand {
     .column(NPCConfigurationEntry::targetGroup)
     .build();
 
-  private final NPCManagement npcManagement;
-
-  public NPCCommand(@NonNull NPCManagement npcManagement) {
-    this.npcManagement = npcManagement;
-  }
-
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
   public @NonNull String newConfigurationParser(
     @NonNull CommandContext<CommandSource> $,
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var configuration = Node.instance().groupConfigurationProvider()
+    var configuration = this.node.groupConfigurationProvider()
       .groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
@@ -79,7 +73,7 @@ public class NPCCommand {
     @NonNull CommandContext<CommandSource> $,
     @NonNull String input
   ) {
-    return Node.instance().groupConfigurationProvider().groupConfigurations().stream()
+    return this.node.groupConfigurationProvider().groupConfigurations().stream()
       .map(Nameable::name)
       .filter(group -> this.npcManagement.npcConfiguration()
         .entries()

@@ -26,6 +26,7 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
@@ -54,10 +55,12 @@ public class PlayersCommand {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
+  private final CloudServiceProvider cloudServiceProvider;
   private final NodePlayerManager playerManager;
 
-  public PlayersCommand(@NonNull NodePlayerManager playerManager) {
+  public PlayersCommand(@NonNull NodePlayerManager playerManager, @NonNull Node node) {
     this.playerManager = playerManager;
+    this.cloudServiceProvider = node.cloudServiceProvider();
   }
 
   @Parser(suggestions = "onlinePlayers")
@@ -96,8 +99,7 @@ public class PlayersCommand {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var serviceInfoSnapshot = Node.instance().cloudServiceProvider()
-      .serviceByName(name);
+    var serviceInfoSnapshot = this.cloudServiceProvider.serviceByName(name);
     if (serviceInfoSnapshot == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
@@ -106,8 +108,7 @@ public class PlayersCommand {
 
   @Suggestions("playerService")
   public @NonNull List<String> suggestPlayerService(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
-    return Node.instance().cloudServiceProvider().services()
-      .stream()
+    return this.cloudServiceProvider.services().stream()
       .filter(snapshot -> ServiceEnvironmentType.minecraftServer(snapshot.serviceId().environment()))
       .map(Nameable::name)
       .toList();

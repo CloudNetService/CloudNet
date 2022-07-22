@@ -87,8 +87,15 @@ public final class ModulesCommand {
     .column(ModuleEntry::website)
     .build();
 
-  private final ModuleProvider provider = Node.instance().moduleProvider();
-  private final ModulesHolder availableModules = Node.instance().modulesHolder();
+  private final Node node;
+  private final ModuleProvider provider;
+  private final ModulesHolder availableModules;
+
+  public ModulesCommand(@NonNull Node node) {
+    this.node = node;
+    this.provider = node.moduleProvider();
+    this.availableModules = node.modulesHolder();
+  }
 
   @Parser(name = "modulePath", suggestions = "modulePath")
   public @NonNull Path modulePathParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
@@ -298,7 +305,7 @@ public final class ModulesCommand {
 
     // validate the downloaded file
     var checksum = ChecksumUtil.fileShaSum(target);
-    if (!Node.instance().dev() && !checksum.equals(entry.sha3256())) {
+    if (!this.node.dev() && !checksum.equals(entry.sha3256())) {
       // the checksum validation skip is only available for official modules
       if (entry.official() && noChecksumValidation) {
         source.sendMessage(I18n.trans("command-module-skipping-checksum-fail", entry.name()));

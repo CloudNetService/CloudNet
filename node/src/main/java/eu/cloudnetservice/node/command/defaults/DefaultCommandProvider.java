@@ -28,7 +28,7 @@ import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.command.CommandInfo;
-import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -83,25 +83,30 @@ public class DefaultCommandProvider implements CommandProvider {
     String.class,
     "cloudnet:documentation");
 
+  private final Node node;
+  private final Console console;
+
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
   private final SetMultimap<ClassLoader, CommandInfo> registeredCommands;
   private final CommandExceptionHandler exceptionHandler;
-  private final Console console;
 
   /**
    * Constructs a new default implementation of the {@link CommandProvider}.
    *
-   * @param console the console the provider is handling.
+   * @param node the node instance for this provider.
    * @throws NullPointerException if console is null.
    */
-  public DefaultCommandProvider(@NonNull Console console, @NonNull EventManager eventManager) {
-    this.console = console;
+  public DefaultCommandProvider(@NonNull Node node) {
+    this.node = node;
+    this.console = node.console();
+
     this.commandManager = new DefaultCommandManager();
     this.commandManager.captionVariableReplacementHandler(new DefaultCaptionVariableReplacementHandler());
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
     this.registeredCommands = Multimaps.newSetMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
+
     // handle our @CommandAlias annotation and apply the found aliases
     this.annotationParser.registerBuilderModifier(CommandAlias.class,
       (alias, builder) -> builder.meta(ALIAS_KEY, new HashSet<>(Arrays.asList(alias.value()))));
@@ -119,13 +124,14 @@ public class DefaultCommandProvider implements CommandProvider {
       }
       return builder;
     });
+
     // register pre- and post-processor to call our events
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
     this.commandManager.commandSuggestionProcessor(new DefaultSuggestionProcessor(this));
     // register the command confirmation handling
     this.registerCommandConfirmation();
-    this.exceptionHandler = new CommandExceptionHandler(this, eventManager);
+    this.exceptionHandler = new CommandExceptionHandler(this, node.eventManager());
   }
 
   /**
@@ -215,21 +221,21 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public void registerDefaultCommands() {
-    this.register(new TemplateCommand());
-    this.register(new VersionCommand());
-    this.register(new ExitCommand());
-    this.register(new GroupsCommand());
-    this.register(new TasksCommand(this.console));
-    this.register(new CreateCommand());
-    this.register(new MeCommand());
-    this.register(new ServiceCommand());
-    this.register(new PermissionsCommand());
-    this.register(new ClearCommand());
+    this.register(new TemplateCommand(this.node));
+    this.register(new VersionCommand(this.node));
+    this.register(new ExitCommand(this.node));
+    this.register(new GroupsCommand(this.node));
+    this.register(new TasksCommand(this.node));
+    this.register(new CreateCommand(this.node));
+    this.register(new MeCommand(this.node));
+    this.register(new ServiceCommand(this.node));
+    this.register(new PermissionsCommand(this.node));
+    this.register(new ClearCommand(this.console));
     this.register(new DebugCommand());
-    this.register(new MigrateCommand());
-    this.register(new ClusterCommand());
-    this.register(new ConfigCommand());
-    this.register(new ModulesCommand());
+    this.register(new MigrateCommand(this.node));
+    this.register(new ClusterCommand(this.node));
+    this.register(new ConfigCommand(this.node));
+    this.register(new ModulesCommand(this.node));
     this.register(new HelpCommand(this));
   }
 

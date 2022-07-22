@@ -18,15 +18,16 @@ package eu.cloudnetservice.node.command.sub;
 
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
+import eu.cloudnetservice.node.console.Console;
+import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.clear")
 @Description("Clears the entire console of the node to get a better overview")
-public final class ClearCommand {
+public record ClearCommand(@NonNull Console console) {
 
   @CommandMethod("clear")
   public void clearConsole() {
-    Node.instance().console().clearScreen();
+    this.console.clearScreen();
   }
 }

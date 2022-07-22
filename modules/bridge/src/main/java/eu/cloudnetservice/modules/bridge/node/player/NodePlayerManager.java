@@ -61,6 +61,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class NodePlayerManager implements PlayerManager {
 
+  protected final Node node;
   protected final String databaseName;
   protected final EventManager eventManager;
 
@@ -86,15 +87,17 @@ public class NodePlayerManager implements PlayerManager {
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull RPCFactory providerFactory,
-    @NonNull BridgeManagement bridgeManagement
+    @NonNull BridgeManagement bridgeManagement,
+    @NonNull Node node
   ) {
     this.databaseName = databaseName;
     this.eventManager = eventManager;
+    this.node = node;
     // register the listeners which are required to run
     eventManager.registerListener(new BridgeLocalProxyPlayerDisconnectListener(this));
     eventManager.registerListener(new NodePlayerChannelMessageListener(eventManager, this, bridgeManagement));
     // register the players command
-    Node.instance().commandProvider().register(new PlayersCommand(this));
+    node.commandProvider().register(new PlayersCommand(this, node));
     // register the rpc listeners
     providerFactory.newHandler(PlayerManager.class, this).registerToDefaultRegistry();
     providerFactory.newHandler(PlayerExecutor.class, null).registerToDefaultRegistry();
@@ -279,7 +282,7 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   protected @NonNull LocalDatabase database() {
-    return Node.instance().databaseProvider().database(this.databaseName);
+    return this.node.databaseProvider().database(this.databaseName);
   }
 
   public @NonNull Map<UUID, CloudPlayer> players() {

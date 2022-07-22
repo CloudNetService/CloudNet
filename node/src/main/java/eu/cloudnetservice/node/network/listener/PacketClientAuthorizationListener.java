@@ -40,6 +40,12 @@ public final class PacketClientAuthorizationListener implements PacketListener {
 
   private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
 
+  private final Node node;
+
+  public PacketClientAuthorizationListener(@NonNull Node node) {
+    this.node = node;
+  }
+
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     // read the core data
@@ -53,29 +59,29 @@ public final class PacketClientAuthorizationListener implements PacketListener {
           var clusterId = content.readUniqueId();
           var node = content.readObject(NetworkClusterNode.class);
           // check if the cluster id matches
-          if (!Node.instance().config().clusterConfig().clusterId().equals(clusterId)) {
+          if (!this.node.config().clusterConfig().clusterId().equals(clusterId)) {
             break;
           }
           // search for the node server which represents the connected node and initialize it
-          for (var server : Node.instance().nodeServerProvider().nodeServers()) {
+          for (var server : this.node.nodeServerProvider().nodeServers()) {
             if (server.info().uniqueId().equals(node.uniqueId())) {
               // add the required packet listeners
-              NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), Node.instance());
+              NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), this.node);
               channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
               // check if the node is currently marked disconnected and reconnected to the network
               if (server.state() == NodeServerState.DISCONNECTED) {
                 // respond with an auth success
-                var data = Node.instance().dataSyncRegistry().prepareClusterData(
+                var data = this.node.dataSyncRegistry().prepareClusterData(
                   true,
                   DataSyncHandler::alwaysForceApply);
                 channel.sendPacket(new PacketServerAuthorizationResponse(true, true, data));
                 channel.packetRegistry().addListener(
                   NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL,
-                  new PacketClientServiceSyncAckListener());
+                  new PacketClientServiceSyncAckListener(this.node));
                 // reset the state of the server
                 server.state(NodeServerState.SYNCING);
                 // call the node reconnect success event
-                Node.instance().eventManager().callEvent(new NetworkClusterNodeReconnectEvent(server, channel));
+                this.node.eventManager().callEvent(new NetworkClusterNodeReconnectEvent(server, channel));
               } else {
                 // reply with a default auth success
                 channel.sendPacket(new PacketServerAuthorizationResponse(true, false, null));
@@ -83,7 +89,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
                 server.channel(channel);
                 server.state(NodeServerState.READY);
                 // call the auth success event
-                Node.instance().eventManager().callEvent(new NetworkClusterNodeAuthSuccessEvent(server, channel));
+                this.node.eventManager().callEvent(new NetworkClusterNodeAuthSuccessEvent(server, channel));
               }
 
               // do not search for more nodes
@@ -98,7 +104,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
           var connectionKey = content.readString();
           var id = content.readObject(ServiceId.class);
           // get the cloud service associated with the service id
-          var service = Node.instance().cloudServiceProvider()
+          var service = this.node.cloudServiceProvider()
             .localCloudService(id.uniqueId());
           // we can only accept the connection if the service is present, and the connection key is correct
           if (service != null && service.connectionKey().equals(connectionKey)) {
@@ -108,11 +114,11 @@ public final class PacketClientAuthorizationListener implements PacketListener {
             service.publishServiceInfoSnapshot();
             // add the required packet listeners
             channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-            NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), Node.instance());
+            NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), this.node);
             // successful auth
             channel.sendPacket(new PacketServerAuthorizationResponse(true, false, null));
             // call the auth success event
-            Node.instance().eventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
+            this.node.eventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
             var serviceId = service.serviceId();
             LOGGER.info(I18n.trans("cloudnet-service-networking-connected",
               serviceId.uniqueId(),

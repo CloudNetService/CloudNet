@@ -41,7 +41,7 @@ import lombok.NonNull;
 @CommandAlias("cfg")
 @CommandPermission("cloudnet.command.config")
 @Description("Administration of the cloudnet node configuration")
-public final class ConfigCommand {
+public record ConfigCommand(@NonNull Node node) {
 
   @Parser(name = "ipAlias")
   public @NonNull String ipAliasParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
@@ -65,16 +65,16 @@ public final class ConfigCommand {
 
   @CommandMethod("config|cfg reload")
   public void reloadConfigs(@NonNull CommandSource source) {
-    Node.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
-    Node.instance().serviceTaskProvider().reload();
-    Node.instance().groupConfigurationProvider().reload();
-    Node.instance().permissionManagement().reload();
+    this.node.reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
+    this.node.serviceTaskProvider().reload();
+    this.node.groupConfigurationProvider().reload();
+    this.node.permissionManagement().reload();
     source.sendMessage(I18n.trans("command-config-reload-config"));
   }
 
   @CommandMethod("config|cfg node reload")
   public void reloadNodeConfig(@NonNull CommandSource source) {
-    Node.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
+    this.node.reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
@@ -148,7 +148,7 @@ public final class ConfigCommand {
   }
 
   private @NonNull Configuration nodeConfig() {
-    return Node.instance().config();
+    return this.node.config();
   }
 }
 

@@ -38,10 +38,16 @@ import lombok.NonNull;
 @CommandPermission("cloudnet.command.smart")
 @Description("Administration for the smart config of each task")
 public class SmartCommand {
+  
+  private final Node node;
+
+  public SmartCommand(@NonNull Node node) {
+    this.node = node;
+  }
 
   @Parser(name = "smartTask", suggestions = "smartTask")
   public @NonNull ServiceTask smartTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var task = Node.instance().serviceTaskProvider().serviceTask(input.remove());
+    var task = this.node.serviceTaskProvider().serviceTask(input.remove());
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -54,7 +60,7 @@ public class SmartCommand {
 
   @Suggestions("smartTask")
   public @NonNull List<String> suggestSmartTasks(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().serviceTaskProvider().serviceTasks()
+    return this.node.serviceTaskProvider().serviceTasks()
       .stream()
       .filter(serviceTask -> serviceTask.properties().contains("smartConfig"))
       .map(Nameable::name)
@@ -243,6 +249,6 @@ public class SmartCommand {
       .properties(serviceTask.properties()
         .append("smartConfig", modifier.apply(SmartServiceTaskConfig.builder(property)).build()))
       .build();
-    Node.instance().serviceTaskProvider().addServiceTask(task);
+    this.node.serviceTaskProvider().addServiceTask(task);
   }
 }

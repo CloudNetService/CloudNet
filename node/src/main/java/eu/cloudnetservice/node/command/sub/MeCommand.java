@@ -35,7 +35,7 @@ import lombok.NonNull;
 @CommandAlias("info")
 @CommandPermission("cloudnet.command.me")
 @Description("Displays all important information about this process and the JVM")
-public final class MeCommand {
+public record MeCommand(@NonNull Node node) {
 
   private static final Pattern UUID_REPLACE_PATTERN = Pattern.compile("-\\w{4}-");
 
@@ -47,11 +47,10 @@ public final class MeCommand {
 
   @CommandMethod("me|info")
   public void me(@NonNull CommandSource source, @Flag("showClusterId") boolean showFullClusterId) {
-    var nodeInstance = Node.instance();
-    var nodeInfoSnapshot = nodeInstance.nodeServerProvider().localNode().nodeInfoSnapshot();
+    var nodeInfoSnapshot = this.node.nodeServerProvider().localNode().nodeInfoSnapshot();
 
     // hide the middle parts of the uuid if not explicitly requested to show them
-    var clusterId = nodeInstance.config().clusterConfig().clusterId().toString();
+    var clusterId = this.node.config().clusterConfig().clusterId().toString();
     if (!showFullClusterId) {
       var matcher = UUID_REPLACE_PATTERN.matcher(clusterId);
       clusterId = matcher.replaceAll("-****-");
@@ -59,12 +58,12 @@ public final class MeCommand {
 
     source.sendMessage(List.of(
       " ",
-      Node.instance().version() + " created by Dytanic, maintained by the CloudNet Community",
+      this.node.version() + " created by Dytanic, maintained by the CloudNet Community",
       "Discord: <https://discord.cloudnetservice.eu/>",
       " ",
       "ClusterId: " + clusterId,
-      "NodeId: " + nodeInstance.config().identity().uniqueId(),
-      "Head-NodeId: " + nodeInstance.nodeServerProvider().headNode().info().uniqueId(),
+      "NodeId: " + this.node.config().identity().uniqueId(),
+      "Head-NodeId: " + this.node.nodeServerProvider().headNode().info().uniqueId(),
       "CPU usage: (P/S) "
         + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage())
         + "/"
@@ -95,7 +94,7 @@ public final class MeCommand {
         + UPDATE_REPO
         + ", Update Branch: "
         + UPDATE_BRANCH
-        + (nodeInstance.dev() ? " (development mode)" : ""),
+        + (this.node.dev() ? " (development mode)" : ""),
       " "));
   }
 }

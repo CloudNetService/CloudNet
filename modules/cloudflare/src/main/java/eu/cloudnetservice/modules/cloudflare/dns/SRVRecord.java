@@ -58,6 +58,7 @@ public class SRVRecord extends DNSRecord {
   public static SRVRecord forConfiguration(
     @NonNull CloudflareConfigurationEntry entry,
     @NonNull CloudflareGroupConfiguration configuration,
+    @NonNull Node node,
     int port
   ) {
     return new SRVRecord(
@@ -67,7 +68,7 @@ public class SRVRecord extends DNSRecord {
         configuration.priority(),
         configuration.weight(),
         port,
-        Node.instance().config().identity().uniqueId(),
+        node.config().identity().uniqueId(),
         entry.domainName()
       ),
       "_minecraft",
@@ -76,7 +77,7 @@ public class SRVRecord extends DNSRecord {
       configuration.priority(),
       configuration.weight(),
       port,
-      Node.instance().config().identity().uniqueId() + "." + entry.domainName()
+      node.config().identity().uniqueId() + "." + entry.domainName()
     );
   }
 }

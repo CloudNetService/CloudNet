@@ -19,7 +19,6 @@ package eu.cloudnetservice.node.network;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -35,7 +34,7 @@ import eu.cloudnetservice.node.network.listener.PacketServerAuthorizationRespons
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 
-public final class DefaultNetworkClientChannelHandler implements NetworkChannelHandler {
+public record DefaultNetworkClientChannelHandler(@NonNull Node node) implements NetworkChannelHandler {
 
   private static final AtomicLong CONNECTION_COUNTER = new AtomicLong();
   private static final Logger LOGGER = LogManager.logger(DefaultNetworkClientChannelHandler.class);
@@ -46,13 +45,13 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
       // add the result handler for the auth
       channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
-        new PacketServerAuthorizationResponseListener());
+        new PacketServerAuthorizationResponseListener(this.node));
       // send the authentication request
       channel.sendPacket(new PacketClientAuthorization(
         PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
         DataBuf.empty()
-          .writeUniqueId(Node.instance().config().clusterConfig().clusterId())
-          .writeObject(Node.instance().config().identity())));
+          .writeUniqueId(this.node.config().clusterConfig().clusterId())
+          .writeObject(this.node.config().identity())));
 
       LOGGER.fine(I18n.trans("client-network-channel-init",
         channel.serverAddress(),
@@ -64,13 +63,13 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
   @Override
   public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    return !CloudNetDriver.instance().eventManager().callEvent(
+    return !this.node.eventManager().callEvent(
       new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
   public void handleChannelClose(@NonNull NetworkChannel channel) {
-    CloudNetDriver.instance().eventManager().callEvent(
+    this.node.eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();
 
@@ -78,7 +77,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
       channel.serverAddress(),
       channel.clientAddress()));
 
-    var clusterNodeServer = Node.instance().nodeServerProvider().node(channel);
+    var clusterNodeServer = this.node.nodeServerProvider().node(channel);
     if (clusterNodeServer != null && clusterNodeServer.state() != NodeServerState.DISCONNECTED) {
       clusterNodeServer.close();
     }

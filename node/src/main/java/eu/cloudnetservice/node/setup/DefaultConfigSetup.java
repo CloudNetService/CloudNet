@@ -49,6 +49,12 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     .addAll(NetworkUtil.availableIPAddresses())
     .build();
 
+  private final Node node;
+
+  public DefaultConfigSetup(@NonNull Node node) {
+    this.node = node;
+  }
+
   @Override
   public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     // pre-save all available ip addresses
@@ -138,14 +144,14 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             Set<ModuleEntry> result = new HashSet<>();
             for (var entry : entries) {
               // get the associated entry
-              var moduleEntry = Node.instance().modulesHolder()
+              var moduleEntry = this.node.modulesHolder()
                 .findByName(entry)
                 .orElseThrow(() -> Parsers.ParserException.INSTANCE);
               // check for depending on modules
               if (!moduleEntry.dependingModules().isEmpty()) {
                 moduleEntry.dependingModules().forEach(module -> {
                   // resolve and add the depending on module
-                  var dependEntry = Node.instance().modulesHolder()
+                  var dependEntry = this.node.modulesHolder()
                     .findByName(module)
                     .orElseThrow(() -> Parsers.ParserException.INSTANCE);
                   result.add(dependEntry);
@@ -156,7 +162,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             }
             return result;
           })
-          .possibleResults(Node.instance().modulesHolder().entries().stream()
+          .possibleResults(this.node.modulesHolder().entries().stream()
             .map(ModuleEntry::name)
             .toList())
           .recommendation("CloudNet-Bridge CloudNet-Signs")
@@ -170,13 +176,13 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
               Unirest.get(entry.url()).asFile(targetPath.toString(), StandardCopyOption.REPLACE_EXISTING);
               // validate the downloaded file
               var checksum = ChecksumUtil.fileShaSum(targetPath);
-              if (!checksum.equals(entry.sha3256()) && !Node.instance().dev() && !entry.official()) {
+              if (!checksum.equals(entry.sha3256()) && !this.node.dev() && !entry.official()) {
                 // remove the file
                 FileUtil.delete(targetPath);
                 return;
               }
               // load the module
-              Node.instance().moduleProvider().loadModule(targetPath);
+              this.node.moduleProvider().loadModule(targetPath);
             });
           }))
         .build()
@@ -187,7 +193,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
 
   @Override
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
-    var config = Node.instance().config();
+    var config = this.node.config();
     // language
     config.language(animation.result("language"));
 

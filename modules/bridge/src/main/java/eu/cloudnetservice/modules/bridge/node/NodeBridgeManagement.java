@@ -37,6 +37,7 @@ import lombok.NonNull;
 
 public class NodeBridgeManagement implements BridgeManagement {
 
+  private final Node node;
   private final EventManager eventManager;
   private final PlayerManager playerManager;
   private final CloudNetBridgeModule bridgeModule;
@@ -48,13 +49,15 @@ public class NodeBridgeManagement implements BridgeManagement {
     @NonNull BridgeConfiguration configuration,
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry registry,
-    @NonNull RPCFactory providerFactory
+    @NonNull RPCFactory providerFactory,
+    @NonNull Node node
   ) {
     this.eventManager = eventManager;
     this.bridgeModule = bridgeModule;
     this.configuration = configuration;
+    this.node = node;
     // init the player manager
-    this.playerManager = new NodePlayerManager(BRIDGE_PLAYER_DB_NAME, eventManager, registry, providerFactory, this);
+    this.playerManager = new NodePlayerManager(BRIDGE_PLAYER_DB_NAME, eventManager, registry, providerFactory, this, this.node);
     // register the listeners
     eventManager.registerListener(new NodeSetupListener(this));
     eventManager.registerListener(new NodeBridgeChannelMessageListener(this, eventManager));
@@ -100,7 +103,7 @@ public class NodeBridgeManagement implements BridgeManagement {
 
   @Override
   public void postInit() {
-    for (var task : Node.instance().serviceTaskProvider().serviceTasks()) {
+    for (var task : this.node.serviceTaskProvider().serviceTasks()) {
       // check if the required permission is set
       if (!task.properties().contains("requiredPermission")) {
         task.properties().appendNull("requiredPermission");

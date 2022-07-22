@@ -48,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.groups")
 @Description("Administers the configurations of all persistent groups")
-public final class GroupsCommand {
+public record GroupsCommand(@NonNull Node node) {
 
   @Parser(suggestions = "groupConfiguration")
   public @NonNull GroupConfiguration defaultGroupParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
@@ -69,7 +69,7 @@ public final class GroupsCommand {
 
   @CommandMethod("groups delete <name>")
   public void deleteGroup(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration configuration) {
-    Node.instance().groupConfigurationProvider().removeGroupConfiguration(configuration);
+    this.node.groupConfigurationProvider().removeGroupConfiguration(configuration);
     source.sendMessage(I18n.trans("command-groups-delete-group"));
   }
 
@@ -85,13 +85,13 @@ public final class GroupsCommand {
 
   @CommandMethod("groups reload")
   public void reloadGroups(@NonNull CommandSource source) {
-    Node.instance().groupConfigurationProvider().reload();
+    this.node.groupConfigurationProvider().reload();
     source.sendMessage(I18n.trans("command-groups-reload-success"));
   }
 
   @CommandMethod("groups list")
   public void listGroups(@NonNull CommandSource source) {
-    var groups = Node.instance().groupConfigurationProvider()
+    var groups = this.node.groupConfigurationProvider()
       .groupConfigurations();
     if (groups.isEmpty()) {
       return;
@@ -327,6 +327,6 @@ public final class GroupsCommand {
   }
 
   private @NonNull GroupConfigurationProvider groupProvider() {
-    return Node.instance().groupConfigurationProvider();
+    return this.node.groupConfigurationProvider();
   }
 }

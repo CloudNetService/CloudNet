@@ -47,25 +47,27 @@ import org.jetbrains.annotations.Nullable;
 
 public final class CloudNetTickListener {
 
+  private final Node node;
   private final CloudNetSmartModule module;
 
   private final Map<String, Long> autoStartBlocks = new HashMap<>();
   private final Map<UUID, AtomicLong> autoStopTicks = new HashMap<>();
 
-  public CloudNetTickListener(@NonNull CloudNetSmartModule module) {
+  public CloudNetTickListener(@NonNull CloudNetSmartModule module, @NonNull Node node) {
     this.module = module;
+    this.node = node;
   }
 
   @EventListener
   public void handleTick(@NonNull CloudNetTickServiceStartEvent event) {
-    if (Node.instance().nodeServerProvider().localNode().head()
+    if (this.node.nodeServerProvider().localNode().head()
       && event.ticker().currentTick() % TickLoop.TPS == 0) {
       this.handleSmartEntries();
     }
   }
 
   private void handleSmartEntries() {
-    Node.instance().serviceTaskProvider().serviceTasks().forEach(task -> {
+    this.node.serviceTaskProvider().serviceTasks().forEach(task -> {
       var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
         // get all services of the task
@@ -207,8 +209,8 @@ public final class CloudNetTickListener {
     // find the node server with the least services on it
     return this.nodeServerProvider().nodeServers().stream()
       .filter(nodeServer -> nodeServer.available() && !nodeServer.draining())
-      .map(node -> new Pair<>(node, services.stream()
-        .filter(service -> service.serviceId().nodeUniqueId().equals(node.info().uniqueId()))
+      .map(nodeServer -> new Pair<>(nodeServer, services.stream()
+        .filter(service -> service.serviceId().nodeUniqueId().equals(nodeServer.info().uniqueId()))
         .count()))
       .min(Comparator.comparingLong(Pair::second))
       .map(Pair::first)
@@ -216,14 +218,14 @@ public final class CloudNetTickListener {
   }
 
   private @NonNull CloudServiceManager serviceManager() {
-    return Node.instance().cloudServiceProvider();
+    return this.node.cloudServiceProvider();
   }
 
   private @NonNull NodeServerProvider nodeServerProvider() {
-    return Node.instance().nodeServerProvider();
+    return this.node.nodeServerProvider();
   }
 
   private @NonNull CloudServiceFactory serviceFactory() {
-    return Node.instance().cloudServiceFactory();
+    return this.node.cloudServiceFactory();
   }
 }

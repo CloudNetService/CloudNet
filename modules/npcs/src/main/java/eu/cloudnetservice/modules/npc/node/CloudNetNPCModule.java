@@ -42,6 +42,8 @@ import lombok.NonNull;
 public class CloudNetNPCModule extends DriverModule {
 
   protected static final String DATABASE_NAME = "cloudnet_npcs";
+  
+  private final Node node = this.node;
 
   @ModuleTask(order = Byte.MAX_VALUE)
   public void convertConfiguration() {
@@ -87,7 +89,7 @@ public class CloudNetNPCModule extends DriverModule {
     }
 
     // convert the old database
-    Database db = Node.instance().databaseProvider().database("cloudNet_module_configuration");
+    Database db = this.node.databaseProvider().database("cloudNet_module_configuration");
     var npcStore = db.get("npc_store");
     if (npcStore != null) {
       Collection<CloudNPC> theOldOnes = npcStore.get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
@@ -95,7 +97,7 @@ public class CloudNetNPCModule extends DriverModule {
       db.delete("npc_store");
       if (theOldOnes != null) {
         // get the new database
-        Database target = Node.instance().databaseProvider().database(DATABASE_NAME);
+        Database target = this.node.databaseProvider().database(DATABASE_NAME);
         // convert the old entries
         theOldOnes.stream()
           .map(npc -> NPC.builder()
@@ -122,16 +124,16 @@ public class CloudNetNPCModule extends DriverModule {
   @ModuleTask
   public void initModule() {
     var config = this.loadConfig();
-    Database database = Node.instance().databaseProvider().database(DATABASE_NAME);
+    Database database = this.node.databaseProvider().database(DATABASE_NAME);
     // management init
     var management = new NodeNPCManagement(
       config,
       database,
       this.configPath(),
-      Node.instance().eventManager());
+      this.node.eventManager());
     management.registerToServiceRegistry();
     // register the npc module command
-    Node.instance().commandProvider().register(new NPCCommand(management));
+    this.node.commandProvider().register(new NPCCommand(management, this.node));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

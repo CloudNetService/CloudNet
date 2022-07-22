@@ -39,7 +39,7 @@ import lombok.NonNull;
 @CommandAlias({"ask", "?"})
 @CommandPermission("cloudnet.command.help")
 @Description("Shows all commands and their description")
-public final class HelpCommand {
+public record HelpCommand(@NonNull CommandProvider commandProvider) {
 
   private static final RowBasedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowBasedFormatter.<CommandInfo>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name(s)", "Description", "Permission").build())
@@ -47,12 +47,6 @@ public final class HelpCommand {
     .column(CommandInfo::description)
     .column(CommandInfo::permission)
     .build();
-
-  private final CommandProvider commandProvider;
-
-  public HelpCommand(@NonNull CommandProvider commandProvider) {
-    this.commandProvider = commandProvider;
-  }
 
   @Parser(suggestions = "commands")
   public @NonNull CommandInfo defaultCommandInfoParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {

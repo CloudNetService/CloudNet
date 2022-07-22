@@ -141,7 +141,7 @@ public class Node extends CloudNetDriver {
     rootLogger.addHandler(this.logHandler);
 
     this.console = console;
-    this.commandProvider = new DefaultCommandProvider(console, this.eventManager);
+    this.commandProvider = new DefaultCommandProvider(this);
 
     this.modulesHolder = ModuleJsonReader.read(LAUNCHER_DIR);
     this.moduleUpdaterRegistry = new ModuleUpdaterRegistry();
@@ -178,11 +178,11 @@ public class Node extends CloudNetDriver {
     this.moduleProvider.moduleProviderHandler(new NodeModuleProviderHandler(this));
     this.moduleProvider.moduleDependencyLoader(new DefaultModuleDependencyLoader(LAUNCHER_DIR.resolve("libs")));
 
-    this.networkClient = new NettyNetworkClient(
-      DefaultNetworkClientChannelHandler::new,
+    this.networkClient = new NettyNetworkClient(() ->
+      new DefaultNetworkClientChannelHandler(this),
       this.configuration.clientSSLConfig());
-    this.networkServer = new NettyNetworkServer(
-      DefaultNetworkServerChannelHandler::new,
+    this.networkServer = new NettyNetworkServer(() ->
+      new DefaultNetworkServerChannelHandler(this),
       this.configuration.serverSSLConfig());
     this.httpServer = new NettyHttpServer(this.configuration.webSSLConfig());
 

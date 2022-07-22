@@ -33,26 +33,15 @@ import eu.cloudnetservice.node.event.cluster.NetworkClusterNodeInfoUpdateEvent;
 import eu.cloudnetservice.node.provider.NodeClusterNodeProvider;
 import lombok.NonNull;
 
-public final class NodeChannelMessageListener {
+public record NodeChannelMessageListener(
+  @NonNull EventManager eventManager,
+  @NonNull DataSyncRegistry dataSyncRegistry,
+  @NonNull NodeClusterNodeProvider nodeInfoProvider,
+  @NonNull NodeServerProvider nodeServerProvider,
+  @NonNull Node node
+) {
 
   private static final Logger LOGGER = LogManager.logger(NodeChannelMessageListener.class);
-
-  private final EventManager eventManager;
-  private final DataSyncRegistry dataSyncRegistry;
-  private final NodeClusterNodeProvider nodeInfoProvider;
-  private final NodeServerProvider nodeServerProvider;
-
-  public NodeChannelMessageListener(
-    @NonNull EventManager eventManager,
-    @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull NodeClusterNodeProvider nodeInfoProvider,
-    @NonNull NodeServerProvider nodeServerProvider
-  ) {
-    this.eventManager = eventManager;
-    this.dataSyncRegistry = dataSyncRegistry;
-    this.nodeInfoProvider = nodeInfoProvider;
-    this.nodeServerProvider = nodeServerProvider;
-  }
 
   @EventListener
   public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
@@ -99,7 +88,7 @@ public final class NodeChannelMessageListener {
         }
 
         // handles the shutdown of a cluster node
-        case "cluster_node_shutdown" -> Node.instance().stop();
+        case "cluster_node_shutdown" -> this.node.stop();
 
         // request of the full cluster data set
         case "request_initial_cluster_data" -> {

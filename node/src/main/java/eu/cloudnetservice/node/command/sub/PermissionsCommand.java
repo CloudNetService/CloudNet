@@ -51,7 +51,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandAlias("perms")
 @CommandPermission("cloudnet.command.permissions")
 @Description("Manages the permissions of users and groups")
-public final class PermissionsCommand {
+public record PermissionsCommand(@NonNull Node node) {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
@@ -84,7 +84,7 @@ public final class PermissionsCommand {
   ) {
     var name = input.remove();
 
-    var group = Node.instance().permissionManagement().group(name);
+    var group = this.node.permissionManagement().group(name);
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-permissions-group-not-found"));
     }
@@ -518,6 +518,6 @@ public final class PermissionsCommand {
   }
 
   private @NonNull PermissionManagement permissionManagement() {
-    return Node.instance().permissionManagement();
+    return this.node.permissionManagement();
   }
 }

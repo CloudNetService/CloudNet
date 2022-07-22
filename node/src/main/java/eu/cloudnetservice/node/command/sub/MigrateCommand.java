@@ -40,7 +40,7 @@ import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.migrate")
 @Description("Migrate the database and other things that cloudnet uses")
-public final class MigrateCommand {
+public record MigrateCommand(@NonNull Node node) {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;
   private static final Logger LOGGER = LogManager.logger(MigrateCommand.class);
@@ -50,7 +50,7 @@ public final class MigrateCommand {
     @NonNull CommandContext<?> $,
     @NonNull Queue<String> input
   ) {
-    var abstractDatabaseProvider = Node.instance().serviceRegistry()
+    var abstractDatabaseProvider = this.node.serviceRegistry()
       .provider(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
@@ -61,7 +61,7 @@ public final class MigrateCommand {
 
   @Suggestions("databaseProvider")
   public @NonNull List<String> suggestDatabaseProvider(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().serviceRegistry().providers(AbstractDatabaseProvider.class)
+    return this.node.serviceRegistry().providers(AbstractDatabaseProvider.class)
       .stream()
       .map(Nameable::name)
       .toList();
@@ -115,7 +115,7 @@ public final class MigrateCommand {
     @NonNull AbstractDatabaseProvider sourceProvider,
     @NonNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler
   ) {
-    if (!Node.instance().databaseProvider().equals(sourceProvider)) {
+    if (!this.node.databaseProvider().equals(sourceProvider)) {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {

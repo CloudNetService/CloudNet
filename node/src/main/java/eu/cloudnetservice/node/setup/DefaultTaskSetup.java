@@ -81,6 +81,12 @@ public class DefaultTaskSetup implements DefaultSetup {
   protected static final String GLOBAL_TEMPLATE_PREFIX = "Global";
   protected static final String GLOBAL_PROXY_GROUP_NAME = "Global-Proxy";
   protected static final String GLOBAL_SERVER_GROUP_NAME = "Global-Server";
+  
+  protected final Node node;
+
+  public DefaultTaskSetup(@NonNull Node node) {
+    this.node = node;
+  }
 
   @Override
   public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
@@ -206,7 +212,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     Pair<ServiceVersionType, ServiceVersion> version = animation.result(resultPrefix + "Version");
     // create the task
     var template = ServiceTemplate.builder().prefix(taskName).name("default").build();
-    Node.instance().serviceTaskProvider().addServiceTask(ServiceTask.builder()
+    this.node.serviceTaskProvider().addServiceTask(ServiceTask.builder()
       .name(taskName)
       .minServiceCount(1)
       .autoDeleteOnStop(true)
@@ -233,9 +239,9 @@ public class DefaultTaskSetup implements DefaultSetup {
       groupConfiguration.jvmOptions(AIKAR_FLAGS);
     }
     // register the group
-    Node.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration.build());
+    this.node.groupConfigurationProvider().addGroupConfiguration(groupConfiguration.build());
     // create a group specifically for the task
-    Node.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    this.node.groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
       .templates(Set.of(template))
       .build());
@@ -244,7 +250,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     this.initializeTemplate(template, environment, true);
     // check if the user chose to install a version
     if (version != null) {
-      Node.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
+      this.node.serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
         .serviceVersion(version.second())
         .serviceVersionType(version.first())
         .toTemplate(template)
@@ -286,6 +292,6 @@ public class DefaultTaskSetup implements DefaultSetup {
   }
 
   protected @NonNull ServiceVersionProvider versionProvider() {
-    return Node.instance().serviceVersionProvider();
+    return this.node.serviceVersionProvider();
   }
 }

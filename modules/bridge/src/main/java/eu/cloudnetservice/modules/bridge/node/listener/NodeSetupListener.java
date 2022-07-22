@@ -52,7 +52,6 @@ public final class NodeSetupListener {
         .map(Nameable::name)
         .toList()))
     .build();
-
   private final BridgeManagement bridgeManagement;
 
   public NodeSetupListener(@NonNull BridgeManagement bridgeManagement) {
