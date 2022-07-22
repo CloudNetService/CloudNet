@@ -282,7 +282,7 @@ public class Node extends CloudNetDriver {
     // start modules
     this.moduleProvider.startAll();
     // register listeners & post node startup finish
-    this.eventManager.registerListener(new FileDeployCallbackListener());
+    this.eventManager.registerListener(new FileDeployCallbackListener(this));
     this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));
 
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));

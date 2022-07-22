@@ -61,14 +61,14 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     this.groups = new ConcurrentHashMap<>();
     this.networkListener = new PermissionChannelMessageListener(nodeInstance.eventManager(), this);
     // sync permission groups into the cluster
-    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<PermissionGroup>builder()
+   nodeInstance.dataSyncRegistry().registerHandler(DataSyncHandler.<PermissionGroup>builder()
       .alwaysForce()
       .key("perms-groups")
       .nameExtractor(PermissionGroup::name)
       .convertObject(PermissionGroup.class)
-      .dataCollector(() -> Node.instance().permissionManagement().groups())
-      .writer(group -> Node.instance().permissionManagement().addGroupSilently(group))
-      .currentGetter(group -> Node.instance().permissionManagement().group(group.name()))
+      .dataCollector(() -> nodeInstance.permissionManagement().groups())
+      .writer(group -> nodeInstance.permissionManagement().addGroupSilently(group))
+      .currentGetter(group -> nodeInstance.permissionManagement().group(group.name()))
       .build());
   }
 
@@ -324,7 +324,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull PermissionUser user, @NonNull String commandLine) {
     var source = new PermissionUserCommandSource(user, this);
-    Node.instance().commandProvider().execute(source, commandLine).getOrNull();
+    this.nodeInstance.commandProvider().execute(source, commandLine).getOrNull();
     return source.messages();
   }
 

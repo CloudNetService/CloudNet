@@ -33,7 +33,7 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
-public final class FileDeployCallbackListener {
+public record FileDeployCallbackListener(@NonNull Node node) {
 
   @EventListener
   public void handle(@NonNull ChunkedPacketSessionOpenEvent event) {
@@ -74,7 +74,7 @@ public final class FileDeployCallbackListener {
     var template = event.content().readObject(ServiceTemplate.class);
     var responseId = event.content().readUniqueId();
     // get the storage
-    var storage = Node.instance().templateStorageProvider().templateStorage(storageName);
+    var storage = this.node.templateStorageProvider().templateStorage(storageName);
     if (storage == null) {
       // missing storage - no result
       event.binaryResponse(DataBuf.empty().writeBoolean(false));

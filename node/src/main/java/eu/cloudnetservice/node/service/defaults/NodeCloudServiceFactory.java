@@ -40,12 +40,15 @@ import org.jetbrains.annotations.Nullable;
 
 public class NodeCloudServiceFactory implements CloudServiceFactory {
 
+  private final Node node;
+
   private final CloudServiceManager serviceManager;
   private final NodeServerProvider nodeServerProvider;
 
   private final Lock serviceCreationLock = new ReentrantLock(true);
 
   public NodeCloudServiceFactory(@NonNull Node nodeInstance) {
+    this.node = nodeInstance;
     this.serviceManager = nodeInstance.cloudServiceProvider();
     this.nodeServerProvider = nodeInstance.nodeServerProvider();
 
@@ -174,7 +177,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     @NonNull ServiceConfiguration.Builder output
   ) {
     // include all groups which are matching the service configuration
-    var groups = Node.instance().groupConfigurationProvider().groupConfigurations().stream()
+    var groups = this.node.groupConfigurationProvider().groupConfigurations().stream()
       .filter(group -> group.targetEnvironments().contains(input.serviceId().environmentName()))
       .map(GroupConfiguration::name)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), set -> {
@@ -186,7 +189,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // include each group component in the service configuration
     for (var group : groups) {
       // get the group
-      var config = Node.instance().groupConfigurationProvider().groupConfiguration(group);
+      var config = this.node.groupConfigurationProvider().groupConfiguration(group);
       // check if the config is available - add all components if so
       if (config != null) {
         output

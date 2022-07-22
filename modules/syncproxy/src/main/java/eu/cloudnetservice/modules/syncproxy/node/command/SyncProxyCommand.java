@@ -44,13 +44,7 @@ import lombok.NonNull;
 @CommandAlias("sp")
 @CommandPermission("cloudnet.command.syncproxy")
 @Description("Administration of the syncproxy configuration management")
-public final class SyncProxyCommand {
-
-  private final NodeSyncProxyManagement syncProxyManagement;
-
-  public SyncProxyCommand(@NonNull NodeSyncProxyManagement syncProxyManagement) {
-    this.syncProxyManagement = syncProxyManagement;
-  }
+public record SyncProxyCommand(@NonNull NodeSyncProxyManagement syncProxyManagement, @NonNull Node node) {
 
   @Parser(suggestions = "loginConfiguration")
   public SyncProxyLoginConfiguration loginConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
@@ -74,7 +68,7 @@ public final class SyncProxyCommand {
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
   public String newConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var configuration = Node.instance().groupConfigurationProvider()
+    var configuration = this.node.groupConfigurationProvider()
       .groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
@@ -96,7 +90,7 @@ public final class SyncProxyCommand {
 
   @Suggestions("newConfiguration")
   public List<String> suggestNewLoginConfigurations(CommandContext<CommandSource> $, String input) {
-    return Node.instance().groupConfigurationProvider().groupConfigurations()
+    return this.node.groupConfigurationProvider().groupConfigurations()
       .stream()
       .map(Nameable::name)
       .toList();

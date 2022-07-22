@@ -24,12 +24,14 @@ import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
 import eu.cloudnetservice.modules.influx.publish.defaults.DefaultPublisherRegistry;
 import eu.cloudnetservice.modules.influx.publish.publishers.ConnectedNodeInfoPublisher;
 import eu.cloudnetservice.modules.influx.publish.publishers.RunningServiceProcessSnapshotPublisher;
+import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.TickLoop;
 
 public final class InfluxModule extends DriverModule {
 
   @ModuleTask
   public void start() {
+    var node = Node.instance();
     // read the config and connect to influx
     var conf = this.readConfig(InfluxConfiguration.class, () -> new InfluxConfiguration(
       new HostAndPort("127.0.0.1", 8086),
@@ -43,12 +45,12 @@ public final class InfluxModule extends DriverModule {
       conf.org(),
       conf.bucket());
     // create an influx publisher registry based on that
-    var reg = new DefaultPublisherRegistry(influxClient);
+    var reg = new DefaultPublisherRegistry(influxClient, node);
     this.driver().serviceRegistry().registerProvider(PublisherRegistry.class, "InfluxPublishers", reg);
     // register all default publishers
     reg
-      .registerPublisher(new ConnectedNodeInfoPublisher())
-      .registerPublisher(new RunningServiceProcessSnapshotPublisher());
+      .registerPublisher(new ConnectedNodeInfoPublisher(node))
+      .registerPublisher(new RunningServiceProcessSnapshotPublisher(node));
     // start the emitting task
     reg.scheduleTask(conf.publishDelaySeconds() * TickLoop.TPS);
   }

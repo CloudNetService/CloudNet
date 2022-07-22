@@ -21,10 +21,10 @@ import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
 import eu.cloudnetservice.node.Node;
 import lombok.NonNull;
 
-public final class LocalNodeConfigDataEmitter implements ReportDataEmitter {
+public record LocalNodeConfigDataEmitter(@NonNull Node node) implements ReportDataEmitter {
 
   @Override
   public @NonNull ReportDataWriter emitData(@NonNull ReportDataWriter writer) {
-    return writer.beginSection("Node Configuration").appendAsJson(Node.instance().config()).endSection();
+    return writer.beginSection("Node Configuration").appendAsJson(this.node.config()).endSection();
   }
 }

@@ -46,6 +46,8 @@ import lombok.NonNull;
 
 public final class CloudNetReportModule extends DriverModule {
 
+  private final Node node = Node.instance();
+
   private ReportConfiguration configuration;
 
   @ModuleTask(order = 127)
@@ -62,9 +64,9 @@ public final class CloudNetReportModule extends DriverModule {
       .registerEmitter(new SystemInfoDataEmitter())
       .registerEmitter(new ThreadInfoDataEmitter())
       .registerEmitter(new HeapDumpDataEmitter())
-      .registerEmitter(new LocalNodeConfigDataEmitter())
+      .registerEmitter(new LocalNodeConfigDataEmitter(this.node))
       // specific class emitters
-      .registerSpecificEmitter(NodeServer.class, new NodeServerDataEmitter())
+      .registerSpecificEmitter(NodeServer.class, new NodeServerDataEmitter(this.node))
       .registerSpecificEmitter(ModuleWrapper.class, new LocalModuleDataEmitter())
       .registerSpecificEmitter(ServiceTask.class, new ServiceTasksDataEmitter())
       .registerSpecificEmitter(GroupConfiguration.class, new GroupConfigDataEmitter())
@@ -91,7 +93,7 @@ public final class CloudNetReportModule extends DriverModule {
     this.configuration = this.readConfig(
       ReportConfiguration.class,
       () -> new ReportConfiguration(Set.of(PasteServer.DEFAULT_PASTER_SERVER)));
-    Node.instance().commandProvider().register(new ReportCommand(this));
+   this.node.commandProvider().register(new ReportCommand(this));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

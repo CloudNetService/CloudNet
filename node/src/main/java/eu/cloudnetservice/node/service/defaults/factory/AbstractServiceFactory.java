@@ -25,6 +25,12 @@ import java.util.Objects;
 import lombok.NonNull;
 
 public abstract class AbstractServiceFactory implements CloudServiceFactory {
+  
+  protected final Node node;
+
+  protected AbstractServiceFactory(@NonNull Node node) {
+    this.node = node;
+  }
 
   protected @NonNull ServiceConfiguration validateConfiguration(
     @NonNull CloudServiceManager manager,
@@ -32,12 +38,12 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
   ) {
     var configurationBuilder = ServiceConfiguration.builder(configuration);
     // set the node unique id
-    configurationBuilder.node(Node.instance().nodeUniqueId());
+    configurationBuilder.node(this.node.nodeUniqueId());
 
     // set the environment type
     if (configuration.serviceId().environment() == null) {
       var env = Objects.requireNonNull(
-        Node.instance().serviceVersionProvider().getEnvironmentType(configuration.serviceId().environmentName()),
+        this.node.serviceVersionProvider().getEnvironmentType(configuration.serviceId().environmentName()),
         "Unknown environment type " + configuration.serviceId().environmentName());
       // set the environment type
       configurationBuilder.environment(env);
@@ -53,7 +59,7 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
 
   protected @NonNull String resolveHostAddress(@NonNull ServiceConfiguration serviceConfiguration) {
     var hostAddress = serviceConfiguration.hostAddress();
-    var fallbackHostAddress = Node.instance().config().hostAddress();
+    var fallbackHostAddress = this.node.config().hostAddress();
     // if null is supplied use fallback address
     if (hostAddress == null) {
       return fallbackHostAddress;
@@ -66,7 +72,7 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
     }
 
     // retrieve the alias from the node
-    var alias = Node.instance().config().ipAliases().get(hostAddress);
+    var alias = this.node.config().ipAliases().get(hostAddress);
     if (alias == null) {
       return fallbackHostAddress;
     }

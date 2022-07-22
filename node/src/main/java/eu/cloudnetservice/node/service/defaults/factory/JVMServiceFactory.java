@@ -30,6 +30,7 @@ public class JVMServiceFactory extends AbstractServiceFactory {
   private final EventManager eventManager;
 
   public JVMServiceFactory(@NonNull Node nodeInstance, @NonNull EventManager eventManager) {
+    super(node);
     this.nodeInstance = nodeInstance;
     this.eventManager = eventManager;
   }

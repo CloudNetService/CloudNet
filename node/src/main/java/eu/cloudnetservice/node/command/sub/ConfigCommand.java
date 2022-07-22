@@ -65,7 +65,7 @@ public record ConfigCommand(@NonNull Node node) {
 
   @CommandMethod("config|cfg reload")
   public void reloadConfigs(@NonNull CommandSource source) {
-    this.node.reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
+    this.node.reloadConfigFrom(JsonConfiguration.loadFromFile(this.node));
     this.node.serviceTaskProvider().reload();
     this.node.groupConfigurationProvider().reload();
     this.node.permissionManagement().reload();
@@ -74,7 +74,7 @@ public record ConfigCommand(@NonNull Node node) {
 
   @CommandMethod("config|cfg node reload")
   public void reloadNodeConfig(@NonNull CommandSource source) {
-    this.node.reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
+    this.node.reloadConfigFrom(JsonConfiguration.loadFromFile(this.node));
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 

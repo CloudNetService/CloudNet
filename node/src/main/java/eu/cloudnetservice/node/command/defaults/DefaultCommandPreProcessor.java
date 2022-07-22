@@ -27,7 +27,7 @@ import lombok.NonNull;
 /**
  * {@inheritDoc}
  */
-final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSource> {
+record DefaultCommandPreProcessor(@NonNull Node node) implements CommandPreprocessor<CommandSource> {
 
   /**
    * {@inheritDoc}
@@ -42,14 +42,14 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
     }
 
     var firstArgument = commandContext.getRawInput().getFirst();
-    var commandInfo = Node.instance().commandProvider()
+    var commandInfo = this.node.commandProvider()
       .command(firstArgument);
     // if there is no command, the command was unregistered, ignore confirm as the command is not registered.
     if (commandInfo == null && !firstArgument.equalsIgnoreCase("confirm")) {
       return;
     }
 
-    var preProcessEvent = Node.instance().eventManager()
+    var preProcessEvent = this.node.eventManager()
       .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), source));
     if (preProcessEvent.cancelled()) {
       ConsumerService.interrupt();

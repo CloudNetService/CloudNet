@@ -64,7 +64,7 @@ public record PacketServerAuthorizationResponseListener(@NonNull Node node) impl
           local.updateLocalSnapshot();
 
           // acknowledge the packet
-          var data = Node.instance().dataSyncRegistry().prepareClusterData(
+          var data = this.node.dataSyncRegistry().prepareClusterData(
             true,
             DataSyncHandler::alwaysForceApply);
           channel.sendPacketSync(new PacketServerServiceSyncAckPacket(local.nodeInfoSnapshot(), data));
