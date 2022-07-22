@@ -242,6 +242,21 @@ public final class TasksCommand {
       .toList();
   }
 
+  @Parser(name = "taskRuntime", suggestions = "taskRuntime")
+  public @NonNull String taskRuntimeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
+    var runtime = input.remove();
+    if (Node.instance().cloudServiceProvider().cloudServiceFactory(runtime) == null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-tasks-runtime-not-found", runtime));
+    }
+
+    return runtime;
+  }
+
+  @Suggestions("taskRuntime")
+  public @NonNull List<String> taskRuntimeSuggester(@NonNull CommandContext<?> $, @NonNull String input) {
+    return List.copyOf(Node.instance().cloudServiceProvider().cloudServiceFactories().keySet());
+  }
+
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
   public void taskSetup(@NonNull CommandSource source) {
     var setup = new SpecificTaskSetup();
@@ -306,6 +321,8 @@ public final class TasksCommand {
     for (var serviceTask : serviceTasks) {
       Collection<String> messages = new ArrayList<>();
       messages.add("Name: " + serviceTask.name());
+      messages.add("Runtime: " + serviceTask.runtime());
+      messages.add("Host address: " + serviceTask.hostAddress());
       messages.add("Splitter: " + serviceTask.nameSplitter());
       messages.add("Groups: " + Arrays.toString(serviceTask.groups().toArray()));
       messages.add("Max heap memory: " + serviceTask.processConfiguration().maxHeapMemorySize());
@@ -339,6 +356,21 @@ public final class TasksCommand {
       this.taskProvider().removeServiceTask(serviceTask);
       this.taskProvider().addServiceTask(ServiceTask.builder(serviceTask).name(newName).build());
       source.sendMessage(I18n.trans("command-tasks-task-rename-success", serviceTask.name(), newName));
+    }
+  }
+
+  @CommandMethod("tasks task <name> set runtime <runtime>")
+  public void setRuntime(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("runtime") String runtime
+  ) {
+    for (var task : serviceTasks) {
+      this.updateTask(task, builder -> builder.runtime(runtime));
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "runtime",
+        task.name(),
+        runtime));
     }
   }
 

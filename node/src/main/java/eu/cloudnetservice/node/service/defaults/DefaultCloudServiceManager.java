@@ -228,8 +228,9 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   }
 
   @Override
-  public @NonNull Collection<CloudServiceFactory> cloudServiceFactories() {
-    return Collections.unmodifiableCollection(this.cloudServiceFactories.values());
+  @UnmodifiableView
+  public @NonNull Map<String, CloudServiceFactory> cloudServiceFactories() {
+    return Collections.unmodifiableMap(this.cloudServiceFactories);
   }
 
   @Override
