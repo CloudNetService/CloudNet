@@ -60,7 +60,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -367,7 +367,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.runtime(runtime),
+      ServiceTask.Builder::runtime,
       "command-tasks-set-property-success",
       runtime);
   }
@@ -380,7 +380,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.nameSplitter(splitter),
+      ServiceTask.Builder::nameSplitter,
       "command-tasks-set-property-success",
       splitter);
   }
@@ -393,7 +393,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.minServiceCount(amount),
+      ServiceTask.Builder::minServiceCount,
       "command-tasks-set-property-success",
       amount);
   }
@@ -406,7 +406,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.hostAddress(hostAddress),
+      ServiceTask.Builder::hostAddress,
       "command-tasks-set-property-success",
       hostAddress);
   }
@@ -419,7 +419,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.maintenance(enabled),
+      ServiceTask.Builder::maintenance,
       "command-tasks-set-property-success",
       enabled);
   }
@@ -432,7 +432,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.maxHeapMemory(amount),
+      ServiceTask.Builder::maxHeapMemory,
       "command-tasks-set-property-success",
       amount);
   }
@@ -445,7 +445,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.startPort(amount),
+      ServiceTask.Builder::startPort,
       "command-tasks-set-property-success",
       amount);
   }
@@ -458,7 +458,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.staticServices(enabled),
+      ServiceTask.Builder::staticServices,
       "command-tasks-set-property-success",
       enabled);
   }
@@ -471,9 +471,9 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.serviceEnvironmentType(environmentType),
+      ServiceTask.Builder::serviceEnvironmentType,
       "command-tasks-set-property-success",
-      environmentType.name());
+      environmentType);
   }
 
   @CommandMethod("tasks task <name> set disableIpRewrite <enabled>")
@@ -484,7 +484,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.disableIpRewrite(enabled),
+      ServiceTask.Builder::disableIpRewrite,
       "command-tasks-set-property-success",
       enabled);
   }
@@ -497,7 +497,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.javaCommand(executable.first()),
+      ServiceTask.Builder::javaCommand,
       "command-tasks-set-property-success",
       executable.first());
   }
@@ -510,7 +510,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.modifyAssociatedNodes(col -> col.add(node)),
+      (builder, $) -> builder.modifyAssociatedNodes(col -> col.add(node)),
       "command-tasks-add-collection-property",
       node);
   }
@@ -523,7 +523,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.modifyGroups(col -> col.add(group.name())),
+      (builder, $) -> builder.modifyGroups(col -> col.add(group.name())),
       "command-tasks-add-collection-property",
       group.name());
   }
@@ -545,7 +545,7 @@ public final class TasksCommand {
       .build();
     this.applyChange(
       ctx,
-      builder -> builder.modifyDeployments(col -> col.add(deployment)),
+      (builder, $) -> builder.modifyDeployments(col -> col.add(deployment)),
       "command-tasks-add-collection-property",
       deployment);
   }
@@ -558,7 +558,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.modifyTemplates(col -> col.add(template)),
+      (builder, $) -> builder.modifyTemplates(col -> col.add(template)),
       "command-tasks-add-collection-property",
       template);
   }
@@ -573,7 +573,7 @@ public final class TasksCommand {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
     this.applyChange(
       ctx,
-      builder -> builder.modifyInclusions(col -> col.add(inclusion)),
+      (builder, $) -> builder.modifyInclusions(col -> col.add(inclusion)),
       "command-tasks-add-collection-property",
       inclusion);
   }
@@ -587,7 +587,7 @@ public final class TasksCommand {
     var splittedOptions = Arrays.asList(jvmOptions.split(" "));
     this.applyChange(
       ctx,
-      builder -> builder.modifyJvmOptions(col -> col.addAll(splittedOptions)),
+      (builder, $) -> builder.modifyJvmOptions(col -> col.addAll(splittedOptions)),
       "command-tasks-add-collection-property",
       splittedOptions);
   }
@@ -601,7 +601,7 @@ public final class TasksCommand {
     var splittedOptions = Arrays.asList(processParameters.split(" "));
     this.applyChange(
       ctx,
-      builder -> builder.modifyProcessParameters(col -> col.addAll(splittedOptions)),
+      (builder, $) -> builder.modifyProcessParameters(col -> col.addAll(splittedOptions)),
       "command-tasks-add-collection-property",
       splittedOptions);
   }
@@ -623,7 +623,7 @@ public final class TasksCommand {
       .build();
     this.applyChange(
       ctx,
-      builder -> builder.modifyDeployments(col -> col.remove(deployment)),
+      (builder, $) -> builder.modifyDeployments(col -> col.remove(deployment)),
       "command-tasks-remove-collection-property",
       deployment);
   }
@@ -636,7 +636,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.modifyTemplates(col -> col.remove(template)),
+      (builder, $) -> builder.modifyTemplates(col -> col.remove(template)),
       "command-tasks-remove-collection-property",
       template);
   }
@@ -651,7 +651,7 @@ public final class TasksCommand {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
     this.applyChange(
       ctx,
-      builder -> builder.modifyInclusions(col -> col.remove(inclusion)),
+      (builder, $) -> builder.modifyInclusions(col -> col.remove(inclusion)),
       "command-tasks-remove-collection-property",
       inclusion);
   }
@@ -665,7 +665,7 @@ public final class TasksCommand {
     var splittedOptions = Arrays.asList(jvmOptions.split(" "));
     this.applyChange(
       ctx,
-      builder -> builder.modifyJvmOptions(col -> col.removeAll(splittedOptions)),
+      (builder, $) -> builder.modifyJvmOptions(col -> col.removeAll(splittedOptions)),
       "command-tasks-remove-collection-property",
       jvmOptions);
   }
@@ -679,7 +679,7 @@ public final class TasksCommand {
     var splittedOptions = Arrays.asList(processParameters.split(" "));
     this.applyChange(
       ctx,
-      builder -> builder.modifyProcessParameters(col -> col.removeAll(splittedOptions)),
+      (builder, $) -> builder.modifyProcessParameters(col -> col.removeAll(splittedOptions)),
       "command-tasks-remove-collection-property",
       processParameters);
   }
@@ -692,7 +692,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.modifyGroups(col -> col.remove(group)),
+      (builder, $) -> builder.modifyGroups(col -> col.remove(group)),
       "command-tasks-remove-collection-property",
       group);
   }
@@ -705,7 +705,7 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.modifyAssociatedNodes(col -> col.remove(node)),
+      (builder, $) -> builder.modifyAssociatedNodes(col -> col.remove(node)),
       "command-tasks-remove-collection-property",
       node);
   }
@@ -717,8 +717,9 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.modifyJvmOptions(Collection::clear),
-      "command-tasks-clear-property");
+      (builder, $) -> builder.modifyJvmOptions(Collection::clear),
+      "command-tasks-clear-property",
+      null);
   }
 
   @CommandMethod("tasks task <name> clear processParameters")
@@ -728,8 +729,9 @@ public final class TasksCommand {
   ) {
     this.applyChange(
       ctx,
-      builder -> builder.modifyProcessParameters(Collection::clear),
-      "command-tasks-clear-property");
+      (builder, $) -> builder.modifyProcessParameters(Collection::clear),
+      "command-tasks-clear-property",
+      null);
   }
 
   @CommandMethod("tasks task <name> unset javaCommand")
@@ -737,7 +739,7 @@ public final class TasksCommand {
     @NonNull CommandContext<CommandSource> ctx,
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
   ) {
-    this.applyChange(ctx, builder -> builder.javaCommand(null), "command-tasks-set-property-success");
+    this.applyChange(ctx, ServiceTask.Builder::javaCommand, "command-tasks-set-property-success", null);
   }
 
   @CommandMethod("tasks task <name> unset hostAddress")
@@ -745,27 +747,19 @@ public final class TasksCommand {
     @NonNull CommandContext<CommandSource> ctx,
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
   ) {
-    this.applyChange(ctx, builder -> builder.hostAddress(null), "command-tasks-set-property-success");
+    this.applyChange(ctx, ServiceTask.Builder::hostAddress, "command-tasks-set-property-success", null);
   }
 
-  private void applyChange(
+  private <T> void applyChange(
     @NonNull CommandContext<CommandSource> context,
-    @NonNull Consumer<ServiceTask.Builder> consumer,
-    @NonNull String translation
-  ) {
-    this.applyChange(context, consumer, translation, null);
-  }
-
-  private void applyChange(
-    @NonNull CommandContext<CommandSource> context,
-    @NonNull Consumer<ServiceTask.Builder> consumer,
+    @NonNull BiConsumer<ServiceTask.Builder, T> consumer,
     @NonNull String translation,
-    @Nullable Object extraValue
+    @Nullable T extraValue
   ) {
     Collection<ServiceTask> tasks = context.get("name");
     for (var task : tasks) {
       var builder = ServiceTask.builder(task);
-      consumer.andThen(result -> this.taskProvider().addServiceTask(result.build())).accept(builder);
+      consumer.andThen((result, $) -> this.taskProvider().addServiceTask(result.build())).accept(builder, extraValue);
       // the property that was changed is always the 5th (4th when counting from 0)
       var changedProperty = context.getRawInput().get(4);
       context.getSender().sendMessage(I18n.trans(translation, changedProperty, task.name(), extraValue));
