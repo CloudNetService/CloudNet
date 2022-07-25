@@ -29,6 +29,14 @@ class JavaVersionTest {
   }
 
   @Test
+  void testNextAndUnsupportedAreHidden() {
+    Assertions.assertTrue(JavaVersion.fromMajor(-1).isEmpty());
+    Assertions.assertTrue(JavaVersion.fromMajor(Integer.MAX_VALUE).isEmpty());
+    Assertions.assertTrue(JavaVersion.fromClassFileVersion(-1D).isEmpty());
+    Assertions.assertTrue(JavaVersion.fromClassFileVersion(Double.MAX_VALUE).isEmpty());
+  }
+
+  @Test
   void testVersionGuessing() {
     var newerVersion = JavaVersion.guessFromMajor(1290);
     Assertions.assertTrue(newerVersion.supported());

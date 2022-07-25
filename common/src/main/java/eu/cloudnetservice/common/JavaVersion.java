@@ -39,7 +39,7 @@ public enum JavaVersion {
   JAVA_19(19, 63D, "Java 19"),
   JAVA_20(20, 64D, "Java 20");
 
-  private static final JavaVersion[] JAVA_VERSIONS = JavaVersion.values();
+  private static final JavaVersion[] JAVA_VERSIONS = resolveActualJavaVersions();
   private static final JavaVersion LATEST_VERSION = JAVA_VERSIONS[JAVA_VERSIONS.length - 1];
 
   private final int majorVersion;
@@ -50,6 +50,12 @@ public enum JavaVersion {
     this.majorVersion = majorVersion;
     this.classFileVersion = classFileVersion;
     this.displayName = displayName;
+  }
+
+  private static @NonNull JavaVersion[] resolveActualJavaVersions() {
+    // remove index 0 and 1 (UNSUPPORTED and NEXT) as they shouldn't be resolvable
+    var values = JavaVersion.values();
+    return Arrays.copyOfRange(values, 2, values.length);
   }
 
   public static @NonNull JavaVersion runtimeVersion() {
