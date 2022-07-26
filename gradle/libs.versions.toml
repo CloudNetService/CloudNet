@@ -33,7 +33,7 @@ h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "4.7.0"
 hikariCp = "5.0.1"
-mysqlConnector = "8.0.29"
+mysqlConnector = "8.0.30"
 
 # general
 asm = "9.3"
@@ -43,7 +43,7 @@ jjwt = "0.11.5"
 slf4j = "1.7.36"
 javers = "6.6.5"
 caffeine = "3.1.1"
-awsSdk = "2.17.238"
+awsSdk = "2.17.239"
 reflexion = "1.3.0"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
