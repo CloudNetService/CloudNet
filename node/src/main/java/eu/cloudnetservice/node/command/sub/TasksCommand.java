@@ -754,15 +754,15 @@ public final class TasksCommand {
     @NonNull CommandContext<CommandSource> context,
     @NonNull BiConsumer<ServiceTask.Builder, T> consumer,
     @NonNull String translation,
-    @Nullable T extraValue
+    @Nullable T newValue
   ) {
     Collection<ServiceTask> tasks = context.get("name");
     for (var task : tasks) {
       var builder = ServiceTask.builder(task);
-      consumer.andThen((result, $) -> this.taskProvider().addServiceTask(result.build())).accept(builder, extraValue);
+      consumer.andThen((result, $) -> this.taskProvider().addServiceTask(result.build())).accept(builder, newValue);
       // the property that was changed is always the 5th (4th when counting from 0)
       var changedProperty = context.getRawInput().get(4);
-      context.getSender().sendMessage(I18n.trans(translation, changedProperty, task.name(), extraValue));
+      context.getSender().sendMessage(I18n.trans(translation, changedProperty, task.name(), newValue));
     }
   }
 
