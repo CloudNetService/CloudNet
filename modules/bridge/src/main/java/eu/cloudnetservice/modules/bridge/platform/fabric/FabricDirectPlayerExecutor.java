@@ -26,7 +26,6 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -76,7 +75,7 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     // we're unable to check the permission for the player
     var text = this.vanillaFromAdventure(message);
-    this.forEach(player -> player.sendSystemMessage(text, ChatType.SYSTEM));
+    this.forEach(player -> player.sendSystemMessage(text, false));
   }
 
   @Override
@@ -91,7 +90,7 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     this.forEach(player -> {
       var stack = player.createCommandSourceStack();
-      player.server.getCommands().performCommand(stack, command);
+      player.server.getCommands().performPrefixedCommand(stack, command);
     });
   }
 
