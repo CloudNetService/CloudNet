@@ -55,7 +55,7 @@ public enum JavaVersion {
   private static @NonNull JavaVersion[] resolveActualJavaVersions() {
     // remove index 0 and 1 (UNSUPPORTED and NEXT) as they shouldn't be resolvable
     var values = JavaVersion.values();
-    return Arrays.copyOfRange(values, 2, values.length);
+    return Arrays.copyOfRange(values, JAVA_8.ordinal(), values.length);
   }
 
   public static @NonNull JavaVersion runtimeVersion() {
