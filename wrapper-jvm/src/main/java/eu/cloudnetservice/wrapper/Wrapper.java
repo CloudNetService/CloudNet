@@ -49,7 +49,7 @@ import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.database.DefaultWrapperDatabaseProvider;
 import eu.cloudnetservice.wrapper.event.ApplicationPostStartEvent;
 import eu.cloudnetservice.wrapper.event.ApplicationPreStartEvent;
-import eu.cloudnetservice.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
+import eu.cloudnetservice.wrapper.event.ServiceInfoSnapshotConfigureEvent;
 import eu.cloudnetservice.wrapper.network.NetworkClientChannelHandler;
 import eu.cloudnetservice.wrapper.network.chunk.TemplateStorageCallbackListener;
 import eu.cloudnetservice.wrapper.network.listener.PacketAuthorizationResponseListener;
@@ -77,39 +77,32 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
- * This class is the main class of the application wrapper, which performs the basic driver functions and the setup of
- * the application to be wrapped.
+ * This class is the main api point when trying to interact with CloudNet from a running service within the CloudNet
+ * network.
  *
- * @see CloudNetDriver
+ * @since 4.0
  */
 public class Wrapper extends CloudNetDriver {
 
   private static final Path WORKING_DIRECTORY = Path.of("");
   private static final Logger LOGGER = LogManager.logger(Wrapper.class);
 
-  /**
-   * The configuration of the wrapper, which was created from the CloudNet node. The properties are mirrored from the
-   * configuration file.
-   *
-   * @see WrapperConfiguration
-   */
+  private final Thread mainThread = Thread.currentThread();
   private final WrapperConfiguration config = DocumentWrapperConfiguration.load();
 
-  /**
-   * The single task thread of the scheduler of the wrapper application
-   */
-  private final Thread mainThread = Thread.currentThread();
-
-  /**
-   * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot from
-   * this process. The lastServiceInfoSnapshot is the element which was send before.
-   */
   private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.serviceInfoSnapshot();
   private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.serviceInfoSnapshot();
 
+  /**
+   * Constructs a new CloudNet wrapper instance. This constructor shouldn't be used directly and is only accessible for
+   * any class which provides a custom implementation of the wrapper. Use {@link #instance()} to obtain the current
+   * wrapper instance of the environment instead.
+   *
+   * @param args the command line arguments which were supplied to the wrapper when starting.
+   * @throws NullPointerException if the given arguments are null.
+   */
   protected Wrapper(@NonNull String[] args) {
     super(CloudNetVersion.fromPackage(Wrapper.class.getPackage()), Lists.newArrayList(args), DriverEnvironment.WRAPPER);
 
@@ -157,10 +150,20 @@ public class Wrapper extends CloudNetDriver {
     super.permissionManagement(management);
   }
 
+  /**
+   * Get the singleton instance of the currently running CloudNet wrapper. This instance is initialized once when
+   * starting the wrapper and will never change during the lifetime of the jvm. Therefore, the instance of the wrapper
+   * can be safely cached.
+   *
+   * @return the current, jvm static wrapper instance.
+   */
   public static @NonNull Wrapper instance() {
     return CloudNetDriver.instance();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected void start(@NonNull Instant startInstant) throws Exception {
     // load & enable the modules
@@ -181,7 +184,8 @@ public class Wrapper extends CloudNetDriver {
       new PaperConfigTransformer());
     // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
     this.transformerRegistry().registerTransformer(
-      name -> name.endsWith("Epoll") && name.startsWith("io") && name.contains("netty/channel/epoll/"),
+      String.join("/", "io", "netty", "channel", "epoll"),
+      "Epoll",
       new OldEpollDisableTransformer());
 
     // connect to the node
@@ -199,6 +203,9 @@ public class Wrapper extends CloudNetDriver {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void stop() {
     try {
@@ -229,52 +236,79 @@ public class Wrapper extends CloudNetDriver {
   }
 
   /**
-   * Is an shortcut for Wrapper.getConfig().getServiceId()
+   * Get the id of the service this wrapper is associated with.
    *
-   * @return the ServiceId instance which was set in the config by the node
+   * @return the id of the service this wrapper is associated with.
    */
   public @NonNull ServiceId serviceId() {
     return this.serviceConfiguration().serviceId();
   }
 
   /**
-   * Is an shortcut for Wrapper.getConfig().getServiceConfiguration()
+   * Get the service configuration which was used to create this service instance.
    *
-   * @return the first instance which was set in the config by the node
+   * @return the service configuration which was used to create this service instance.
    */
   public @NonNull ServiceConfiguration serviceConfiguration() {
     return this.config.serviceConfiguration();
   }
 
   /**
-   * Creates a completed new ServiceInfoSnapshot instance based of the properties of the current ServiceInfoSnapshot
-   * instance
+   * Creates a new service snapshot of this service, copying over the properties of the current service info snapshot.
+   * Only the creation time and process snapshot of the new snapshot differ from the old snapshot.
    *
-   * @return the new ServiceInfoSnapshot instance
+   * @return the newly created service snapshot for this service.
    */
   public @NonNull ServiceInfoSnapshot createServiceInfoSnapshot() {
     return this.createServiceInfoSnapshot(this.currentServiceInfoSnapshot.properties());
   }
 
+  /**
+   * Creates a new service snapshot of this service using the provided properties for the new snapshot.
+   * Only the creation time and process snapshot and properties of the new snapshot differ from the old snapshot.
+   * <p>
+   * Changes made to the current service snapshot (like modifying the properties of it) will not reflect into the
+   * snapshot returned by this method.
+   *
+   * @return the newly created service snapshot for this service.
+   */
   public @NonNull ServiceInfoSnapshot createServiceInfoSnapshot(@NonNull JsonDocument properties) {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
       this.currentServiceInfoSnapshot.address(),
-      this.currentServiceInfoSnapshot.connectAddress(),
       ProcessSnapshot.self(),
       this.serviceConfiguration(),
       this.currentServiceInfoSnapshot.connectedTime(),
       ServiceLifeCycle.RUNNING,
-      properties);
+      properties.clone());
   }
 
-  @ApiStatus.Internal
+  /**
+   * Creates a new service snapshot of this service, copying over the properties of the current service info snapshot,
+   * then configuring it using the registered listeners of the {@code ServiceInfoSnapshotConfigureEvent}.
+   * <p>
+   * Changes made to the current service snapshot (like modifying the properties of it) will not reflect into the
+   * snapshot returned by this method.
+   * <p>
+   * This method will (unlike the {@code createServiceInfoSnapshot} method) change the current and old service snapshot
+   * to the newly created and configured one.
+   * <p>
+   * This method call is equivalent to {@code wrapper.configureServiceInfoSnapshot(wrapper.createServiceInfoSnapshot)}.
+   *
+   * @return the newly created service snapshot for this service.
+   */
   public @NonNull ServiceInfoSnapshot configureServiceInfoSnapshot() {
     var serviceInfoSnapshot = this.createServiceInfoSnapshot();
     this.configureServiceInfoSnapshot(serviceInfoSnapshot);
     return serviceInfoSnapshot;
   }
 
+  /**
+   * Configures the given service info snapshot and updates the current and old service snapshot.
+   *
+   * @param serviceInfoSnapshot the service snapshot to configure.
+   * @throws NullPointerException if the given snapshot is null.
+   */
   private void configureServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
 
@@ -283,15 +317,20 @@ public class Wrapper extends CloudNetDriver {
   }
 
   /**
-   * This method should be used to send the current ServiceInfoSnapshot and all subscribers on the network and to update
-   * their information. It calls the ServiceInfoSnapshotConfigureEvent before send the update to the node.
-   *
-   * @see ServiceInfoSnapshotConfigureEvent
+   * Creates a new service snapshot, configures it, updates the current and old one and sends an update to all
+   * components which are currently registered within the CloudNet network.
    */
   public void publishServiceInfoUpdate() {
     this.publishServiceInfoUpdate(this.createServiceInfoSnapshot());
   }
 
+  /**
+   * Updates the given service snapshot to all components which are currently registered within the CloudNet network.
+   * This method will configure the given snapshot if it belongs to the current wrapper instance.
+   *
+   * @param serviceInfoSnapshot the service snapshot to update.
+   * @throws NullPointerException if the given service snapshot is null.
+   */
   public void publishServiceInfoUpdate(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     // add configuration stuff when updating the current service snapshot
     if (this.currentServiceInfoSnapshot.serviceId().equals(serviceInfoSnapshot.serviceId())) {
@@ -309,10 +348,11 @@ public class Wrapper extends CloudNetDriver {
   }
 
   /**
-   * Removes all PacketListeners from all channels of the Network Connctor from a specific ClassLoader. It is
-   * recommended to do this with the disables of your own plugin
+   * Removes all packet listeners which were loaded by the given class loaders from the network client packet registry
+   * and the packet registry of all client connections.
    *
-   * @param classLoader the ClassLoader from which the IPacketListener implementations derive.
+   * @param classLoader the loader of the listener classes to unregister.
+   * @throws NullPointerException if the given class loader is null.
    */
   public void unregisterPacketListenersByClassLoader(@NonNull ClassLoader classLoader) {
     this.networkClient.packetRegistry().removeListeners(classLoader);
@@ -322,6 +362,16 @@ public class Wrapper extends CloudNetDriver {
     }
   }
 
+  /**
+   * Connects this wrapper with the node which started this service, allowing a maximum of 30 seconds for the connection
+   * to establish completely (including the node authorization process).
+   * <p>
+   * If the connection was successful a new service snapshot with the connection time will be created, and the channel
+   * of the node connection will be setup to receive and send packets.
+   *
+   * @throws InterruptedException  if the calling thread was interrupted while waiting for the connection to be ready.
+   * @throws IllegalStateException if the node authorization failed for some reason (including timeout).
+   */
   private void connectToNode() throws InterruptedException {
     Lock lock = new ReentrantLock();
 
@@ -354,7 +404,6 @@ public class Wrapper extends CloudNetDriver {
       this.currentServiceInfoSnapshot = new ServiceInfoSnapshot(
         System.currentTimeMillis(),
         this.currentServiceInfoSnapshot.address(),
-        this.currentServiceInfoSnapshot.connectAddress(),
         ProcessSnapshot.self(),
         this.serviceConfiguration(),
         System.currentTimeMillis(),
@@ -376,6 +425,21 @@ public class Wrapper extends CloudNetDriver {
     }
   }
 
+  /**
+   * Starts the underlying application file in a separate thread based on the command line arguments passed to wrapper.
+   * These must include (in order):
+   * <ol>
+   *   <li>The main class of the application.
+   *   <li>The premain class of the application.
+   *   <li>The path of the application file to start.
+   *   <li>If all files in the jar should get pre-loaded by a non-system class loader (boolean).
+   * </ol>
+   * <p>
+   * The command line arguments will be removed from the known arguments and not passed to the application when starting.
+   *
+   * @return true if the application was started successfully, false otherwise.
+   * @throws Exception if any exception occurs while starting the application.
+   */
   private boolean startApplication() throws Exception {
     // get all the information provided through the command line
     var mainClass = this.commandLineArguments.remove(0);
@@ -406,7 +470,7 @@ public class Wrapper extends CloudNetDriver {
 
     // inform the user about the pre-start
     Collection<String> arguments = new ArrayList<>(this.commandLineArguments);
-    this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, arguments));
+    this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, arguments, loader));
 
     // start the application
     var applicationThread = new Thread(() -> {
@@ -426,26 +490,57 @@ public class Wrapper extends CloudNetDriver {
     return true;
   }
 
+  /**
+   * Get the configuration of the wrapper which is created based on the service information the node has available.
+   *
+   * @return the configuration of the wrapper.
+   */
   public @NonNull WrapperConfiguration config() {
     return this.config;
   }
 
+  /**
+   * Get the directory in which the wrapper is currently running.
+   *
+   * @return the directory in which the wrapper is currently running.
+   */
   public @NonNull Path workingDirectory() {
     return WORKING_DIRECTORY;
   }
 
+  /**
+   * Get the main thread of the wrapper. This is not the main thread of the application started by the wrapper!
+   *
+   * @return the main thread of the wrapper.
+   */
   public @NonNull Thread mainThread() {
     return this.mainThread;
   }
 
+  /**
+   * Gets the last service info snapshot before the current one was created.
+   *
+   * @return the last service info snapshot.
+   */
   public @NonNull ServiceInfoSnapshot lastServiceInfo() {
     return this.lastServiceInfoSnapShot;
   }
 
+  /**
+   * Get the current service info snapshot which is synced to all components in the network.
+   *
+   * @return the current service info snapshot.
+   */
   public @NonNull ServiceInfoSnapshot currentServiceInfo() {
     return this.currentServiceInfoSnapshot;
   }
 
+  /**
+   * Get the transformer registry of the wrapper. This should mostly get used by CloudNet modules, as most (if not all)
+   * classes of an application are already loaded when a plugin, extension, etc. on the application layer gets loaded.
+   *
+   * @return the transformer registry of the wrapper.
+   */
   public @NonNull TransformerRegistry transformerRegistry() {
     return Premain.transformerRegistry;
   }

@@ -67,11 +67,11 @@ inject_proxy_commands: true
 # Upstream server compression ratio(proxy to client), higher = less bandwidth, more cpu, lower vice versa
 upstream_compression_level: 6
 
-# Upstream server compression ratio(proxy to downstream server), higher = less bandwidth, more cpu, lower vice versa
+# Downstream server compression ratio(proxy to downstream server), higher = less bandwidth, more cpu, lower vice versa
 downstream_compression_level: 2
 
 # Education features require small adjustments to work correctly. Enable this option if any of downstream servers support education features.
-enable_edu_features: false
+enable_edu_features: true
 
 # Enable/Disable the resource pack system
 enable_packs: true

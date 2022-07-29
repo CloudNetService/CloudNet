@@ -18,6 +18,7 @@ package eu.cloudnetservice.driver.network.http.annotation.parser;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.http.HttpComponent;
 import eu.cloudnetservice.driver.network.http.HttpContext;
@@ -189,8 +190,8 @@ public final class DefaultHttpAnnotationParser<T extends HttpComponent<T>> imple
 
         // sanatize the supplied arguments
         var supportedPaths = annotation.paths();
-        var boundPort = annotation.port() >= 0 && annotation.port() <= 65535 ? annotation.port() : null;
-        var supportedMethods = Arrays.stream(annotation.methods()).map(String::toUpperCase).toList();
+        var boundPort = annotation.port() >= 0 && annotation.port() <= 0xFFFF ? annotation.port() : null;
+        var supportedMethods = Arrays.stream(annotation.methods()).map(StringUtil::toUpper).toList();
 
         // validate the arguments
         Preconditions.checkArgument(supportedPaths.length > 0, "At least one path to handle must be present");

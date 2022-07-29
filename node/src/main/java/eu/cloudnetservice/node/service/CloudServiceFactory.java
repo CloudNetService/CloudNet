@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.service;
 
+import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import lombok.NonNull;
 
-@FunctionalInterface
-public interface CloudServiceFactory {
+public interface CloudServiceFactory extends Nameable {
 
   @NonNull CloudService createCloudService(@NonNull CloudServiceManager manager,
     @NonNull ServiceConfiguration configuration);

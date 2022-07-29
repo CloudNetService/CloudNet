@@ -19,7 +19,6 @@ package eu.cloudnetservice.node.setup;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
@@ -34,7 +33,6 @@ import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.module.ModuleEntry;
 import eu.cloudnetservice.node.util.NetworkUtil;
-import java.net.Inet6Address;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashSet;
@@ -97,7 +95,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .recommendation(NetworkUtil.localAddress() + ":1410")
           .possibleResults(addresses.stream().map(addr -> addr + ":1410").toList())
-          .parser(Parsers.validatedHostAndPort(true)))
+          .parser(Parsers.assignableHostAndPort(true)))
         .build(),
       // web server host
       QuestionListEntry.<HostAndPort>builder()
@@ -106,7 +104,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .recommendation(NetworkUtil.localAddress() + ":2812")
           .possibleResults(addresses.stream().map(addr -> addr + ":2812").toList())
-          .parser(Parsers.validatedHostAndPort(true)))
+          .parser(Parsers.assignableHostAndPort(true)))
         .build(),
       // service bind host address
       QuestionListEntry.<HostAndPort>builder()
@@ -115,7 +113,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .possibleResults(addresses)
           .recommendation(NetworkUtil.localAddress())
-          .parser(Parsers.validatedHostAndPort(false)))
+          .parser(Parsers.nonWildcardHost(Parsers.assignableHostAndPort(false))))
         .build(),
       // maximum memory usage
       QuestionListEntry.<Integer>builder()
@@ -204,16 +202,6 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     // init the host address
     HostAndPort hostAddress = animation.result("hostAddress");
     config.hostAddress(hostAddress.host());
-
-    // if the host address is a wildcard address we need to specify a loopback address as connect host address
-    // this is because the connect address should be used by a proxy to connect a player to a downstream service
-    var address = InetAddresses.forString(hostAddress.host());
-    if (address.isAnyLocalAddress()) {
-      // keep ipv6 address types
-      config.connectHostAddress(address instanceof Inet6Address ? "::1" : "127.0.0.1");
-    } else {
-      config.connectHostAddress(hostAddress.host());
-    }
 
     // init the web host address
     config.httpListeners().clear();

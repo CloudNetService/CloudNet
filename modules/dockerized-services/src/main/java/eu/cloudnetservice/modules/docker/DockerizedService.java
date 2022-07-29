@@ -27,7 +27,6 @@ import com.github.dockerjava.api.model.Capability;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.InternetProtocol;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
@@ -165,8 +164,12 @@ public class DockerizedService extends JVMService {
       var volumes = this.collectVolumes();
       var binds = this.collectBinds(wrapperPath);
       var exposedPorts = Lists.newArrayList(Iterables.concat(taskExposedPorts, this.configuration.exposedPorts()));
+
       // we need to expose the port of the service we're starting as well
-      exposedPorts.add(new ExposedPort(this.serviceConfiguration.port(), InternetProtocol.TCP));
+      // we're exposing udp and tcp as bedrock uses udp while java edition uses
+      // tcp - we cannot predict which internet protocol will be used
+      exposedPorts.add(ExposedPort.tcp(this.serviceConfiguration.port()));
+      exposedPorts.add(ExposedPort.udp(this.serviceConfiguration.port()));
 
       // only pull the image if we need to, remote pulls will always be slower than local imports
       if (this.needsImagePull(image)) {

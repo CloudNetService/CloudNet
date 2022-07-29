@@ -67,7 +67,7 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
     // register each service matching the service cache tester
     this.cacheRegisterListener = service -> proxyServer.registerServer(new ServerInfo(
       service.name(),
-      new InetSocketAddress(service.connectAddress().host(), service.connectAddress().port())));
+      new InetSocketAddress(service.address().host(), service.address().port())));
     // unregister each service matching the service cache tester
     this.cacheUnregisterListener = service -> proxyServer.getServer(service.name())
       .map(RegisteredServer::getServerInfo)

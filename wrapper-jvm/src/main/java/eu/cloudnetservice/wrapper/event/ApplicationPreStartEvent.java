@@ -22,48 +22,74 @@ import java.util.Collection;
 import lombok.NonNull;
 
 /**
- * This event is only interesting for wrapper modules. It is called before the actual program is started in a new
- * thread.
+ * An event called when the underlying application of the wrapper is about to be started. This event cannot be used by
+ * platform plugins or extensions, as this event is fired before they get enabled.
  *
- * @see DriverEvent
+ * @since 4.0
  */
 public final class ApplicationPreStartEvent extends DriverEvent {
 
-  /**
-   * The current singleton instance of the Wrapper class
-   *
-   * @see Wrapper
-   */
   private final Wrapper cloudNetWrapper;
-
-  /**
-   * The class, which is set in the manifest as 'Main-Class' by the archive of the wrapped application
-   */
   private final Class<?> applicationMainClass;
-  /**
-   * The arguments for the main method of the application
-   */
   private final Collection<String> arguments;
+  private final ClassLoader classLoader;
 
+  /**
+   * Constructs a new ApplicationPreStartEvent instance.
+   *
+   * @param cloudNetWrapper      the wrapper instance which will start the application.
+   * @param applicationMainClass the main class instance which will be invoked to start the application.
+   * @param arguments            the process arguments which will be passed to the application.
+   * @param classLoader          the class loader which loaded the application main class.
+   * @throws NullPointerException if the given wrapper instance, application main, arguments or class loader is null.
+   */
   public ApplicationPreStartEvent(
     @NonNull Wrapper cloudNetWrapper,
     @NonNull Class<?> applicationMainClass,
-    @NonNull Collection<String> arguments
+    @NonNull Collection<String> arguments,
+    @NonNull ClassLoader classLoader
   ) {
     this.cloudNetWrapper = cloudNetWrapper;
     this.applicationMainClass = applicationMainClass;
     this.arguments = arguments;
+    this.classLoader = classLoader;
   }
 
+  /**
+   * Get the wrapper instance which started the application.
+   *
+   * @return the wrapper instance.
+   */
   public @NonNull Wrapper wrapper() {
     return this.cloudNetWrapper;
   }
 
-  public @NonNull Class<?> clazz() {
+  /**
+   * Get the main class which was invoked when starting the application.
+   *
+   * @return the invoked main class of the application.
+   */
+  public @NonNull Class<?> applicationMainClass() {
     return this.applicationMainClass;
   }
 
+  /**
+   * Get the arguments which will be passed to the application when starting. The returned collection is modifiable and
+   * can be used to change the arguments before starting.
+   *
+   * @return the arguments which will be passed to the application as process arguments.
+   */
   public @NonNull Collection<String> arguments() {
     return this.arguments;
+  }
+
+  /**
+   * Get the class loader which was used to load the main class of the application (and all other classes of the
+   * application in the runtime unless the application decides to switch to another loader).
+   *
+   * @return the class loader of the application main class.
+   */
+  public @NonNull ClassLoader classLoader() {
+    return this.classLoader;
   }
 }

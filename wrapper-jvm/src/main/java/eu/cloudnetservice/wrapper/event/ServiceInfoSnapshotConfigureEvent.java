@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.wrapper.event.service;
+package eu.cloudnetservice.wrapper.event;
 
-import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceEvent;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
 
 /**
- * The event is called when a new ServiceInfoSnapshot has been created to update this service. With the getProperties()
- * Method by ServiceInfoSnapshot you can added optional properties.
- * <p>
- * This Event will called every update with the Wrapper API
+ * An event which is called when a service snapshot which is represented by the current wrapper is updated. Listeners of
+ * this event can change the service snapshot which is sent into the cluster as needed (for example appending custom
+ * properties to it).
  *
- * @see ServiceInfoSnapshot
- * @see Event
+ * @since 4.0
  */
-public class ServiceInfoSnapshotConfigureEvent extends CloudServiceEvent {
+public final class ServiceInfoSnapshotConfigureEvent extends CloudServiceEvent {
 
+  /**
+   * Constructs a new ServiceInfoSnapshotConfigureEvent instance.
+   *
+   * @param serviceInfoSnapshot the service snapshot which is being configured.
+   * @throws NullPointerException if the given service snapshot is null.
+   */
   public ServiceInfoSnapshotConfigureEvent(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     super(serviceInfoSnapshot);
   }

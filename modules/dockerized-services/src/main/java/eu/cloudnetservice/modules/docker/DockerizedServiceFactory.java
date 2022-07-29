@@ -64,4 +64,9 @@ public class DockerizedServiceFactory extends AbstractServiceFactory {
       this.dockerClient,
       this.configuration);
   }
+
+  @Override
+  public @NonNull String name() {
+    return this.configuration.factoryName();
+  }
 }

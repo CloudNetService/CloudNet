@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.common.io;
 
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import java.io.IOException;
@@ -28,7 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Locale;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -45,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
 public final class ZipUtil {
 
   private static final Logger LOGGER = LogManager.logger(ZipUtil.class);
-  private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows");
+  private static final boolean IS_WINDOWS = StringUtil.toLower(System.getProperty("os.name")).contains("windows");
 
   private ZipUtil() {
     throw new UnsupportedOperationException();
@@ -90,8 +90,8 @@ public final class ZipUtil {
 
   /**
    * Walks the file tree of the given directory and copies all files and directories without any filtering into a new
-   * zip output stream at the given target destination. This method is equivalent to {@code ZipUtil.zipToFile(dir,
-   * target, null)}.
+   * zip output stream at the given target destination. This method is equivalent to
+   * {@code ZipUtil.zipToFile(dir, target, null)}.
    *
    * @param dir    the directory to zip.
    * @param target the destination of the zip file.

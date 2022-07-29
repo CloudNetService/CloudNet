@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.http.annotation.parser;
 
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpHandler;
 import java.lang.invoke.MethodHandle;
@@ -44,7 +45,7 @@ final class MethodHttpHandlerInvoker extends HttpHandler {
    * @param handlerInstance  the instance in which the http handler method is located.
    * @param handlerMethod    the method to delegate matching http calls to.
    * @param supportedMethods the supported http requests methods by this handler.
-   * @throws NullPointerException if the given instance, method or methods collection is null.
+   * @throws NullPointerException   if the given instance, method or methods collection is null.
    * @throws IllegalAccessException if method access checking fails.
    */
   public MethodHttpHandlerInvoker(
@@ -80,7 +81,7 @@ final class MethodHttpHandlerInvoker extends HttpHandler {
   @Override
   public void handle(@NonNull String path, @NonNull HttpContext context) throws Throwable {
     // check if this handler supports the request method, if not just ignore the request
-    if (this.supportedMethods.contains(context.request().method().toUpperCase())) {
+    if (this.supportedMethods.contains(StringUtil.toUpper(context.request().method()))) {
       var arguments = this.buildInvocationArguments(path, context);
       this.handlerMethod.invoke(this.instance, arguments);
     }

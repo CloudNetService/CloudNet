@@ -90,8 +90,8 @@ world:
   spawn-radius: 16
   view-distance: 8
   gen-structures: true
-  allow-nether: false
-  allow-end: false
+  allow-nether: true
+  allow-end: true
   keep-spawn-loaded: true
   populate-anchored-chunks: true
   classic-style-water: false

@@ -20,6 +20,7 @@ import static com.google.gson.reflect.TypeToken.getParameterized;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.JavaVersion;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
@@ -126,19 +127,19 @@ public class ServiceVersionProvider {
       versionType.environmentType(),
       versionType.name());
     // register the service version
-    this.serviceVersionTypes.put(versionType.name().toLowerCase(), versionType);
+    this.serviceVersionTypes.put(StringUtil.toLower(versionType.name()), versionType);
   }
 
   public @Nullable ServiceVersionType getServiceVersionType(@NonNull String name) {
-    return this.serviceVersionTypes.get(name.toLowerCase());
+    return this.serviceVersionTypes.get(StringUtil.toLower(name));
   }
 
   public void registerServiceEnvironmentType(@NonNull ServiceEnvironmentType environmentType) {
-    this.serviceEnvironmentTypes.put(environmentType.name().toUpperCase(), environmentType);
+    this.serviceEnvironmentTypes.put(StringUtil.toUpper(environmentType.name()), environmentType);
   }
 
   public @Nullable ServiceEnvironmentType getEnvironmentType(@NonNull String name) {
-    return this.serviceEnvironmentTypes.get(name.toUpperCase());
+    return this.serviceEnvironmentTypes.get(StringUtil.toUpper(name));
   }
 
   public boolean installServiceVersion(@NonNull VersionInstaller installer, boolean force) {

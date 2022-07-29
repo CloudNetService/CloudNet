@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.database.h2;
 
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.node.database.LocalDatabase;
@@ -27,7 +28,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
@@ -79,7 +79,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
       // now we just need to extract the name from of the tables from the result set
       Collection<String> names = new ArrayList<>();
       while (meta.next()) {
-        names.add(meta.getString("table_name").toLowerCase(Locale.ROOT));
+        names.add(StringUtil.toLower(meta.getString("table_name")));
       }
       return names;
     } catch (SQLException exception) {

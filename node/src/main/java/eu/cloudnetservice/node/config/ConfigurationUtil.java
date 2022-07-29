@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.config;
 
 import com.google.common.primitives.Ints;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,6 @@ final class ConfigurationUtil {
 
   private static @Nullable String property(@NonNull String propertyName) {
     var val = System.getProperty(propertyName);
-    return val == null ? System.getenv(propertyName.replace('.', '_').toUpperCase()) : val;
+    return val == null ? System.getenv(StringUtil.toUpper(propertyName.replace('.', '_'))) : val;
   }
 }

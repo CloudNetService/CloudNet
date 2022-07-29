@@ -24,6 +24,7 @@ import cloud.commandframework.meta.SimpleCommandMeta;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.command.CommandInfo;
@@ -168,7 +169,7 @@ public class DefaultCommandProvider implements CommandProvider {
       // retrieve the documentation url processed by the @Documentation annotation
       var documentation = cloudCommand.getCommandMeta().get(DOCUMENTATION_KEY).orElse(null);
       // get the name by using the first argument of the command
-      var name = cloudCommand.getArguments().get(0).getName().toLowerCase();
+      var name = StringUtil.toLower(cloudCommand.getArguments().get(0).getName());
       // there is no other command registered with the given name, parse usage and register the command now
       this.registeredCommands.put(cloudCommand.getClass().getClassLoader(),
         new CommandInfo(name, aliases, permission, description, documentation, this.commandUsageOfRoot(name)));
@@ -237,8 +238,7 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public @Nullable CommandInfo command(@NonNull String name) {
-    var lowerCaseInput = name.toLowerCase();
-
+    var lowerCaseInput = StringUtil.toLower(name);
     for (var command : this.registeredCommands.values()) {
       if (command.name().equals(lowerCaseInput) || command.aliases().contains(lowerCaseInput)) {
         return command;
