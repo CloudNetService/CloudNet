@@ -26,11 +26,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.19"
+            "versionGroup": "1.19.1"
           }
         },
         {
-          "name": "1.19",
+          "name": "1.19.1",
           "minJavaVersion": 17,
           "properties": {
             "copy": {
@@ -42,7 +42,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.19"
+            "versionGroup": "1.19.1"
           }
         },
         {
@@ -202,13 +202,13 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.1.jar",
           "cacheFiles": false,
           "minJavaVersion": 17
         },
         {
-          "name": "1.19",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.jar",
+          "name": "1.19.1",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.1.jar",
           "minJavaVersion": 17
         },
         {
@@ -294,12 +294,12 @@
             },
             "parameters": [
               "--rev",
-              "1.19"
+              "1.19.1"
             ]
           }
         },
         {
-          "name": "1.19",
+          "name": "1.19.1",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "minJavaVersion": 17,
           "properties": {
