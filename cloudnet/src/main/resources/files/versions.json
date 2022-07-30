@@ -48,6 +48,8 @@
         {
           "name": "1.18.2",
           "minJavaVersion": 17,
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.18.2/builds/387/downloads/paper-1.18.2-387.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -56,9 +58,7 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.18.2"
+            ]
           }
         },
         {
@@ -214,7 +214,8 @@
         {
           "name": "1.18.2",
           "url": "https://download.getbukkit.org/spigot/spigot-1.18.2.jar",
-          "minJavaVersion": 17
+          "minJavaVersion": 17,
+          "deprecated": true
         },
         {
           "name": "1.17.1",
@@ -316,6 +317,7 @@
           "name": "1.18.2",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "minJavaVersion": 17,
+          "deprecated": true,
           "properties": {
             "copy": {
               "spigot-.*\\.jar": "spigot.jar"
