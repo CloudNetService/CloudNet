@@ -341,6 +341,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       .sum();
   }
 
+  @Override
   public @Nullable NodeServer selectNodeForService(@NonNull ServiceConfiguration configuration) {
     // check if the node is already specified
     if (configuration.serviceId().nodeUniqueId() != null) {
