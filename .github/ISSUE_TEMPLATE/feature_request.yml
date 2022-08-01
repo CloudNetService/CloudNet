@@ -13,7 +13,7 @@ body:
   - type: textarea
     attributes:
       label: Describe the new feature
-      description: A detailed explaination of your request.
+      description: A detailed explanation of your request.
     validations:
       required: true
 
