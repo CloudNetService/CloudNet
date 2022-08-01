@@ -26,7 +26,7 @@ import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 
 @CommandAlias({"shutdown", "stop"})
 @CommandPermission("cloudnet.command.exit")
-@Description("Stops the program and all managed subprocesses")
+@Description("command-exit-description")
 public final class ExitCommand {
 
   @Confirmation

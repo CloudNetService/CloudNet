@@ -38,7 +38,7 @@ import lombok.NonNull;
 
 @CommandAlias({"ask", "?"})
 @CommandPermission("cloudnet.command.help")
-@Description("Shows all commands and their description")
+@Description("commnad-help-description")
 public final class HelpCommand {
 
   private static final RowBasedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowBasedFormatter.<CommandInfo>builder()

@@ -23,7 +23,7 @@ import eu.cloudnetservice.common.log.LoggingUtil;
 import eu.cloudnetservice.node.command.annotation.Description;
 import java.util.logging.Level;
 
-@Description("Toggle the global debug mode")
+@Description("command-debug-description")
 @CommandPermission("cloudnet.command.debug")
 public final class DebugCommand {
 

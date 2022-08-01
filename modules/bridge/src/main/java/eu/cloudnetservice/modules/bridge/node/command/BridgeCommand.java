@@ -41,7 +41,7 @@ import java.util.Queue;
 import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.bridge")
-@Description("Management for the config of the bridge module")
+@Description("module-bridge-command-description")
 public class BridgeCommand {
 
   private final BridgeManagement bridgeManagement;

@@ -108,6 +108,11 @@ public class DefaultCommandProvider implements CommandProvider {
     // handle our @Description annotation and apply the found description for the help command
     this.annotationParser.registerBuilderModifier(Description.class, (description, builder) -> {
       if (!description.value().trim().isEmpty()) {
+        // check if we have to translate the value
+        if (description.translatable()) {
+          return builder.meta(DESCRIPTION_KEY, I18n.trans(description.value()));
+        }
+        // just the raw description
         return builder.meta(DESCRIPTION_KEY, description.value());
       }
       return builder;
@@ -163,7 +168,8 @@ public class DefaultCommandProvider implements CommandProvider {
 
       var permission = cloudCommand.getCommandPermission().toString();
       // retrieve our own description processed by the @Description annotation
-      var description = cloudCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
+      var description = cloudCommand.getCommandMeta().get(DESCRIPTION_KEY)
+        .orElseGet(() -> I18n.trans("command-no-description"));
       // retrieve the aliases processed by the @CommandAlias annotation
       var aliases = cloudCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
       // retrieve the documentation url processed by the @Documentation annotation
@@ -171,7 +177,8 @@ public class DefaultCommandProvider implements CommandProvider {
       // get the name by using the first argument of the command
       var name = StringUtil.toLower(cloudCommand.getArguments().get(0).getName());
       // there is no other command registered with the given name, parse usage and register the command now
-      this.registeredCommands.put(cloudCommand.getClass().getClassLoader(),
+      this.registeredCommands.put(
+        cloudCommand.getClass().getClassLoader(),
         new CommandInfo(name, aliases, permission, description, documentation, this.commandUsageOfRoot(name)));
     }
   }

@@ -36,7 +36,7 @@ import java.util.function.Function;
 import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.smart")
-@Description("Administration for the smart config of each task")
+@Description("module-smart-command-description")
 public class SmartCommand {
 
   @Parser(name = "smartTask", suggestions = "smartTask")

@@ -50,7 +50,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("t")
 @CommandPermission("cloudnet.command.template")
-@Description("Manages the templates and allows installation of application files")
+@Description("command-template-description")
 public final class TemplateCommand {
 
   private static final RowBasedFormatter<ServiceTemplate> LIST_FORMATTER = RowBasedFormatter.<ServiceTemplate>builder()
