@@ -25,11 +25,11 @@ import cloud.commandframework.annotations.specifier.Quoted;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.InternetProtocol;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import java.util.Set;
@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.docker")
 @Description("Administration of the docker module configuration")
-public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull Node node) {
+public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull CloudNetDriver driver) {
 
   @CommandMethod("docker task <task> image <repository> [tag]")
   public void setImage(
@@ -308,7 +308,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull N
     var task = ServiceTask.builder(serviceTask)
       .properties(serviceTask.properties().append("dockerConfig", property.build()))
       .build();
-    this.node.serviceTaskProvider().addServiceTask(task);
+    this.driver.serviceTaskProvider().addServiceTask(task);
   }
 
   private void updateDockerConfig(

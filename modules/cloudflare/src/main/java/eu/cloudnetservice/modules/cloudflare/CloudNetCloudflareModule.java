@@ -41,8 +41,6 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   private static final Logger LOGGER = LogManager.logger(CloudNetCloudflareModule.class);
 
-  private final Node node = Node.instance();
-
   private CloudFlareAPI cloudFlareAPI;
   private CloudflareConfiguration cloudflareConfiguration;
 
@@ -84,7 +82,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
   public void addedDefaultCloudflareDNSServices() {
-    var cloudConfig = this.node.config();
+    var cloudConfig = Node.instance().config();
 
     for (var entry : this.cloudFlareConfiguration().entries()) {
       if (entry.enabled()) {
@@ -119,7 +117,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
   public void registerListeners() {
-    this.registerListener(new CloudflareStartAndStopListener(this, this.node));
+    this.registerListener(new CloudflareStartAndStopListener(this));
   }
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)

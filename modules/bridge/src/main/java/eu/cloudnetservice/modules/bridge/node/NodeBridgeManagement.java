@@ -29,7 +29,6 @@ import eu.cloudnetservice.modules.bridge.node.listener.NodeSetupListener;
 import eu.cloudnetservice.modules.bridge.node.network.NodeBridgeChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.util.Collections;
@@ -37,7 +36,6 @@ import lombok.NonNull;
 
 public class NodeBridgeManagement implements BridgeManagement {
 
-  private final Node node;
   private final EventManager eventManager;
   private final PlayerManager playerManager;
   private final CloudNetBridgeModule bridgeModule;
@@ -49,15 +47,13 @@ public class NodeBridgeManagement implements BridgeManagement {
     @NonNull BridgeConfiguration configuration,
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry registry,
-    @NonNull RPCFactory providerFactory,
-    @NonNull Node node
+    @NonNull RPCFactory providerFactory
   ) {
     this.eventManager = eventManager;
     this.bridgeModule = bridgeModule;
     this.configuration = configuration;
-    this.node = node;
     // init the player manager
-    this.playerManager = new NodePlayerManager(BRIDGE_PLAYER_DB_NAME, eventManager, registry, providerFactory, this, this.node);
+    this.playerManager = new NodePlayerManager(BRIDGE_PLAYER_DB_NAME, eventManager, registry, providerFactory, this);
     // register the listeners
     eventManager.registerListener(new NodeSetupListener(this));
     eventManager.registerListener(new NodeBridgeChannelMessageListener(this, eventManager));
@@ -103,11 +99,11 @@ public class NodeBridgeManagement implements BridgeManagement {
 
   @Override
   public void postInit() {
-    for (var task : this.node.serviceTaskProvider().serviceTasks()) {
+    for (var task : this.bridgeModule.driver().serviceTaskProvider().serviceTasks()) {
       // check if the required permission is set
       if (!task.properties().contains("requiredPermission")) {
         task.properties().appendNull("requiredPermission");
-        this.node.serviceTaskProvider().addServiceTask(task);
+        this.bridgeModule.driver().serviceTaskProvider().addServiceTask(task);
       }
     }
   }

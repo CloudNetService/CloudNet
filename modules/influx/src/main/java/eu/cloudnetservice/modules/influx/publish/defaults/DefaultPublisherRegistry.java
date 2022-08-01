@@ -34,18 +34,15 @@ public class DefaultPublisherRegistry implements PublisherRegistry {
 
   private static final Logger LOGGER = LogManager.logger(DefaultPublisherRegistry.class);
 
-  private final Node node;
-
   private final WriteApiBlocking writeApi;
   private final InfluxDBClient influxClient;
   private final List<Publisher> publishers = new LinkedList<>();
 
   private Future<?> publishFuture;
 
-  public DefaultPublisherRegistry(@NonNull InfluxDBClient influxClient, @NonNull Node node) {
+  public DefaultPublisherRegistry(@NonNull InfluxDBClient influxClient) {
     this.influxClient = influxClient;
     this.writeApi = influxClient.getWriteApiBlocking();
-    this.node = node;
   }
 
   @Override
@@ -95,7 +92,7 @@ public class DefaultPublisherRegistry implements PublisherRegistry {
 
   @Override
   public void scheduleTask(int delayTicks) {
-    this.publishFuture = this.node.mainThread().scheduleTask(() -> {
+    this.publishFuture = Node.instance().mainThread().scheduleTask(() -> {
       this.publishData();
       return null;
     }, delayTicks);

@@ -43,7 +43,7 @@ import lombok.NonNull;
 @CommandAlias("signs")
 @CommandPermission("cloudnet.command.sign")
 @Description("Create new sign configurations")
-public record SignCommand(@NonNull SignManagement signManagement, @NonNull Node node) {
+public record SignCommand(@NonNull SignManagement signManagement) {
 
   private static final RowBasedFormatter<SignConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<SignConfigurationEntry>
       builder()
@@ -57,7 +57,7 @@ public record SignCommand(@NonNull SignManagement signManagement, @NonNull Node 
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var configuration = this.node.groupConfigurationProvider().groupConfiguration(name);
+    var configuration = Node.instance().groupConfigurationProvider().groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
@@ -76,7 +76,7 @@ public record SignCommand(@NonNull SignManagement signManagement, @NonNull Node 
     @NonNull CommandContext<CommandSource> $,
     @NonNull String input
   ) {
-    return this.node.groupConfigurationProvider().groupConfigurations().stream()
+    return Node.instance().groupConfigurationProvider().groupConfigurations().stream()
       .map(Nameable::name)
       .filter(group -> this.signManagement.signsConfiguration()
         .entries()

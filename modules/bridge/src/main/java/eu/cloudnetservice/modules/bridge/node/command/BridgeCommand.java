@@ -43,14 +43,12 @@ import lombok.NonNull;
 @Description("Management for the config of the bridge module")
 public class BridgeCommand {
 
-  private final Node node;
   private final BridgeManagement bridgeManagement;
   private final GroupConfigurationProvider groupConfigurationProvider;
 
-  public BridgeCommand(@NonNull BridgeManagement bridgeManagement, @NonNull Node node) {
+  public BridgeCommand(@NonNull BridgeManagement bridgeManagement) {
     this.bridgeManagement = bridgeManagement;
-    this.groupConfigurationProvider = node.groupConfigurationProvider();
-    this.node = node;
+    this.groupConfigurationProvider = Node.instance().groupConfigurationProvider();
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")
@@ -103,7 +101,7 @@ public class BridgeCommand {
     @NonNull @Argument("permission") String permission
   ) {
     for (var task : serviceTasks) {
-      this.node.serviceTaskProvider().addServiceTask(ServiceTask.builder(task)
+      Node.instance().serviceTaskProvider().addServiceTask(ServiceTask.builder(task)
         .properties(task.properties().append("requiredPermission", permission))
         .build());
       source.sendMessage(I18n.trans("command-tasks-set-property-success",

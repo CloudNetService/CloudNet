@@ -24,11 +24,11 @@ import eu.cloudnetservice.node.Node;
 import java.util.Collection;
 import lombok.NonNull;
 
-public record RunningServiceProcessSnapshotPublisher(@NonNull Node node) implements Publisher {
+public record RunningServiceProcessSnapshotPublisher() implements Publisher {
 
   @Override
   public @NonNull Collection<Point> createPoints() {
-    return this.node.cloudServiceProvider().runningServices().stream()
+    return Node.instance().cloudServiceProvider().runningServices().stream()
       .map(service -> PointUtil.point("services")
         .addTag("Name", service.name())
         .addTag("Task", service.serviceId().taskName())

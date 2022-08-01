@@ -31,18 +31,16 @@ import lombok.NonNull;
 
 public final class CloudNetLocalServiceListener {
 
-  private final Node node;
   private final CloudNetSmartModule module;
 
-  public CloudNetLocalServiceListener(@NonNull CloudNetSmartModule module, @NonNull Node node) {
+  public CloudNetLocalServiceListener(@NonNull CloudNetSmartModule module) {
     this.module = module;
-    this.node = node;
   }
 
   @EventListener
   public void handle(@NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.PREPARED) {
-      var task = this.node.serviceTaskProvider()
+      var task = Node.instance().serviceTaskProvider()
         .serviceTask(event.service().serviceId().taskName());
       // check if the service is associated with a task
       if (task == null) {
@@ -80,9 +78,7 @@ public final class CloudNetLocalServiceListener {
 
           // installs the templates balanced
           case INSTALL_BALANCED -> {
-            var services = this.node
-              .cloudServiceProvider()
-              .servicesByTask(task.name());
+            var services = Node.instance().cloudServiceProvider().servicesByTask(task.name());
             // find the least used template add register it as a service template
             task.templates().stream()
               .min(Comparator.comparingLong(template -> services.stream()

@@ -32,7 +32,6 @@ import lombok.NonNull;
 
 public class DockerizedServicesModule extends DriverModule {
 
-  private final Node node = Node.instance();
   private DockerConfiguration configuration;
 
   @ModuleTask
@@ -72,10 +71,9 @@ public class DockerizedServicesModule extends DriverModule {
       .build();
     // create the client and instantiate the service factory based on the information
     var dockerClient = DockerClientImpl.getInstance(clientConfig, dockerHttpClient);
-    this.node.cloudServiceProvider().addCloudServiceFactory(
+    Node.instance().cloudServiceProvider().addCloudServiceFactory(
       this.configuration.factoryName(),
       new DockerizedServiceFactory(
-        this.node,
         this.eventManager(),
         dockerClient,
         this.configuration));
@@ -83,12 +81,12 @@ public class DockerizedServicesModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void registerComponents() {
-    this.node.commandProvider().register(new DockerCommand(this, this.node));
+    Node.instance().commandProvider().register(new DockerCommand(this, this.driver()));
   }
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
   public void unregisterServiceFactory() {
-    this.node.cloudServiceProvider().removeCloudServiceFactory(this.configuration.factoryName());
+    Node.instance().cloudServiceProvider().removeCloudServiceFactory(this.configuration.factoryName());
   }
 
   public @NonNull DockerConfiguration config() {

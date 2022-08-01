@@ -41,14 +41,12 @@ public final class CloudNetSignsModule extends DriverModule {
 
   private static final Logger LOGGER = LogManager.logger(CloudNetSignsModule.class);
 
-  private final Node node = Node.instance();
-
   private Database database;
   private SignsConfiguration configuration;
 
   @ModuleTask(order = 50)
   public void initialize() {
-    this.database = this.node.databaseProvider().database(DATABASE_NAME);
+    this.database = Node.instance().databaseProvider().database(DATABASE_NAME);
   }
 
   @ModuleTask(order = 40)
@@ -61,7 +59,7 @@ public final class CloudNetSignsModule extends DriverModule {
     var management = new NodeSignManagement(this.configuration, this.configPath(), this.database);
     management.registerToServiceRegistry();
 
-    this.node.commandProvider().register(new SignCommand(management, this.node));
+    Node.instance().commandProvider().register(new SignCommand(management));
     this.registerListener(new SharedChannelMessageListener(management), new NodeSignsListener(management));
     this.registerListener(new PluginIncludeListener(
       "cloudnet-signs",
@@ -80,7 +78,7 @@ public final class CloudNetSignsModule extends DriverModule {
   @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)
   public void handleStopping() throws Exception {
     this.database.close();
-    this.node.eventManager().unregisterListeners(this.getClass().getClassLoader());
+    Node.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
@@ -94,7 +92,7 @@ public final class CloudNetSignsModule extends DriverModule {
   @Deprecated
   private void convertDatabaseIfNecessary() {
     // load old database document
-    var database = this.node.databaseProvider().database("cloudNet_module_configuration");
+    var database = Node.instance().databaseProvider().database("cloudNet_module_configuration");
     var document = database.get("signs_store");
     // when the document is null the conversation already happened
     if (document != null) {

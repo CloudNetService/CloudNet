@@ -26,9 +26,9 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
@@ -40,7 +40,7 @@ import lombok.NonNull;
 @CommandAlias("npcs")
 @CommandPermission("cloudnet.command.npc")
 @Description("Create new npc configurations")
-public record NPCCommand(@NonNull NPCManagement npcManagement, @NonNull Node node) {
+public record NPCCommand(@NonNull NPCManagement npcManagement, @NonNull CloudNetDriver driver) {
 
   private static final RowBasedFormatter<NPCConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<NPCConfigurationEntry>
       builder()
@@ -54,7 +54,7 @@ public record NPCCommand(@NonNull NPCManagement npcManagement, @NonNull Node nod
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var configuration = this.node.groupConfigurationProvider()
+    var configuration = this.driver.groupConfigurationProvider()
       .groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
@@ -73,7 +73,7 @@ public record NPCCommand(@NonNull NPCManagement npcManagement, @NonNull Node nod
     @NonNull CommandContext<CommandSource> $,
     @NonNull String input
   ) {
-    return this.node.groupConfigurationProvider().groupConfigurations().stream()
+    return this.driver.groupConfigurationProvider().groupConfigurations().stream()
       .map(Nameable::name)
       .filter(group -> this.npcManagement.npcConfiguration()
         .entries()

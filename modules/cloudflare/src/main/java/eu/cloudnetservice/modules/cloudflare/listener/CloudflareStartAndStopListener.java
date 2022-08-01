@@ -35,12 +35,10 @@ public final class CloudflareStartAndStopListener {
 
   private static final Logger LOGGER = LogManager.logger(CloudflareStartAndStopListener.class);
 
-  private final Node node;
   private final CloudNetCloudflareModule module;
 
-  public CloudflareStartAndStopListener(@NonNull CloudNetCloudflareModule module, @NonNull Node node) {
+  public CloudflareStartAndStopListener(@NonNull CloudNetCloudflareModule module) {
     this.module = module;
-    this.node = node;
   }
 
   @EventListener
@@ -51,7 +49,7 @@ public final class CloudflareStartAndStopListener {
         var recordDetail = this.module.cloudFlareAPI().createRecord(
           event.service().serviceId().uniqueId(),
           entry,
-          SRVRecord.forConfiguration(entry, configuration, this.node, event.service().serviceConfiguration().port()));
+          SRVRecord.forConfiguration(entry, configuration, Node.instance(), event.service().serviceConfiguration().port()));
         // publish a message to the node log if the record was created successfully
         if (recordDetail != null) {
           LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service", entry.domainName(),
@@ -65,7 +63,7 @@ public final class CloudflareStartAndStopListener {
   public void handlePostStop(@NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.STOPPED || event.newLifeCycle() == ServiceLifeCycle.DELETED) {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
-        // delete all records of the the service
+        // delete all records of the service
         for (var detail : this.module.cloudFlareAPI().deleteAllRecords(event.service())) {
           LOGGER.info(I18n.trans("module-cloudflare-delete-dns-record-for-service", entry.domainName(),
             event.service().serviceId().name(), detail.id()));

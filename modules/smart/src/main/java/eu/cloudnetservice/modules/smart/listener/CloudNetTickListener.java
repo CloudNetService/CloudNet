@@ -47,27 +47,25 @@ import org.jetbrains.annotations.Nullable;
 
 public final class CloudNetTickListener {
 
-  private final Node node;
   private final CloudNetSmartModule module;
 
   private final Map<String, Long> autoStartBlocks = new HashMap<>();
   private final Map<UUID, AtomicLong> autoStopTicks = new HashMap<>();
 
-  public CloudNetTickListener(@NonNull CloudNetSmartModule module, @NonNull Node node) {
+  public CloudNetTickListener(@NonNull CloudNetSmartModule module) {
     this.module = module;
-    this.node = node;
   }
 
   @EventListener
   public void handleTick(@NonNull CloudNetTickServiceStartEvent event) {
-    if (this.node.nodeServerProvider().localNode().head()
+    if (Node.instance().nodeServerProvider().localNode().head()
       && event.ticker().currentTick() % TickLoop.TPS == 0) {
       this.handleSmartEntries();
     }
   }
 
   private void handleSmartEntries() {
-    this.node.serviceTaskProvider().serviceTasks().forEach(task -> {
+    Node.instance().serviceTaskProvider().serviceTasks().forEach(task -> {
       var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
         // get all services of the task
@@ -218,14 +216,14 @@ public final class CloudNetTickListener {
   }
 
   private @NonNull CloudServiceManager serviceManager() {
-    return this.node.cloudServiceProvider();
+    return Node.instance().cloudServiceProvider();
   }
 
   private @NonNull NodeServerProvider nodeServerProvider() {
-    return this.node.nodeServerProvider();
+    return Node.instance().nodeServerProvider();
   }
 
   private @NonNull CloudServiceFactory serviceFactory() {
-    return this.node.cloudServiceFactory();
+    return Node.instance().cloudServiceFactory();
   }
 }

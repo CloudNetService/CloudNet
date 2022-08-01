@@ -48,8 +48,6 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   private static final Logger LOGGER = LogManager.logger(CloudNetBridgeModule.class);
 
-  private final Node node = Node.instance();
-
   @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
   public void initNetworkHelpers() {
     DefaultObjectMapper.DEFAULT_MAPPER
@@ -92,7 +90,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void convertOldDatabaseEntries() {
-    var playerDb = this.node.databaseProvider().database(BRIDGE_PLAYER_DB_NAME);
+    var playerDb = Node.instance().databaseProvider().database(BRIDGE_PLAYER_DB_NAME);
     // read the first player from the database - if the first player is valid we don't need to take a look at the other
     // players in the database as they were already converted
     var first = playerDb.readChunk(0, 1);
@@ -118,7 +116,7 @@ public final class CloudNetBridgeModule extends DriverModule {
             var environment = serviceId.getString("environment", "");
             serviceId.append("environmentName", environment);
             // try to set the new environment
-            var env = this.node.serviceVersionProvider().getEnvironmentType(environment);
+            var env = Node.instance().serviceVersionProvider().getEnvironmentType(environment);
             serviceId.append("environment", env);
             // rewrite the name splitter of the task
             serviceId.append("nameSplitter", "-");
@@ -160,13 +158,12 @@ public final class CloudNetBridgeModule extends DriverModule {
       this,
       this.loadConfiguration(),
       this.eventManager(),
-      this.node.dataSyncRegistry(),
-      this.rpcFactory(),
-      this.node);
+      Node.instance().dataSyncRegistry(),
+      this.rpcFactory());
     management.registerServices(this.serviceRegistry());
     management.postInit();
     // register the cluster sync handler
-    this.node.dataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
+    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
       .key("bridge-config")
       .nameExtractor($ -> "Bridge Config")
       .convertObject(BridgeConfiguration.class)
@@ -175,13 +172,13 @@ public final class CloudNetBridgeModule extends DriverModule {
       .currentGetter($ -> management.configuration())
       .build());
     // register the bridge rest handler
-    this.node.httpServer().annotationParser().parseAndRegister(new V2HttpHandlerBridge());
+    Node.instance().httpServer().annotationParser().parseAndRegister(new V2HttpHandlerBridge());
   }
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void registerCommand() {
     // register the bridge command
-    this.node.commandProvider().register(new BridgeCommand(ServiceRegistry.first(BridgeManagement.class), this.node));
+    Node.instance().commandProvider().register(new BridgeCommand(ServiceRegistry.first(BridgeManagement.class)));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

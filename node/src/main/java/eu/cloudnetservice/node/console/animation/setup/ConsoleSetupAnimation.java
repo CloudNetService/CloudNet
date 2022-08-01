@@ -49,8 +49,6 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   private final String header;
   private final String footer;
   private final String overwritePrompt;
-
-  private final Node node = Node.instance();
   
   private final Map<String, Object> results = new HashMap<>();
   private final Deque<QuestionListEntry<?>> entries = new LinkedBlockingDeque<>();
@@ -135,7 +133,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     this.previousHistory = console.commandHistory();
     this.previousPrintingEnabled = console.printingEnabled();
     this.previousUseMatchingHistorySearch = console.usingMatchingHistoryComplete();
-    this.previousConsoleLines = this.node.logHandler().formattedCachedLogLines();
+    this.previousConsoleLines = Node.instance().logHandler().formattedCachedLogLines();
 
     // apply the console settings of the animation
     console.clearScreen();
@@ -160,7 +158,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
     // disable all commands of the console
     console.disableAllHandlers();
-    this.node.eventManager().callEvent(new SetupInitiateEvent(this));
+    Node.instance().eventManager().callEvent(new SetupInitiateEvent(this));
   }
 
   @Override
@@ -255,7 +253,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       answerType.postResult(result);
       this.results.put(entry.key(), result);
       // call the event
-      this.node.eventManager().callEvent(new SetupResponseEvent(this, entry, result));
+      Node.instance().eventManager().callEvent(new SetupResponseEvent(this, entry, result));
       // re-draw the question line, add the given response to it
       this.console.writeRaw(() -> this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
         .a("&r") // reset of the colors
@@ -289,14 +287,14 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   public void resetConsole() {
     if (this.cancelled) {
       super.console().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
-      this.node.eventManager().callEvent(new SetupCancelledEvent(this));
+      Node.instance().eventManager().callEvent(new SetupCancelledEvent(this));
     } else {
       // print the footer if supplied
       if (this.footer != null) {
         super.console().forceWriteLine("&r" + this.footer);
       }
 
-      this.node.eventManager().callEvent(new SetupCompleteEvent(this));
+      Node.instance().eventManager().callEvent(new SetupCompleteEvent(this));
     }
 
     try {
