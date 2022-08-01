@@ -22,7 +22,9 @@ import lombok.NonNull;
 
 public enum JavaVersion {
 
-  UNKNOWN(-1, -1D, "Unknown Java"),
+  JAVA_UNSUPPORTED(-1, -1D, "Unsupported Java"),
+  JAVA_NEXT(Integer.MAX_VALUE, Double.MAX_VALUE, "Next Java"),
+
   JAVA_8(8, 52D, "Java 8"),
   JAVA_9(9, 53D, "Java 9"),
   JAVA_10(10, 54D, "Java 10"),
@@ -34,35 +36,47 @@ public enum JavaVersion {
   JAVA_16(16, 60D, "Java 16"),
   JAVA_17(17, 61D, "Java 17"),
   JAVA_18(18, 62D, "Java 18"),
-  JAVA_19(19, 63D, "Java 19");
+  JAVA_19(19, 63D, "Java 19"),
+  JAVA_20(20, 64D, "Java 20");
 
-  private static final JavaVersion[] JAVA_VERSIONS = JavaVersion.values();
+  private static final JavaVersion[] JAVA_VERSIONS = resolveActualJavaVersions();
+  private static final JavaVersion LATEST_VERSION = JAVA_VERSIONS[JAVA_VERSIONS.length - 1];
 
-  private final int version;
+  private final int majorVersion;
   private final double classFileVersion;
-  private final String name;
+  private final String displayName;
 
-  JavaVersion(int version, double classFileVersion, @NonNull String name) {
-    this.version = version;
+  JavaVersion(int majorVersion, double classFileVersion, @NonNull String displayName) {
+    this.majorVersion = majorVersion;
     this.classFileVersion = classFileVersion;
-    this.name = name;
+    this.displayName = displayName;
+  }
+
+  private static @NonNull JavaVersion[] resolveActualJavaVersions() {
+    // remove index 0 and 1 (UNSUPPORTED and NEXT) as they shouldn't be resolvable
+    var values = JavaVersion.values();
+    return Arrays.copyOfRange(values, JAVA_8.ordinal(), values.length);
   }
 
   public static @NonNull JavaVersion runtimeVersion() {
-    var classVersion = Double.parseDouble(System.getProperty("java.class.version"));
-    return fromClassFileVersion(classVersion).orElse(UNKNOWN);
+    var jcv = Double.parseDouble(System.getProperty("java.class.version"));
+    return fromClassFileVersion(jcv).orElse(jcv > LATEST_VERSION.classFileVersion() ? JAVA_NEXT : JAVA_UNSUPPORTED);
   }
 
-  public static @NonNull Optional<JavaVersion> fromClassFileVersion(double versionId) {
-    return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.classFileVersion == versionId).findFirst();
+  public static @NonNull Optional<JavaVersion> fromClassFileVersion(double classFileVersion) {
+    return Arrays.stream(JAVA_VERSIONS).filter(version -> version.classFileVersion() == classFileVersion).findFirst();
   }
 
-  public static @NonNull Optional<JavaVersion> fromVersion(int version) {
-    return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.version == version).findFirst();
+  public static @NonNull JavaVersion guessFromMajor(int major) {
+    return fromMajor(major).orElse(major > LATEST_VERSION.majorVersion() ? JAVA_NEXT : JAVA_UNSUPPORTED);
   }
 
-  public int version() {
-    return this.version;
+  public static @NonNull Optional<JavaVersion> fromMajor(int version) {
+    return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.majorVersion == version).findFirst();
+  }
+
+  public int majorVersion() {
+    return this.majorVersion;
   }
 
   public double classFileVersion() {
@@ -70,23 +84,22 @@ public enum JavaVersion {
   }
 
   public @NonNull String displayName() {
-    return this.name;
+    return this.displayName;
   }
 
-  public boolean unknown() {
-    return this == UNKNOWN;
+  public boolean supported() {
+    return this != JAVA_UNSUPPORTED;
   }
 
-  public boolean isSupported(@NonNull JavaVersion minJavaVersion, @NonNull JavaVersion maxJavaVersion) {
-    return this.unknown() || this.classFileVersion >= minJavaVersion.classFileVersion
-      && this.classFileVersion <= maxJavaVersion.classFileVersion;
+  public boolean isInRange(@NonNull JavaVersion lowerBound, @NonNull JavaVersion upperBound) {
+    return this.isNewerOrAt(lowerBound) && this.isOlderOrAt(upperBound);
   }
 
-  public boolean isSupportedByMin(@NonNull JavaVersion minRequiredJavaVersion) {
-    return this.unknown() || this.classFileVersion >= minRequiredJavaVersion.classFileVersion;
+  public boolean isNewerOrAt(@NonNull JavaVersion lowerBound) {
+    return lowerBound.supported() && this.classFileVersion >= lowerBound.classFileVersion;
   }
 
-  public boolean isSupportedByMax(@NonNull JavaVersion maxRequiredJavaVersion) {
-    return this.unknown() || this.classFileVersion <= maxRequiredJavaVersion.classFileVersion;
+  public boolean isOlderOrAt(@NonNull JavaVersion upperBound) {
+    return this.supported() && this.classFileVersion <= upperBound.classFileVersion;
   }
 }

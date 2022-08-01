@@ -16,12 +16,11 @@
 
 package eu.cloudnetservice.node.util;
 
-import com.google.common.io.CharStreams;
+import com.google.common.primitives.Ints;
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.Nullable;
@@ -42,10 +41,10 @@ public final class JavaVersionResolver {
   }
 
   /**
-   * Starts a process and checks the java version of the given input
+   * Starts a process and checks the java version of the given java executable path.
    *
-   * @param input the path to the java executable to check the version for
-   * @return the java version of the executable, null if the input is no valid path to an executable
+   * @param input the path to the java executable to check the version of.
+   * @return the java version of the executable, null if not parseable or if the version is unsupported.
    */
   public static @Nullable JavaVersion resolveFromJavaExecutable(@Nullable String input) {
     // the default java command input can always evaluate in the current runtime version
@@ -55,8 +54,8 @@ public final class JavaVersionResolver {
 
     try {
       var process = Runtime.getRuntime().exec(new String[]{input, "-version"});
-      try (var reader = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8)) {
-        var matcher = JAVA_REGEX.matcher(CharStreams.toString(reader));
+      try (var stream = process.getErrorStream()) {
+        var matcher = JAVA_REGEX.matcher(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
         if (matcher.matches()) {
           var majorVersion = matcher.group(1);
           if (majorVersion.equals("1")) {
@@ -64,8 +63,14 @@ public final class JavaVersionResolver {
             // fail below if the java version is '1'
             majorVersion = matcher.groupCount() == 1 ? majorVersion : matcher.group(2);
           }
-          // parse the java version from the major version (will return null if java 7 or below)
-          return JavaVersion.fromVersion(Integer.parseInt(majorVersion)).orElse(null);
+
+          // parse the java version from the major version, if the version is a valid number
+          var majorVersionNumber = Ints.tryParse(majorVersion);
+          if (majorVersionNumber != null) {
+            // get the version and check if the version is supported.
+            var version = JavaVersion.guessFromMajor(majorVersionNumber);
+            return version.supported() ? version : null;
+          }
         }
       } finally {
         process.destroyForcibly();
