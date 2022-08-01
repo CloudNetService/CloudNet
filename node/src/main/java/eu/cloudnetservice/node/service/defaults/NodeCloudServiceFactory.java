@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.service.defaults;
 import com.google.common.collect.ComparisonChain;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
@@ -28,6 +29,7 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.event.service.CloudServiceNodeSelectEvent;
 import eu.cloudnetservice.node.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import java.util.UUID;
@@ -40,17 +42,19 @@ import org.jetbrains.annotations.Nullable;
 
 public class NodeCloudServiceFactory implements CloudServiceFactory {
 
+  private final EventManager eventManager;
   private final CloudServiceManager serviceManager;
   private final NodeServerProvider nodeServerProvider;
 
   private final Lock serviceCreationLock = new ReentrantLock(true);
 
   public NodeCloudServiceFactory(@NonNull Node nodeInstance) {
+    this.eventManager = nodeInstance.eventManager();
     this.serviceManager = nodeInstance.cloudServiceProvider();
     this.nodeServerProvider = nodeInstance.nodeServerProvider();
 
-    nodeInstance.eventManager().registerListener(new ServiceChannelMessageListener(
-      nodeInstance.eventManager(),
+    this.eventManager.registerListener(new ServiceChannelMessageListener(
+      this.eventManager,
       this.serviceManager,
       this));
     nodeInstance.rpcFactory().newHandler(CloudServiceFactory.class, this).registerToDefaultRegistry();
@@ -70,30 +74,40 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         this.replaceServiceId(serviceConfiguration, configurationBuilder);
         this.replaceServiceUniqueId(serviceConfiguration, configurationBuilder);
         this.includeGroupComponents(serviceConfiguration, configurationBuilder);
-        // get the logic node server to start the service on
-        var nodeServer = this.peekLogicNodeServer(serviceConfiguration);
-        // if there is a node server send a request to start a service
-        if (nodeServer != null) {
-          if (nodeServer.channel() != null) {
-            // send a request to start on the selected cluster node
-            var service = this.sendNodeServerStartRequest(
-              "head_node_to_node_start_service",
-              nodeServer.info().uniqueId(),
-              configurationBuilder.build());
-            if (service != null) {
-              // register the service locally in case the registration packet was not sent before a response to this
-              // packet was received
-              this.serviceManager.handleServiceUpdate(service, nodeServer.channel());
-            }
-            // return the service even if not given
-            return service;
-          } else {
-            // start on the current node
-            return this.serviceManager.createLocalCloudService(configurationBuilder.build()).serviceInfo();
+
+        var nodeSelectEvent = this.eventManager.callEvent(new CloudServiceNodeSelectEvent(serviceConfiguration));
+        // check if we are allowed to start the service - return null otherwise
+        if (nodeSelectEvent.cancelled()) {
+          return null;
+        }
+
+        var nodeServer = nodeSelectEvent.nodeServer();
+        if (nodeServer == null) {
+          // no node was set by the event, try to select a node or return if no node can pick up the service
+          nodeServer = this.selectNodeForService(serviceConfiguration);
+          if (nodeServer == null) {
+            return null;
           }
         }
-        // unable to find a node to start the service
-        return null;
+
+        // use the selected node server and try to start the service
+        if (nodeServer.channel() != null) {
+          // send a request to start on the selected cluster node
+          var service = this.sendNodeServerStartRequest(
+            "head_node_to_node_start_service",
+            nodeServer.info().uniqueId(),
+            configurationBuilder.build());
+          if (service != null) {
+            // register the service locally in case the registration packet was not sent before a response to this
+            // packet was received
+            this.serviceManager.handleServiceUpdate(service, nodeServer.channel());
+          }
+          // return the service even if not given
+          return service;
+        } else {
+          // start on the current node
+          return this.serviceManager.createLocalCloudService(configurationBuilder.build()).serviceInfo();
+        }
       } finally {
         this.serviceCreationLock.unlock();
       }
@@ -106,25 +120,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     }
   }
 
-  protected @Nullable ServiceInfoSnapshot sendNodeServerStartRequest(
-    @NonNull String message,
-    @NonNull String targetNode,
-    @NonNull ServiceConfiguration configuration
-  ) {
-    // send a request to the node to start a service
-    var result = ChannelMessage.builder()
-      .target(ChannelMessageTarget.Type.NODE, targetNode)
-      .message(message)
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(configuration))
-      .build()
-      .sendSingleQueryAsync()
-      .get(5, TimeUnit.SECONDS, null);
-    // read the result service info from the buffer
-    return result == null ? null : result.content().readObject(ServiceInfoSnapshot.class);
-  }
-
-  protected @Nullable NodeServer peekLogicNodeServer(@NonNull ServiceConfiguration configuration) {
+  public @Nullable NodeServer selectNodeForService(@NonNull ServiceConfiguration configuration) {
     // check if the node is already specified
     if (configuration.serviceId().nodeUniqueId() != null) {
       // check for a cluster node server
@@ -167,6 +163,24 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         // use the result of the comparison
         return chain.result();
       }).orElse(null);
+  }
+
+  protected @Nullable ServiceInfoSnapshot sendNodeServerStartRequest(
+    @NonNull String message,
+    @NonNull String targetNode,
+    @NonNull ServiceConfiguration configuration
+  ) {
+    // send a request to the node to start a service
+    var result = ChannelMessage.builder()
+      .target(ChannelMessageTarget.Type.NODE, targetNode)
+      .message(message)
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(configuration))
+      .build()
+      .sendSingleQueryAsync()
+      .get(5, TimeUnit.SECONDS, null);
+    // read the result service info from the buffer
+    return result == null ? null : result.content().readObject(ServiceInfoSnapshot.class);
   }
 
   protected void includeGroupComponents(
