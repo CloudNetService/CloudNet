@@ -20,18 +20,28 @@ import eu.cloudnetservice.driver.event.Cancelable;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.node.cluster.NodeServer;
+import eu.cloudnetservice.node.service.CloudServiceManager;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 public class CloudServiceNodeSelectEvent extends Event implements Cancelable {
 
+  private final CloudServiceManager serviceManager;
   private final ServiceConfiguration configuration;
 
   private boolean cancelled;
   private NodeServer nodeServer;
 
-  public CloudServiceNodeSelectEvent(@NonNull ServiceConfiguration configuration) {
+  public CloudServiceNodeSelectEvent(
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull ServiceConfiguration configuration
+  ) {
+    this.serviceManager = serviceManager;
     this.configuration = configuration;
+  }
+
+  public @NonNull CloudServiceManager serviceManager() {
+    return this.serviceManager;
   }
 
   public @NonNull ServiceConfiguration configuration() {
