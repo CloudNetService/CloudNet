@@ -48,7 +48,7 @@ public final class TickLoop {
   private final AtomicLong currentTick = new AtomicLong();
   private final Queue<ScheduledTask<?>> processQueue = new ConcurrentLinkedQueue<>();
 
-  public TickLoop(Node node) {
+  public TickLoop(@NonNull Node node) {
     this.node = node;
   }
 
@@ -116,7 +116,7 @@ public final class TickLoop {
     while (this.node.running()) {
       try {
         // update the current tick we are in
-        tick = this.currentTick.getAndIncrement();
+        tick = this.currentTick.incrementAndGet();
         // calculate oversleep time
         lastTickLength = System.currentTimeMillis() - lastTick;
         if (lastTickLength < MILLIS_BETWEEN_TICKS) {
