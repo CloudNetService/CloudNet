@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import lombok.NonNull;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Nullable;
 
 public class CloudServiceNodeSelectEvent extends Event implements Cancelable {
 
@@ -48,11 +48,11 @@ public class CloudServiceNodeSelectEvent extends Event implements Cancelable {
     return this.configuration;
   }
 
-  public @UnknownNullability NodeServer nodeServer() {
+  public @Nullable NodeServer nodeServer() {
     return this.nodeServer;
   }
 
-  public void nodeServer(@NonNull NodeServer server) {
+  public void nodeServer(@Nullable NodeServer server) {
     this.nodeServer = server;
   }
 

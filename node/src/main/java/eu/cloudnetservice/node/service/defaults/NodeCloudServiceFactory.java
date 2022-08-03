@@ -73,8 +73,9 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         this.replaceServiceUniqueId(serviceConfiguration, configurationBuilder);
         this.includeGroupComponents(serviceConfiguration, configurationBuilder);
 
-        var nodeSelectEvent = this.eventManager.callEvent(
-          new CloudServiceNodeSelectEvent(this.serviceManager, serviceConfiguration));
+        var nodeSelectEvent = this.eventManager.callEvent(new CloudServiceNodeSelectEvent(
+          this.serviceManager,
+          serviceConfiguration));
         // check if we are allowed to start the service - return null otherwise
         if (nodeSelectEvent.cancelled()) {
           return null;
@@ -118,7 +119,6 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         serviceConfiguration);
     }
   }
-
 
   protected @Nullable ServiceInfoSnapshot sendNodeServerStartRequest(
     @NonNull String message,
