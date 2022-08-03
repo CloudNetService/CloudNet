@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.mongodb.config;
 
 import com.google.common.base.Strings;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import lombok.EqualsAndHashCode;
@@ -105,7 +104,7 @@ public class MongoDBConnectionConfig {
     return this.overridingConnectionUri;
   }
 
-  public String buildConnectionUri() throws UnsupportedEncodingException {
+  public String buildConnectionUri() {
     if (!Strings.isNullOrEmpty(this.overridingConnectionUri)) {
       return this.overridingConnectionUri;
     }
@@ -118,7 +117,7 @@ public class MongoDBConnectionConfig {
     return String.format("mongodb://%s%s:%d%s", authParams, this.host, this.port, authSource);
   }
 
-  private String encodeUrl(String input) throws UnsupportedEncodingException {
-    return URLEncoder.encode(input, StandardCharsets.UTF_8.name());
+  private String encodeUrl(String input) {
+    return URLEncoder.encode(input, StandardCharsets.UTF_8);
   }
 }
