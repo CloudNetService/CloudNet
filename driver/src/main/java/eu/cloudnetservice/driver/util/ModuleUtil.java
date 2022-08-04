@@ -48,7 +48,7 @@ public final class ModuleUtil {
    * @return true if the entry was copied successfully, false otherwise.
    * @throws NullPointerException if clazz or target is null.
    */
-  public static boolean copyCurrentModuleInstanceFromClass(@NonNull Class<?> clazz, @NonNull Path target) {
+  public static boolean copyJarContainingClass(@NonNull Class<?> clazz, @NonNull Path target) {
     try {
       // get the location of the class path entry associated with the given class
       var uri = ResourceResolver.resolveURIFromResourceByClass(clazz);

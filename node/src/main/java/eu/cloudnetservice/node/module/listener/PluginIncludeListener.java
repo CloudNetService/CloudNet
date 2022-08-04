@@ -54,7 +54,7 @@ public record PluginIncludeListener(
       var pluginFile = event.service().pluginDirectory().resolve(this.moduleName + ".jar");
       FileUtil.delete(pluginFile);
       // try to copy the current plugin file
-      if (ModuleUtil.copyCurrentModuleInstanceFromClass(this.moduleClass, pluginFile)) {
+      if (ModuleUtil.copyJarContainingClass(this.moduleClass, pluginFile)) {
         // copy the plugin.yml file for the environment
         ModuleUtil.copyPluginConfigurationFileForEnvironment(
           this.moduleClass,
