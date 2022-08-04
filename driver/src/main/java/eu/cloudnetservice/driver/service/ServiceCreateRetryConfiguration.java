@@ -16,15 +16,17 @@
 
 package eu.cloudnetservice.driver.service;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -33,7 +35,9 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class ServiceCreateRetryConfiguration implements Cloneable {
 
-  public static final ServiceCreateRetryConfiguration NO_RETRY = new ServiceCreateRetryConfiguration(0, List.of(),
+  public static final ServiceCreateRetryConfiguration NO_RETRY = new ServiceCreateRetryConfiguration(
+    0,
+    List.of(),
     Map.of());
 
   private final int maxRetries;
@@ -82,7 +86,7 @@ public class ServiceCreateRetryConfiguration implements Cloneable {
   public static final class Builder {
 
     private int maxRetries = 0;
-    private List<Long> backoffStrategy = Lists.newArrayList(10_000L, 20_000L, 30_000L);
+    private List<Duration> backoffStrategy = Lists.newArrayList(Duration.ofSeconds(15), Duration.ofSeconds(30));
     private Map<ServiceCreateResult.State, List<ChannelMessageTarget>> eventReceivers = new HashMap<>();
 
     public @NonNull Builder maxRetries(int maxRetries) {
@@ -91,12 +95,17 @@ public class ServiceCreateRetryConfiguration implements Cloneable {
     }
 
     public @NonNull Builder fixedRetryDelay(@NonNull Duration delay) {
-      this.backoffStrategy = Lists.newArrayList(delay.toMillis());
+      this.backoffStrategy = Lists.newArrayList(delay);
       return this;
     }
 
-    public @NonNull Builder backoffStrategy(@NonNull List<Duration> backoffStrategy) {
-      this.backoffStrategy = backoffStrategy.stream().map(Duration::toMillis).collect(Collectors.toList());
+    public @NonNull Builder backoffStrategy(@NonNull Collection<Duration> backoffStrategy) {
+      this.backoffStrategy = new ArrayList<>(backoffStrategy);
+      return this;
+    }
+
+    public @NonNull Builder modifyBackoffStrategy(@NonNull Consumer<Collection<Duration>> modifier) {
+      modifier.accept(this.backoffStrategy);
       return this;
     }
 
@@ -122,9 +131,10 @@ public class ServiceCreateRetryConfiguration implements Cloneable {
     }
 
     public @NonNull ServiceCreateRetryConfiguration build() {
+      Preconditions.checkArgument(!this.backoffStrategy.isEmpty(), "BackoffStrategy has no entries");
       return new ServiceCreateRetryConfiguration(
         this.maxRetries,
-        ImmutableList.copyOf(this.backoffStrategy),
+        this.backoffStrategy.stream().map(Duration::toMillis).toList(),
         Map.copyOf(this.eventReceivers));
     }
   }

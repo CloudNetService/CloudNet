@@ -139,7 +139,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .get(5, TimeUnit.SECONDS, null);
 
     // read the result service info from the buffer, if the there was no response then we need to fail (only the head
-    // no should queue start requests)
+    // node should queue start requests)
     var createResult = result == null ? null : result.content().readObject(ServiceCreateResult.class);
     return Objects.requireNonNullElse(createResult, ServiceCreateResult.FAILED);
   }
@@ -206,7 +206,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
 
     // create a new result which indicates that the service create was deferred, including the id to which the
     // state events will be sent if the service gets created successfully later
-    return new ServiceCreateResult(ServiceCreateResult.State.DEFERRED, tracker.creationId(), null);
+    return ServiceCreateResult.deferred(tracker.creationId());
   }
 
   protected void includeGroupComponents(

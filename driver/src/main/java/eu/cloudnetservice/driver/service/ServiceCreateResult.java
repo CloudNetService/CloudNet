@@ -36,6 +36,10 @@ public record ServiceCreateResult(
     Preconditions.checkArgument(state != State.CREATED || serviceInfo != null);
   }
 
+  public static @NonNull ServiceCreateResult deferred(@NonNull UUID creationId) {
+    return new ServiceCreateResult(State.CREATED, creationId, null);
+  }
+
   public static @NonNull ServiceCreateResult created(@NonNull ServiceInfoSnapshot serviceInfo) {
     return new ServiceCreateResult(State.CREATED, serviceInfo.serviceId().uniqueId(), serviceInfo);
   }
