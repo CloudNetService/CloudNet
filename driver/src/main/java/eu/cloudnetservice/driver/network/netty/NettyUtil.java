@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.network.exception.SilentDecoderException;
+import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
 import io.netty5.buffer.api.Buffer;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFactory;
@@ -31,7 +31,6 @@ import io.netty5.util.concurrent.Future;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -94,17 +93,14 @@ public final class NettyUtil {
     // rejected tasks will be executed on the calling thread (See ThreadPoolExecutor.CallerRunsPolicy)
     // at least one thread is always idling in this executor
     var maximumPoolSize = threadAmount();
-    return new ThreadPoolExecutor(
+    return ExecutorServiceUtil.newVirtualThreadExecutor("Packet-Dispatcher-", threadFactory -> new ThreadPoolExecutor(
       maximumPoolSize,
       maximumPoolSize,
       30L,
       TimeUnit.SECONDS,
       new LinkedBlockingQueue<>(),
-      new ThreadFactoryBuilder()
-        .setNameFormat("Packet-Dispatcher-%d")
-        .setThreadFactory(Executors.defaultThreadFactory())
-        .build(),
-      DEFAULT_REJECT_HANDLER);
+      threadFactory,
+      DEFAULT_REJECT_HANDLER));
   }
 
   /**

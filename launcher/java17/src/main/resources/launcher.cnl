@@ -29,6 +29,7 @@ var cloudnet.auto.update true
 # Keep your system up-to-date! If you know what you are doing then enable the dev mode above to prevent cloudnet from
 # updating modules and itself.
 var cloudnet.updateRepo CloudNetService/launchermeta
+
 # Sets the updating branch. For specific features you can switch to the feature branch to pre-test it. Normal updating
 # branches are:
 #  - 'release':     Always contains the latest release version. This is the best version you can choose for a network
