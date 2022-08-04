@@ -37,6 +37,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import net.md_5.bungee.api.score.Scoreboard;
 
 public class LoginProxiedPlayer implements ProxiedPlayer {
@@ -105,7 +106,22 @@ public class LoginProxiedPlayer implements ProxiedPlayer {
   }
 
   @Override
+  public void connect(ServerInfo target, Callback<Boolean> callback, boolean retry) {
+
+  }
+
+  @Override
+  public void connect(ServerInfo target, Callback<Boolean> callback, boolean retry, int timeout) {
+
+  }
+
+  @Override
   public void connect(ServerInfo target, Callback<Boolean> callback, ServerConnectEvent.Reason reason) {
+
+  }
+
+  @Override
+  public void connect(ServerInfo target, Callback<Boolean> callback, boolean retry, Reason reason, int timeout) {
 
   }
 

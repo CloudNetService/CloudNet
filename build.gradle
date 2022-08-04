@@ -65,6 +65,12 @@ allprojects {
       name 'jitpack.io'
       url 'https://jitpack.io'
     }
+
+    maven {
+      name 'paper'
+      url 'https://papermc.io/repo/repository/maven-public/'
+    }
+
   }
 
   project.ext {
@@ -82,7 +88,7 @@ allprojects {
     dependencyJAnsiVersion = '2.4.0'
     dependencySpigotApiVersion = '1.8.8-R0.1-SNAPSHOT'
     dependencySpongeVersion = '7.3.0'
-    dependencyBungeeCordVersion = '1.17-R0.1-SNAPSHOT'
+    dependencyBungeeCordVersion = '1.18-R0.1-SNAPSHOT'
     dependencyVelocityVersion = '1.1.8'
     dependencyNukkitXVersion = '1.0-SNAPSHOT'
     dependencyGoMintVersion = '1.0.0-SNAPSHOT'

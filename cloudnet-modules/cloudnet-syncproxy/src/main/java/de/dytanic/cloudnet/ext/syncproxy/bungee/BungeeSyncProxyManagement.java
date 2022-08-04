@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.ext.syncproxy.bungee;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
+import de.dytanic.cloudnet.ext.syncproxy.bungee.util.MiniMessageUtils;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
 import java.util.UUID;
@@ -58,14 +59,12 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     proxiedPlayer.setTabHeader(
-      TextComponent.fromLegacyText(super.tabListHeader != null ?
+      MiniMessageUtils.miniMessage(super.tabListHeader != null ?
         this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', super.tabListHeader))
-        : ""
-      ),
-      TextComponent.fromLegacyText(super.tabListFooter != null ?
+        : "", true),
+      MiniMessageUtils.miniMessage(super.tabListFooter != null ?
         this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', super.tabListFooter))
-        : ""
-      )
+        : "", true)
     );
   }
 

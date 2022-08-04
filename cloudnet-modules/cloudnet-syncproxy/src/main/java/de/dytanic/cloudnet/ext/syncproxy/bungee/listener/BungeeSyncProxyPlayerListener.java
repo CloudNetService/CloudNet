@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.ext.syncproxy.bungee.listener;
 
 import de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.bungee.util.LoginProxiedPlayer;
+import de.dytanic.cloudnet.ext.syncproxy.bungee.util.MiniMessageUtils;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -69,6 +70,16 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
           .replace("%online_players%", String.valueOf(onlinePlayers))
           .replace("%max_players%", String.valueOf(maxPlayers));
 
+        String protocolName = ChatColor.translateAlternateColorCodes('&',
+          (protocolText == null ? event.getResponse().getVersion().getName() : protocolText)
+            .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+            .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
+            .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
+            .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
+            .replace("%online_players%", String.valueOf(onlinePlayers))
+            .replace("%max_players%", String.valueOf(maxPlayers))
+        );
+
         ServerPing.PlayerInfo[] playerInfo = new ServerPing.PlayerInfo[syncProxyMotd.getPlayerInfo() != null
           ? syncProxyMotd.getPlayerInfo().length : 0];
         for (int i = 0; i < playerInfo.length; i++) {
@@ -77,19 +88,15 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
             UUID.randomUUID().toString());
         }
 
+        boolean above16 = event.getConnection().getVersion() >= 735;
+
         ServerPing serverPing = new ServerPing(
-          new ServerPing.Protocol(ChatColor.translateAlternateColorCodes('&',
-            (protocolText == null ? event.getResponse().getVersion().getName() : protocolText)
-              .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
-              .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
-              .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
-              .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
-              .replace("%online_players%", String.valueOf(onlinePlayers))
-              .replace("%max_players%", String.valueOf(maxPlayers))
+          new ServerPing.Protocol(MiniMessageUtils.miniMessage(protocolName, above16)[0].toString(),
+            (protocolText == null ? event.getResponse().getVersion().getProtocol() : 1)
           ),
-            (protocolText == null ? event.getResponse().getVersion().getProtocol() : 1)),
           new ServerPing.Players(maxPlayers, onlinePlayers, playerInfo),
-          new TextComponent(TextComponent.fromLegacyText(motd)),
+          MiniMessageUtils.miniMessage(motd, above16)[0],
+          //new TextComponent(TextComponent.fromLegacyText(motd)),
           event.getResponse().getFaviconObject()
         );
 
@@ -97,6 +104,8 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
       }
     }
   }
+
+
 
   @EventHandler
   public void handle(LoginEvent event) {
