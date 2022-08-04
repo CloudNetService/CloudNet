@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.bridge;
 import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.wrapper.Wrapper;
@@ -75,7 +76,11 @@ public final class BridgeServiceHelper {
         .serviceTaskAsync(taskName)
         .thenApply(task -> ServiceConfiguration.builder(task).build())
         .thenApply(config -> CloudNetDriver.instance().cloudServiceFactory().createCloudService(config))
-        .thenAccept(service -> service.provider().start());
+        .thenAccept(createResult -> {
+          if (createResult.state() == ServiceCreateResult.State.CREATED) {
+            createResult.serviceInfo().provider().start();
+          }
+        });
     }
   }
 

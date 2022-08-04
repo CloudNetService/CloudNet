@@ -24,13 +24,17 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceCreateResult;
+import eu.cloudnetservice.driver.service.ServiceCreateRetryConfiguration;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -44,6 +48,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   private final NodeServerProvider nodeServerProvider;
 
   private final Lock serviceCreationLock = new ReentrantLock(true);
+  private final ScheduledExecutorService createRetryExecutor = Executors.newSingleThreadScheduledExecutor();
 
   public NodeCloudServiceFactory(@NonNull Node nodeInstance) {
     this.serviceManager = nodeInstance.cloudServiceProvider();
@@ -57,7 +62,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot createCloudService(@NonNull ServiceConfiguration serviceConfiguration) {
+  public @NonNull ServiceCreateResult createCloudService(@NonNull ServiceConfiguration maybeServiceConfiguration) {
     // check if this node can start services
     if (this.nodeServerProvider.localNode().head()) {
       // ensure that we're only creating one service
@@ -65,35 +70,47 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       try {
         // copy the configuration into a builder to prevent setting values on multiple objects which are then shared
         // over services which will eventually break the system
-        var configurationBuilder = ServiceConfiguration.builder(serviceConfiguration);
+        var configurationBuilder = ServiceConfiguration.builder(maybeServiceConfiguration);
         // prepare the service configuration
-        this.replaceServiceId(serviceConfiguration, configurationBuilder);
-        this.replaceServiceUniqueId(serviceConfiguration, configurationBuilder);
-        this.includeGroupComponents(serviceConfiguration, configurationBuilder);
-        // get the logic node server to start the service on
+        this.replaceServiceId(maybeServiceConfiguration, configurationBuilder);
+        this.replaceServiceUniqueId(maybeServiceConfiguration, configurationBuilder);
+        this.includeGroupComponents(maybeServiceConfiguration, configurationBuilder);
+        // disable retries on the new configuration, we only schedule them based on the original one
+        configurationBuilder.retryConfiguration(ServiceCreateRetryConfiguration.NO_RETRY);
+
+        // finish the replaced configuration & get the logic node server to start the service on
+        var serviceConfiguration = configurationBuilder.build();
         var nodeServer = this.peekLogicNodeServer(serviceConfiguration);
         // if there is a node server send a request to start a service
         if (nodeServer != null) {
           if (nodeServer.channel() != null) {
             // send a request to start on the selected cluster node
-            var service = this.sendNodeServerStartRequest(
+            var createResult = this.sendNodeServerStartRequest(
               "head_node_to_node_start_service",
               nodeServer.info().uniqueId(),
               configurationBuilder.build());
-            if (service != null) {
+            if (createResult.state() == ServiceCreateResult.State.CREATED) {
               // register the service locally in case the registration packet was not sent before a response to this
               // packet was received
-              this.serviceManager.handleServiceUpdate(service, nodeServer.channel());
+              this.serviceManager.handleServiceUpdate(createResult.serviceInfo(), nodeServer.channel());
             }
-            // return the service even if not given
-            return service;
+
+            return createResult;
           } else {
             // start on the current node
-            return this.serviceManager.createLocalCloudService(configurationBuilder.build()).serviceInfo();
+            var serviceInfo = this.serviceManager.createLocalCloudService(configurationBuilder.build()).serviceInfo();
+            return ServiceCreateResult.created(serviceInfo);
           }
         }
-        // unable to find a node to start the service
-        return null;
+
+        // unable to find a node to start the service on, check if we should requeue the service creation
+        var retryConfiguration = maybeServiceConfiguration.retryConfiguration();
+        if (retryConfiguration.enabled()) {
+          return this.scheduleCreateRetry(retryConfiguration, serviceConfiguration);
+        }
+
+        // unable to start, and no retry was requested
+        return ServiceCreateResult.FAILED;
       } finally {
         this.serviceCreationLock.unlock();
       }
@@ -102,11 +119,11 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       return this.sendNodeServerStartRequest(
         "node_to_head_start_service",
         this.nodeServerProvider.headNode().info().uniqueId(),
-        serviceConfiguration);
+        maybeServiceConfiguration);
     }
   }
 
-  protected @Nullable ServiceInfoSnapshot sendNodeServerStartRequest(
+  protected @NonNull ServiceCreateResult sendNodeServerStartRequest(
     @NonNull String message,
     @NonNull String targetNode,
     @NonNull ServiceConfiguration configuration
@@ -120,8 +137,11 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .build()
       .sendSingleQueryAsync()
       .get(5, TimeUnit.SECONDS, null);
-    // read the result service info from the buffer
-    return result == null ? null : result.content().readObject(ServiceInfoSnapshot.class);
+
+    // read the result service info from the buffer, if the there was no response then we need to fail (only the head
+    // no should queue start requests)
+    var createResult = result == null ? null : result.content().readObject(ServiceCreateResult.class);
+    return Objects.requireNonNullElse(createResult, ServiceCreateResult.FAILED);
   }
 
   protected @Nullable NodeServer peekLogicNodeServer(@NonNull ServiceConfiguration configuration) {
@@ -167,6 +187,26 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         // use the result of the comparison
         return chain.result();
       }).orElse(null);
+  }
+
+  protected @NonNull ServiceCreateResult scheduleCreateRetry(
+    @NonNull ServiceCreateRetryConfiguration retryConfiguration,
+    @NonNull ServiceConfiguration serviceConfiguration
+  ) {
+    var tracker = new ServiceCreateRetryTracker(
+      serviceConfiguration,
+      this.createRetryExecutor,
+      this,
+      retryConfiguration);
+
+    // schedule the backoff task - we don't allow 0 as the first retry delay in order to allow plugins
+    // to at least get an idea of what happened before the next start try
+    var retryDelay = Math.max(500L, tracker.nextRetryDelay());
+    this.createRetryExecutor.schedule(tracker, retryDelay, TimeUnit.MILLISECONDS);
+
+    // create a new result which indicates that the service create was deferred, including the id to which the
+    // state events will be sent if the service gets created successfully later
+    return new ServiceCreateResult(ServiceCreateResult.State.DEFERRED, tracker.creationId(), null);
   }
 
   protected void includeGroupComponents(
