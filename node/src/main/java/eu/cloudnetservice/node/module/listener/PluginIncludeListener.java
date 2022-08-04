@@ -20,7 +20,7 @@ import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventListener;
-import eu.cloudnetservice.driver.util.DefaultModuleHelper;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.node.service.CloudService;
 import java.nio.file.Path;
@@ -54,9 +54,9 @@ public record PluginIncludeListener(
       var pluginFile = event.service().pluginDirectory().resolve(this.moduleName + ".jar");
       FileUtil.delete(pluginFile);
       // try to copy the current plugin file
-      if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(this.moduleClass, pluginFile)) {
+      if (ModuleUtil.copyCurrentModuleInstanceFromClass(this.moduleClass, pluginFile)) {
         // copy the plugin.yml file for the environment
-        DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
+        ModuleUtil.copyPluginConfigurationFileForEnvironment(
           this.moduleClass,
           event.service().serviceId().environment(),
           pluginFile);

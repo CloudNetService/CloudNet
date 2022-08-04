@@ -32,16 +32,11 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class DefaultModuleHelper {
+public final class ModuleUtil {
 
-  private static final Logger LOGGER = LogManager.logger(DefaultModuleHelper.class);
+  private static final Logger LOGGER = LogManager.logger(ModuleUtil.class);
 
-  /**
-   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
-   *
-   * @throws UnsupportedOperationException on invocation
-   */
-  private DefaultModuleHelper() {
+  private ModuleUtil() {
     throw new UnsupportedOperationException();
   }
 
