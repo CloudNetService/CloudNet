@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.LogManager;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The fallback logger factory which creates the loggers based on java.util.logging loggers which get wrapped into
@@ -28,6 +29,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 final class FallbackLoggerFactory implements LoggerFactory {
 
   private final Map<String, Logger> createdLoggers = new HashMap<>();

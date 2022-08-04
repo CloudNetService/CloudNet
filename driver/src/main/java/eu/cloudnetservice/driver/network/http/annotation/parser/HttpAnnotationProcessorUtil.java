@@ -25,12 +25,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A very small utility class to more easily process annotations added to method parameters.
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 public final class HttpAnnotationProcessorUtil {
 
   private HttpAnnotationProcessorUtil() {
