@@ -37,7 +37,7 @@ public record ServiceCreateResult(
   }
 
   public static @NonNull ServiceCreateResult deferred(@NonNull UUID creationId) {
-    return new ServiceCreateResult(State.CREATED, creationId, null);
+    return new ServiceCreateResult(State.DEFERRED, creationId, null);
   }
 
   public static @NonNull ServiceCreateResult created(@NonNull ServiceInfoSnapshot serviceInfo) {
