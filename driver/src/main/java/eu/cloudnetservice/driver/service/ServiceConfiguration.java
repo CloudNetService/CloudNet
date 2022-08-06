@@ -273,6 +273,13 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     return this.serviceId;
   }
 
+  /**
+   * Get the creation retry configuration that will be applied to all services which are created based on the
+   * configuration. If the configuration is enabled and a service cannot get created, then the configuration will be
+   * used to retry the service creation.
+   *
+   * @return the retry configuration for services created using this configuration.
+   */
   public @NonNull ServiceCreateRetryConfiguration retryConfiguration() {
     return this.retryConfiguration;
   }
@@ -486,6 +493,15 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
       return this;
     }
 
+    /**
+     * Sets the creation retry configuration that will be applied to all services which are created based on the
+     * configuration. If the configuration is enabled and a service cannot get created, then the configuration will be
+     * used to retry the service creation.
+     *
+     * @param retryConfiguration the retry configuration to use.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given retry configuration is null.
+     */
     public @NonNull Builder retryConfiguration(@NonNull ServiceCreateRetryConfiguration retryConfiguration) {
       this.retryConfiguration = retryConfiguration;
       return this;
