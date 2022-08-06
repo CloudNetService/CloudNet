@@ -47,9 +47,9 @@ public final class ExecutorServiceUtil {
   static {
     var threadReflexion = Reflexion.on(Thread.class);
 
-    // try to get the Thread.ofVirtual method; invoke if present - if an exception is thrown preview features are disabled
+    // try to get the Thread.ofVirtual method; invoke if present -> an exception is thrown = preview features are disabled
     VIRTUAL_BUILDER_GETTER = threadReflexion.findMethod("ofVirtual").orElse(null);
-    if (VIRTUAL_BUILDER_GETTER == null || !VIRTUAL_BUILDER_GETTER.invoke().wasSuccessful()) {
+    if (VIRTUAL_BUILDER_GETTER == null || VIRTUAL_BUILDER_GETTER.invoke().wasExceptional()) {
       // virtual threads not available or preview not enabled
       VIRTUAL_THREADS_AVAILABLE = false;
       VIRTUAL_BUILDER_NAME = null;
@@ -96,12 +96,11 @@ public final class ExecutorServiceUtil {
   ) {
     if (VIRTUAL_THREADS_AVAILABLE) {
       // builds a new thread factory for virtual threads
-      var virtualFactory = VIRTUAL_BUILDER_GETTER.invoke().getOrThrow();
-      VIRTUAL_BUILDER_NAME.invoke(virtualFactory, threadNamePrefix, 1L);
-
-      // build the thread factory and the executor based on it
-      var virtualThreadFactory = VIRTUAL_BUILDER_TO_FACTORY.invoke(virtualFactory).getOrThrow();
-      return EXECUTORS_NEW_THREAD_PER_TASK.<ExecutorService>invokeWithArgs(virtualThreadFactory).getOrThrow();
+      return VIRTUAL_BUILDER_GETTER.invoke()
+        .flatMap(builder -> VIRTUAL_BUILDER_NAME.invoke(builder, threadNamePrefix, 1L))
+        .flatMap(VIRTUAL_BUILDER_TO_FACTORY::invoke)
+        .flatMap(EXECUTORS_NEW_THREAD_PER_TASK::<ExecutorService>invokeWithArgs)
+        .getOrThrow();
     } else {
       var threadFactory = new ThreadFactoryBuilder()
         .setNameFormat(threadNamePrefix + "%d")
