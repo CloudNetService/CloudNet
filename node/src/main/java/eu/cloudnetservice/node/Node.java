@@ -260,7 +260,7 @@ public class Node extends CloudNetDriver {
     LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
     LOGGER.info(I18n.trans(
       "network-selected-dispatch-thread-type",
-      ExecutorServiceUtil.virtualThreadsAvailable() ? "virtual" : "os"));
+      ExecutorServiceUtil.virtualThreadsAvailable() ? "virtual" : "platform"));
 
     // bind network listeners
     this.bindNetworkListeners();
