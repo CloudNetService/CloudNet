@@ -69,7 +69,7 @@ protocolLib = "master-SNAPSHOT"
 npcLib = "development-SNAPSHOT"
 
 # fabric platform special dependencies
-minecraft = "1.19.1"
+minecraft = "1.19.2"
 fabricLoader = "0.14.8"
 
 
