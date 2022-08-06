@@ -18,9 +18,12 @@ package eu.cloudnetservice.driver.util;
 
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.unsafe.ResourceResolver;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -101,5 +104,38 @@ public final class ModuleUtil {
         in.close();
       }
     });
+  }
+
+  /**
+   * Unregisters all kind of listeners and bindings:
+   * <ul>
+   *   <li>Registered events in the {@link eu.cloudnetservice.driver.event.EventManager}</li>
+   *   <li>Registered services in the {@link eu.cloudnetservice.driver.registry.ServiceRegistry}</li>
+   *   <li>Registered bindings for the {@link DefaultObjectMapper#DEFAULT_MAPPER}</li>
+   *   <li>Registered rpc handlers in the {@link eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry}</li>
+   *   <li>Registered language files in {@link I18n}</li>
+   *   <li>Registered packet listeners in the {@link eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry}</li>
+   * </ul>
+   *
+   * @param classLoader the class loader that registered all the mentioned listeners and bindings.
+   * @throws NullPointerException if the given class loader is null.
+   */
+  public static void unregisterAll(@NonNull ClassLoader classLoader) {
+    var driver = CloudNetDriver.instance();
+    // remove all event listeners
+    driver.eventManager().unregisterListeners(classLoader);
+    // remove all registered services
+    driver.serviceRegistry().unregisterAll(classLoader);
+    // remove custom mapper bindings
+    DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(classLoader);
+    // remove rpc handlers
+    driver.rpcHandlerRegistry().unregisterHandlers(classLoader);
+    // remove registered languages
+    I18n.unregisterLanguageFiles(classLoader);
+    // remove all packet listeners
+    driver.networkClient().packetRegistry().removeListeners(classLoader);
+    for (var channel : driver.networkClient().channels()) {
+      channel.packetRegistry().removeListeners(classLoader);
+    }
   }
 }

@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.cloudperms.waterdogpe;
 
 import dev.waterdog.waterdogpe.plugin.Plugin;
 import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 
 public class WaterdogPECloudPermissionsPlugin extends Plugin {
 
@@ -29,7 +29,6 @@ public class WaterdogPECloudPermissionsPlugin extends Plugin {
 
   @Override
   public void onDisable() {
-    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }

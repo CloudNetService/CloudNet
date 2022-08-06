@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform.nukkit;
 
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.wrapper.Wrapper;
 
 public final class NukkitBridgePlugin extends PluginBase {
@@ -34,5 +35,6 @@ public final class NukkitBridgePlugin extends PluginBase {
   @Override
   public void onDisable() {
     Server.getInstance().getScheduler().cancelTask(this);
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }

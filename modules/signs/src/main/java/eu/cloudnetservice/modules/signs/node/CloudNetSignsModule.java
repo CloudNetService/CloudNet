@@ -78,7 +78,6 @@ public class CloudNetSignsModule extends DriverModule {
   @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)
   public void handleStopping() throws Exception {
     this.database.close();
-    Node.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

@@ -58,6 +58,8 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.classLoader());
     // unregister all language files
     I18n.unregisterLanguageFiles(moduleWrapper.classLoader());
+    // unregister all services from the service registry
+    this.nodeInstance.serviceRegistry().unregisterAll(moduleWrapper.classLoader());
   }
 
   private void removeListeners(@NonNull Collection<NetworkChannel> channels, @NonNull ClassLoader loader) {

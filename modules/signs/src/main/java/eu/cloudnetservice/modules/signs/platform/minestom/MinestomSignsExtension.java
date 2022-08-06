@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.signs.platform.minestom;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
 import eu.cloudnetservice.modules.signs.platform.minestom.functionality.SignInteractListener;
@@ -43,6 +44,6 @@ public class MinestomSignsExtension extends Extension {
 
   @Override
   public void terminate() {
-
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }
