@@ -108,7 +108,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
           var createResult = this.sendNodeServerStartRequest(
             "head_node_to_node_start_service",
             nodeServer.info().uniqueId(),
-            configurationBuilder.build());
+            serviceConfiguration);
           if (createResult.state() == ServiceCreateResult.State.CREATED) {
             // register the service locally in case the registration packet was not sent before a response to this
             // packet was received
@@ -122,7 +122,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
             serviceConfiguration);
         } else {
           // start on the current node
-          var serviceInfo = this.serviceManager.createLocalCloudService(configurationBuilder.build()).serviceInfo();
+          var serviceInfo = this.serviceManager.createLocalCloudService(serviceConfiguration).serviceInfo();
           return ServiceCreateResult.created(serviceInfo);
         }
       } finally {
