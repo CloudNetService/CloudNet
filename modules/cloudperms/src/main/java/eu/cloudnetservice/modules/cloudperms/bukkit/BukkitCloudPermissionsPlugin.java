@@ -30,7 +30,6 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
   @Override
   public void onEnable() {
     this.checkForVault();
-    Bukkit.getOnlinePlayers().forEach(BukkitPermissionHelper::injectPlayer);
 
     this.getServer().getPluginManager().registerEvents(
       new BukkitCloudPermissionsPlayerListener(CloudNetDriver.instance().permissionManagement()),

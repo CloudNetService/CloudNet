@@ -42,7 +42,7 @@ import lombok.NonNull;
 
 @CommandAlias("signs")
 @CommandPermission("cloudnet.command.sign")
-@Description("Create new sign configurations")
+@Description("module-sign-command-description")
 public class SignCommand {
 
   private static final RowBasedFormatter<SignConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<SignConfigurationEntry>

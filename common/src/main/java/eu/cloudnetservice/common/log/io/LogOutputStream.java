@@ -119,7 +119,7 @@ public final class LogOutputStream extends ByteArrayOutputStream {
     this.flushLock.lock();
     try {
       super.flush();
-      var content = this.toString(StandardCharsets.UTF_8.name());
+      var content = this.toString(StandardCharsets.UTF_8);
       super.reset();
 
       if (!content.isEmpty() && !content.equals(System.lineSeparator())) {

@@ -22,6 +22,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 final class FallbackPassthroughLogger extends Logger {
 
   private final java.util.logging.Logger logger;

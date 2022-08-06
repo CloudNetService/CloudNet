@@ -40,7 +40,7 @@ import lombok.NonNull;
 
 @CommandAlias("cfg")
 @CommandPermission("cloudnet.command.config")
-@Description("Administration of the cloudnet node configuration")
+@Description("command-config-description")
 public final class ConfigCommand {
 
   @Parser(name = "ipAlias")

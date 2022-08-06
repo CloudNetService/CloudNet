@@ -49,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias({"pl", "player"})
 @CommandPermission("cloudnet.command.players")
-@Description("Management for online and offline cloud players")
+@Description("module-bridge-player-command-description")
 public class PlayersCommand {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");

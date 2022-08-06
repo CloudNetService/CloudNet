@@ -22,7 +22,7 @@ import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 
 @CommandPermission("cloudnet.command.clear")
-@Description("Clears the entire console of the node to get a better overview")
+@Description("command-clear-description")
 public final class ClearCommand {
 
   @CommandMethod("clear")

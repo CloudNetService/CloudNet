@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.npc.node;
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -87,7 +86,7 @@ public class CloudNetNPCModule extends DriverModule {
     }
 
     // convert the old database
-    Database db = Node.instance().databaseProvider().database("cloudNet_module_configuration");
+    var db = Node.instance().databaseProvider().database("cloudNet_module_configuration");
     var npcStore = db.get("npc_store");
     if (npcStore != null) {
       Collection<CloudNPC> theOldOnes = npcStore.get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
@@ -95,7 +94,7 @@ public class CloudNetNPCModule extends DriverModule {
       db.delete("npc_store");
       if (theOldOnes != null) {
         // get the new database
-        Database target = Node.instance().databaseProvider().database(DATABASE_NAME);
+        var target = Node.instance().databaseProvider().database(DATABASE_NAME);
         // convert the old entries
         theOldOnes.stream()
           .map(npc -> NPC.builder()
@@ -122,7 +121,7 @@ public class CloudNetNPCModule extends DriverModule {
   @ModuleTask
   public void initModule() {
     var config = this.loadConfig();
-    Database database = Node.instance().databaseProvider().database(DATABASE_NAME);
+    var database = Node.instance().databaseProvider().database(DATABASE_NAME);
     // management init
     var management = new NodeNPCManagement(
       config,

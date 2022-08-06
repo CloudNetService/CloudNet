@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Utility to find dependencies of a module, ensure that they are loaded and that there is no circular dependency.
@@ -38,6 +39,7 @@ import lombok.NonNull;
  * @see ModuleWrapper
  * @since 4.0
  */
+@ApiStatus.Internal
 public final class ModuleDependencyUtil {
 
   /**

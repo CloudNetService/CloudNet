@@ -28,8 +28,6 @@ public final class NukkitCloudPermissionsPlugin extends PluginBase {
 
   @Override
   public void onEnable() {
-    this.injectPlayersCloudPermissible();
-
     super.getServer().getPluginManager().registerEvents(
       new NukkitCloudPermissionsPlayerListener(CloudNetDriver.instance().permissionManagement()),
       this);
@@ -44,11 +42,5 @@ public final class NukkitCloudPermissionsPlugin extends PluginBase {
   @Override
   public void onDisable() {
     ModuleUtil.unregisterAll(this.getClass().getClassLoader());
-  }
-
-  private void injectPlayersCloudPermissible() {
-    for (var player : Server.getInstance().getOnlinePlayers().values()) {
-      NukkitPermissionInjectionHelper.injectPermissible(player, CloudNetDriver.instance().permissionManagement());
-    }
   }
 }

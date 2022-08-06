@@ -39,7 +39,7 @@ import lombok.NonNull;
 
 @CommandAlias("npcs")
 @CommandPermission("cloudnet.command.npc")
-@Description("Create new npc configurations")
+@Description("module-npc-command-description")
 public class NPCCommand {
 
   private static final RowBasedFormatter<NPCConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<NPCConfigurationEntry>

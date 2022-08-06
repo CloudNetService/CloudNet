@@ -52,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("paste")
 @CommandPermission("cloudnet.command.paste")
-@Description("Upload cloud specific data to a paste service")
+@Description("module-report-command-description")
 public final class ReportCommand {
 
   private static final Logger LOGGER = LogManager.logger(ReportCommand.class);

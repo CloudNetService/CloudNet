@@ -49,4 +49,9 @@ public class SilentDecoderException extends DecoderException {
   public Throwable fillInStackTrace() {
     return this;
   }
+
+  @Override
+  public synchronized Throwable initCause(Throwable cause) {
+    return this;
+  }
 }
