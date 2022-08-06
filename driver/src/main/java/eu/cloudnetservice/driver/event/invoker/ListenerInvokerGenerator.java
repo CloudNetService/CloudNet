@@ -31,6 +31,7 @@ import eu.cloudnetservice.driver.util.define.ClassDefiners;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -41,6 +42,7 @@ import org.objectweb.asm.Type;
  * @see ListenerInvoker
  * @since 4.0
  */
+@ApiStatus.Internal
 public final class ListenerInvokerGenerator {
 
   private static final AtomicInteger ID = new AtomicInteger();
@@ -62,8 +64,11 @@ public final class ListenerInvokerGenerator {
    * @throws NullPointerException   if the given listener, method or event class is null
    * @throws EventListenerException if an exception occurs during the code generation.
    */
-  @NonNull
-  public static ListenerInvoker generate(@NonNull Object listener, @NonNull Method method, @NonNull Class<?> event) {
+  public static @NonNull ListenerInvoker generate(
+    @NonNull Object listener,
+    @NonNull Method method,
+    @NonNull Class<?> event
+  ) {
     try {
       // make a class name which is definitely unique for the method
       var className = String.format(

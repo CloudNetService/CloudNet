@@ -19,10 +19,12 @@ package eu.cloudnetservice.common.hash;
 import com.google.common.hash.Hashing;
 import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Shortcut class to guava hashing methods.
  */
+@ApiStatus.Internal
 public final class HashUtil {
 
   private HashUtil() {

@@ -20,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import java.time.Duration;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 final class FallbackClassDefiner implements ClassDefiner {
 
   /**

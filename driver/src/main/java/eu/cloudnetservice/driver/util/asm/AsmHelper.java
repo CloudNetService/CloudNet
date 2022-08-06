@@ -25,6 +25,7 @@ import static org.objectweb.asm.Opcodes.SIPUSH;
 
 import com.google.common.primitives.Primitives;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -34,13 +35,9 @@ import org.objectweb.asm.Type;
  * @see org.objectweb.asm.Opcodes
  * @since 4.0
  */
+@ApiStatus.Internal
 public final class AsmHelper {
 
-  /**
-   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
-   *
-   * @throws UnsupportedOperationException on invocation
-   */
   private AsmHelper() {
     throw new UnsupportedOperationException();
   }
