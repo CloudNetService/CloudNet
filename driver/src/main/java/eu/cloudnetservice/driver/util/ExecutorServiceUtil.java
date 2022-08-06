@@ -81,6 +81,16 @@ public final class ExecutorServiceUtil {
   }
 
   /**
+   * Get if virtual threads are available and will be returned by {@link #newVirtualThreadExecutor(String, Function)}
+   * (in other word if this jvm is running on java 19 or newer and has preview features enabled).
+   *
+   * @return true if virtual threads are available, false otherwise.
+   */
+  public static boolean virtualThreadsAvailable() {
+    return VIRTUAL_THREADS_AVAILABLE;
+  }
+
+  /**
    * Creates a new virtual thread executor if the current jvm supports them (running on Java 19+ with preview features
    * enabled). If virtual threads are not supported a new thread factory based on the given name format will be built
    * and passed to the given fallback executor factory.
