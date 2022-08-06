@@ -78,8 +78,8 @@ public record ModuleConfiguration(
   /**
    * Get the data folder path of this module or a default version of it based on the module's name.
    *
-   * @param baseDirectory the base directory of the module provider used to resolve the data folder if no
-   *                                    data folder is specified explicitly.
+   * @param baseDirectory the base directory of the module provider used to resolve the data folder if no data folder is
+   *                      specified explicitly.
    * @return the data folder in path form of this module.
    */
   public @NonNull Path dataFolder(@NonNull Path baseDirectory) {
@@ -98,7 +98,7 @@ public record ModuleConfiguration(
    * @return the minimum java runtime version this module can run on.
    */
   public @Nullable JavaVersion minJavaVersion() {
-    return JavaVersion.fromVersion(this.minJavaVersionId).orElse(null);
+    return this.minJavaVersionId > 0 ? JavaVersion.guessFromMajor(this.minJavaVersionId) : null;
   }
 
   /**
@@ -109,6 +109,6 @@ public record ModuleConfiguration(
    */
   public boolean canRunOn(@NonNull JavaVersion javaVersion) {
     var minJavaVersion = this.minJavaVersion();
-    return minJavaVersion == null || minJavaVersion.isSupportedByMax(javaVersion);
+    return minJavaVersion == null || !minJavaVersion.supported() || javaVersion.isNewerOrAt(minJavaVersion);
   }
 }

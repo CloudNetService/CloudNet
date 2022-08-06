@@ -28,7 +28,6 @@ import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.modules.smart.util.SmartUtil;
 import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.TickLoop;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
@@ -58,10 +57,7 @@ public final class CloudNetTickListener {
 
   @EventListener
   public void handleTick(@NonNull CloudNetTickServiceStartEvent event) {
-    if (Node.instance().nodeServerProvider().localNode().head()
-      && event.ticker().currentTick() % TickLoop.TPS == 0) {
-      this.handleSmartEntries();
-    }
+    this.handleSmartEntries();
   }
 
   private void handleSmartEntries() {
