@@ -19,13 +19,14 @@ package eu.cloudnetservice.modules.cloudperms.velocity;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.cloudperms.velocity.listener.VelocityCloudPermissionsPlayerListener;
-import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,9 +59,13 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
   }
 
   @Subscribe
+  public void handleReload(ProxyReloadEvent event) {
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+  }
+
+  @Subscribe
   public void handleShutdown(ProxyShutdownEvent event) {
-    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 
   private void initPlayersPermissionFunction() {

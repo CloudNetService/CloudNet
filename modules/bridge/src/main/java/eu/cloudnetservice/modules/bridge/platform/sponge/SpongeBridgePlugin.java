@@ -17,12 +17,14 @@
 package eu.cloudnetservice.modules.bridge.platform.sponge;
 
 import com.google.inject.Inject;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
@@ -43,5 +45,10 @@ public final class SpongeBridgePlugin {
     management.postInit();
     // register the listener
     Sponge.eventManager().registerListeners(this.plugin, new SpongePlayerManagementListener(this.plugin, management));
+  }
+
+  @Listener
+  public void handle(@NonNull StoppingEngineEvent<Server> event) {
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }
