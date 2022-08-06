@@ -32,16 +32,11 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class DefaultModuleHelper {
+public final class ModuleUtil {
 
-  private static final Logger LOGGER = LogManager.logger(DefaultModuleHelper.class);
+  private static final Logger LOGGER = LogManager.logger(ModuleUtil.class);
 
-  /**
-   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
-   *
-   * @throws UnsupportedOperationException on invocation
-   */
-  private DefaultModuleHelper() {
+  private ModuleUtil() {
     throw new UnsupportedOperationException();
   }
 
@@ -53,7 +48,7 @@ public final class DefaultModuleHelper {
    * @return true if the entry was copied successfully, false otherwise.
    * @throws NullPointerException if clazz or target is null.
    */
-  public static boolean copyCurrentModuleInstanceFromClass(@NonNull Class<?> clazz, @NonNull Path target) {
+  public static boolean copyJarContainingClass(@NonNull Class<?> clazz, @NonNull Path target) {
     try {
       // get the location of the class path entry associated with the given class
       var uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
