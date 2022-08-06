@@ -43,7 +43,7 @@ import lombok.NonNull;
 
 @CommandAlias("sp")
 @CommandPermission("cloudnet.command.syncproxy")
-@Description("Administration of the syncproxy configuration management")
+@Description("module-syncproxy-command-description")
 public final class SyncProxyCommand {
 
   private final NodeSyncProxyManagement syncProxyManagement;

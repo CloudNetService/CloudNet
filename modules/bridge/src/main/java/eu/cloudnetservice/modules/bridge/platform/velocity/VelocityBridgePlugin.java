@@ -19,10 +19,12 @@ package eu.cloudnetservice.modules.bridge.platform.velocity;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityHubCommand;
@@ -67,5 +69,10 @@ public final class VelocityBridgePlugin {
         new VelocityHubCommand(this.proxy, management),
         names.length > 1 ? Arrays.copyOfRange(names, 1, names.length) : new String[0]);
     }
+  }
+
+  @Subscribe
+  public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }

@@ -71,7 +71,7 @@ public final class ZipUtilTest {
         FileUtil.copy(inputStream, out);
       }
 
-      Assertions.assertEquals("Info message :3", out.toString(StandardCharsets.UTF_8.name()));
+      Assertions.assertEquals("Info message :3", out.toString(StandardCharsets.UTF_8));
     }
 
     FileUtil.delete(TEST_DIR);

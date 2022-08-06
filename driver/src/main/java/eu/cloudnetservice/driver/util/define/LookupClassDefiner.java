@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.util.define;
 import dev.derklaro.reflexion.Reflexion;
 import java.lang.invoke.MethodHandles;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A class definer for modern jvm implementation (Java 15+) which makes use of the newly added defineHiddenClass method
@@ -26,6 +27,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 final class LookupClassDefiner implements ClassDefiner {
 
   /**

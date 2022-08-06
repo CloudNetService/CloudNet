@@ -79,7 +79,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
 
   protected final RPCSender sender;
   protected final Collection<String> defaultJvmOptions;
-  protected final NodeServerProvider clusterNodeServerProvider;
+  protected final NodeServerProvider nodeServerProvider;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
   protected final Map<String, CloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
@@ -87,7 +87,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
 
   public DefaultCloudServiceManager(@NonNull Node nodeInstance, @NonNull Collection<String> defaultJvmOptions) {
     this.defaultJvmOptions = defaultJvmOptions;
-    this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
+    this.nodeServerProvider = nodeInstance.nodeServerProvider();
     // rpc init
     this.sender = nodeInstance.rpcFactory().providerForClass(null, CloudServiceProvider.class);
     nodeInstance.rpcFactory()
@@ -116,7 +116,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         .convertObject(ServiceInfoSnapshot.class)
         .writer(ser -> {
           // ugly hack to get the channel of the service's associated node
-          var node = this.clusterNodeServerProvider.node(ser.serviceId().nodeUniqueId());
+          var node = this.nodeServerProvider.node(ser.serviceId().nodeUniqueId());
           if (node != null && node.available()) {
             this.handleServiceUpdate(ser, node.channel());
           }
@@ -343,6 +343,52 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   }
 
   @Override
+  public @Nullable NodeServer selectNodeForService(@NonNull ServiceConfiguration configuration) {
+    // check if the node is already specified
+    if (configuration.serviceId().nodeUniqueId() != null) {
+      // check for a cluster node server
+      var server = this.nodeServerProvider.node(configuration.serviceId().nodeUniqueId());
+      if (server != null) {
+        // the requested node is a cluster node, check if that node is still accepting services
+        return !server.available() || server.nodeInfoSnapshot().draining() ? null : server;
+      }
+      // no node server with the given name which can start services found
+      return null;
+    }
+
+    // find the best node server
+    return this.nodeServerProvider.nodeServers().stream()
+      .filter(NodeServer::available)
+      .filter(nodeServer -> !nodeServer.nodeInfoSnapshot().draining())
+      .filter(server -> {
+        var allowedNodes = configuration.serviceId().allowedNodes();
+        return allowedNodes.isEmpty() || allowedNodes.contains(server.info().uniqueId());
+      })
+      .min((left, right) -> {
+        // calculate the reserved memory amount based on the cached service information on this node
+        // this is the better way to do this, as newly created services on other nodes will get cached instantly, rather
+        // than us needing to wait for the updated node info to be sent by the associated node. In normal scenarios
+        // that is not a big problem, however when many start requests are coming in, that can lead to one node picking
+        // up a lot of services until (only a few ms later) the updated snapshot is present.
+        var leftReservedMemory = this.calculateReservedMemoryPercentage(left);
+        var rightReservedMemory = this.calculateReservedMemoryPercentage(right);
+
+        // we elevate the used heap memory percentage over the cpu usage, as it's varying much more
+        var chain = ComparisonChain.start().compare(leftReservedMemory, rightReservedMemory);
+        // only include the cpu usage if both nodes can provide a value
+        if (left.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0
+          && right.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0) {
+          // add the system usage to the chain
+          chain = chain.compare(
+            left.nodeInfoSnapshot().processSnapshot().systemCpuUsage(),
+            right.nodeInfoSnapshot().processSnapshot().systemCpuUsage());
+        }
+        // use the result of the comparison
+        return chain.result();
+      }).orElse(null);
+  }
+
+  @Override
   public void registerLocalService(@NonNull CloudService service) {
     this.knownServices.putIfAbsent(service.serviceId().uniqueId(), service);
   }
@@ -397,7 +443,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   @Override
   public @NonNull SpecificCloudServiceProvider selectOrCreateService(@NonNull ServiceTask task) {
     // filter out all nodes which are able to start a service of the given task
-    var nodes = this.clusterNodeServerProvider.nodeServers().stream()
+    var nodes = this.nodeServerProvider.nodeServers().stream()
       .filter(NodeServer::available)
       .filter(nodeServer -> !nodeServer.nodeInfoSnapshot().draining())
       .filter(server -> {
@@ -452,5 +498,15 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         ? EmptySpecificCloudServiceProvider.INSTANCE
         : createResult.serviceInfo().provider();
     }
+  }
+
+  protected int calculateReservedMemoryPercentage(@NonNull NodeServer server) {
+    // get the reserved memory on the given node based on the services which are running on it and sum it up
+    var reservedMemory = this.services().stream()
+      .filter(info -> info.serviceId().nodeUniqueId().equals(server.name()))
+      .mapToInt(info -> info.configuration().processConfig().maxHeapMemorySize())
+      .sum();
+    // convert to a percentage
+    return (reservedMemory * 100) / server.nodeInfoSnapshot().maxMemory();
   }
 }

@@ -99,11 +99,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.19.1"
+            "versionGroup": "1.19.2"
           }
         },
         {
-          "name": "1.19.1",
+          "name": "1.19.2",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -114,7 +114,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.19.1"
+            "versionGroup": "1.19.2"
           }
         },
         {
@@ -270,7 +270,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.19.1/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.19.2/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -284,8 +284,8 @@
           }
         },
         {
-          "name": "1.19.1",
-          "url": "https://api.purpurmc.org/v2/purpur/1.19.1/latest/download",
+          "name": "1.19.2",
+          "url": "https://api.purpurmc.org/v2/purpur/1.19.2/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -337,12 +337,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.1.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.2.jar",
           "cacheFiles": false
         },
         {
-          "name": "1.19.1",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.1.jar"
+          "name": "1.19.2",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.2.jar"
         },
         {
           "name": "1.18.2",
@@ -413,7 +413,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.19.1",
+          "name": "1.19.2",
           "cacheFiles": false,
           "properties": {
             "copy": {

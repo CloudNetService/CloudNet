@@ -47,7 +47,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.groups")
-@Description("Administers the configurations of all persistent groups")
+@Description("command-groups-description")
 public final class GroupsCommand {
 
   @Parser(suggestions = "groupConfiguration")

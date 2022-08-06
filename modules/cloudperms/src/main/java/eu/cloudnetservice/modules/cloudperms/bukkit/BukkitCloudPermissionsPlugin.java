@@ -17,10 +17,10 @@
 package eu.cloudnetservice.modules.cloudperms.bukkit;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.bukkit.listener.BukkitCloudPermissionsPlayerListener;
 import eu.cloudnetservice.modules.cloudperms.bukkit.vault.VaultSupport;
-import eu.cloudnetservice.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,7 +30,6 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
   @Override
   public void onEnable() {
     this.checkForVault();
-    Bukkit.getOnlinePlayers().forEach(BukkitPermissionHelper::injectPlayer);
 
     this.getServer().getPluginManager().registerEvents(
       new BukkitCloudPermissionsPlayerListener(CloudNetDriver.instance().permissionManagement()),
@@ -49,8 +48,7 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 
   private void checkForVault() {

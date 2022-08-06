@@ -68,11 +68,11 @@ public final class CloudNetTickListener {
         // get all services of the task
         var services = this.serviceManager().servicesByTask(task.name());
         // get all prepared services
-        Collection<ServiceInfoSnapshot> preparedServices = services.stream()
+        var preparedServices = services.stream()
           .filter(service -> service.lifeCycle() == ServiceLifeCycle.PREPARED)
           .collect(Collectors.toSet());
         // get all running services
-        Collection<ServiceInfoSnapshot> runningServices = services.stream()
+        var runningServices = services.stream()
           .filter(service -> service.lifeCycle() == ServiceLifeCycle.RUNNING)
           .collect(Collectors.toSet());
         // get all services which are marked as online by the bridge

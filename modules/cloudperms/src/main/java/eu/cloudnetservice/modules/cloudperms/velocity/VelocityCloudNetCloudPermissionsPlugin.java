@@ -21,13 +21,11 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.cloudperms.velocity.listener.VelocityCloudPermissionsPlayerListener;
-import eu.cloudnetservice.wrapper.Wrapper;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import lombok.NonNull;
 
 @Plugin(
   id = "cloudnet_cloudperms",
@@ -40,17 +38,14 @@ import java.util.logging.Logger;
 public final class VelocityCloudNetCloudPermissionsPlugin {
 
   private final ProxyServer proxyServer;
-  private final Logger logger;
 
   @Inject
-  public VelocityCloudNetCloudPermissionsPlugin(ProxyServer proxyServer, Logger logger) {
+  public VelocityCloudNetCloudPermissionsPlugin(@NonNull ProxyServer proxyServer) {
     this.proxyServer = proxyServer;
-    this.logger = logger;
   }
 
   @Subscribe
-  public void handleProxyInit(ProxyInitializeEvent event) {
-    this.initPlayersPermissionFunction();
+  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
     this.proxyServer.getEventManager().register(this, new VelocityCloudPermissionsPlayerListener(
       this.proxyServer,
       new VelocityCloudPermissionProvider(CloudNetDriver.instance().permissionManagement()),
@@ -58,26 +53,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
   }
 
   @Subscribe
-  public void handleShutdown(ProxyShutdownEvent event) {
-    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-  }
-
-  private void initPlayersPermissionFunction() {
-    this.proxyServer.getAllPlayers().forEach(this::injectPermissionFunction);
-  }
-
-  private void injectPermissionFunction(Player player) {
-    try {
-      var field = player.getClass().getDeclaredField("permissionFunction");
-      field.setAccessible(true);
-      field.set(
-        player,
-        new VelocityCloudPermissionFunction(
-          player.getUniqueId(),
-          CloudNetDriver.instance().permissionManagement()));
-    } catch (Exception exception) {
-      this.logger.log(Level.SEVERE, "Exception while injecting permissions", exception);
-    }
+  public void handleShutdown(@NonNull ProxyShutdownEvent event) {
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }

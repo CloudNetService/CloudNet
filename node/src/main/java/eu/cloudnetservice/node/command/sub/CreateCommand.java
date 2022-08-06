@@ -35,7 +35,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.create")
-@Description("Creates one or more new services based on a task or completely independent")
+@Description("command-create-description")
 public final class CreateCommand {
 
   @CommandMethod("create by <task> <amount>")
