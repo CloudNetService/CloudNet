@@ -42,7 +42,7 @@ public final class ServerLoginPacketListenerMixin {
   @Shadow
   GameProfile gameProfile;
 
-  @Inject(method = "handleAcceptedLogin", at = @At("HEAD"))
+  @Inject(at = @At("HEAD"), method = "handleAcceptedLogin")
   private void onAcceptedLogin(@NonNull CallbackInfo callbackInfo) {
     if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
       var bridged = (BridgedClientConnection) this.connection;
