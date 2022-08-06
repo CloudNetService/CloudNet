@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.node.cluster.NodeServer;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
@@ -66,6 +67,8 @@ public interface CloudServiceManager extends CloudServiceProvider {
   int currentUsedHeapMemory();
 
   int currentReservedMemory();
+
+  @Nullable NodeServer selectNodeForService(@NonNull ServiceConfiguration configuration);
 
   @NonNull
   @UnmodifiableView Collection<CloudService> localCloudServices();
