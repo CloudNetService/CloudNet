@@ -19,10 +19,8 @@ package eu.cloudnetservice.modules.cloudperms.bungee;
 import eu.cloudnetservice.driver.permission.Permission;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
-import java.util.UUID;
 import lombok.NonNull;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -37,7 +35,7 @@ public final class BungeeCloudPermissionsPlayerListener implements Listener {
 
   private final PermissionManagement permissionsManagement;
 
-  public BungeeCloudPermissionsPlayerListener(PermissionManagement permissionsManagement) {
+  public BungeeCloudPermissionsPlayerListener(@NonNull PermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
 
@@ -56,9 +54,9 @@ public final class BungeeCloudPermissionsPlayerListener implements Listener {
 
   @EventHandler
   public void handle(@NonNull PermissionCheckEvent event) {
-    CommandSender sender = event.getSender();
+    var sender = event.getSender();
     if (sender instanceof ProxiedPlayer player) {
-      UUID uniqueId = player.getUniqueId(); // must not be set ¯\_(ツ)_/¯
+      var uniqueId = player.getUniqueId(); // must not be set ¯\_(ツ)_/¯
       if (uniqueId != null) {
         var permissionUser = this.permissionsManagement.user(uniqueId);
         if (permissionUser != null) {
