@@ -348,21 +348,6 @@ public class Wrapper extends CloudNetDriver {
   }
 
   /**
-   * Removes all packet listeners which were loaded by the given class loaders from the network client packet registry
-   * and the packet registry of all client connections.
-   *
-   * @param classLoader the loader of the listener classes to unregister.
-   * @throws NullPointerException if the given class loader is null.
-   */
-  public void unregisterPacketListenersByClassLoader(@NonNull ClassLoader classLoader) {
-    this.networkClient.packetRegistry().removeListeners(classLoader);
-
-    for (var channel : this.networkClient.channels()) {
-      channel.packetRegistry().removeListeners(classLoader);
-    }
-  }
-
-  /**
    * Connects this wrapper with the node which started this service, allowing a maximum of 30 seconds for the connection
    * to establish completely (including the node authorization process).
    * <p>

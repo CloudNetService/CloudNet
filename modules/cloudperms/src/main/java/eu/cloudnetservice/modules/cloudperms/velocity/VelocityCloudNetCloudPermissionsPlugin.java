@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.cloudperms.velocity;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
@@ -56,11 +55,6 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
       this.proxyServer,
       new VelocityCloudPermissionProvider(CloudNetDriver.instance().permissionManagement()),
       CloudNetDriver.instance().permissionManagement()));
-  }
-
-  @Subscribe
-  public void handleReload(ProxyReloadEvent event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 
   @Subscribe

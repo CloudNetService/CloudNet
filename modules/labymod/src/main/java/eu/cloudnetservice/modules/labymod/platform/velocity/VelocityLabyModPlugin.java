@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.labymod.platform.velocity;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
@@ -68,10 +67,4 @@ public class VelocityLabyModPlugin {
     // unregister all listeners for cloudnet events
     ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
-
-  @Subscribe
-  public void handleProxyReload(@NonNull ProxyReloadEvent event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
-  }
-
 }
