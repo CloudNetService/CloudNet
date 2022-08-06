@@ -34,7 +34,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -127,7 +126,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
 
   @Override
   public int deleteAllNPCs(@NonNull String group) {
-    Collection<WorldPosition> positions = this.npcs.entrySet().stream()
+    var positions = this.npcs.entrySet().stream()
       .filter(entry -> entry.getValue().targetGroup().equals(group))
       .map(Map.Entry::getKey)
       .toList();
@@ -145,7 +144,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
 
   @Override
   public int deleteAllNPCs() {
-    Set<WorldPosition> positions = new HashSet<>(this.npcs.keySet());
+    var positions = new HashSet<>(this.npcs.keySet());
     for (var position : positions) {
       this.npcs.remove(position);
       this.database.delete(documentKey(position));
