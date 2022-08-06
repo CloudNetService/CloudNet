@@ -50,7 +50,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("perms")
 @CommandPermission("cloudnet.command.permissions")
-@Description("Manages the permissions of users and groups")
+@Description("command-permissions-description")
 public final class PermissionsCommand {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");

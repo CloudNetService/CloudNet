@@ -39,7 +39,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.docker")
-@Description("Administration of the docker module configuration")
+@Description("module-docker-command-description")
 public record DockerCommand(@NonNull DockerizedServicesModule module) {
 
   @CommandMethod("docker task <task> image <repository> [tag]")

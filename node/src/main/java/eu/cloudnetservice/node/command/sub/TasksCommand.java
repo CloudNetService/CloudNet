@@ -65,7 +65,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.tasks")
-@Description("Administers the configurations of all persistent tasks")
+@Description("command-tasks-description")
 public final class TasksCommand {
 
   // Task Setup ASCII

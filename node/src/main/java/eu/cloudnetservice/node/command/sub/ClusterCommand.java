@@ -59,7 +59,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("clu")
 @CommandPermission("cloudnet.command.cluster")
-@Description("Manages the cluster and provides information about it")
+@Description("command-cluster-description")
 public final class ClusterCommand {
 
   public static final RowBasedFormatter<NodeServer> FORMATTER = RowBasedFormatter.<NodeServer>builder()

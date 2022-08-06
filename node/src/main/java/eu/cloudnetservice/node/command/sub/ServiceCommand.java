@@ -65,7 +65,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("ser")
 @CommandPermission("cloudnet.command.service")
-@Description("Manages all services in the cluster")
+@Description("command-service-description")
 public final class ServiceCommand {
 
   private static final Logger LOGGER = LogManager.logger(ServiceCommand.class);

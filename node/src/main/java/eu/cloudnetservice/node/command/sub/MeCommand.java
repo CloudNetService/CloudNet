@@ -34,7 +34,7 @@ import lombok.NonNull;
 
 @CommandAlias("info")
 @CommandPermission("cloudnet.command.me")
-@Description("Displays all important information about this process and the JVM")
+@Description("command-me-description")
 public final class MeCommand {
 
   private static final Pattern UUID_REPLACE_PATTERN = Pattern.compile("-\\w{4}-");
