@@ -23,9 +23,7 @@ import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,21 +42,12 @@ public final class ServerLoginPacketListenerMixin {
   @Shadow
   GameProfile gameProfile;
 
-  @Inject(
-    at = @At(
-      ordinal = 0,
-      value = "FIELD",
-      shift = At.Shift.AFTER,
-      opcode = Opcodes.PUTFIELD,
-      target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;gameProfile:Lcom/mojang/authlib/GameProfile;"
-    ),
-    method = "handleHello"
-  )
-  private void onHello(@NonNull ServerboundHelloPacket packet, @NonNull CallbackInfo info) {
+  @Inject(at = @At("HEAD"), method = "handleAcceptedLogin")
+  private void onAcceptedLogin(@NonNull CallbackInfo callbackInfo) {
     if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
       var bridged = (BridgedClientConnection) this.connection;
       // update the profile according to the forwarded data
-      this.gameProfile = new GameProfile(bridged.forwardedUniqueId(), packet.name());
+      this.gameProfile = new GameProfile(bridged.forwardedUniqueId(), this.gameProfile.getName());
       for (var property : bridged.forwardedProfile()) {
         this.gameProfile.getProperties().put(property.getName(), property);
       }
