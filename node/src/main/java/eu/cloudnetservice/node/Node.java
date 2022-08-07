@@ -41,6 +41,7 @@ import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
 import eu.cloudnetservice.driver.network.netty.server.NettyNetworkServer;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.template.TemplateStorage;
+import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
 import eu.cloudnetservice.ext.updater.UpdaterRegistry;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
@@ -255,8 +256,11 @@ public class Node extends CloudNetDriver {
     this.nodeServerProvider.localNode().state(NodeServerState.READY);
     this.nodeServerProvider.selectHeadNode();
 
-    // prints out the transport type we're going to use, more for debug reasons in normal cases
+    // print out some network information, more for debug reasons in normal cases
     LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
+    LOGGER.info(I18n.trans(
+      "network-selected-dispatch-thread-type",
+      ExecutorServiceUtil.virtualThreadsAvailable() ? "virtual" : "platform"));
 
     // bind network listeners
     this.bindNetworkListeners();
