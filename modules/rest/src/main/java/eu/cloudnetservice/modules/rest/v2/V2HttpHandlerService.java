@@ -30,6 +30,7 @@ import eu.cloudnetservice.driver.network.http.websocket.WebSocketListener;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
@@ -229,25 +230,17 @@ public final class V2HttpHandlerService extends V2HttpHandler {
       }
     }
 
-    var snapshot = this.serviceFactory().createCloudService(configuration);
-    if (snapshot != null) {
-      var start = body.getBoolean("start", false);
-      if (start) {
-        snapshot.provider().start();
-      }
-
-      this.ok(context)
-        .body(this.success().append("snapshot", snapshot).toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext(true);
-    } else {
-      this.ok(context)
-        .body(this.failure().toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext(true);
+    var createResult = this.serviceFactory().createCloudService(configuration);
+    var start = body.getBoolean("start", false);
+    if (start && createResult.state() == ServiceCreateResult.State.CREATED) {
+      createResult.serviceInfo().provider().start();
     }
+
+    this.ok(context)
+      .body(this.success().append("result", createResult).toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext(true);
   }
 
   @BearerAuth

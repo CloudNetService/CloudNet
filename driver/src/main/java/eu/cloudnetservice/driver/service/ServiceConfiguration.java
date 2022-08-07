@@ -119,6 +119,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
 
   protected final ServiceId serviceId;
   protected final ProcessConfiguration processConfig;
+  protected final ServiceCreateRetryConfiguration retryConfiguration;
 
   protected final int port;
   protected final String runtime;
@@ -136,6 +137,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    *
    * @param serviceId             the id of the service to create based on the configuration.
    * @param processConfig         the process configuration of the service which gets created.
+   * @param retryConfiguration    the service create retry configuration to apply if the initial service create fails.
    * @param port                  the port of the service to start with, might get increased when already taken.
    * @param runtime               the runtime of the service to create it based on, for example {@code jvm}.
    * @param hostAddress           the host address the service based on this configuration is bound to.
@@ -153,6 +155,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
   protected ServiceConfiguration(
     @NonNull ServiceId serviceId,
     @NonNull ProcessConfiguration processConfig,
+    @NonNull ServiceCreateRetryConfiguration retryConfiguration,
     int port,
     @NonNull String runtime,
     @Nullable String hostAddress,
@@ -177,6 +180,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     this.staticService = staticService;
     this.processConfig = processConfig;
     this.groups = groups;
+    this.retryConfiguration = retryConfiguration;
     this.deletedFilesAfterStop = deletedFilesAfterStop;
   }
 
@@ -253,7 +257,8 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
       .templates(configuration.templates())
       .deployments(configuration.deployments())
       .inclusions(configuration.inclusions())
-      .properties(configuration.properties());
+      .properties(configuration.properties())
+      .retryConfiguration(configuration.retryConfiguration());
   }
 
   /**
@@ -266,6 +271,17 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    */
   public @NonNull ServiceId serviceId() {
     return this.serviceId;
+  }
+
+  /**
+   * Get the creation retry configuration that will be applied to all services which are created based on the
+   * configuration. If the configuration is enabled and a service cannot get created, then the configuration will be
+   * used to retry the service creation.
+   *
+   * @return the retry configuration for services created using this configuration.
+   */
+  public @NonNull ServiceCreateRetryConfiguration retryConfiguration() {
+    return this.retryConfiguration;
   }
 
   /**
@@ -399,20 +415,20 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
   /**
    * Creates and prepares a service based on this configuration using the default cloud service factory.
    *
-   * @return a service snapshot of a service created based on this configuration, can be null.
+   * @return a result representing the state of the service creation.
    * @see CloudServiceFactory#createCloudService(ServiceConfiguration)
    */
-  public @Nullable ServiceInfoSnapshot createNewService() {
+  public @NonNull ServiceCreateResult createNewService() {
     return CloudNetDriver.instance().cloudServiceFactory().createCloudService(this);
   }
 
   /**
    * Creates and prepares a service based on this configuration using the default cloud service factory.
    *
-   * @return a task completed with a service snapshot of a service created based on this configuration.
+   * @return a task completed with a result representing the state of the service creation.
    * @see CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)
    */
-  public @NonNull Task<ServiceInfoSnapshot> createNewServiceAsync() {
+  public @NonNull Task<ServiceCreateResult> createNewServiceAsync() {
     return CloudNetDriver.instance().cloudServiceFactory().createCloudServiceAsync(this);
   }
 
@@ -437,6 +453,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
 
     protected ServiceId.Builder serviceId = ServiceId.builder();
     protected ProcessConfiguration.Builder processConfig = ProcessConfiguration.builder();
+    protected ServiceCreateRetryConfiguration retryConfiguration = ServiceCreateRetryConfiguration.NO_RETRY;
 
     protected String javaCommand;
     protected String hostAddress;
@@ -473,6 +490,20 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      */
     public @NonNull Builder processConfig(@NonNull ProcessConfiguration.Builder processConfig) {
       this.processConfig = processConfig;
+      return this;
+    }
+
+    /**
+     * Sets the creation retry configuration that will be applied to all services which are created based on the
+     * configuration. If the configuration is enabled and a service cannot get created, then the configuration will be
+     * used to retry the service creation.
+     *
+     * @param retryConfiguration the retry configuration to use.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given retry configuration is null.
+     */
+    public @NonNull Builder retryConfiguration(@NonNull ServiceCreateRetryConfiguration retryConfiguration) {
+      this.retryConfiguration = retryConfiguration;
       return this;
     }
 
@@ -830,6 +861,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
       return new ServiceConfiguration(
         this.serviceId.build(),
         this.processConfig.build(),
+        this.retryConfiguration,
         this.port,
         this.runtime,
         this.hostAddress,

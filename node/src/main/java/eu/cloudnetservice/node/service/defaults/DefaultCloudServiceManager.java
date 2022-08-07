@@ -27,6 +27,7 @@ import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
@@ -490,10 +491,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       return prepared.first().provider();
     } else {
       // create a new service
-      var service = Node.instance()
+      var createResult = Node.instance()
         .cloudServiceFactory()
         .createCloudService(ServiceConfiguration.builder(task).build());
-      return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service.provider();
+      return createResult.state() != ServiceCreateResult.State.CREATED
+        ? EmptySpecificCloudServiceProvider.INSTANCE
+        : createResult.serviceInfo().provider();
     }
   }
 
