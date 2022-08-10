@@ -97,9 +97,13 @@ public final class ModulesCommand {
     var path = this.provider.moduleDirectoryPath().resolve(fileName);
     // check if the file exists
     if (Files.notExists(path)) {
-      throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-file-not-found", fileName));
+      throw new ArgumentNotAvailableException(I18n.trans("command-modules-module-file-not-found", fileName));
     }
+    // dont allow directories
+    if (Files.isDirectory(path)) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-modules-module-not-a-file", fileName));
+    }
+
     return path;
   }
 
