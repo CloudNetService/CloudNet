@@ -34,7 +34,7 @@ public class ConsoleReadThread extends Thread {
   @Override
   public void run() {
     String line;
-    while (!Thread.interrupted() && (line = this.readLine()) != null) {
+    while (!Thread.currentThread().isInterrupted() && (line = this.readLine()) != null) {
       if (this.currentTask != null) {
         this.currentTask.complete(line);
         this.currentTask = null;

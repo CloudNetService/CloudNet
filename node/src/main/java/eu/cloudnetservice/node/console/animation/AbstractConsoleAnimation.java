@@ -82,12 +82,13 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     // move the input one down to keep the last line in the console
     this.console.forceWriteLine(System.lineSeparator());
     // run the animation as long as the animation needs to run
-    while (!Thread.interrupted() && !this.handleTick()) {
+    while (!Thread.currentThread().isInterrupted() && !this.handleTick()) {
       try {
         //noinspection BusyWait
         Thread.sleep(this.updateInterval);
       } catch (InterruptedException exception) {
-        LOGGER.severe("Exception while awaiting console update", exception);
+        Thread.currentThread().interrupt(); // reset the interrupted state of the thread
+        break;
       }
     }
   }

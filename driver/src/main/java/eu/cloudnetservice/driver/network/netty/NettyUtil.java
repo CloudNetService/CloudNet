@@ -200,7 +200,7 @@ public final class NettyUtil {
       // await the future and rethrow exceptions if any occur
       return future.asStage().sync().future();
     } catch (InterruptedException exception) {
-      Thread.currentThread().interrupt(); // not much we can do
+      Thread.currentThread().interrupt(); // reset the interrupted state of the thread
       throw new IllegalThreadStateException();
     }
   }

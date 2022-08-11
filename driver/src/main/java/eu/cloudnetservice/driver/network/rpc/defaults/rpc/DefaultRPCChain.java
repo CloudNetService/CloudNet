@@ -146,7 +146,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
     try {
       Task<T> queryTask = this.fire(component);
       return queryTask.get();
-    } catch (InterruptedException | ExecutionException exception) {
+    } catch (ExecutionException exception) {
       if (exception.getCause() instanceof RPCExecutionException) {
         // may be thrown when the handler did throw an exception, just rethrow that one
         throw (RPCExecutionException) exception.getCause();
@@ -154,6 +154,9 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
         // any other exception should get wrapped
         throw new RPCException(this, exception);
       }
+    } catch (InterruptedException exception) {
+      Thread.currentThread().interrupt(); // reset the interrupted state of the thread
+      throw new IllegalThreadStateException();
     }
   }
 

@@ -105,5 +105,7 @@ public final class ThreadedLogRecordDispatcher extends Thread implements LogReco
     for (var logRecord : this.queue) {
       this.logger.forceLog(logRecord);
     }
+    // reset the interrupted state of the thread
+    Thread.currentThread().interrupt();
   }
 }
