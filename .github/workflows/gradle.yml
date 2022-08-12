@@ -20,7 +20,7 @@ jobs:
       matrix:
         java:
           - 17
-          - 20-ea
+          - 19-ea
 
     steps:
       - name: Checkout repository
