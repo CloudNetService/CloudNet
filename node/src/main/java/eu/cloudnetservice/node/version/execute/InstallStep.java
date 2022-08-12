@@ -22,6 +22,7 @@ import eu.cloudnetservice.node.version.execute.defaults.DeployStepExecutor;
 import eu.cloudnetservice.node.version.execute.defaults.DownloadStepExecutor;
 import eu.cloudnetservice.node.version.execute.defaults.FabricApiVersionFetch;
 import eu.cloudnetservice.node.version.execute.defaults.PaperApiVersionFetchStepExecutor;
+import eu.cloudnetservice.node.version.execute.defaults.SpongeApiVersionFetchStepExecutor;
 import eu.cloudnetservice.node.version.execute.defaults.UnzipStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
 import java.io.IOException;
@@ -37,7 +38,8 @@ public enum InstallStep {
   COPY_FILTER(new CopyFilterStepExecutor()),
   DEPLOY(new DeployStepExecutor()),
   PAPER_API(new PaperApiVersionFetchStepExecutor()),
-  FABRIC_API(new FabricApiVersionFetch());
+  FABRIC_API(new FabricApiVersionFetch()),
+  SPONGE_API(new SpongeApiVersionFetchStepExecutor());
 
   private final InstallStepExecutor executor;
 
