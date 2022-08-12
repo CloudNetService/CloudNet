@@ -1,5 +1,16 @@
 {
   "name": "cloudnet_bridge",
   "version": "{project.build.version}",
-  "entrypoint": "eu.cloudnetservice.modules.bridge.platform.minestom.MinestomBridgeExtension"
+  "entrypoint": "eu.cloudnetservice.modules.bridge.platform.minestom.MinestomBridgeExtension",
+  "externalDependencies": {
+    "repositories": [
+      {
+        "name": "Central",
+        "url": "https://repo1.maven.org/maven2/"
+      }
+    ],
+    "artifacts": [
+      "com.google.guava:guava:31.1-jre"
+    ]
+  }
 }

@@ -1,5 +1,8 @@
 {
   "name": "cloudnet_simplenametags",
   "version": "{project.build.version}",
-  "entrypoint": "eu.cloudnetservice.plugins.simplenametags.minestom.MinestomSimpleNameTagsExtension"
+  "entrypoint": "eu.cloudnetservice.plugins.simplenametags.minestom.MinestomSimpleNameTagsExtension",
+  "dependencies": [
+    "cloudnet_cloudperms"
+  ]
 }
