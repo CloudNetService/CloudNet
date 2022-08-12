@@ -214,6 +214,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
             LockSupport.unpark(runningThread);
           }
         } catch (InterruptedException exception) {
+          Thread.currentThread().interrupt(); // reset the interrupted state of the thread
           throw new RuntimeException("Console thread got interrupted during handling of response input", exception);
         }
       }
@@ -299,7 +300,8 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     try {
       Thread.sleep(1000);
     } catch (InterruptedException exception) {
-      LOGGER.severe("Exception while resetting console", exception);
+      Thread.currentThread().interrupt(); // reset the interrupted state of the thread
+      return;
     }
 
     // remove the setup from the screen

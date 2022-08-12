@@ -109,7 +109,7 @@ final class ApplicationBootstrap {
               // well looks like it didn't terminate - try to force it and don't wait
               processHandle.destroyForcibly();
             } catch (InterruptedException exception) {
-              Thread.currentThread().interrupt(); // not much we can do
+              Thread.currentThread().interrupt(); // reset the interrupted state of the thread
             }
           }
         }));
@@ -124,7 +124,7 @@ final class ApplicationBootstrap {
         exception.printStackTrace();
         // CHECKSTYLE.ON
       } catch (InterruptedException exception) {
-        Thread.currentThread().interrupt(); // not much we can do
+        Thread.currentThread().interrupt(); // reset the interrupted state of the thread
       }
     }, "Application-Thread");
     thread.setDaemon(false);
