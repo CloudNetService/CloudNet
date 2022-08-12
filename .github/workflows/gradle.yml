@@ -20,7 +20,7 @@ jobs:
       matrix:
         java:
           - 17
-          - 18
+          - 19-ea
 
     steps:
       - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: ${{ matrix.java }}
           check-latest: true
           cache: 'gradle'

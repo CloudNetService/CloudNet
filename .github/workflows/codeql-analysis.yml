@@ -22,7 +22,7 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: 17
           check-latest: true
           cache: 'gradle'
