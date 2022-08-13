@@ -32,14 +32,6 @@
       }
     },
     {
-      "name": "GLOWSTONE",
-      "defaultServiceStartPort": 44955,
-      "defaultProcessArguments": [],
-      "properties": {
-        "isJavaServer": true
-      }
-    },
-    {
       "name": "NUKKIT",
       "defaultServiceStartPort": 44955,
       "defaultProcessArguments": [
@@ -475,29 +467,6 @@
               "spongevanilla\\.jar": "/"
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "glowstone",
-      "environmentType": "GLOWSTONE",
-      "website": "https://github.com/GlowstoneMC",
-      "installSteps": [
-        "DOWNLOAD"
-      ],
-      "versions": [
-        {
-          "name": "latest",
-          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2021.8.0/glowstone.jar",
-          "cacheFiles": false
-        },
-        {
-          "name": "1.12.2",
-          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2021.8.0/glowstone.jar"
-        },
-        {
-          "name": "1.8.9",
-          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/v1.8.9/glowstone.-1.8.9-SNAPSHOT.jar"
         }
       ]
     },

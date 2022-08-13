@@ -43,7 +43,6 @@ import eu.cloudnetservice.node.service.CloudServiceFactory;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.BungeeConfigurationPreparer;
-import eu.cloudnetservice.node.service.defaults.config.GlowstoneConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.NukkitConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.VanillaServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.VelocityConfigurationPreparer;
@@ -102,7 +101,6 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     this.addServicePreparer(ServiceEnvironmentType.NUKKIT, new NukkitConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.VELOCITY, new VelocityConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.BUNGEECORD, new BungeeConfigurationPreparer());
-    this.addServicePreparer(ServiceEnvironmentType.GLOWSTONE, new GlowstoneConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, new WaterdogPEConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
