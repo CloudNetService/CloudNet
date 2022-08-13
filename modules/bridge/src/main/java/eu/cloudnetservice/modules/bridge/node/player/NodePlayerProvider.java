@@ -27,15 +27,15 @@ import lombok.NonNull;
 
 final class NodePlayerProvider implements PlayerProvider {
 
-  private final Supplier<Stream<? extends CloudPlayer>> playerSupplier;
+  private final Supplier<Stream<CloudPlayer>> playerSupplier;
 
-  public NodePlayerProvider(@NonNull Supplier<Stream<? extends CloudPlayer>> playerSupplier) {
+  public NodePlayerProvider(@NonNull Supplier<Stream<CloudPlayer>> playerSupplier) {
     this.playerSupplier = playerSupplier;
   }
 
   @Override
-  public @NonNull Collection<? extends CloudPlayer> players() {
-    return this.playerSupplier.get().collect(Collectors.toList());
+  public @NonNull Collection<CloudPlayer> players() {
+    return this.playerSupplier.get().toList();
   }
 
   @Override

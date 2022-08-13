@@ -65,8 +65,7 @@ public class NodePlayerManager implements PlayerManager {
   protected final EventManager eventManager;
 
   protected final Map<UUID, CloudPlayer> onlinePlayers = new ConcurrentHashMap<>();
-  protected final PlayerProvider allPlayersProvider = new NodePlayerProvider(
-    () -> this.onlinePlayers.values().stream());
+  protected final PlayerProvider allPlayerProvider = new NodePlayerProvider(() -> this.onlinePlayers.values().stream());
 
   protected final Striped<Lock> playerReadWriteLocks = Striped.lazyWeakLock(1);
   protected final LoadingCache<UUID, Optional<CloudOfflinePlayer>> offlinePlayerCache = Caffeine.newBuilder()
@@ -137,41 +136,46 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   @Override
-  public @NonNull List<? extends CloudPlayer> onlinePlayers(@NonNull String name) {
+  public @NonNull List<CloudPlayer> onlinePlayers(@NonNull String name) {
     return this.onlinePlayers.values().stream()
       .filter(cloudPlayer -> cloudPlayer.name().equalsIgnoreCase(name))
       .toList();
   }
 
   @Override
-  public @NonNull List<? extends CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment) {
+  public @NonNull List<CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment) {
     return this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer -> cloudPlayer.loginService().environment().equals(environment)
-        || (cloudPlayer.connectedService() != null && cloudPlayer.connectedService().environment().equals(environment)))
+      .filter(cloudPlayer -> {
+        var serviceInfo = Objects.requireNonNullElse(cloudPlayer.connectedService(), cloudPlayer.loginService());
+        return serviceInfo.environment().equals(environment);
+      })
       .toList();
   }
 
   @Override
   public @NonNull PlayerProvider onlinePlayers() {
-    return this.allPlayersProvider;
+    return this.allPlayerProvider;
   }
 
   @Override
   public @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(
-        player -> (player.connectedService() != null && player.connectedService().taskName().equalsIgnoreCase(task))
-          || player.loginService().taskName().equalsIgnoreCase(task)));
+      .filter(player -> {
+        var serviceInfo = Objects.requireNonNullElse(player.connectedService(), player.loginService());
+        return serviceInfo.taskName().equals(task);
+      }));
   }
 
   @Override
   public @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(player -> (player.connectedService() != null && player.connectedService().groups().contains(group))
-        || player.loginService().groups().contains(group)));
+      .filter(player -> {
+        var serviceInfo = Objects.requireNonNullElse(player.connectedService(), player.loginService());
+        return serviceInfo.groups().contains(group);
+      }));
   }
 
   @Override
@@ -193,14 +197,14 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   @Override
-  public @NonNull List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name) {
+  public @NonNull List<CloudOfflinePlayer> offlinePlayers(@NonNull String name) {
     return this.database().find(JsonDocument.newDocument("name", name)).stream()
       .map(document -> document.toInstanceOf(CloudOfflinePlayer.class))
       .toList();
   }
 
   @Override
-  public @NonNull List<? extends CloudOfflinePlayer> registeredPlayers() {
+  public @NonNull List<CloudOfflinePlayer> registeredPlayers() {
     return this.database().entries().values().stream()
       .map(doc -> doc.toInstanceOf(CloudOfflinePlayer.class))
       .filter(Objects::nonNull)

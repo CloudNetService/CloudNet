@@ -31,7 +31,7 @@ public interface NodePermissionManagement extends PermissionManagement {
 
   void deleteGroupSilently(@NonNull PermissionGroup permissionGroup);
 
-  void setGroupsSilently(@Nullable Collection<? extends PermissionGroup> groups);
+  void setGroupsSilently(@Nullable Collection<PermissionGroup> groups);
 
   @NonNull PermissionManagementHandler permissionManagementHandler();
 

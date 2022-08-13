@@ -97,10 +97,7 @@ public final class DefaultPermissionManagementHandler implements PermissionManag
   }
 
   @Override
-  public void handleSetGroups(
-    @NonNull PermissionManagement management,
-    @NonNull Collection<? extends PermissionGroup> groups
-  ) {
+  public void handleSetGroups(@NonNull PermissionManagement management, @NonNull Collection<PermissionGroup> groups) {
     this.eventManager.callEvent(new PermissionSetGroupsEvent(management, groups));
     this.baseMessage("set_groups").buffer(DataBuf.empty().writeObject(groups)).build().send();
   }

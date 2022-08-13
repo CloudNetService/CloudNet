@@ -83,7 +83,7 @@ public interface PlayerManager {
    * @return a list of all online players with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  @NonNull List<? extends CloudPlayer> onlinePlayers(@NonNull String name);
+  @NonNull List<CloudPlayer> onlinePlayers(@NonNull String name);
 
   /**
    * Gets all online cloud players that are connected to a service of given service environment.
@@ -94,7 +94,7 @@ public interface PlayerManager {
    * @return a list of all cloud players connected to a service of the given service environment.
    * @throws NullPointerException if the given environment is null.
    */
-  @NonNull List<? extends CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment);
+  @NonNull List<CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment);
 
   /**
    * Gets the jvm static player executor for all players that are connected to the network. All methods account for all
@@ -171,7 +171,7 @@ public interface PlayerManager {
    * @return a list of all registered players with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  @NonNull List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name);
+  @NonNull List<CloudOfflinePlayer> offlinePlayers(@NonNull String name);
 
   /**
    * Gets a list with all registered players from the database.
@@ -181,7 +181,7 @@ public interface PlayerManager {
    *
    * @return a list of all registered players.
    */
-  @NonNull List<? extends CloudOfflinePlayer> registeredPlayers();
+  @NonNull List<CloudOfflinePlayer> registeredPlayers();
 
   /**
    * Updates the given cloud offline player in the database, in the local cache of the node and calls the update in the
@@ -236,7 +236,7 @@ public interface PlayerManager {
    * @return a task containing the online cloud player or an empty task if the player is not online.
    * @throws NullPointerException if the given unique id is null.
    */
-  default @NonNull Task<? extends CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId) {
+  default @NonNull Task<CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId) {
     return Task.supply(() -> this.onlinePlayer(uniqueId));
   }
 
@@ -262,7 +262,7 @@ public interface PlayerManager {
    * @return a task containing a list of all online players with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  default @NonNull Task<List<? extends CloudPlayer>> onlinePlayerAsync(@NonNull String name) {
+  default @NonNull Task<List<CloudPlayer>> onlinePlayerAsync(@NonNull String name) {
     return Task.supply(() -> this.onlinePlayers(name));
   }
 
@@ -275,7 +275,7 @@ public interface PlayerManager {
    * @return a task containing a list of all cloud players connected to a service of the given service environment.
    * @throws NullPointerException if the given environment is null.
    */
-  default @NonNull Task<List<? extends CloudPlayer>> onlinePlayerAsync(@NonNull ServiceEnvironmentType env) {
+  default @NonNull Task<List<CloudPlayer>> onlinePlayerAsync(@NonNull ServiceEnvironmentType env) {
     return Task.supply(() -> this.environmentOnlinePlayers(env));
   }
 
@@ -314,7 +314,7 @@ public interface PlayerManager {
    * @return a task containing a list of all registered players with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  default @NonNull Task<List<? extends CloudOfflinePlayer>> offlinePlayerAsync(@NonNull String name) {
+  default @NonNull Task<List<CloudOfflinePlayer>> offlinePlayerAsync(@NonNull String name) {
     return Task.supply(() -> this.offlinePlayers(name));
   }
 
