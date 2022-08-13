@@ -32,14 +32,6 @@
       }
     },
     {
-      "name": "GLOWSTONE",
-      "defaultServiceStartPort": 44955,
-      "defaultProcessArguments": [],
-      "properties": {
-        "isJavaServer": true
-      }
-    },
-    {
       "name": "NUKKIT",
       "defaultServiceStartPort": 44955,
       "defaultProcessArguments": [
