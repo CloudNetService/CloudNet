@@ -30,7 +30,7 @@ import lombok.NonNull;
  */
 public final class PermissionSetGroupsEvent extends PermissionEvent {
 
-  private final Collection<? extends PermissionGroup> groups;
+  private final Collection<PermissionGroup> groups;
 
   /**
    * Constructs a new permission event.
@@ -41,7 +41,7 @@ public final class PermissionSetGroupsEvent extends PermissionEvent {
    */
   public PermissionSetGroupsEvent(
     @NonNull PermissionManagement permissionManagement,
-    @NonNull Collection<? extends PermissionGroup> groups
+    @NonNull Collection<PermissionGroup> groups
   ) {
     super(permissionManagement);
     this.groups = groups;
@@ -52,7 +52,7 @@ public final class PermissionSetGroupsEvent extends PermissionEvent {
    *
    * @return all groups which were set during the update.
    */
-  public @NonNull Collection<? extends PermissionGroup> groups() {
+  public @NonNull Collection<PermissionGroup> groups() {
     return this.groups;
   }
 }

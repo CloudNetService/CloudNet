@@ -69,10 +69,7 @@ public class PermissionManagementHandlerAdapter implements PermissionManagementH
   }
 
   @Override
-  public void handleSetGroups(
-    @NonNull PermissionManagement management,
-    @NonNull Collection<? extends PermissionGroup> groups
-  ) {
+  public void handleSetGroups(@NonNull PermissionManagement management, @NonNull Collection<PermissionGroup> groups) {
   }
 
   @Override
