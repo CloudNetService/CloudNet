@@ -174,7 +174,7 @@ public final class JsonConfiguration implements Configuration {
       this.ipWhitelist = ConfigurationUtil.get(
         "cloudnet.config.ipWhitelist",
         NetworkUtil.availableIPAddresses(),
-        value -> Set.of(value.split(",")));
+        value -> new HashSet<>(Set.of(value.split(","))));
     }
 
     if (this.maxCPUUsageToStartServices <= 0) {
