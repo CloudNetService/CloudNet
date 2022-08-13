@@ -116,14 +116,6 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     .properties(JsonDocument.newDocument().property(JAVA_SERVER, true).property(PLUGIN_DIR, "extensions"))
     .build();
   /**
-   * The default glowstone service environment type (Java Edition server).
-   */
-  public static final ServiceEnvironmentType GLOWSTONE = ServiceEnvironmentType.builder()
-    .name("GLOWSTONE")
-    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))
-    .build();
-
-  /**
    * The bungeecord service environment type, can also be any fork of bungeecord (Java Edition proxy).
    */
   public static final ServiceEnvironmentType BUNGEECORD = ServiceEnvironmentType.builder()
