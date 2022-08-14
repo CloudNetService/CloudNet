@@ -34,10 +34,13 @@ var cloudnet.updateRepo CloudNetService/launchermeta
 # branches are:
 #  - 'release':     Always contains the latest release version. This is the best version you can choose for a network
 #                   running in production.
+#  - 'beta':        Contains the newest features of the system which are partly tested and out for community testing.
+#                   These features might still be broken but shouldn't break your network. Changes to these features are
+#                   still possible and your configuration you did might break when the feature gets out of testing.
 #  - 'nightly':     All bleeding edge but newest features of the system. DO NOT USE IN PRODUCTION. Your network is not
 #                   safe and something might break. Good for testing purposes or developers which want to use the latest
 #                   features available. (Use this branch at your own risk!)
-var cloudnet.updateBranch release
+var cloudnet.updateBranch beta
 
 # available default log levels: OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL
 # each level includes all messages for levels lower than itself (in the above list: left to right) too
