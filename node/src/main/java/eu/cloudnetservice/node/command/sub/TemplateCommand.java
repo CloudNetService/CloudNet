@@ -189,7 +189,9 @@ public final class TemplateCommand {
   ) {
     var templateStorage = template.storage();
     if (templateStorage.contains(template)) {
-      source.sendMessage(I18n.trans("command-template-create-template-already-exists"));
+      source.sendMessage(I18n.trans("command-template-create-template-already-exists",
+        template.fullName(),
+        template.storageName()));
       return;
     }
 
