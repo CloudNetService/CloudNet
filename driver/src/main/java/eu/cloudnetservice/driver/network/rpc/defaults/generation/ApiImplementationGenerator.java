@@ -179,6 +179,10 @@ public final class ApiImplementationGenerator {
       mv.visitVarInsn(ALOAD, 0);
       mv.visitVarInsn(ALOAD, 1);
       mv.visitFieldInsn(PUTFIELD, className, "sender", SENDER_DESC);
+      // write the channelSupplier field
+      mv.visitVarInsn(ALOAD, 0);
+      mv.visitVarInsn(ALOAD, 2);
+      mv.visitFieldInsn(PUTFIELD, className, "channelSupplier", SUPPLIER_DESC);
       // finish
       mv.visitInsn(RETURN);
       mv.visitMaxs(0, 0);
@@ -371,20 +375,6 @@ public final class ApiImplementationGenerator {
    * @throws NullPointerException if the given start class or handler is null.
    */
   private static void travelClassHierarchy(@NonNull Class<?> start, @NonNull Consumer<Method> handler) {
-    // travel down the class hierarchy first
-    travelClassesUntilObject(start, handler);
-    // visit all interfaces
-    travelInterfaces(start, handler);
-  }
-
-  /**
-   * Travels over all super classes of the given class until reaching Object.
-   *
-   * @param start   the class to start the travel from.
-   * @param handler the handler to accept all methods.
-   * @throws NullPointerException if the given start class or handler is null.
-   */
-  private static void travelClassesUntilObject(@NonNull Class<?> start, @NonNull Consumer<Method> handler) {
     Class<?> curr = start;
     do {
       // we only need public visible methods
@@ -393,6 +383,8 @@ public final class ApiImplementationGenerator {
           handler.accept(method);
         }
       }
+      // travel all interfaces of the current class
+      travelInterfaces(curr, handler);
       // next class
       curr = curr.getSuperclass();
     } while (curr != null && curr != Object.class);
