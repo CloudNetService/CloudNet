@@ -11,4 +11,4 @@ jobs:
       - uses: Vankka/pr-target-branch-action@v2
         with:
           target: release
-          exclude: nightly
+          exclude: "nightly beta"
