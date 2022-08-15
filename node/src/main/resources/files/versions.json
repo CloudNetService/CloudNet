@@ -429,6 +429,7 @@
       "environmentType": "MINECRAFT_SERVER",
       "website": "https://spongepowered.org",
       "installSteps": [
+        "SPONGE_API",
         "DOWNLOAD",
         "BUILD",
         "COPY_FILTER"
@@ -436,36 +437,42 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.2-9.0.0-RC1157/spongevanilla-1.18.2-9.0.0-RC1157-universal.jar",
           "cacheFiles": false,
           "properties": {
             "copy": {
               "libraries/.*": "/",
               "launcher\\.conf": "/",
               "spongevanilla\\.jar": "/"
-            }
+            },
+            "fetchOverSpongeApi": true,
+            "artifact": "spongevanilla",
+            "mcVersion": "1.18.2"
           }
         },
         {
           "name": "1.18.2",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.2-9.0.0-RC1157/spongevanilla-1.18.2-9.0.0-RC1157-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
               "launcher\\.conf": "/",
               "spongevanilla\\.jar": "/"
-            }
+            },
+            "fetchOverSpongeApi": true,
+            "artifact": "spongevanilla",
+            "mcVersion": "1.18.2"
           }
         },
         {
           "name": "1.16.5",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.16.5-8.1.0-RC1164/spongevanilla-1.16.5-8.1.0-RC1164-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
               "launcher\\.conf": "/",
               "spongevanilla\\.jar": "/"
-            }
+            },
+            "fetchOverSpongeApi": true,
+            "artifact": "spongevanilla",
+            "mcVersion": "1.16.5"
           }
         }
       ]
