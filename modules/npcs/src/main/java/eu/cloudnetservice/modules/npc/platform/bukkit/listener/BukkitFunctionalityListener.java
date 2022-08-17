@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
-import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
 import com.github.juliarn.npc.modifier.LabyModModifier;
+import com.github.juliarn.npclib.api.event.AttackNpcEvent;
+import com.github.juliarn.npclib.api.event.InteractNpcEvent;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
@@ -34,41 +35,67 @@ import org.jetbrains.annotations.Nullable;
 
 public final class BukkitFunctionalityListener implements Listener {
 
+  // See: https://wiki.vg/Entity_metadata#Entity
+  private static final byte GLOWING_FLAGS = 1 << 6;
+  private static final byte ELYTRA_FLYING_FLAGS = (byte) (1 << 7);
+  private static final byte FLYING_AND_GLOWING = (byte) (GLOWING_FLAGS | ELYTRA_FLYING_FLAGS);
+  /*
+  .spawnCustomizer((spawnedNpc, player) -> {
+        // just because the client is stupid sometimes
+        spawnedNpc.rotation().queueRotate(this.npcLocation.getYaw(), this.npcLocation.getPitch()).send(player);
+        spawnedNpc.animation().queue(AnimationModifier.EntityAnimation.SWING_MAIN_ARM).send(player);
+        var metadataModifier = spawnedNpc.metadata()
+          .queue(MetadataModifier.EntityMetadata.SKIN_LAYERS, true)
+          .queue(MetadataModifier.EntityMetadata.SNEAKING, false);
+        // apply glowing effect if possible
+        if (NPCModifier.MINECRAFT_VERSION >= 9) {
+          if (this.npc.glowing() && this.npc.flyingWithElytra()) {
+            metadataModifier.queue(0, FLYING_AND_GLOWING, Byte.class);
+          } else if (this.npc.glowing()) {
+            metadataModifier.queue(0, GLOWING_FLAGS, Byte.class);
+          } else if (this.npc.flyingWithElytra()) {
+            metadataModifier.queue(0, ELYTRA_FLYING_FLAGS, Byte.class);
+          }
+        }
+        metadataModifier.send(player);
+        // set the items
+        var modifier = spawnedNpc.equipment();
+        for (var entry : this.npc.items().entrySet()) {
+          if (entry.getKey() >= 0 && entry.getKey() <= 5) {
+            var material = Material.matchMaterial(entry.getValue());
+            if (material != null) {
+              modifier.queue(entry.getKey(), new ItemStack(material));
+            }
+          }
+        }
+        modifier.send(player);
+      }).build(this.platform);
+   */
+
   private final BukkitPlatformNPCManagement management;
 
   public BukkitFunctionalityListener(@NonNull BukkitPlatformNPCManagement management) {
     this.management = management;
+    management.npcPlatform().eventBus().subscribe(AttackNpcEvent.class, this::handleNpcAttack);
   }
 
-  @EventHandler
-  public void handle(@NonNull PlayerNPCInteractEvent event) {
-    if (event.getHand() == PlayerNPCInteractEvent.Hand.MAIN_HAND
-      && event.getUseAction() != PlayerNPCInteractEvent.EntityUseAction.INTERACT_AT) {
-      this.handleClick(
-        event.getPlayer(),
-        null,
-        event.getNPC().getEntityId(),
-        event.getUseAction() == PlayerNPCInteractEvent.EntityUseAction.ATTACK);
-    }
+  public void handleNpcAttack(@NonNull AttackNpcEvent event) {
+    this.handleClick(event.player(), null, event.npc().entityId(), true);
+  }
+
+  public void handleNpcInteract(@NonNull InteractNpcEvent event) {
+    this.handleClick(event.player(), null, event.npc().entityId(), false);
   }
 
   @EventHandler
   public void handle(@NonNull PlayerInteractEntityEvent event) {
-    this.handleClick(
-      event.getPlayer(),
-      event,
-      event.getRightClicked().getEntityId(),
-      false);
+    this.handleClick(event.getPlayer(), event, event.getRightClicked().getEntityId(), false);
   }
 
   @EventHandler(ignoreCancelled = true)
   public void handle(@NonNull EntityDamageByEntityEvent event) {
     if (event.getDamager() instanceof Player damager) {
-      this.handleClick(
-        damager,
-        event,
-        event.getEntity().getEntityId(),
-        true);
+      this.handleClick(damager, event, event.getEntity().getEntityId(), true);
     }
   }
 
@@ -103,7 +130,7 @@ public final class BukkitFunctionalityListener implements Listener {
       // check if an emote id could be selected
       if (selectedNpcId >= -1) {
         // play the emote to all npcs
-        for (var npc : this.management.npcPool().getNPCs()) {
+        for (var npc : this.management.npcPlatform()) {
           // verify that the player *could* see the emote
           if (npc.getLocation().getWorld().getUID().equals(event.getPlayer().getWorld().getUID())) {
             // check if the emote id is fixed
