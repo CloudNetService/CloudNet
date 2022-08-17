@@ -23,10 +23,10 @@ import com.github.juliarn.npclib.api.profile.ProfileProperty;
 import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import eu.cloudnetservice.modules.npc.platform.util.UserNameUtil;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -76,7 +76,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
         }
       }))
       .profile(Profile.resolved(
-        this.profileNameExtractor(this.npc.displayName()),
+        UserNameUtil.convertStringToValidName(this.npc.displayName()),
         this.uniqueId,
         this.npc.profileProperties().stream()
           .map(prop -> ProfileProperty.property(prop.name(), prop.value(), prop.signature()))
@@ -87,7 +87,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
 
   @Override
   protected void remove0() {
-    this.platform.npcTracker().stopTrackingNpc(this.handleNpc);
+    this.handleNpc.unlink();
     this.handleNpc = null;
   }
 
@@ -103,10 +103,5 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
 
   public @NonNull Npc<World, Player, ItemStack, Plugin> handleNPC() {
     return this.handleNpc;
-  }
-
-  private @NonNull String profileNameExtractor(@NonNull String displayName) {
-    var stripped = ChatColor.stripColor(displayName);
-    return stripped.length() > 16 ? stripped.substring(0, 16) : stripped;
   }
 }
