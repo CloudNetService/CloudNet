@@ -16,9 +16,10 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
-import com.github.juliarn.npc.modifier.LabyModModifier;
 import com.github.juliarn.npclib.api.event.AttackNpcEvent;
 import com.github.juliarn.npclib.api.event.InteractNpcEvent;
+import com.github.juliarn.npclib.api.event.ShowNpcEvent;
+import com.github.juliarn.npclib.api.protocol.meta.EntityMetadataFactory;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
@@ -43,10 +44,6 @@ public final class BukkitFunctionalityListener implements Listener {
   .spawnCustomizer((spawnedNpc, player) -> {
         // just because the client is stupid sometimes
         spawnedNpc.rotation().queueRotate(this.npcLocation.getYaw(), this.npcLocation.getPitch()).send(player);
-        spawnedNpc.animation().queue(AnimationModifier.EntityAnimation.SWING_MAIN_ARM).send(player);
-        var metadataModifier = spawnedNpc.metadata()
-          .queue(MetadataModifier.EntityMetadata.SKIN_LAYERS, true)
-          .queue(MetadataModifier.EntityMetadata.SNEAKING, false);
         // apply glowing effect if possible
         if (NPCModifier.MINECRAFT_VERSION >= 9) {
           if (this.npc.glowing() && this.npc.flyingWithElytra()) {
@@ -76,7 +73,19 @@ public final class BukkitFunctionalityListener implements Listener {
 
   public BukkitFunctionalityListener(@NonNull BukkitPlatformNPCManagement management) {
     this.management = management;
-    management.npcPlatform().eventBus().subscribe(AttackNpcEvent.class, this::handleNpcAttack);
+    var bus = management.npcPlatform().eventBus();
+    bus.subscribe(AttackNpcEvent.class, this::handleNpcAttack);
+    bus.subscribe(InteractNpcEvent.class, this::handleNpcInteract);
+    bus.subscribe(ShowNpcEvent.Pre.class, this::handleNpcShow);
+  }
+
+  public void handleNpcShow(@NonNull ShowNpcEvent.Pre event) {
+    var packetFactory = event.npc().platform().packetFactory();
+    packetFactory.createEntityMetaPacket(true, EntityMetadataFactory.skinLayerMetaFactory())
+      .scheduleForTracked(event.npc());
+
+
+
   }
 
   public void handleNpcAttack(@NonNull AttackNpcEvent event) {
@@ -130,7 +139,7 @@ public final class BukkitFunctionalityListener implements Listener {
       // check if an emote id could be selected
       if (selectedNpcId >= -1) {
         // play the emote to all npcs
-        for (var npc : this.management.npcPlatform()) {
+        for (var npc : this.management.npcPlatform().npcTracker().trackedNpcs()) {
           // verify that the player *could* see the emote
           if (npc.getLocation().getWorld().getUID().equals(event.getPlayer().getWorld().getUID())) {
             // check if the emote id is fixed
