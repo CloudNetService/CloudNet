@@ -87,19 +87,19 @@ fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<Strin
     if (id.group.equals(group) || ignoredDependencyGroups.contains(id.group)) {
       return@forEach
     }
+
     // check if the dependency is a snapshot version - in this case we need to use another artifact url
     var version = id.version
     if (id.version.endsWith("-SNAPSHOT") && it.id.componentIdentifier is MavenUniqueSnapshotComponentIdentifier) {
       // little hack to get the timestamped ("snapshot") version of the identifier
       version = (it.id.componentIdentifier as MavenUniqueSnapshotComponentIdentifier).timestampedVersion
     }
+
     // try to find the repository associated with the module
     val repository = resolveRepository(
       "${id.group.replace('.', '/')}/${id.name}/${id.version}/${id.name}-$version.jar",
       mavenRepositories()
-    ) ?: run {
-      throw IllegalStateException("Unable to resolve repository for $id")
-    }
+    ) ?: throw IllegalStateException("Unable to resolve repository for $id")
 
     // add the repository
     val cs = ChecksumHelper.fileShaSum(it.file)
