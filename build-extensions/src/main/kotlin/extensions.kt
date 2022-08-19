@@ -84,7 +84,7 @@ fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<Strin
   configurations.getByName("runtimeClasspath").resolvedConfiguration.resolvedArtifacts.forEach {
     // get the module version from the artifact, stop if the dependency is ignored
     val id = it.moduleVersion.id
-    if (ignoredDependencyGroups.contains(id.group)) {
+    if (id.group.equals(group) || ignoredDependencyGroups.contains(id.group)) {
       return@forEach
     }
     // check if the dependency is a snapshot version - in this case we need to use another artifact url
@@ -94,13 +94,16 @@ fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<Strin
       version = (it.id.componentIdentifier as MavenUniqueSnapshotComponentIdentifier).timestampedVersion
     }
     // try to find the repository associated with the module
-    resolveRepository(
+    val repository = resolveRepository(
       "${id.group.replace('.', '/')}/${id.name}/${id.version}/${id.name}-$version.jar",
       mavenRepositories()
-    )?.run {
-      val cs = ChecksumHelper.fileShaSum(it.file)
-      stringBuilder.append("include $name ${id.group} ${id.name} ${id.version} $version $cs ${it.classifier ?: ""}\n")
+    ) ?: run {
+      throw IllegalStateException("Unable to resolve repository for $id")
     }
+
+    // add the repository
+    val cs = ChecksumHelper.fileShaSum(it.file)
+    stringBuilder.append("include ${repository.name} ${id.group} ${id.name} ${id.version} $version $cs ${it.classifier ?: ""}\n")
   }
 
   // write to the output file
