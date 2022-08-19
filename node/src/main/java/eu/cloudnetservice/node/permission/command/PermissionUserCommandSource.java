@@ -60,4 +60,12 @@ public final class PermissionUserCommandSource extends DriverCommandSource {
   public boolean checkPermission(@NonNull String permission) {
     return this.permissionManagement.hasPermission(this.permissionUser, Permission.of(permission));
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull String toString() {
+    return this.name();
+  }
 }
