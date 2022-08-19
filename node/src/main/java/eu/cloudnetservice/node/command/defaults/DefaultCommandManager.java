@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.command.defaults;
 
+import cloud.commandframework.CloudCapability;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
 import cloud.commandframework.internal.CommandRegistrationHandler;
@@ -36,8 +37,10 @@ final class DefaultCommandManager extends CommandManager<CommandSource> {
    */
   public DefaultCommandManager() {
     super(AsynchronousCommandExecutionCoordinator.<CommandSource>newBuilder()
-        .withExecutor(Executors.newFixedThreadPool(4)).build(),
+        .withExecutor(Executors.newFixedThreadPool(4))
+        .build(),
       CommandRegistrationHandler.nullCommandRegistrationHandler());
+    this.registerCapability(CloudCapability.StandardCapabilities.ROOT_COMMAND_DELETION);
   }
 
   /**

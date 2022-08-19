@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.service.defaults.config;
 
+import com.electronwill.nightconfig.toml.TomlFormat;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.service.CloudService;
 import lombok.NonNull;
@@ -26,19 +27,14 @@ public class VelocityConfigurationPreparer extends AbstractServiceConfigurationP
   public void configure(@NonNull Node nodeInstance, @NonNull CloudService cloudService) {
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
-      // copy the default file
       var configFile = cloudService.directory().resolve("velocity.toml");
-      this.copyCompiledFile("files/velocity/velocity.toml", configFile);
-      // rewrite the configuration file
-      this.rewriteFile(configFile, line -> {
-        if (line.startsWith("bind =")) {
-          line = String.format(
-            "bind = \"%s:%d\"",
-            cloudService.serviceConfiguration().hostAddress(),
-            cloudService.serviceConfiguration().port());
-        }
-        return line;
-      });
+      try (var config = this.loadConfig(configFile, TomlFormat.instance(), "files/velocity/velocity.toml")) {
+        config.set("bind", String.format(
+          "%s:%d",
+          cloudService.serviceConfiguration().hostAddress(),
+          cloudService.serviceConfiguration().port()));
+        config.save();
+      }
     }
   }
 }

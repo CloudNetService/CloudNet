@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Publish to Sonatype
-        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/unstable/rewrite') && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') && matrix.java == 17 }}
         run: ./gradlew publish
         env:
           sonatypeUsername: "${{ secrets.SONATYPE_USER }}"

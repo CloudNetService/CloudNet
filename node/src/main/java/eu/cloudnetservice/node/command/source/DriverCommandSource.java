@@ -38,7 +38,7 @@ public class DriverCommandSource implements CommandSource {
   private final Collection<String> messages = new ArrayList<>();
 
   /**
-   * @return "Driver" for the driver command source.
+   * {@inheritDoc}
    */
   @Override
   public @NonNull String name() {
@@ -86,6 +86,17 @@ public class DriverCommandSource implements CommandSource {
     return this.messages;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull String toString() {
+    return this.name();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -97,6 +108,9 @@ public class DriverCommandSource implements CommandSource {
     return that.name().equals(this.name());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode() {
     return Objects.hash(this.name());
