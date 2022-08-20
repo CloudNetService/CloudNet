@@ -108,11 +108,11 @@ public class XodusDatabase extends AbstractDatabase {
     var entries = filters.entrySet();
     return this.handleWithCursor(($, document) -> {
       for (var entry : entries) {
-        if (Objects.equals(document.getString(entry.getKey()), entry.getValue())) {
-          return document;
+        if (!Objects.equals(document.getString(entry.getKey()), entry.getValue())) {
+          return null;
         }
       }
-      return null;
+      return document;
     });
   }
 
