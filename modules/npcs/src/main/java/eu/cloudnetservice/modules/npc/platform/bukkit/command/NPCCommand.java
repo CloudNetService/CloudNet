@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.command;
 
-import com.github.juliarn.npc.profile.Profile;
+import com.github.juliarn.npclib.api.profile.Profile;
 import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
@@ -110,28 +110,29 @@ public final class NPCCommand extends BaseTabExecutor {
       }
       // 3...: display name parts
       var displayName = String.join(" ", Arrays.copyOfRange(args, 4, args.length)).trim();
-      if (displayName.length() > 16) {
-        sender.sendMessage("§cThe display name can only contain up to 16 chars.");
+      if (displayName.length() > 64) {
+        sender.sendMessage("§cThe display name can only contain up to 64 chars.");
         return true;
       }
       // 2: skin owner or entity type, depends on 1
       if (npcType == NPC.NPCType.PLAYER) {
         // load the profile
-        var profile = new Profile(args[3]);
-        if (!profile.complete()) {
-          sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[3]));
-          return true;
-        }
-        // create the npc
-        var npc = NPC.builder()
-          .profileProperties(profile.getProperties().stream()
-            .map(property -> new NPC.ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
-            .collect(Collectors.toSet()))
-          .targetGroup(targetGroup)
-          .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
-          .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
-          .build();
-        this.management.createNPC(npc);
+        this.management.npcPlatform().profileResolver().resolveProfile(Profile.unresolved(args[3]))
+          .thenAccept(profile -> {
+            // create the npc
+            var npc = NPC.builder()
+              .profileProperties(profile.properties().stream()
+                .map(prop -> new NPC.ProfileProperty(prop.name(), prop.value(), prop.signature()))
+                .collect(Collectors.toSet()))
+              .targetGroup(targetGroup)
+              .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
+              .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
+              .build();
+            this.management.createNPC(npc);
+          }).exceptionally(throwable -> {
+            sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[3]));
+            return null;
+          });
       } else {
         // get the entity type
         var entityType = Enums.getIfPresent(EntityType.class, StringUtil.toUpper(args[3])).orNull();
@@ -287,8 +288,8 @@ public final class NPCCommand extends BaseTabExecutor {
         // edit of the display name
         case "display" -> {
           var displayName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
-          if (displayName.length() > 16) {
-            sender.sendMessage("§cThe display name can only contain up to 16 chars.");
+          if (displayName.length() > 64) {
+            sender.sendMessage("§cThe display name can only contain up to 64 chars.");
             return true;
           }
           // re-create the npc with the given options
@@ -469,21 +470,17 @@ public final class NPCCommand extends BaseTabExecutor {
         }
 
         // change the profile (will force-set the entity type to npc)
-        case "profile" -> {
-          var profile = new Profile(args[2]);
-          if (!profile.complete()) {
-            sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[2]));
-            return true;
-          } else {
-            updatedNpc = NPC.builder(npc).profileProperties(profile.getProperties().stream()
-                .map(property -> new NPC.ProfileProperty(
-                  property.getName(),
-                  property.getValue(),
-                  property.getSignature()))
+        case "profile" -> // load the profile
+          updatedNpc = this.management.npcPlatform().profileResolver().resolveProfile(Profile.unresolved(args[3]))
+            .thenApply(profile -> NPC.builder(npc)
+              .profileProperties(profile.properties().stream()
+                .map(prop -> new NPC.ProfileProperty(prop.name(), prop.value(), prop.signature()))
                 .collect(Collectors.toSet()))
-              .build();
-          }
-        }
+              .build())
+            .exceptionally(throwable -> {
+              sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[3]));
+              return null;
+            }).join();
 
         // change the profile based on an image url
         case "urlprofile", "up" -> {
@@ -551,11 +548,14 @@ public final class NPCCommand extends BaseTabExecutor {
           return true;
         }
       }
-      // update & notify
-      this.management.createNPC(updatedNpc);
-      sender.sendMessage(String.format(
-        "§7The option §6%s §7was updated §asuccessfully§7! It may take a few seconds for the change to become visible.",
-        StringUtil.toLower(args[1])));
+
+      // update & notify if needed
+      if (updatedNpc != null) {
+        this.management.createNPC(updatedNpc);
+        sender.sendMessage(String.format(
+          "§7The option §6%s §7was updated §asuccessfully§7! It may take a few seconds for the change to become visible.",
+          StringUtil.toLower(args[1])));
+      }
       return true;
     }
 

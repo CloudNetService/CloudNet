@@ -18,21 +18,29 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
 import com.github.juliarn.npclib.api.Npc;
 import com.github.juliarn.npclib.api.Platform;
+import com.github.juliarn.npclib.api.flag.NpcFlag;
 import com.github.juliarn.npclib.api.profile.Profile;
 import com.github.juliarn.npclib.api.profile.ProfileProperty;
 import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
 import eu.cloudnetservice.modules.npc.NPC;
+import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.util.UserNameUtil;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
+
+  public static final NpcFlag<PlatformSelectorEntity<Location, Player, ItemStack, Inventory>> SELECTOR_ENTITY = NpcFlag.flag(
+    "cloudnet_selector_entity",
+    null);
 
   protected final Platform<World, Player, ItemStack, Plugin> platform;
   protected volatile Npc<World, Player, ItemStack, Plugin> handleNpc;
@@ -65,9 +73,11 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
   @Override
   protected void spawn0() {
     this.handleNpc = this.platform.newNpcBuilder()
+      .flag(SELECTOR_ENTITY, this)
       .flag(Npc.SNEAK_WHEN_PLAYER_SNEAKS, this.npc.imitatePlayer())
       .flag(Npc.HIT_WHEN_PLAYER_HITS, this.npc.imitatePlayer())
       .flag(Npc.LOOK_AT_PLAYER, this.npc.lookAtPlayer())
+      .flag(Npc.DISPLAY_NAME, this.npc.displayName())
       .npcSettings(builder -> builder.profileResolver((player, spawnedNpc) -> {
         if (this.npc.usePlayerSkin()) {
           return this.platform.profileResolver().resolveProfile(Profile.unresolved(player.getUniqueId()));

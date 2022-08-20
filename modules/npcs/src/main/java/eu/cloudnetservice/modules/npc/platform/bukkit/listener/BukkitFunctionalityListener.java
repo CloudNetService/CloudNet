@@ -19,10 +19,15 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 import com.github.juliarn.npclib.api.event.AttackNpcEvent;
 import com.github.juliarn.npclib.api.event.InteractNpcEvent;
 import com.github.juliarn.npclib.api.event.ShowNpcEvent;
+import com.github.juliarn.npclib.api.protocol.enums.ItemSlot;
 import com.github.juliarn.npclib.api.protocol.meta.EntityMetadataFactory;
+import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import lombok.NonNull;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -32,6 +37,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public final class BukkitFunctionalityListener implements Listener {
@@ -40,34 +46,15 @@ public final class BukkitFunctionalityListener implements Listener {
   private static final byte GLOWING_FLAGS = 1 << 6;
   private static final byte ELYTRA_FLYING_FLAGS = (byte) (1 << 7);
   private static final byte FLYING_AND_GLOWING = (byte) (GLOWING_FLAGS | ELYTRA_FLYING_FLAGS);
-  /*
-  .spawnCustomizer((spawnedNpc, player) -> {
-        // just because the client is stupid sometimes
-        spawnedNpc.rotation().queueRotate(this.npcLocation.getYaw(), this.npcLocation.getPitch()).send(player);
-        // apply glowing effect if possible
-        if (NPCModifier.MINECRAFT_VERSION >= 9) {
-          if (this.npc.glowing() && this.npc.flyingWithElytra()) {
-            metadataModifier.queue(0, FLYING_AND_GLOWING, Byte.class);
-          } else if (this.npc.glowing()) {
-            metadataModifier.queue(0, GLOWING_FLAGS, Byte.class);
-          } else if (this.npc.flyingWithElytra()) {
-            metadataModifier.queue(0, ELYTRA_FLYING_FLAGS, Byte.class);
-          }
-        }
-        metadataModifier.send(player);
-        // set the items
-        var modifier = spawnedNpc.equipment();
-        for (var entry : this.npc.items().entrySet()) {
-          if (entry.getKey() >= 0 && entry.getKey() <= 5) {
-            var material = Material.matchMaterial(entry.getValue());
-            if (material != null) {
-              modifier.queue(entry.getKey(), new ItemStack(material));
-            }
-          }
-        }
-        modifier.send(player);
-      }).build(this.platform);
-   */
+
+  private static final EntityMetadataFactory<Byte, Byte> ENTITY_EFFECT_FACTORY = EntityMetadataFactory.<Byte, Byte>metaFactoryBuilder()
+    .baseIndex(0)
+    .type(Byte.class)
+    .inputConverter(Function.identity())
+    .availabilityChecker(versionAccessor -> versionAccessor.atLeast(1, 9, 0))
+    .build();
+
+  private static final ItemSlot[] ITEM_SLOTS = ItemSlot.values();
 
   private final BukkitPlatformNPCManagement management;
 
@@ -83,9 +70,22 @@ public final class BukkitFunctionalityListener implements Listener {
     var packetFactory = event.npc().platform().packetFactory();
     packetFactory.createEntityMetaPacket(true, EntityMetadataFactory.skinLayerMetaFactory())
       .scheduleForTracked(event.npc());
-
-
-
+    event.npc().flagValue(NPCBukkitPlatformSelector.SELECTOR_ENTITY).ifPresent(selectorEntity -> {
+      if (selectorEntity.npc().glowing() && selectorEntity.npc().flyingWithElytra()) {
+        packetFactory.createEntityMetaPacket(FLYING_AND_GLOWING, ENTITY_EFFECT_FACTORY).scheduleForTracked(event.npc());
+      } else if (selectorEntity.npc().glowing()) {
+        packetFactory.createEntityMetaPacket(GLOWING_FLAGS, ENTITY_EFFECT_FACTORY).scheduleForTracked(event.npc());
+      } else if (selectorEntity.npc().flyingWithElytra()) {
+        packetFactory.createEntityMetaPacket(ELYTRA_FLYING_FLAGS, ENTITY_EFFECT_FACTORY).scheduleForTracked(event.npc());
+      }
+      var entries = selectorEntity.npc().items().entrySet();
+      for (var entry : entries) {
+        if (entry.getKey() >= 0 && entry.getKey() <= 5) {
+          var item = new ItemStack(Material.matchMaterial(entry.getValue()));
+          packetFactory.createEquipmentPacket(ITEM_SLOTS[entry.getKey()], item).scheduleForTracked(event.npc());
+        }
+      }
+    });
   }
 
   public void handleNpcAttack(@NonNull AttackNpcEvent event) {
@@ -141,13 +141,15 @@ public final class BukkitFunctionalityListener implements Listener {
         // play the emote to all npcs
         for (var npc : this.management.npcPlatform().npcTracker().trackedNpcs()) {
           // verify that the player *could* see the emote
-          if (npc.getLocation().getWorld().getUID().equals(event.getPlayer().getWorld().getUID())) {
+          if (npc.position().worldId().equals(event.getPlayer().getWorld().getName())) {
             // check if the emote id is fixed
             if (selectedNpcId != -1) {
-              npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, selectedNpcId).send(event.getPlayer());
+              LabyModExtension.createEmotePacket(this.management.npcPlatform().packetFactory())
+                .schedule(event.getPlayer(), npc);
             } else {
               var randomEmote = onJoinEmoteIds[ThreadLocalRandom.current().nextInt(0, onJoinEmoteIds.length)];
-              npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, randomEmote).send(event.getPlayer());
+              LabyModExtension.createEmotePacket(this.management.npcPlatform().packetFactory(), randomEmote)
+                .schedule(event.getPlayer(), npc);
             }
           }
         }

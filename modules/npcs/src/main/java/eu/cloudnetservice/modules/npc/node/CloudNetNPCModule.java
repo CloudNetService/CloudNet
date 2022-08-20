@@ -72,7 +72,9 @@ public class CloudNetNPCModule extends DriverModule {
               .inventorySize(entry.inventorySize())
               .build())
             .npcPoolOptions(NPCPoolOptions.builder()
-              .tabListRemoveTicks(entry.npcTabListRemoveTicks())
+              .tabListRemoveTicks(entry.npcTabListRemoveTicks() > Integer.MAX_VALUE
+                ? Integer.MAX_VALUE
+                : (int) entry.npcTabListRemoveTicks())
               .build())
             .build())
           .collect(Collectors.toSet());
