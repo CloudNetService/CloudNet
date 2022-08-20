@@ -17,8 +17,8 @@
 package eu.cloudnetservice.common.log.defaults;
 
 import eu.cloudnetservice.common.log.LoggingUtil;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import lombok.NonNull;
@@ -40,7 +40,7 @@ public final class DefaultLogFormatter extends Formatter {
    */
   public static final DefaultLogFormatter END_LINE_SEPARATOR = new DefaultLogFormatter(true);
 
-  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM HH:mm:ss.SSS");
 
   private final boolean closeWithLineSeparator;
 
@@ -60,7 +60,7 @@ public final class DefaultLogFormatter extends Formatter {
   public @NonNull String format(@NonNull LogRecord record) {
     var builder = new StringBuilder()
       .append('[')
-      .append(DATE_FORMAT.format(record.getMillis()))
+      .append(DATE_TIME_FORMATTER.format(record.getInstant().atZone(ZoneId.systemDefault())))
       .append("] ")
       .append(record.getLevel().getLocalizedName())
       .append(": ")

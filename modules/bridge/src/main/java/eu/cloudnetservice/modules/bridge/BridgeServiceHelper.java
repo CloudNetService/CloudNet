@@ -163,7 +163,7 @@ public final class BridgeServiceHelper {
     value = value.replace("%threads%", Integer.toString(service.processSnapshot().threads().size()));
     value = value.replace("%heap_usage%", Long.toString(service.processSnapshot().heapUsageMemory()));
     value = value.replace("%max_heap_usage%", Long.toString(service.processSnapshot().maxHeapMemory()));
-    value = value.replace("%cpu_usage%", CPUUsageResolver.FORMAT.format(service.processSnapshot().cpuUsage()));
+    value = value.replace("%cpu_usage%", CPUUsageResolver.defaultFormat().format(service.processSnapshot().cpuUsage()));
     // bridge information
     value = value.replace("%online%", BridgeServiceProperties.IS_ONLINE.readOr(service, false) ? "Online" : "Offline");
     value = value.replace("%online_players%",

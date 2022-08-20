@@ -66,9 +66,9 @@ public final class MeCommand {
       "NodeId: " + nodeInstance.config().identity().uniqueId(),
       "Head-NodeId: " + nodeInstance.nodeServerProvider().headNode().info().uniqueId(),
       "CPU usage: (P/S) "
-        + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage())
+        + CPUUsageResolver.defaultFormat().format(CPUUsageResolver.processCPUUsage())
         + "/"
-        + CPUUsageResolver.FORMAT.format(CPUUsageResolver.systemCPUUsage())
+        + CPUUsageResolver.defaultFormat().format(CPUUsageResolver.systemCPUUsage())
         + "/100%",
       "Node services memory allocation (U/R/M): "
         + nodeInfoSnapshot.usedMemory()

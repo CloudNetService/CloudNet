@@ -21,14 +21,14 @@ import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.wrapper.Wrapper;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.NonNull;
 
 public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
 
-  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
   public static @NonNull Builder builder() {
     return new Builder();
@@ -47,7 +47,7 @@ public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
     int maxPlayers
   ) {
     input = BridgeServiceHelper.fillCommonPlaceholders(input
-      .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()))
+      .replace("%time%", TIME_FORMATTER.format(LocalTime.now()))
       .replace("%online_players%", String.valueOf(onlinePlayers))
       .replace("%max_players%", String.valueOf(maxPlayers)), null, Wrapper.instance().currentServiceInfo());
 

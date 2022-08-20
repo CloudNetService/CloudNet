@@ -18,8 +18,8 @@ package eu.cloudnetservice.node.console.log;
 
 import eu.cloudnetservice.common.log.LoggingUtil;
 import eu.cloudnetservice.node.console.ConsoleColor;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -27,7 +27,7 @@ import lombok.NonNull;
 
 public final class ColouredLogFormatter extends Formatter {
 
-  private final DateFormat dateFormat = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM HH:mm:ss.SSS");
 
   @Override
   public String format(@NonNull LogRecord record) {
@@ -35,7 +35,7 @@ public final class ColouredLogFormatter extends Formatter {
       .append(ConsoleColor.DARK_GRAY)
       .append('[')
       .append(ConsoleColor.WHITE)
-      .append(this.dateFormat.format(record.getMillis()))
+      .append(DATE_TIME_FORMATTER.format(record.getInstant().atZone(ZoneId.systemDefault())))
       .append(ConsoleColor.DARK_GRAY)
       .append("] ")
       .append(this.color(record.getLevel()))
