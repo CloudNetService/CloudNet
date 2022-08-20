@@ -198,7 +198,7 @@ public class NodePlayerManager implements PlayerManager {
 
   @Override
   public @NonNull List<CloudOfflinePlayer> offlinePlayers(@NonNull String name) {
-    return this.database().find(JsonDocument.newDocument("name", name)).stream()
+    return this.database().find("name", name).stream()
       .map(document -> document.toInstanceOf(CloudOfflinePlayer.class))
       .toList();
   }

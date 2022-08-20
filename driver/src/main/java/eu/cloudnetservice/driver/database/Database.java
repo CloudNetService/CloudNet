@@ -104,7 +104,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return all documents in the database which contain the given field mapped to the given field value.
    * @throws NullPointerException if fieldName is null.
    */
-  @NonNull Collection<JsonDocument> find(@NonNull String fieldName, @Nullable Object fieldValue);
+  @NonNull Collection<JsonDocument> find(@NonNull String fieldName, @Nullable String fieldValue);
 
   /**
    * Searches for all entries in the database which contain each entry of the given filters document mapped to each
@@ -116,7 +116,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return all documents in the database which contain all key-value mappings of the filter document.
    * @throws NullPointerException if filters is null.
    */
-  @NonNull Collection<JsonDocument> find(@NonNull JsonDocument filters);
+  @NonNull Collection<JsonDocument> find(@NonNull Map<String, String> filters);
 
   /**
    * Get all keys which are currently stored and mapped to a document in the database. This operation might be heavy
@@ -240,7 +240,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return a future completed with all documents matching the given field key/value.
    * @throws NullPointerException if fieldName is null.
    */
-  default @NonNull Task<Collection<JsonDocument>> findAsync(@NonNull String fieldName, @Nullable Object fieldValue) {
+  default @NonNull Task<Collection<JsonDocument>> findAsync(@NonNull String fieldName, @Nullable String fieldValue) {
     return Task.supply(() -> this.find(fieldName, fieldValue));
   }
 
@@ -258,7 +258,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return a future completed with all documents matching the given filters.
    * @throws NullPointerException if filters is null.
    */
-  default @NonNull Task<Collection<JsonDocument>> findAsync(@NonNull JsonDocument filters) {
+  default @NonNull Task<Collection<JsonDocument>> findAsync(@NonNull Map<String, String> filters) {
     return Task.supply(() -> this.find(filters));
   }
 

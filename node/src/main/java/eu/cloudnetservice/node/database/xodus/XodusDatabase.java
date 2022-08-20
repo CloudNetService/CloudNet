@@ -24,11 +24,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 import jetbrains.exodus.ArrayByteIterable;
 import jetbrains.exodus.bindings.StringBinding;
 import jetbrains.exodus.env.Environment;
@@ -94,10 +94,9 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull String fieldName, Object fieldValue) {
-    var like = JsonDocument.GSON.toJsonTree(fieldValue);
+  public @NonNull List<JsonDocument> find(@NonNull String fieldName, @Nullable String fieldValue) {
     return this.handleWithCursor(($, document) -> {
-      if (document.contains(fieldName) && document.get(fieldName).equals(like)) {
+      if (Objects.equals(document.getString(fieldName), fieldValue)) {
         return document;
       }
       return null;
@@ -105,18 +104,11 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull JsonDocument filters) {
-    Map<String, Object> filterObjects = new HashMap<>();
-    if (!filters.empty()) {
-      for (var key : filters) {
-        filterObjects.put(key, filters.get(key));
-      }
-    }
-
-    var entries = filterObjects.entrySet();
+  public @NonNull List<JsonDocument> find(@NonNull Map<String, String> filters) {
+    var entries = filters.entrySet();
     return this.handleWithCursor(($, document) -> {
       for (var entry : entries) {
-        if (document.contains(entry.getKey()) && document.get(entry.getKey()).equals(entry.getValue())) {
+        if (Objects.equals(document.getString(entry.getKey()), entry.getValue())) {
           return document;
         }
       }
@@ -138,17 +130,6 @@ public class XodusDatabase extends AbstractDatabase {
   public @NonNull Map<String, JsonDocument> entries() {
     Map<String, JsonDocument> result = new HashMap<>();
     this.acceptWithCursor(result::put);
-    return result;
-  }
-
-  @Override
-  public @NonNull Map<String, JsonDocument> filter(@NonNull BiPredicate<String, JsonDocument> predicate) {
-    Map<String, JsonDocument> result = new HashMap<>();
-    this.acceptWithCursor((key, document) -> {
-      if (predicate.test(key, document)) {
-        result.put(key, document);
-      }
-    });
     return result;
   }
 

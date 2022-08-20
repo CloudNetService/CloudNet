@@ -753,29 +753,76 @@
     },
     "/database/{name}/get" : {
       "post" : {
+        "tags" : [ "Database" ],
+        "parameters" : [ {
+          "name" : "name",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "key",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "Get a specific document from a database",
+        "description" : "Gets all documents out of the provided database by using the provided\nkey.\n",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "allOf" : [ {
+                    "$ref" : "#/components/schemas/Success"
+                  }, {
+                    "properties" : {
+                      "result" : {
+                        "type" : "array",
+                        "items" : {
+                          "type" : "string",
+                          "example" : [ {
+                            "Name" : "Peter"
+                          }, {
+                            "Lastname" : "Parker"
+                          } ]
+                        }
+                      }
+                    }
+                  } ]
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/components/responses/BadRequest"
+          },
+          "401" : {
+            "$ref" : "#/components/responses/Unauthorized"
+          },
+          "403" : {
+            "$ref" : "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/database/{name}/find" : {
+      "post" : {
         "requestBody" : {
           "required" : true,
-          "description" : "Defines the search filter or key to get the documents",
+          "description" : "Defines the search filter to get the documents",
           "content" : {
             "application/json" : {
               "schema" : {
                 "oneOf" : [ {
                   "type" : "object",
-                  "properties" : {
-                    "filter" : {
-                      "type" : "object",
-                      "example" : {
-                        "Signs" : "0utplayyyy"
-                      }
-                    }
-                  }
-                }, {
-                  "type" : "object",
-                  "properties" : {
-                    "key" : {
-                      "type" : "string",
-                      "example" : "Signs 0utplayyyy"
-                    }
+                  "example" : {
+                    "Signs" : "0utplayyyy"
                   }
                 } ]
               }
@@ -792,7 +839,7 @@
           }
         } ],
         "summary" : "Get a specific document from a database",
-        "description" : "Gets all documents out of the provided database, either by using the provided\nkey or the provided search filter.\n",
+        "description" : "Gets all documents out of the provided database by using the provided search filter.\n",
         "responses" : {
           "200" : {
             "description" : "OK",
