@@ -107,12 +107,11 @@ public interface Database extends Nameable, AutoCloseable {
   @NonNull Collection<JsonDocument> find(@NonNull String fieldName, @Nullable String fieldValue);
 
   /**
-   * Searches for all entries in the database which contain each entry of the given filters document mapped to each
-   * value in the given filters. Null as a field value is permitted and will be used as literally null. The search is
-   * not deep meaning that you can only reliably search for top-level value mappings, nested types might work but will
-   * most likely not.
+   * Searches for all entries in the database which contain each entry of the provided map. Null as a field value is
+   * permitted and will be used as literally null. The search is not deep meaning that you can only reliably search for
+   * top-level value mappings, nested types might work but will most likely not.
    *
-   * @param filters the filters aka. key-value mappings that the document to search for must contain.
+   * @param filters the map containing the key-value pairs which the searched database document must contain.
    * @return all documents in the database which contain all key-value mappings of the filter document.
    * @throws NullPointerException if filters is null.
    */
