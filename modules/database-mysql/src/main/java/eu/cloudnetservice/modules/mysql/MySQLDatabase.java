@@ -53,6 +53,7 @@ public final class MySQLDatabase extends SQLDatabase {
 
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
+    this.databaseProvider.databaseHandler().handleInsert(this, key, document);
     return this.databaseProvider.executeUpdate(
       String.format(
         "INSERT INTO `%s`(%s, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = ?;",
@@ -74,6 +75,7 @@ public final class MySQLDatabase extends SQLDatabase {
 
   @Override
   public boolean delete(@NonNull String key) {
+    this.databaseProvider.databaseHandler().handleDelete(this, key);
     return this.databaseProvider.executeUpdate(
       String.format("DELETE FROM %s WHERE `%s` = ?;", this.name, TABLE_COLUMN_KEY),
       key) > 0;
