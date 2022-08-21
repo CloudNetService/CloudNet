@@ -34,7 +34,6 @@ import io.netty5.util.concurrent.Future;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +47,7 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
   private static final Logger LOGGER = LogManager.logger(NettyHttpServer.class);
 
   protected final Map<HostAndPort, Future<Void>> channelFutures = new ConcurrentHashMap<>();
-  protected final Collection<HttpHandlerEntry> registeredHandlers = new ConcurrentLinkedQueue<>();
+  protected final Collection<HttpHandlerEntry> registeredHandlers = ConcurrentHashMap.newKeySet();
 
   protected final EventLoopGroup bossGroup = NettyUtil.newEventLoopGroup(1);
   protected final EventLoopGroup workerGroup = NettyUtil.newEventLoopGroup(0);

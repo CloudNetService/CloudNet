@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -59,7 +58,7 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
    */
   public DefaultPacketListenerRegistry(@Nullable PacketListenerRegistry parent) {
     this.parent = parent;
-    this.listeners = Multimaps.newMultimap(new ConcurrentHashMap<>(), ConcurrentLinkedQueue::new);
+    this.listeners = Multimaps.newMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
   }
 
   /**

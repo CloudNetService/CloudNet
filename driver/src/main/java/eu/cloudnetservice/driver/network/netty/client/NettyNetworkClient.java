@@ -39,7 +39,7 @@ import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +57,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
   protected final Executor packetDispatcher = NettyUtil.newPacketDispatcher();
   protected final EventLoopGroup eventLoopGroup = NettyUtil.newEventLoopGroup(0);
 
-  protected final Collection<NetworkChannel> channels = new ConcurrentLinkedQueue<>();
+  protected final Collection<NetworkChannel> channels = ConcurrentHashMap.newKeySet();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
   protected final SSLConfiguration sslConfiguration;
