@@ -31,7 +31,7 @@ import io.netty5.handler.codec.http.websocketx.TextWebSocketFrame;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
@@ -44,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
  */
 final class NettyWebSocketServerChannel implements WebSocketChannel {
 
-  private final Collection<WebSocketListener> webSocketListeners = new ConcurrentLinkedQueue<>();
+  private final Collection<WebSocketListener> webSocketListeners = ConcurrentHashMap.newKeySet();
 
   private final Channel channel;
   private final HttpChannel httpChannel;

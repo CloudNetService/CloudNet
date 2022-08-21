@@ -21,7 +21,6 @@ import com.google.common.collect.Multimaps;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 
 /**
@@ -33,7 +32,7 @@ public class DefaultServiceRegistry implements ServiceRegistry {
 
   protected final Multimap<Class<?>, RegistryEntry<?>> providers = Multimaps.newMultimap(
     new ConcurrentHashMap<>(),
-    ConcurrentLinkedQueue::new);
+    ConcurrentHashMap::newKeySet);
 
   /**
    * {@inheritDoc}
