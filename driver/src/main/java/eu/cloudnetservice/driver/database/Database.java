@@ -244,16 +244,15 @@ public interface Database extends Nameable, AutoCloseable {
   }
 
   /**
-   * Searches for all entries in the database which contain each entry of the given filters document mapped to each
-   * value in the given filters. Null as a field value is permitted and will be used as literally null. The search is
-   * not deep meaning that you can only reliably search for top-level value mappings, nested types might work but will
-   * most likely not.
+   * Searches for all entries in the database which contain each entry of the provided map. Null as a field value is
+   * permitted and will be used as literally null. The search is not deep meaning that you can only reliably search for
+   * top-level value mappings, nested types might work but will most likely not.
    * <p>
    * The returned future, if completed successfully, completes with a collection of documents which are all matching the
    * given filters or with an empty collection if either the lookup failed or the database does not contain any document
    * matching the given filters.
    *
-   * @param filters the filters aka. key-value mappings that the document to search for must contain.
+   * @param filters the map containing the key-value pairs which the searched database document must contain.
    * @return a future completed with all documents matching the given filters.
    * @throws NullPointerException if filters is null.
    */

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
@@ -99,7 +100,7 @@ public final class MySQLDatabase extends SQLDatabase {
         TABLE_COLUMN_VAL,
         this.name,
         TABLE_COLUMN_VAL,
-        fieldValue,
+        Objects.toString(fieldValue).replaceAll("([_%])", "\\$1"),
         fieldName),
       resultSet -> {
         List<JsonDocument> results = new ArrayList<>();
@@ -128,7 +129,7 @@ public final class MySQLDatabase extends SQLDatabase {
           .append("JSON_SEARCH(")
           .append(TABLE_COLUMN_VAL)
           .append(", 'one', '")
-          .append(entry.getValue().replaceAll("([_%])", "\\$$1"))
+          .append(entry.getValue().replaceAll("([_%])", "\\$1"))
           .append("', NULL, '$.")
           .append(entry.getKey())
           .append("') IS NOT NULL")
