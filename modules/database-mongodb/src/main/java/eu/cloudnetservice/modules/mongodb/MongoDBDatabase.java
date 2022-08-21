@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 import lombok.NonNull;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -97,7 +96,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull String fieldName, Object fieldValue) {
+  public @NonNull List<JsonDocument> find(@NonNull String fieldName, @Nullable String fieldValue) {
     List<JsonDocument> documents = new ArrayList<>();
     try (var cursor = this.collection.find(this.valueEq(fieldName, fieldValue)).iterator()) {
       while (cursor.hasNext()) {
@@ -108,13 +107,11 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull JsonDocument filters) {
+  public @NonNull List<JsonDocument> find(@NonNull Map<String, String> filters) {
     // the easiest way to prevent issues with json-to-json conversion is to use the in-build document of mongodb and
     // then reconvert the values as we need them
     Collection<Bson> bsonFilters = new ArrayList<>();
-    var document = Document.parse(filters.toString());
-    // easy part: convert each key of the document in a way that it matches the actual values written to the database
-    for (var entry : document.entrySet()) {
+    for (var entry : filters.entrySet()) {
       bsonFilters.add(this.valueEq(entry.getKey(), entry.getValue()));
     }
 
@@ -151,21 +148,13 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   @Override
   public @NonNull Map<String, JsonDocument> entries() {
-    return this.filter((key, value) -> true);
-  }
-
-  @Override
-  public @NonNull Map<String, JsonDocument> filter(@NonNull BiPredicate<String, JsonDocument> predicate) {
     Map<String, JsonDocument> entries = new HashMap<>();
     try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
         var document = cursor.next();
-        var key = document.getString(KEY_NAME);
         var value = JsonDocument.fromJsonString(document.get(VALUE_NAME, Document.class).toJson());
 
-        if (predicate.test(key, value)) {
-          entries.put(key, value);
-        }
+        entries.put(document.getString(KEY_NAME), value);
       }
     }
     return entries;

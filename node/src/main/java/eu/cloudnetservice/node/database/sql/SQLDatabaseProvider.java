@@ -26,9 +26,12 @@ import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval(inVersion = "4.1")
 public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
   protected static final String[] TABLE_TYPE = new String[]{"TABLE"};

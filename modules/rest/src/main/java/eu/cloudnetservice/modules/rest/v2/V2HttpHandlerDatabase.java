@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
+import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.network.http.HttpContext;
@@ -26,11 +27,15 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 
 @HandlerPermission("http.v2.database")
 public final class V2HttpHandlerDatabase extends V2HttpHandler {
+
+  private static final Type MAP_TYPE = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/database")
@@ -121,12 +126,26 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   private void handleGetRequest(
     @NonNull HttpContext context,
     @NonNull @RequestPathParam("name") String name,
+    @NonNull @FirstRequestQueryParam("key") String key
+  ) {
+    var database = this.databaseProvider().database(name);
+    this.ok(context)
+      .body(this.success().append("result", database.get(key)).toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext(true);
+  }
+
+  @BearerAuth
+  @HttpRequestHandler(paths = "api/v2/database/{name}/find", methods = "POST")
+  private void handleFindRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("name") String name,
     @NonNull @RequestBody JsonDocument body
   ) {
     var database = this.databaseProvider().database(name);
-    var filter = body.getDocument("filter");
 
-    var result = database.find(filter);
+    var result = database.find(body.toInstanceOf(MAP_TYPE));
     this.ok(context)
       .body(this.success().append("result", result).toString())
       .context()
