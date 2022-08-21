@@ -38,13 +38,13 @@ public final class MySQLDatabase extends SQLDatabase {
 
     // create the table
     provider.executeUpdate(String.format(
-      "CREATE TABLE IF NOT EXISTS `%s` (%s VARCHAR(512) PRIMARY KEY, %s JSON);",
+      "CREATE TABLE IF NOT EXISTS `%s` (%s VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PRIMARY KEY, %s JSON NOT NULL);",
       name,
       TABLE_COLUMN_KEY,
       TABLE_COLUMN_VAL));
 
     // alter mysql tables
-    provider.executeUpdate(String.format("ALTER TABLE `%s` MODIFY `%s` VARCHAR(512), MODIFY %s JSON",
+    provider.executeUpdate(String.format("ALTER TABLE `%s` MODIFY `%s` VARCHAR(512), MODIFY %s JSON NOT NULL",
       name,
       TABLE_COLUMN_KEY,
       TABLE_COLUMN_VAL));
