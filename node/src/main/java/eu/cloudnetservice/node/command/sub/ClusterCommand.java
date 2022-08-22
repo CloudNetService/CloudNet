@@ -46,8 +46,9 @@ import eu.cloudnetservice.node.util.NetworkUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,7 +83,7 @@ public final class ClusterCommand {
     .build();
 
   private static final Logger LOGGER = LogManager.logger(ClusterCommand.class);
-  private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
   @Parser(suggestions = "clusterNodeServer")
   public @NonNull NodeServer defaultClusterNodeServerParser(
@@ -372,20 +373,23 @@ public final class ClusterCommand {
       list.add("- " + hostAndPort.host() + ":" + hostAndPort.port());
     }
 
-    if (node.nodeInfoSnapshot() != null) {
+    var nodeSnapshot = node.nodeInfoSnapshot();
+    if (nodeSnapshot != null) {
       list.add(" ");
-      list.add("* ClusterNodeInfoSnapshot from " + DEFAULT_FORMAT
-        .format(node.nodeInfoSnapshot().creationTime()));
+
+      // format & add the creation timestamp
+      var creationTime = Instant.ofEpochMilli(nodeSnapshot.creationTime()).atZone(ZoneId.systemDefault());
+      list.add("* ClusterNodeInfoSnapshot from " + TIME_FORMATTER.format(creationTime));
 
       list.addAll(Arrays.asList(
         "CloudServices (" + node.nodeInfoSnapshot().currentServicesCount() + ") memory usage (U/R/M): "
           + node.nodeInfoSnapshot().usedMemory() + "/" + node.nodeInfoSnapshot().reservedMemory()
           + "/" + node.nodeInfoSnapshot().maxMemory() + " MB",
         " ",
-        "CPU usage process: " + CPUUsageResolver.FORMAT
-          .format(node.nodeInfoSnapshot().processSnapshot().cpuUsage()) + "%",
-        "CPU usage system: " + CPUUsageResolver.FORMAT
-          .format(node.nodeInfoSnapshot().processSnapshot().systemCpuUsage()) + "%",
+        "CPU usage process: " + CPUUsageResolver.defaultFormat().format(
+          node.nodeInfoSnapshot().processSnapshot().cpuUsage()) + "%",
+        "CPU usage system: " + CPUUsageResolver.defaultFormat().format(
+          node.nodeInfoSnapshot().processSnapshot().systemCpuUsage()) + "%",
         "Threads: " + node.nodeInfoSnapshot().processSnapshot().threads().size(),
         "Heap usage: " + (node.nodeInfoSnapshot().processSnapshot().heapUsageMemory() / (1024 * 1024)) + "/" +
           (node.nodeInfoSnapshot().processSnapshot().maxHeapMemory() / (1024 * 1024)) + "MB",

@@ -19,6 +19,7 @@ package eu.cloudnetservice.common.unsafe;
 import com.sun.management.OperatingSystemMXBean;
 import java.lang.management.ManagementFactory;
 import java.text.DecimalFormat;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -30,11 +31,9 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class CPUUsageResolver {
 
-  /**
-   * A simple decimal format to easy display the CPU usage value.
-   */
-  public static final DecimalFormat FORMAT = new DecimalFormat("##.##");
   public static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+  private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT = ThreadLocal.withInitial(
+    () -> new DecimalFormat("##.##"));
 
   private CPUUsageResolver() {
     throw new UnsupportedOperationException();
@@ -58,6 +57,16 @@ public final class CPUUsageResolver {
    */
   public static double processCPUUsage() {
     return toPercentage(OS_BEAN.getProcessCpuLoad());
+  }
+
+  /**
+   * Gets a decimal format with the pattern {@code ##.##} which is safe to be used on the current thread. Each thread
+   * accessing this method gets a different decimal format instance to ensure thread safety.
+   *
+   * @return a thread-local decimal format instance.
+   */
+  public static @NonNull DecimalFormat defaultFormat() {
+    return DECIMAL_FORMAT.get();
   }
 
   private static double toPercentage(double input) {
