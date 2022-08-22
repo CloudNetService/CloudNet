@@ -85,8 +85,13 @@ public class CloudNetNPCModule extends DriverModule {
       }
     }
 
-    // convert the old database
+    // convert the old database (old h2 databases convert the name to lower case - we need to check both names)
     var db = Node.instance().databaseProvider().database("cloudNet_module_configuration");
+    if (db.documentCount() == 0) {
+      db = Node.instance().databaseProvider().database("cloudnet_module_configuration");
+    }
+
+    // get the npc_store field of the database entry
     var npcStore = db.get("npc_store");
     if (npcStore != null) {
       Collection<CloudNPC> theOldOnes = npcStore.get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
