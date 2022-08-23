@@ -17,6 +17,7 @@
 package eu.cloudnetservice.common.io;
 
 import eu.cloudnetservice.common.function.ThrowableConsumer;
+import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import java.io.IOException;
@@ -35,6 +36,7 @@ import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * This file utility class wraps convenient non-blocking-io methods that use checked exceptions into methods that catch
@@ -80,6 +82,29 @@ public final class FileUtil {
       consumer.accept(fs);
     } catch (Exception throwable) {
       LOGGER.severe("Exception opening zip file system on %s", throwable, zip);
+    }
+  }
+
+  /**
+   * Opens the given zip into a {@link FileSystem} and passes it into the given function. The file system is closed
+   * automatically after all operations are done.
+   *
+   * @param zip    the path to open as zip file system.
+   * @param mapper the mapper to apply to the given zip file.
+   * @param def    the return value to return from the method when an exception occurs.
+   * @param <T>    the return type of the mapping function.
+   * @return the mapped value based on the file system, or def if an exception occurs.
+   * @throws NullPointerException if the given zip path or consumer is null.
+   */
+  public static @UnknownNullability <T> T mapZipFile(
+    @NonNull Path zip,
+    @NonNull ThrowableFunction<FileSystem, T, Exception> mapper,
+    @Nullable T def
+  ) {
+    try (var fs = JAR_FILE_SYSTEM_PROVIDER.newFileSystem(zip, ZIP_FILE_SYSTEM_PROPERTIES)) {
+      return mapper.apply(fs);
+    } catch (Exception throwable) {
+      return def;
     }
   }
 
