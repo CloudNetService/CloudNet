@@ -27,7 +27,6 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
@@ -44,8 +43,8 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   protected final RandomAccessFile targetFile;
   protected final Callback writeCompleteHandler;
   protected final Lock lock = new ReentrantLock(true);
-  protected final AtomicInteger writtenFileParts = new AtomicInteger(-1);
 
+  protected int writtenFileParts = -1;
   protected Integer expectedFileParts;
 
   /**
@@ -168,7 +167,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     // write the content into the file at the current offset we sunk to
     this.targetFile.write(dataBuf.readByteArray());
     // notify our index about the write operation
-    this.writtenFileParts.incrementAndGet();
+    this.writtenFileParts++;
   }
 
   /**
@@ -183,7 +182,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     // we only need to update the status when the transfer is running but the whole content was written
     if (this.transferStatus == TransferStatus.RUNNING
       && this.expectedFileParts != null
-      && this.expectedFileParts == this.writtenFileParts.get()
+      && this.expectedFileParts == this.writtenFileParts
     ) {
       this.transferStatus = TransferStatus.SUCCESS;
     }
