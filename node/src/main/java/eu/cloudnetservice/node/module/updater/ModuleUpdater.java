@@ -56,7 +56,7 @@ public final class ModuleUpdater implements Updater<ModuleUpdaterContext> {
             }
           });
         }
-      }, false, "*.{jar,war,zip}");
+      }, false, "*.{jar,war}");
     }
   }
 }

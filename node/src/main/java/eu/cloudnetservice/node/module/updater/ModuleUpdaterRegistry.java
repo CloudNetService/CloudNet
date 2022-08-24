@@ -30,7 +30,7 @@ import lombok.NonNull;
 public final class ModuleUpdaterRegistry extends DefaultUpdaterRegistry<ModuleUpdaterContext, ModulesHolder> {
 
   @Override
-  protected @NonNull ModuleUpdaterContext provideContext(@NonNull ModulesHolder provisionContext) throws Exception {
+  protected @NonNull ModuleUpdaterContext provideContext(@NonNull ModulesHolder provisionContext) {
     // read the module names from all existing modules
     Map<Path, String> moduleNames = new HashMap<>();
     FileUtil.walkFileTree(DefaultModuleProvider.DEFAULT_MODULE_DIR, ($, file) -> {
@@ -45,7 +45,7 @@ public final class ModuleUpdaterRegistry extends DefaultUpdaterRegistry<ModuleUp
           }
         }
       });
-    }, false, "*.{jar,war,zip}");
+    }, false, "*.{jar,war}");
     // create a module updating context from the information
     return new ModuleUpdaterContext(
       provisionContext,
