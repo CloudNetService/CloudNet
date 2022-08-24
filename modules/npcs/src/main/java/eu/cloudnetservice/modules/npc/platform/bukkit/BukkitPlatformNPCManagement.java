@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit;
 import com.github.juliarn.npclib.api.NpcActionController;
 import com.github.juliarn.npclib.api.Platform;
 import com.github.juliarn.npclib.bukkit.BukkitPlatform;
+import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -62,10 +63,12 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     if (entry != null) {
       this.npcPlatform = BukkitPlatform.bukkitNpcPlatformBuilder()
         .extension(plugin)
+        .debug(true)
         .actionController(builder -> builder
           .flag(NpcActionController.SPAWN_DISTANCE, entry.npcPoolOptions().spawnDistance())
           .flag(NpcActionController.IMITATE_DISTANCE, entry.npcPoolOptions().actionDistance())
           .flag(NpcActionController.TAB_REMOVAL_TICKS, entry.npcPoolOptions().tabListRemoveTicks()))
+        .worldAccessor(BukkitWorldAccessor.nameBasedAccessor())
         .build();
     } else {
       this.npcPlatform = BukkitPlatform.bukkitNpcPlatformBuilder().extension(plugin).build();

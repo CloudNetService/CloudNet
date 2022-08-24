@@ -77,7 +77,6 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
       .flag(Npc.SNEAK_WHEN_PLAYER_SNEAKS, this.npc.imitatePlayer())
       .flag(Npc.HIT_WHEN_PLAYER_HITS, this.npc.imitatePlayer())
       .flag(Npc.LOOK_AT_PLAYER, this.npc.lookAtPlayer())
-      .flag(Npc.DISPLAY_NAME, this.npc.displayName())
       .npcSettings(builder -> builder.profileResolver((player, spawnedNpc) -> {
         if (this.npc.usePlayerSkin()) {
           return this.platform.profileResolver().resolveProfile(Profile.unresolved(player.getUniqueId()));

@@ -19,14 +19,17 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 import com.github.juliarn.npclib.api.event.AttackNpcEvent;
 import com.github.juliarn.npclib.api.event.InteractNpcEvent;
 import com.github.juliarn.npclib.api.event.ShowNpcEvent;
+import com.github.juliarn.npclib.api.protocol.chat.Component;
 import com.github.juliarn.npclib.api.protocol.enums.ItemSlot;
 import com.github.juliarn.npclib.api.protocol.meta.EntityMetadataFactory;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -38,6 +41,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 public final class BukkitFunctionalityListener implements Listener {
@@ -57,16 +61,18 @@ public final class BukkitFunctionalityListener implements Listener {
   private static final ItemSlot[] ITEM_SLOTS = ItemSlot.values();
 
   private final BukkitPlatformNPCManagement management;
+  private final Plugin plugin;
 
-  public BukkitFunctionalityListener(@NonNull BukkitPlatformNPCManagement management) {
+  public BukkitFunctionalityListener(@NonNull BukkitPlatformNPCManagement management, @NonNull Plugin plugin) {
     this.management = management;
+    this.plugin = plugin;
     var bus = management.npcPlatform().eventBus();
     bus.subscribe(AttackNpcEvent.class, this::handleNpcAttack);
     bus.subscribe(InteractNpcEvent.class, this::handleNpcInteract);
-    bus.subscribe(ShowNpcEvent.Pre.class, this::handleNpcShow);
+    bus.subscribe(ShowNpcEvent.Post.class, this::handleNpcShow);
   }
 
-  public void handleNpcShow(@NonNull ShowNpcEvent.Pre event) {
+  public void handleNpcShow(@NonNull ShowNpcEvent.Post event) {
     var packetFactory = event.npc().platform().packetFactory();
     packetFactory.createEntityMetaPacket(true, EntityMetadataFactory.skinLayerMetaFactory())
       .scheduleForTracked(event.npc());
@@ -76,8 +82,13 @@ public final class BukkitFunctionalityListener implements Listener {
       } else if (selectorEntity.npc().glowing()) {
         packetFactory.createEntityMetaPacket(GLOWING_FLAGS, ENTITY_EFFECT_FACTORY).scheduleForTracked(event.npc());
       } else if (selectorEntity.npc().flyingWithElytra()) {
-        packetFactory.createEntityMetaPacket(ELYTRA_FLYING_FLAGS, ENTITY_EFFECT_FACTORY).scheduleForTracked(event.npc());
+        packetFactory.createEntityMetaPacket(ELYTRA_FLYING_FLAGS, ENTITY_EFFECT_FACTORY)
+          .scheduleForTracked(event.npc());
       }
+      packetFactory.createEntityMetaPacket(
+        Optional.of(Component.ofRawMessage(selectorEntity.npc().displayName())),
+        EntityMetadataFactory.displayNameMetaFactory()).scheduleForTracked(event.npc());
+
       var entries = selectorEntity.npc().items().entrySet();
       for (var entry : entries) {
         if (entry.getKey() >= 0 && entry.getKey() <= 5) {
@@ -89,11 +100,15 @@ public final class BukkitFunctionalityListener implements Listener {
   }
 
   public void handleNpcAttack(@NonNull AttackNpcEvent event) {
-    this.handleClick(event.player(), null, event.npc().entityId(), true);
+    Bukkit.getScheduler().runTask(
+      this.plugin,
+      () -> this.handleClick(event.player(), null, event.npc().entityId(), true));
   }
 
   public void handleNpcInteract(@NonNull InteractNpcEvent event) {
-    this.handleClick(event.player(), null, event.npc().entityId(), false);
+    Bukkit.getScheduler().runTask(
+      this.plugin,
+      () -> this.handleClick(event.player(), null, event.npc().entityId(), false));
   }
 
   @EventHandler
