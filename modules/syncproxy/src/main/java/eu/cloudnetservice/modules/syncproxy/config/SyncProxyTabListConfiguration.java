@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.syncproxy.config;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -34,7 +33,7 @@ public class SyncProxyTabListConfiguration {
   protected final List<SyncProxyTabList> entries;
   protected final double animationsPerSecond;
 
-  protected final transient AtomicInteger currentEntry;
+  protected transient int currentEntry = -1;
 
   protected SyncProxyTabListConfiguration(
     @NonNull String targetGroup,
@@ -44,8 +43,6 @@ public class SyncProxyTabListConfiguration {
     this.targetGroup = targetGroup;
     this.entries = entries;
     this.animationsPerSecond = animationsPerSecond;
-
-    this.currentEntry = new AtomicInteger(-1);
   }
 
   public static @NonNull Builder builder() {
@@ -87,8 +84,8 @@ public class SyncProxyTabListConfiguration {
   }
 
   public @NonNull SyncProxyTabList tick() {
-    if (this.currentEntry.incrementAndGet() >= this.entries.size()) {
-      this.currentEntry.set(0);
+    if (++this.currentEntry >= this.entries.size()) {
+      this.currentEntry = 0;
     }
 
     return this.currentEntry();
@@ -99,7 +96,7 @@ public class SyncProxyTabListConfiguration {
   }
 
   public int currentTick() {
-    return this.currentEntry.get();
+    return this.currentEntry;
   }
 
   public static class Builder {
