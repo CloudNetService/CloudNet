@@ -16,32 +16,28 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
 import eu.cloudnetservice.wrapper.Wrapper;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public final class BungeeCordSyncProxyPlugin extends Plugin {
 
-  private BungeeCordSyncProxyManagement syncProxyManagement;
-
   @Override
   public void onEnable() {
-    this.syncProxyManagement = new BungeeCordSyncProxyManagement(this);
+    var syncProxyManagement = new BungeeCordSyncProxyManagement(this);
     // register the SyncProxyManagement in our service registry
-    this.syncProxyManagement.registerService(Wrapper.instance().serviceRegistry());
+    syncProxyManagement.registerService(Wrapper.instance().serviceRegistry());
     // register the event listener to handle service updates
-    Wrapper.instance().eventManager().registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
+    Wrapper.instance().eventManager().registerListener(new SyncProxyCloudListener<>(syncProxyManagement));
     // register the bungeecord ping and join listener
     this.getProxy().getPluginManager()
-      .registerListener(this, new BungeeCordSyncProxyListener(this.syncProxyManagement));
+      .registerListener(this, new BungeeCordSyncProxyListener(syncProxyManagement));
   }
 
   @Override
   public void onDisable() {
     // unregister all listeners for cloudnet events
-    Wrapper.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-    // remove the service from the registry
-    this.syncProxyManagement.unregisterService(Wrapper.instance().serviceRegistry());
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }

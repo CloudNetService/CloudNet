@@ -30,7 +30,7 @@ public class ConsoleCommandSource implements CommandSource {
   private static final Logger LOGGER = LogManager.logger(ConsoleCommandSource.class);
 
   /**
-   * @return "Console" for the console command source.
+   * {@inheritDoc}
    */
   @Override
   public @NonNull String name() {
@@ -73,5 +73,13 @@ public class ConsoleCommandSource implements CommandSource {
   @Override
   public boolean checkPermission(@NonNull String permission) {
     return true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull String toString() {
+    return this.name();
   }
 }

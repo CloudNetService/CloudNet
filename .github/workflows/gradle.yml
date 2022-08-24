@@ -20,7 +20,7 @@ jobs:
       matrix:
         java:
           - 17
-          - 18
+          - 19-ea
 
     steps:
       - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: ${{ matrix.java }}
           check-latest: true
           cache: 'gradle'
@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Publish to Sonatype
-        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/unstable/rewrite') && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') && matrix.java == 17 }}
         run: ./gradlew publish
         env:
           sonatypeUsername: "${{ secrets.SONATYPE_USER }}"

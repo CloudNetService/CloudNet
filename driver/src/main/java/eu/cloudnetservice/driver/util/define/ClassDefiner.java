@@ -17,12 +17,14 @@
 package eu.cloudnetservice.driver.util.define;
 
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Internal utility class to define classes in the runtime.
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 @FunctionalInterface
 public interface ClassDefiner {
 

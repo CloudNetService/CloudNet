@@ -34,6 +34,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -42,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 public final class ZipUtil {
 
   private static final Logger LOGGER = LogManager.logger(ZipUtil.class);

@@ -78,7 +78,6 @@ public final class CloudNetSignsModule extends DriverModule {
   @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)
   public void handleStopping() throws Exception {
     this.database.close();
-    Node.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
@@ -91,15 +90,20 @@ public final class CloudNetSignsModule extends DriverModule {
 
   @Deprecated
   private void convertDatabaseIfNecessary() {
-    // load old database document
-    var database = Node.instance().databaseProvider().database("cloudNet_module_configuration");
-    var document = database.get("signs_store");
+    // convert the old database (old h2 databases convert the name to lower case - we need to check both names)
+    var db = Node.instance().databaseProvider().database("cloudNet_module_configuration");
+    if (db.documentCount() == 0) {
+      db = Node.instance().databaseProvider().database("cloudnet_module_configuration");
+    }
+
+    // get the npc_store field of the database entry
+    var document = db.get("signs_store");
     // when the document is null the conversation already happened
     if (document != null) {
       // notify the user about the change
       LOGGER.warning("Detected old signs database, running conversation...");
       // remove the old document from the database
-      database.delete("signs_store");
+      db.delete("signs_store");
       // check if the old sign document even contains the signs
       Collection<eu.cloudnetservice.modules.signs._deprecated.Sign> oldSigns = document.get("signs",
         SignConstants.COLLECTION_SIGNS);

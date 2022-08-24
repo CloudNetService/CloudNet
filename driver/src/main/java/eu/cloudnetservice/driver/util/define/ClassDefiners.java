@@ -17,12 +17,14 @@
 package eu.cloudnetservice.driver.util.define;
 
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A holder class for the best class definer of the current jvm.
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 public final class ClassDefiners {
 
   /**
@@ -40,11 +42,6 @@ public final class ClassDefiners {
     }
   }
 
-  /**
-   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
-   *
-   * @throws UnsupportedOperationException on invocation
-   */
   private ClassDefiners() {
     throw new UnsupportedOperationException();
   }

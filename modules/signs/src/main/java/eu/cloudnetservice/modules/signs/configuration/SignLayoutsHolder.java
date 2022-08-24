@@ -17,8 +17,6 @@
 package eu.cloudnetservice.modules.signs.configuration;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -30,8 +28,8 @@ public class SignLayoutsHolder {
   private final int animationsPerSecond;
   private final List<SignLayout> signLayouts;
 
-  private final transient AtomicBoolean tickBlocked = new AtomicBoolean();
-  private final transient AtomicInteger currentAnimation = new AtomicInteger(-1);
+  private transient boolean tickBlocked;
+  private transient int currentAnimation = -1;
 
   public SignLayoutsHolder(int animationsPerSecond, @NonNull List<SignLayout> signLayouts) {
     this.animationsPerSecond = animationsPerSecond;
@@ -55,15 +53,15 @@ public class SignLayoutsHolder {
   }
 
   public boolean tickBlocked() {
-    return this.tickBlocked.get();
+    return this.tickBlocked;
   }
 
   public void enableTickBlock() {
-    this.tickBlocked.set(true);
+    this.tickBlocked = true;
   }
 
   public @NonNull SignLayoutsHolder releaseTickBlock() {
-    this.tickBlocked.set(false);
+    this.tickBlocked = false;
     return this;
   }
 
@@ -73,14 +71,14 @@ public class SignLayoutsHolder {
 
   public @NonNull SignLayoutsHolder tick() {
     if (!this.tickBlocked()) {
-      if (this.currentAnimation.incrementAndGet() >= this.signLayouts.size()) {
-        this.currentAnimation.set(0);
+      if (++this.currentAnimation >= this.signLayouts.size()) {
+        this.currentAnimation = 0;
       }
     }
     return this;
   }
 
   public int currentAnimation() {
-    return Math.max(0, this.currentAnimation.get());
+    return Math.max(0, this.currentAnimation);
   }
 }

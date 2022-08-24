@@ -39,8 +39,9 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
@@ -50,10 +51,10 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias({"pl", "player"})
 @CommandPermission("cloudnet.command.players")
-@Description("Management for online and offline cloud players")
+@Description("module-bridge-player-command-description")
 public class PlayersCommand {
 
-  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
   private final CloudServiceProvider cloudServiceProvider;
   private final NodePlayerManager playerManager;
@@ -173,9 +174,12 @@ public class PlayersCommand {
     @NonNull CommandSource source,
     @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer offlinePlayer
   ) {
+    var firstLoginTime = Instant.ofEpochMilli(offlinePlayer.firstLoginTimeMillis()).atZone(ZoneId.systemDefault());
+    var lastLoginTime = Instant.ofEpochMilli(offlinePlayer.lastLoginTimeMillis()).atZone(ZoneId.systemDefault());
+
     source.sendMessage("CloudPlayer: " + offlinePlayer.name() + " | " + offlinePlayer.uniqueId());
-    source.sendMessage("First login: " + DATE_FORMAT.format(offlinePlayer.firstLoginTimeMillis()));
-    source.sendMessage("Last login: " + DATE_FORMAT.format(offlinePlayer.lastLoginTimeMillis()));
+    source.sendMessage("First login: " + DATE_TIME_FORMATTER.format(firstLoginTime));
+    source.sendMessage("Last login: " + DATE_TIME_FORMATTER.format(lastLoginTime));
     // check if we have more information about the player
     if (offlinePlayer instanceof CloudPlayer onlinePlayer) {
       source.sendMessage("Proxy: " + onlinePlayer.loginService().serverName());

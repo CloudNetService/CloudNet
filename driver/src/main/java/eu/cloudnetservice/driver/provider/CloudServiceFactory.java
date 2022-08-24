@@ -19,9 +19,8 @@ package eu.cloudnetservice.driver.provider;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The main factory class to create cloud services based on a given service configuration. This factory is designed to
@@ -55,7 +54,8 @@ public interface CloudServiceFactory {
    * Creates and prepares a new cloud service based on the given configuration. This method can be called with the same
    * configuration multiple times and will always (if the service was created successfully) in a different result.
    * <p>
-   * This method will return null if the service could not get created. This can happen (for example) if:
+   * This method will return a result with the state set to {@code FAILED} if the service could not get created. This
+   * can happen (for example) if:
    * <ol>
    *   <li>no node in the cluster can currently pick up the service (for example if all nodes are draining).
    *   <li>the configured node in the configuration is not connected or draining.
@@ -63,12 +63,15 @@ public interface CloudServiceFactory {
    * </ol>
    * This list only includes some common reasons for the service not getting created. Not that there is never a
    * guarantee that the method returns a (non-null) service result.
+   * <p>
+   * The result of the service creation will only have a state of {@code DEFERRED} if a retry configuration was provided
+   * to the given service configuration.
    *
    * @param serviceConfiguration the configuration to base the newly created service on.
-   * @return a snapshot of the newly created service, can be null if the service was not created successfully.
+   * @return a result representing the state of the service creation.
    * @throws NullPointerException if the given service configuration is null.
    */
-  @Nullable ServiceInfoSnapshot createCloudService(@NonNull ServiceConfiguration serviceConfiguration);
+  @NonNull ServiceCreateResult createCloudService(@NonNull ServiceConfiguration serviceConfiguration);
 
   /**
    * Creates and prepares a new cloud service based on the given configuration. This method can be called with the same
@@ -83,12 +86,15 @@ public interface CloudServiceFactory {
    * </ol>
    * This list only includes some common reasons for the service not getting created. Not that there is never a
    * guarantee that the method returns a (non-null) service result.
+   * <p>
+   * The result of the service creation will only have a state of {@code DEFERRED} if a retry configuration was provided
+   * to the given service configuration.
    *
    * @param configuration the configuration to base the newly created service on.
-   * @return a task completed with a snapshot of the newly created service or null if the service was not created.
+   * @return a task completed with a result representing the state of the service creation.
    * @throws NullPointerException if the given service configuration is null.
    */
-  default @NonNull Task<ServiceInfoSnapshot> createCloudServiceAsync(@NonNull ServiceConfiguration configuration) {
+  default @NonNull Task<ServiceCreateResult> createCloudServiceAsync(@NonNull ServiceConfiguration configuration) {
     return Task.supply(() -> this.createCloudService(configuration));
   }
 }

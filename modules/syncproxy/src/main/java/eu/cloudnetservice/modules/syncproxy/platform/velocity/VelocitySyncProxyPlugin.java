@@ -23,6 +23,7 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
 import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
@@ -42,7 +43,6 @@ import lombok.NonNull;
 public final class VelocitySyncProxyPlugin {
 
   private final ProxyServer proxyServer;
-  private VelocitySyncProxyManagement management;
 
   @Inject
   public VelocitySyncProxyPlugin(@NonNull ProxyServer proxyServer) {
@@ -51,22 +51,19 @@ public final class VelocitySyncProxyPlugin {
 
   @Subscribe
   public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
-    this.management = new VelocitySyncProxyManagement(this.proxyServer);
+    var management = new VelocitySyncProxyManagement(this.proxyServer);
     // register the SyncProxyManagement in our service registry
-    this.management.registerService(Wrapper.instance().serviceRegistry());
+    management.registerService(Wrapper.instance().serviceRegistry());
     // register the event listener to handle service updates
-    Wrapper.instance().eventManager().registerListener(new SyncProxyCloudListener<>(this.management));
+    Wrapper.instance().eventManager().registerListener(new SyncProxyCloudListener<>(management));
     // register the velocity ping & join listener
-    this.proxyServer.getEventManager().register(this, new VelocitySyncProxyListener(this.management));
+    this.proxyServer.getEventManager().register(this, new VelocitySyncProxyListener(management));
   }
 
   @Subscribe
   public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
     // unregister all listeners for cloudnet events
-    Wrapper.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-    // remove the service from the registry
-    this.management.unregisterService(Wrapper.instance().serviceRegistry());
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 
 }

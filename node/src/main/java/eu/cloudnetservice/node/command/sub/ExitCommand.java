@@ -27,7 +27,7 @@ import lombok.NonNull;
 
 @CommandAlias({"shutdown", "stop"})
 @CommandPermission("cloudnet.command.exit")
-@Description("Stops the program and all managed subprocesses")
+@Description("command-exit-description")
 public record ExitCommand(@NonNull Node node) {
 
   @Confirmation

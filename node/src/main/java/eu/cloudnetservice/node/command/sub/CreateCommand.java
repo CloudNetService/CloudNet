@@ -25,6 +25,7 @@ import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -34,7 +35,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.create")
-@Description("Creates one or more new services based on a task or completely independent")
+@Description("command-create-description")
 public record CreateCommand(@NonNull Node node) {
 
   @CommandMethod("create by <task> <amount>")
@@ -93,9 +94,9 @@ public record CreateCommand(@NonNull Node node) {
     }
     // try to start the provided amount of services based on the configuration
     for (var i = 0; i < amount; i++) {
-      var service = configuration.createNewService();
+      var createResult = configuration.createNewService();
       // stop creating new services if the creation failed once
-      if (service == null) {
+      if (createResult.state() == ServiceCreateResult.State.FAILED) {
         source.sendMessage(I18n.trans("command-create-by-task-failed"));
         // stop the animation
         if (animation != null) {
@@ -104,8 +105,8 @@ public record CreateCommand(@NonNull Node node) {
         return;
       }
       // start the service if requested
-      if (start) {
-        service.provider().start();
+      if (createResult.state() == ServiceCreateResult.State.CREATED && start) {
+        createResult.serviceInfo().provider().start();
       }
       // step the progress bar by one if given
       if (animation != null) {

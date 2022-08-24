@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.cloudperms.bungee;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public final class BungeeCloudPermissionsPlugin extends Plugin {
@@ -31,7 +31,6 @@ public final class BungeeCloudPermissionsPlugin extends Plugin {
 
   @Override
   public void onDisable() {
-    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }

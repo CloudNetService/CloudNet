@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
@@ -136,15 +137,16 @@ public final class I18n {
    * @throws NullPointerException if either the given language, entries or loader is null.
    */
   public static void addLanguageFile(@NonNull String lang, @NonNull Properties entries, @NonNull ClassLoader source) {
-    var format = ImmutableMap.<String, MessageFormat>builder();
+    var messageFormats = ImmutableMap.<String, ThreadLocal<MessageFormat>>builder();
     // register for each property key the associated value wrapped by a MessageFormat for later formatting
     // this also unwraps message formatting keys for easier translation like {0$service$} to {0}
     for (var key : entries.stringPropertyNames()) {
-      format.put(key, new MessageFormat(MESSAGE_FORMAT.matcher(entries.getProperty(key)).replaceAll("{$1}")));
+      var format = MESSAGE_FORMAT.matcher(entries.getProperty(key)).replaceAll("{$1}");
+      messageFormats.put(key, ThreadLocal.withInitial(() -> new MessageFormat(format, Locale.ROOT)));
     }
 
     // register all translations for the language
-    REGISTERED_ENTRIES.put(lang, new Entry(source, format.build()));
+    REGISTERED_ENTRIES.put(lang, new Entry(source, messageFormats.build()));
     LOGGER.fine("Registering language file %s with %d translations", null, lang, entries.size());
   }
 
@@ -234,7 +236,7 @@ public final class I18n {
    *
    * @since 4.0
    */
-  private record Entry(@NonNull ClassLoader source, @NonNull Map<String, MessageFormat> languageEntries) {
+  private record Entry(@NonNull ClassLoader source, @NonNull Map<String, ThreadLocal<MessageFormat>> languageEntries) {
 
     /**
      * Tries to translate the given key and formats it with the given arguments. If no mapping for the given key is
@@ -248,7 +250,7 @@ public final class I18n {
     public @Nullable String tryTranslate(@NonNull String key, @NonNull Object... args) {
       // try to get the associated format with the key
       var format = this.languageEntries.get(key);
-      return format == null ? null : format.format(args);
+      return format == null ? null : format.get().format(args);
     }
   }
 }

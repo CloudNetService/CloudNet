@@ -18,12 +18,11 @@ package eu.cloudnetservice.modules.npc._deprecated;
 
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.util.Set;
+import java.util.Collection;
 
 public class NPCConstants {
 
-  public static final Type NPC_COLLECTION_TYPE = new TypeToken<Set<CloudNPC>>() {
-  }.getType();
+  public static final Type NPC_COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, CloudNPC.class).getType();
 
   public static final String NPC_CHANNEL_NAME = "cloudnet_npc_channel";
   public static final String NPC_CHANNEL_ADD_NPC_MESSAGE = "add_npc";

@@ -1,5 +1,16 @@
 {
   "name": "cloudnet_cloudperms",
   "version": "{project.build.version}",
-  "entrypoint": "eu.cloudnetservice.modules.cloudperms.minestom.MinestomCloudPermissionsExtension"
+  "entrypoint": "eu.cloudnetservice.modules.cloudperms.minestom.MinestomCloudPermissionsExtension",
+  "externalDependencies": {
+    "repositories": [
+      {
+        "name": "Central",
+        "url": "https://repo1.maven.org/maven2/"
+      }
+    ],
+    "artifacts": [
+      "com.google.guava:guava:31.1-jre"
+    ]
+  }
 }

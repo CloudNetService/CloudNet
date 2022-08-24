@@ -39,7 +39,7 @@ import java.util.Queue;
 import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.migrate")
-@Description("Migrate the database and other things that cloudnet uses")
+@Description("command-migrate-description")
 public record MigrateCommand(@NonNull Node node) {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;

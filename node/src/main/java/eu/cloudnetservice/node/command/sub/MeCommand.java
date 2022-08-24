@@ -34,7 +34,7 @@ import lombok.NonNull;
 
 @CommandAlias("info")
 @CommandPermission("cloudnet.command.me")
-@Description("Displays all important information about this process and the JVM")
+@Description("command-me-description")
 public record MeCommand(@NonNull Node node) {
 
   private static final Pattern UUID_REPLACE_PATTERN = Pattern.compile("-\\w{4}-");
@@ -65,9 +65,9 @@ public record MeCommand(@NonNull Node node) {
       "NodeId: " + this.node.config().identity().uniqueId(),
       "Head-NodeId: " + this.node.nodeServerProvider().headNode().info().uniqueId(),
       "CPU usage: (P/S) "
-        + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage())
+        + CPUUsageResolver.defaultFormat().format(CPUUsageResolver.processCPUUsage())
         + "/"
-        + CPUUsageResolver.FORMAT.format(CPUUsageResolver.systemCPUUsage())
+        + CPUUsageResolver.defaultFormat().format(CPUUsageResolver.systemCPUUsage())
         + "/100%",
       "Node services memory allocation (U/R/M): "
         + nodeInfoSnapshot.usedMemory()

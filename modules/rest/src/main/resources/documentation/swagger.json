@@ -3,7 +3,7 @@
   "info" : {
     "description" : "CloudNet's rest API version 2 is the next generation in CloudNet's rest history. It has\ndefinitely more opportunities than the previous version of it and provides\na lot of methods to manage and control the CloudNet node and cluster behaviour.\n\nThe API is based on http/https requests and mostly JSON responses. You need\nto send your session bearer token when you make a request. The token can be\nobtained by sending a request to the /auth route. Most of the routes require\nan authentication and a permission which must be set to access the endpoint.\n\nAll the responses contain a `success` boolean (if they are JSON responses) giving\ninformation whether or not the request was handled successfully. If that boolean is\n`false` an extra `reason` field is appended to the JSON entity defining the cause\nof the failure.\n\nEvery rest rout is fixed to a version number and every call must contain one.\nThe latest one is 2. The latest stable endpoint base URL is\n`http(s)://{host}:{port}/api/v2/`. Host and port is the one defined in your\nCloudNet's node config.json `httpListeners` section. If you want to use https\nyou have to configure the web SSL settings in the same file.\n",
     "version" : "2",
-    "title" : "CloudNet v3",
+    "title" : "CloudNet",
     "contact" : {
       "url" : "https://cloudnetservice.eu",
       "name" : "CloudNetService"
@@ -753,29 +753,76 @@
     },
     "/database/{name}/get" : {
       "post" : {
+        "tags" : [ "Database" ],
+        "parameters" : [ {
+          "name" : "name",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "key",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "Get a specific document from a database",
+        "description" : "Gets all documents out of the provided database by using the provided\nkey.\n",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "allOf" : [ {
+                    "$ref" : "#/components/schemas/Success"
+                  }, {
+                    "properties" : {
+                      "result" : {
+                        "type" : "array",
+                        "items" : {
+                          "type" : "string",
+                          "example" : [ {
+                            "Name" : "Peter"
+                          }, {
+                            "Lastname" : "Parker"
+                          } ]
+                        }
+                      }
+                    }
+                  } ]
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/components/responses/BadRequest"
+          },
+          "401" : {
+            "$ref" : "#/components/responses/Unauthorized"
+          },
+          "403" : {
+            "$ref" : "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/database/{name}/find" : {
+      "post" : {
         "requestBody" : {
           "required" : true,
-          "description" : "Defines the search filter or key to get the documents",
+          "description" : "Defines the search filter to get the documents",
           "content" : {
             "application/json" : {
               "schema" : {
                 "oneOf" : [ {
                   "type" : "object",
-                  "properties" : {
-                    "filter" : {
-                      "type" : "object",
-                      "example" : {
-                        "Signs" : "0utplayyyy"
-                      }
-                    }
-                  }
-                }, {
-                  "type" : "object",
-                  "properties" : {
-                    "key" : {
-                      "type" : "string",
-                      "example" : "Signs 0utplayyyy"
-                    }
+                  "example" : {
+                    "Signs" : "0utplayyyy"
                   }
                 } ]
               }
@@ -792,7 +839,7 @@
           }
         } ],
         "summary" : "Get a specific document from a database",
-        "description" : "Gets all documents out of the provided database, either by using the provided\nkey or the provided search filter.\n",
+        "description" : "Gets all documents out of the provided database by using the provided search filter.\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2144,8 +2191,8 @@
                     "$ref" : "#/components/schemas/Success"
                   }, {
                     "properties" : {
-                      "snapshot" : {
-                        "$ref" : "#/components/schemas/ServiceInfoSnapshot"
+                      "result" : {
+                        "$ref" : "#/components/schemas/ServiceCreateResult"
                       }
                     }
                   } ]
@@ -4688,6 +4735,22 @@
             }
           }
         } ]
+      },
+      "ServiceCreateResult" : {
+        "type" : "object",
+        "properties" : {
+          "state" : {
+            "type" : "string",
+            "enum" : [ "CREATED", "DEFERRED", "FAILED" ]
+          },
+          "creationId" : {
+            "type" : "string",
+            "example" : "43a9e824-cc3c-459b-b574-4f41e6509bda"
+          },
+          "serviceInfo" : {
+            "$ref" : "#/components/schemas/ServiceInfoSnapshot"
+          }
+        }
       },
       "HostAndPort" : {
         "type" : "object",

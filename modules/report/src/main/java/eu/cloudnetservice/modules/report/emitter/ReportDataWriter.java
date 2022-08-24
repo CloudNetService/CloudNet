@@ -18,9 +18,10 @@ package eu.cloudnetservice.modules.report.emitter;
 
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import java.text.DateFormat;
 import java.time.Instant;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -130,13 +131,20 @@ public record ReportDataWriter(@NonNull StringBuilder stringBuffer, @NonNull Str
     return this.appendString(obj == null ? "null" : JsonDocument.newDocument(obj).toPrettyJson());
   }
 
-  public @NonNull ReportDataWriter appendTimestamp(@NonNull DateFormat format, long timestamp) {
-    this.stringBuffer.append(format.format(new Date(timestamp)));
-    return this;
+  public @NonNull ReportDataWriter appendTimestamp(@NonNull DateTimeFormatter formatter, long timestamp) {
+    return this.appendTimestamp(formatter, Instant.ofEpochMilli(timestamp));
   }
 
-  public @NonNull ReportDataWriter appendTimestamp(@NonNull DateFormat format, @NonNull Instant timestamp) {
-    return this.appendTimestamp(format, timestamp.toEpochMilli());
+  public @NonNull ReportDataWriter appendTimestamp(@NonNull DateTimeFormatter formatter, @NonNull Instant timestamp) {
+    return this.appendTimestamp(formatter, timestamp.atZone(ZoneId.systemDefault()));
+  }
+
+  public @NonNull ReportDataWriter appendTimestamp(
+    @NonNull DateTimeFormatter formatter,
+    @NonNull TemporalAccessor temporalAccessor
+  ) {
+    formatter.formatTo(temporalAccessor, this.stringBuffer);
+    return this;
   }
 
   @Override

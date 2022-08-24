@@ -421,7 +421,7 @@ public interface PermissionManagement {
    *
    * @param groups the groups to add after clearing all other groups.
    */
-  void groups(@Nullable Collection<? extends PermissionGroup> groups);
+  void groups(@Nullable Collection<PermissionGroup> groups);
 
   /**
    * Gets the permission group with the given name by using {@link #group(String)} and, if not null, puts it into the
@@ -743,7 +743,7 @@ public interface PermissionManagement {
    * @param groups the groups to add after clearing all other groups.
    * @return a task that completes after the groups were replaced.
    */
-  default @NonNull Task<Void> groupsAsync(@Nullable Collection<? extends PermissionGroup> groups) {
+  default @NonNull Task<Void> groupsAsync(@Nullable Collection<PermissionGroup> groups) {
     return Task.supply(() -> this.groups(groups));
   }
 

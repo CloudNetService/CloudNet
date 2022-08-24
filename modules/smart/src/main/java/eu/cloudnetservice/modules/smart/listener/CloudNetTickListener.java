@@ -20,6 +20,7 @@ import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -28,7 +29,6 @@ import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.modules.smart.util.SmartUtil;
 import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.TickLoop;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
@@ -58,10 +58,7 @@ public final class CloudNetTickListener {
 
   @EventListener
   public void handleTick(@NonNull CloudNetTickServiceStartEvent event) {
-    if (Node.instance().nodeServerProvider().localNode().head()
-      && event.ticker().currentTick() % TickLoop.TPS == 0) {
-      this.handleSmartEntries();
-    }
+    this.handleSmartEntries();
   }
 
   private void handleSmartEntries() {
@@ -71,11 +68,11 @@ public final class CloudNetTickListener {
         // get all services of the task
         var services = this.serviceManager().servicesByTask(task.name());
         // get all prepared services
-        Collection<ServiceInfoSnapshot> preparedServices = services.stream()
+        var preparedServices = services.stream()
           .filter(service -> service.lifeCycle() == ServiceLifeCycle.PREPARED)
           .collect(Collectors.toSet());
         // get all running services
-        Collection<ServiceInfoSnapshot> runningServices = services.stream()
+        var runningServices = services.stream()
           .filter(service -> service.lifeCycle() == ServiceLifeCycle.RUNNING)
           .collect(Collectors.toSet());
         // get all services which are marked as online by the bridge
@@ -198,9 +195,10 @@ public final class CloudNetTickListener {
       server = this.selectNodeServer(services);
     }
     // create a new service based on the task
-    return this.serviceFactory().createCloudService(ServiceConfiguration.builder(task)
+    var createResult = this.serviceFactory().createCloudService(ServiceConfiguration.builder(task)
       .node(server == null ? null : server.info().uniqueId())
       .build());
+    return createResult.state() == ServiceCreateResult.State.CREATED ? createResult.serviceInfo() : null;
   }
 
   private @Nullable NodeServer selectNodeServer(@NonNull Collection<ServiceInfoSnapshot> services) {

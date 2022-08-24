@@ -24,6 +24,7 @@ import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModListener;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
@@ -64,8 +65,6 @@ public class VelocityLabyModPlugin {
   @Subscribe
   public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
     // unregister all listeners for cloudnet events
-    Wrapper.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
-
 }

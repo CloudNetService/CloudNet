@@ -34,8 +34,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
@@ -45,7 +43,8 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
 
   private final Database database;
   private final Path configurationPath;
-  private final AtomicBoolean protocolLibAvailable;
+
+  private boolean protocolLibAvailable;
 
   public NodeNPCManagement(
     @NonNull NPCConfiguration npcConfiguration,
@@ -56,7 +55,6 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     super(npcConfiguration);
     this.database = database;
     this.configurationPath = configPath;
-    this.protocolLibAvailable = new AtomicBoolean();
 
     // load all existing npcs
     this.database.documentsAsync().thenAccept(jsonDocuments -> {
@@ -71,7 +69,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
       "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar",
       stream -> {
         FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH);
-        this.protocolLibAvailable.set(true);
+        this.protocolLibAvailable = true;
       }
     );
 
@@ -81,7 +79,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-npcs",
       CloudNetNPCModule.class,
-      service -> this.protocolLibAvailable.get()
+      service -> this.protocolLibAvailable
         && ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
         && this.npcConfiguration
         .entries()
@@ -127,7 +125,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
 
   @Override
   public int deleteAllNPCs(@NonNull String group) {
-    Collection<WorldPosition> positions = this.npcs.entrySet().stream()
+    var positions = this.npcs.entrySet().stream()
       .filter(entry -> entry.getValue().targetGroup().equals(group))
       .map(Map.Entry::getKey)
       .toList();
@@ -145,7 +143,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
 
   @Override
   public int deleteAllNPCs() {
-    Set<WorldPosition> positions = new HashSet<>(this.npcs.keySet());
+    var positions = new HashSet<>(this.npcs.keySet());
     for (var position : positions) {
       this.npcs.remove(position);
       this.database.delete(documentKey(position));

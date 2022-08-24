@@ -20,9 +20,8 @@ import cn.nukkit.Server;
 import cn.nukkit.command.PluginCommand;
 import cn.nukkit.plugin.PluginBase;
 import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
-import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
 import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.SignInteractListener;
 import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.SignsCommand;
@@ -49,7 +48,6 @@ public class NukkitSignsPlugin extends PluginBase {
 
   @Override
   public void onDisable() {
-    ServiceRegistry.first(SignManagement.class).unregisterFromServiceRegistry();
-    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }

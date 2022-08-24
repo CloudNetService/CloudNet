@@ -47,10 +47,13 @@ public final class CloudPermissionsHelper {
     PermissionUser permissionUser;
     try {
       permissionUser = permissionsManagement.getOrCreateUserAsync(uniqueId, name).get(5, TimeUnit.SECONDS);
-    } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+    } catch (ExecutionException | TimeoutException exception) {
       LOGGER.severe("Error while loading permission user: " + uniqueId + "/" + name, exception);
       // disconnect the player now
       disconnectHandler.accept("§cAn internal error while loading your permission profile");
+      return;
+    } catch (InterruptedException exception) {
+      Thread.currentThread().interrupt(); // reset the interrupted state of the thread
       return;
     }
 

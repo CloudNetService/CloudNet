@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit;
 
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.npc.platform.bukkit.command.NPCCommand;
 import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitEntityProtectionListener;
 import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitFunctionalityListener;
@@ -43,5 +44,10 @@ public final class BukkitNPCPlugin extends JavaPlugin {
       command.setExecutor(executor);
       command.setTabCompleter(executor);
     }
+  }
+
+  @Override
+  public void onDisable() {
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }

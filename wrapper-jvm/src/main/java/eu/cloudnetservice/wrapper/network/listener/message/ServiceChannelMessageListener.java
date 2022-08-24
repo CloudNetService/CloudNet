@@ -20,11 +20,13 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
+import eu.cloudnetservice.driver.event.events.service.CloudServiceDeferredStateEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.wrapper.Wrapper;
@@ -80,6 +82,14 @@ public final class ServiceChannelMessageListener {
             : CloudServiceLogEntryEvent.StreamType.STDOUT;
 
           this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line, type));
+        }
+
+        // a deferred service start result is available, call the event
+        case "deferred_service_event" -> {
+          var creationId = event.content().readUniqueId();
+          var createResult = event.content().readObject(ServiceCreateResult.class);
+
+          this.eventManager.callEvent(new CloudServiceDeferredStateEvent(creationId, createResult));
         }
 
         // none of our business

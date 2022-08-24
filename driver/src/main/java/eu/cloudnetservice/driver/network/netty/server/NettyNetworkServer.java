@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,7 +54,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
   protected final EventLoopGroup bossEventLoopGroup = NettyUtil.newEventLoopGroup(1);
   protected final EventLoopGroup workerEventLoopGroup = NettyUtil.newEventLoopGroup(0);
 
-  protected final Collection<NetworkChannel> channels = new ConcurrentLinkedQueue<>();
+  protected final Collection<NetworkChannel> channels = ConcurrentHashMap.newKeySet();
   protected final Map<HostAndPort, Future<Void>> channelFutures = new ConcurrentHashMap<>();
 
   protected final Executor packetDispatcher = NettyUtil.newPacketDispatcher();

@@ -75,12 +75,6 @@ public final class TemplatePrepareListener {
         var in = this.resourceStream("files/nms/server.properties");
         FileUtil.copy(in, out);
       }
-    } else if (event.environmentType().equals(ServiceEnvironmentType.GLOWSTONE)) {
-      // glowstone.yml
-      try (var out = event.storage().newOutputStream(event.template(), "config/glowstone.yml");
-        var in = this.resourceStream("files/glowstone/glowstone.yml")) {
-        FileUtil.copy(in, out);
-      }
     }
   }
 

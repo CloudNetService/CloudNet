@@ -32,14 +32,6 @@
       }
     },
     {
-      "name": "GLOWSTONE",
-      "defaultServiceStartPort": 44955,
-      "defaultProcessArguments": [],
-      "properties": {
-        "isJavaServer": true
-      }
-    },
-    {
       "name": "NUKKIT",
       "defaultServiceStartPort": 44955,
       "defaultProcessArguments": [
@@ -99,11 +91,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.19"
+            "versionGroup": "1.19.2"
           }
         },
         {
-          "name": "1.19",
+          "name": "1.19.2",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -114,11 +106,13 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.19"
+            "versionGroup": "1.19.2"
           }
         },
         {
           "name": "1.18.2",
+          "url": "https://api.papermc.io/v2/projects/paper/versions/1.18.2/builds/387/downloads/paper-1.18.2-387.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -127,9 +121,7 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.18.2"
+            ]
           }
         },
         {
@@ -270,7 +262,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.19/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.19.2/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -284,8 +276,8 @@
           }
         },
         {
-          "name": "1.19",
-          "url": "https://api.purpurmc.org/v2/purpur/1.19/latest/download",
+          "name": "1.19.2",
+          "url": "https://api.purpurmc.org/v2/purpur/1.19.2/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -300,6 +292,7 @@
         {
           "name": "1.18.2",
           "url": "https://api.purpurmc.org/v2/purpur/1.18.2/latest/download",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -336,12 +329,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.2.jar",
           "cacheFiles": false
         },
         {
-          "name": "1.19",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.jar"
+          "name": "1.19.2",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.2.jar"
         },
         {
           "name": "1.18.2",
@@ -412,7 +405,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.19",
+          "name": "1.19.2",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -436,6 +429,7 @@
       "environmentType": "MINECRAFT_SERVER",
       "website": "https://spongepowered.org",
       "installSteps": [
+        "SPONGE_API",
         "DOWNLOAD",
         "BUILD",
         "COPY_FILTER"
@@ -443,60 +437,43 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.2-9.0.0-RC1147/spongevanilla-1.18.2-9.0.0-RC1147-universal.jar",
           "cacheFiles": false,
           "properties": {
             "copy": {
               "libraries/.*": "/",
               "launcher\\.conf": "/",
               "spongevanilla\\.jar": "/"
-            }
+            },
+            "fetchOverSpongeApi": true,
+            "artifact": "spongevanilla",
+            "mcVersion": "1.18.2"
           }
         },
         {
           "name": "1.18.2",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.2-9.0.0-RC1147/spongevanilla-1.18.2-9.0.0-RC1147-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
               "launcher\\.conf": "/",
               "spongevanilla\\.jar": "/"
-            }
+            },
+            "fetchOverSpongeApi": true,
+            "artifact": "spongevanilla",
+            "mcVersion": "1.18.2"
           }
         },
         {
           "name": "1.16.5",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.16.5-8.1.0-RC1150/spongevanilla-1.16.5-8.1.0-RC1150-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
               "launcher\\.conf": "/",
               "spongevanilla\\.jar": "/"
-            }
+            },
+            "fetchOverSpongeApi": true,
+            "artifact": "spongevanilla",
+            "mcVersion": "1.16.5"
           }
-        }
-      ]
-    },
-    {
-      "name": "glowstone",
-      "environmentType": "GLOWSTONE",
-      "website": "https://github.com/GlowstoneMC",
-      "installSteps": [
-        "DOWNLOAD"
-      ],
-      "versions": [
-        {
-          "name": "latest",
-          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2021.8.0/glowstone.jar",
-          "cacheFiles": false
-        },
-        {
-          "name": "1.12.2",
-          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2021.8.0/glowstone.jar"
-        },
-        {
-          "name": "1.8.9",
-          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/v1.8.9/glowstone.-1.8.9-SNAPSHOT.jar"
         }
       ]
     },

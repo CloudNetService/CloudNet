@@ -50,7 +50,7 @@ public final class NodeServerDataEmitter extends SpecificReportDataEmitter<NodeS
         .appendString(value.head() ? " (head)" : "")
         .appendString(value instanceof LocalNodeServer ? " current" : " remote"))
       .appendString("Last State Change: ")
-      .appendTimestamp(ReportConstants.DATE_FORMAT, value.lastStateChangeStamp())
+      .appendTimestamp(ReportConstants.DATE_TIME_FORMATTER, value.lastStateChangeStamp())
       .appendNewline()
       .appendString("Listeners: ")
       .appendString(value.info().listeners().stream().map(HostAndPort::toString).collect(Collectors.joining(", ")));
@@ -62,9 +62,9 @@ public final class NodeServerDataEmitter extends SpecificReportDataEmitter<NodeS
         .beginSection(title -> title.appendString("NodeSnapshot").appendString(snapshot.draining() ? " (drain)" : ""))
         // Startup Time: 27.06.2022 15:41:20; Last Update: 27.06.2022 15:42:12
         .appendString("Startup Time: ")
-        .appendTimestamp(ReportConstants.DATE_FORMAT, snapshot.startupMillis())
+        .appendTimestamp(ReportConstants.DATE_TIME_FORMATTER, snapshot.startupMillis())
         .appendString("; Last Update: ")
-        .appendTimestamp(ReportConstants.DATE_FORMAT, snapshot.creationTime())
+        .appendTimestamp(ReportConstants.DATE_TIME_FORMATTER, snapshot.creationTime())
         .appendNewline()
         // Memory: 256 MB used; 1280 MB reserved; 6094 MB max; 2 services
         .appendString("Memory: ")
@@ -79,9 +79,9 @@ public final class NodeServerDataEmitter extends SpecificReportDataEmitter<NodeS
         .appendNewline()
         // CPU: 0% process; 0.57% system
         .appendString("CPU: ")
-        .appendString(CPUUsageResolver.FORMAT.format(snapshot.processSnapshot().cpuUsage()))
+        .appendString(CPUUsageResolver.defaultFormat().format(snapshot.processSnapshot().cpuUsage()))
         .appendString("% process; ")
-        .appendString(CPUUsageResolver.FORMAT.format(snapshot.processSnapshot().systemCpuUsage()))
+        .appendString(CPUUsageResolver.defaultFormat().format(snapshot.processSnapshot().systemCpuUsage()))
         .appendString("% system")
         .appendNewline()
         // Heap-Memory: 54525952 MB used; 268435456 MB max

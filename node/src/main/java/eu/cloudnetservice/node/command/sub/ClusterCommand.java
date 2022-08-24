@@ -30,7 +30,6 @@ import eu.cloudnetservice.common.io.ZipUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
@@ -46,8 +45,9 @@ import eu.cloudnetservice.node.util.NetworkUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +58,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("clu")
 @CommandPermission("cloudnet.command.cluster")
-@Description("Manages the cluster and provides information about it")
+@Description("command-cluster-description")
 public record ClusterCommand(@NonNull Node node) {
 
   public static final RowBasedFormatter<NodeServer> FORMATTER = RowBasedFormatter.<NodeServer>builder()
@@ -81,7 +81,7 @@ public record ClusterCommand(@NonNull Node node) {
     .build();
 
   private static final Logger LOGGER = LogManager.logger(ClusterCommand.class);
-  private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
   @Parser(suggestions = "clusterNodeServer")
   public @NonNull NodeServer defaultClusterNodeServerParser(
@@ -369,20 +369,23 @@ public record ClusterCommand(@NonNull Node node) {
       list.add("- " + hostAndPort.host() + ":" + hostAndPort.port());
     }
 
-    if (node.nodeInfoSnapshot() != null) {
+    var nodeSnapshot = node.nodeInfoSnapshot();
+    if (nodeSnapshot != null) {
       list.add(" ");
-      list.add("* ClusterNodeInfoSnapshot from " + DEFAULT_FORMAT
-        .format(node.nodeInfoSnapshot().creationTime()));
+
+      // format & add the creation timestamp
+      var creationTime = Instant.ofEpochMilli(nodeSnapshot.creationTime()).atZone(ZoneId.systemDefault());
+      list.add("* ClusterNodeInfoSnapshot from " + TIME_FORMATTER.format(creationTime));
 
       list.addAll(Arrays.asList(
         "CloudServices (" + node.nodeInfoSnapshot().currentServicesCount() + ") memory usage (U/R/M): "
           + node.nodeInfoSnapshot().usedMemory() + "/" + node.nodeInfoSnapshot().reservedMemory()
           + "/" + node.nodeInfoSnapshot().maxMemory() + " MB",
         " ",
-        "CPU usage process: " + CPUUsageResolver.FORMAT
-          .format(node.nodeInfoSnapshot().processSnapshot().cpuUsage()) + "%",
-        "CPU usage system: " + CPUUsageResolver.FORMAT
-          .format(node.nodeInfoSnapshot().processSnapshot().systemCpuUsage()) + "%",
+        "CPU usage process: " + CPUUsageResolver.defaultFormat().format(
+          node.nodeInfoSnapshot().processSnapshot().cpuUsage()) + "%",
+        "CPU usage system: " + CPUUsageResolver.defaultFormat().format(
+          node.nodeInfoSnapshot().processSnapshot().systemCpuUsage()) + "%",
         "Threads: " + node.nodeInfoSnapshot().processSnapshot().threads().size(),
         "Heap usage: " + (node.nodeInfoSnapshot().processSnapshot().heapUsageMemory() / (1024 * 1024)) + "/" +
           (node.nodeInfoSnapshot().processSnapshot().maxHeapMemory() / (1024 * 1024)) + "MB",

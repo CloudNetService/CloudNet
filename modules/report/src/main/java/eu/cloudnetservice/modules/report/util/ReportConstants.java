@@ -16,10 +16,13 @@
 
 package eu.cloudnetservice.modules.report.util;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 public final class ReportConstants {
 
-  public static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+  public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+
+  private ReportConstants() {
+    throw new UnsupportedOperationException();
+  }
 }

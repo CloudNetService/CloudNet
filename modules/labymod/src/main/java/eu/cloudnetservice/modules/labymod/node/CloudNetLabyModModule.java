@@ -39,7 +39,7 @@ public class CloudNetLabyModModule extends DriverModule {
 
   private NodeLabyModManagement labyModManagement;
 
-  @ModuleTask(event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     if (Files.exists(this.configPath())) {
       var config = this.readConfig().getDocument("config");
@@ -65,12 +65,13 @@ public class CloudNetLabyModModule extends DriverModule {
                 .get("labyModPermissions",
                   TypeToken.getParameterized(Map.class, String.class, Boolean.class).getType()))
               .build())
+            .build()
         ));
       }
     }
   }
 
-  @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void initManagement() {
     this.labyModManagement = new NodeLabyModManagement(this, this.loadConfiguration(), this.rpcFactory());
     // sync the config of the module into the cluster
@@ -90,7 +91,7 @@ public class CloudNetLabyModModule extends DriverModule {
     this.labyModManagement.configuration(this.loadConfiguration());
   }
 
-  @ModuleTask(order = 64, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 16, event = ModuleLifeCycle.LOADED)
   public void initListeners() {
     // register the listeners
     this.registerListener(new NodeLabyModListener(this.labyModManagement));

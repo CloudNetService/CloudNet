@@ -49,8 +49,9 @@ import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -65,12 +66,12 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("ser")
 @CommandPermission("cloudnet.command.service")
-@Description("Manages all services in the cluster")
+@Description("command-service-description")
 public final class ServiceCommand {
 
   private static final Logger LOGGER = LogManager.logger(ServiceCommand.class);
-  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
   private static final Splitter SEMICOLON_SPLITTER = Splitter.on(';').omitEmptyStrings().trimResults();
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
   // there are different ways to display the services
   private static final RowBasedFormatter<ServiceInfoSnapshot> NAMES_ONLY = RowBasedFormatter.<ServiceInfoSnapshot>builder()
@@ -374,7 +375,8 @@ public final class ServiceCommand {
     ));
 
     if (service.connected()) {
-      list.add("* Connected: " + DATE_FORMAT.format(service.connectedTime()));
+      var connectTime = Instant.ofEpochMilli(service.connectedTime()).atZone(ZoneId.systemDefault());
+      list.add("* Connected: " + DATE_TIME_FORMATTER.format(connectTime));
     } else {
       list.add("* Connected: false");
     }
@@ -412,11 +414,14 @@ public final class ServiceCommand {
     }
 
     list.add(" ");
-    list.add("* ServiceInfoSnapshot | " + DATE_FORMAT.format(service.creationTime()));
+
+    // service snapshot
+    var creationTime = Instant.ofEpochMilli(service.creationTime()).atZone(ZoneId.systemDefault());
+    list.add("* ServiceInfoSnapshot | " + DATE_TIME_FORMATTER.format(creationTime));
 
     list.addAll(List.of(
       "PID: " + service.processSnapshot().pid(),
-      "CPU usage: " + CPUUsageResolver.FORMAT.format(service.processSnapshot().cpuUsage()) + "%",
+      "CPU usage: " + CPUUsageResolver.defaultFormat().format(service.processSnapshot().cpuUsage()) + "%",
       "Threads: " + service.processSnapshot().threads().size(),
       "Heap usage: " + (service.processSnapshot().heapUsageMemory() / 1048576) + "/" +
         (service.processSnapshot().maxHeapMemory() / 1048576) + "MB",

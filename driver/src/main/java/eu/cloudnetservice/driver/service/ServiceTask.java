@@ -429,15 +429,15 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given runtime is null.
      */
-    public @NonNull Builder runtime(@Nullable String runtime) {
+    public @NonNull Builder runtime(@NonNull String runtime) {
       this.runtime = runtime;
       return this;
     }
 
     /**
      * Sets the host address which all services of this task are bound to. The host address is required to be assignable
-     * on every node a service can be started on. In order to ensure that the host address is assignable on every node, ip
-     * aliases can be used. Ip aliases can be defined in the config of each node. To use them set the host address to
+     * on every node a service can be started on. In order to ensure that the host address is assignable on every node,
+     * ip aliases can be used. Ip aliases can be defined in the config of each node. To use them set the host address to
      * the name of the alias. If null is supplied the fallback address of the node is used.
      * <p>
      * Note: if the host address is not assignable or the alias is not resolvable on the node which is picking up the

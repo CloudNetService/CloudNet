@@ -68,13 +68,22 @@ public interface CommandProvider {
   @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input);
 
   /**
-   * Registers a command on a per-class basis. All methods annotated with {@link cloud.commandframework.annotations.CommandMethod}
-   * are parsed into a command and only one common {@link CommandInfo}.
+   * Registers a command on a per-class basis. All methods annotated with
+   * {@link cloud.commandframework.annotations.CommandMethod} are parsed into a command and only one common
+   * {@link CommandInfo}.
    *
    * @param command the instance of the class to register all commands for.
    * @throws NullPointerException if object is null.
    */
   void register(@NonNull Object command);
+
+  /**
+   * Unregisters the command with the given name or alias.
+   *
+   * @param name the name or alias of the command to unregister.
+   * @throws NullPointerException if the given name is null.
+   */
+  void unregister(@NonNull String name);
 
   /**
    * Unregisters every command that was registered by the given classloader.

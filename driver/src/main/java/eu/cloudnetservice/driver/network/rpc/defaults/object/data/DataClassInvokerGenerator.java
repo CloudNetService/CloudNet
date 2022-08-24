@@ -348,7 +348,7 @@ public final class DataClassInvokerGenerator {
    * @throws NullPointerException if one of the given arguments is null.
    * @see #commonFilter(Field)
    */
-  protected static @Nullable Method findGetterForField(
+  private static @Nullable Method findGetterForField(
     @NonNull Collection<Method> methods,
     @NonNull Field field,
     @NonNull Predicate<Method> extraFilter
@@ -378,7 +378,7 @@ public final class DataClassInvokerGenerator {
    * @return a filter checking if the provided method has the same return type as the field.
    * @throws NullPointerException if the given field is null.
    */
-  protected static @NonNull Predicate<Method> commonFilter(@NonNull Field field) {
+  private static @NonNull Predicate<Method> commonFilter(@NonNull Field field) {
     return method -> method.getReturnType().equals(field.getType());
   }
 

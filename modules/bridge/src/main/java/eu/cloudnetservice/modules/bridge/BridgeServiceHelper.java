@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.bridge;
 import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.wrapper.Wrapper;
@@ -75,7 +76,11 @@ public final class BridgeServiceHelper {
         .serviceTaskAsync(taskName)
         .thenApply(task -> ServiceConfiguration.builder(task).build())
         .thenApply(config -> CloudNetDriver.instance().cloudServiceFactory().createCloudService(config))
-        .thenAccept(service -> service.provider().start());
+        .thenAccept(createResult -> {
+          if (createResult.state() == ServiceCreateResult.State.CREATED) {
+            createResult.serviceInfo().provider().start();
+          }
+        });
     }
   }
 
@@ -158,7 +163,7 @@ public final class BridgeServiceHelper {
     value = value.replace("%threads%", Integer.toString(service.processSnapshot().threads().size()));
     value = value.replace("%heap_usage%", Long.toString(service.processSnapshot().heapUsageMemory()));
     value = value.replace("%max_heap_usage%", Long.toString(service.processSnapshot().maxHeapMemory()));
-    value = value.replace("%cpu_usage%", CPUUsageResolver.FORMAT.format(service.processSnapshot().cpuUsage()));
+    value = value.replace("%cpu_usage%", CPUUsageResolver.defaultFormat().format(service.processSnapshot().cpuUsage()));
     // bridge information
     value = value.replace("%online%", BridgeServiceProperties.IS_ONLINE.readOr(service, false) ? "Online" : "Offline");
     value = value.replace("%online_players%",

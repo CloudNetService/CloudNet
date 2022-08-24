@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.config;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
@@ -30,8 +31,8 @@ import eu.cloudnetservice.node.setup.DefaultConfigSetup;
 import eu.cloudnetservice.node.util.NetworkUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -154,7 +155,7 @@ public final class JsonConfiguration implements Configuration {
         ConfigurationUtil.get("cloudnet.cluster.id", UUID.randomUUID(), UUID::fromString),
         ConfigurationUtil.get(
           "cloudnet.config.clusterConfig",
-          Collections.emptyList(),
+          new ArrayList<>(),
           value -> {
             Collection<NetworkClusterNode> nodes = new HashSet<>();
             // collection entries are seperated by ','
@@ -173,8 +174,8 @@ public final class JsonConfiguration implements Configuration {
     if (this.ipWhitelist == null) {
       this.ipWhitelist = ConfigurationUtil.get(
         "cloudnet.config.ipWhitelist",
-        NetworkUtil.availableIPAddresses(),
-        value -> Set.of(value.split(",")));
+        Sets.newHashSet(NetworkUtil.availableIPAddresses()),
+        value -> Sets.newHashSet(value.split(",")));
     }
 
     if (this.maxCPUUsageToStartServices <= 0) {

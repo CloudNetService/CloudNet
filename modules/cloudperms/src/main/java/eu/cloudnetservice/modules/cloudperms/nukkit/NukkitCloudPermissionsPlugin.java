@@ -20,16 +20,14 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.nukkit.listener.NukkitCloudPermissionsPlayerListener;
-import eu.cloudnetservice.wrapper.Wrapper;
 
 public final class NukkitCloudPermissionsPlugin extends PluginBase {
 
   @Override
   public void onEnable() {
-    this.injectPlayersCloudPermissible();
-
     super.getServer().getPluginManager().registerEvents(
       new NukkitCloudPermissionsPlayerListener(CloudNetDriver.instance().permissionManagement()),
       this);
@@ -43,13 +41,6 @@ public final class NukkitCloudPermissionsPlugin extends PluginBase {
 
   @Override
   public void onDisable() {
-    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-  }
-
-  private void injectPlayersCloudPermissible() {
-    for (var player : Server.getInstance().getOnlinePlayers().values()) {
-      NukkitPermissionInjectionHelper.injectPermissible(player, CloudNetDriver.instance().permissionManagement());
-    }
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 }

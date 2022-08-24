@@ -234,7 +234,7 @@ public class DefaultModuleProvider implements ModuleProvider {
       this.moduleDirectory,
       ($, current) -> this.loadModule(current),
       false,
-      "*.{jar,war,zip}");
+      "*.{jar,war}");
     return this;
   }
 

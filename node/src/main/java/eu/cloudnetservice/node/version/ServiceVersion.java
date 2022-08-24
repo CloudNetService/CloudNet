@@ -74,15 +74,8 @@ public class ServiceVersion implements Nameable {
   }
 
   public boolean canRun(@NonNull JavaVersion javaVersion) {
-    var minJavaVersion = JavaVersion.fromVersion(this.minJavaVersion);
-    var maxJavaVersion = JavaVersion.fromVersion(this.maxJavaVersion);
-
-    if (minJavaVersion.isPresent() && maxJavaVersion.isPresent()) {
-      return javaVersion.isSupported(minJavaVersion.get(), maxJavaVersion.get());
-    }
-
-    return minJavaVersion.map(javaVersion::isSupportedByMin)
-      .orElseGet(() -> maxJavaVersion.map(javaVersion::isSupportedByMax).orElse(true));
+    return this.minJavaVersion().map(javaVersion::isNewerOrAt).orElse(true)
+      && this.maxJavaVersion().map(javaVersion::isOlderOrAt).orElse(true);
   }
 
   public @NonNull String name() {
@@ -98,11 +91,11 @@ public class ServiceVersion implements Nameable {
   }
 
   public @NonNull Optional<JavaVersion> minJavaVersion() {
-    return JavaVersion.fromVersion(this.minJavaVersion);
+    return JavaVersion.fromMajor(this.minJavaVersion);
   }
 
   public @NonNull Optional<JavaVersion> maxJavaVersion() {
-    return JavaVersion.fromVersion(this.maxJavaVersion);
+    return JavaVersion.fromMajor(this.maxJavaVersion);
   }
 
   public @NonNull JsonDocument properties() {

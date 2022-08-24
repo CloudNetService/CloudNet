@@ -33,6 +33,8 @@ allprojects {
   repositories {
     mavenCentral()
     maven("https://jitpack.io/")
+    // must be before sponge as they mirror some repos including that one (which leads to outdated dependencies)
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("https://repo.spongepowered.org/maven/")
   }
 }
@@ -127,12 +129,7 @@ subprojects {
 
   tasks.withType<Javadoc> {
     val options = options as? StandardJavadocDocletOptions ?: return@withType
-
-    // options
-    options.encoding = "UTF-8"
-    options.memberLevel = JavadocMemberLevel.PRIVATE
-    options.addStringOption("-html5")
-    options.addBooleanOption("Xdoclint:-missing", true)
+    applyDefaultJavadocOptions(options)
   }
 
   // all these projects are publishing their java artifacts
@@ -145,11 +142,8 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   title = "CloudNet JavaDocs"
   setDestinationDir(buildDir.resolve("javadocs"))
   // options
-  options.encoding = "UTF-8"
+  applyDefaultJavadocOptions(options)
   options.windowTitle = "CloudNet JavaDocs"
-  options.memberLevel = JavadocMemberLevel.PRIVATE
-  options.addStringOption("-html5")
-  options.addBooleanOption("Xdoclint:-missing", true)
   // set the sources
   val sources = subprojects.filter { it.plugins.hasPlugin("java") }.map { it.path }
   source(files(sources.flatMap { project(it).sourceSets()["main"].allJava }))

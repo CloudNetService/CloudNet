@@ -45,4 +45,9 @@ public class JVMServiceFactory extends AbstractServiceFactory {
     // create the service
     return new JVMService(config, manager, this.eventManager, this.node, preparer);
   }
+
+  @Override
+  public @NonNull String name() {
+    return "jvm";
+  }
 }

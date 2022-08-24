@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.FileInfo;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.sftp.config.SFTPTemplateStorageConfig;
+import eu.cloudnetservice.modules.sftp.sshj.ActiveHeartbeatKeepAliveProvider;
 import eu.cloudnetservice.modules.sftp.sshj.FilteringLocalFileSource;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +39,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 import lombok.NonNull;
-import net.schmizz.keepalive.KeepAliveProvider;
 import net.schmizz.sshj.Config;
 import net.schmizz.sshj.DefaultConfig;
 import net.schmizz.sshj.SSHClient;
@@ -66,7 +66,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     // init the config
     this.config = new DefaultConfig();
     this.config.setLoggerFactory(NopLoggerFactory.INSTANCE);
-    this.config.setKeepAliveProvider(KeepAliveProvider.HEARTBEAT);
+    this.config.setKeepAliveProvider(ActiveHeartbeatKeepAliveProvider.INSTANCE);
     // init the pool
     this.pool = new SFTPClientPool(config.clientPoolSize(), () -> {
       var client = this.sshClient;

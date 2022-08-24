@@ -44,7 +44,7 @@ public interface PlayerProvider {
    *
    * @return all supplied cloud players.
    */
-  @NonNull Collection<? extends CloudPlayer> players();
+  @NonNull Collection<CloudPlayer> players();
 
   /**
    * Gets all unique ids of the players supplied by this player provider.
@@ -72,7 +72,7 @@ public interface PlayerProvider {
    *
    * @return a task containing all supplied cloud players.
    */
-  default @NonNull Task<Collection<? extends CloudPlayer>> playersAsync() {
+  default @NonNull Task<Collection<CloudPlayer>> playersAsync() {
     return Task.supply(this::players);
   }
 

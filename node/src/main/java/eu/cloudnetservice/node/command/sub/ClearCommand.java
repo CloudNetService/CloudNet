@@ -23,7 +23,7 @@ import eu.cloudnetservice.node.console.Console;
 import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.clear")
-@Description("Clears the entire console of the node to get a better overview")
+@Description("command-clear-description")
 public record ClearCommand(@NonNull Console console) {
 
   @CommandMethod("clear")

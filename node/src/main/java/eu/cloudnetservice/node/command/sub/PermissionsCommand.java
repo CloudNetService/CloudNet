@@ -37,9 +37,10 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
@@ -50,10 +51,10 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("perms")
 @CommandPermission("cloudnet.command.permissions")
-@Description("Manages the permissions of users and groups")
+@Description("command-permissions-description")
 public record PermissionsCommand(@NonNull Node node) {
 
-  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
   @Parser
   public @NonNull PermissionUser defaultPermissionUserParser(
@@ -159,7 +160,8 @@ public record PermissionsCommand(@NonNull Node node) {
     for (var group : user.groups()) {
       var timeout = "LIFETIME";
       if (group.timeOutMillis() > 0) {
-        timeout = DATE_FORMAT.format(group.timeOutMillis());
+        var timeoutTime = Instant.ofEpochMilli(group.timeOutMillis()).atZone(ZoneId.systemDefault());
+        timeout = DATE_TIME_FORMATTER.format(timeoutTime);
       }
       source.sendMessage("- " + group.group() + ": " + timeout);
     }
@@ -433,7 +435,8 @@ public record PermissionsCommand(@NonNull Node node) {
   private @NonNull String formatPermission(@NonNull Permission permission) {
     var timeout = "LIFETIME";
     if (permission.timeOutMillis() > 0) {
-      timeout = DATE_FORMAT.format(permission.timeOutMillis());
+      var timeoutTime = Instant.ofEpochMilli(permission.timeOutMillis()).atZone(ZoneId.systemDefault());
+      timeout = DATE_TIME_FORMATTER.format(timeoutTime);
     }
 
     return "- " + permission.name() + " | Potency: " + permission.potency() + " | Timeout: " + timeout;

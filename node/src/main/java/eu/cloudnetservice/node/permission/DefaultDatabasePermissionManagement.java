@@ -312,7 +312,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public void groups(@Nullable Collection<? extends PermissionGroup> groups) {
+  public void groups(@Nullable Collection<PermissionGroup> groups) {
     // handle the setGroups
     this.setGroupsSilently(groups);
     // publish to the listeners
@@ -350,7 +350,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public void setGroupsSilently(@Nullable Collection<? extends PermissionGroup> groups) {
+  public void setGroupsSilently(@Nullable Collection<PermissionGroup> groups) {
     this.groups.clear();
     // set the provided groups
     if (groups != null) {

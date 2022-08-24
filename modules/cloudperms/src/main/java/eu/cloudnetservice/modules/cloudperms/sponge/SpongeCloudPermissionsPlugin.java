@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.cloudperms.sponge;
 
 import com.google.inject.Inject;
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.util.ModuleUtil;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.CloudPermsPermissionService;
 import lombok.NonNull;
@@ -28,6 +29,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
 import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
@@ -59,6 +61,11 @@ public final class SpongeCloudPermissionsPlugin {
       ServerPlayer::uniqueId,
       uuid -> Sponge.server().player(uuid).orElse(null),
       Sponge.server()::onlinePlayers));
+  }
+
+  @Listener
+  public void handle(@NonNull StoppingEngineEvent<Server> event) {
+    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
   }
 
   @Listener

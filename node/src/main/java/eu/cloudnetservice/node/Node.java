@@ -41,6 +41,7 @@ import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
 import eu.cloudnetservice.driver.network.netty.server.NettyNetworkServer;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.template.TemplateStorage;
+import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
 import eu.cloudnetservice.ext.updater.UpdaterRegistry;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
@@ -64,7 +65,7 @@ import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
 import eu.cloudnetservice.node.module.updater.ModuleUpdater;
 import eu.cloudnetservice.node.module.updater.ModuleUpdaterContext;
 import eu.cloudnetservice.node.module.updater.ModuleUpdaterRegistry;
-import eu.cloudnetservice.node.module.util.ModuleJsonReader;
+import eu.cloudnetservice.node.module.util.ModuleUpdateUtil;
 import eu.cloudnetservice.node.network.DefaultNetworkClientChannelHandler;
 import eu.cloudnetservice.node.network.DefaultNetworkServerChannelHandler;
 import eu.cloudnetservice.node.network.chunk.FileDeployCallbackListener;
@@ -143,7 +144,7 @@ public class Node extends CloudNetDriver {
     this.console = console;
     this.commandProvider = new DefaultCommandProvider(this);
 
-    this.modulesHolder = ModuleJsonReader.read(LAUNCHER_DIR);
+    this.modulesHolder = ModuleUpdateUtil.readModuleJson(LAUNCHER_DIR);
     this.moduleUpdaterRegistry = new ModuleUpdaterRegistry();
     this.moduleUpdaterRegistry.registerUpdater(new ModuleUpdater());
 
@@ -255,8 +256,11 @@ public class Node extends CloudNetDriver {
     this.nodeServerProvider.localNode().state(NodeServerState.READY);
     this.nodeServerProvider.selectHeadNode();
 
-    // prints out the transport type we're going to use, more for debug reasons in normal cases
+    // print out some network information, more for debug reasons in normal cases
     LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
+    LOGGER.info(I18n.trans(
+      "network-selected-dispatch-thread-type",
+      ExecutorServiceUtil.virtualThreadsAvailable() ? "virtual" : "platform"));
 
     // bind network listeners
     this.bindNetworkListeners();

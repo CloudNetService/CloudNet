@@ -112,7 +112,7 @@ class MongoDBDatabaseTest {
     Assertions.assertEquals(1, entry4.size());
     Assertions.assertEquals("world", entry4.iterator().next().getString("hello"));
 
-    var entry5 = database.find(JsonDocument.newDocument("hello", "world2"));
+    var entry5 = database.find(Map.of("hello", "world2"));
     Assertions.assertEquals(1, entry5.size());
     Assertions.assertEquals("world2", entry5.iterator().next().getString("hello"));
 
@@ -123,11 +123,6 @@ class MongoDBDatabaseTest {
 
     var documents = database.documents();
     Assertions.assertEquals(2, documents.size());
-
-    var filtered = database.filter((key, value) -> key.equals("1234"));
-    Assertions.assertEquals(1, filtered.size());
-    Assertions.assertNotNull(filtered.get("1234"));
-    Assertions.assertEquals("world", filtered.get("1234").getString("hello"));
 
     Assertions.assertTrue(database.delete("12234"));
     Assertions.assertEquals(1, database.documentCount());

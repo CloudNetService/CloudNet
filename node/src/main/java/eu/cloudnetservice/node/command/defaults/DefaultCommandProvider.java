@@ -103,16 +103,24 @@ public class DefaultCommandProvider implements CommandProvider {
 
     this.commandManager = new DefaultCommandManager();
     this.commandManager.captionVariableReplacementHandler(new DefaultCaptionVariableReplacementHandler());
-    this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
+    this.annotationParser = new AnnotationParser<>(
+      this.commandManager,
+      CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
     this.registeredCommands = Multimaps.newSetMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
 
     // handle our @CommandAlias annotation and apply the found aliases
-    this.annotationParser.registerBuilderModifier(CommandAlias.class,
+    this.annotationParser.registerBuilderModifier(
+      CommandAlias.class,
       (alias, builder) -> builder.meta(ALIAS_KEY, new HashSet<>(Arrays.asList(alias.value()))));
     // handle our @Description annotation and apply the found description for the help command
     this.annotationParser.registerBuilderModifier(Description.class, (description, builder) -> {
       if (!description.value().trim().isEmpty()) {
+        // check if we have to translate the value
+        if (description.translatable()) {
+          return builder.meta(DESCRIPTION_KEY, I18n.trans(description.value()));
+        }
+        // just the raw description
         return builder.meta(DESCRIPTION_KEY, description.value());
       }
       return builder;
@@ -169,7 +177,8 @@ public class DefaultCommandProvider implements CommandProvider {
 
       var permission = cloudCommand.getCommandPermission().toString();
       // retrieve our own description processed by the @Description annotation
-      var description = cloudCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
+      var description = cloudCommand.getCommandMeta().get(DESCRIPTION_KEY)
+        .orElseGet(() -> I18n.trans("command-no-description"));
       // retrieve the aliases processed by the @CommandAlias annotation
       var aliases = cloudCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
       // retrieve the documentation url processed by the @Documentation annotation
@@ -177,7 +186,8 @@ public class DefaultCommandProvider implements CommandProvider {
       // get the name by using the first argument of the command
       var name = StringUtil.toLower(cloudCommand.getArguments().get(0).getName());
       // there is no other command registered with the given name, parse usage and register the command now
-      this.registeredCommands.put(cloudCommand.getClass().getClassLoader(),
+      this.registeredCommands.put(
+        command.getClass().getClassLoader(),
         new CommandInfo(name, aliases, permission, description, documentation, this.commandUsageOfRoot(name)));
     }
   }
@@ -186,8 +196,30 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
+  public void unregister(@NonNull String name) {
+    var commands = this.registeredCommands.entries();
+    for (var entry : commands) {
+      var commandInfo = entry.getValue();
+      if (commandInfo.name().equals(name) || commandInfo.aliases().contains(name)) {
+        // remove the command from the manager & from our registered entries
+        this.commandManager.deleteRootCommand(commandInfo.name());
+        this.registeredCommands.remove(entry.getKey(), entry.getValue());
+
+        // stop here - there can only be one command with the name
+        break;
+      }
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void unregister(@NonNull ClassLoader classLoader) {
-    this.registeredCommands.removeAll(classLoader);
+    var unregisteredCommands = this.registeredCommands.removeAll(classLoader);
+    for (var unregisteredCommand : unregisteredCommands) {
+      this.commandManager.deleteRootCommand(unregisteredCommand.name());
+    }
   }
 
   /**
@@ -269,16 +301,15 @@ public class DefaultCommandProvider implements CommandProvider {
     var confirmationManager = new CommandConfirmationManager<CommandSource>(
       30L,
       TimeUnit.SECONDS,
-      context -> context.getCommandContext().getSender()
-        .sendMessage(I18n.trans("command-confirmation-required")),
-      sender -> sender.sendMessage(I18n.trans("command-confirmation-no-requests"))
-    );
+      context -> context.getCommandContext().getSender().sendMessage(I18n.trans("command-confirmation-required")),
+      sender -> sender.sendMessage(I18n.trans("command-confirmation-no-requests")));
     // register the confirmation manager to the command manager
     confirmationManager.registerConfirmationProcessor(this.commandManager);
     // register the command that is used for confirmations
     this.commandManager.command(this.commandManager.commandBuilder("confirm")
       .handler(confirmationManager.createConfirmationExecutionHandler()));
-    this.registeredCommands.put(this.getClass().getClassLoader(),
+    this.registeredCommands.put(
+      this.getClass().getClassLoader(),
       new CommandInfo(
         "confirm",
         Set.of(),
@@ -297,8 +328,8 @@ public class DefaultCommandProvider implements CommandProvider {
   protected @NonNull List<String> commandUsageOfRoot(@NonNull String root) {
     List<String> commandUsage = new ArrayList<>();
     for (var command : this.commandManager.commands()) {
-      var arguments = command.getArguments();
       // the first argument is the root, check if it matches
+      var arguments = command.getArguments();
       if (arguments.isEmpty() || !arguments.get(0).getName().equalsIgnoreCase(root)) {
         continue;
       }
