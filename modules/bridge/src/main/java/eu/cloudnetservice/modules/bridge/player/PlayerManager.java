@@ -154,8 +154,10 @@ public interface PlayerManager {
   @Nullable CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId);
 
   /**
-   * Gets the first registered offline player that has the given case-insensitive name. The player must have been
-   * previously connected.
+   * Gets the first registered offline player that has the given name. The player must have been previously connected.
+   * If the player is cached on the corresponding node which is handling the method call, then the given name check will
+   * be done case-insensitive against the underlying cache, if the player data must be queried from the database then
+   * this check is case-sensitive.
    *
    * @param name the name of the registered player.
    * @return the first offline player with the given name or null if there is no player with the name.
@@ -164,7 +166,7 @@ public interface PlayerManager {
   @Nullable CloudOfflinePlayer firstOfflinePlayer(@NonNull String name);
 
   /**
-   * Gets all registered cloud players that have the given case-insensitive name. The player must have been previously
+   * Gets all registered cloud players that have the given case-sensitive name. The player must have been previously
    * connected.
    *
    * @param name the name of the registered cloud players.
@@ -295,8 +297,10 @@ public interface PlayerManager {
   }
 
   /**
-   * Gets the first registered offline player that has the given case-insensitive name asynchronously. The player must
-   * have been previously connected.
+   * Gets the first registered offline player that has the given name asynchronously. The player must have been
+   * previously connected. If the player is cached on the corresponding node which is handling the method call, then the
+   * given name check will be done case-insensitive against the underlying cache, if the player data must be queried
+   * from the database then this check is case-sensitive.
    *
    * @param name the name of the registered player.
    * @return a task containing the first offline player with the given name.
@@ -307,7 +311,7 @@ public interface PlayerManager {
   }
 
   /**
-   * Gets all registered cloud players that have the given case-insensitive name asynchronously. The player must have
+   * Gets all registered cloud players that have the given case-sensitive name asynchronously. The player must have
    * been previously connected.
    *
    * @param name the name of the registered cloud players.
