@@ -28,7 +28,7 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@v5.4
+        uses: tj-actions/branch-names@v5.5
 
       - name: Validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
