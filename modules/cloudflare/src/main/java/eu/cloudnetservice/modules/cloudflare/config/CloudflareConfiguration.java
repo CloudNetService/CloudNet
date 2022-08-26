@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare;
+package eu.cloudnetservice.modules.cloudflare.config;
 
+import java.util.Collection;
 import lombok.NonNull;
 
-public record CloudflareGroupConfiguration(@NonNull String name, @NonNull String sub, int priority, int weight) {
+public record CloudflareConfiguration(@NonNull Collection<CloudflareConfigurationEntry> entries) {
 
 }

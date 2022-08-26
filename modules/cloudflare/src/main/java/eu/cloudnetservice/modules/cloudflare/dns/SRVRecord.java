@@ -17,29 +17,25 @@
 package eu.cloudnetservice.modules.cloudflare.dns;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.CloudflareGroupConfiguration;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
+import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
 import lombok.NonNull;
 
-/**
- * A representation of an SRV DNS record
- */
-public class SRVRecord extends DNSRecord {
+public final class SRVRecord extends DNSRecord {
 
   public SRVRecord(
-    String name,
-    String content,
-    String service,
-    String proto,
-    String secondName,
+    @NonNull String name,
+    @NonNull String content,
+    @NonNull String service,
+    @NonNull String proto,
+    @NonNull String secondName,
     int priority,
     int weight,
     int port,
-    String target
+    @NonNull String target
   ) {
     super(
-      DNSType.SRV.name(),
+      DNSType.SRV,
       name,
       content,
       1,
@@ -51,11 +47,10 @@ public class SRVRecord extends DNSRecord {
         .append("priority", priority)
         .append("weight", weight)
         .append("port", port)
-        .append("target", target)
-    );
+        .append("target", target));
   }
 
-  public static SRVRecord forConfiguration(
+  public static @NonNull SRVRecord forConfiguration(
     @NonNull CloudflareConfigurationEntry entry,
     @NonNull CloudflareGroupConfiguration configuration,
     int port
@@ -67,16 +62,14 @@ public class SRVRecord extends DNSRecord {
         configuration.priority(),
         configuration.weight(),
         port,
-        Node.instance().config().identity().uniqueId(),
-        entry.domainName()
-      ),
+        entry.entryName(),
+        entry.domainName()),
       "_minecraft",
       "_tcp",
       configuration.sub().equals("@") ? entry.domainName() : configuration.sub(),
       configuration.priority(),
       configuration.weight(),
       port,
-      Node.instance().config().identity().uniqueId() + "." + entry.domainName()
-    );
+      String.format("%s.%s", entry.entryName(), entry.domainName()));
   }
 }

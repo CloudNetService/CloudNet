@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare;
+package eu.cloudnetservice.modules.cloudflare.config;
 
+import eu.cloudnetservice.common.StringUtil;
 import java.util.Collection;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public record CloudflareConfigurationEntry(
   boolean enabled,
   @NonNull AuthenticationMethod authenticationMethod,
+  @Nullable String entryName,
   @NonNull String hostAddress,
   @NonNull String email,
   @NonNull String apiToken,
@@ -29,6 +32,13 @@ public record CloudflareConfigurationEntry(
   @NonNull String domainName,
   @NonNull Collection<CloudflareGroupConfiguration> groups
 ) {
+
+  public CloudflareConfigurationEntry {
+    // put in a random entry name if no name is given
+    if (entryName == null) {
+      entryName = StringUtil.generateRandomString(7);
+    }
+  }
 
   public enum AuthenticationMethod {
     GLOBAL_KEY,

@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.modules.cloudflare;
 
+import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
@@ -23,25 +26,25 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareAPI;
+import eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareRecordManager;
+import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfiguration;
+import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
+import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
+import eu.cloudnetservice.modules.cloudflare.dns.DNSRecord;
 import eu.cloudnetservice.modules.cloudflare.dns.DNSType;
-import eu.cloudnetservice.modules.cloudflare.dns.DefaultDNSRecord;
 import eu.cloudnetservice.modules.cloudflare.listener.CloudflareStartAndStopListener;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.util.NetworkUtil;
 import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.UUID;
 import lombok.NonNull;
 
 public final class CloudNetCloudflareModule extends DriverModule {
 
+  private static final UUID NODE_RECORDS_ID = UUID.randomUUID();
   private static final Logger LOGGER = LogManager.logger(CloudNetCloudflareModule.class);
 
-  private CloudFlareAPI cloudFlareAPI;
+  private final CloudFlareRecordManager recordManager = new CloudFlareRecordManager();
   private CloudflareConfiguration cloudflareConfiguration;
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
@@ -56,55 +59,53 @@ public final class CloudNetCloudflareModule extends DriverModule {
   public void loadConfiguration() {
     var configuration = this.readConfig(
       CloudflareConfiguration.class,
-      () -> new CloudflareConfiguration(
-        new ArrayList<>(Collections.singletonList(
-          new CloudflareConfigurationEntry(
-            false,
-            CloudflareConfigurationEntry.AuthenticationMethod.GLOBAL_KEY,
-            NetworkUtil.localAddress(),
-            "user@example.com",
-            "api_token_string",
-            "zoneId",
-            "example.com",
-            new ArrayList<>(Collections.singletonList(
-              new CloudflareGroupConfiguration("Proxy", "@", 1, 1)
-            ))
-          )
-        ))
-      ));
+      () -> new CloudflareConfiguration(Lists.newArrayList(new CloudflareConfigurationEntry(
+        false,
+        CloudflareConfigurationEntry.AuthenticationMethod.GLOBAL_KEY,
+        StringUtil.generateRandomString(7),
+        NetworkUtil.localAddress(),
+        "user@example.com",
+        "api_token_string",
+        "zoneId",
+        "example.com",
+        Lists.newArrayList(new CloudflareGroupConfiguration("Proxy", "@", 1, 1))))));
     this.updateConfiguration(configuration);
   }
 
-  @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
-  public void initCloudflareAPI() {
-    this.cloudFlareAPI = new CloudFlareAPI();
-  }
-
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
-  public void addedDefaultCloudflareDNSServices() {
-    var cloudConfig = Node.instance().config();
+  public void createRecordsForConfigurationEntries() {
+    var nodeConfig = Node.instance().config();
 
     for (var entry : this.cloudFlareConfiguration().entries()) {
       if (entry.enabled()) {
-        boolean ipv6Address;
         try {
-          ipv6Address = InetAddress.getByName(entry.hostAddress()) instanceof Inet6Address;
-        } catch (UnknownHostException exception) {
-          LOGGER.severe("Host address of entry " + entry + " is invalid!", exception);
-          continue;
-        }
+          // parse the host address and from that the dns type from the configuration
+          var address = InetAddresses.forString(entry.hostAddress());
+          var dnsType = address instanceof Inet6Address ? DNSType.AAAA : DNSType.A;
 
-        var recordDetail = this.cloudFlareAPI.createRecord(
-          UUID.randomUUID(),
-          entry,
-          new DefaultDNSRecord(
-            ipv6Address ? DNSType.AAAA : DNSType.A,
-            cloudConfig.identity().uniqueId() + "." + entry.domainName(),
-            entry.hostAddress(),
-            JsonDocument.emptyDocument()));
-        if (recordDetail != null) {
-          LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service", entry.domainName(),
-            cloudConfig.identity().uniqueId(), recordDetail.id()));
+          // create a new record for the entry
+          this.recordManager.createRecord(
+            NODE_RECORDS_ID,
+            entry,
+            new DNSRecord(
+              dnsType,
+              String.format("%s.%s", entry.entryName(), entry.domainName()),
+              address.getHostAddress(),
+              1,
+              false,
+              JsonDocument.emptyDocument())
+          ).thenAccept(record -> {
+            // check if the record was created
+            if (record != null) {
+              LOGGER.info(I18n.trans(
+                "module-cloudflare-create-dns-record-for-service",
+                entry.domainName(),
+                nodeConfig.identity().uniqueId(),
+                record.id()));
+            }
+          });
+        } catch (IllegalArgumentException exception) {
+          LOGGER.severe("Host address %s is invalid", exception, entry.hostAddress());
         }
       }
     }
@@ -113,6 +114,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
   public void handleReload() {
     this.loadConfiguration();
+    this.createRecordsForConfigurationEntries();
   }
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
@@ -122,7 +124,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
   public void removeRecordsOnDelete() {
-    this.cloudFlareAPI.close();
+    this.recordManager.close();
   }
 
   public @NonNull CloudflareConfiguration cloudFlareConfiguration() {
@@ -134,7 +136,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
     this.writeConfig(JsonDocument.newDocument(cloudflareConfiguration));
   }
 
-  public @NonNull CloudFlareAPI cloudFlareAPI() {
-    return this.cloudFlareAPI;
+  public @NonNull CloudFlareRecordManager recordManager() {
+    return this.recordManager;
   }
 }

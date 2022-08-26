@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudflare.cloudflare;
 
-import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry;
+import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.dns.DNSRecord;
 import lombok.NonNull;
 

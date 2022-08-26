@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.cloudflare.dns;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import lombok.NonNull;
 
 public class DNSRecord {
 
@@ -29,8 +30,15 @@ public class DNSRecord {
 
   private final JsonDocument data;
 
-  public DNSRecord(String type, String name, String content, int ttl, boolean proxied, JsonDocument data) {
-    this.type = type;
+  public DNSRecord(
+    @NonNull DNSType type,
+    @NonNull String name,
+    @NonNull String content,
+    int ttl,
+    boolean proxied,
+    @NonNull JsonDocument data
+  ) {
+    this.type = type.name();
     this.name = name;
     this.content = content;
     this.ttl = ttl;

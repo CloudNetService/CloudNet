@@ -22,8 +22,8 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule;
-import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.CloudflareGroupConfiguration;
+import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
+import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
 import eu.cloudnetservice.modules.cloudflare.dns.SRVRecord;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.service.CloudService;
@@ -45,15 +45,19 @@ public final class CloudflareStartAndStopListener {
     if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
         // create the new record
-        var recordDetail = this.module.cloudFlareAPI().createRecord(
-          event.service().serviceId().uniqueId(),
-          entry,
-          SRVRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port()));
-        // publish a message to the node log if the record was created successfully
-        if (recordDetail != null) {
-          LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service", entry.domainName(),
-            event.service().serviceId().name(), recordDetail.id()));
-        }
+        var record = SRVRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port());
+        this.module.recordManager()
+          .createRecord(event.service().serviceId().uniqueId(), entry, record)
+          .thenAccept(detail -> {
+            // print out the info about the record if it was created successfully
+            if (detail != null) {
+              LOGGER.info(I18n.trans(
+                "module-cloudflare-create-dns-record-for-service",
+                entry.domainName(),
+                event.service().serviceId().name(),
+                detail.id()));
+            }
+          });
       });
     }
   }
@@ -62,10 +66,18 @@ public final class CloudflareStartAndStopListener {
   public void handlePostStop(@NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.STOPPED || event.newLifeCycle() == ServiceLifeCycle.DELETED) {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
-        // delete all records of the the service
-        for (var detail : this.module.cloudFlareAPI().deleteAllRecords(event.service())) {
-          LOGGER.info(I18n.trans("module-cloudflare-delete-dns-record-for-service", entry.domainName(),
-            event.service().serviceId().name(), detail.id()));
+        // delete all records of the service
+        for (var record : this.module.recordManager().getAndRemoveRecords(event.service().serviceId().uniqueId())) {
+          this.module.recordManager().deleteRecord(record).thenAccept(deleted -> {
+            // print a message if the record was deleted successfully
+            if (deleted) {
+              LOGGER.info(I18n.trans(
+                "module-cloudflare-delete-dns-record-for-service",
+                entry.domainName(),
+                event.service().serviceId().name(),
+                record.id()));
+            }
+          });
         }
       });
     }
