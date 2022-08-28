@@ -18,9 +18,11 @@ package eu.cloudnetservice.modules.sftp;
 
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import java.io.Closeable;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
@@ -29,7 +31,7 @@ import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.sftp.SFTPEngine;
 
-public class SFTPClientPool {
+public class SFTPClientPool implements Closeable {
 
   private static final Logger LOGGER = LogManager.logger(SFTPClientPool.class);
 
@@ -38,6 +40,7 @@ public class SFTPClientPool {
 
   private final ReentrantLock lock = new ReentrantLock();
   private final AtomicInteger createdClients = new AtomicInteger();
+  private final AtomicBoolean open = new AtomicBoolean(true);
   private final Queue<SFTPClientWrapper> pooledClients = new LinkedList<>();
   private final Queue<Promise<SFTPClientWrapper, RuntimeException>> clientReturnWaiters = new LinkedList<>();
 
@@ -119,6 +122,10 @@ public class SFTPClientPool {
     }
   }
 
+  public boolean stillActive() {
+    return this.open.get();
+  }
+
   private @NonNull SFTPClientWrapper createAndRegisterClient() throws Exception {
     // try to create the client first
     var client = new SFTPClientWrapper(new SFTPEngine(this.clientFactory.call()).init());
@@ -126,6 +133,20 @@ public class SFTPClientPool {
     this.createdClients.incrementAndGet();
     // use that client now
     return client;
+  }
+
+  @Override
+  public void close() {
+    if (this.open.compareAndSet(true, false)) {
+      // close all pooled clients
+      SFTPClientWrapper client;
+      while ((client = this.pooledClients.poll()) != null) {
+        client.doClose();
+      }
+
+      // reset the client counter
+      this.createdClients.set(0);
+    }
   }
 
   public final class SFTPClientWrapper extends SFTPClient {
@@ -142,8 +163,7 @@ public class SFTPClientPool {
     public void doClose() {
       try {
         super.close();
-      } catch (Exception exception) {
-        LOGGER.severe("Unable to force-close underlying SFTP engine", exception);
+      } catch (Exception ignored) {
       }
     }
   }
