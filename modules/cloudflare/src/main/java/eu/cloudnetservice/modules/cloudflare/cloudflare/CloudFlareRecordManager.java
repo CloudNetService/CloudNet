@@ -203,7 +203,7 @@ public class CloudFlareRecordManager {
     @Nullable String body
   ) {
     var response = body == null ? request.asStringAsync() : request.body(body).asStringAsync();
-    return response.thenApply(res -> JsonDocument.newDocument(res.getBody()));
+    return response.thenApply(res -> JsonDocument.fromJsonString(res.getBody()));
   }
 
   protected @NonNull Map<String, String> constructHeaders(@NonNull CloudflareConfigurationEntry entry) {

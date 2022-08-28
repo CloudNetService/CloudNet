@@ -96,7 +96,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
         this.recordManager.listRecords(entry).thenAccept(records -> {
           var existingRecord = records.stream()
             .filter(record -> record.type().equals(hostInformation.first().name())
-              && record.name().equals(expectedName) && record.content().equals(hostInformation.second()))
+              && record.name().equalsIgnoreCase(expectedName) && record.content().equals(hostInformation.second()))
             .findFirst()
             .orElse(null);
 
@@ -110,7 +110,11 @@ public final class CloudNetCloudflareModule extends DriverModule {
               false,
               JsonDocument.emptyDocument()));
           } else {
+            // mark the record as created
             LOGGER.fine("Skipping creation of record for %s because the record %s exists", null, entry, existingRecord);
+            this.recordManager.trackedRecords().put(
+              NODE_RECORDS_ID,
+              new DnsRecordDetail(existingRecord.id(), existingRecord, entry));
           }
         });
       }
@@ -211,10 +215,10 @@ public final class CloudNetCloudflareModule extends DriverModule {
         if (trackedRecordEntry.getKey().equals(NODE_RECORDS_ID)) {
           // check if a configuration entry exists for the record
           var detail = trackedRecordEntry.getValue();
-          return this.cloudflareConfiguration.entries().stream()
-            .noneMatch(entry -> entry.equals(detail.configurationEntry()));
+          return !this.cloudflareConfiguration.entries().contains(detail.configurationEntry());
         }
-        // always delete non-service records
+
+        // always delete service records
         return true;
       })
       .map(Map.Entry::getValue)

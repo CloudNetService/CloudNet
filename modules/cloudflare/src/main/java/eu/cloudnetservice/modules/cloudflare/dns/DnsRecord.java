@@ -18,8 +18,13 @@ package eu.cloudnetservice.modules.cloudflare.dns;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public class DnsRecord {
+
+  // the id of the record, only used in responses from the CF api
+  private final String id;
 
   private final String type;
   private final String name;
@@ -38,6 +43,7 @@ public class DnsRecord {
     boolean proxied,
     @NonNull JsonDocument data
   ) {
+    this.id = null;
     this.type = type.name();
     this.name = name;
     this.content = content;
@@ -46,15 +52,19 @@ public class DnsRecord {
     this.data = data;
   }
 
-  public String type() {
+  public @UnknownNullability String id() {
+    return this.id;
+  }
+
+  public @NonNull String type() {
     return this.type;
   }
 
-  public String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public String content() {
+  public @NonNull String content() {
     return this.content;
   }
 
@@ -66,7 +76,7 @@ public class DnsRecord {
     return this.proxied;
   }
 
-  public JsonDocument data() {
+  public @Nullable JsonDocument data() {
     return this.data;
   }
 }
