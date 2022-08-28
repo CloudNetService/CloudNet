@@ -341,10 +341,12 @@ public class SFTPTemplateStorage implements TemplateStorage {
 
   @Override
   public void close() throws IOException {
+    // if the base-client is null there are no pooled clients as well, but we need to mark the pool itself as closed
+    this.pool.close();
+
     // check if we've ever opened a session
     var client = this.sshClient;
     if (client != null) {
-      this.pool.close();
       client.disconnect();
     }
   }
