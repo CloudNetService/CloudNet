@@ -18,12 +18,15 @@ package eu.cloudnetservice.modules.cloudflare.cloudflare;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.dns.DNSRecord;
+import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
+import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -34,11 +37,13 @@ import kong.unirest.Unirest;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CloudFlareRecordManager implements AutoCloseable {
+public class CloudFlareRecordManager {
 
   protected static final String CLOUDFLARE_ENDPOINT = "https://api.cloudflare.com/client/v4/";
   protected static final String ZONE_RECORDS_ENDPOINT = CLOUDFLARE_ENDPOINT + "zones/%s/dns_records";
   protected static final String ZONE_RECORDS_MANAGEMENT_ENDPOINT = ZONE_RECORDS_ENDPOINT + "/%s";
+
+  protected static final Type LIST_DNS_RECORD_TYPE = TypeToken.getParameterized(List.class, DnsRecord.class).getType();
 
   protected static final Logger LOGGER = LogManager.logger(CloudFlareRecordManager.class);
 
@@ -46,10 +51,31 @@ public class CloudFlareRecordManager implements AutoCloseable {
     new ConcurrentHashMap<>(),
     ConcurrentHashMap::newKeySet);
 
+  public @NonNull CompletableFuture<List<DnsRecord>> listRecords(@NonNull CloudflareConfigurationEntry configuration) {
+    // build the request
+    var request = this.prepareRequest(
+      String.format("%s?per_page=5000&proxied=false", String.format(ZONE_RECORDS_ENDPOINT, configuration.zoneId())),
+      "GET",
+      configuration);
+
+    // send the request and handle the response
+    return this.sendRequestAndReadResponse(request, null).thenApply(response -> {
+      // check if the response is valid
+      List<DnsRecord> result = response.get("result", LIST_DNS_RECORD_TYPE, null);
+      if (result == null || !response.getBoolean("success")) {
+        LOGGER.fine("Unable to list records for config %s; response was %s", null, configuration, response);
+        return List.of();
+      }
+
+      // return the result
+      return result;
+    });
+  }
+
   public @NonNull CompletableFuture<DnsRecordDetail> createRecord(
     @NonNull UUID serviceUniqueId,
     @NonNull CloudflareConfigurationEntry configuration,
-    @NonNull DNSRecord record
+    @NonNull DnsRecord record
   ) {
     // build the request
     var request = this.prepareRequest(
@@ -75,6 +101,46 @@ public class CloudFlareRecordManager implements AutoCloseable {
       return recordDetail;
     }).exceptionally(ex -> {
       LOGGER.severe("Unable to create cloudflare dns record from %s for config %s", ex, record, configuration);
+      return null;
+    });
+  }
+
+  public @NonNull CompletableFuture<DnsRecordDetail> patchRecord(
+    @NonNull UUID serviceUniqueId,
+    @NonNull DnsRecordDetail oldRecord,
+    @NonNull DnsRecord record
+  ) {
+    // build the request
+    var configuration = oldRecord.configurationEntry();
+    var request = this.prepareRequest(
+      String.format(ZONE_RECORDS_MANAGEMENT_ENDPOINT, configuration.zoneId(), oldRecord.id()),
+      "PATCH",
+      configuration);
+
+    // send the request and handle the response
+    return this.sendRequestAndReadResponse(request, record).thenApply(response -> {
+      // check if the response is valid
+      var result = response.getDocument("result", null);
+      if (result == null || !response.getBoolean("success")) {
+        LOGGER.fine(
+          "Unable to patch record %s to %s for config %s; response was %s",
+          null,
+          oldRecord.id(), record, configuration, response);
+        return null;
+      }
+
+      // successfully patched the record
+      var id = result.getString("id");
+      var recordDetail = new DnsRecordDetail(id, record, configuration);
+
+      // register and return the record
+      this.createdRecords.put(serviceUniqueId, recordDetail);
+      return recordDetail;
+    }).exceptionally(ex -> {
+      LOGGER.severe(
+        "Unable to patch cloudflare dns record %s to %s for config %s",
+        ex,
+        oldRecord.id(), record, configuration);
       return null;
     });
   }
@@ -148,13 +214,6 @@ public class CloudFlareRecordManager implements AutoCloseable {
     }
   }
 
-  @Override
-  public void close() {
-    for (var entry : this.createdRecords.entries()) {
-      this.deleteRecord(entry.getValue());
-    }
-  }
-
   public @NonNull Collection<DnsRecordDetail> getAndRemoveRecords(@NonNull UUID serviceUniqueId) {
     return this.createdRecords.removeAll(serviceUniqueId);
   }
@@ -163,7 +222,7 @@ public class CloudFlareRecordManager implements AutoCloseable {
     return this.createdRecords.get(serviceUniqueId);
   }
 
-  public @NonNull Collection<DnsRecordDetail> createdRecords() {
-    return this.createdRecords.values();
+  public @NonNull Multimap<UUID, DnsRecordDetail> trackedRecords() {
+    return this.createdRecords;
   }
 }

@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.cloudflare.config;
 
 import eu.cloudnetservice.common.StringUtil;
 import java.util.Collection;
+import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +39,13 @@ public record CloudflareConfigurationEntry(
     if (entryName == null) {
       entryName = StringUtil.generateRandomString(7);
     }
+  }
+
+  public static boolean mightEqual(
+    @NonNull CloudflareConfigurationEntry left,
+    @NonNull CloudflareConfigurationEntry right
+  ) {
+    return Objects.equals(left.entryName(), right.entryName()) && Objects.equals(left.zoneId(), right.zoneId());
   }
 
   public enum AuthenticationMethod {

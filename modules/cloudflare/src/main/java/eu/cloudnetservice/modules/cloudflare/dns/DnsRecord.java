@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.cloudflare.dns;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import lombok.NonNull;
 
-public class DNSRecord {
+public class DnsRecord {
 
   private final String type;
   private final String name;
@@ -30,8 +30,8 @@ public class DNSRecord {
 
   private final JsonDocument data;
 
-  public DNSRecord(
-    @NonNull DNSType type,
+  public DnsRecord(
+    @NonNull DnsType type,
     @NonNull String name,
     @NonNull String content,
     int ttl,

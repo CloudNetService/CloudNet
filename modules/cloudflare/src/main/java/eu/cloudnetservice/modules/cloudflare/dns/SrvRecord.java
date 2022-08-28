@@ -21,9 +21,9 @@ import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
 import lombok.NonNull;
 
-public final class SRVRecord extends DNSRecord {
+public final class SrvRecord extends DnsRecord {
 
-  public SRVRecord(
+  public SrvRecord(
     @NonNull String name,
     @NonNull String content,
     @NonNull String service,
@@ -35,7 +35,7 @@ public final class SRVRecord extends DNSRecord {
     @NonNull String target
   ) {
     super(
-      DNSType.SRV,
+      DnsType.SRV,
       name,
       content,
       1,
@@ -50,12 +50,12 @@ public final class SRVRecord extends DNSRecord {
         .append("target", target));
   }
 
-  public static @NonNull SRVRecord forConfiguration(
+  public static @NonNull SrvRecord forConfiguration(
     @NonNull CloudflareConfigurationEntry entry,
     @NonNull CloudflareGroupConfiguration configuration,
     int port
   ) {
-    return new SRVRecord(
+    return new SrvRecord(
       String.format("_minecraft._tcp.%s", entry.domainName()),
       String.format(
         "SRV %s %s %s %s.%s",

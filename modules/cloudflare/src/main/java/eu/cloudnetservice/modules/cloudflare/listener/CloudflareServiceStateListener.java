@@ -24,19 +24,19 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
-import eu.cloudnetservice.modules.cloudflare.dns.SRVRecord;
+import eu.cloudnetservice.modules.cloudflare.dns.SrvRecord;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.service.CloudService;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 
-public final class CloudflareStartAndStopListener {
+public final class CloudflareServiceStateListener {
 
-  private static final Logger LOGGER = LogManager.logger(CloudflareStartAndStopListener.class);
+  private static final Logger LOGGER = LogManager.logger(CloudflareServiceStateListener.class);
 
   private final CloudNetCloudflareModule module;
 
-  public CloudflareStartAndStopListener(@NonNull CloudNetCloudflareModule module) {
+  public CloudflareServiceStateListener(@NonNull CloudNetCloudflareModule module) {
     this.module = module;
   }
 
@@ -45,7 +45,7 @@ public final class CloudflareStartAndStopListener {
     if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
         // create the new record
-        var record = SRVRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port());
+        var record = SrvRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port());
         this.module.recordManager()
           .createRecord(event.service().serviceId().uniqueId(), entry, record)
           .thenAccept(detail -> {
@@ -87,7 +87,7 @@ public final class CloudflareStartAndStopListener {
     @NonNull CloudService targetService,
     @NonNull BiConsumer<CloudflareConfigurationEntry, CloudflareGroupConfiguration> handler
   ) {
-    for (var entry : this.module.cloudFlareConfiguration().entries()) {
+    for (var entry : this.module.configuration().entries()) {
       if (entry != null && entry.enabled() && !entry.groups().isEmpty()) {
         for (var config : entry.groups()) {
           if (config != null && targetService.serviceConfiguration().groups().contains(config.name())) {
