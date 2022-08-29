@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudflare.dns;
 
-public enum DNSType {
+public enum DnsType {
 
   A,
   AAAA,
