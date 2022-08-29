@@ -59,7 +59,7 @@ public final class MeCommand {
 
     source.sendMessage(List.of(
       " ",
-      Node.instance().version() + " created by Dytanic, maintained by the CloudNet Community",
+      Node.instance().version().toString(),
       "Discord: <https://discord.cloudnetservice.eu/>",
       " ",
       "ClusterId: " + clusterId,
