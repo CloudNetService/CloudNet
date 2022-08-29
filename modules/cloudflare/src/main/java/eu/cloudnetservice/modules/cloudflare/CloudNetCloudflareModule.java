@@ -148,7 +148,8 @@ public final class CloudNetCloudflareModule extends DriverModule {
         .map(oldEntry -> new Pair<>(entry, oldEntry)))
       .toList();
 
-    // filter out differing entries which still exists, without including the group-based configuration
+    // find all entries which are present in the old and new configuration file
+    // without comparing the group-based record creation configurations
     stillExistingEntries.stream()
       .filter(Predicate.not(pair -> {
         var newEntry = pair.first();
@@ -226,7 +227,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
       .toArray(CompletableFuture[]::new);
 
     // create one final future from all deletion futures and wait
-    // for them to complete or time them out after 10 seconds
+    // for them to complete or time them out after 15 seconds
     CompletableFuture.allOf(deletionFutures)
       .orTimeout(15, TimeUnit.SECONDS)
       .exceptionally(ex -> null)
