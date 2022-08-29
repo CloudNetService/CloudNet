@@ -25,7 +25,6 @@ import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
-import eu.cloudnetservice.modules.npc.platform.util.UserNameUtil;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -85,7 +84,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
         }
       }))
       .profile(Profile.resolved(
-        UserNameUtil.convertStringToValidName(this.npc.displayName()),
+        this.uniqueId.toString().replace("-", "").substring(0, 16),
         this.uniqueId,
         this.npc.profileProperties().stream()
           .map(prop -> ProfileProperty.property(prop.name(), prop.value(), prop.signature()))
@@ -105,12 +104,13 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
     // no-op - we're doing this while spawning to the player
   }
 
-  @Override
-  protected double heightAddition(int lineNumber) {
-    return 1.09 + super.heightAddition(lineNumber);
-  }
-
   public @NonNull Npc<World, Player, ItemStack, Plugin> handleNPC() {
     return this.handleNpc;
+  }
+
+  @Override
+  protected double heightAddition(int lineNumber) {
+    // Player size is 1.8, (baby) ArmorStand size is 0.9875 subtracting gives 0.8125
+    return super.heightAddition(lineNumber) + 0.8125;
   }
 }

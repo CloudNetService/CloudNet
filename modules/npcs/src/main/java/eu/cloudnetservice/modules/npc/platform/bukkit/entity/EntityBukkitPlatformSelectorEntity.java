@@ -21,19 +21,26 @@ import static eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil
 
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import dev.derklaro.reflexion.MethodAccessor;
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
+import java.util.function.Function;
 import lombok.NonNull;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
-import org.bukkit.entity.Wither;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEntity {
+
+  protected static final float ARMOR_STAND_HEIGHT = 0.9875f;
+  protected static final Function<LivingEntity, Double> ENTITY_HEIGHT_GETTER;
+  protected static final Function<LivingEntity, Double> FALLBACK_HEIGHT_GETTER =
+    entity -> entity.getEyeHeight() - ARMOR_STAND_HEIGHT + 0.45;
 
   protected static final PotionEffectType GLOWING = staticFieldValue(PotionEffectType.class, "GLOWING");
 
@@ -51,7 +58,28 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   @LazyInit
   protected static PotionEffect glowingEffect;
 
+  protected double entityHeight;
+
   protected volatile LivingEntity entity;
+
+  static {
+    ENTITY_HEIGHT_GETTER = Reflexion.on(Entity.class).findMethod("getHeight")
+      // use the modern "getHeight" method (1.11+) to get the entity height
+      .map(accessor -> (Function<LivingEntity, Double>) entity -> accessor.<Double>invoke(entity)
+        .map(height -> height - ARMOR_STAND_HEIGHT)
+        .getOrElse(FALLBACK_HEIGHT_GETTER.apply(entity)))
+      // height method is not present, fall back to use the "height" field which is present in 1.8 - 1.10
+      .orElseGet(() -> {
+        var lengthFieldAccessor = Reflexion.on(ENTITY).findField("length");
+        return entity -> lengthFieldAccessor
+          .map(accessor -> GET_HANDLE.invoke(entity)
+            .flatMap(accessor::<Float>getValue)
+            .map(height -> height - ARMOR_STAND_HEIGHT)
+            .map(Float::doubleValue)
+            .getOrElse(FALLBACK_HEIGHT_GETTER.apply(entity)))
+          .orElse(FALLBACK_HEIGHT_GETTER.apply(entity));
+      });
+  }
 
   public EntityBukkitPlatformSelectorEntity(
     @NonNull BukkitPlatformNPCManagement npcManagement,
@@ -84,9 +112,9 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
     }
     // spawn the entity
     this.entity = (LivingEntity) this.npcLocation.getWorld().spawnEntity(this.npcLocation, type);
+    this.entityHeight = ENTITY_HEIGHT_GETTER.apply(this.entity);
     this.entity.setFireTicks(0);
-    this.entity.setCustomName(this.npc.displayName());
-    this.entity.setCustomNameVisible(!this.npc.hideEntityName());
+    this.entity.setCustomNameVisible(false);
     // set the profession of the villager to prevent inconsistency
     if (this.entity instanceof Villager) {
       ((Villager) this.entity).setProfession(Villager.Profession.FARMER);
@@ -128,6 +156,6 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   @Override
   protected double heightAddition(int lineNumber) {
     var initialAddition = super.heightAddition(lineNumber);
-    return (this.entity.getEyeHeight() - (this.entity instanceof Wither ? 0.4 : 0.55)) + initialAddition;
+    return this.entityHeight + initialAddition;
   }
 }

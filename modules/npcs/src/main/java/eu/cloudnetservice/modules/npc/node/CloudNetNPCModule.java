@@ -33,8 +33,8 @@ import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCPoolOptions;
 import eu.cloudnetservice.node.Node;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
@@ -104,8 +104,8 @@ public class CloudNetNPCModule extends DriverModule {
               .map(property -> new NPC.ProfileProperty(property.name(), property.value(), property.signature()))
               .collect(Collectors.toSet()))
             .location(npc.position())
-            .displayName(npc.displayName())
-            .infoLines(Collections.singletonList(npc.infoLine()))
+            .infoLines(Arrays.asList(npc.displayName(), npc.infoLine()))
+            .inventoryName(npc.displayName())
             .targetGroup(npc.targetGroup())
             .items(ImmutableMap.of(0, npc.itemInHand()))
             .lookAtPlayer(npc.lookAtPlayer())

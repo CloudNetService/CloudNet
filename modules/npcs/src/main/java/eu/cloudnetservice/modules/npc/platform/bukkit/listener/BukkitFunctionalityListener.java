@@ -19,13 +19,11 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 import com.github.juliarn.npclib.api.event.AttackNpcEvent;
 import com.github.juliarn.npclib.api.event.InteractNpcEvent;
 import com.github.juliarn.npclib.api.event.ShowNpcEvent;
-import com.github.juliarn.npclib.api.protocol.chat.Component;
 import com.github.juliarn.npclib.api.protocol.enums.ItemSlot;
 import com.github.juliarn.npclib.api.protocol.meta.EntityMetadataFactory;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import lombok.NonNull;
@@ -85,9 +83,6 @@ public final class BukkitFunctionalityListener implements Listener {
         packetFactory.createEntityMetaPacket(ELYTRA_FLYING_FLAGS, ENTITY_EFFECT_FACTORY)
           .scheduleForTracked(event.npc());
       }
-      packetFactory.createEntityMetaPacket(
-        Optional.of(Component.ofRawMessage(selectorEntity.npc().displayName())),
-        EntityMetadataFactory.displayNameMetaFactory()).scheduleForTracked(event.npc());
 
       var entries = selectorEntity.npc().items().entrySet();
       for (var entry : entries) {
