@@ -22,11 +22,11 @@ import java.io.Closeable;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
-import net.schmizz.concurrent.Promise;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.sftp.SFTPEngine;
@@ -38,11 +38,14 @@ public class SFTPClientPool implements Closeable {
   private final int maxClients;
   private final Callable<SSHClient> clientFactory;
 
-  private final ReentrantLock lock = new ReentrantLock();
-  private final AtomicInteger createdClients = new AtomicInteger();
+  // marker to check if this pool is still active
   private final AtomicBoolean open = new AtomicBoolean(true);
+
+  private final AtomicInteger createdClients = new AtomicInteger();
+  private final ReentrantLock clientCreateLock = new ReentrantLock();
+
   private final Queue<SFTPClientWrapper> pooledClients = new LinkedList<>();
-  private final Queue<Promise<SFTPClientWrapper, RuntimeException>> clientReturnWaiters = new LinkedList<>();
+  private final Queue<CompletableFuture<SFTPClientWrapper>> clientReturnWaiters = new LinkedList<>();
 
   public SFTPClientPool(int maxClients, @NonNull Callable<SSHClient> clientFactory) {
     this.maxClients = maxClients;
@@ -51,7 +54,10 @@ public class SFTPClientPool implements Closeable {
 
   public @NonNull SFTPClientWrapper takeClient() {
     try {
-      this.lock.lock();
+      // ensure that we call this method only once at a time & that this pool is still open
+      this.clientCreateLock.lock();
+      this.checkClosed();
+
       // try to get a client from the pool
       var client = this.pooledClients.poll();
       if (client != null) {
@@ -64,6 +70,7 @@ public class SFTPClientPool implements Closeable {
         // the client is no longer created - free the space
         this.createdClients.decrementAndGet();
       }
+
       // check if we are allowed to create more clients
       if (this.createdClients.get() < this.maxClients) {
         try {
@@ -73,29 +80,31 @@ public class SFTPClientPool implements Closeable {
           throw new IllegalStateException("Unable to open new session", exception);
         }
       }
+
       // wait for a new client to become available
-      var promise = new Promise<SFTPClientWrapper, RuntimeException>(
-        "",
-        RuntimeException::new,
-        NopLoggerFactory.INSTANCE);
-      this.clientReturnWaiters.add(promise);
-      // wait for the promise to deliver
-      return promise.retrieve();
+      CompletableFuture<SFTPClientWrapper> future = new CompletableFuture<>();
+      this.clientReturnWaiters.add(future);
+      return future.join();
     } finally {
-      this.lock.unlock();
+      this.clientCreateLock.unlock();
     }
   }
 
   public void returnClient(@NonNull SFTPClientWrapper client) {
     try {
-      this.lock.lock();
-      // check if there is any promise waiting for a client
-      Promise<SFTPClientWrapper, ?> promise = this.clientReturnWaiters.poll();
-      // check if the client is still usable
+      // ensure that we call this method only once at a time & that this pool is still open
+      this.clientCreateLock.lock();
+      if (!this.open.get()) {
+        client.doClose();
+        return;
+      }
+
+      // check if there is any caller waiting for a client
+      CompletableFuture<SFTPClientWrapper> waitingCreateFuture = this.clientReturnWaiters.poll();
       if (client.getSFTPEngine().getSubsystem().isOpen()) {
-        if (promise != null) {
+        if (waitingCreateFuture != null) {
           // deliver the client directly to the promise
-          promise.deliver(client);
+          waitingCreateFuture.complete(client);
         } else {
           // return the client to the pool
           this.pooledClients.add(client);
@@ -104,21 +113,22 @@ public class SFTPClientPool implements Closeable {
         // not usable - close the client instead of returning it
         client.doClose();
         // try to create a new client if a promise is waiting
-        if (promise != null) {
+        if (waitingCreateFuture != null) {
           try {
             // try to create the client
-            promise.deliver(this.createAndRegisterClient());
+            waitingCreateFuture.complete(this.createAndRegisterClient());
             return;
           } catch (Exception exception) {
             // unable to create the client - log the exception and return
             LOGGER.severe("Unable to create new client to deliver waiting promise", exception);
           }
         }
+
         // no promise waiting or unable to create a new client - count the created clients down
         this.createdClients.decrementAndGet();
       }
     } finally {
-      this.lock.unlock();
+      this.clientCreateLock.unlock();
     }
   }
 
@@ -127,17 +137,26 @@ public class SFTPClientPool implements Closeable {
   }
 
   private @NonNull SFTPClientWrapper createAndRegisterClient() throws Exception {
-    // try to create the client first
     var client = new SFTPClientWrapper(new SFTPEngine(this.clientFactory.call()).init());
-    // the client was created successfully - increase the created count
     this.createdClients.incrementAndGet();
-    // use that client now
     return client;
+  }
+
+  private void checkClosed() {
+    if (!this.open.get()) {
+      throw new IllegalStateException("pool closed");
+    }
   }
 
   @Override
   public void close() {
     if (this.open.compareAndSet(true, false)) {
+      // prevent future returns of clients to callers
+      CompletableFuture<SFTPClientWrapper> future;
+      while ((future = this.clientReturnWaiters.poll()) != null) {
+        future.cancel(true);
+      }
+
       // close all pooled clients
       SFTPClientWrapper client;
       while ((client = this.pooledClients.poll()) != null) {

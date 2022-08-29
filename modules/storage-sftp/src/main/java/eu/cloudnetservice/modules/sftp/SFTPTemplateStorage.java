@@ -379,6 +379,8 @@ public class SFTPTemplateStorage implements TemplateStorage {
     if (this.pool.stillActive()) {
       try (SFTPClient client = this.pool.takeClient()) {
         return handler.apply(client);
+      } catch (IllegalStateException ignored) {
+        // cancelled while getting a client from the pool or the pool is closed
       } catch (Exception exception) {
         LOGGER.fine("Exception executing sftp task", exception);
       }
