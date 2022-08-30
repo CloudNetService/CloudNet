@@ -72,17 +72,4 @@ public final class HttpUtil {
       StandardOpenOption.WRITE,
       StandardOpenOption.TRUNCATE_EXISTING);
   }
-
-  public static @NonNull <T> HttpResponse.BodyHandler<T> handlerFromSubscriber(
-    @NonNull HttpResponse.BodySubscriber<T> subscriber
-  ) {
-    return info -> {
-      // only apply the subscriber for successful responses
-      if (info.statusCode() == 200) {
-        return subscriber;
-      } else {
-        throw new IllegalStateException("Expected response code 200, got " + info.statusCode());
-      }
-    };
-  }
 }

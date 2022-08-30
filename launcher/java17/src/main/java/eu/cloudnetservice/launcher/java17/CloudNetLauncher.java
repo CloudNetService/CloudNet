@@ -27,6 +27,7 @@ import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherCloudNetUpdat
 import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherModuleJsonUpdater;
 import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherPatcherUpdater;
 import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherUpdater;
+import eu.cloudnetservice.launcher.java17.util.BootstrapUtil;
 import eu.cloudnetservice.launcher.java17.util.CommandLineHelper;
 import eu.cloudnetservice.launcher.java17.util.Environment;
 import java.nio.file.Files;
@@ -75,15 +76,14 @@ public final class CloudNetLauncher {
       System.err.println("║     It looks like CloudNet is already running! Stop the other     ║");
       System.err.println("║          running instance and try running CloudNet again!         ║");
       System.err.println("║                                                                   ║");
-      System.err.println("║              This instance will stop in 10 Seconds!               ║");
+      System.err.println("║              This instance will stop in 5 Seconds!                ║");
       System.err.println("║                                                                   ║");
       System.err.println("║                                                                   ║");
       System.err.println("║  If you are sure that there are no instances running, delete the  ║");
       System.err.println("║          app.lock file located in the launcher directory.         ║");
       System.err.println("╚═══════════════════════════════════════════════════════════════════╝");
       // wait 10 Seconds and stop
-      TimeUnit.SECONDS.sleep(10);
-      System.exit(1);
+      BootstrapUtil.waitAndExit();
       // CHECKSTYLE.ON
     }
 
