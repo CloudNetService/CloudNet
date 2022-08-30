@@ -32,8 +32,9 @@ public final class JavaVersionResolver {
 
   private static final Logger LOGGER = LogManager.logger(JavaVersionResolver.class);
 
-  // https://regex101.com/r/6Z4jZT/1
-  private static final Pattern JAVA_REGEX = Pattern.compile("^.* version \"(\\d+)\\.?(\\d+)?\\.?([\\d_]+)?\".*",
+  // https://regex101.com/r/VO0bsk/1
+  private static final Pattern JAVA_REGEX = Pattern.compile(
+    "^.* version \"(\\d+)\\.?(\\d+)?.*",
     Pattern.MULTILINE | Pattern.DOTALL);
 
   private JavaVersionResolver() {
@@ -47,8 +48,8 @@ public final class JavaVersionResolver {
    * @return the java version of the executable, null if not parseable or if the version is unsupported.
    */
   public static @Nullable JavaVersion resolveFromJavaExecutable(@Nullable String input) {
-    // the default java command input can always evaluate in the current runtime version
-    if (input == null || input.equals("java")) {
+    // no input is always the runtime version
+    if (input == null) {
       return JavaVersion.runtimeVersion();
     }
 
