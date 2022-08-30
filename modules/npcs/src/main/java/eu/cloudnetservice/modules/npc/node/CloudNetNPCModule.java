@@ -118,10 +118,14 @@ public class CloudNetNPCModule extends DriverModule {
             .rightClickAction(NPC.ClickAction.valueOf(npc.rightClickAction().name()))
             .leftClickAction(NPC.ClickAction.valueOf(npc.leftClickAction().name()))
             .build())
-          .forEach(npc -> target.insert(
-            NodeNPCManagement.documentKey(npc.location()),
-            JsonDocument.newDocument(npc)));
+          .forEach(npc -> target.insert(NodeNPCManagement.documentKey(npc.location()), JsonDocument.newDocument(npc)));
       }
+    } else {
+      // convert 4.0.0-RC1 npcs to RC2 npcs
+      var database = Node.instance().databaseProvider().database(DATABASE_NAME);
+      database.documents().stream()
+        .map(doc -> NPC.builder(doc.toInstanceOf(NPC.class)).inventoryName(doc.getString("displayName")).build())
+        .forEach(npc -> database.insert(NodeNPCManagement.documentKey(npc.location()), JsonDocument.newDocument(npc)));
     }
   }
 
