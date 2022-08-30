@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.node.service.defaults.config;
 
+import com.electronwill.nightconfig.core.ConfigFormat;
+import com.electronwill.nightconfig.core.file.FileConfig;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -23,11 +25,8 @@ import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.function.UnaryOperator;
 import lombok.NonNull;
 
 public abstract class AbstractServiceConfigurationPreparer implements ServiceConfigurationPreparer {
@@ -52,22 +51,21 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
     }
   }
 
-  protected void rewriteFile(@NonNull Path filePath, @NonNull UnaryOperator<String> mapper) {
-    try {
-      // collect the new lines rewritten by the given mapper
-      var newLines = Files.readAllLines(filePath)
-        .stream()
-        .map(mapper)
-        .toList();
-      // write the new content to the same file
-      Files.write(
-        filePath,
-        newLines,
-        StandardCharsets.UTF_8,
-        StandardOpenOption.WRITE,
-        StandardOpenOption.TRUNCATE_EXISTING);
-    } catch (IOException exception) {
-      LOGGER.severe("Unable to rewrite file %s:", exception, filePath);
-    }
+  protected @NonNull FileConfig loadConfig(
+    @NonNull Path path,
+    @NonNull ConfigFormat<?> format,
+    @NonNull String defaultResourcePath
+  ) {
+    // build the config, use the resource at the given path to set the default data
+    var defaultData = AbstractServiceConfigurationPreparer.class.getClassLoader().getResource(defaultResourcePath);
+    var config = FileConfig.builder(path, format)
+      .sync()
+      .preserveInsertionOrder()
+      .defaultData(defaultData)
+      .build();
+
+    // load and return the config
+    config.load();
+    return config;
   }
 }

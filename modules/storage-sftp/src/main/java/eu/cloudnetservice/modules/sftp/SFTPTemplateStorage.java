@@ -341,7 +341,14 @@ public class SFTPTemplateStorage implements TemplateStorage {
 
   @Override
   public void close() throws IOException {
-    this.sshClient.disconnect();
+    // if the base-client is null there are no pooled clients as well, but we need to mark the pool itself as closed
+    this.pool.close();
+
+    // check if we've ever opened a session
+    var client = this.sshClient;
+    if (client != null) {
+      client.disconnect();
+    }
   }
 
   protected @NonNull String constructRemotePath(@NonNull ServiceTemplate template, String @NonNull ... parents) {
@@ -368,11 +375,18 @@ public class SFTPTemplateStorage implements TemplateStorage {
   }
 
   protected <T> T executeWithClient(@NonNull ThrowableFunction<SFTPClient, T, Exception> handler, T def) {
-    try (SFTPClient client = this.pool.takeClient()) {
-      return handler.apply(client);
-    } catch (Exception exception) {
-      LOGGER.fine("Exception executing sftp task", exception);
-      return def;
+    // only take a client & execute the action if the pool is still available
+    if (this.pool.stillActive()) {
+      try (SFTPClient client = this.pool.takeClient()) {
+        return handler.apply(client);
+      } catch (IllegalStateException ignored) {
+        // cancelled while getting a client from the pool or the pool is closed
+      } catch (Exception exception) {
+        LOGGER.fine("Exception executing sftp task", exception);
+      }
     }
+
+    // either an exception was thrown or the pool is closed
+    return def;
   }
 }

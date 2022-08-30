@@ -60,7 +60,7 @@
       <property name="format" value="System\.(out|err)\..+;"/>
       <property name="ignoreComments" value="true"/>
       <property name="message"
-        value="Using System.our or System.err is forbidden. Use a proper logger to log messages into the console."/>
+        value="Using System.out or System.err is forbidden. Use a proper logger to log messages into the console."/>
     </module>
     <module name="RequireThis">
       <property name="validateOnlyOverlapping" value="false"/>

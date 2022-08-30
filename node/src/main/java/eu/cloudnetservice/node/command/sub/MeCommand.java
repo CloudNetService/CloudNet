@@ -59,16 +59,16 @@ public final class MeCommand {
 
     source.sendMessage(List.of(
       " ",
-      Node.instance().version() + " created by Dytanic, maintained by the CloudNet Community",
+      Node.instance().version().toString(),
       "Discord: <https://discord.cloudnetservice.eu/>",
       " ",
       "ClusterId: " + clusterId,
       "NodeId: " + nodeInstance.config().identity().uniqueId(),
       "Head-NodeId: " + nodeInstance.nodeServerProvider().headNode().info().uniqueId(),
       "CPU usage: (P/S) "
-        + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage())
+        + CPUUsageResolver.defaultFormat().format(CPUUsageResolver.processCPUUsage())
         + "/"
-        + CPUUsageResolver.FORMAT.format(CPUUsageResolver.systemCPUUsage())
+        + CPUUsageResolver.defaultFormat().format(CPUUsageResolver.systemCPUUsage())
         + "/100%",
       "Node services memory allocation (U/R/M): "
         + nodeInfoSnapshot.usedMemory()

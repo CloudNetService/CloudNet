@@ -44,20 +44,21 @@ body:
         <details>
         <summary>Example</summary>
         ```
-        cloud@4.0.0-SNAPSHOT-2dc9cabb => me
-        [27.12 15:11:07.457] INFORMATION:
-        [27.12 15:11:07.457] INFORMATION: CloudNet Blizzard 4.0.0-SNAPSHOT 2dc9cabb created by Dytanic, maintained by the CloudNet Community
-        [27.12 15:11:07.458] INFORMATION: Discord: https://discord.cloudnetservice.eu/
-        [27.12 15:11:07.458] INFORMATION:
-        [27.12 15:11:07.458] INFORMATION: ClusterId: 73e3311b-34d8-46d0-b124-9d5a91ebfe35
-        [27.12 15:11:07.458] INFORMATION: NodeId: Node-1
-        [27.12 15:11:07.459] INFORMATION: Head-NodeId: Node-1
-        [27.12 15:11:07.459] INFORMATION: CPU usage: (P/S) 0,26/3,42/100%
-        [27.12 15:11:07.459] INFORMATION: Node services memory allocation (U/R/M): 1280/1280/30000 MB
-        [27.12 15:11:07.460] INFORMATION: Threads: 29
-        [27.12 15:11:07.460] INFORMATION: Heap usage: 154/456MB
-        [27.12 15:11:07.460] INFORMATION: JVM: OpenJDK 64-Bit Server VM 17.0.1+12
-        [27.12 15:11:07.461] INFORMATION:
+        root@4.0.0-RC2-SNAPSHOT-e7970652 => me
+        [28.08 19:27:50.428] INFO:
+        [28.08 19:27:50.429] INFO: CloudNet Blizzard 4.0.0-RC2-SNAPSHOT e7970652
+        [28.08 19:27:50.430] INFO: Discord: <https://discord.cloudnetservice.eu/>
+        [28.08 19:27:50.430] INFO:
+        [28.08 19:27:50.430] INFO: ClusterId: a4d58965-****-41a3-****-e1f6d03a16ce
+        [28.08 19:27:50.431] INFO: NodeId: Node-1
+        [28.08 19:27:50.431] INFO: Head-NodeId: Node-1
+        [28.08 19:27:50.431] INFO: CPU usage: (P/S) 4/3/100%
+        [28.08 19:27:50.432] INFO: Node services memory allocation (U/R/M): 0/0/6094 MB
+        [28.08 19:27:50.432] INFO: Threads: 32
+        [28.08 19:27:50.432] INFO: Heap usage: 70/256MB
+        [28.08 19:27:50.433] INFO: JVM: Eclipse Adoptium 17 (OpenJDK 64-Bit Server VM 17.0.4+8)
+        [28.08 19:27:50.433] INFO: Update Repo: CloudNetService/launchermeta, Update Branch: release
+        [28.08 19:27:50.433] INFO:
         ```
         </details>
     validations:

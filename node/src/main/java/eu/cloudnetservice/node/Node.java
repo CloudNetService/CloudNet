@@ -65,7 +65,7 @@ import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
 import eu.cloudnetservice.node.module.updater.ModuleUpdater;
 import eu.cloudnetservice.node.module.updater.ModuleUpdaterContext;
 import eu.cloudnetservice.node.module.updater.ModuleUpdaterRegistry;
-import eu.cloudnetservice.node.module.util.ModuleJsonReader;
+import eu.cloudnetservice.node.module.util.ModuleUpdateUtil;
 import eu.cloudnetservice.node.network.DefaultNetworkClientChannelHandler;
 import eu.cloudnetservice.node.network.DefaultNetworkServerChannelHandler;
 import eu.cloudnetservice.node.network.chunk.FileDeployCallbackListener;
@@ -144,7 +144,7 @@ public class Node extends CloudNetDriver {
     this.console = console;
     this.commandProvider = new DefaultCommandProvider(console, this.eventManager);
 
-    this.modulesHolder = ModuleJsonReader.read(LAUNCHER_DIR);
+    this.modulesHolder = ModuleUpdateUtil.readModuleJson(LAUNCHER_DIR);
     this.moduleUpdaterRegistry = new ModuleUpdaterRegistry();
     this.moduleUpdaterRegistry.registerUpdater(new ModuleUpdater());
 

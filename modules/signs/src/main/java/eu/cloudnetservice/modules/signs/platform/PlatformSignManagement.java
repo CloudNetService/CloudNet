@@ -45,7 +45,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
@@ -66,9 +65,10 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   protected final Executor mainThreadExecutor;
   protected final Lock updatingLock = new ReentrantLock();
-  protected final AtomicInteger currentTick = new AtomicInteger();
   protected final Map<WorldPosition, PlatformSign<P, C>> platformSigns = new ConcurrentHashMap<>();
   protected final Queue<ServiceInfoSnapshot> waitingAssignments = new ConcurrentLinkedQueue<>();
+
+  protected int currentTick;
 
   protected PlatformSignManagement(@NonNull Executor mainThreadExecutor) {
     super(loadSignsConfiguration());
@@ -292,7 +292,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @ApiStatus.Internal
   protected void tick(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P, C>>> signsNeedingTicking) {
-    this.currentTick.incrementAndGet();
+    this.currentTick++;
 
     var ownEntry = this.applicableSignConfigurationEntry();
     if (ownEntry != null) {
@@ -303,7 +303,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
         // tick all sign layouts which we need to tick in the current tick
         var holder = LayoutUtil.layoutHolder(ownEntry, value.base(), value.currentTarget());
         if (holder.hasLayouts() && holder.animationsPerSecond() > 0
-          && this.currentTick.get() % (this.tps() / holder.animationsPerSecond()) == 0) {
+          && this.currentTick % (this.tps() / holder.animationsPerSecond()) == 0) {
           // tick the holder, then block the tick
           holder.tick().enableTickBlock();
           // register the sign for updates if we need to
@@ -349,7 +349,9 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
     }
 
     // reset the tick counter if we reached the max tps
-    this.currentTick.compareAndSet(this.tps(), 0);
+    if (this.currentTick >= this.tps()) {
+      this.currentTick = 0;
+    }
   }
 
   protected @Nullable PlatformSign<P, C> nextFreeSign(@NonNull ServiceInfoSnapshot snapshot) {

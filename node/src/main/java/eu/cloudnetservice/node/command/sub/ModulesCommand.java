@@ -43,6 +43,7 @@ import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.node.module.ModuleEntry;
 import eu.cloudnetservice.node.module.ModulesHolder;
+import eu.cloudnetservice.node.module.util.ModuleUpdateUtil;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -231,16 +232,35 @@ public final class ModulesCommand {
 
   @Parser(name = "availableModule", suggestions = "availableModules")
   public @NonNull ModuleEntry availableModuleParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
+    // get the module entry for the given name
     var name = input.remove();
-    return this.availableModules
+    var entry = this.availableModules
       .findByName(name)
       .orElseThrow(
         () -> new ArgumentNotAvailableException(I18n.trans("command-modules-no-such-installable-module", name)));
+
+    // fast path: check if the module with the given name is already loaded
+    if (this.provider.module(name) != null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-modules-module-already-installed", name));
+    }
+
+    // slower but needed check: ensure that no module file with the same module inside already exists. This is needed
+    // as you can unload modules which will remove them from the provider, but not from the disk. When restarting this
+    // could lead to a module being loaded twice
+    if (ModuleUpdateUtil.findPathOfModule(this.provider.moduleDirectoryPath(), name) != null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-modules-module-already-installed", name));
+    }
+
+    // all clear - proceed to installation
+    return entry;
   }
 
   @Suggestions("availableModules")
   public @NonNull List<String> suggestAvailableModules(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.availableModules.entries().stream().map(ModuleEntry::name).toList();
+    return this.availableModules.entries().stream()
+      .map(ModuleEntry::name)
+      .filter(name -> this.provider.module(name) == null)
+      .toList();
   }
 
   @CommandMethod("modules|module info <module>")

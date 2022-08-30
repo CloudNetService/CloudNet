@@ -14,10 +14,23 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare;
+package eu.cloudnetservice.launcher.java17.util;
 
-import lombok.NonNull;
+import java.util.concurrent.TimeUnit;
 
-public record CloudflareGroupConfiguration(@NonNull String name, @NonNull String sub, int priority, int weight) {
+public final class BootstrapUtil {
 
+  private BootstrapUtil() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static void waitAndExit() {
+    try {
+      TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException ignored) {
+    }
+
+    // goodbye!
+    System.exit(1);
+  }
 }

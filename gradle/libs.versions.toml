@@ -7,7 +7,7 @@ shadow = "7.1.2"
 blossom = "1.3.1"
 juppiter = "0.3.3"
 licenser = "0.6.1"
-fabricLoom = "0.13.11"
+fabricLoom = "1.0.2"
 nexusPublish = "1.1.0"
 
 # google libs
@@ -16,7 +16,7 @@ guava = "31.1-jre"
 
 # testing
 junit = "5.9.0"
-mockito = "4.6.1"
+mockito = "4.7.0"
 tyrusClient = "2.1.0"
 testcontainers = "1.17.3"
 
@@ -43,10 +43,11 @@ jjwt = "0.11.5"
 slf4j = "1.7.36"
 javers = "6.6.5"
 caffeine = "3.1.1"
-awsSdk = "2.17.249"
+awsSdk = "2.17.261"
 reflexion = "1.5.0"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
+nightConfig = "3.6.5"
 annotations = "23.0.0"
 influxClient = "6.4.0"
 netty = "5.0.0.Alpha5-SNAPSHOT"
@@ -84,6 +85,10 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 # console
 jline = { group = "org.jline", name = "jline", version.ref = "jline" }
 jansi = { group = "org.fusesource.jansi", name = "jansi", version.ref = "jansi" }
+
+# night config
+nightConfigToml = { group = "com.electronwill.night-config", name = "toml", version.ref = "nightConfig" }
+nightConfigYaml = { group = "com.electronwill.night-config", name = "yaml", version.ref = "nightConfig" }
 
 # cloud commands
 cloudCore = { group = "com.github.CloudNetService.cloud-command-framework", name = "cloud-core", version.ref = "cloud" }
@@ -177,6 +182,7 @@ cloud = ["cloudCore", "cloudAnnotations"]
 netty = ["nettyHandler", "nettyCodecHttp"]
 jjwt = ["jjwtApi", "jjwtImpl", "jjwtGson"]
 junit = ["junitApi", "junitParams", "junitEngine"]
+nightConfig = ["nightConfigToml", "nightConfigYaml"]
 dockerJava = ["dockerJavaApi", "dockerJavaHttpclient5"]
 testContainers = ["testContainers", "testContainersJunit"]
 adventure = ["adventureApi", "adventureSerializerGson", "adventureSerializerLegacy"]

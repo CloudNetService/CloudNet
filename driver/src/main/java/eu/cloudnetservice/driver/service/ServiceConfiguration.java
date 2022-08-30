@@ -873,7 +873,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
         Set.copyOf(this.templates),
         Set.copyOf(this.deployments),
         Set.copyOf(this.includes),
-        this.properties);
+        this.properties.clone());
     }
   }
 }

@@ -234,7 +234,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
         Set.copyOf(this.templates),
         Set.copyOf(this.deployments),
         Set.copyOf(this.includes),
-        this.properties);
+        this.properties.clone());
     }
   }
 }

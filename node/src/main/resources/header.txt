@@ -1,11 +1,12 @@
 
-&c        ___  _                    _ &b     __    __  _____ &8[&7%codename%&8]
-&c       / __\| |  ___   _   _   __| |&b  /\ \ \  /__\/__   \
-&c      / /   | | / _ \ | | | | / _` |&b /  \/ / /_\    / /\/ &7%version%
-&c     / /___ | || (_) || |_| || (_| |&b/ /\  / //__   / /
-&c     \____/ |_| \___/  \__,_| \__,_|&b\_\ \/  \__/   \/ &7created by Dytanic, maintained by the CloudNet Community
-      The next generation of Minecraft cloud systems
+&c        ___ _                 _ &b    __  __  _____ &8[&7%codename%&8]
+&c       / __\ | ___  _   _  __| |&b /\ \ \/__\/__   \
+&c      / /  | |/ _ \| | | |/ _` |&b/  \/ /_\    / /\/
+&c     / /___| | (_) | |_| | (_| &b/ /\  //__   / /
+&c     \____/|_|\___/ \__,_|\__,_&b\_\ \/\__/   \/
+&7                               (%version%)
 
-     &8«&b*&8»&7 The Cloud Network Environment Technology 3
-     &8«&b*&8»&7 Discord Support - https://discord.cloudnetservice.eu/
+     &8«&b*&8»&7 The Cloud Network Environment Technology
+     &8«&b*&8»&7 The modern Minecraft service management solution
+     &8«&b*&8»&7 Discord Support: https://discord.cloudnetservice.eu/
 

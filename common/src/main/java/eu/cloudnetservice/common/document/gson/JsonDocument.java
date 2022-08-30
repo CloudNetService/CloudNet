@@ -31,7 +31,6 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -55,7 +54,6 @@ public class JsonDocument implements Document<JsonDocument> {
     .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
     .registerTypeHierarchyAdapter(Path.class, new PathTypeAdapter())
     .registerTypeHierarchyAdapter(Pattern.class, new PatternTypeAdapter())
-    .registerTypeHierarchyAdapter(SimpleDateFormat.class, new SimpleDateFormatTypeAdapter())
     .registerTypeHierarchyAdapter(JsonDocument.class, new JsonDocumentTypeAdapter())
     .create();
   private static final JsonDocument EMPTY = JsonDocument.newDocument();
