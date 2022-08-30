@@ -49,7 +49,7 @@ dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
 nightConfig = "3.6.5"
 annotations = "23.0.0"
-influxClient = "6.4.0"
+influxClient = "6.5.0"
 netty = "5.0.0.Alpha5-SNAPSHOT"
 
 # platform api versions
