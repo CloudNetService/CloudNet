@@ -10,7 +10,7 @@ servers: { }
 listener:
 
   # The Motd which will be displayed in the server tab of a player and returned during ping
-  motd: §bWaterdog§3PE
+  motd: §bCloudNet 4 §8[§cBlizzard§8] §7Velocity §cProxy §7instance
 
   # The server priority list. If not changed by plugins, the proxy will connect the player to the first of those servers
   priorities: [ ]
