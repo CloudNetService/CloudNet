@@ -6,7 +6,7 @@ bind = "0.0.0.0:25577"
 
 # What should be the MOTD? This gets displayed when the player adds your server to
 # their server list. Legacy color codes and JSON are accepted.
-motd = "&bCloudNet 4 &8[&cBlizzard&8] &7Velocity &cProxy &7instance"
+motd = "&bCloudNet &8[&cBlizzard&8] &7Velocity &cProxy &7instance"
 
 # What should we display for the maximum number of players? (Velocity does not support a cap
 # on the number of players online.)
