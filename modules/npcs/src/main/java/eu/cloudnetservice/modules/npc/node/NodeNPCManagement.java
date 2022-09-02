@@ -44,8 +44,6 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   private final Database database;
   private final Path configurationPath;
 
-  private boolean protocolLibAvailable;
-
   public NodeNPCManagement(
     @NonNull NPCConfiguration npcConfiguration,
     @NonNull Database database,
@@ -67,10 +65,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     // download protocol lib
     ConsoleProgressWrappers.wrapDownload(
       "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar",
-      stream -> {
-        FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH);
-        this.protocolLibAvailable = true;
-      }
+      stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH);
     );
 
     // listener register
@@ -79,8 +74,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-npcs",
       CloudNetNPCModule.class,
-      service -> this.protocolLibAvailable
-        && ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
+      service -> ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
         && this.npcConfiguration
         .entries()
         .stream()
