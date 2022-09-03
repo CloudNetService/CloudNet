@@ -341,6 +341,16 @@ public final class NPCCommand extends BaseTabExecutor {
           }
         }
 
+        // sets if the npc should burn
+        case "burning" -> {
+          if (this.canChangeSetting(sender, npc)) {
+            var enabled = this.parseBoolean(args[2]);
+            updatedNpc = NPC.builder(npc).burning(enabled).build();
+          } else {
+            return true;
+          }
+        }
+
         // the floating item of the npc
         case "fi", "floatingitem" -> {
           // convert null to "no item"
@@ -597,6 +607,7 @@ public final class NPCCommand extends BaseTabExecutor {
           "useplayerskin",
           "glowingcolor",
           "flyingwithelytra",
+          "burning",
           "floatingitem",
           "leftclickaction",
           "rightclickaction",
@@ -612,7 +623,7 @@ public final class NPCCommand extends BaseTabExecutor {
         return switch (StringUtil.toLower(args[1])) {
           // true-false options
           case "lap", "lookatplayer", "ip", "imitateplayer", "ups", "useplayerskin",
-            "fwe", "flyingwithelytra" -> TRUE_FALSE;
+            "fwe", "flyingwithelytra", "burning" -> TRUE_FALSE;
           // click action options
           case "lca", "leftclickaction", "rca", "rightclickaction" -> CLICK_ACTIONS;
           // color options

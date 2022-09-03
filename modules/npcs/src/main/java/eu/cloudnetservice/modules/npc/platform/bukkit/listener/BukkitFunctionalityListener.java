@@ -19,11 +19,15 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 import com.github.juliarn.npclib.api.event.AttackNpcEvent;
 import com.github.juliarn.npclib.api.event.InteractNpcEvent;
 import com.github.juliarn.npclib.api.event.ShowNpcEvent;
+import com.github.juliarn.npclib.api.protocol.enums.EntityStatus;
 import com.github.juliarn.npclib.api.protocol.enums.ItemSlot;
 import com.github.juliarn.npclib.api.protocol.meta.EntityMetadataFactory;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
+import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import lombok.NonNull;
@@ -75,14 +79,9 @@ public final class BukkitFunctionalityListener implements Listener {
     packetFactory.createEntityMetaPacket(true, EntityMetadataFactory.skinLayerMetaFactory())
       .scheduleForTracked(event.npc());
     event.npc().flagValue(NPCBukkitPlatformSelector.SELECTOR_ENTITY).ifPresent(selectorEntity -> {
-      if (selectorEntity.npc().glowing() && selectorEntity.npc().flyingWithElytra()) {
-        packetFactory.createEntityMetaPacket(FLYING_AND_GLOWING, ENTITY_EFFECT_FACTORY).scheduleForTracked(event.npc());
-      } else if (selectorEntity.npc().glowing()) {
-        packetFactory.createEntityMetaPacket(GLOWING_FLAGS, ENTITY_EFFECT_FACTORY).scheduleForTracked(event.npc());
-      } else if (selectorEntity.npc().flyingWithElytra()) {
-        packetFactory.createEntityMetaPacket(ELYTRA_FLYING_FLAGS, ENTITY_EFFECT_FACTORY)
-          .scheduleForTracked(event.npc());
-      }
+      packetFactory.createEntityMetaPacket(
+        this.collectEntityStatus(selectorEntity.npc()),
+        EntityMetadataFactory.entityStatusMetaFactory()).scheduleForTracked(event.npc());
 
       var entries = selectorEntity.npc().items().entrySet();
       for (var entry : entries) {
@@ -165,6 +164,23 @@ public final class BukkitFunctionalityListener implements Listener {
         }
       }
     }
+  }
+
+  private @NonNull Collection<EntityStatus> collectEntityStatus(@NonNull NPC npc) {
+    Collection<EntityStatus> status = new HashSet<>();
+    if (npc.glowing()) {
+      status.add(EntityStatus.GLOWING);
+    }
+
+    if (npc.flyingWithElytra()) {
+      status.add(EntityStatus.FLYING_WITH_ELYTRA);
+    }
+
+    if (npc.burning()) {
+      status.add(EntityStatus.ON_FIRE);
+    }
+
+    return status;
   }
 
   private void handleClick(@NonNull Player player, @Nullable Cancellable cancellable, int entityId, boolean left) {

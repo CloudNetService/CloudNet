@@ -54,6 +54,7 @@ public class NPC extends JsonDocPropertyHolder {
   private final String glowingColor;
   
   private final boolean flyingWithElytra;
+  private final boolean burning;
 
   private final String floatingItem;
 
@@ -74,6 +75,7 @@ public class NPC extends JsonDocPropertyHolder {
     boolean glowing,
     @NonNull String glowingColor,
     boolean flyingWithElytra,
+    boolean burning,
     @Nullable String floatingItem,
     @NonNull ClickAction leftClickAction,
     @NonNull ClickAction rightClickAction,
@@ -92,6 +94,7 @@ public class NPC extends JsonDocPropertyHolder {
     this.glowing = glowing;
     this.glowingColor = glowingColor;
     this.flyingWithElytra = flyingWithElytra;
+    this.burning = burning;
     this.floatingItem = floatingItem;
     this.leftClickAction = leftClickAction;
     this.rightClickAction = rightClickAction;
@@ -114,6 +117,7 @@ public class NPC extends JsonDocPropertyHolder {
       .glowing(npc.glowing())
       .glowingColor(npc.glowingColor())
       .flyingWithElytra(npc.flyingWithElytra())
+      .burning(npc.burning())
       .floatingItem(npc.floatingItem())
       .leftClickAction(npc.leftClickAction())
       .rightClickAction(npc.rightClickAction())
@@ -181,6 +185,10 @@ public class NPC extends JsonDocPropertyHolder {
     return this.flyingWithElytra;
   }
 
+  public boolean burning() {
+    return this.burning;
+  }
+
   public @Nullable String floatingItem() {
     return this.floatingItem;
   }
@@ -232,6 +240,7 @@ public class NPC extends JsonDocPropertyHolder {
     private String glowingColor = "§f";
     
     private boolean flyingWithElytra = false;
+    private boolean burning = false;
 
     private String floatingItem;
 
@@ -303,6 +312,11 @@ public class NPC extends JsonDocPropertyHolder {
       return this;
     }
 
+    public @NonNull Builder burning(boolean burning) {
+      this.burning = burning;
+      return this;
+    }
+
     public @NonNull Builder floatingItem(@Nullable String floatingItem) {
       this.floatingItem = floatingItem;
       return this;
@@ -340,6 +354,7 @@ public class NPC extends JsonDocPropertyHolder {
         this.glowing,
         this.glowingColor,
         this.flyingWithElytra,
+        this.burning,
         this.floatingItem,
         this.leftClickAction,
         this.rightClickAction,
