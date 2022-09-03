@@ -71,7 +71,10 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
         .worldAccessor(BukkitWorldAccessor.nameBasedAccessor())
         .build();
     } else {
-      this.npcPlatform = BukkitPlatform.bukkitNpcPlatformBuilder().extension(plugin).build();
+      this.npcPlatform = BukkitPlatform.bukkitNpcPlatformBuilder()
+        .extension(plugin)
+        .worldAccessor(BukkitWorldAccessor.nameBasedAccessor())
+        .build();
     }
 
     // start the emote player
@@ -113,10 +116,12 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
                       if (value instanceof NPCBukkitPlatformSelector npcSelector) {
                         if (emoteId == -1) {
                           var emote = labyModEmotes[ThreadLocalRandom.current().nextInt(0, labyModEmotes.length)];
-                          LabyModExtension.createEmotePacket(this.npcPlatform.packetFactory(), emote)
+                          LabyModExtension
+                            .createEmotePacket(this.npcPlatform.packetFactory(), emote)
                             .schedule(player, npcSelector.handleNPC());
                         } else {
-                          LabyModExtension.createEmotePacket(this.npcPlatform.packetFactory(), emoteId)
+                          LabyModExtension
+                            .createEmotePacket(this.npcPlatform.packetFactory(), emoteId)
                             .schedule(player, npcSelector.handleNPC());
                         }
                       }

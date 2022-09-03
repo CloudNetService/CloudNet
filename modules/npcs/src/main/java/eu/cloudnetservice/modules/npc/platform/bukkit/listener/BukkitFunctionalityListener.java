@@ -55,6 +55,7 @@ public final class BukkitFunctionalityListener implements Listener {
   public BukkitFunctionalityListener(@NonNull BukkitPlatformNPCManagement management, @NonNull Plugin plugin) {
     this.management = management;
     this.plugin = plugin;
+
     var bus = management.npcPlatform().eventBus();
     bus.subscribe(AttackNpcEvent.class, this::handleNpcAttack);
     bus.subscribe(InteractNpcEvent.class, this::handleNpcInteract);
@@ -63,12 +64,14 @@ public final class BukkitFunctionalityListener implements Listener {
 
   public void handleNpcShow(@NonNull ShowNpcEvent.Post event) {
     var packetFactory = event.npc().platform().packetFactory();
-    packetFactory.createEntityMetaPacket(true, EntityMetadataFactory.skinLayerMetaFactory())
+    packetFactory
+      .createEntityMetaPacket(true, EntityMetadataFactory.skinLayerMetaFactory())
       .scheduleForTracked(event.npc());
     event.npc().flagValue(NPCBukkitPlatformSelector.SELECTOR_ENTITY).ifPresent(selectorEntity -> {
       packetFactory.createEntityMetaPacket(
         this.collectEntityStatus(selectorEntity.npc()),
-        EntityMetadataFactory.entityStatusMetaFactory()).scheduleForTracked(event.npc());
+        EntityMetadataFactory.entityStatusMetaFactory()
+      ).scheduleForTracked(event.npc());
 
       var entries = selectorEntity.npc().items().entrySet();
       for (var entry : entries) {
@@ -140,11 +143,13 @@ public final class BukkitFunctionalityListener implements Listener {
           if (npc.position().worldId().equals(event.getPlayer().getWorld().getName())) {
             // check if the emote id is fixed
             if (selectedNpcId != -1) {
-              LabyModExtension.createEmotePacket(this.management.npcPlatform().packetFactory())
+              LabyModExtension
+                .createEmotePacket(this.management.npcPlatform().packetFactory())
                 .schedule(event.getPlayer(), npc);
             } else {
               var randomEmote = onJoinEmoteIds[ThreadLocalRandom.current().nextInt(0, onJoinEmoteIds.length)];
-              LabyModExtension.createEmotePacket(this.management.npcPlatform().packetFactory(), randomEmote)
+              LabyModExtension
+                .createEmotePacket(this.management.npcPlatform().packetFactory(), randomEmote)
                 .schedule(event.getPlayer(), npc);
             }
           }

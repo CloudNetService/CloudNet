@@ -28,10 +28,10 @@ import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.bukkit.Material;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
@@ -114,16 +114,20 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
     }
     // spawn the entity
     this.entity = (LivingEntity) this.npcLocation.getWorld().spawnEntity(this.npcLocation, type);
+    // clear the inventory - some entities spawn with items
+    this.entity.getEquipment().clear();
     this.entityHeight = ENTITY_HEIGHT_GETTER.apply(this.entity);
+    this.entity.setRemoveWhenFarAway(false);
     this.entity.setFireTicks(0);
     this.entity.setCustomNameVisible(false);
-    // set the profession of the villager to prevent inconsistency
-    if (this.entity instanceof Villager villager) {
-      villager.setProfession(Villager.Profession.FARMER);
+
+    // some entities can age, we want to spawn adults only
+    if (this.entity instanceof Ageable ageable) {
+      ageable.setAdult();
     }
+
     // apply inventory items
-    var items = this.npc.items().entrySet();
-    for (var entry : items) {
+    for (var entry : this.npc.items().entrySet()) {
       var item = new ItemStack(Material.matchMaterial(entry.getValue()));
       switch (entry.getKey()) {
         case 0 -> this.entity.getEquipment().setItemInHand(item);
