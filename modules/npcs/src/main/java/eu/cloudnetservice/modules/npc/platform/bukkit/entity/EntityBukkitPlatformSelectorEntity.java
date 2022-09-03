@@ -27,10 +27,12 @@ import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagemen
 import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
 import java.util.function.Function;
 import lombok.NonNull;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -116,9 +118,25 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
     this.entity.setFireTicks(0);
     this.entity.setCustomNameVisible(false);
     // set the profession of the villager to prevent inconsistency
-    if (this.entity instanceof Villager) {
-      ((Villager) this.entity).setProfession(Villager.Profession.FARMER);
+    if (this.entity instanceof Villager villager) {
+      villager.setProfession(Villager.Profession.FARMER);
     }
+    // apply inventory items
+    var items = this.npc.items().entrySet();
+    for (var entry : items) {
+      var item = new ItemStack(Material.matchMaterial(entry.getValue()));
+      switch (entry.getKey()) {
+        case 0 -> this.entity.getEquipment().setItemInHand(item);
+        // cannot set offhand item - skip index
+        case 2 -> this.entity.getEquipment().setBoots(item);
+        case 3 -> this.entity.getEquipment().setLeggings(item);
+        case 4 -> this.entity.getEquipment().setChestplate(item);
+        case 5 -> this.entity.getEquipment().setHelmet(item);
+        default -> {
+        }
+      }
+    }
+
     // uhhh nms reflection :(
     // create a new nbt tag compound
     var compound = NEW_NBT.invoke().getOrElse(null);
