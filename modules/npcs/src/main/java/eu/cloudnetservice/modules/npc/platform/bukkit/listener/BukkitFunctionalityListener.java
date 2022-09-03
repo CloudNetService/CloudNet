@@ -29,7 +29,6 @@ import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSe
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Function;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -47,18 +46,6 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 public final class BukkitFunctionalityListener implements Listener {
-
-  // See: https://wiki.vg/Entity_metadata#Entity
-  private static final byte GLOWING_FLAGS = 1 << 6;
-  private static final byte ELYTRA_FLYING_FLAGS = (byte) (1 << 7);
-  private static final byte FLYING_AND_GLOWING = (byte) (GLOWING_FLAGS | ELYTRA_FLYING_FLAGS);
-
-  private static final EntityMetadataFactory<Byte, Byte> ENTITY_EFFECT_FACTORY = EntityMetadataFactory.<Byte, Byte>metaFactoryBuilder()
-    .baseIndex(0)
-    .type(Byte.class)
-    .inputConverter(Function.identity())
-    .availabilityChecker(versionAccessor -> versionAccessor.atLeast(1, 9, 0))
-    .build();
 
   private static final ItemSlot[] ITEM_SLOTS = ItemSlot.values();
 
