@@ -26,7 +26,7 @@ servers:
     restricted: false
 listeners:
   - query_port: 25577
-    motd: '&bCloudNet &7v&b3 &8[&cBlizzard&8] &7BungeeCord &cProxy &7instance'
+    motd: '&bCloudNet &8[&cBlizzard&8] &7BungeeCord &cProxy &7instance'
     tab_list: GLOBAL_PING
     query_enabled: false
     proxy_protocol: false

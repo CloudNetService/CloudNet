@@ -1,6 +1,6 @@
 # CloudNet: The Cloud Network Environment Technology
 
-![CloudNet V3 Logo](.img/header.png)
+![CloudNet Logo](.img/header.png)
 
 ![Build](https://github.com/CloudNetService/CloudNet-v3/actions/workflows/gradle.yml/badge.svg)
 ![Release](https://img.shields.io/maven-central/v/eu.cloudnetservice.cloudnet/driver?label=release&logo=gradle)
