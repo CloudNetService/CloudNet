@@ -527,9 +527,10 @@ public final class NPCCommand extends BaseTabExecutor {
         case "in", "inventoryname" -> {
           // 3...: inventory name parts
           var inventoryName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
-          updatedNpc = NPC.builder(npc).inventoryName(inventoryName).build();
+          updatedNpc = NPC.builder(npc)
+            .inventoryName(ChatColor.translateAlternateColorCodes('&', inventoryName))
+            .build();
         }
-
 
         // sets the target group of the npc
         case "tg", "targetgroup" -> updatedNpc = NPC.builder(npc).targetGroup(args[2]).build();
