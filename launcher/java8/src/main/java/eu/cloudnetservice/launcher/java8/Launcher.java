@@ -26,7 +26,7 @@ public final class Launcher {
         .newInstance((Object) args);
     } else {
       // CHECKSTYLE.OFF: Launcher has no proper logger
-      System.err.println("CloudNet 4 requires Java 17 (or newer). Download it from https://adoptium.net/");
+      System.err.println("CloudNet requires Java 17 (or newer). Download it from https://adoptium.net/");
       System.exit(1);
       // CHECKSTYLE.ON
     }
