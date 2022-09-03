@@ -41,7 +41,7 @@ public class NPC extends JsonDocPropertyHolder {
   private final NPCType npcType;
   private final String targetGroup;
 
-  private final String displayName;
+  private final String inventoryName;
   private final List<String> infoLines;
 
   private final WorldPosition location;
@@ -52,9 +52,9 @@ public class NPC extends JsonDocPropertyHolder {
 
   private final boolean glowing;
   private final String glowingColor;
-
-  private final boolean hideEntityName;
+  
   private final boolean flyingWithElytra;
+  private final boolean burning;
 
   private final String floatingItem;
 
@@ -66,7 +66,7 @@ public class NPC extends JsonDocPropertyHolder {
   protected NPC(
     @NonNull NPCType npcType,
     @NonNull String targetGroup,
-    @NonNull String displayName,
+    @Nullable String inventoryName,
     @NonNull List<String> infoLines,
     @NonNull WorldPosition location,
     boolean lookAtPlayer,
@@ -74,8 +74,8 @@ public class NPC extends JsonDocPropertyHolder {
     boolean usePlayerSkin,
     boolean glowing,
     @NonNull String glowingColor,
-    boolean hideEntityName,
     boolean flyingWithElytra,
+    boolean burning,
     @Nullable String floatingItem,
     @NonNull ClickAction leftClickAction,
     @NonNull ClickAction rightClickAction,
@@ -85,7 +85,7 @@ public class NPC extends JsonDocPropertyHolder {
     super(properties);
     this.npcType = npcType;
     this.targetGroup = targetGroup;
-    this.displayName = displayName;
+    this.inventoryName = inventoryName;
     this.infoLines = infoLines;
     this.location = location;
     this.lookAtPlayer = lookAtPlayer;
@@ -93,8 +93,8 @@ public class NPC extends JsonDocPropertyHolder {
     this.usePlayerSkin = usePlayerSkin;
     this.glowing = glowing;
     this.glowingColor = glowingColor;
-    this.hideEntityName = hideEntityName;
     this.flyingWithElytra = flyingWithElytra;
+    this.burning = burning;
     this.floatingItem = floatingItem;
     this.leftClickAction = leftClickAction;
     this.rightClickAction = rightClickAction;
@@ -108,7 +108,7 @@ public class NPC extends JsonDocPropertyHolder {
   public static @NonNull Builder builder(@NonNull NPC npc) {
     var builder = builder()
       .targetGroup(npc.targetGroup())
-      .displayName(npc.displayName())
+      .inventoryName(npc.inventoryName())
       .infoLines(npc.infoLines())
       .location(npc.location())
       .lookAtPlayer(npc.lookAtPlayer())
@@ -116,8 +116,8 @@ public class NPC extends JsonDocPropertyHolder {
       .usePlayerSkin(npc.usePlayerSkin())
       .glowing(npc.glowing())
       .glowingColor(npc.glowingColor())
-      .hideEntityName(npc.hideEntityName())
       .flyingWithElytra(npc.flyingWithElytra())
+      .burning(npc.burning())
       .floatingItem(npc.floatingItem())
       .leftClickAction(npc.leftClickAction())
       .rightClickAction(npc.rightClickAction())
@@ -149,8 +149,8 @@ public class NPC extends JsonDocPropertyHolder {
     return this.targetGroup;
   }
 
-  public @NonNull String displayName() {
-    return this.displayName;
+  public @Nullable String inventoryName() {
+    return this.inventoryName;
   }
 
   public @NonNull List<String> infoLines() {
@@ -181,12 +181,12 @@ public class NPC extends JsonDocPropertyHolder {
     return this.glowingColor;
   }
 
-  public boolean hideEntityName() {
-    return this.hideEntityName;
-  }
-
   public boolean flyingWithElytra() {
     return this.flyingWithElytra;
+  }
+
+  public boolean burning() {
+    return this.burning;
   }
 
   public @Nullable String floatingItem() {
@@ -227,7 +227,7 @@ public class NPC extends JsonDocPropertyHolder {
     private NPCType npcType;
     private String targetGroup;
 
-    private String displayName;
+    private String inventoryName;
     private List<String> infoLines = new ArrayList<>();
 
     private WorldPosition location;
@@ -238,9 +238,9 @@ public class NPC extends JsonDocPropertyHolder {
 
     private boolean glowing = false;
     private String glowingColor = "§f";
-
-    private boolean hideEntityName = false;
+    
     private boolean flyingWithElytra = false;
+    private boolean burning = false;
 
     private String floatingItem;
 
@@ -272,8 +272,8 @@ public class NPC extends JsonDocPropertyHolder {
       return this;
     }
 
-    public @NonNull Builder displayName(@NonNull String displayName) {
-      this.displayName = displayName;
+    public @NonNull Builder inventoryName(@Nullable String inventoryName) {
+      this.inventoryName = inventoryName;
       return this;
     }
 
@@ -307,13 +307,13 @@ public class NPC extends JsonDocPropertyHolder {
       return this;
     }
 
-    public @NonNull Builder hideEntityName(boolean hideEntityName) {
-      this.hideEntityName = hideEntityName;
+    public @NonNull Builder flyingWithElytra(boolean flyingWithElytra) {
+      this.flyingWithElytra = flyingWithElytra;
       return this;
     }
 
-    public @NonNull Builder flyingWithElytra(boolean flyingWithElytra) {
-      this.flyingWithElytra = flyingWithElytra;
+    public @NonNull Builder burning(boolean burning) {
+      this.burning = burning;
       return this;
     }
 
@@ -340,13 +340,12 @@ public class NPC extends JsonDocPropertyHolder {
     public @NonNull NPC build() {
       Preconditions.checkNotNull(this.npcType, "unable to determine npc type");
       Preconditions.checkNotNull(this.targetGroup, "no target group given");
-      Preconditions.checkNotNull(this.displayName, "no display name given");
       Preconditions.checkNotNull(this.location, "no location given");
 
       return new NPC(
         this.npcType,
         this.targetGroup,
-        this.displayName,
+        this.inventoryName,
         this.infoLines,
         this.location,
         this.lookAtPlayer,
@@ -354,8 +353,8 @@ public class NPC extends JsonDocPropertyHolder {
         this.usePlayerSkin,
         this.glowing,
         this.glowingColor,
-        this.hideEntityName,
         this.flyingWithElytra,
+        this.burning,
         this.floatingItem,
         this.leftClickAction,
         this.rightClickAction,

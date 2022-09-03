@@ -33,8 +33,8 @@ import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCPoolOptions;
 import eu.cloudnetservice.node.Node;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
@@ -72,7 +72,9 @@ public class CloudNetNPCModule extends DriverModule {
               .inventorySize(entry.inventorySize())
               .build())
             .npcPoolOptions(NPCPoolOptions.builder()
-              .tabListRemoveTicks(entry.npcTabListRemoveTicks())
+              .tabListRemoveTicks(entry.npcTabListRemoveTicks() > Integer.MAX_VALUE
+                ? Integer.MAX_VALUE
+                : (int) entry.npcTabListRemoveTicks())
               .build())
             .build())
           .collect(Collectors.toSet());
@@ -107,8 +109,8 @@ public class CloudNetNPCModule extends DriverModule {
               .map(property -> new NPC.ProfileProperty(property.name(), property.value(), property.signature()))
               .collect(Collectors.toSet()))
             .location(npc.position())
-            .displayName(npc.displayName())
-            .infoLines(Collections.singletonList(npc.infoLine()))
+            .infoLines(Arrays.asList(npc.displayName(), npc.infoLine()))
+            .inventoryName(npc.displayName())
             .targetGroup(npc.targetGroup())
             .items(ImmutableMap.of(0, npc.itemInHand()))
             .lookAtPlayer(npc.lookAtPlayer())
@@ -116,10 +118,15 @@ public class CloudNetNPCModule extends DriverModule {
             .rightClickAction(NPC.ClickAction.valueOf(npc.rightClickAction().name()))
             .leftClickAction(NPC.ClickAction.valueOf(npc.leftClickAction().name()))
             .build())
-          .forEach(npc -> target.insert(
-            NodeNPCManagement.documentKey(npc.location()),
-            JsonDocument.newDocument(npc)));
+          .forEach(npc -> target.insert(NodeNPCManagement.documentKey(npc.location()), JsonDocument.newDocument(npc)));
       }
+    } else {
+      // convert 4.0.0-RC1 npcs to RC2 npcs
+      var database = Node.instance().databaseProvider().database(DATABASE_NAME);
+      database.documents().stream()
+        .filter(doc -> doc.contains("displayName"))
+        .map(doc -> NPC.builder(doc.toInstanceOf(NPC.class)).inventoryName(doc.getString("displayName")).build())
+        .forEach(npc -> database.insert(NodeNPCManagement.documentKey(npc.location()), JsonDocument.newDocument(npc)));
     }
   }
 

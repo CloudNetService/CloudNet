@@ -33,7 +33,7 @@ public final class BukkitNPCPlugin extends JavaPlugin {
     management.registerToServiceRegistry();
     management.initialize();
     // register all listeners
-    Bukkit.getPluginManager().registerEvents(new BukkitFunctionalityListener(management), this);
+    Bukkit.getPluginManager().registerEvents(new BukkitFunctionalityListener(management, this), this);
     Bukkit.getPluginManager().registerEvents(new BukkitEntityProtectionListener(management), this);
     Bukkit.getPluginManager().registerEvents(new BukkitWorldListener(this, management), this);
     // register the commands

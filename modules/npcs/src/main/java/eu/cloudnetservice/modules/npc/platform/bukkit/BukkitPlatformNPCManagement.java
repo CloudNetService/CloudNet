@@ -16,8 +16,11 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit;
 
-import com.github.juliarn.npc.NPCPool;
-import com.github.juliarn.npc.modifier.LabyModModifier;
+import com.github.juliarn.npclib.api.NpcActionController;
+import com.github.juliarn.npclib.api.Platform;
+import com.github.juliarn.npclib.bukkit.BukkitPlatform;
+import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
+import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -33,6 +36,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -44,7 +48,7 @@ import org.bukkit.util.NumberConversions;
 public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location, Player, ItemStack, Inventory> {
 
   protected final Plugin plugin;
-  protected final NPCPool npcPool;
+  protected final Platform<World, Player, ItemStack, Plugin> npcPlatform;
   protected final Scoreboard scoreboard;
   protected final BukkitTask knockBackTask;
 
@@ -57,13 +61,20 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     // npc pool init
     var entry = this.applicableNPCConfigurationEntry();
     if (entry != null) {
-      this.npcPool = NPCPool.builder(plugin)
-        .actionDistance(entry.npcPoolOptions().actionDistance())
-        .spawnDistance(entry.npcPoolOptions().spawnDistance())
-        .tabListRemoveTicks(entry.npcPoolOptions().tabListRemoveTicks())
+      this.npcPlatform = BukkitPlatform.bukkitNpcPlatformBuilder()
+        .extension(plugin)
+        .debug(true)
+        .actionController(builder -> builder
+          .flag(NpcActionController.SPAWN_DISTANCE, entry.npcPoolOptions().spawnDistance())
+          .flag(NpcActionController.IMITATE_DISTANCE, entry.npcPoolOptions().actionDistance())
+          .flag(NpcActionController.TAB_REMOVAL_TICKS, entry.npcPoolOptions().tabListRemoveTicks()))
+        .worldAccessor(BukkitWorldAccessor.nameBasedAccessor())
         .build();
     } else {
-      this.npcPool = NPCPool.builder(plugin).build();
+      this.npcPlatform = BukkitPlatform.bukkitNpcPlatformBuilder()
+        .extension(plugin)
+        .worldAccessor(BukkitWorldAccessor.nameBasedAccessor())
+        .build();
     }
 
     // start the emote player
@@ -105,16 +116,13 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
                       if (value instanceof NPCBukkitPlatformSelector npcSelector) {
                         if (emoteId == -1) {
                           var emote = labyModEmotes[ThreadLocalRandom.current().nextInt(0, labyModEmotes.length)];
-                          npcSelector.handleNPC()
-                            .labymod()
-                            .queue(LabyModModifier.LabyModAction.EMOTE, emote)
-                            .send(player);
+                          LabyModExtension
+                            .createEmotePacket(this.npcPlatform.packetFactory(), emote)
+                            .schedule(player, npcSelector.handleNPC());
                         } else {
-                          // use the selected emote
-                          npcSelector.handleNPC()
-                            .labymod()
-                            .queue(LabyModModifier.LabyModAction.EMOTE, emoteId)
-                            .send(player);
+                          LabyModExtension
+                            .createEmotePacket(this.npcPlatform.packetFactory(), emoteId)
+                            .schedule(player, npcSelector.handleNPC());
                         }
                       }
                     }
@@ -133,7 +141,7 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
   protected PlatformSelectorEntity<Location, Player, ItemStack, Inventory> createSelectorEntity(@NonNull NPC base) {
     return base.npcType() == NPC.NPCType.ENTITY
       ? new EntityBukkitPlatformSelectorEntity(this, this.plugin, base)
-      : new NPCBukkitPlatformSelector(this, this.plugin, base, this.npcPool);
+      : new NPCBukkitPlatformSelector(this, this.plugin, base, this.npcPlatform);
   }
 
   @Override
@@ -178,8 +186,8 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     return this.scoreboard;
   }
 
-  public @NonNull NPCPool npcPool() {
-    return this.npcPool;
+  public @NonNull Platform<World, Player, ItemStack, Plugin> npcPlatform() {
+    return this.npcPlatform;
   }
 
   protected void startEmoteTask(boolean force) {
@@ -204,15 +212,12 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
           // check if we can select an emote
           if (emoteId >= -1) {
             // play the emote on each npc
-            for (var npc : this.npcPool.getNPCs()) {
+            for (var npc : this.npcPlatform.npcTracker().trackedNpcs()) {
               if (emoteId == -1) {
-                npc.labymod()
-                  .queue(
-                    LabyModModifier.LabyModAction.EMOTE,
-                    emotes[ThreadLocalRandom.current().nextInt(0, emotes.length)])
-                  .send();
+                var emote = emotes[ThreadLocalRandom.current().nextInt(0, emotes.length)];
+                LabyModExtension.createEmotePacket(this.npcPlatform.packetFactory(), emote).scheduleForTracked(npc);
               } else {
-                npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, emoteId).send();
+                LabyModExtension.createEmotePacket(this.npcPlatform.packetFactory(), emoteId).scheduleForTracked(npc);
               }
             }
           }

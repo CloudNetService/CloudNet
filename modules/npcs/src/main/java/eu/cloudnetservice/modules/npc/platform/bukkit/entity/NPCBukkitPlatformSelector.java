@@ -16,47 +16,52 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
-import com.github.juliarn.npc.NPCPool;
-import com.github.juliarn.npc.modifier.AnimationModifier;
-import com.github.juliarn.npc.modifier.MetadataModifier;
-import com.github.juliarn.npc.modifier.NPCModifier;
-import com.github.juliarn.npc.profile.Profile;
+import com.github.juliarn.npclib.api.Npc;
+import com.github.juliarn.npclib.api.Platform;
+import com.github.juliarn.npclib.api.flag.NpcFlag;
+import com.github.juliarn.npclib.api.profile.Profile;
+import com.github.juliarn.npclib.api.profile.ProfileProperty;
+import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
 import eu.cloudnetservice.modules.npc.NPC;
+import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import org.bukkit.Material;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
 
-  // See: https://wiki.vg/Entity_metadata#Entity
-  private static final byte GLOWING_FLAGS = 1 << 6;
-  private static final byte ELYTRA_FLYING_FLAGS = (byte) (1 << 7);
-  private static final byte FLYING_AND_GLOWING = (byte) (GLOWING_FLAGS | ELYTRA_FLYING_FLAGS);
+  public static final NpcFlag<PlatformSelectorEntity<Location, Player, ItemStack, Inventory>> SELECTOR_ENTITY = NpcFlag.flag(
+    "cloudnet_selector_entity",
+    null);
 
-  protected final NPCPool npcPool;
-  protected volatile com.github.juliarn.npc.NPC handleNpc;
+  protected final Platform<World, Player, ItemStack, Plugin> platform;
+  protected volatile Npc<World, Player, ItemStack, Plugin> handleNpc;
 
   public NPCBukkitPlatformSelector(
     @NonNull BukkitPlatformNPCManagement npcManagement,
     @NonNull Plugin plugin,
     @NonNull NPC npc,
-    @NonNull NPCPool pool
+    @NonNull Platform<World, Player, ItemStack, Plugin> platform
   ) {
     super(npcManagement, plugin, npc);
-    this.npcPool = pool;
+    this.platform = platform;
   }
 
   @Override
   public int entityId() {
-    return this.handleNpc == null ? -1 : this.handleNpc.getEntityId();
+    return this.handleNpc == null ? -1 : this.handleNpc.entityId();
   }
 
   @Override
   public @NonNull String scoreboardRepresentation() {
-    return this.handleNpc.getProfile().getName();
+    return this.handleNpc.profile().name();
   }
 
   @Override
@@ -66,53 +71,31 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
 
   @Override
   protected void spawn0() {
-    this.handleNpc = com.github.juliarn.npc.NPC.builder()
-      .imitatePlayer(this.npc.imitatePlayer())
-      .lookAtPlayer(this.npc.lookAtPlayer())
-      .usePlayerProfiles(this.npc.usePlayerSkin())
-      .profile(new Profile(
+    this.handleNpc = this.platform.newNpcBuilder()
+      .flag(SELECTOR_ENTITY, this)
+      .flag(Npc.SNEAK_WHEN_PLAYER_SNEAKS, this.npc.imitatePlayer())
+      .flag(Npc.HIT_WHEN_PLAYER_HITS, this.npc.imitatePlayer())
+      .flag(Npc.LOOK_AT_PLAYER, this.npc.lookAtPlayer())
+      .npcSettings(builder -> builder.profileResolver((player, spawnedNpc) -> {
+        if (this.npc.usePlayerSkin()) {
+          return this.platform.profileResolver().resolveProfile(Profile.unresolved(player.getUniqueId()));
+        } else {
+          return CompletableFuture.completedFuture(spawnedNpc.profile());
+        }
+      }))
+      .profile(Profile.resolved(
+        this.uniqueId.toString().replace("-", "").substring(0, 16),
         this.uniqueId,
-        this.npc.displayName(),
         this.npc.profileProperties().stream()
-          .map(prop -> new Profile.Property(prop.name(), prop.value(), prop.signature()))
-          .collect(Collectors.toSet())
-      ))
-      .location(this.npcLocation)
-      .spawnCustomizer((spawnedNpc, player) -> {
-        // just because the client is stupid sometimes
-        spawnedNpc.rotation().queueRotate(this.npcLocation.getYaw(), this.npcLocation.getPitch()).send(player);
-        spawnedNpc.animation().queue(AnimationModifier.EntityAnimation.SWING_MAIN_ARM).send(player);
-        var metadataModifier = spawnedNpc.metadata()
-          .queue(MetadataModifier.EntityMetadata.SKIN_LAYERS, true)
-          .queue(MetadataModifier.EntityMetadata.SNEAKING, false);
-        // apply glowing effect if possible
-        if (NPCModifier.MINECRAFT_VERSION >= 9) {
-          if (this.npc.glowing() && this.npc.flyingWithElytra()) {
-            metadataModifier.queue(0, FLYING_AND_GLOWING, Byte.class);
-          } else if (this.npc.glowing()) {
-            metadataModifier.queue(0, GLOWING_FLAGS, Byte.class);
-          } else if (this.npc.flyingWithElytra()) {
-            metadataModifier.queue(0, ELYTRA_FLYING_FLAGS, Byte.class);
-          }
-        }
-        metadataModifier.send(player);
-        // set the items
-        var modifier = spawnedNpc.equipment();
-        for (var entry : this.npc.items().entrySet()) {
-          if (entry.getKey() >= 0 && entry.getKey() <= 5) {
-            var material = Material.matchMaterial(entry.getValue());
-            if (material != null) {
-              modifier.queue(entry.getKey(), new ItemStack(material));
-            }
-          }
-        }
-        modifier.send(player);
-      }).build(this.npcPool);
+          .map(prop -> ProfileProperty.property(prop.name(), prop.value(), prop.signature()))
+          .collect(Collectors.toSet())))
+      .position(BukkitPlatformUtil.positionFromBukkit(this.npcLocation))
+      .buildAndTrack();
   }
 
   @Override
   protected void remove0() {
-    this.npcPool.removeNPC(this.handleNpc.getEntityId());
+    this.handleNpc.unlink();
     this.handleNpc = null;
   }
 
@@ -121,12 +104,13 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
     // no-op - we're doing this while spawning to the player
   }
 
-  @Override
-  protected double heightAddition(int lineNumber) {
-    return 1.09 + super.heightAddition(lineNumber);
+  public @NonNull Npc<World, Player, ItemStack, Plugin> handleNPC() {
+    return this.handleNpc;
   }
 
-  public @NonNull com.github.juliarn.npc.NPC handleNPC() {
-    return this.handleNpc;
+  @Override
+  protected double heightAddition(int lineNumber) {
+    // Player size is 1.8, (baby) ArmorStand size is 0.9875 subtracting gives 0.8125
+    return super.heightAddition(lineNumber) + 0.8125;
   }
 }

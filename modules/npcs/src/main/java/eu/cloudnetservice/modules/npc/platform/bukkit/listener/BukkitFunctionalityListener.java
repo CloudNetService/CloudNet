@@ -16,11 +16,22 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
-import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
-import com.github.juliarn.npc.modifier.LabyModModifier;
+import com.github.juliarn.npclib.api.event.AttackNpcEvent;
+import com.github.juliarn.npclib.api.event.InteractNpcEvent;
+import com.github.juliarn.npclib.api.event.ShowNpcEvent;
+import com.github.juliarn.npclib.api.protocol.enums.EntityStatus;
+import com.github.juliarn.npclib.api.protocol.enums.ItemSlot;
+import com.github.juliarn.npclib.api.protocol.meta.EntityMetadataFactory;
+import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
+import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -30,45 +41,69 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 public final class BukkitFunctionalityListener implements Listener {
 
-  private final BukkitPlatformNPCManagement management;
+  private static final ItemSlot[] ITEM_SLOTS = ItemSlot.values();
 
-  public BukkitFunctionalityListener(@NonNull BukkitPlatformNPCManagement management) {
+  private final BukkitPlatformNPCManagement management;
+  private final Plugin plugin;
+
+  public BukkitFunctionalityListener(@NonNull BukkitPlatformNPCManagement management, @NonNull Plugin plugin) {
     this.management = management;
+    this.plugin = plugin;
+
+    var bus = management.npcPlatform().eventBus();
+    bus.subscribe(AttackNpcEvent.class, this::handleNpcAttack);
+    bus.subscribe(InteractNpcEvent.class, this::handleNpcInteract);
+    bus.subscribe(ShowNpcEvent.Post.class, this::handleNpcShow);
   }
 
-  @EventHandler
-  public void handle(@NonNull PlayerNPCInteractEvent event) {
-    if (event.getHand() == PlayerNPCInteractEvent.Hand.MAIN_HAND
-      && event.getUseAction() != PlayerNPCInteractEvent.EntityUseAction.INTERACT_AT) {
-      this.handleClick(
-        event.getPlayer(),
-        null,
-        event.getNPC().getEntityId(),
-        event.getUseAction() == PlayerNPCInteractEvent.EntityUseAction.ATTACK);
-    }
+  public void handleNpcShow(@NonNull ShowNpcEvent.Post event) {
+    var packetFactory = event.npc().platform().packetFactory();
+    packetFactory
+      .createEntityMetaPacket(true, EntityMetadataFactory.skinLayerMetaFactory())
+      .scheduleForTracked(event.npc());
+    event.npc().flagValue(NPCBukkitPlatformSelector.SELECTOR_ENTITY).ifPresent(selectorEntity -> {
+      packetFactory.createEntityMetaPacket(
+        this.collectEntityStatus(selectorEntity.npc()),
+        EntityMetadataFactory.entityStatusMetaFactory()
+      ).scheduleForTracked(event.npc());
+
+      var entries = selectorEntity.npc().items().entrySet();
+      for (var entry : entries) {
+        if (entry.getKey() >= 0 && entry.getKey() <= 5) {
+          var item = new ItemStack(Material.matchMaterial(entry.getValue()));
+          packetFactory.createEquipmentPacket(ITEM_SLOTS[entry.getKey()], item).scheduleForTracked(event.npc());
+        }
+      }
+    });
+  }
+
+  public void handleNpcAttack(@NonNull AttackNpcEvent event) {
+    Bukkit.getScheduler().runTask(
+      this.plugin,
+      () -> this.handleClick(event.player(), null, event.npc().entityId(), true));
+  }
+
+  public void handleNpcInteract(@NonNull InteractNpcEvent event) {
+    Bukkit.getScheduler().runTask(
+      this.plugin,
+      () -> this.handleClick(event.player(), null, event.npc().entityId(), false));
   }
 
   @EventHandler
   public void handle(@NonNull PlayerInteractEntityEvent event) {
-    this.handleClick(
-      event.getPlayer(),
-      event,
-      event.getRightClicked().getEntityId(),
-      false);
+    this.handleClick(event.getPlayer(), event, event.getRightClicked().getEntityId(), false);
   }
 
   @EventHandler(ignoreCancelled = true)
   public void handle(@NonNull EntityDamageByEntityEvent event) {
     if (event.getDamager() instanceof Player damager) {
-      this.handleClick(
-        damager,
-        event,
-        event.getEntity().getEntityId(),
-        true);
+      this.handleClick(damager, event, event.getEntity().getEntityId(), true);
     }
   }
 
@@ -103,20 +138,41 @@ public final class BukkitFunctionalityListener implements Listener {
       // check if an emote id could be selected
       if (selectedNpcId >= -1) {
         // play the emote to all npcs
-        for (var npc : this.management.npcPool().getNPCs()) {
+        for (var npc : this.management.npcPlatform().npcTracker().trackedNpcs()) {
           // verify that the player *could* see the emote
-          if (npc.getLocation().getWorld().getUID().equals(event.getPlayer().getWorld().getUID())) {
+          if (npc.position().worldId().equals(event.getPlayer().getWorld().getName())) {
             // check if the emote id is fixed
             if (selectedNpcId != -1) {
-              npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, selectedNpcId).send(event.getPlayer());
+              LabyModExtension
+                .createEmotePacket(this.management.npcPlatform().packetFactory())
+                .schedule(event.getPlayer(), npc);
             } else {
               var randomEmote = onJoinEmoteIds[ThreadLocalRandom.current().nextInt(0, onJoinEmoteIds.length)];
-              npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, randomEmote).send(event.getPlayer());
+              LabyModExtension
+                .createEmotePacket(this.management.npcPlatform().packetFactory(), randomEmote)
+                .schedule(event.getPlayer(), npc);
             }
           }
         }
       }
     }
+  }
+
+  private @NonNull Collection<EntityStatus> collectEntityStatus(@NonNull NPC npc) {
+    Collection<EntityStatus> status = new HashSet<>();
+    if (npc.glowing()) {
+      status.add(EntityStatus.GLOWING);
+    }
+
+    if (npc.flyingWithElytra()) {
+      status.add(EntityStatus.FLYING_WITH_ELYTRA);
+    }
+
+    if (npc.burning()) {
+      status.add(EntityStatus.ON_FIRE);
+    }
+
+    return status;
   }
 
   private void handleClick(@NonNull Player player, @Nullable Cancellable cancellable, int entityId, boolean left) {
