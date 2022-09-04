@@ -247,7 +247,8 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // find all matching fallback configurations
     return config.fallbacks().stream()
       // check if a forced host is required
-      .filter(fallback -> fallback.forcedHost() == null || fallback.forcedHost().equals(virtualHost))
+      .filter(fallback -> fallback.forcedHost() == null
+        || (currentServerName == null && fallback.forcedHost().equalsIgnoreCase(virtualHost)))
       // check if the player has the permission to connect to the fallback
       .filter(fallback -> fallback.permission() == null || permissionTester.apply(fallback.permission()))
       // check if the fallback is available from the current group the player is on
