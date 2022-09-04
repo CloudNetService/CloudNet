@@ -247,7 +247,7 @@ public final class TasksCommand {
   @Parser(name = "taskRuntime", suggestions = "taskRuntime")
   public @NonNull String taskRuntimeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var runtime = input.remove();
-    if (Node.instance().cloudServiceProvider().cloudServiceFactory(runtime) == null) {
+    if (this.node.cloudServiceProvider().cloudServiceFactory(runtime) == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-runtime-not-found", runtime));
     }
 
@@ -256,7 +256,7 @@ public final class TasksCommand {
 
   @Suggestions("taskRuntime")
   public @NonNull List<String> taskRuntimeSuggester(@NonNull CommandContext<?> $, @NonNull String input) {
-    return List.copyOf(Node.instance().cloudServiceProvider().cloudServiceFactories().keySet());
+    return List.copyOf(this.node.cloudServiceProvider().cloudServiceFactories().keySet());
   }
 
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)

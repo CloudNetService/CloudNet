@@ -25,8 +25,8 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
@@ -37,11 +37,11 @@ import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.smart")
 @Description("module-smart-command-description")
-public class SmartCommand {
+public record SmartCommand(@NonNull CloudNetDriver driver) {
 
   @Parser(name = "smartTask", suggestions = "smartTask")
   public @NonNull ServiceTask smartTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var task = Node.instance().serviceTaskProvider().serviceTask(input.remove());
+    var task = this.driver.serviceTaskProvider().serviceTask(input.remove());
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -54,7 +54,7 @@ public class SmartCommand {
 
   @Suggestions("smartTask")
   public @NonNull List<String> suggestSmartTasks(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().serviceTaskProvider().serviceTasks()
+    return this.driver.serviceTaskProvider().serviceTasks()
       .stream()
       .filter(serviceTask -> serviceTask.properties().contains("smartConfig"))
       .map(Nameable::name)
@@ -243,6 +243,6 @@ public class SmartCommand {
       .properties(serviceTask.properties()
         .append("smartConfig", modifier.apply(SmartServiceTaskConfig.builder(property)).build()))
       .build();
-    Node.instance().serviceTaskProvider().addServiceTask(task);
+    this.driver.serviceTaskProvider().addServiceTask(task);
   }
 }

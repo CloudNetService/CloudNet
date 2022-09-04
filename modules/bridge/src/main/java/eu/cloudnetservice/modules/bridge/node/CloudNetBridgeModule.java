@@ -156,6 +156,7 @@ public final class CloudNetBridgeModule extends DriverModule {
     // init the bridge management
     var management = new NodeBridgeManagement(
       this,
+      Node.instance(),
       this.loadConfiguration(),
       this.eventManager(),
       Node.instance().dataSyncRegistry(),

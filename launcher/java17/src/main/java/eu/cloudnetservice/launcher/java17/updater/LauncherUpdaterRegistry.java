@@ -19,6 +19,7 @@ package eu.cloudnetservice.launcher.java17.updater;
 import eu.cloudnetservice.ext.updater.defaults.DefaultUpdaterRegistry;
 import eu.cloudnetservice.ext.updater.util.GitHubUtil;
 import eu.cloudnetservice.launcher.java17.CloudNetLauncher;
+import eu.cloudnetservice.launcher.java17.util.BootstrapUtil;
 import eu.cloudnetservice.launcher.java17.util.HttpUtil;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -46,20 +47,38 @@ public final class LauncherUpdaterRegistry extends DefaultUpdaterRegistry<Launch
     // load the properties file which contains the checksum information
     return HttpUtil.get(
       GitHubUtil.buildUri(this.repo, this.branch, "checksums.properties"),
-      HttpUtil.handlerFromSubscriber(HttpResponse.BodySubscribers.mapping(
-        HttpResponse.BodySubscribers.ofInputStream(),
-        stream -> {
-          try {
-            // parse the checksum properties from the stream
-            var checksums = new Properties();
-            checksums.load(stream);
-            // create an updater context from the information
-            return new LauncherUpdaterContext(this.launcher, this.repo, this.branch, checksums);
-          } catch (IOException exception) {
-            // let the handler do the honors
-            throw new UncheckedIOException(exception);
-          }
-        }))
+      info -> {
+        if (info.statusCode() == 200) {
+          return HttpResponse.BodySubscribers.mapping(
+            HttpResponse.BodySubscribers.ofInputStream(),
+            stream -> {
+              try {
+                // parse the checksum properties from the stream
+                var checksums = new Properties();
+                checksums.load(stream);
+                // create an updater context from the information
+                return new LauncherUpdaterContext(this.launcher, this.repo, this.branch, checksums);
+              } catch (IOException exception) {
+                // let the handler do the honors
+                throw new UncheckedIOException(exception);
+              }
+            });
+        } else if (info.statusCode() == 404) {
+          // repo or branch not found
+          System.out.printf(
+            "Unable to load updater context because update repo \"%s\" or branch \"%s\" doesn't exist! Stopping in 5 seconds...%n",
+            this.repo, this.branch);
+        } else {
+          // generic error
+          System.out.printf(
+            "Unable to load updater context (repo: \"%s\", branch: \"%s\") - got unexpected http status %d! Stopping in 5 seconds...%n",
+            this.repo, this.branch, info.statusCode());
+        }
+
+        // wait and stop
+        BootstrapUtil.waitAndExit();
+        return null;
+      }
     ).body();
   }
 }

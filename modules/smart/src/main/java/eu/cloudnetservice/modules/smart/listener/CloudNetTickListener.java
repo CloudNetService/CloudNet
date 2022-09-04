@@ -47,13 +47,15 @@ import org.jetbrains.annotations.Nullable;
 
 public final class CloudNetTickListener {
 
+  private final Node node;
   private final CloudNetSmartModule module;
 
   private final Map<String, Long> autoStartBlocks = new HashMap<>();
   private final Map<UUID, AtomicLong> autoStopTicks = new HashMap<>();
 
-  public CloudNetTickListener(@NonNull CloudNetSmartModule module) {
+  public CloudNetTickListener(@NonNull CloudNetSmartModule module, @NonNull Node node) {
     this.module = module;
+    this.node = node;
   }
 
   @EventListener
@@ -62,7 +64,7 @@ public final class CloudNetTickListener {
   }
 
   private void handleSmartEntries() {
-    Node.instance().serviceTaskProvider().serviceTasks().forEach(task -> {
+    this.node.serviceTaskProvider().serviceTasks().forEach(task -> {
       var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
         // get all services of the task
@@ -214,14 +216,14 @@ public final class CloudNetTickListener {
   }
 
   private @NonNull CloudServiceManager serviceManager() {
-    return Node.instance().cloudServiceProvider();
+    return this.node.cloudServiceProvider();
   }
 
   private @NonNull NodeServerProvider nodeServerProvider() {
-    return Node.instance().nodeServerProvider();
+    return this.node.nodeServerProvider();
   }
 
   private @NonNull CloudServiceFactory serviceFactory() {
-    return Node.instance().cloudServiceFactory();
+    return this.node.cloudServiceFactory();
   }
 }

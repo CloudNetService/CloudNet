@@ -27,11 +27,11 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.SignConfigurationType;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
@@ -43,7 +43,7 @@ import lombok.NonNull;
 @CommandAlias("signs")
 @CommandPermission("cloudnet.command.sign")
 @Description("module-sign-command-description")
-public record SignCommand(@NonNull SignManagement signManagement) {
+public record SignCommand(@NonNull SignManagement signManagement, @NonNull CloudNetDriver driver) {
 
   private static final RowBasedFormatter<SignConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<SignConfigurationEntry>
       builder()
@@ -57,7 +57,7 @@ public record SignCommand(@NonNull SignManagement signManagement) {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var configuration = Node.instance().groupConfigurationProvider().groupConfiguration(name);
+    var configuration = this.driver.groupConfigurationProvider().groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
@@ -76,7 +76,7 @@ public record SignCommand(@NonNull SignManagement signManagement) {
     @NonNull CommandContext<CommandSource> $,
     @NonNull String input
   ) {
-    return Node.instance().groupConfigurationProvider().groupConfigurations().stream()
+    return this.driver.groupConfigurationProvider().groupConfigurations().stream()
       .map(Nameable::name)
       .filter(group -> this.signManagement.signsConfiguration()
         .entries()

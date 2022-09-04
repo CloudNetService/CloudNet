@@ -30,13 +30,16 @@ import lombok.NonNull;
 
 public final class NodeServerDataEmitter extends SpecificReportDataEmitter<NodeServer> {
 
-  public NodeServerDataEmitter() {
+  private final Node node;
+
+  public NodeServerDataEmitter(@NonNull Node node) {
     super((writer, nodes) -> writer.appendString("Node Servers (").appendInt(nodes.size()).appendString("):"));
+    this.node = node;
   }
 
   @Override
   public @NonNull Collection<NodeServer> collectData() {
-    return Node.instance().nodeServerProvider().nodeServers();
+    return this.node.nodeServerProvider().nodeServers();
   }
 
   @Override

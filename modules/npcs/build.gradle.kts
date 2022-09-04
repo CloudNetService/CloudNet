@@ -31,8 +31,7 @@ dependencies {
 
   "compileOnly"(libs.bundles.serverPlatform)
 
-  "api"(libs.npcLib)
-  "compileOnlyApi"(libs.protocolLib)
+  "api"(libs.bundles.npcLib)
 }
 
 moduleJson {

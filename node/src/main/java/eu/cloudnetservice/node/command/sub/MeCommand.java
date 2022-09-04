@@ -58,7 +58,7 @@ public record MeCommand(@NonNull Node node) {
 
     source.sendMessage(List.of(
       " ",
-      this.node.version() + " created by Dytanic, maintained by the CloudNet Community",
+      this.node.version().toString(),
       "Discord: <https://discord.cloudnetservice.eu/>",
       " ",
       "ClusterId: " + clusterId,

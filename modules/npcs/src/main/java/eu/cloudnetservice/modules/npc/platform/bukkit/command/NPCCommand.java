@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.command;
 
-import com.github.juliarn.npc.profile.Profile;
+import com.github.juliarn.npclib.api.profile.Profile;
 import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
@@ -99,7 +99,7 @@ public final class NPCCommand extends BaseTabExecutor {
     }
 
     // npc create
-    if (args.length >= 5 && args[0].equalsIgnoreCase("create")) {
+    if (args.length >= 4 && args[0].equalsIgnoreCase("create")) {
       // 0: target group
       var targetGroup = args[1];
       // 1: mob type
@@ -108,30 +108,24 @@ public final class NPCCommand extends BaseTabExecutor {
         sender.sendMessage("§cNo such NPC type, use one of: " + String.join(", ", NPC_TYPES));
         return true;
       }
-      // 3...: display name parts
-      var displayName = String.join(" ", Arrays.copyOfRange(args, 4, args.length)).trim();
-      if (displayName.length() > 16) {
-        sender.sendMessage("§cThe display name can only contain up to 16 chars.");
-        return true;
-      }
       // 2: skin owner or entity type, depends on 1
       if (npcType == NPC.NPCType.PLAYER) {
         // load the profile
-        var profile = new Profile(args[3]);
-        if (!profile.complete()) {
-          sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[3]));
-          return true;
-        }
-        // create the npc
-        var npc = NPC.builder()
-          .profileProperties(profile.getProperties().stream()
-            .map(property -> new NPC.ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
-            .collect(Collectors.toSet()))
-          .targetGroup(targetGroup)
-          .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
-          .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
-          .build();
-        this.management.createNPC(npc);
+        this.management.npcPlatform().profileResolver().resolveProfile(Profile.unresolved(args[3]))
+          .thenAccept(profile -> {
+            // create the npc
+            var npc = NPC.builder()
+              .profileProperties(profile.properties().stream()
+                .map(prop -> new NPC.ProfileProperty(prop.name(), prop.value(), prop.signature()))
+                .collect(Collectors.toSet()))
+              .targetGroup(targetGroup)
+              .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
+              .build();
+            this.management.createNPC(npc);
+          }).exceptionally(throwable -> {
+            sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[3]));
+            return null;
+          });
       } else {
         // get the entity type
         var entityType = Enums.getIfPresent(EntityType.class, StringUtil.toUpper(args[3])).orNull();
@@ -147,7 +141,6 @@ public final class NPCCommand extends BaseTabExecutor {
         var npc = NPC.builder()
           .entityType(entityType.name())
           .targetGroup(targetGroup)
-          .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
           .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
           .build();
         this.management.createNPC(npc);
@@ -256,8 +249,7 @@ public final class NPCCommand extends BaseTabExecutor {
           sender.sendMessage(String.format("§7There are §6%s §7selector mobs:", this.management.npcs().size()));
           for (var npc : this.management.npcs()) {
             sender.sendMessage(String.format(
-              "§8> §6\"%s\" §8@ §7%s§8/§7%s §8- §7%d, %d, %d in \"%s\"",
-              npc.displayName(),
+              "§8> §7%s§8/§7%s §8- §7%d, %d, %d in \"%s\"",
               npc.npcType(),
               npc.npcType() == NPC.NPCType.ENTITY ? npc.entityType() : "props: " + npc.profileProperties().size(),
               (int) npc.location().x(),
@@ -284,19 +276,6 @@ public final class NPCCommand extends BaseTabExecutor {
       NPC updatedNpc;
       // find the option the player is trying to edit
       switch (StringUtil.toLower(args[1])) {
-        // edit of the display name
-        case "display" -> {
-          var displayName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
-          if (displayName.length() > 16) {
-            sender.sendMessage("§cThe display name can only contain up to 16 chars.");
-            return true;
-          }
-          // re-create the npc with the given options
-          updatedNpc = NPC.builder(npc)
-            .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
-            .build();
-        }
-
         // enable that the npc looks at the player
         case "lap", "lookatplayer" -> {
           if (this.canChangeSetting(sender, npc)) {
@@ -347,9 +326,6 @@ public final class NPCCommand extends BaseTabExecutor {
           }
         }
 
-        // set if the npc name tag should be hidden
-        case "hn", "hideentityname" -> updatedNpc = NPC.builder(npc).hideEntityName(this.parseBoolean(args[2])).build();
-
         // sets if the npc should "fly" with an elytra
         case "fwe", "flyingwithelytra" -> {
           if (this.canChangeSetting(sender, npc)) {
@@ -360,6 +336,16 @@ public final class NPCCommand extends BaseTabExecutor {
               sender.sendMessage("§cEnabling elytra-flying might lead to weird-looking behaviour when imitate "
                 + "and lookAt player is enabled! Consider disabling these options.");
             }
+          } else {
+            return true;
+          }
+        }
+
+        // sets if the npc should burn
+        case "burning" -> {
+          if (this.canChangeSetting(sender, npc)) {
+            var enabled = this.parseBoolean(args[2]);
+            updatedNpc = NPC.builder(npc).burning(enabled).build();
           } else {
             return true;
           }
@@ -469,21 +455,17 @@ public final class NPCCommand extends BaseTabExecutor {
         }
 
         // change the profile (will force-set the entity type to npc)
-        case "profile" -> {
-          var profile = new Profile(args[2]);
-          if (!profile.complete()) {
-            sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[2]));
-            return true;
-          } else {
-            updatedNpc = NPC.builder(npc).profileProperties(profile.getProperties().stream()
-                .map(property -> new NPC.ProfileProperty(
-                  property.getName(),
-                  property.getValue(),
-                  property.getSignature()))
+        case "profile" -> // load the profile
+          updatedNpc = this.management.npcPlatform().profileResolver().resolveProfile(Profile.unresolved(args[2]))
+            .thenApply(profile -> NPC.builder(npc)
+              .profileProperties(profile.properties().stream()
+                .map(prop -> new NPC.ProfileProperty(prop.name(), prop.value(), prop.signature()))
                 .collect(Collectors.toSet()))
-              .build();
-          }
-        }
+              .build())
+            .exceptionally(throwable -> {
+              sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[3]));
+              return null;
+            }).join();
 
         // change the profile based on an image url
         case "urlprofile", "up" -> {
@@ -542,6 +524,14 @@ public final class NPCCommand extends BaseTabExecutor {
           }
         }
 
+        case "in", "inventoryname" -> {
+          // 3...: inventory name parts
+          var inventoryName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
+          updatedNpc = NPC.builder(npc)
+            .inventoryName(ChatColor.translateAlternateColorCodes('&', inventoryName))
+            .build();
+        }
+
         // sets the target group of the npc
         case "tg", "targetgroup" -> updatedNpc = NPC.builder(npc).targetGroup(args[2]).build();
 
@@ -551,15 +541,18 @@ public final class NPCCommand extends BaseTabExecutor {
           return true;
         }
       }
-      // update & notify
-      this.management.createNPC(updatedNpc);
-      sender.sendMessage(String.format(
-        "§7The option §6%s §7was updated §asuccessfully§7! It may take a few seconds for the change to become visible.",
-        StringUtil.toLower(args[1])));
+
+      // update & notify if needed
+      if (updatedNpc != null) {
+        this.management.createNPC(updatedNpc);
+        sender.sendMessage(String.format(
+          "§7The option §6%s §7was updated §asuccessfully§7! It may take a few seconds for the change to become visible.",
+          StringUtil.toLower(args[1])));
+      }
       return true;
     }
 
-    sender.sendMessage("§8> §7/cn create <targetGroup> <type> <skinOwnerName/entityType> <displayName>");
+    sender.sendMessage("§8> §7/cn create <targetGroup> <type> <skinOwnerName/entityType>");
     sender.sendMessage("§8> §7/cn edit <option> <value...>");
     sender.sendMessage("§8> §7/cn remove");
     sender.sendMessage("§8> §7/cn cleanup");
@@ -609,13 +602,13 @@ public final class NPCCommand extends BaseTabExecutor {
       // top level options
       if (args.length == 2) {
         return Arrays.asList(
-          "display",
+          "inventoryname",
           "lookatplayer",
           "imitateplayer",
           "useplayerskin",
           "glowingcolor",
-          "hideentityname",
           "flyingwithelytra",
+          "burning",
           "floatingitem",
           "leftclickaction",
           "rightclickaction",
@@ -631,7 +624,7 @@ public final class NPCCommand extends BaseTabExecutor {
         return switch (StringUtil.toLower(args[1])) {
           // true-false options
           case "lap", "lookatplayer", "ip", "imitateplayer", "ups", "useplayerskin",
-            "hn", "hideentityname", "fwe", "flyingwithelytra" -> TRUE_FALSE;
+            "fwe", "flyingwithelytra", "burning" -> TRUE_FALSE;
           // click action options
           case "lca", "leftclickaction", "rca", "rightclickaction" -> CLICK_ACTIONS;
           // color options

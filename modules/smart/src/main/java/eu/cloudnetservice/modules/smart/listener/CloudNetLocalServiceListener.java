@@ -21,7 +21,6 @@ import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -40,8 +39,7 @@ public final class CloudNetLocalServiceListener {
   @EventListener
   public void handle(@NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.PREPARED) {
-      var task = Node.instance().serviceTaskProvider()
-        .serviceTask(event.service().serviceId().taskName());
+      var task = this.module.driver().serviceTaskProvider().serviceTask(event.service().serviceId().taskName());
       // check if the service is associated with a task
       if (task == null) {
         return;
@@ -78,7 +76,7 @@ public final class CloudNetLocalServiceListener {
 
           // installs the templates balanced
           case INSTALL_BALANCED -> {
-            var services = Node.instance().cloudServiceProvider().servicesByTask(task.name());
+            var services = this.module.driver().cloudServiceProvider().servicesByTask(task.name());
             // find the least used template add register it as a service template
             task.templates().stream()
               .min(Comparator.comparingLong(template -> services.stream()

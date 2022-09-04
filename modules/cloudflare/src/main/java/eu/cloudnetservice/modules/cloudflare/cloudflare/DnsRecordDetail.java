@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.modules.cloudflare.cloudflare;
 
-import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.dns.DNSRecord;
+import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
+import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
 import lombok.NonNull;
 
 public record DnsRecordDetail(
   @NonNull String id,
-  @NonNull DNSRecord dnsRecord,
+  @NonNull DnsRecord dnsRecord,
   @NonNull CloudflareConfigurationEntry configurationEntry
 ) {
 

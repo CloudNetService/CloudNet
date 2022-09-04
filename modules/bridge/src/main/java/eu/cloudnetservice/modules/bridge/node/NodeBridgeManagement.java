@@ -29,6 +29,7 @@ import eu.cloudnetservice.modules.bridge.node.listener.NodeSetupListener;
 import eu.cloudnetservice.modules.bridge.node.network.NodeBridgeChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
+import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.util.Collections;
@@ -44,6 +45,7 @@ public class NodeBridgeManagement implements BridgeManagement {
 
   public NodeBridgeManagement(
     @NonNull CloudNetBridgeModule bridgeModule,
+    @NonNull Node node,
     @NonNull BridgeConfiguration configuration,
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry registry,
@@ -53,7 +55,13 @@ public class NodeBridgeManagement implements BridgeManagement {
     this.bridgeModule = bridgeModule;
     this.configuration = configuration;
     // init the player manager
-    this.playerManager = new NodePlayerManager(BRIDGE_PLAYER_DB_NAME, eventManager, registry, providerFactory, this);
+    this.playerManager = new NodePlayerManager(
+      BRIDGE_PLAYER_DB_NAME,
+      eventManager,
+      registry,
+      providerFactory,
+      node,
+      this);
     // register the listeners
     eventManager.registerListener(new NodeSetupListener(this));
     eventManager.registerListener(new NodeBridgeChannelMessageListener(this, eventManager));

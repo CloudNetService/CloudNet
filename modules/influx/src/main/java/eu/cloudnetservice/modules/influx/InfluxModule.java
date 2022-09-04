@@ -49,7 +49,7 @@ public final class InfluxModule extends DriverModule {
     this.driver().serviceRegistry().registerProvider(PublisherRegistry.class, "InfluxPublishers", reg);
     // register all default publishers
     reg
-      .registerPublisher(new ConnectedNodeInfoPublisher())
+      .registerPublisher(new ConnectedNodeInfoPublisher(Node.instance()))
       .registerPublisher(new RunningServiceProcessSnapshotPublisher());
     // start the emitting task
     reg.scheduleTask(conf.publishDelaySeconds() * TickLoop.TPS);

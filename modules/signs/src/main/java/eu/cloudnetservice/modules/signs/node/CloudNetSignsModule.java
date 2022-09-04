@@ -59,7 +59,7 @@ public final class CloudNetSignsModule extends DriverModule {
     var management = new NodeSignManagement(this.configuration, this.configPath(), this.database);
     management.registerToServiceRegistry();
 
-    Node.instance().commandProvider().register(new SignCommand(management));
+    Node.instance().commandProvider().register(new SignCommand(management, this.driver()));
     this.registerListener(new SharedChannelMessageListener(management), new NodeSignsListener(management));
     this.registerListener(new PluginIncludeListener(
       "cloudnet-signs",

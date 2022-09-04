@@ -35,9 +35,10 @@ public class DockerizedServiceFactory extends AbstractServiceFactory {
   public DockerizedServiceFactory(
     @NonNull EventManager eventManager,
     @NonNull DockerClient dockerClient,
-    @NonNull DockerConfiguration configuration
+    @NonNull DockerConfiguration configuration,
+    @NonNull Node node
   ) {
-    super(Node.instance());
+    super(node);
     this.eventManager = eventManager;
     this.dockerClient = dockerClient;
     this.configuration = configuration;

@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -46,6 +47,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -104,7 +106,7 @@ public abstract class BukkitPlatformSelectorEntity
         team = scoreboard.registerNewTeam(this.scoreboardTeamName);
       }
       // set the name tag visibility of the team
-      team.setNameTagVisibility(this.npc.hideEntityName() ? NameTagVisibility.NEVER : NameTagVisibility.ALWAYS);
+      team.setNameTagVisibility(NameTagVisibility.NEVER);
       // register the spawned entity to the team
       team.addEntry(this.scoreboardRepresentation());
       // check if the entity should have a glowing color
@@ -383,7 +385,10 @@ public abstract class BukkitPlatformSelectorEntity
     // create the inventory
     var inventory = this.inventory;
     if (inventory == null || inventory.getSize() != inventorySize) {
-      this.inventory = inventory = Bukkit.createInventory(null, inventorySize, this.npc.displayName());
+      this.inventory = inventory = Bukkit.createInventory(
+        null,
+        inventorySize,
+        Objects.requireNonNullElse(this.npc.inventoryName(), InventoryType.CHEST.getDefaultTitle()));
     }
     // remove all current contents
     inventory.clear();

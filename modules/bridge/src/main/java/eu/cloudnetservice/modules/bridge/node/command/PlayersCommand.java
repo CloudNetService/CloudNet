@@ -59,9 +59,9 @@ public class PlayersCommand {
   private final CloudServiceProvider cloudServiceProvider;
   private final NodePlayerManager playerManager;
 
-  public PlayersCommand(@NonNull NodePlayerManager playerManager) {
+  public PlayersCommand(@NonNull NodePlayerManager playerManager, @NonNull Node node) {
     this.playerManager = playerManager;
-    this.cloudServiceProvider = Node.instance().cloudServiceProvider();
+    this.cloudServiceProvider = node.cloudServiceProvider();
   }
 
   @Parser(suggestions = "onlinePlayers")

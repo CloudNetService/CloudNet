@@ -702,6 +702,42 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
      * {@inheritDoc}
      */
     @Override
+    public @NonNull Builder jvmOptions(@NonNull Collection<String> jvmOptions) {
+      this.processConfiguration.jvmOptions(jvmOptions);
+      return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NonNull Builder modifyJvmOptions(@NonNull Consumer<Collection<String>> modifier) {
+      this.processConfiguration.modifyJvmOptions(modifier);
+      return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NonNull Builder processParameters(@NonNull Collection<String> processParameters) {
+      this.processConfiguration.processParameters(processParameters);
+      return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NonNull Builder modifyProcessParameters(@NonNull Consumer<Collection<String>> modifier) {
+      this.processConfiguration.modifyProcessParameters(modifier);
+      return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected @NonNull Builder self() {
       return this;
     }
@@ -736,7 +772,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
         Set.copyOf(this.templates),
         Set.copyOf(this.deployments),
         Set.copyOf(this.includes),
-        this.properties);
+        this.properties.clone());
     }
   }
 }

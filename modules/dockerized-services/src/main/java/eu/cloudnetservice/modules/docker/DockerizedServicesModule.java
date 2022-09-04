@@ -76,7 +76,8 @@ public class DockerizedServicesModule extends DriverModule {
       new DockerizedServiceFactory(
         this.eventManager(),
         dockerClient,
-        this.configuration));
+        this.configuration,
+        Node.instance()));
   }
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)

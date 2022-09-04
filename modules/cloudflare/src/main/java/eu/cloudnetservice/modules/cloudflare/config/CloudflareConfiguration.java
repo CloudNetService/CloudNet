@@ -14,26 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.dns;
+package eu.cloudnetservice.modules.cloudflare.config;
 
-public enum DNSType {
+import java.util.Collection;
+import lombok.NonNull;
 
-  A,
-  AAAA,
-  HTTPS,
-  TXT,
-  SRV,
-  LOC,
-  MX,
-  NS,
-  SPF,
-  CERT,
-  DNSKEY,
-  DS,
-  NAPTR,
-  SMIMEA,
-  SSHFP,
-  SVCB,
-  TLSA,
-  URI
+public record CloudflareConfiguration(@NonNull Collection<CloudflareConfigurationEntry> entries) {
+
 }
