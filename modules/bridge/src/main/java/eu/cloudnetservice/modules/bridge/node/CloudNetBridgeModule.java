@@ -179,7 +179,8 @@ public final class CloudNetBridgeModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void registerCommand() {
     // register the bridge command
-    Node.instance().commandProvider().register(new BridgeCommand(ServiceRegistry.first(BridgeManagement.class)));
+    Node.instance().commandProvider()
+      .register(new BridgeCommand(ServiceRegistry.first(BridgeManagement.class), Node.instance()));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

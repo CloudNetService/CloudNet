@@ -82,7 +82,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   @ModuleTask(order = 60, event = ModuleLifeCycle.LOADED)
   public void registerCommands() {
     // register the syncproxy command to provide config management
-    Node.instance().commandProvider().register(new SyncProxyCommand(this.nodeSyncProxyManagement));
+    Node.instance().commandProvider().register(new SyncProxyCommand(this.nodeSyncProxyManagement, Node.instance()));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

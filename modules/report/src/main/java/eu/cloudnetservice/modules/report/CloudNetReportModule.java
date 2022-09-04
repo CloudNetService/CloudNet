@@ -64,7 +64,7 @@ public final class CloudNetReportModule extends DriverModule {
       .registerEmitter(new HeapDumpDataEmitter())
       .registerEmitter(new LocalNodeConfigDataEmitter(Node.instance()))
       // specific class emitters
-      .registerSpecificEmitter(NodeServer.class, new NodeServerDataEmitter())
+      .registerSpecificEmitter(NodeServer.class, new NodeServerDataEmitter(Node.instance()))
       .registerSpecificEmitter(ModuleWrapper.class, new LocalModuleDataEmitter())
       .registerSpecificEmitter(ServiceTask.class, new ServiceTasksDataEmitter())
       .registerSpecificEmitter(GroupConfiguration.class, new GroupConfigDataEmitter())
