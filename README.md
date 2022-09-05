@@ -5,8 +5,6 @@
 ![Build](https://github.com/CloudNetService/CloudNet-v3/actions/workflows/gradle.yml/badge.svg)
 ![Release](https://img.shields.io/maven-central/v/eu.cloudnetservice.cloudnet/driver?label=release&logo=gradle)
 
-#### The modern Minecraft service management software; easy to use, distribute, scale and extend.
-
 ## Adding CloudNet to your build
 
 CloudNet is using the `eu.cloudnetservice.cloudnet` group id and is available through maven central. The most important
@@ -20,7 +18,7 @@ submodules are:
 | bridge      | When trying to catch player events and/or interacting with players regardless where they are on the network. |
 | bom         | When you want to import all dependencies with the same version based on the imported bill of materials.      |
 
-To add the CloudNet dependency using gradle:
+To add the CloudNet dependency using gradle (replace `%version%` with the latest version shown in the badge above):
 
 ```groovy
 repositories {
@@ -30,15 +28,15 @@ repositories {
 
 dependencies {
   // optional - you can also specify versions directly
-  implementation platform('eu.cloudnetservice.cloudnet:bom:4.0.0')
+  implementation platform('eu.cloudnetservice.cloudnet:bom:%version%')
   compileOnly 'eu.cloudnetservice.cloudnet:driver'
 
   // without bom
-  compileOnly 'eu.cloudnetservice.cloudnet:driver:4.0.0'
+  compileOnly 'eu.cloudnetservice.cloudnet:driver:%version%'
 }
 ```
 
-To add the CloudNet dependency using maven:
+To add the CloudNet dependency using maven (replace `%version%` with the latest version shown in the badge above):
 
 ```xml
 <!-- optional - you can also specify versions directly -->
@@ -47,7 +45,7 @@ To add the CloudNet dependency using maven:
     <dependency>
       <groupId>eu.cloudnetservice.cloudnet</groupId>
       <artifactId>bom</artifactId>
-      <version>4.0.0</version>
+      <version>%version%</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -58,7 +56,7 @@ To add the CloudNet dependency using maven:
   <dependency>
     <groupId>eu.cloudnetservice.cloudnet</groupId>
     <artifactId>driver</artifactId>
-    <version>4.0.0</version> <!-- only needed when bom is not used -->
+    <version>%version%</version> <!-- only needed when bom is not used -->
     <scope>provided</scope>
   </dependency>
 </dependencies>
