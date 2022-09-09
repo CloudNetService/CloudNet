@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.netty.http;
 
+import com.google.common.primitives.Ints;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponse;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
@@ -90,7 +91,8 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
    */
   @Override
   public @Nullable String header(@NonNull String name) {
-    return this.httpResponse.headers().getAsString(name);
+    var headerValue = this.httpResponse.headers().get(name);
+    return headerValue == null ? null : headerValue.toString();
   }
 
   /**
@@ -98,7 +100,8 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
    */
   @Override
   public @Nullable Integer headerAsInt(@NonNull String name) {
-    return this.httpResponse.headers().getInt(name);
+    var headerValue = this.header(name);
+    return headerValue == null ? null : Ints.tryParse(headerValue);
   }
 
   /**
@@ -106,7 +109,8 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
    */
   @Override
   public boolean headerAsBoolean(@NonNull String name) {
-    return Boolean.parseBoolean(this.httpResponse.headers().get(name));
+    var headerValue = this.header(name);
+    return Boolean.parseBoolean(headerValue);
   }
 
   /**
@@ -149,12 +153,16 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
    */
   @Override
   public @NonNull Map<String, String> headers() {
-    Map<String, String> headers = new HashMap<>(this.httpResponse.headers().size());
-    for (var key : this.httpResponse.headers().names()) {
-      headers.put(key, this.httpResponse.headers().get(key));
+    // init the target map to copy all headers into - that target map is immune to later resizes
+    var headers = this.httpResponse.headers();
+    Map<String, String> headerMap = new HashMap<>(headers.size() + 1, 1f);
+
+    // copy over all headers
+    for (var entry : headers) {
+      headerMap.put(entry.getKey().toString(), entry.getValue().toString());
     }
 
-    return headers;
+    return headerMap;
   }
 
   /**
