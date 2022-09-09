@@ -21,6 +21,9 @@
 .gradle/
 build/
 
+# fleet
+.fleet/
+
 # eclipse
 *.classpath
 *.project
