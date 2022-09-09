@@ -22,9 +22,8 @@ import eu.cloudnetservice.common.function.ThrowableConsumer;
 import eu.cloudnetservice.driver.network.NetworkTestCase;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketFrameType;
 import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
-import io.netty5.handler.codec.http.cookie.ClientCookieDecoder;
-import io.netty5.handler.codec.http.cookie.ClientCookieEncoder;
-import io.netty5.handler.codec.http.cookie.DefaultCookie;
+import io.netty5.handler.codec.http.headers.DefaultHttpCookiePair;
+import io.netty5.handler.codec.http.headers.DefaultHttpSetCookie;
 import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -305,12 +304,12 @@ public class NettyHttpServerTest extends NetworkTestCase {
     Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     var connection = connectTo(port, "test", urlConnection -> {
-      var cookie = new DefaultCookie("request_cookie", "request_value");
-      urlConnection.setRequestProperty("Cookie", ClientCookieEncoder.LAX.encode(cookie));
+      var cookie = new DefaultHttpCookiePair("request_cookie", "request_value");
+      urlConnection.setRequestProperty("Cookie", cookie.encoded().toString());
     });
     Assertions.assertEquals(200, connection.getResponseCode());
 
-    var cookie = ClientCookieDecoder.LAX.decode(connection.getHeaderField("Set-Cookie"));
+    var cookie = DefaultHttpSetCookie.parseSetCookie(connection.getHeaderField("Set-Cookie"), true);
 
     Assertions.assertEquals("response_cookie", cookie.name());
     Assertions.assertEquals("response_value", cookie.value());
@@ -319,7 +318,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
     Assertions.assertTrue(cookie.isSecure());
     Assertions.assertFalse(cookie.isHttpOnly());
-    Assertions.assertTrue(cookie.wrap());
+    Assertions.assertTrue(cookie.isWrapped());
 
     Assertions.assertEquals(60_000, cookie.maxAge());
   }

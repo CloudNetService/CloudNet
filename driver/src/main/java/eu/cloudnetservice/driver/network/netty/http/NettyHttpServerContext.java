@@ -32,15 +32,12 @@ import io.netty5.buffer.api.DefaultBufferAllocators;
 import io.netty5.channel.Channel;
 import io.netty5.handler.codec.http.DefaultFullHttpResponse;
 import io.netty5.handler.codec.http.HttpResponseStatus;
-import io.netty5.handler.codec.http.cookie.DefaultCookie;
-import io.netty5.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty5.handler.codec.http.cookie.ServerCookieEncoder;
+import io.netty5.handler.codec.http.headers.DefaultHttpSetCookie;
 import io.netty5.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,21 +93,20 @@ final class NettyHttpServerContext implements HttpContext {
     this.httpServerRequest = new NettyHttpServerRequest(this, httpRequest, pathParameters, uri);
     this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
 
-    if (this.httpRequest.headers().contains("Cookie")) {
-      this.cookies.addAll(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")).stream()
-        .map(cookie -> new HttpCookie(
-          cookie.name(),
-          cookie.value(),
-          cookie.domain(),
-          cookie.path(),
-          cookie.isHttpOnly(),
-          cookie.isSecure(),
-          cookie.wrap(),
-          cookie.maxAge()
-        )).toList());
+    var cookiesIterator = this.httpRequest.headers().getCookiesIterator();
+    while (cookiesIterator.hasNext()) {
+      var cookie = cookiesIterator.next();
+      var httpCookie = new HttpCookie(
+        cookie.name().toString(),
+        cookie.value().toString(),
+        null,
+        null,
+        false,
+        false,
+        cookie.isWrapped(),
+        0);
+      this.cookies.add(httpCookie);
     }
-
-    this.updateHeaderResponse();
   }
 
   /**
@@ -284,10 +280,7 @@ final class NettyHttpServerContext implements HttpContext {
    */
   @Override
   public @NonNull HttpContext cookies(@NonNull Collection<HttpCookie> cookies) {
-    this.cookies.clear();
-    this.cookies.addAll(cookies);
-
-    this.updateHeaderResponse();
+    cookies.forEach(this::addCookie);
     return this;
   }
 
@@ -296,14 +289,18 @@ final class NettyHttpServerContext implements HttpContext {
    */
   @Override
   public @NonNull HttpContext addCookie(@NonNull HttpCookie httpCookie) {
-    var cookie = this.cookie(httpCookie.name());
-    if (cookie != null) {
-      this.removeCookie(cookie.name());
-    }
-
-    this.cookies.add(httpCookie);
-    this.updateHeaderResponse();
-
+    var cookie = new DefaultHttpSetCookie(
+      httpCookie.name(),
+      httpCookie.value(),
+      httpCookie.path(),
+      httpCookie.domain(),
+      null,
+      httpCookie.maxAge(),
+      null,
+      httpCookie.wrap(),
+      httpCookie.secure(),
+      httpCookie.httpOnly());
+    this.httpServerResponse.httpResponse.headers().addSetCookie(cookie);
     return this;
   }
 
@@ -312,8 +309,7 @@ final class NettyHttpServerContext implements HttpContext {
    */
   @Override
   public @NonNull HttpContext removeCookie(@NonNull String name) {
-    this.cookies.removeIf(cookie -> cookie.name().equals(name));
-    this.updateHeaderResponse();
+    this.httpServerResponse.httpResponse.headers().removeSetCookies(name);
     return this;
   }
 
@@ -322,8 +318,10 @@ final class NettyHttpServerContext implements HttpContext {
    */
   @Override
   public @NonNull HttpContext clearCookies() {
-    this.cookies.clear();
-    this.updateHeaderResponse();
+    var cookieIterator = this.httpServerResponse.httpResponse.headers().getSetCookiesIterator();
+    while (cookieIterator.hasNext()) {
+      cookieIterator.remove();
+    }
     return this;
   }
 
@@ -380,27 +378,5 @@ final class NettyHttpServerContext implements HttpContext {
    */
   public void pushChain(@NonNull HttpHandler lastHandler) {
     this.lastHandler = lastHandler;
-  }
-
-  /**
-   * Updates the response header according to the new cookies set during the request.
-   */
-  private void updateHeaderResponse() {
-    if (this.cookies.isEmpty()) {
-      this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
-    } else {
-      this.httpServerResponse.httpResponse.headers().set("Set-Cookie",
-        ServerCookieEncoder.LAX.encode(this.cookies.stream().map(httpCookie -> {
-          var cookie = new DefaultCookie(httpCookie.name(), httpCookie.value());
-          cookie.setDomain(httpCookie.domain());
-          cookie.setMaxAge(httpCookie.maxAge());
-          cookie.setPath(httpCookie.path());
-          cookie.setSecure(httpCookie.secure());
-          cookie.setHttpOnly(httpCookie.httpOnly());
-          cookie.setWrap(httpCookie.wrap());
-
-          return cookie;
-        }).collect(Collectors.toList())));
-    }
   }
 }
