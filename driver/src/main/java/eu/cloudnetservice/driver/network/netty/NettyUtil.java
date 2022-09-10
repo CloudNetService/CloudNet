@@ -20,7 +20,7 @@ import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.network.exception.SilentDecoderException;
 import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
-import io.netty5.buffer.api.Buffer;
+import io.netty5.buffer.Buffer;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFactory;
 import io.netty5.channel.EventLoopGroup;

@@ -28,7 +28,7 @@ import eu.cloudnetservice.driver.network.http.HttpRequest;
 import eu.cloudnetservice.driver.network.http.HttpResponse;
 import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketChannel;
-import io.netty5.buffer.api.DefaultBufferAllocators;
+import io.netty5.buffer.DefaultBufferAllocators;
 import io.netty5.channel.Channel;
 import io.netty5.handler.codec.http.DefaultFullHttpResponse;
 import io.netty5.handler.codec.http.HttpResponseStatus;
