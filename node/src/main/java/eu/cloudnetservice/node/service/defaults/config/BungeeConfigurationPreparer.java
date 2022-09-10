@@ -42,7 +42,7 @@ public class BungeeConfigurationPreparer extends AbstractServiceConfigurationPre
           "No listeners configured in bungee config - please fix your configuration!");
 
         // edit the listener and re-set the config entry
-        firstListener.valueMap().put("host", String.format(
+        firstListener.set("host", String.format(
           "%s:%d",
           cloudService.serviceConfiguration().hostAddress(),
           cloudService.serviceConfiguration().port()));
