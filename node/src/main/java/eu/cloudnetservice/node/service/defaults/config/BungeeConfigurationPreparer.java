@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.node.service.defaults.config;
 
+import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.yaml.YamlFormat;
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.service.CloudService;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import lombok.NonNull;
 
@@ -33,16 +33,16 @@ public class BungeeConfigurationPreparer extends AbstractServiceConfigurationPre
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       var configFile = cloudService.directory().resolve("config.yml");
       try (var config = this.loadConfig(configFile, YamlFormat.defaultInstance(), "files/bungee/config.yml")) {
-        List<Map<String, Object>> listeners = config.get("listeners");
+        List<Config> listeners = config.get("listeners");
         // get the first registered listeners - editing all of them will result in bungee start failures
         // but removing other entries might break setups...
-        Map<String, Object> firstListener = Iterables.getFirst(listeners, null);
+        Config firstListener = Iterables.getFirst(listeners, null);
         Objects.requireNonNull(
           firstListener,
           "No listeners configured in bungee config - please fix your configuration!");
 
         // edit the listener and re-set the config entry
-        firstListener.put("host", String.format(
+        firstListener.valueMap().put("host", String.format(
           "%s:%d",
           cloudService.serviceConfiguration().hostAddress(),
           cloudService.serviceConfiguration().port()));
