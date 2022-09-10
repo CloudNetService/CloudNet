@@ -89,7 +89,16 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
   }
 
   extensions.configure<SigningExtension> {
-    useGpgCmd()
+    val signingPrivateKey = System.getenv("SIGNING_KEY")
+    val signingPrivateKeyPassword = System.getenv("SIGNING_KEY_PASSWORD")
+
+    // can only use the in-memory provider if both values are present (running on ci)
+    if (signingPrivateKey != null && signingPrivateKeyPassword != null) {
+      useInMemoryPgpKeys(signingPrivateKey, signingPrivateKeyPassword)
+    } else {
+      useGpgCmd()
+    }
+
     sign(extensions.getByType(PublishingExtension::class.java).publications.getByName("maven"))
   }
 
