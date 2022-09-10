@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.network.netty.codec;
 
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
-import io.netty5.buffer.api.DefaultBufferAllocators;
+import io.netty5.buffer.DefaultBufferAllocators;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
