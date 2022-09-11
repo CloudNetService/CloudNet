@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.InetSocketAddress;
@@ -26,7 +26,6 @@ import lombok.NonNull;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 
 public final class BungeeCordHelper {
@@ -87,7 +86,7 @@ public final class BungeeCordHelper {
   }
 
   public static @NonNull BaseComponent[] translateToComponent(@NonNull String input) {
-    return TextComponent.fromLegacyText(AdventureSerializerUtil.serializeToString(input));
+    return ComponentFormats.ADVENTURE_TO_BUNGEE.convert(input);
   }
 
   private static @NonNull ServerInfo constructServerInfo(@NonNull ServiceInfoSnapshot snapshot) {

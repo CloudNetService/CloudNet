@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.bridge.platform.velocity.commands;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.List;
 import lombok.NonNull;
@@ -39,7 +39,7 @@ public final class VelocityHubCommand implements SimpleCommand {
     if (invocation.source() instanceof Player player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(AdventureSerializerUtil.serialize(this.management.configuration().message(
+        player.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
           player.getEffectiveLocale(),
           "command-hub-already-in-hub")));
       } else {
@@ -52,13 +52,13 @@ public final class VelocityHubCommand implements SimpleCommand {
           player.createConnectionRequest(hub).connectWithIndication().whenComplete((result, ex) -> {
             // check if the connection was successful
             if (result && ex == null) {
-              player.sendMessage(AdventureSerializerUtil.serialize(this.management.configuration().message(
+              player.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
                 player.getEffectiveLocale(),
                 "command-hub-success-connect"
               ).replace("%server%", hub.getServerInfo().getName())));
             } else {
               // the connection was not successful
-              player.sendMessage(AdventureSerializerUtil.serialize(this.management.configuration().message(
+              player.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
                 player.getEffectiveLocale(),
                 "command-hub-no-server-found")));
             }

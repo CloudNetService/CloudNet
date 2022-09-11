@@ -16,11 +16,10 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 
-import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
-
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;
 import java.util.UUID;
@@ -67,20 +66,20 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
       player.getTabList().clearHeaderAndFooter();
     } else {
       player.sendPlayerListHeaderAndFooter(
-        serialize(this.replaceTabPlaceholder(header, player)),
-        serialize(this.replaceTabPlaceholder(footer, player)));
+        ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.replaceTabPlaceholder(header, player)),
+        ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.replaceTabPlaceholder(footer, player)));
     }
   }
 
   @Override
   public void disconnectPlayer(@NonNull Player player, @NonNull String message) {
-    player.disconnect(serialize(message));
+    player.disconnect(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message));
   }
 
   @Override
   public void messagePlayer(@NonNull Player player, @Nullable String message) {
     if (message != null) {
-      player.sendMessage(serialize(message));
+      player.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message));
     }
   }
 

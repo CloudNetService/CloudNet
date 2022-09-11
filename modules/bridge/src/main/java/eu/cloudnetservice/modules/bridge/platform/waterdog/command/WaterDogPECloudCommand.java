@@ -16,13 +16,12 @@
 
 package eu.cloudnetservice.modules.bridge.platform.waterdog.command;
 
-import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serializeToString;
-
 import dev.waterdog.waterdogpe.command.Command;
 import dev.waterdog.waterdogpe.command.CommandSender;
 import dev.waterdog.waterdogpe.command.CommandSettings;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.Locale;
 import lombok.NonNull;
@@ -45,7 +44,8 @@ public final class WaterDogPECloudCommand extends Command {
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
-      sender.sendMessage(serializeToString(this.management.configuration().prefix() + "/cloudnet <command>"));
+      sender.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(
+        this.management.configuration().prefix() + "/cloudnet <command>"));
       return true;
     }
     // get the full command line
@@ -57,7 +57,7 @@ public final class WaterDogPECloudCommand extends Command {
         // check if the player has the required permission
         if (info == null || !sender.hasPermission(info.permission())) {
           // no permission
-          sender.sendMessage(serializeToString(this.management.configuration().message(
+          sender.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(this.management.configuration().message(
             Locale.ENGLISH,
             "command-cloud-sub-command-no-permission"
           ).replace("%command%", args[0])));
@@ -75,7 +75,8 @@ public final class WaterDogPECloudCommand extends Command {
 
   private void executeNow(@NonNull CommandSender sender, @NonNull String commandLine) {
     for (var output : CloudNetDriver.instance().clusterNodeProvider().sendCommandLine(commandLine)) {
-      sender.sendMessage(serializeToString(this.management.configuration().prefix() + output));
+      sender.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(
+        this.management.configuration().prefix() + output));
     }
   }
 }

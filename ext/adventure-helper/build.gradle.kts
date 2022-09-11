@@ -17,6 +17,7 @@
 dependencies {
   "compileOnly"(libs.adventureApi)
   "compileOnly"(libs.adventureSerializerLegacy)
+  "compileOnly"(libs.bungeecordChat)
 }
 
 configurations {

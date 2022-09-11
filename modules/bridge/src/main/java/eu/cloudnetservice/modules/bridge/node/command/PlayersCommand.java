@@ -28,7 +28,7 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
@@ -211,7 +211,9 @@ public class PlayersCommand {
     @Nullable @Greedy @Argument("reason") String reason,
     @Flag("force") boolean force
   ) {
-    var reasonComponent = reason == null ? Component.empty() : AdventureSerializerUtil.serialize(reason);
+    var reasonComponent = reason == null
+      ? Component.empty()
+      : ComponentFormats.BUNGEE_TO_ADVENTURE.convert(reason);
     player.playerExecutor().kick(reasonComponent);
 
     source.sendMessage(I18n.trans("module-bridge-command-players-kick-player",
@@ -232,7 +234,7 @@ public class PlayersCommand {
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Greedy @Argument("message") String message
   ) {
-    player.playerExecutor().sendChatMessage(AdventureSerializerUtil.serialize(message));
+    player.playerExecutor().sendChatMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message));
     source.sendMessage(
       I18n.trans("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
   }

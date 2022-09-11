@@ -166,6 +166,7 @@ npcLib = { group = "com.github.juliarn.NPC-Lib", name = "bukkit", version.ref = 
 npcLibLabymod = { group = "com.github.juliarn.NPC-Lib", name = "labymod", version.ref = "npcLib" }
 modLauncher = { group = "cpw.mods", name = "modlauncher", version.ref = "modlauncher" }
 placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApi" }
+bungeecordChat = { group = "net.md-5", name = "bungeecord-chat", version.ref = "bungeecord" }
 
 # fabric platform special dependencies
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
