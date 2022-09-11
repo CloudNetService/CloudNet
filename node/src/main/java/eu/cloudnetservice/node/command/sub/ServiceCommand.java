@@ -249,7 +249,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod(value = "service|ser <name> toggle", requiredSender = ConsoleCommandSource.class)
+  @CommandMethod(value = "service|ser <name> screen|toggle", requiredSender = ConsoleCommandSource.class)
   public void toggleScreens(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
