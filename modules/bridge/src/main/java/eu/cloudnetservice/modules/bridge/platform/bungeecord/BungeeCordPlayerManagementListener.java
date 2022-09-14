@@ -120,7 +120,13 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     if (event.getPlayer().isConnected()) {
       ServerInfo target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
         .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
-        .orElse(null);
+        .orElseGet(() -> {
+          if (event.getState() == ServerKickEvent.State.CONNECTING && event.getPlayer().getServer() != null) {
+            return event.getPlayer().getServer().getInfo();
+          }
+          return null;
+        });
+
       // check if the server is present
       if (target != null) {
         event.setCancelled(true);

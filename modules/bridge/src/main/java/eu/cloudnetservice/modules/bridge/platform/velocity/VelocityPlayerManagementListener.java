@@ -26,7 +26,6 @@ import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.ServerConnection;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
@@ -97,23 +96,24 @@ public final class VelocityPlayerManagementListener {
   public void handleServerKick(@NonNull KickedFromServerEvent event) {
     // check if the player is still active
     if (event.getPlayer().isActive()) {
-      event.setResult(this.management.fallback(event.getPlayer(), event.getServer().getServerInfo().getName())
-        .flatMap(service -> this.proxyServer.getServer(service.name()))
-        .map(server -> {
-          // only notify the player if the fallback is the server the player is connected to
-          var curServer = event.getPlayer().getCurrentServer().map(ServerConnection::getServerInfo).orElse(null);
-          if (event.kickedDuringServerConnect() && curServer != null && curServer.equals(server.getServerInfo())) {
-            // send the player a nice message - velocity will keep the connection to the current server
-            return KickedFromServerEvent.Notify.create(this.extractReasonComponent(event));
-          } else {
+      var curServer = event.getPlayer().getCurrentServer().orElse(null);
+
+      // only notify the player if the player was kicked on login and is already connected to a server
+      if (curServer != null && event.kickedDuringServerConnect()) {
+        // send the player a nice message - velocity will keep the connection to the current server
+        event.setResult(KickedFromServerEvent.Notify.create(this.extractReasonComponent(event)));
+      } else {
+        event.setResult(this.management.fallback(event.getPlayer(), event.getServer().getServerInfo().getName())
+          .flatMap(service -> this.proxyServer.getServer(service.name()))
+          .<KickedFromServerEvent.ServerKickResult>map(server -> {
             // redirect the player to the next available hub server
             return KickedFromServerEvent.RedirectPlayer.create(server, this.extractReasonComponent(event));
-          }
-        })
-        .orElse(KickedFromServerEvent.DisconnectPlayer.create(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-          this.management.configuration().message(
-            event.getPlayer().getEffectiveLocale(),
-            "proxy-join-disconnect-because-no-hub")))));
+          })
+          .orElse(KickedFromServerEvent.DisconnectPlayer.create(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
+            this.management.configuration().message(
+              event.getPlayer().getEffectiveLocale(),
+              "proxy-join-disconnect-because-no-hub")))));
+      }
     }
   }
 
