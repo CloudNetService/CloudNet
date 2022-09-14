@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.signs.platform.sponge;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -41,7 +41,7 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
   private ServerLocation signLocation;
 
   public SpongePlatformSign(@NonNull Sign base) {
-    super(base, AdventureSerializerUtil::serialize);
+    super(base, ComponentFormats.BUNGEE_TO_ADVENTURE::convert);
   }
 
   @Override

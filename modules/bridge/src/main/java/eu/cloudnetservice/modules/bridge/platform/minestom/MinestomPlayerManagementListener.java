@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.minestom;
 
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -59,7 +59,7 @@ public final class MinestomPlayerManagementListener {
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-        player.kick(AdventureSerializerUtil.serialize(this.management.configuration().message(
+        player.kick(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
           player.getLocale(),
           "server-join-cancel-because-maintenance")));
         return;
@@ -67,7 +67,7 @@ public final class MinestomPlayerManagementListener {
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
-        player.kick(AdventureSerializerUtil.serialize(this.management.configuration().message(
+        player.kick(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
           player.getLocale(),
           "server-join-cancel-because-permission")));
       }

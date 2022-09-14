@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.event.BridgeDeleteCloudOfflinePlayerEvent;
 import eu.cloudnetservice.modules.bridge.event.BridgeProxyPlayerDisconnectEvent;
@@ -70,7 +70,7 @@ public final class NodePlayerChannelMessageListener {
           var preLoginEvent = new LocalPlayerPreLoginEvent(info);
           // set the event cancelled by default if the player is already connected
           if (this.playerManager.onlinePlayer(info.uniqueId()) != null) {
-            preLoginEvent.result(LocalPlayerPreLoginEvent.Result.denied(AdventureSerializerUtil.serialize(
+            preLoginEvent.result(LocalPlayerPreLoginEvent.Result.denied(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
               this.bridgeManagement.configuration().message(
                 Locale.ENGLISH,
                 "already-connected"))));

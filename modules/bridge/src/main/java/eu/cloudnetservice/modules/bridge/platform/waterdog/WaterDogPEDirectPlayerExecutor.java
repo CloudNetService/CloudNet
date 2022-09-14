@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.waterdog;
 
-import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serializeToString;
+import static eu.cloudnetservice.ext.component.ComponentFormats.ADVENTURE_TO_BUNGEE;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
 import dev.waterdog.waterdogpe.ProxyServer;
@@ -97,14 +97,14 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void kick(@NonNull Component message) {
-    this.forEach(player -> player.disconnect(serializeToString(legacySection().serialize(message))));
+    this.forEach(player -> player.disconnect(ADVENTURE_TO_BUNGEE.convertText(legacySection().serialize(message))));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
-        player.sendMessage(serializeToString(legacySection().serialize(message)));
+        player.sendMessage(ADVENTURE_TO_BUNGEE.convertText(legacySection().serialize(message)));
       }
     });
   }

@@ -18,8 +18,8 @@ package eu.cloudnetservice.plugins.simplenametags.minestom;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;
@@ -73,8 +73,8 @@ final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> 
       .findFirst()
       .orElseGet(() -> MinecraftServer.getTeamManager().createBuilder(name).build());
     // set the default team attributes
-    team.setPrefix(AdventureSerializerUtil.serialize(group.prefix()));
-    team.setSuffix(AdventureSerializerUtil.serialize(group.suffix()));
+    team.setPrefix(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(group.prefix()));
+    team.setSuffix(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(group.suffix()));
     // set the team color if possible
     var teamColor = AdventureTextFormatLookup.findColor(this.getColorChar(group));
     if (teamColor != null) {

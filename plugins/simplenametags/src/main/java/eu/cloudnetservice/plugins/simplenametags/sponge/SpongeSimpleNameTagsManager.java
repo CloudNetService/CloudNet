@@ -17,8 +17,8 @@
 package eu.cloudnetservice.plugins.simplenametags.sponge;
 
 import eu.cloudnetservice.driver.permission.PermissionGroup;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;
@@ -50,7 +50,7 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
 
   @Override
   public void displayName(@NonNull ServerPlayer player, @NonNull String displayName) {
-    player.displayName().set(AdventureSerializerUtil.serialize(displayName));
+    player.displayName().set(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(displayName));
   }
 
   @Override
@@ -74,8 +74,8 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
       return newTeam;
     });
     // set the default team attributes
-    team.setPrefix(AdventureSerializerUtil.serialize(group.prefix()));
-    team.setSuffix(AdventureSerializerUtil.serialize(group.suffix()));
+    team.setPrefix(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(group.prefix()));
+    team.setSuffix(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(group.suffix()));
     // set the team color if possible
     var teamColor = AdventureTextFormatLookup.findColor(this.getColorChar(group));
     if (teamColor != null) {
