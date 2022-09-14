@@ -43,7 +43,6 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
-import org.jetbrains.annotations.NotNull;
 
 public final class BungeeCordPlayerManagementListener implements Listener {
 
@@ -122,7 +121,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       if (event.getState() == ServerKickEvent.State.CONNECTING && event.getPlayer().getServer() != null) {
         event.setCancelServer(event.getPlayer().getServer().getInfo());
         event.setCancelled(true);
-        sendKickMessage(event);
+        this.sendKickMessage(event);
         return;
       }
       ServerInfo target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
@@ -133,7 +132,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       if (target != null) {
         event.setCancelled(true);
         event.setCancelServer(target);
-        sendKickMessage(event);
+        this.sendKickMessage(event);
       } else {
         // no lobby server - the player will disconnect
         event.setCancelled(false);
@@ -145,7 +144,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     }
   }
 
-  private void sendKickMessage(@NotNull ServerKickEvent event) {
+  private void sendKickMessage(@NonNull ServerKickEvent event) {
     // extract the reason for the disconnect and wrap it
     Locale playerLocale = event.getPlayer().getLocale();
     var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
