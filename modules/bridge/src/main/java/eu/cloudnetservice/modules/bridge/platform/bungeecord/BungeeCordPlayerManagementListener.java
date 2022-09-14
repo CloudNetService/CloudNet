@@ -43,6 +43,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
+import org.jetbrains.annotations.NotNull;
 
 public final class BungeeCordPlayerManagementListener implements Listener {
 
@@ -118,26 +119,21 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   @EventHandler(priority = EventPriority.LOWEST)
   public void handle(@NonNull ServerKickEvent event) {
     if (event.getPlayer().isConnected()) {
+      if (event.getState() == ServerKickEvent.State.CONNECTING && event.getPlayer().getServer() != null) {
+        event.setCancelServer(event.getPlayer().getServer().getInfo());
+        event.setCancelled(true);
+        sendKickMessage(event);
+        return;
+      }
       ServerInfo target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
         .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
-        .orElseGet(() -> {
-          if (event.getState() == ServerKickEvent.State.CONNECTING && event.getPlayer().getServer() != null) {
-            return event.getPlayer().getServer().getInfo();
-          }
-          return null;
-        });
+        .orElse(null);
 
       // check if the server is present
       if (target != null) {
         event.setCancelled(true);
         event.setCancelServer(target);
-        // extract the reason for the disconnect and wrap it
-        Locale playerLocale = event.getPlayer().getLocale();
-        var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
-          .replace("%server%", event.getKickedFrom().getName())
-          .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()));
-        // send the player the reason for the disconnect
-        event.getPlayer().sendMessage(translateToComponent(baseMessage));
+        sendKickMessage(event);
       } else {
         // no lobby server - the player will disconnect
         event.setCancelled(false);
@@ -147,6 +143,16 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           "proxy-join-disconnect-because-no-hub")));
       }
     }
+  }
+
+  private void sendKickMessage(@NotNull ServerKickEvent event) {
+    // extract the reason for the disconnect and wrap it
+    Locale playerLocale = event.getPlayer().getLocale();
+    var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
+      .replace("%server%", event.getKickedFrom().getName())
+      .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()));
+    // send the player the reason for the disconnect
+    event.getPlayer().sendMessage(translateToComponent(baseMessage));
   }
 
   @EventHandler
