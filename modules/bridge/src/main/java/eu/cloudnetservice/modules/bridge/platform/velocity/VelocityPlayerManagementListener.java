@@ -104,6 +104,8 @@ public final class VelocityPlayerManagementListener {
           var curServer = event.getPlayer().getCurrentServer().map(ServerConnection::getServerInfo).orElse(null);
           if (event.kickedDuringServerConnect() && curServer != null && curServer.equals(server.getServerInfo())) {
             // send the player a nice message - velocity will keep the connection to the current server
+            // therefore we need to reset the fallback profile as no ServerPostConnectEvent will be called
+            this.management.handleFallbackConnectionSuccess(event.getPlayer());
             return KickedFromServerEvent.Notify.create(this.extractReasonComponent(event));
           } else {
             // redirect the player to the next available hub server
