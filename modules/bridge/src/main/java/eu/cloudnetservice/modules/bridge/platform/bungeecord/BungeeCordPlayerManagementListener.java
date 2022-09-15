@@ -118,12 +118,16 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   @EventHandler(priority = EventPriority.LOWEST)
   public void handle(@NonNull ServerKickEvent event) {
     if (event.getPlayer().isConnected()) {
-      if (event.getState() == ServerKickEvent.State.CONNECTING && event.getPlayer().getServer() != null) {
-        event.setCancelServer(event.getPlayer().getServer().getInfo());
+      // only notify the player if the player was kicked on login and is already connected to a server
+      var curServer = event.getPlayer().getServer();
+
+      if (event.getState() == ServerKickEvent.State.CONNECTING && curServer != null) {
+        event.setCancelServer(curServer.getInfo());
         event.setCancelled(true);
         this.sendKickMessage(event);
         return;
       }
+
       ServerInfo target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
         .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
         .orElse(null);
@@ -146,7 +150,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
 
   private void sendKickMessage(@NonNull ServerKickEvent event) {
     // extract the reason for the disconnect and wrap it
-    Locale playerLocale = event.getPlayer().getLocale();
+    var playerLocale = event.getPlayer().getLocale();
     var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
       .replace("%server%", event.getKickedFrom().getName())
       .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()));

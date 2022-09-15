@@ -96,9 +96,9 @@ public final class VelocityPlayerManagementListener {
   public void handleServerKick(@NonNull KickedFromServerEvent event) {
     // check if the player is still active
     if (event.getPlayer().isActive()) {
+      // only notify the player if the player was kicked on login and is already connected to a server
       var curServer = event.getPlayer().getCurrentServer().orElse(null);
 
-      // only notify the player if the player was kicked on login and is already connected to a server
       if (curServer != null && event.kickedDuringServerConnect()) {
         // send the player a nice message - velocity will keep the connection to the current server
         event.setResult(KickedFromServerEvent.Notify.create(this.extractReasonComponent(event)));
