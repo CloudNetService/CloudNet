@@ -144,7 +144,7 @@ public class NettyImmutableDataBuf implements DataBuf {
   public @NonNull String readString() {
     return this.hotRead(buf -> {
       var length = NettyUtil.readVarInt(buf);
-      return (String) buf.readCharSequence(length, StandardCharsets.UTF_8);
+      return buf.readCharSequence(length, StandardCharsets.UTF_8).toString();
     });
   }
 
