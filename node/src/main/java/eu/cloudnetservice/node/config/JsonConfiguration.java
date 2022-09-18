@@ -90,7 +90,6 @@ public final class JsonConfiguration implements Configuration {
 
   private String jvmCommand;
   private String hostAddress;
-  private String connectHostAddress;
   private Map<String, String> ipAliases;
 
   private RestConfiguration restConfiguration;
@@ -233,10 +232,6 @@ public final class JsonConfiguration implements Configuration {
 
     if (this.hostAddress == null) {
       this.hostAddress = ConfigurationUtil.get("cloudnet.config.hostAddress", NetworkUtil.localAddress());
-    }
-
-    if (this.connectHostAddress == null) {
-      this.connectHostAddress = ConfigurationUtil.get("cloudnet.config.connectHostAddress", this.hostAddress);
     }
 
     if (this.ipAliases == null) {
