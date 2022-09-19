@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import org.cadixdev.gradle.licenser.LicenseExtension
+import com.diffplug.gradle.spotless.SpotlessExtension
 
 plugins {
   id("cloudnet.parent-build-logic")
-  alias(libs.plugins.licenser)
+  alias(libs.plugins.spottless)
   alias(libs.plugins.nexusPublish)
   alias(libs.plugins.fabricLoom) apply false
 }
 
-defaultTasks("build", "checkLicenses", "test", "shadowJar")
+defaultTasks("build", "test", "shadowJar")
 
 allprojects {
   version = Versions.cloudNet
   group = "eu.cloudnetservice.cloudnet"
-  description = "The alternative Minecraft Java and Bedrock server management solution"
+  description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
 
   repositories {
     mavenCentral()
@@ -58,7 +58,7 @@ subprojects {
 
   apply(plugin = "checkstyle")
   apply(plugin = "java-library")
-  apply(plugin = "org.cadixdev.licenser")
+  apply(plugin = "com.diffplug.spotless")
 
   dependencies {
     // the 'rootProject.libs.' prefix is needed here - see https://github.com/gradle/gradle/issues/16634
@@ -112,9 +112,10 @@ subprojects {
     toolVersion = Versions.checkstyleTools
   }
 
-  extensions.configure<LicenseExtension> {
-    include("**/*.java")
-    header(rootProject.file("LICENSE_HEADER"))
+  extensions.configure<SpotlessExtension> {
+    java {
+      licenseHeaderFile(rootProject.file("LICENSE_HEADER"))
+    }
   }
 
   tasks.register<org.gradle.jvm.tasks.Jar>("javadocJar") {
