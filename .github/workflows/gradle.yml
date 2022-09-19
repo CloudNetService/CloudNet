@@ -42,7 +42,7 @@ jobs:
           cache: 'gradle'
 
       - name: Run build lifecycle
-        run: ./gradlew build checkLicenses test shadowJar genUpdaterInformation --no-daemon --stacktrace
+        run: ./gradlew build test shadowJar genUpdaterInformation --no-daemon --stacktrace
 
       - name: Publish updater metadata
         uses: s0/git-publish-subdir-action@develop
