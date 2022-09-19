@@ -18,7 +18,7 @@ import com.diffplug.gradle.spotless.SpotlessExtension
 
 plugins {
   id("cloudnet.parent-build-logic")
-  alias(libs.plugins.spottless)
+  alias(libs.plugins.spotless)
   alias(libs.plugins.nexusPublish)
   alias(libs.plugins.fabricLoom) apply false
 }
