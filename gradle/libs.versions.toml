@@ -15,7 +15,7 @@ gson = "2.9.1"
 guava = "31.1-jre"
 
 # testing
-junit = "5.9.0"
+junit = "5.9.1"
 mockito = "4.8.0"
 tyrusClient = "2.1.0"
 testcontainers = "1.17.3"
