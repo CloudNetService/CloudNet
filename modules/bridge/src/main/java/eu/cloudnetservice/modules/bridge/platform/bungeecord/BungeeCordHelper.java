@@ -16,14 +16,12 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.net.InetSocketAddress;
 import java.util.function.Consumer;
 import lombok.NonNull;
-import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -34,51 +32,25 @@ public final class BungeeCordHelper {
   static final Consumer<ServiceInfoSnapshot> SERVER_UNREGISTER_HANDLER;
 
   static {
-    Consumer<ServiceInfoSnapshot> serverRegisterHandler;
-    Consumer<ServiceInfoSnapshot> serverUnregisterHandler;
-    // waterfall adds a dynamic api to register/unregister a server from the proxy
-    // we need to use that api as the backing map is not concurrent and other plugins might cause issues because
-    // of that
-    // ---
-    // find the best method to add a server to the proxy
-    try {
-      //noinspection deprecation
-      var addServer = MethodHandles.publicLookup()
-        .findVirtual(ProxyConfig.class, "addServer", MethodType.methodType(ServerInfo.class, ServerInfo.class));
-      // the waterfall method is available
-      serverRegisterHandler = service -> {
-        try {
-          addServer.invoke(ProxyServer.getInstance().getConfig(), constructServerInfo(service));
-        } catch (Throwable throwable) {
-          throw new RuntimeException("Unable to register service using Waterfall 'addServer':", throwable);
-        }
-      };
-    } catch (NoSuchMethodException | IllegalAccessException ex) {
-      // using the default BungeeCord way
-      serverRegisterHandler = service -> ProxyServer.getInstance().getServers().put(
-        service.name(),
-        constructServerInfo(service));
-    }
-    // find the best method to remove a server from the proxy
-    try {
-      //noinspection deprecation
-      var removeServerNamed = MethodHandles.publicLookup()
-        .findVirtual(ProxyConfig.class, "removeServerNamed", MethodType.methodType(ServerInfo.class, String.class));
-      // the waterfall method is available
-      serverUnregisterHandler = service -> {
-        try {
-          removeServerNamed.invoke(ProxyServer.getInstance().getConfig(), service.name());
-        } catch (Throwable throwable) {
-          throw new RuntimeException("Unable to unregister service using Waterfall 'removeServerNamed':", throwable);
-        }
-      };
-    } catch (NoSuchMethodException | IllegalAccessException ex) {
-      // using the default BungeeCord way
-      serverUnregisterHandler = service -> ProxyServer.getInstance().getServers().remove(service.name());
-    }
-    // assign the static fields to the best available method
-    SERVER_REGISTER_HANDLER = serverRegisterHandler;
-    SERVER_UNREGISTER_HANDLER = serverUnregisterHandler;
+    var proxyInstance = ProxyServer.getInstance();
+    var proxyConfig = proxyInstance.getConfig();
+
+    // waterfall adds a dynamic api to register a server from the proxy.
+    // we need to use that api as the backing map is not concurrent and other plugins might cause issues
+    SERVER_REGISTER_HANDLER = Reflexion.onBound(proxyConfig)
+      .findMethod("addServer", ServerInfo.class)
+      .map(acc -> (Consumer<ServiceInfoSnapshot>) service -> acc.invokeWithArgs(constructServerInfo(service)))
+      .orElse(service -> {
+        var serverInfo = constructServerInfo(service);
+        proxyInstance.getServers().put(service.name(), serverInfo);
+      });
+
+    // waterfall adds a dynamic api to unregister a server from the proxy.
+    // we need to use that api as the backing map is not concurrent and other plugins might cause issues
+    SERVER_UNREGISTER_HANDLER = Reflexion.onBound(proxyConfig)
+      .findMethod("removeServerNamed", String.class)
+      .map(acc -> (Consumer<ServiceInfoSnapshot>) service -> acc.invokeWithArgs(service.name()))
+      .orElse(service -> proxyInstance.getServers().remove(service.name()));
   }
 
   private BungeeCordHelper() {
