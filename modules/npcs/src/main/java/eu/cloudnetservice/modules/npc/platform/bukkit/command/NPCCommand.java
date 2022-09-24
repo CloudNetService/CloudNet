@@ -151,6 +151,20 @@ public final class NPCCommand extends BaseTabExecutor {
       return true;
     }
 
+    // npc remove all
+    if (args.length >= 1 && args[0].equalsIgnoreCase("removeall")) {
+      int removedNpcs;
+
+      if (args.length == 2) {
+        removedNpcs = this.management.deleteAllNPCs(args[1]);
+      } else {
+        removedNpcs = this.management.deleteAllNPCs();
+      }
+
+      sender.sendMessage(String.format("§7Successfully removed %d npcs.", removedNpcs));
+      return true;
+    }
+
     // npc operations
     if (args.length == 1) {
       switch (StringUtil.toLower(args[0])) {
@@ -555,6 +569,7 @@ public final class NPCCommand extends BaseTabExecutor {
     sender.sendMessage("§8> §7/cn create <targetGroup> <type> <skinOwnerName/entityType>");
     sender.sendMessage("§8> §7/cn edit <option> <value...>");
     sender.sendMessage("§8> §7/cn remove");
+    sender.sendMessage("§8> §7/cn removeall [targetGroup]");
     sender.sendMessage("§8> §7/cn cleanup");
     sender.sendMessage("§8> §7/cn list");
     sender.sendMessage("§8> §7/cn <copy/cut/paste>");
@@ -565,7 +580,17 @@ public final class NPCCommand extends BaseTabExecutor {
   public @NonNull Collection<String> tabComplete(@NonNull CommandSender sender, String @NonNull [] args) {
     // top level commands
     if (args.length == 1) {
-      return Arrays.asList("create", "edit", "remove", "cleanup", "list", "copy", "cut", "paste", "clearclipboard");
+      return Arrays.asList(
+        "create",
+        "edit",
+        "remove",
+        "removeall",
+        "cleanup",
+        "list",
+        "copy",
+        "cut",
+        "paste",
+        "clearclipboard");
     }
     // create arguments
     if (args[0].equalsIgnoreCase("create")) {
