@@ -123,7 +123,7 @@ public final class GroupsCommand {
     if (this.groupProvider().groupConfiguration(newName) != null) {
       source.sendMessage(I18n.trans("command-groups-group-already-existing", newName));
     } else {
-      // create a copy with the new name and remove the old task
+      // create a copy with the new name and remove the old group
       this.groupProvider().removeGroupConfiguration(group);
       this.groupProvider().addGroupConfiguration(GroupConfiguration.builder(group).name(newName).build());
       source.sendMessage(I18n.trans("command-groups-rename-success", group.name(), newName));
