@@ -156,6 +156,7 @@ public final class NPCCommand extends BaseTabExecutor {
       int removedNpcs;
 
       if (args.length == 2) {
+        // 1: optional target group
         removedNpcs = this.management.deleteAllNPCs(args[1]);
       } else {
         removedNpcs = this.management.deleteAllNPCs();
