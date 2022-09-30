@@ -21,6 +21,7 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -29,6 +30,7 @@ import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * The main base configuration for all services within the CloudNet cluster. A task is normally permanent stored
@@ -170,6 +172,8 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
 
       .jvmOptions(serviceTask.jvmOptions())
       .processParameters(serviceTask.processParameters())
+      .environmentVariables(serviceTask.environmentVariables())
+
       .templates(serviceTask.templates())
       .deployments(serviceTask.deployments())
       .inclusions(serviceTask.inclusions())
@@ -297,6 +301,15 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
   @Override
   public @NonNull Collection<String> processParameters() {
     return this.processConfiguration.processParameters();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Unmodifiable
+  public @NonNull Map<String, String> environmentVariables() {
+    return this.processConfiguration.environmentVariables();
   }
 
   /**
@@ -731,6 +744,24 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     @Override
     public @NonNull Builder modifyProcessParameters(@NonNull Consumer<Collection<String>> modifier) {
       this.processConfiguration.modifyProcessParameters(modifier);
+      return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NonNull Builder environmentVariables(@NonNull Map<String, String> environmentVariables) {
+      this.processConfiguration.environmentVariables(environmentVariables);
+      return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NonNull Builder modifyEnvironmentVariables(@NonNull Consumer<Map<String, String>> modifier) {
+      this.processConfiguration.modifyEnvironmentVariables(modifier);
       return this;
     }
 

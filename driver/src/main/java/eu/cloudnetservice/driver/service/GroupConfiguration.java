@@ -22,6 +22,7 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
@@ -43,25 +44,29 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
 
   protected final Set<String> jvmOptions;
   protected final Set<String> processParameters;
+  protected final Map<String, String> environmentVariables;
+
   protected final Set<String> targetEnvironments;
 
   /**
    * Constructs a new group configuration instance.
    *
-   * @param name               the name of the group.
-   * @param jvmOptions         the jvm options of the group to apply to all services inheriting from it.
-   * @param processParameters  the process parameters of the group to apply to all services inheriting from it.
-   * @param targetEnvironments the environments to apply this group configuration to.
-   * @param templates          the templates of the group to apply to all services inheriting from it.
-   * @param deployments        the deployments of the group to apply to all services inheriting from it.
-   * @param includes           the includes of the group to apply to all services inheriting from it.
-   * @param properties         the properties for extra information to store.
+   * @param name                 the name of the group.
+   * @param jvmOptions           the jvm options of the group to apply to all services inheriting from it.
+   * @param processParameters    the process parameters of the group to apply to all services inheriting from it.
+   * @param environmentVariables the environment variables to apply to all services inheriting from it.
+   * @param targetEnvironments   the environments to apply this group configuration to.
+   * @param templates            the templates of the group to apply to all services inheriting from it.
+   * @param deployments          the deployments of the group to apply to all services inheriting from it.
+   * @param includes             the includes of the group to apply to all services inheriting from it.
+   * @param properties           the properties for extra information to store.
    * @throws NullPointerException if one of the given parameters is null.
    */
   protected GroupConfiguration(
     @NonNull String name,
     @NonNull Set<String> jvmOptions,
     @NonNull Set<String> processParameters,
+    @NonNull Map<String, String> environmentVariables,
     @NonNull Set<String> targetEnvironments,
     @NonNull Set<ServiceTemplate> templates,
     @NonNull Set<ServiceDeployment> deployments,
@@ -74,6 +79,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     this.jvmOptions = jvmOptions;
     this.processParameters = processParameters;
     this.targetEnvironments = targetEnvironments;
+    this.environmentVariables = environmentVariables;
   }
 
   /**
@@ -102,6 +108,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
       .name(group.name())
       .jvmOptions(group.jvmOptions())
       .processParameters(group.processParameters())
+      .environmentVariables(group.environmentVariables())
       .targetEnvironments(group.targetEnvironments())
       .templates(group.templates())
       .deployments(group.deployments())
@@ -132,6 +139,15 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
   @Unmodifiable
   public @NonNull Collection<String> processParameters() {
     return this.processParameters;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Unmodifiable
+  public @NonNull Map<String, String> environmentVariables() {
+    return this.environmentVariables;
   }
 
   /**
@@ -230,6 +246,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
         this.name,
         ImmutableSet.copyOf(this.jvmOptions),
         ImmutableSet.copyOf(this.processParameters),
+        Map.copyOf(this.environmentVariables),
         Set.copyOf(this.targetEnvironments),
         Set.copyOf(this.templates),
         Set.copyOf(this.deployments),

@@ -19,7 +19,9 @@ package eu.cloudnetservice.driver.service;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
@@ -29,17 +31,19 @@ import org.jetbrains.annotations.Unmodifiable;
 /**
  * Holds the most common options to configure any process started and managed by CloudNet.
  *
- * @param environment       the environment of the task / service this configuration belongs to.
- * @param maxHeapMemorySize the maximum amount of heap (in MB) a service is allowed to use.
- * @param jvmOptions        the jvm options to apply to the process, for example the garbage collector.
- * @param processParameters the process parameters to apply after the actual command line, for example --dev.
+ * @param environment          the environment of the task / service this configuration belongs to.
+ * @param maxHeapMemorySize    the maximum amount of heap (in MB) a service is allowed to use.
+ * @param jvmOptions           the jvm options to apply to the process, for example the garbage collector.
+ * @param processParameters    the process parameters to apply after the actual command line, for example --dev.
+ * @param environmentVariables the environment variables to apply to the service environment.
  * @since 4.0
  */
 public record ProcessConfiguration(
   @NonNull String environment,
   int maxHeapMemorySize,
   @Unmodifiable @NonNull Set<String> jvmOptions,
-  @Unmodifiable @NonNull Set<String> processParameters
+  @Unmodifiable @NonNull Set<String> processParameters,
+  @Unmodifiable @NonNull Map<String, String> environmentVariables
 ) implements Cloneable {
 
   /**
@@ -65,7 +69,8 @@ public record ProcessConfiguration(
       .maxHeapMemorySize(configuration.maxHeapMemorySize())
       .environment(configuration.environment())
       .jvmOptions(configuration.jvmOptions())
-      .processParameters(configuration.processParameters());
+      .processParameters(configuration.processParameters())
+      .environmentVariables(configuration.environmentVariables());
   }
 
   /**
@@ -92,6 +97,7 @@ public record ProcessConfiguration(
 
     protected Set<String> jvmOptions = new LinkedHashSet<>();
     protected Set<String> processParameters = new LinkedHashSet<>();
+    protected Map<String, String> environmentVariables = new HashMap<>();
 
     /**
      * Sets the maximum amount of heap memory (in mb) the service is allowed to use. The given heap memory size must be
@@ -163,7 +169,7 @@ public record ProcessConfiguration(
      *
      * @param modifier the modifier to be applied to the already added jvm options of this builder.
      * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given options collection is null.
+     * @throws NullPointerException if the given modifier is null.
      */
     public @NonNull Builder modifyJvmOptions(@NonNull Consumer<Collection<String>> modifier) {
       modifier.accept(this.jvmOptions);
@@ -194,10 +200,37 @@ public record ProcessConfiguration(
      *
      * @param modifier the modifier to be applied to the already added process parameters of this builder.
      * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given parameters' collection is null.
+     * @throws NullPointerException if the given modifier is null.
      */
     public @NonNull Builder modifyProcessParameters(@NonNull Consumer<Collection<String>> modifier) {
       modifier.accept(this.processParameters);
+      return this;
+    }
+
+    /**
+     * Sets the environment variables which should set in the environment the process runs in.
+     * <p>
+     * This method will override all previously added environment variables options. Furthermore, the given map will be
+     * copied into this builder, meaning that changes to it will not reflect into the builder after the method call.
+     *
+     * @param environmentVariables the environment variables to apply to processes created based on this configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given environment variables map is null.
+     */
+    public @NonNull Builder environmentVariables(@NonNull Map<String, String> environmentVariables) {
+      this.environmentVariables = new HashMap<>(environmentVariables);
+      return this;
+    }
+
+    /**
+     * Modifies the environment variables which should get appended to the environment of the process.
+     *
+     * @param modifier the modifier to be applied to the already added environment variables of this builder.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the modifier is null.
+     */
+    public @NonNull Builder modifyEnvironmentVariables(@NonNull Consumer<Map<String, String>> modifier) {
+      modifier.accept(this.environmentVariables);
       return this;
     }
 
@@ -214,7 +247,8 @@ public record ProcessConfiguration(
         this.environment,
         this.maxHeapMemorySize,
         ImmutableSet.copyOf(this.jvmOptions),
-        ImmutableSet.copyOf(this.processParameters));
+        ImmutableSet.copyOf(this.processParameters),
+        Map.copyOf(this.environmentVariables));
     }
   }
 }

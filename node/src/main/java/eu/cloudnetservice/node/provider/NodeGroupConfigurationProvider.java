@@ -37,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
@@ -191,15 +192,24 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   protected void loadGroupConfigurations() {
     FileUtil.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
+      var document = JsonDocument.newDocument(file);
+
+      // TODO: remove in 4.1
+      // check if the task has environment variables
+      if (!document.contains("environmentVariables")) {
+        document.append("environmentVariables", new HashMap<>());
+      }
+
       // load the group
-      var group = JsonDocument.newDocument(file).toInstanceOf(GroupConfiguration.class);
+      var group = document.toInstanceOf(GroupConfiguration.class);
+
       // check if the file name is still up-to-date
       var groupName = file.getFileName().toString().replace(".json", "");
       if (!groupName.equals(group.name())) {
         // rename the file
         FileUtil.move(file, this.groupFile(group), StandardCopyOption.REPLACE_EXISTING);
       }
-      // cache the task
+      // cache the group
       this.addGroupConfiguration(group);
     }, false, "*.json");
   }

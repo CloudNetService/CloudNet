@@ -32,6 +32,7 @@ import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
@@ -165,6 +166,11 @@ public class DockerizedService extends JVMService {
       var binds = this.collectBinds(wrapperPath);
       var exposedPorts = Lists.newArrayList(Iterables.concat(taskExposedPorts, this.configuration.exposedPorts()));
 
+      // build the environment variables
+      var env = this.serviceConfiguration().environmentVariables().entrySet().stream()
+        .map(entry -> String.format("%s=%s", StringUtil.toUpper(entry.getKey()), entry.getValue()))
+        .toArray(String[]::new);
+
       // we need to expose the port of the service we're starting as well
       // we're exposing udp and tcp as bedrock uses udp while java edition uses
       // tcp - we cannot predict which internet protocol will be used
@@ -188,6 +194,7 @@ public class DockerizedService extends JVMService {
 
       // create the container and store the container id
       this.containerId = this.dockerClient.createContainerCmd(image.imageName())
+        .withEnv(env)
         .withUser(user)
         .withTty(false)
         .withStdinOpen(true)
