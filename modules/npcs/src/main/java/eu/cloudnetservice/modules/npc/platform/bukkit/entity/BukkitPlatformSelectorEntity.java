@@ -270,7 +270,7 @@ public abstract class BukkitPlatformSelectorEntity
 
   @Override
   public void registerScoreboardTeam(@NonNull Scoreboard scoreboard) {
-    // check if a team for the glowing color is already registered
+    // check if a team for this entity is already created
     var team = scoreboard.getTeam(this.scoreboardTeamName);
     if (team == null) {
       team = scoreboard.registerNewTeam(this.scoreboardTeamName);
