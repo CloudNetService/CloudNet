@@ -38,7 +38,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManagement {
+public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCManagement {
 
   public static final String NPC_CREATE = "npcs_npc_create";
   public static final String NPC_DELETE = "npcs_npc_delete";
@@ -49,7 +49,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   public static final String NPC_SET_CONFIG = "npcs_update_npc_config";
 
   protected final Map<UUID, ServiceInfoSnapshot> trackedServices = new ConcurrentHashMap<>();
-  protected final Map<WorldPosition, PlatformSelectorEntity<L, P, M, I>> trackedEntities = new ConcurrentHashMap<>();
+  protected final Map<WorldPosition, PlatformSelectorEntity<L, P, M, I, S>> trackedEntities = new ConcurrentHashMap<>();
 
   public PlatformNPCManagement() {
     super(loadNPCConfiguration());
@@ -236,11 +236,11 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     }
   }
 
-  public @NonNull Map<WorldPosition, PlatformSelectorEntity<L, P, M, I>> trackedEntities() {
+  public @NonNull Map<WorldPosition, PlatformSelectorEntity<L, P, M, I, S>> trackedEntities() {
     return this.trackedEntities;
   }
 
-  protected abstract @NonNull PlatformSelectorEntity<L, P, M, I> createSelectorEntity(@NonNull NPC base);
+  protected abstract @NonNull PlatformSelectorEntity<L, P, M, I, S> createSelectorEntity(@NonNull NPC base);
 
   protected abstract @NonNull WorldPosition toWorldPosition(@NonNull L location, @NonNull String group);
 

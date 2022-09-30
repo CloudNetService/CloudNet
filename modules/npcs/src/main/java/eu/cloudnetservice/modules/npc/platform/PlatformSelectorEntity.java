@@ -21,7 +21,7 @@ import eu.cloudnetservice.modules.npc.NPC;
 import java.util.Set;
 import lombok.NonNull;
 
-public interface PlatformSelectorEntity<L, P, M, I> {
+public interface PlatformSelectorEntity<L, P, M, I, S> {
 
   void spawn();
 
@@ -42,6 +42,8 @@ public interface PlatformSelectorEntity<L, P, M, I> {
   @NonNull I selectorInventory();
 
   void handleInventoryInteract(@NonNull I inv, @NonNull P player, @NonNull M clickedItem);
+
+  void registerScoreboardTeam(@NonNull S scoreboard);
 
   @NonNull NPC npc();
 

@@ -45,18 +45,17 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.NumberConversions;
 
-public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location, Player, ItemStack, Inventory> {
+public class BukkitPlatformNPCManagement extends
+  PlatformNPCManagement<Location, Player, ItemStack, Inventory, Scoreboard> {
 
   protected final Plugin plugin;
   protected final Platform<World, Player, ItemStack, Plugin> npcPlatform;
-  protected final Scoreboard scoreboard;
   protected final BukkitTask knockBackTask;
 
   protected volatile BukkitTask npcEmoteTask;
 
   public BukkitPlatformNPCManagement(@NonNull Plugin plugin) {
     this.plugin = plugin;
-    this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
     // npc pool init
     var entry = this.applicableNPCConfigurationEntry();
@@ -136,9 +135,10 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     }, 20, 5);
   }
 
-  @NonNull
   @Override
-  protected PlatformSelectorEntity<Location, Player, ItemStack, Inventory> createSelectorEntity(@NonNull NPC base) {
+  protected @NonNull PlatformSelectorEntity<Location, Player, ItemStack, Inventory, Scoreboard> createSelectorEntity(
+    @NonNull NPC base
+  ) {
     return base.npcType() == NPC.NPCType.ENTITY
       ? new EntityBukkitPlatformSelectorEntity(this, this.plugin, base)
       : new NPCBukkitPlatformSelector(this, this.plugin, base, this.npcPlatform);
@@ -180,10 +180,6 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     super.handleInternalNPCConfigUpdate(configuration);
     // re-schedule the emote task if it's not yet running
     this.startEmoteTask(false);
-  }
-
-  public @NonNull Scoreboard scoreboard() {
-    return this.scoreboard;
   }
 
   public @NonNull Platform<World, Player, ItemStack, Plugin> npcPlatform() {
