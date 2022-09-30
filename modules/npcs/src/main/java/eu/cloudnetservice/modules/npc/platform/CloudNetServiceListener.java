@@ -24,9 +24,9 @@ import lombok.NonNull;
 
 final class CloudNetServiceListener {
 
-  private final PlatformNPCManagement<?, ?, ?, ?> management;
+  private final PlatformNPCManagement<?, ?, ?, ?, ?> management;
 
-  public CloudNetServiceListener(@NonNull PlatformNPCManagement<?, ?, ?, ?> management) {
+  public CloudNetServiceListener(@NonNull PlatformNPCManagement<?, ?, ?, ?, ?> management) {
     this.management = management;
   }
 

@@ -52,12 +52,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.NameTagVisibility;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class BukkitPlatformSelectorEntity
-  implements PlatformSelectorEntity<Location, Player, ItemStack, Inventory> {
+  implements PlatformSelectorEntity<Location, Player, ItemStack, Inventory, Scoreboard> {
 
   protected static final MethodAccessor<?> SET_COLOR = Reflexion.on(Team.class)
     .findMethod("setColor", ChatColor.class)
@@ -99,25 +100,8 @@ public abstract class BukkitPlatformSelectorEntity
       // spawn the selector entity
       this.spawn0();
       // do the scoreboard related stuff now
-      var scoreboard = this.npcManagement.scoreboard();
-      // check if a team for the glowing color is already registered
-      var team = scoreboard.getTeam(this.scoreboardTeamName);
-      if (team == null) {
-        team = scoreboard.registerNewTeam(this.scoreboardTeamName);
-      }
-      // set the name tag visibility of the team
-      team.setNameTagVisibility(NameTagVisibility.NEVER);
-      // register the spawned entity to the team
-      team.addEntry(this.scoreboardRepresentation());
-      // check if the entity should have a glowing color
-      if (SET_COLOR != null && this.npc.glowing()) {
-        // try to set the team color
-        var color = ChatColor.getByChar(this.npc.glowingColor());
-        if (color != null) {
-          SET_COLOR.invoke(team, color);
-        }
-        // let the entity glow!
-        this.addGlowingEffect();
+      for (var player : Bukkit.getOnlinePlayers()) {
+        this.registerScoreboardTeam(player.getScoreboard());
       }
       // spawn the info lines
       for (var i = this.npc.infoLines().size() - 1; i >= 0; i--) {
@@ -277,6 +261,29 @@ public abstract class BukkitPlatformSelectorEntity
         this.playerManager().playerExecutor(player.getUniqueId()).connect(wrapper.service().name());
         break;
       }
+    }
+  }
+
+  @Override
+  public void registerScoreboardTeam(@NonNull Scoreboard scoreboard) {
+    // check if a team for the glowing color is already registered
+    var team = scoreboard.getTeam(this.scoreboardTeamName);
+    if (team == null) {
+      team = scoreboard.registerNewTeam(this.scoreboardTeamName);
+    }
+    // set the name tag visibility of the team
+    team.setNameTagVisibility(NameTagVisibility.NEVER);
+    // register the spawned entity to the team
+    team.addEntry(this.scoreboardRepresentation());
+    // check if the entity should have a glowing color
+    if (SET_COLOR != null && this.npc.glowing()) {
+      // try to set the team color
+      var color = ChatColor.getByChar(this.npc.glowingColor());
+      if (color != null) {
+        SET_COLOR.invoke(team, color);
+      }
+      // let the entity glow!
+      this.addGlowingEffect();
     }
   }
 
