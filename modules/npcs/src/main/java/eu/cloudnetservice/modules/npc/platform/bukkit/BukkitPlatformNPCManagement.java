@@ -50,14 +50,12 @@ public class BukkitPlatformNPCManagement extends
 
   protected final Plugin plugin;
   protected final Platform<World, Player, ItemStack, Plugin> npcPlatform;
-  protected final Scoreboard scoreboard;
   protected final BukkitTask knockBackTask;
 
   protected volatile BukkitTask npcEmoteTask;
 
   public BukkitPlatformNPCManagement(@NonNull Plugin plugin) {
     this.plugin = plugin;
-    this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
     // npc pool init
     var entry = this.applicableNPCConfigurationEntry();
@@ -182,10 +180,6 @@ public class BukkitPlatformNPCManagement extends
     super.handleInternalNPCConfigUpdate(configuration);
     // re-schedule the emote task if it's not yet running
     this.startEmoteTask(false);
-  }
-
-  public @NonNull Scoreboard scoreboard() {
-    return this.scoreboard;
   }
 
   public @NonNull Platform<World, Player, ItemStack, Plugin> npcPlatform() {
