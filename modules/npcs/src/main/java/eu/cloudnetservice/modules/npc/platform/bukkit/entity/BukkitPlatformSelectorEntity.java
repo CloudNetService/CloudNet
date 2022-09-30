@@ -103,6 +103,10 @@ public abstract class BukkitPlatformSelectorEntity
       for (var player : Bukkit.getOnlinePlayers()) {
         this.registerScoreboardTeam(player.getScoreboard());
       }
+      // let the entity glow!
+      if (this.npc.glowing()) {
+        this.addGlowingEffect();
+      }
       // spawn the info lines
       for (var i = this.npc.infoLines().size() - 1; i >= 0; i--) {
         var armorStand = (ArmorStand) this.npcLocation.getWorld().spawnEntity(
@@ -282,8 +286,6 @@ public abstract class BukkitPlatformSelectorEntity
       if (color != null) {
         SET_COLOR.invoke(team, color);
       }
-      // let the entity glow!
-      this.addGlowingEffect();
     }
   }
 
