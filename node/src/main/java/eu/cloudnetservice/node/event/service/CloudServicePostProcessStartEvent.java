@@ -21,14 +21,7 @@ import lombok.NonNull;
 
 public final class CloudServicePostProcessStartEvent extends CloudServiceEvent {
 
-  private final ProcessHandle processHandle;
-
-  public CloudServicePostProcessStartEvent(@NonNull CloudService service, @NonNull ProcessHandle processHandle) {
+  public CloudServicePostProcessStartEvent(@NonNull CloudService service) {
     super(service);
-    this.processHandle = processHandle;
-  }
-
-  public @NonNull ProcessHandle processHandle() {
-    return this.processHandle;
   }
 }
