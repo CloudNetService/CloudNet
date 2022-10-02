@@ -111,7 +111,7 @@ public final class LayoutUtil {
     @NonNull BiConsumer<Integer, C> lineSetter
   ) {
     var lines = layout.lines();
-    for (int i = 0; i < Math.min(4, lines.size()); i++) {
+    for (var i = 0; i < Math.min(4, lines.size()); i++) {
       var converted = lineMapper.apply(fillCommonPlaceholders(lines.get(i), signTargetGroup, target));
       lineSetter.accept(i, converted);
     }

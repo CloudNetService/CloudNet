@@ -116,7 +116,7 @@ public record ReportDataWriter(@NonNull StringBuilder stringBuffer, @NonNull Str
 
   public @NonNull ReportDataWriter appendString(@NonNull String s) {
     var parts = s.split("\n");
-    for (int i = 0; i < parts.length; i++) {
+    for (var i = 0; i < parts.length; i++) {
       this.stringBuffer.append(parts[i]);
       if (i != (parts.length - 1)) {
         this.appendNewline();

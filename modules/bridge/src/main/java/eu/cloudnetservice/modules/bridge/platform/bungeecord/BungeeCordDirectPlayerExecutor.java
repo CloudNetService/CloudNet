@@ -30,7 +30,6 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +49,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void connect(@NonNull String serviceName) {
-    ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(serviceName);
+    var serverInfo = ProxyServer.getInstance().getServerInfo(serviceName);
     if (serverInfo != null) {
       this.forEach(player -> player.connect(serverInfo, Reason.PLUGIN));
     }

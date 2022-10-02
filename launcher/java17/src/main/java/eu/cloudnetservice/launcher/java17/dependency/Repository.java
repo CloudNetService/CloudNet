@@ -30,7 +30,7 @@ public record Repository(@NonNull String name, @NonNull URI url) {
     // CHECKSTYLE.OFF: Launcher has no proper logger
     System.out.printf("Downloading dependency %s to %s... %n", dependency, targetPath);
     // CHECKSTYLE.ON
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       // try to download the dependency
       if (this.downloadDependency(targetPath, dependency)) {
         // successful, do not throw an exception

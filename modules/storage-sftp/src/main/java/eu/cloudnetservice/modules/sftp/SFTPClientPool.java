@@ -100,7 +100,7 @@ public class SFTPClientPool implements Closeable {
       }
 
       // check if there is any caller waiting for a client
-      CompletableFuture<SFTPClientWrapper> waitingCreateFuture = this.clientReturnWaiters.poll();
+      var waitingCreateFuture = this.clientReturnWaiters.poll();
       if (client.getSFTPEngine().getSubsystem().isOpen()) {
         if (waitingCreateFuture != null) {
           // deliver the client directly to the promise

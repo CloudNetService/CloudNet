@@ -73,7 +73,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     return Collections.emptySet();
   }
 
-  private JsonDocument makeRequest(@NonNull String apiUrl) {
+  private @NonNull JsonDocument makeRequest(@NonNull String apiUrl) {
     var response = Unirest.get(apiUrl)
       .accept("application/json")
       .asString();

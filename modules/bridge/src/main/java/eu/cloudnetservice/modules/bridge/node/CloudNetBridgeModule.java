@@ -154,7 +154,7 @@ public final class CloudNetBridgeModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void initModule() {
     // init the bridge management
-    BridgeManagement management = new NodeBridgeManagement(
+    var management = new NodeBridgeManagement(
       this,
       this.loadConfiguration(),
       this.eventManager(),

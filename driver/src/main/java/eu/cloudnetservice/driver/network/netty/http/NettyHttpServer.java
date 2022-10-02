@@ -105,7 +105,7 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
    */
   @Override
   public @NonNull Task<Void> addListener(@NonNull HostAndPort hostAndPort) {
-    Task<Void> result = new Task<>();
+    var result = new Task<Void>();
     new ServerBootstrap()
       .group(this.bossGroup, this.workerGroup)
       .channelFactory(NettyUtil.serverChannelFactory())

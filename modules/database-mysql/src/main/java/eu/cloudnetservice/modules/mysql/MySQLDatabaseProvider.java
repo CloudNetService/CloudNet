@@ -132,7 +132,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   public int executeUpdate(@NonNull String query, @NonNull Object... objects) {
     try (var con = this.connection(); var statement = con.prepareStatement(query)) {
       // write all parameters
-      for (int i = 0; i < objects.length; i++) {
+      for (var i = 0; i < objects.length; i++) {
         statement.setString(i + 1, Objects.toString(objects[i]));
       }
 
@@ -153,7 +153,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   ) {
     try (var con = this.connection(); var statement = con.prepareStatement(query)) {
       // write all parameters
-      for (int i = 0; i < objects.length; i++) {
+      for (var i = 0; i < objects.length; i++) {
         statement.setString(i + 1, Objects.toString(objects[i]));
       }
 

@@ -109,7 +109,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
    */
   @Override
   public @NonNull Task<Void> connect(@NonNull HostAndPort hostAndPort) {
-    Task<Void> result = new Task<>();
+    var result = new Task<Void>();
     new Bootstrap()
       .group(this.eventLoopGroup)
       .channelFactory(NettyUtil.clientChannelFactory())

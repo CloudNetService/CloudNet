@@ -22,7 +22,6 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import net.md_5.bungee.api.plugin.Command;
@@ -50,7 +49,7 @@ public final class BungeeCordHubCommand extends Command {
           "command-hub-already-in-hub")));
       } else {
         // try to get a fallback for the player
-        ServerInfo hub = this.management.fallback(player)
+        var hub = this.management.fallback(player)
           .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
           .orElse(null);
         // check if a fallback was found

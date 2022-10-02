@@ -45,12 +45,12 @@ final class JaversPrettyPrint {
     // append all changes
     for (var change : changes) {
       // supported changes: values, container (collection & array), maps
-      if (change instanceof ValueChange) {
-        printValueChange(builder, (ValueChange) change);
-      } else if (change instanceof ContainerChange<?>) {
-        printContainerChange(builder, (ContainerChange<?>) change);
-      } else if (change instanceof MapChange<?>) {
-        printMapChange(builder, (MapChange<?>) change);
+      if (change instanceof ValueChange valueChange) {
+        printValueChange(builder, valueChange);
+      } else if (change instanceof ContainerChange<?> containerChange) {
+        printContainerChange(builder, containerChange);
+      } else if (change instanceof MapChange<?> mapChange) {
+        printMapChange(builder, mapChange);
       }
     }
     // stringify
@@ -95,13 +95,13 @@ final class JaversPrettyPrint {
     // print all changes of the container
     for (var containerElementChange : change.getChanges()) {
       // 3 possibilities - element at the index changes, was removed or replaced
-      if (containerElementChange instanceof ElementValueChange) {
-        printElementValueChange(builder, (ElementValueChange) containerElementChange);
-      } else if (containerElementChange instanceof ValueAddOrRemove) {
+      if (containerElementChange instanceof ElementValueChange elementValueChange) {
+        printElementValueChange(builder, elementValueChange);
+      } else if (containerElementChange instanceof ValueAddOrRemove valueAddOrRemove) {
         // print the remove or add, use red for removed elements and green for added elements
         printElementAddOrRemoveChange(
           builder,
-          (ValueAddOrRemove) containerElementChange,
+          valueAddOrRemove,
           containerElementChange instanceof ValueRemoved ? "&c" : "&a");
       }
     }
@@ -140,13 +140,13 @@ final class JaversPrettyPrint {
     // print all changes of the map
     for (var entryChange : change.getEntryChanges()) {
       // 3 possibilities - element changed, was removed or replaced
-      if (entryChange instanceof EntryValueChange) {
-        printEntryValueChange(builder, (EntryValueChange) entryChange);
-      } else if (entryChange instanceof EntryAddOrRemove) {
+      if (entryChange instanceof EntryValueChange entryValueChange) {
+        printEntryValueChange(builder, entryValueChange);
+      } else if (entryChange instanceof EntryAddOrRemove entryAddOrRemove) {
         // print the removed or added value, use red for removed keys and green for added keys
         printEntryAddOrRemoveChange(
           builder,
-          (EntryAddOrRemove) entryChange,
+          entryAddOrRemove,
           entryChange instanceof EntryRemoved ? "&c" : "&a");
       }
     }

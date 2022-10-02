@@ -174,7 +174,7 @@ public class DefaultRPCHandlerTest {
 
     static long calculateResult(ProcessSnapshot snapshot, List<Integer> integers, int primary) {
       // some values from the snapshot and the fixed 187 argument
-      long result = primary + snapshot.currentLoadedClassCount() + snapshot.pid();
+      var result = primary + snapshot.currentLoadedClassCount() + snapshot.pid();
       // the integers submitted summed up
       result += integers.stream().mapToInt(Integer::intValue).sum();
       // the thread ids summed up

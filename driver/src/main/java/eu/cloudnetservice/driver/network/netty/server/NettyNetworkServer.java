@@ -114,7 +114,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
    */
   @Override
   public @NonNull Task<Void> addListener(@NonNull HostAndPort hostAndPort) {
-    Task<Void> result = new Task<>();
+    var result = new Task<Void>();
     new ServerBootstrap()
       .channelFactory(NettyUtil.serverChannelFactory())
       .group(this.bossEventLoopGroup, this.workerEventLoopGroup)

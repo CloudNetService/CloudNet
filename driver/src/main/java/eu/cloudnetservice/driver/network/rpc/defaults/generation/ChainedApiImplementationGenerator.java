@@ -142,7 +142,7 @@ public final class ChainedApiImplementationGenerator {
 
         // call the super "<init>" method
         mv.visitVarInsn(ALOAD, 0);
-        for (int i = 0; i < types.size(); i++) {
+        for (var i = 0; i < types.size(); i++) {
           // loads and passes the correct arguments to the super constructor
           var type = Type.getType(types.get(i));
           mv.visitVarInsn(type.getOpcode(ILOAD), 4 + i);

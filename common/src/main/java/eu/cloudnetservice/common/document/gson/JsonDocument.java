@@ -86,16 +86,16 @@ public class JsonDocument implements Document<JsonDocument> {
       return JsonDocument.newDocument().append(key, (Object) null);
     }
     // append the correct type for the value
-    if (value instanceof Number) {
-      return JsonDocument.newDocument().append(key, (Number) value);
-    } else if (value instanceof Character) {
-      return JsonDocument.newDocument().append(key, (Character) value);
-    } else if (value instanceof String) {
-      return JsonDocument.newDocument().append(key, (String) value);
-    } else if (value instanceof Boolean) {
-      return JsonDocument.newDocument().append(key, (Boolean) value);
-    } else if (value instanceof JsonDocument) {
-      return JsonDocument.newDocument().append(key, (JsonDocument) value);
+    if (value instanceof Number number) {
+      return JsonDocument.newDocument().append(key, number);
+    } else if (value instanceof Character character) {
+      return JsonDocument.newDocument().append(key, character);
+    } else if (value instanceof String string) {
+      return JsonDocument.newDocument().append(key, string);
+    } else if (value instanceof Boolean bool) {
+      return JsonDocument.newDocument().append(key, bool);
+    } else if (value instanceof JsonDocument document) {
+      return JsonDocument.newDocument().append(key, document);
     } else {
       return JsonDocument.newDocument().append(key, value);
     }

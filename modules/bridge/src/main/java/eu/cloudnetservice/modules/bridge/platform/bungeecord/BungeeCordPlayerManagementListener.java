@@ -31,7 +31,6 @@ import lombok.NonNull;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -102,7 +101,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   public void handle(@NonNull ServerConnectEvent event) {
     // initial connect reasons, LOBBY_FALLBACK will be used if the initial fallback is not present
     if (event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK) {
-      ServerInfo target = this.management.fallback(event.getPlayer())
+      var target = this.management.fallback(event.getPlayer())
         .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present

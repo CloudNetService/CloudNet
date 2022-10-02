@@ -75,7 +75,7 @@ final class RecordTypeAdapterFactory implements TypeAdapterFactory {
       this.recordComponentTypes = new Class[components.length];
       this.componentTypes = new HashMap<>(components.length);
       // fill the data
-      for (int i = 0; i < components.length; i++) {
+      for (var i = 0; i < components.length; i++) {
         this.recordComponentTypes[i] = components[i].getType();
         this.componentTypes.put(
           components[i].getName(),
@@ -126,7 +126,7 @@ final class RecordTypeAdapterFactory implements TypeAdapterFactory {
         in.endObject();
 
         // validate the arguments
-        for (int i = 0; i < arguments.length; i++) {
+        for (var i = 0; i < arguments.length; i++) {
           var argumentType = this.recordComponentTypes[i];
           if (argumentType.isPrimitive() && arguments[i] == null) {
             // the entry is missing the json object - use the default one
