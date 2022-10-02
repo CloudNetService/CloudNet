@@ -45,19 +45,19 @@ import org.jetbrains.annotations.Unmodifiable;
  * {@code
  *  public final class ServiceCreateHelper {
  *    public void createService() {
- *     ServiceTask task = serviceTaskProvider.serviceTask("Lobby");
- *     ServiceConfiguration config = ServiceConfiguration.builder(task).build();
- *     ServiceCreateResult createResult = config.createNewService();
+ *      ServiceTask task = serviceTaskProvider.serviceTask("Lobby");
+ *      ServiceConfiguration config = ServiceConfiguration.builder(task).build();
+ *      ServiceCreateResult createResult = config.createNewService();
  *
- *     if (createResult.state() == ServiceCreateResult.State.CREATED) {
- *       // the service was created
- *       // prints for example "Lobby-1"
- *       System.out.println(createResult.serviceInfo().name());
- *     } else {
- *       // service creation failed or was deferred
- *       System.out.println("Unable to create service: " + createResult.state());
- *     }
- *   }
+ *      if (createResult.state() == ServiceCreateResult.State.CREATED) {
+ *        // the service was created
+ *        // prints for example "Lobby-1"
+ *        System.out.println(createResult.serviceInfo().name());
+ *      } else {
+ *        // service creation failed or was deferred
+ *        System.out.println("Unable to create service: " + createResult.state());
+ *      }
+ *    }
  *  }
  * }
  * </pre>
@@ -67,22 +67,22 @@ import org.jetbrains.annotations.Unmodifiable;
  * {@code
  *  public final class ServiceCreateHelper {
  *    public void createService() {
- *     ServiceTask task = serviceTaskProvider.serviceTask("Lobby");
- *     ServiceConfiguration config = ServiceConfiguration.builder(task)
- *       .taskName("HelloWorld")
- *       .build();
- *     ServiceCreateResult createResult = config.createNewService();
+ *      ServiceTask task = serviceTaskProvider.serviceTask("Lobby");
+ *      ServiceConfiguration config = ServiceConfiguration.builder(task)
+ *        .taskName("HelloWorld")
+ *        .build();
+ *      ServiceCreateResult createResult = config.createNewService();
  *
- *     if (createResult.state() == ServiceCreateResult.State.CREATED) {
- *       // the service was created
- *       // prints for example "HelloWorld-1" because we changed the name of the task
- *       System.out.println(createResult.serviceInfo().name());
- *     } else {
- *       // service creation failed or was deferred
- *       // for example not enough heap memory was free to start the service
- *       System.out.println("Unable to create service: " + createResult.state());
- *     }
- *   }
+ *      if (createResult.state() == ServiceCreateResult.State.CREATED) {
+ *        // the service was created
+ *        // prints for example "HelloWorld-1" because we changed the name of the task
+ *        System.out.println(createResult.serviceInfo().name());
+ *      } else {
+ *        // service creation failed or was deferred
+ *        // for example not enough heap memory was free to start the service
+ *        System.out.println("Unable to create service: " + createResult.state());
+ *      }
+ *    }
  *  }
  * }
  * </pre>
@@ -93,25 +93,25 @@ import org.jetbrains.annotations.Unmodifiable;
  * {@code
  *  public final class ServiceCreateHelper {
  *    public void createService() {
- *     ServiceConfiguration config = ServiceConfiguration.builder()
- *       .nameSplitter("#")
- *       .maxHeapMemory(1024)
- *       .taskName("HelloWorld")
- *       .environment("MINECRAFT_SERVER")
- *       .build();
- *     ServiceCreateResult createResult = config.createNewService();
+ *      ServiceConfiguration config = ServiceConfiguration.builder()
+ *        .nameSplitter("#")
+ *        .maxHeapMemory(1024)
+ *        .taskName("HelloWorld")
+ *        .environment("MINECRAFT_SERVER")
+ *        .build();
+ *      ServiceCreateResult createResult = config.createNewService();
  *
- *     if (createResult.state() == ServiceCreateResult.State.CREATED) {
- *       // the service was created
- *       // prints for example "HelloWorld#1" because
- *       // we set the task name and name splitter to these values
- *       System.out.println(createResult.serviceInfo().name());
- *     } else {
- *       // service creation failed or was deferred
- *       // for example not enough heap memory was free to start the service
- *       System.out.println("Unable to create service: " + createResult.state());
- *     }
- *   }
+ *      if (createResult.state() == ServiceCreateResult.State.CREATED) {
+ *        // the service was created
+ *        // prints for example "HelloWorld#1" because
+ *        // we set the task name and name splitter to these values
+ *        System.out.println(createResult.serviceInfo().name());
+ *      } else {
+ *        // service creation failed or was deferred
+ *        // for example not enough heap memory was free to start the service
+ *        System.out.println("Unable to create service: " + createResult.state());
+ *      }
+ *    }
  *  }
  * }
  * </pre>
