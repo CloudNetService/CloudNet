@@ -47,6 +47,12 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
               email.set("git@derklaro.dev")
               timezone.set("Europe/Berlin")
             }
+
+            developer {
+              id.set("0utplay")
+              email.set("me@0utplay.de")
+              timezone.set("Europe/Berlin")
+            }
           }
 
           licenses {
@@ -89,7 +95,16 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
   }
 
   extensions.configure<SigningExtension> {
-    useGpgCmd()
+    val signingPrivateKey = System.getenv("SIGNING_KEY")
+    val signingPrivateKeyPassword = System.getenv("SIGNING_KEY_PASSWORD")
+
+    // can only use the in-memory provider if both values are present (running on ci)
+    if (signingPrivateKey != null && signingPrivateKeyPassword != null) {
+      useInMemoryPgpKeys(signingPrivateKey, signingPrivateKeyPassword)
+    } else {
+      useGpgCmd()
+    }
+
     sign(extensions.getByType(PublishingExtension::class.java).publications.getByName("maven"))
   }
 

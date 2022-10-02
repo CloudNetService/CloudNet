@@ -66,12 +66,12 @@ jobs:
             echo "STATUS=release" >> $GITHUB_ENV
           fi
 
-      - name: Publish to Sonatype
+      - name: Publish snapshot to Sonatype
         if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') && matrix.java == 17 }}
         run: ./gradlew publish
         env:
-          sonatypeUsername: "${{ secrets.SONATYPE_USER }}"
-          sonatypePassword: "${{ secrets.SONATYPE_KEY }}"
+          SONATYPE_USER: "${{ secrets.SONATYPE_USER }}"
+          SONATYPE_TOKEN: "${{ secrets.SONATYPE_TOKEN }}"
 
       - name: Prepare artifacts zip
         if: ${{ github.event_name == 'push' && matrix.java == 17 }}
