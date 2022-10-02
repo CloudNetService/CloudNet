@@ -138,7 +138,7 @@ final class NettyHttpServerContext implements HttpContext {
         this.cancelSendResponse = true;
 
         // try to greet the client
-        var task = new Task<WebSocketChannel>();
+        Task<WebSocketChannel> task = new Task<>();
         handshaker.handshake(this.nettyChannel, this.httpRequest).addListener(future -> {
           if (future.isSuccess()) {
             // successfully greeted the client, setup everything we need
