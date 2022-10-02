@@ -18,8 +18,8 @@ package eu.cloudnetservice.modules.signs.platform.minestom;
 
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -42,7 +42,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
 
   public MinestomPlatformSign(@NonNull Sign base) {
     super(base, input -> {
-      var coloredComponent = AdventureSerializerUtil.serialize(input);
+      var coloredComponent = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(input);
       return GsonComponentSerializer.gson().serialize(coloredComponent);
     });
   }

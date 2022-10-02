@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;
 import java.util.UUID;
@@ -67,13 +67,13 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
 
   @Override
   public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull String message) {
-    player.disconnect(AdventureSerializerUtil.serializeToString(message));
+    player.disconnect(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(message));
   }
 
   @Override
   public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable String message) {
     if (message != null) {
-      player.sendMessage(AdventureSerializerUtil.serializeToString(message));
+      player.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(message));
     }
   }
 

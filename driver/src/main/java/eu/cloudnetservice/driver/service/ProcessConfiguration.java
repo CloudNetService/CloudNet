@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.service;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -149,7 +148,7 @@ public record ProcessConfiguration(
      * @throws NullPointerException if the given options collection is null.
      */
     public @NonNull Builder jvmOptions(@NonNull Collection<String> jvmOptions) {
-      this.jvmOptions = new HashSet<>(jvmOptions);
+      this.jvmOptions = new LinkedHashSet<>(jvmOptions);
       return this;
     }
 
@@ -183,7 +182,7 @@ public record ProcessConfiguration(
      * @throws NullPointerException if the given parameters' collection is null.
      */
     public @NonNull Builder processParameters(@NonNull Collection<String> processParameters) {
-      this.processParameters = new HashSet<>(processParameters);
+      this.processParameters = new LinkedHashSet<>(processParameters);
       return this;
     }
 

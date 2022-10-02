@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.plugins.chat;
 
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Properties;
@@ -68,7 +68,7 @@ public class MinestomChatExtension extends Extension {
     if (format == null) {
       event.setCancelled(true);
     } else {
-      event.setChatFormat($ -> AdventureSerializerUtil.serialize(format));
+      event.setChatFormat($ -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(format));
     }
   }
 

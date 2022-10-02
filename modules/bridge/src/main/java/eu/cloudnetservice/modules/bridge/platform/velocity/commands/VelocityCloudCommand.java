@@ -16,13 +16,12 @@
 
 package eu.cloudnetservice.modules.bridge.platform.velocity.commands;
 
-import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
-
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +42,8 @@ public final class VelocityCloudCommand implements SimpleCommand {
     var arguments = invocation.arguments();
     if (arguments.length == 0) {
       // <prefix> /cloudnet <command>
-      invocation.source().sendMessage(serialize(this.management.configuration().prefix() + "/cloudnet <command>"));
+      invocation.source().sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
+        this.management.configuration().prefix() + "/cloudnet <command>"));
       return;
     }
     // get the full command line
@@ -58,12 +58,13 @@ public final class VelocityCloudCommand implements SimpleCommand {
         // check if the sender has the required permission to execute the command
         if (info == null || !invocation.source().hasPermission(info.permission())) {
           // no permission to execute the command
-          invocation.source().sendMessage(serialize(this.management.configuration().message(
-            invocation.source() instanceof Player
-              ? ((Player) invocation.source()).getEffectiveLocale()
-              : Locale.ENGLISH,
-            "command-cloud-sub-command-no-permission"
-          ).replace("%command%", arguments[0])));
+          invocation.source().sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
+            this.management.configuration().message(
+              invocation.source() instanceof Player
+                ? ((Player) invocation.source()).getEffectiveLocale()
+                : Locale.ENGLISH,
+              "command-cloud-sub-command-no-permission"
+            ).replace("%command%", arguments[0])));
         } else {
           // execute the command
           this.executeNow(invocation.source(), commandLine);
@@ -74,7 +75,8 @@ public final class VelocityCloudCommand implements SimpleCommand {
 
   private void executeNow(@NonNull CommandSource source, @NonNull String commandLine) {
     for (var output : CloudNetDriver.instance().clusterNodeProvider().sendCommandLine(commandLine)) {
-      source.sendMessage(serialize(this.management.configuration().prefix() + output));
+      source.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
+        this.management.configuration().prefix() + output));
     }
   }
 

@@ -16,14 +16,12 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 
-import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
-import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serializeToString;
-
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
@@ -61,7 +59,7 @@ public final class VelocitySyncProxyListener {
       var version = event.getPing().getVersion();
       // check if a protocol text is specified in the config
       if (protocolText != null) {
-        version = new ServerPing.Version(1, serializeToString(protocolText));
+        version = new ServerPing.Version(1, ComponentFormats.BUNGEE_TO_ADVENTURE.convertText(protocolText));
       }
 
       var builder = ServerPing.builder()
@@ -76,7 +74,8 @@ public final class VelocitySyncProxyListener {
               s.replace("&", "§"),
               UUID.randomUUID()
             )).toArray(ServerPing.SamplePlayer[]::new) : new ServerPing.SamplePlayer[0])
-        .description(serialize(motd.format(motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers)));
+        .description(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
+          motd.format(motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers)));
 
       event.getPing().getFavicon().ifPresent(builder::favicon);
       event.getPing().getModinfo().ifPresent(builder::mods);
@@ -93,7 +92,7 @@ public final class VelocitySyncProxyListener {
       if (loginConfiguration.maintenance()) {
         // the player is either whitelisted or has the permission to join during maintenance, ignore him
         if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
-          var reason = serialize(
+          var reason = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
             this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null));
           event.setResult(ResultedEvent.ComponentResult.denied(reason));
         }
@@ -101,7 +100,7 @@ public final class VelocitySyncProxyListener {
         // check if the proxy is full and if the player is allowed to join or not
         if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
           && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-          var reason = serialize(
+          var reason = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
             this.syncProxyManagement.configuration().message("player-login-full-server", null));
           event.setResult(ResultedEvent.ComponentResult.denied(reason));
         }

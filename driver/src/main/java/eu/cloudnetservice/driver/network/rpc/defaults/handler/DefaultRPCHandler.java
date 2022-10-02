@@ -95,7 +95,12 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
     // now we try to find the associated method information to the given method name or try to read it
     var instance = inst; // pail
     var information = this.methodCache.get(
-      String.format("%d@%s", instance == null ? -1 : instance.hashCode(), context.methodName()),
+      String.format(
+        "%d@%s@%s@%d",
+        inst == null ? -1 : inst.hashCode(),
+        this.bindingClass.getCanonicalName(),
+        context.methodName(),
+        context.argumentCount()),
       $ -> MethodInformation.find(
         instance,
         this.bindingClass,

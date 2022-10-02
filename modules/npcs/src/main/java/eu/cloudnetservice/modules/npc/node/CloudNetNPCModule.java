@@ -125,7 +125,19 @@ public class CloudNetNPCModule extends DriverModule {
       var database = Node.instance().databaseProvider().database(DATABASE_NAME);
       database.documents().stream()
         .filter(doc -> doc.contains("displayName"))
-        .map(doc -> NPC.builder(doc.toInstanceOf(NPC.class)).inventoryName(doc.getString("displayName")).build())
+        .map(doc -> {
+          var displayName = doc.getString("displayName");
+          var npc = doc.toInstanceOf(NPC.class);
+          var npcBuilder = NPC.builder(npc).inventoryName(displayName);
+
+          // make the old display name - if present - the first (0th) info line
+          if (displayName != null) {
+            npc.infoLines().add(0, displayName);
+            npcBuilder.infoLines(npc.infoLines());
+          }
+
+          return npcBuilder.build();
+        })
         .forEach(npc -> database.insert(NodeNPCManagement.documentKey(npc.location()), JsonDocument.newDocument(npc)));
     }
   }

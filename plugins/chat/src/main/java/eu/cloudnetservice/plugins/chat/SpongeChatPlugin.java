@@ -19,7 +19,7 @@ package eu.cloudnetservice.plugins.chat;
 import com.google.inject.Inject;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -85,7 +85,7 @@ public class SpongeChatPlugin {
     if (format == null) {
       event.setCancelled(true);
     } else {
-      event.setChatFormatter(($, $1, $2, $3) -> Optional.of(AdventureSerializerUtil.serialize(format)));
+      event.setChatFormatter(($, $1, $2, $3) -> Optional.of(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(format)));
     }
   }
 }

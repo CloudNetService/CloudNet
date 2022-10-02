@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.bridge.node.listener;
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -66,7 +67,14 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
   }
 
   @EventListener
-  public void handle(@NonNull CloudServicePostLifecycleEvent event) {
+  public void handleLocalServiceLifecycleChange(@NonNull CloudServicePostLifecycleEvent event) {
+    if (event.newLifeCycle() == ServiceLifeCycle.STOPPED || event.newLifeCycle() == ServiceLifeCycle.DELETED) {
+      this.handleCloudServiceRemove(event.serviceInfo());
+    }
+  }
+
+  @EventListener
+  public void handleClusterServiceLifecycleChange(@NonNull CloudServiceLifecycleChangeEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.STOPPED || event.newLifeCycle() == ServiceLifeCycle.DELETED) {
       this.handleCloudServiceRemove(event.serviceInfo());
     }

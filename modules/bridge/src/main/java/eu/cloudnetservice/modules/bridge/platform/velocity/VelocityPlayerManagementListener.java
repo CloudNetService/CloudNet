@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.platform.velocity;
 
-import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
-
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
@@ -29,6 +27,7 @@ import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -62,17 +61,19 @@ public final class VelocityPlayerManagementListener {
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
-        event.setResult(ResultedEvent.ComponentResult.denied(serialize(this.management.configuration().message(
-          Locale.ENGLISH,
-          "proxy-join-cancel-because-maintenance"))));
+        event.setResult(ResultedEvent.ComponentResult.denied(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
+          this.management.configuration().message(
+            Locale.ENGLISH,
+            "proxy-join-cancel-because-maintenance"))));
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
-        event.setResult(ResultedEvent.ComponentResult.denied(serialize(this.management.configuration().message(
-          Locale.ENGLISH,
-          "proxy-join-cancel-because-permission"))));
+        event.setResult(ResultedEvent.ComponentResult.denied(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
+          this.management.configuration().message(
+            Locale.ENGLISH,
+            "proxy-join-cancel-because-permission"))));
         return;
       }
     }
@@ -103,15 +104,18 @@ public final class VelocityPlayerManagementListener {
           var curServer = event.getPlayer().getCurrentServer().map(ServerConnection::getServerInfo).orElse(null);
           if (event.kickedDuringServerConnect() && curServer != null && curServer.equals(server.getServerInfo())) {
             // send the player a nice message - velocity will keep the connection to the current server
+            // therefore we need to reset the fallback profile as no ServerPostConnectEvent will be called
+            this.management.handleFallbackConnectionSuccess(event.getPlayer());
             return KickedFromServerEvent.Notify.create(this.extractReasonComponent(event));
           } else {
             // redirect the player to the next available hub server
             return KickedFromServerEvent.RedirectPlayer.create(server, this.extractReasonComponent(event));
           }
         })
-        .orElse(KickedFromServerEvent.DisconnectPlayer.create(serialize(this.management.configuration().message(
-          event.getPlayer().getEffectiveLocale(),
-          "proxy-join-disconnect-because-no-hub")))));
+        .orElse(KickedFromServerEvent.DisconnectPlayer.create(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
+          this.management.configuration().message(
+            event.getPlayer().getEffectiveLocale(),
+            "proxy-join-disconnect-because-no-hub")))));
     }
   }
 
@@ -173,7 +177,7 @@ public final class VelocityPlayerManagementListener {
           .replace("%server%", event.getServer().getServerInfo().getName())
           .replace("%reason%", LegacyComponentSerializer.legacySection().serialize(message));
         // format the message
-        return serialize(baseMessage);
+        return ComponentFormats.BUNGEE_TO_ADVENTURE.convert(baseMessage);
       }
     }
     // render the base message without a reason
@@ -181,6 +185,6 @@ public final class VelocityPlayerManagementListener {
       .replace("%server%", event.getServer().getServerInfo().getName())
       .replace("%reason%", "§cUnknown");
     // format the message
-    return serialize(baseMessage);
+    return ComponentFormats.BUNGEE_TO_ADVENTURE.convert(baseMessage);
   }
 }
