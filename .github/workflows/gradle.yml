@@ -73,15 +73,6 @@ jobs:
           sonatypeUsername: "${{ secrets.SONATYPE_USER }}"
           sonatypePassword: "${{ secrets.SONATYPE_KEY }}"
 
-      - name: Publish release to Sonatype
-        if: ${{ github.event_name == 'push' && env.STATUS == 'release' && matrix.java == 17 && (startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/heads/beta')) }}
-        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
-        env:
-          sonatypeUsername: "${{ secrets.SONATYPE_USER }}"
-          sonatypePassword: "${{ secrets.SONATYPE_KEY }}"
-          signingSecretKey: "${{ secrets.SIGNING_KEY }}"
-          signingSecretKeyPassword: "${{ secrets.SIGNING_KEY_PASSWORD }}"
-
       - name: Prepare artifacts zip
         if: ${{ github.event_name == 'push' && matrix.java == 17 }}
         run: |
