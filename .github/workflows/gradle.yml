@@ -71,7 +71,7 @@ jobs:
         run: ./gradlew publish
         env:
           sonatypeUsername: "${{ secrets.SONATYPE_USER }}"
-          sonatypePassword: "${{ secrets.SONATYPE_KEY }}"
+          sonatypePassword: "${{ secrets.SONATYPE_TOKEN }}"
 
       - name: Prepare artifacts zip
         if: ${{ github.event_name == 'push' && matrix.java == 17 }}

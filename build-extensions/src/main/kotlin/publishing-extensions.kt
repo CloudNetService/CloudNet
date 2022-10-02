@@ -47,6 +47,12 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
               email.set("git@derklaro.dev")
               timezone.set("Europe/Berlin")
             }
+
+            developer {
+              id.set("0utplay")
+              email.set("aldin@sijamhodzic.de")
+              timezone.set("Europe/Berlin")
+            }
           }
 
           licenses {
