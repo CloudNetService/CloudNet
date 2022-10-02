@@ -50,7 +50,7 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
 
             developer {
               id.set("0utplay")
-              email.set("aldin@sijamhodzic.de")
+              email.set("me@0utplay.de")
               timezone.set("Europe/Berlin")
             }
           }

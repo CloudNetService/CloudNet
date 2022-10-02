@@ -1,14 +1,8 @@
-name: "Build"
+name: "Publish to maven central"
 
 on:
   push:
     tags: [ "4.*" ]
-  pull_request:
-  workflow_dispatch:
-
-concurrency:
-  group: build-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
