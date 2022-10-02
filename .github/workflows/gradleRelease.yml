@@ -34,7 +34,7 @@ jobs:
       - name: Publish release to Sonatype
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
         env:
-          sonatypeUsername: "${{ secrets.SONATYPE_USER }}"
-          sonatypePassword: "${{ secrets.SONATYPE_TOKEN }}"
-          signingSecretKey: "${{ secrets.SIGNING_KEY }}"
-          signingSecretKeyPassword: "${{ secrets.SIGNING_KEY_PASSWORD }}"
+          SONATYPE_USER: "${{ secrets.SONATYPE_USER }}"
+          SONATYPE_TOKEN: "${{ secrets.SONATYPE_TOKEN }}"
+          SIGNING_KEY: "${{ secrets.SIGNING_KEY }}"
+          SIGNING_KEY_PASSWORD: "${{ secrets.SIGNING_KEY_PASSWORD }}"

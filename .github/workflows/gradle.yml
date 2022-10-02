@@ -70,8 +70,8 @@ jobs:
         if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') && matrix.java == 17 }}
         run: ./gradlew publish
         env:
-          sonatypeUsername: "${{ secrets.SONATYPE_USER }}"
-          sonatypePassword: "${{ secrets.SONATYPE_TOKEN }}"
+          SONATYPE_USER: "${{ secrets.SONATYPE_USER }}"
+          SONATYPE_TOKEN: "${{ secrets.SONATYPE_TOKEN }}"
 
       - name: Prepare artifacts zip
         if: ${{ github.event_name == 'push' && matrix.java == 17 }}
