@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
+import java.util.Collection;
 import java.util.Queue;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -197,6 +198,33 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given command line is null.
    */
   void runCommand(@NonNull String command);
+
+  /**
+   * Gets the templates that actually are installed on the service. If a template is present in the configuration
+   * {@link eu.cloudnetservice.driver.service.ServiceConfiguration} but wasn't pulled onto the service it won't appear
+   * in this collection.
+   *
+   * @return all installed templates of the service.
+   */
+  @NonNull Collection<ServiceTemplate> installedTemplates();
+
+  /**
+   * Gets the inclusions that actually are installed on the service. If an inclusion is present in the configuration
+   * {@link eu.cloudnetservice.driver.service.ServiceConfiguration} but wasn't pulled onto the service it won't appear
+   * in this collection.
+   *
+   * @return all installed inclusions of the service.
+   */
+  @NonNull Collection<ServiceRemoteInclusion> installedInclusions();
+
+  /**
+   * Gets the deployments that were actually executed for this service. If a deployment is present in the configuration
+   * {@link eu.cloudnetservice.driver.service.ServiceConfiguration} but wasn't executed until now it won't appear in this
+   * collection.
+   *
+   * @return all executed deployments of the service.
+   */
+  @NonNull Collection<ServiceDeployment> installedDeployments();
 
   /**
    * Copies all queued templates onto the service without further checks. Note that this can lead to errors if you try

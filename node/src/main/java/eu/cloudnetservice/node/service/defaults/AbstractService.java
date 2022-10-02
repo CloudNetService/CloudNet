@@ -50,8 +50,10 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.service.CloudServiceCreateEvent;
 import eu.cloudnetservice.node.event.service.CloudServiceDeploymentEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
+import eu.cloudnetservice.node.event.service.CloudServicePostPrepareEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePreLifecycleEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePreLoadInclusionEvent;
+import eu.cloudnetservice.node.event.service.CloudServicePrePrepareEvent;
 import eu.cloudnetservice.node.event.service.CloudServiceTemplateLoadEvent;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
@@ -62,6 +64,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
@@ -103,6 +106,10 @@ public abstract class AbstractService implements CloudService {
   protected final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceDeployment> waitingDeployments = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceRemoteInclusion> waitingRemoteInclusions = new ConcurrentLinkedQueue<>();
+
+  protected final Collection<ServiceTemplate> installedTemplates = ConcurrentHashMap.newKeySet();
+  protected final Collection<ServiceRemoteInclusion> installedInclusions = ConcurrentHashMap.newKeySet();
+  protected final Collection<ServiceDeployment> installedDeployments = ConcurrentHashMap.newKeySet();
 
   protected ServiceConsoleLogCache logCache;
 
@@ -270,7 +277,14 @@ public abstract class AbstractService implements CloudService {
           }
         }
         // cannot be set - just ignore
-        case PREPARED -> LOGGER.info(I18n.trans("cloudnet-service-post-prepared-message", this.serviceReplacement()));
+        case PREPARED -> {
+          // in this state no templates, inclusions or deployments are installed anymore
+          this.installedTemplates.clear();
+          this.installedInclusions.clear();
+          this.installedDeployments.clear();
+
+          LOGGER.info(I18n.trans("cloudnet-service-post-prepared-message", this.serviceReplacement()));
+        }
         default -> throw new IllegalStateException("Unhandled ServiceLifeCycle: " + lifeCycle);
       }
     } finally {
@@ -282,6 +296,21 @@ public abstract class AbstractService implements CloudService {
   public void restart() {
     this.updateLifecycle(ServiceLifeCycle.STOPPED, false);
     this.updateLifecycle(ServiceLifeCycle.RUNNING);
+  }
+
+  @Override
+  public @NonNull Collection<ServiceTemplate> installedTemplates() {
+    return this.installedTemplates;
+  }
+
+  @Override
+  public @NonNull Collection<ServiceRemoteInclusion> installedInclusions() {
+    return this.installedInclusions;
+  }
+
+  @Override
+  public @NonNull Collection<ServiceDeployment> installedDeployments() {
+    return this.installedDeployments;
   }
 
   @Override
@@ -321,6 +350,8 @@ public abstract class AbstractService implements CloudService {
         FileUtil.ensureChild(this.serviceDirectory, target);
         // copy the file to the desired output path
         FileUtil.copy(destination, target);
+        // we've installed the inclusion successfully
+        this.installedInclusions.add(inclusion);
       }
     }
   }
@@ -503,6 +534,8 @@ public abstract class AbstractService implements CloudService {
         if (!this.eventManager.callEvent(new CloudServiceTemplateLoadEvent(this, storage, template)).cancelled()) {
           // the event is not cancelled - copy the template
           storage.pull(template, this.serviceDirectory);
+          // we've pulled the template
+          this.installedTemplates.add(template);
         }
       });
   }
@@ -526,6 +559,8 @@ public abstract class AbstractService implements CloudService {
         var includes = deployment.includes();
         return includes.isEmpty() || includes.stream().anyMatch(input -> FILE_MATCHER_PREDICATE.test(fileName, input));
       });
+      // we've executed the deployment
+      this.installedDeployments.add(deployment);
     }
   }
 
@@ -636,10 +671,14 @@ public abstract class AbstractService implements CloudService {
     if (sslConfiguration.enabled()) {
       sslConfiguration = this.prepareSslConfiguration(sslConfiguration);
     }
+
     // add all components
     this.waitingTemplates.addAll(this.serviceConfiguration.templates());
     this.waitingDeployments.addAll(this.serviceConfiguration.deployments());
     this.waitingRemoteInclusions.addAll(this.serviceConfiguration.inclusions());
+
+    this.eventManager.callEvent(new CloudServicePrePrepareEvent(this));
+
     // load the inclusions
     this.includeWaitingServiceInclusions();
     // check if we should load the templates of the service
@@ -655,6 +694,8 @@ public abstract class AbstractService implements CloudService {
       .append("serviceConfiguration", this.serviceConfiguration())
       .append("sslConfiguration", sslConfiguration)
       .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
+    // finished the prepare process
+    this.eventManager.callEvent(new CloudServicePostPrepareEvent(this));
   }
 
   protected @NonNull HostAndPort selectConnectListener(@NonNull List<HostAndPort> listeners) {
