@@ -136,7 +136,9 @@ public final class BukkitFunctionalityListener implements Listener {
 
     // we have to register each entity to the players scoreboard
     for (var entity : this.management.trackedEntities().values()) {
-      entity.registerScoreboardTeam(player.getScoreboard());
+      if (entity.spawned()) {
+        entity.registerScoreboardTeam(player.getScoreboard());
+      }
     }
   }
 
