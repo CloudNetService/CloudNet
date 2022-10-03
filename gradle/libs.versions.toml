@@ -18,7 +18,7 @@ guava = "31.1-jre"
 junit = "5.9.1"
 mockito = "4.8.0"
 tyrusClient = "2.1.0"
-testcontainers = "1.17.3"
+testcontainers = "1.17.4"
 
 # compile time processing
 lombok = "1.18.24"
