@@ -76,7 +76,7 @@ public final class GroupsCommand {
   @CommandMethod("groups create <name>")
   public void createGroup(@NonNull CommandSource source, @NonNull @Argument("name") String groupName) {
     if (this.groupProvider().groupConfiguration(groupName) != null) {
-      source.sendMessage(I18n.trans("command-groups-group-already-existing"));
+      source.sendMessage(I18n.trans("command-groups-group-already-existing", groupName));
     } else {
       this.groupProvider().addGroupConfiguration(GroupConfiguration.builder().name(groupName).build());
       source.sendMessage(I18n.trans("command-groups-create-success", groupName));
@@ -112,6 +112,22 @@ public final class GroupsCommand {
 
     TasksCommand.applyServiceConfigurationDisplay(messages, group);
     source.sendMessage(messages);
+  }
+
+  @CommandMethod("groups rename <oldName> <newName>")
+  public void renameGroup(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "oldName") GroupConfiguration group,
+    @NonNull @Argument("newName") String newName
+  ) {
+    if (this.groupProvider().groupConfiguration(newName) != null) {
+      source.sendMessage(I18n.trans("command-groups-group-already-existing", newName));
+    } else {
+      // create a copy with the new name and remove the old group
+      this.groupProvider().removeGroupConfiguration(group);
+      this.groupProvider().addGroupConfiguration(GroupConfiguration.builder(group).name(newName).build());
+      source.sendMessage(I18n.trans("command-groups-rename-success", group.name(), newName));
+    }
   }
 
   @CommandMethod("groups group <name> add environment <environment>")
