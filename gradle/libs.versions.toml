@@ -36,7 +36,7 @@ hikariCp = "5.0.1"
 mysqlConnector = "8.0.30"
 
 # general
-asm = "9.3"
+asm = "9.4"
 oshi = "6.2.2"
 sshj = "0.34.0"
 jjwt = "0.11.5"
