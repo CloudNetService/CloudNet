@@ -44,6 +44,8 @@ public final class BukkitWorldListener implements Listener {
     this.management.trackedEntities().values()
       .stream()
       .filter(npc -> !npc.spawned())
+      .filter(npc -> npc.location().getWorld() != null) // cannot use canSpawn as the chunk is not marked as loaded yet
+      .filter(npc -> npc.npc().location().world().equals(event.getWorld().getName()))
       .filter(npc -> {
         var chunkX = NumberConversions.floor(npc.location().getX()) >> 4;
         var chunkZ = NumberConversions.floor(npc.location().getZ()) >> 4;
@@ -58,6 +60,7 @@ public final class BukkitWorldListener implements Listener {
     this.management.trackedEntities().values()
       .stream()
       .filter(PlatformSelectorEntity::spawned)
+      .filter(npc -> npc.location().getWorld().getUID().equals(event.getWorld().getUID()))
       .filter(npc -> {
         var chunkX = NumberConversions.floor(npc.location().getX()) >> 4;
         var chunkZ = NumberConversions.floor(npc.location().getZ()) >> 4;
