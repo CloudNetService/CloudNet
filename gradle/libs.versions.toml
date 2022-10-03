@@ -50,7 +50,7 @@ unirest = "4.0.0-RC2"
 nightConfig = "3.6.6"
 annotations = "23.0.0"
 influxClient = "6.5.0"
-netty = "5.0.0.Alpha5-SNAPSHOT"
+netty = "5.0.0.Alpha5"
 
 # platform api versions
 sponge = "9.0.0"
