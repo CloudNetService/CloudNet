@@ -41,6 +41,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
@@ -169,6 +170,14 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       if (!document.contains("nameSplitter")) {
         document.append("nameSplitter", "-");
       }
+
+      // check if the task has environment variables
+      var processConfiguration = document.getDocument("processConfiguration");
+      if (!processConfiguration.contains("environmentVariables")) {
+        processConfiguration.append("environmentVariables", new HashMap<>());
+        document.append("processConfiguration", processConfiguration);
+      }
+
       // load the service task
       var task = document.toInstanceOf(ServiceTask.class);
       // check if the file name is still up-to-date

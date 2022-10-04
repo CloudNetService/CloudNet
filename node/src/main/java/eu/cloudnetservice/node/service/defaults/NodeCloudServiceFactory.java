@@ -210,6 +210,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
           .modifyDeployments(deployments -> deployments.addAll(config.deployments()))
           // append process configuration settings
           .modifyJvmOptions(jvmOptions -> jvmOptions.addAll(config.jvmOptions()))
+          .modifyEnvironmentVariables(environment -> environment.putAll(config.environmentVariables()))
           .modifyProcessParameters(processParameters -> processParameters.addAll(config.processParameters()));
       }
     }

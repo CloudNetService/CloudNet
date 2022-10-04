@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.service.defaults;
 
 import com.google.common.primitives.Ints;
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.io.FileUtil;
@@ -215,7 +216,17 @@ public class JVMService extends AbstractService {
     @NonNull Path applicationFilePath
   ) {
     try {
-      this.process = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile()).start();
+      // prepare the builder and apply the environment variables to it
+      var builder = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile());
+      for (var entry : this.serviceConfiguration().environmentVariables().entrySet()) {
+        // there is no consensus forcing the key of an environment variable to be uppercase
+        // however, docker rejects environment variables with a non-uppercase key, so to keep
+        // consistency between service types we force the uppercase keys here as well
+        builder.environment().put(StringUtil.toUpper(entry.getKey()), entry.getValue());
+      }
+
+      // start the process and fire the post start event
+      this.process = builder.start();
       this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this));
     } catch (IOException exception) {
       LOGGER.severe("Unable to start process in %s with command line %s",

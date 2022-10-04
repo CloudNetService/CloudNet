@@ -19,8 +19,10 @@ package eu.cloudnetservice.driver.service;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
@@ -82,6 +84,15 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
   public abstract @NonNull Collection<String> processParameters();
 
   /**
+   * Get the environment variables which should get appended to all environments of services which are created based on
+   * this configuration.
+   *
+   * @return the environment variables to set for services created based on this configuration.
+   */
+  @Unmodifiable
+  public abstract @NonNull Map<String, String> environmentVariables();
+
+  /**
    * Get all includes which should be added initially to services created based on this configuration. These inclusions
    * are downloaded and included either when explicitly requested or before starting the service.
    *
@@ -129,11 +140,15 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
   public abstract static class Builder<T extends ServiceConfigurationBase, B extends Builder<T, B>> {
 
     protected JsonDocument properties = JsonDocument.newDocument();
+
     protected Set<String> jvmOptions = new LinkedHashSet<>();
     protected Set<String> processParameters = new LinkedHashSet<>();
+
     protected Set<ServiceTemplate> templates = new HashSet<>();
     protected Set<ServiceDeployment> deployments = new HashSet<>();
     protected Set<ServiceRemoteInclusion> includes = new HashSet<>();
+
+    protected Map<String, String> environmentVariables = new HashMap<>();
 
     /**
      * The properties to apply to the underlying created configuration.
@@ -311,6 +326,34 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
      */
     public @NonNull B modifyInclusions(@NonNull Consumer<Collection<ServiceRemoteInclusion>> modifier) {
       modifier.accept(this.includes);
+      return this.self();
+    }
+
+
+    /**
+     * Sets the environment variables which should set in the environment the process runs in.
+     * <p>
+     * This method will override all previously added environment variables options. Furthermore, the given map will be
+     * copied into this builder, meaning that changes to it will not reflect into the builder after the method call.
+     *
+     * @param environmentVariables the environment variables to apply to processes created based on this configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given environment variables map is null.
+     */
+    public @NonNull B environmentVariables(@NonNull Map<String, String> environmentVariables) {
+      this.environmentVariables = new HashMap<>(environmentVariables);
+      return this.self();
+    }
+
+    /**
+     * Modifies the environment variables which should get appended to the environment of the process.
+     *
+     * @param modifier the modifier to be applied to the already added environment variables of this builder.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the modifier is null.
+     */
+    public @NonNull B modifyEnvironmentVariables(@NonNull Consumer<Map<String, String>> modifier) {
+      modifier.accept(this.environmentVariables);
       return this.self();
     }
 
