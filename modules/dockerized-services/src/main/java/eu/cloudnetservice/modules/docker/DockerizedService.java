@@ -39,6 +39,7 @@ import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
 import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.event.service.CloudServicePostProcessStartEvent;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.JVMService;
@@ -237,6 +238,8 @@ public class DockerizedService extends JVMService {
         .withTimestamps(false)
         .withFollowStream(true)
         .exec(new ServiceLogCacheAdapter());
+
+      this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this));
     } catch (NotModifiedException | IOException exception) {
       // the container might be running already
       LOGGER.fine("Unable to start container", exception);

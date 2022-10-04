@@ -124,9 +124,22 @@ public final class BukkitFunctionalityListener implements Listener {
     }
   }
 
-  @EventHandler(priority = EventPriority.LOWEST)
+  @EventHandler(priority = EventPriority.MONITOR)
   public void handle(@NonNull PlayerJoinEvent event) {
-    event.getPlayer().setScoreboard(this.management.scoreboard());
+    var player = event.getPlayer();
+
+    // create a new scoreboard for the player if the player uses the main scoreboard
+    var manager = player.getServer().getScoreboardManager();
+    if (manager != null && player.getScoreboard().equals(manager.getMainScoreboard())) {
+      player.setScoreboard(manager.getNewScoreboard());
+    }
+
+    // we have to register each entity to the players scoreboard
+    for (var entity : this.management.trackedEntities().values()) {
+      if (entity.spawned()) {
+        entity.registerScoreboardTeam(player.getScoreboard());
+      }
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)

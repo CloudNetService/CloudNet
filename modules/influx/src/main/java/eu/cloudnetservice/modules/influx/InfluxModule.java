@@ -32,7 +32,7 @@ public final class InfluxModule extends DriverModule {
   public void start() {
     // read the config and connect to influx
     var conf = this.readConfig(InfluxConfiguration.class, () -> new InfluxConfiguration(
-      new HostAndPort("127.0.0.1", 8086),
+      new HostAndPort("http://127.0.0.1", 8086),
       "token",
       "org",
       "bucket",

@@ -55,5 +55,5 @@
   "prHourlyLimit": 10,
   "rebaseLabel": "s: rebase",
   "stopUpdatingLabel": "s: stop updates",
-  "commitMessagePrefix": "chore(deps): "
+  "commitMessagePrefix": "chore: "
 }

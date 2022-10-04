@@ -52,12 +52,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.NameTagVisibility;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class BukkitPlatformSelectorEntity
-  implements PlatformSelectorEntity<Location, Player, ItemStack, Inventory> {
+  implements PlatformSelectorEntity<Location, Player, ItemStack, Inventory, Scoreboard> {
 
   protected static final MethodAccessor<?> SET_COLOR = Reflexion.on(Team.class)
     .findMethod("setColor", ChatColor.class)
@@ -65,7 +66,6 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected final NPC npc;
   protected final Plugin plugin;
-  protected final Location npcLocation;
   protected final BukkitPlatformNPCManagement npcManagement;
 
   protected final UUID uniqueId;
@@ -76,6 +76,7 @@ public abstract class BukkitPlatformSelectorEntity
   protected final Map<UUID, ServiceItemWrapper> serviceItems = new LinkedHashMap<>();
 
   protected volatile Inventory inventory;
+  protected volatile Location npcLocation;
 
   protected BukkitPlatformSelectorEntity(
     @NonNull BukkitPlatformNPCManagement npcManagement,
@@ -99,24 +100,11 @@ public abstract class BukkitPlatformSelectorEntity
       // spawn the selector entity
       this.spawn0();
       // do the scoreboard related stuff now
-      var scoreboard = this.npcManagement.scoreboard();
-      // check if a team for the glowing color is already registered
-      var team = scoreboard.getTeam(this.scoreboardTeamName);
-      if (team == null) {
-        team = scoreboard.registerNewTeam(this.scoreboardTeamName);
+      for (var player : Bukkit.getOnlinePlayers()) {
+        this.registerScoreboardTeam(player.getScoreboard());
       }
-      // set the name tag visibility of the team
-      team.setNameTagVisibility(NameTagVisibility.NEVER);
-      // register the spawned entity to the team
-      team.addEntry(this.scoreboardRepresentation());
-      // check if the entity should have a glowing color
-      if (SET_COLOR != null && this.npc.glowing()) {
-        // try to set the team color
-        var color = ChatColor.getByChar(this.npc.glowingColor());
-        if (color != null) {
-          SET_COLOR.invoke(team, color);
-        }
-        // let the entity glow!
+      // let the entity glow!
+      if (this.npc.glowing()) {
         this.addGlowingEffect();
       }
       // spawn the info lines
@@ -281,6 +269,27 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   @Override
+  public void registerScoreboardTeam(@NonNull Scoreboard scoreboard) {
+    // check if a team for this entity is already created
+    var team = scoreboard.getTeam(this.scoreboardTeamName);
+    if (team == null) {
+      team = scoreboard.registerNewTeam(this.scoreboardTeamName);
+    }
+    // set the name tag visibility of the team
+    team.setNameTagVisibility(NameTagVisibility.NEVER);
+    // register the spawned entity to the team
+    team.addEntry(this.scoreboardRepresentation());
+    // check if the entity should have a glowing color
+    if (SET_COLOR != null && this.npc.glowing()) {
+      // try to set the team color
+      var color = ChatColor.getByChar(this.npc.glowingColor());
+      if (color != null) {
+        SET_COLOR.invoke(team, color);
+      }
+    }
+  }
+
+  @Override
   public @NonNull Inventory selectorInventory() {
     return this.inventory;
   }
@@ -297,15 +306,40 @@ public abstract class BukkitPlatformSelectorEntity
 
   @Override
   public @NonNull Location location() {
-    return this.npcLocation;
+    var currentLoc = this.npcLocation;
+
+    // check if the world in the location object & the world given by bukkit still match
+    var world = Bukkit.getWorld(this.npc.location().world());
+    if ((world != null && currentLoc.getWorld() != null) || (world == null && currentLoc.getWorld() == null)) {
+      // all still the same
+      return currentLoc;
+    }
+
+    // check if the world was un-/loaded
+    if ((world != null && currentLoc.getWorld() == null) || (world == null && currentLoc.getWorld() != null)) {
+      // re-init the location with the new world in it
+      this.npcLocation = this.npcManagement.toPlatformLocation(this.npc.location());
+      return this.npcLocation;
+    }
+
+    return currentLoc;
   }
 
   @Override
   public boolean canSpawn() {
-    var chunkX = NumberConversions.floor(this.npcLocation.getX()) >> 4;
-    var chunkZ = NumberConversions.floor(this.npcLocation.getZ()) >> 4;
+    // use this.location() as it tries to initialize the location again if the world is missing
+    var location = this.location();
 
-    return this.npcLocation.getWorld() != null && this.npcLocation.getWorld().isChunkLoaded(chunkX, chunkZ);
+    // ensure that the associated world is loaded
+    var world = location.getWorld();
+    if (world == null) {
+      return false;
+    }
+
+    // ensure that the chunk the npc is located in is loaded
+    var chunkX = NumberConversions.floor(location.getX()) >> 4;
+    var chunkZ = NumberConversions.floor(location.getZ()) >> 4;
+    return world.isChunkLoaded(chunkX, chunkZ);
   }
 
   protected void handleClickAction(@NonNull Player player, @NonNull NPC.ClickAction action) {

@@ -34,10 +34,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.Scoreboard;
 
 public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
 
-  public static final NpcFlag<PlatformSelectorEntity<Location, Player, ItemStack, Inventory>> SELECTOR_ENTITY = NpcFlag.flag(
+  public static final NpcFlag<PlatformSelectorEntity<Location, Player, ItemStack, Inventory, Scoreboard>> SELECTOR_ENTITY = NpcFlag.flag(
     "cloudnet_selector_entity",
     null);
 
