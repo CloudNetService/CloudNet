@@ -66,7 +66,7 @@ public class ComponentConverter<C> {
           //   3: skip over all hex delimiter chars as we don't need to worry about them
           //   4: append the char at the current position, prefixed by the hex delimiter if the target has one
           for (var pos = i + 2; pos < i + this.source.hexSegmentLength(); pos++) {
-            char c = chars[pos];
+            var c = chars[pos];
             // skip over delimiter chars - we don't need them
             if (sourceHexDel && this.source.charIsValidColorIndicationChar(chars, pos, c)) {
               continue;

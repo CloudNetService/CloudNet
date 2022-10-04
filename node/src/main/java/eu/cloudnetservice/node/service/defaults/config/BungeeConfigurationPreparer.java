@@ -36,7 +36,7 @@ public class BungeeConfigurationPreparer extends AbstractServiceConfigurationPre
         List<Config> listeners = config.get("listeners");
         // get the first registered listeners - editing all of them will result in bungee start failures
         // but removing other entries might break setups...
-        Config firstListener = Iterables.getFirst(listeners, null);
+        var firstListener = Iterables.getFirst(listeners, null);
         Objects.requireNonNull(
           firstListener,
           "No listeners configured in bungee config - please fix your configuration!");

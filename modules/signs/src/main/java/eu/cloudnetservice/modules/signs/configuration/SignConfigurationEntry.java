@@ -88,7 +88,7 @@ public record SignConfigurationEntry(
     @NonNull String block
   ) {
     List<SignLayout> signLayouts = new ArrayList<>(3);
-    for (int i = 1; i <= 3; i++) {
+    for (var i = 1; i <= 3; i++) {
       signLayouts.add(SignLayout.builder()
         .lines("", firstLine, ".".repeat(i), "")
         .blockMaterial(block)

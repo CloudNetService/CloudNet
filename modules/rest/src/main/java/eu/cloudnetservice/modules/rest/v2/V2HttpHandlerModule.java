@@ -128,8 +128,8 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   @HttpRequestHandler(paths = "/api/v2/module/{module}/config")
   private void handleModuleConfigRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("module") String name) {
     this.handleWithModuleContext(ctx, name, module -> {
-      if (module.module() instanceof DriverModule) {
-        var config = ((DriverModule) module.module()).readConfig();
+      if (module.module() instanceof DriverModule driverModule) {
+        var config = driverModule.readConfig();
         this.ok(ctx)
           .body(this.success().append("config", config).toString())
           .context()

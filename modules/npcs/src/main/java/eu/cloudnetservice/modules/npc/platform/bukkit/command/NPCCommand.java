@@ -596,13 +596,15 @@ public final class NPCCommand extends BaseTabExecutor {
     // create arguments
     if (args[0].equalsIgnoreCase("create")) {
       switch (args.length) {
-        case 2:
+        case 2 -> {
           return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations().stream()
             .map(GroupConfiguration::name)
             .toList();
-        case 3:
+        }
+        case 3 -> {
           return NPC_TYPES;
-        case 4: {
+        }
+        case 4 -> {
           // try to give a suggestion based on the previous input
           var type = Enums.getIfPresent(NPC.NPCType.class, StringUtil.toUpper(args[2])).orNull();
           if (type != null) {
@@ -619,8 +621,9 @@ public final class NPCCommand extends BaseTabExecutor {
           }
           return Collections.emptyList();
         }
-        default:
+        default -> {
           return Collections.emptyList();
+        }
       }
     }
     // edit commands

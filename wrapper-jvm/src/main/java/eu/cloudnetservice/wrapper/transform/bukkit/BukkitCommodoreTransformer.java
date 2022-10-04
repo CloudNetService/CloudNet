@@ -39,7 +39,7 @@ public final class BukkitCommodoreTransformer implements Transformer {
       // prevent bukkit from re-transforming modern api using plugins on older minecraft servers by just returning
       if (method.name.equals("convert") && method.desc.equals("([BZ)[B")) {
         // check if bukkit is using an outdated asm version
-        int asmVersion = -1;
+        var asmVersion = -1;
         for (var instruction : method.instructions) {
           if (instruction.getOpcode() == Opcodes.LDC
             && instruction instanceof LdcInsnNode ldcInsnNode

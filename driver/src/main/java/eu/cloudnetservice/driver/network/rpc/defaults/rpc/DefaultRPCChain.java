@@ -147,9 +147,9 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
       Task<T> queryTask = this.fire(component);
       return queryTask.get();
     } catch (ExecutionException exception) {
-      if (exception.getCause() instanceof RPCExecutionException) {
+      if (exception.getCause() instanceof RPCExecutionException rpcExecutionException) {
         // may be thrown when the handler did throw an exception, just rethrow that one
-        throw (RPCExecutionException) exception.getCause();
+        throw rpcExecutionException;
       } else {
         // any other exception should get wrapped
         throw new RPCException(this, exception);

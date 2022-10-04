@@ -140,7 +140,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     @NonNull @FirstRequestQueryParam("path") String path
   ) {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
-      boolean status = storage.hasFile(template, path);
+      var status = storage.hasFile(template, path);
       this.ok(context)
         .body(this.success().append("exists", status).toString())
         .context()
@@ -178,7 +178,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     @NonNull @RequestPathParam("name") String templateName
   ) {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
-      boolean status = storage.create(template);
+      var status = storage.create(template);
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
@@ -197,7 +197,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     @NonNull @RequestBody InputStream body
   ) {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
-      boolean status = storage.deploy(template, body);
+      var status = storage.deploy(template, body);
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
@@ -216,7 +216,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     @NonNull @FirstRequestQueryParam("path") String path
   ) {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
-      boolean status = storage.deleteFile(template, path);
+      var status = storage.deleteFile(template, path);
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
@@ -234,7 +234,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     @NonNull @RequestPathParam("name") String templateName
   ) {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
-      boolean status = storage.delete(template);
+      var status = storage.delete(template);
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
@@ -307,7 +307,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     @NonNull @FirstRequestQueryParam("path") String path
   ) {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
-      boolean status = storage.createDirectory(template, path);
+      var status = storage.createDirectory(template, path);
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()

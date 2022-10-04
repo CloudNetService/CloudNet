@@ -354,7 +354,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     this.groups.clear();
     // set the provided groups
     if (groups != null) {
-      for (PermissionGroup group : groups) {
+      for (var group : groups) {
         this.groups.put(group.name(), group);
       }
       // save the groups

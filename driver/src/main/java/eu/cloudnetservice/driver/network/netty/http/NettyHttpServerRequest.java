@@ -265,8 +265,8 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
    */
   @Override
   public @Nullable InputStream bodyStream() {
-    if (this.httpRequest instanceof FullHttpRequest) {
-      return new BufferInputStream(((FullHttpRequest) this.httpRequest).payload().send());
+    if (this.httpRequest instanceof FullHttpRequest fullHttpRequest) {
+      return new BufferInputStream(fullHttpRequest.payload().send());
     } else {
       return null;
     }

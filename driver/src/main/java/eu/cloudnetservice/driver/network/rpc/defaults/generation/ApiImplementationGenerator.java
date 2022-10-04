@@ -156,7 +156,7 @@ public final class ApiImplementationGenerator {
       mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(%s%s)V", SENDER_DESC, SUPPLIER_DESC), null, null);
       // generate the constructor
       // check if the class has a constructor with a rpc sender instance, use that prioritized
-      boolean useSenderConstructor = false;
+      var useSenderConstructor = false;
       if (context.extendingClass() != null) {
         try {
           context.extendingClass().getDeclaredConstructor(RPCSender.class);
@@ -238,7 +238,7 @@ public final class ApiImplementationGenerator {
     AsmHelper.pushInt(mv, params.length);
     mv.visitTypeInsn(ANEWARRAY, DEFAULT_SUPER);
     // add each parameter to the array
-    for (int i = 0; i < params.length; i++) {
+    for (var i = 0; i < params.length; i++) {
       var type = params[i];
       var intType = Type.getType(type);
       // dup the array on the stack and push the target index we want to add the object to
@@ -375,7 +375,7 @@ public final class ApiImplementationGenerator {
    * @throws NullPointerException if the given start class or handler is null.
    */
   private static void travelClassHierarchy(@NonNull Class<?> start, @NonNull Consumer<Method> handler) {
-    Class<?> curr = start;
+    var curr = start;
     do {
       // we only need public visible methods
       for (var method : curr.getDeclaredMethods()) {

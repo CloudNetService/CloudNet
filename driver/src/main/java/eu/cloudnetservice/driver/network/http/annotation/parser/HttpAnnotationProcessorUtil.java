@@ -61,7 +61,7 @@ public final class HttpAnnotationProcessorUtil {
     var parameters = method.getParameters();
     List<ParameterInvocationHint> hints = new ArrayList<>();
 
-    for (int i = 0; i < parameters.length; i++) {
+    for (var i = 0; i < parameters.length; i++) {
       var param = parameters[i];
       var annotation = param.getAnnotation(annotationType);
 

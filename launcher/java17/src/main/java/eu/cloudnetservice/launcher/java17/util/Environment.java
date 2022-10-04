@@ -34,7 +34,7 @@ public final class Environment {
       ROOT_OR_ADMIN_USER = Arrays.binarySearch(new NTSystem().getGroupIDs(), HIGH_INTEGRITY_LEVEL) >= 0;
     } else {
       // unix check
-      boolean elevated = false;
+      var elevated = false;
       if (new UnixSystem().getUid() == 0) {
         // getUid returns 0 as well when running which has no name, so we need to double-check to be sure
         // This is fixed in Java 18, see: https://bugs.openjdk.java.net/browse/JDK-8274721

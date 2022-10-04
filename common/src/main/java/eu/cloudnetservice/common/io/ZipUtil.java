@@ -193,7 +193,7 @@ public final class ZipUtil {
    */
   public static @Nullable Path extract(@NonNull InputStream in, @NonNull Path targetDirectory) {
     return extractZipStream(
-      in instanceof ZipInputStream ? (ZipInputStream) in : new ZipInputStream(in, StandardCharsets.UTF_8),
+      in instanceof ZipInputStream zipInputStream ? zipInputStream : new ZipInputStream(in, StandardCharsets.UTF_8),
       targetDirectory);
   }
 

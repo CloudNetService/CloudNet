@@ -190,21 +190,18 @@ public abstract class BukkitPlatformSelectorEntity
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(service);
     ItemLayout layout;
     switch (state) {
-      case EMPTY_ONLINE:
-        layout = layouts.emptyLayout();
-        break;
-      case FULL_ONLINE:
+      case EMPTY_ONLINE -> layout = layouts.emptyLayout();
+      case FULL_ONLINE -> {
         if (configuration.showFullServices()) {
           layout = layouts.fullLayout();
-          break;
         } else {
           return;
         }
-      case ONLINE:
-        layout = layouts.onlineLayout();
-        break;
-      default:
+      }
+      case ONLINE -> layout = layouts.onlineLayout();
+      default -> {
         return;
+      }
     }
     // build the item stack from the layout
     var item = this.buildItemStack(layout, service);

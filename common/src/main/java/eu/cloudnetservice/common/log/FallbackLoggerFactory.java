@@ -41,8 +41,8 @@ final class FallbackLoggerFactory implements LoggerFactory {
   public @NonNull Logger logger(@NonNull String name) {
     var registered = LogManager.getLogManager().getLogger(name);
     // check if this logger is already a wrapped logger
-    if (registered instanceof Logger) {
-      return (Logger) registered;
+    if (registered instanceof Logger logger) {
+      return logger;
     }
     // get the logger from the cache or create a new one and put it into
     return this.createdLoggers.computeIfAbsent(name, $ -> {

@@ -65,7 +65,7 @@ public final class NettyUtil {
     }
 
     // pre-compute all var int byte lengths
-    for (int i = 0; i <= 32; ++i) {
+    for (var i = 0; i <= 32; ++i) {
       VAR_INT_BYTE_LENGTHS[i] = (int) Math.ceil((31d - (i - 1)) / 7d);
     }
     // 0 is always one byte long

@@ -150,7 +150,7 @@ class MySQLDatabaseTest {
     List<String> keys = new ArrayList<>();
     var expectedReadCounts = (int) Math.ceil(entries / 50D);
 
-    for (int i = 0; i < entries; i++) {
+    for (var i = 0; i < entries; i++) {
       var key = UUID.randomUUID().toString();
 
       keys.add(key);
