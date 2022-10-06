@@ -677,6 +677,7 @@ public abstract class AbstractService implements CloudService {
     this.waitingDeployments.addAll(this.serviceConfiguration.deployments());
     this.waitingRemoteInclusions.addAll(this.serviceConfiguration.inclusions());
 
+    // initial service details are now ready, let the modules know that we're starting to prepare
     this.eventManager.callEvent(new CloudServicePrePrepareEvent(this));
 
     // load the inclusions
