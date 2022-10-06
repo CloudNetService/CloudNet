@@ -19,10 +19,14 @@ package eu.cloudnetservice.modules.smart.listener;
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
+import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
+import eu.cloudnetservice.node.event.service.CloudServicePrePrepareEvent;
+import eu.cloudnetservice.node.service.CloudService;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,67 +44,95 @@ public final class CloudNetLocalServiceListener {
   @EventListener
   public void handle(@NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.PREPARED) {
-      var task = Node.instance().serviceTaskProvider()
-        .serviceTask(event.service().serviceId().taskName());
+      var task = Node.instance().serviceTaskProvider().serviceTask(event.service().serviceId().taskName());
       // check if the service is associated with a task
       if (task == null) {
         return;
       }
-      // get the smart entry for the service
+
       var config = this.module.smartConfig(task);
-      if (config != null && config.enabled()) {
-        Set<ServiceTemplate> templates = new HashSet<>(event.service().waitingTemplates());
-        templates.removeAll(task.templates());
-        // apply the template installer
-        switch (config.templateInstaller()) {
-          // installs all templates of the service
-          case INSTALL_ALL -> templates.addAll(task.templates());
+      // include templates and inclusions if configured
+      if (config != null && config.directTemplatesAndInclusionsSetup()) {
+        this.installTemplates(config, task, event.service());
 
-          // installs a random amount of templates
-          case INSTALL_RANDOM -> {
-            if (!task.templates().isEmpty()) {
-              // get the amount of templates to install
-              var amount = ThreadLocalRandom.current().nextInt(1, task.templates().size());
-              // install randomly picked templates
-              ThreadLocalRandom.current().ints(amount, 0, task.templates().size())
-                .forEach(i -> templates.add(Iterables.get(task.templates(), i)));
-            }
-          }
+        // add the initial inclusions of the service
+        event.service().waitingIncludes().addAll(event.service().serviceConfiguration().inclusions());
 
-          // installs one random template
-          case INSTALL_RANDOM_ONCE -> {
-            if (!task.templates().isEmpty()) {
-              // get the template to install
-              var index = ThreadLocalRandom.current().nextInt(0, task.templates().size());
-              templates.add(Iterables.get(task.templates(), index));
-            }
-          }
-
-          // installs the templates balanced
-          case INSTALL_BALANCED -> {
-            var services = Node.instance()
-              .cloudServiceProvider()
-              .servicesByTask(task.name());
-            // find the least used template add register it as a service template
-            task.templates().stream()
-              .min(Comparator.comparingLong(template -> services.stream()
-                .flatMap(service -> service.configuration().templates().stream())
-                .filter(template::equals)
-                .count()))
-              .ifPresent(templates::add);
-          }
-          default -> {
-          }
-        }
-        // refresh the waiting templates
-        event.service().waitingTemplates().clear();
-        event.service().waitingTemplates().addAll(templates);
-        // include templates and inclusions now if configured so
-        if (config.directTemplatesAndInclusionsSetup()) {
-          event.service().includeWaitingServiceTemplates();
-          event.service().includeWaitingServiceInclusions();
-        }
+        // include the waiting templates and inclusions now
+        event.service().includeWaitingServiceTemplates();
+        event.service().includeWaitingServiceInclusions();
       }
     }
+  }
+
+  @EventListener
+  public void handlePrePrepare(@NonNull CloudServicePrePrepareEvent event) {
+    var task = Node.instance().serviceTaskProvider().serviceTask(event.service().serviceId().taskName());
+    // check if the service is associated with a task
+    if (task == null) {
+      return;
+    }
+
+    var config = this.module.smartConfig(task);
+    if (config != null && config.enabled()) {
+      if (config.directTemplatesAndInclusionsSetup()) {
+        // remove all initial templates & inclusions from the waiting templates, as they
+        // were included during the PREPARED state of the service already
+        event.service().waitingTemplates().removeAll(event.service().serviceConfiguration().templates());
+        event.service().waitingIncludes().removeAll(event.service().serviceConfiguration().inclusions());
+      } else {
+        this.installTemplates(config, task, event.service());
+      }
+    }
+  }
+
+  private void installTemplates(@NonNull SmartServiceTaskConfig config, @NonNull ServiceTask task,
+    @NonNull CloudService service) {
+    // get the smart entry for the service
+    Set<ServiceTemplate> templates = new HashSet<>(service.serviceConfiguration().templates());
+    templates.removeAll(task.templates());
+    // apply the template installer
+    switch (config.templateInstaller()) {
+      // installs all templates of the service
+      case INSTALL_ALL -> templates.addAll(task.templates());
+
+      // installs a random amount of templates
+      case INSTALL_RANDOM -> {
+        if (!task.templates().isEmpty()) {
+          // get the amount of templates to install
+          var amount = ThreadLocalRandom.current().nextInt(1, task.templates().size());
+          // install randomly picked templates
+          ThreadLocalRandom.current().ints(amount, 0, task.templates().size())
+            .forEach(i -> templates.add(Iterables.get(task.templates(), i)));
+        }
+      }
+
+      // installs one random template
+      case INSTALL_RANDOM_ONCE -> {
+        if (!task.templates().isEmpty()) {
+          // get the template to install
+          var index = ThreadLocalRandom.current().nextInt(0, task.templates().size());
+          templates.add(Iterables.get(task.templates(), index));
+        }
+      }
+
+      // installs the templates balanced
+      case INSTALL_BALANCED -> {
+        var services = Node.instance().cloudServiceProvider().servicesByTask(task.name());
+        // find the least used template add register it as a service template
+        task.templates().stream()
+          .min(Comparator.comparingLong(template -> services.stream()
+            .flatMap(snapshot -> snapshot.provider().installedTemplates().stream())
+            .filter(template::equals)
+            .count()))
+          .ifPresent(templates::add);
+      }
+      default -> {
+      }
+    }
+
+    // refresh the waiting templates
+    service.waitingTemplates().clear();
+    service.waitingTemplates().addAll(templates);
   }
 }

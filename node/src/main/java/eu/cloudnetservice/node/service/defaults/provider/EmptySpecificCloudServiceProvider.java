@@ -24,6 +24,8 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
+import java.util.Collection;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 import lombok.NonNull;
@@ -88,6 +90,21 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
 
   @Override
   public void runCommand(@NonNull String command) {
+  }
+
+  @Override
+  public @NonNull Collection<ServiceTemplate> installedTemplates() {
+    return List.of();
+  }
+
+  @Override
+  public @NonNull Collection<ServiceRemoteInclusion> installedInclusions() {
+    return List.of();
+  }
+
+  @Override
+  public @NonNull Collection<ServiceDeployment> installedDeployments() {
+    return List.of();
   }
 
   @Override

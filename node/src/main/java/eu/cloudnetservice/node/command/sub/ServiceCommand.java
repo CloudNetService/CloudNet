@@ -381,29 +381,32 @@ public final class ServiceCommand {
     list.add("* Lifecycle: " + service.lifeCycle());
     list.add("* Groups: " + String.join(", ", service.configuration().groups()));
 
-    if (!service.configuration().inclusions().isEmpty()) {
+    var installedInclusions = service.provider().installedInclusions();
+    if (!installedInclusions.isEmpty()) {
       list.add(" ");
       list.add("* Includes:");
 
-      for (var inclusion : service.configuration().inclusions()) {
+      for (var inclusion : installedInclusions) {
         list.add("- " + inclusion.url() + " => " + inclusion.destination());
       }
     }
 
-    if (!service.configuration().templates().isEmpty()) {
+    var installedTemplates = service.provider().installedTemplates();
+    if (!installedTemplates.isEmpty()) {
       list.add(" ");
       list.add("* Templates:");
 
-      for (var template : service.configuration().templates()) {
+      for (var template : installedTemplates) {
         list.add("- " + template);
       }
     }
 
-    if (!service.configuration().deployments().isEmpty()) {
+    var installedDeployments = service.provider().installedDeployments();
+    if (!installedDeployments.isEmpty()) {
       list.add(" ");
       list.add("* Deployments:");
 
-      for (var deployment : service.configuration().deployments()) {
+      for (var deployment : installedDeployments) {
         list.add("- ");
         list.add("Template:  " + deployment.template());
         list.add("Excludes: " + deployment.excludes());
