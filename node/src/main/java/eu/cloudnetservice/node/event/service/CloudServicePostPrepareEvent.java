@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.event.service;
 import eu.cloudnetservice.node.service.CloudService;
 import lombok.NonNull;
 
-public class CloudServicePostPrepareEvent extends CloudServiceEvent {
+public final class CloudServicePostPrepareEvent extends CloudServiceEvent {
 
   public CloudServicePostPrepareEvent(@NonNull CloudService service) {
     super(service);

@@ -86,6 +86,7 @@ public class JVMService extends AbstractService {
 
   @Override
   protected void startProcess() {
+    // initial service details are now ready, let the modules know that we're starting to prepare
     this.eventManager.callEvent(new CloudServicePreProcessStartEvent(this));
     var environmentType = this.serviceConfiguration().serviceId().environment();
     // load the wrapper information if possible
