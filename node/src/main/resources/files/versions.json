@@ -446,7 +446,20 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.18.2"
+            "mcVersion": "1.19.2"
+          }
+        },
+        {
+          "name": "1.19.2",
+          "properties": {
+            "copy": {
+              "libraries/.*": "/",
+              "launcher\\.conf": "/",
+              "spongevanilla\\.jar": "/"
+            },
+            "fetchOverSpongeApi": true,
+            "artifact": "spongevanilla",
+            "mcVersion": "1.19.2"
           }
         },
         {
