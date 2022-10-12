@@ -33,7 +33,7 @@ import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.util.Tristate;
 
-public final class InMemorySubjectCollection implements SubjectCollection {
+public class InMemorySubjectCollection implements SubjectCollection {
 
   private final String identifier;
   private final PermissionService service;

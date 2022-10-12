@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.memory.InMemorySubjectCollection;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.group.CloudGroupCollection;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.user.CloudUserCollection;
+import eu.cloudnetservice.modules.cloudperms.sponge.service.system.SystemSubjectCollection;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ public final class CloudPermsPermissionService implements PermissionService {
   public CloudPermsPermissionService(@NonNull PermissionManagement management) {
     this.collections.put(SUBJECTS_USER, new CloudUserCollection(SUBJECTS_USER, this, management));
     this.collections.put(SUBJECTS_GROUP, new CloudGroupCollection(SUBJECTS_GROUP, this, management));
+    this.collections.put(SUBJECTS_SYSTEM, new SystemSubjectCollection(SUBJECTS_SYSTEM, this));
 
     this.collections.put(SUBJECTS_DEFAULT, new InMemorySubjectCollection(SUBJECTS_DEFAULT, this));
     this.defaultSubject = this.collections.get(SUBJECTS_DEFAULT).loadSubject("default").join();
