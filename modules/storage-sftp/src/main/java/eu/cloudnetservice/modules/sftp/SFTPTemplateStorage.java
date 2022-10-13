@@ -378,7 +378,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   protected <T> T executeWithClient(@NonNull ThrowableFunction<SFTPClient, T, Exception> handler, T def) {
     // only take a client & execute the action if the pool is still available
     if (this.pool.stillActive()) {
-      try (SFTPClient client = this.pool.takeClient()) {
+      try (var client = this.pool.takeClient()) {
         return handler.apply(client);
       } catch (IllegalStateException exception) {
         if (exception.getCause() instanceof SSHException sshException) {
@@ -387,7 +387,6 @@ public class SFTPTemplateStorage implements TemplateStorage {
             null,
             sshException.getMessage());
         }
-        // ignore other exceptions
       } catch (Exception exception) {
         LOGGER.fine("Exception executing sftp task", exception);
       }
