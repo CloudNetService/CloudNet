@@ -28,7 +28,7 @@ import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.util.Tristate;
 
-final class InMemorySubject implements Subject {
+public class InMemorySubject implements Subject {
 
   private static final Set<Context> CHECK = Collections.singleton(new Context("cause", "perm_check"));
 
