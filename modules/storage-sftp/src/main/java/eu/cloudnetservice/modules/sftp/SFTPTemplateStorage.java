@@ -382,7 +382,10 @@ public class SFTPTemplateStorage implements TemplateStorage {
         return handler.apply(client);
       } catch (IllegalStateException exception) {
         if (exception.getCause() instanceof SSHException sshException) {
-          LOGGER.severe("Failed to retrieve a new client from the SFTP client pool: " + sshException.getMessage());
+          LOGGER.severe(
+            "Failed to retrieve a new client from the SFTP client pool: %s",
+            null,
+            sshException.getMessage());
         }
         // ignore other exceptions
       } catch (Exception exception) {
