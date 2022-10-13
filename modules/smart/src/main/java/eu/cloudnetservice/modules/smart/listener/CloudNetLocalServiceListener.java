@@ -27,6 +27,7 @@ import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePrePrepareEvent;
 import eu.cloudnetservice.node.service.CloudService;
+import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,22 +45,25 @@ public final class CloudNetLocalServiceListener {
   @EventListener
   public void handle(@NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.PREPARED) {
-      var task = Node.instance().serviceTaskProvider().serviceTask(event.service().serviceId().taskName());
       // check if the service is associated with a task
+      var task = Node.instance().serviceTaskProvider().serviceTask(event.service().serviceId().taskName());
       if (task == null) {
         return;
       }
 
-      var config = this.module.smartConfig(task);
       // include templates and inclusions if configured
-      if (config != null && config.directTemplatesAndInclusionsSetup()) {
+      var config = this.module.smartConfig(task);
+      if (config != null && config.enabled() && config.directTemplatesAndInclusionsSetup()) {
         this.installTemplates(config, task, event.service());
 
         // add the initial inclusions of the service
         event.service().waitingIncludes().addAll(event.service().serviceConfiguration().inclusions());
 
-        // include the waiting templates and inclusions now
-        event.service().includeWaitingServiceTemplates();
+        // include the waiting templates now, force the inclusion if the service gets started for the first time
+        var firstStartup = Files.notExists(event.service().directory());
+        event.service().includeWaitingServiceTemplates(firstStartup);
+
+        // include all waiting inclusions
         event.service().includeWaitingServiceInclusions();
       }
     }
@@ -67,8 +71,8 @@ public final class CloudNetLocalServiceListener {
 
   @EventListener
   public void handlePrePrepare(@NonNull CloudServicePrePrepareEvent event) {
-    var task = Node.instance().serviceTaskProvider().serviceTask(event.service().serviceId().taskName());
     // check if the service is associated with a task
+    var task = Node.instance().serviceTaskProvider().serviceTask(event.service().serviceId().taskName());
     if (task == null) {
       return;
     }
@@ -86,8 +90,11 @@ public final class CloudNetLocalServiceListener {
     }
   }
 
-  private void installTemplates(@NonNull SmartServiceTaskConfig config, @NonNull ServiceTask task,
-    @NonNull CloudService service) {
+  private void installTemplates(
+    @NonNull SmartServiceTaskConfig config,
+    @NonNull ServiceTask task,
+    @NonNull CloudService service
+  ) {
     // get the smart entry for the service
     Set<ServiceTemplate> templates = new HashSet<>(service.serviceConfiguration().templates());
     templates.removeAll(task.templates());
@@ -127,6 +134,7 @@ public final class CloudNetLocalServiceListener {
             .count()))
           .ifPresent(templates::add);
       }
+
       default -> {
       }
     }

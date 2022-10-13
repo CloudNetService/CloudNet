@@ -219,8 +219,8 @@ public interface SpecificCloudServiceProvider {
 
   /**
    * Gets the deployments that were actually executed for this service. If a deployment is present in the configuration
-   * {@link eu.cloudnetservice.driver.service.ServiceConfiguration} but wasn't executed until now it won't appear in this
-   * collection.
+   * {@link eu.cloudnetservice.driver.service.ServiceConfiguration} but wasn't executed until now it won't appear in
+   * this collection.
    *
    * @return all executed deployments of the service.
    */
@@ -229,8 +229,23 @@ public interface SpecificCloudServiceProvider {
   /**
    * Copies all queued templates onto the service without further checks. Note that this can lead to errors if you try
    * to override locked files or files which are in use (for example the application jar file).
+   * <p>
+   * This method forces the inclusion of all templates, see {@link #includeWaitingServiceTemplates(boolean)} for more
+   * information.
    */
   void includeWaitingServiceTemplates();
+
+  /**
+   * Copies all queued templates onto the service without further checks. Note that this can lead to errors if you try
+   * to override locked files or files which are in use (for example the application jar file).
+   * <p>
+   * This method only copies all templates to a service if the force option is set to {@code true}. If disabled the
+   * normal checks are made before trying to copy a template (for example if a template should be copied to a static
+   * service).
+   *
+   * @param force if the inclusions of the templates should be forced.
+   */
+  void includeWaitingServiceTemplates(boolean force);
 
   /**
    * Downloads and copies all waiting inclusions onto the service without further checks. Note that this can lead to
@@ -481,11 +496,29 @@ public interface SpecificCloudServiceProvider {
   /**
    * Copies all queued templates onto the service without further checks. Note that this can lead to errors if you try
    * to override locked files or files which are in use (for example the application jar file).
+   * <p>
+   * This method forces the inclusion of all templates, see {@link #includeWaitingServiceTemplates(boolean)} for more
+   * information.
    *
    * @return a task completed when the waiting service templates were included.
    */
   default @NonNull Task<Void> includeWaitingServiceTemplatesAsync() {
-    return Task.supply(this::includeWaitingServiceTemplates);
+    return Task.supply(() -> this.includeWaitingServiceTemplates());
+  }
+
+  /**
+   * Copies all queued templates onto the service without further checks. Note that this can lead to errors if you try
+   * to override locked files or files which are in use (for example the application jar file).
+   * <p>
+   * This method only copies all templates to a service if the force option is set to {@code true}. If disabled the
+   * normal checks are made before trying to copy a template (for example if a template should be copied to a static
+   * service).
+   *
+   * @param force if the inclusions of the templates should be forced.
+   * @return a task completed when the waiting service templates were included.
+   */
+  default @NonNull Task<Void> includeWaitingServiceTemplatesAsync(boolean force) {
+    return Task.supply(() -> this.includeWaitingServiceTemplates(force));
   }
 
   /**
