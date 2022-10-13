@@ -319,6 +319,32 @@ public abstract class AbstractService implements CloudService {
   }
 
   @Override
+  public void includeWaitingServiceTemplates(boolean force) {
+    this.waitingTemplates.stream()
+      .filter(template -> {
+        // always allow manual requests & non-static service copies
+        if (force || !this.serviceConfiguration().staticService()) {
+          return true;
+        }
+        // only allow this template to be copied if explicitly defined
+        return template.alwaysCopyToStaticServices();
+      })
+      .sorted()
+      .forEachOrdered(template -> {
+        // remove the entry
+        this.waitingTemplates.remove(template);
+        // check if we should load the template
+        var storage = template.storage();
+        if (!this.eventManager.callEvent(new CloudServiceTemplateLoadEvent(this, storage, template)).cancelled()) {
+          // the event is not cancelled - copy the template
+          storage.pull(template, this.serviceDirectory);
+          // we've pulled the template
+          this.installedTemplates.add(template);
+        }
+      });
+  }
+
+  @Override
   public void includeWaitingServiceInclusions() {
     ServiceRemoteInclusion inclusion;
     while ((inclusion = this.waitingRemoteInclusions.poll()) != null) {
@@ -513,31 +539,6 @@ public abstract class AbstractService implements CloudService {
 
   protected @NonNull Configuration nodeConfiguration() {
     return this.nodeInstance.config();
-  }
-
-  protected void includeWaitingServiceTemplates(boolean force) {
-    this.waitingTemplates.stream()
-      .filter(template -> {
-        // always allow manual requests & non-static service copies
-        if (force || !this.serviceConfiguration().staticService()) {
-          return true;
-        }
-        // only allow this template to be copied if explicitly defined
-        return template.alwaysCopyToStaticServices();
-      })
-      .sorted()
-      .forEachOrdered(template -> {
-        // remove the entry
-        this.waitingTemplates.remove(template);
-        // check if we should load the template
-        var storage = template.storage();
-        if (!this.eventManager.callEvent(new CloudServiceTemplateLoadEvent(this, storage, template)).cancelled()) {
-          // the event is not cancelled - copy the template
-          storage.pull(template, this.serviceDirectory);
-          // we've pulled the template
-          this.installedTemplates.add(template);
-        }
-      });
   }
 
   protected void executeDeployment(@NonNull ServiceDeployment deployment) {

@@ -112,6 +112,10 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
+  public void includeWaitingServiceTemplates(boolean force) {
+  }
+
+  @Override
   public void includeWaitingServiceInclusions() {
   }
 
