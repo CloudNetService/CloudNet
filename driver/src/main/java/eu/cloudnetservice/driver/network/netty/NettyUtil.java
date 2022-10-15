@@ -38,6 +38,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 /**
@@ -179,7 +180,7 @@ public final class NettyUtil {
    * @return the var int read from the buffer, or null if no var int is at the given position.
    * @throws NullPointerException if the given buffer to read from is null.
    */
-  public static Integer readVarIntOrNull(@NonNull Buffer buffer) {
+  public static @Nullable Integer readVarIntOrNull(@NonNull Buffer buffer) {
     var i = 0;
     var maxRead = Math.min(5, buffer.readableBytes());
     for (var j = 0; j < maxRead; j++) {
