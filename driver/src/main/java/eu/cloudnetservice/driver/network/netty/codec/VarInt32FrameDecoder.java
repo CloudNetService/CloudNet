@@ -33,7 +33,6 @@ public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
   protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer in) {
     // ensure that the channel we're reading from is still open
     if (!ctx.channel().isActive()) {
-      in.close();
       return;
     }
 
