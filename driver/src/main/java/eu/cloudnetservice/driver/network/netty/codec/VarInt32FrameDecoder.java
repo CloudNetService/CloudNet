@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty.codec;
 
-import eu.cloudnetservice.driver.network.exception.SilentDecoderException;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
@@ -26,8 +25,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
-
-  private static final SilentDecoderException BAD_LENGTH = new SilentDecoderException("Bad packet length");
 
   /**
    * {@inheritDoc}
@@ -41,21 +38,20 @@ public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
     }
 
     var readerIndex = in.readerOffset();
-    var length = NettyUtil.readVarInt(in);
 
-    // check if we've read any bytes
-    if (readerIndex == in.readerOffset()) {
+    // try to read the full message length from the buffer, reset the buffer if we've read nothing
+    var length = NettyUtil.readVarIntOrNull(in);
+    if (length == null || readerIndex == in.readerOffset()) {
+      in.readerOffset(readerIndex);
       return;
     }
 
-    // check if the packet length is out of bounds
-    if (length < 0) {
-      throw BAD_LENGTH;
-    }
-
     // skip empty packets silently
-    if (length == 0) {
-      in.skipReadableBytes(1);
+    if (length <= 0) {
+      // check if there are bytes to skip
+      if (in.readableBytes() > 0) {
+        in.skipReadableBytes(in.readableBytes());
+      }
       return;
     }
 

@@ -18,14 +18,15 @@ package eu.cloudnetservice.driver.network.netty;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.network.exception.SilentDecoderException;
 import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
 import io.netty5.buffer.Buffer;
+import io.netty5.buffer.BufferUtil;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFactory;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.ServerChannel;
 import io.netty5.channel.ServerChannelFactory;
+import io.netty5.handler.codec.DecoderException;
 import io.netty5.util.ResourceLeakDetector;
 import io.netty5.util.concurrent.Future;
 import java.util.concurrent.CancellationException;
@@ -37,6 +38,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 /**
@@ -52,8 +54,6 @@ public final class NettyUtil {
   // transport
   private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudnet.no-native");
   private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
-  // var int codec
-  private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
   // packet thread handling
   private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
@@ -156,10 +156,31 @@ public final class NettyUtil {
    *
    * @param buffer the buffer to read from.
    * @return the var int read from the buffer.
-   * @throws SilentDecoderException if the buf current position has no var int.
-   * @throws NullPointerException   if the given buffer to read from is null.
+   * @throws DecoderException     if the buf current position has no var int.
+   * @throws NullPointerException if the given buffer to read from is null.
    */
   public static int readVarInt(@NonNull Buffer buffer) {
+    var varInt = readVarIntOrNull(buffer);
+    if (varInt == null) {
+      // unable to decode a var int at the current position
+      var bufferDump = BufferUtil.hexDump(buffer, 0, buffer.readableBytes());
+      throw new DecoderException(String.format(
+        "Unable to decode VarInt at current buffer position (%d): %s",
+        buffer.readerOffset(),
+        bufferDump));
+    }
+
+    return varInt;
+  }
+
+  /**
+   * Reads a var int from the given buffer, returns null if there is no Var Int at the current buffer position.
+   *
+   * @param buffer the buffer to read from.
+   * @return the var int read from the buffer, or null if no var int is at the given position.
+   * @throws NullPointerException if the given buffer to read from is null.
+   */
+  public static @Nullable Integer readVarIntOrNull(@NonNull Buffer buffer) {
     var i = 0;
     var maxRead = Math.min(5, buffer.readableBytes());
     for (var j = 0; j < maxRead; j++) {
@@ -169,7 +190,7 @@ public final class NettyUtil {
         return i;
       }
     }
-    throw INVALID_VAR_INT;
+    return null;
   }
 
   /**
