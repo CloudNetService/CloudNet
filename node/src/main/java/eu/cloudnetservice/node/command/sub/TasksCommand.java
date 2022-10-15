@@ -663,7 +663,7 @@ public final class TasksCommand {
       (builder, $) -> builder.modifyDeployments(col -> col.remove(deployment)),
       "command-tasks-remove-collection-property",
       "deployment",
-      null);
+      template);
   }
 
   @CommandMethod("tasks task <name> remove template <template>")
@@ -678,7 +678,7 @@ public final class TasksCommand {
       (builder, $) -> builder.modifyTemplates(col -> col.remove(template)),
       "command-tasks-remove-collection-property",
       "template",
-      null);
+      template);
   }
 
   @CommandMethod("tasks task <name> remove inclusion <url> <path>")
@@ -695,7 +695,7 @@ public final class TasksCommand {
       (builder, $) -> builder.modifyInclusions(col -> col.remove(inclusion)),
       "command-tasks-remove-collection-property",
       "inclusion",
-      null);
+      inclusion);
   }
 
   @CommandMethod("tasks task <name> remove jvmOption <options>")
@@ -711,7 +711,7 @@ public final class TasksCommand {
       (builder, $) -> builder.modifyJvmOptions(col -> col.removeAll(splittedOptions)),
       "command-tasks-remove-collection-property",
       "jvmOption",
-      null);
+      jvmOptions);
   }
 
   @CommandMethod("tasks task <name> remove processParameter <options>")
@@ -727,7 +727,7 @@ public final class TasksCommand {
       (builder, $) -> builder.modifyAssociatedNodes(col -> col.removeAll(splittedOptions)),
       "command-tasks-remove-collection-property",
       "processParameters",
-      null);
+      processParameters);
   }
 
   @CommandMethod("tasks task <name> remove group <group>")
@@ -742,7 +742,7 @@ public final class TasksCommand {
       (builder, $) -> builder.modifyGroups(col -> col.remove(group)),
       "command-tasks-remove-collection-property",
       "group",
-      null);
+      group);
   }
 
   @CommandMethod("tasks task <name> remove node <uniqueId>")
@@ -757,7 +757,7 @@ public final class TasksCommand {
       (builder, $) -> builder.modifyAssociatedNodes(col -> col.remove(node)),
       "command-tasks-remove-collection-property",
       "node",
-      null);
+      node);
   }
 
   @CommandMethod("tasks task <name> clear jvmOptions")

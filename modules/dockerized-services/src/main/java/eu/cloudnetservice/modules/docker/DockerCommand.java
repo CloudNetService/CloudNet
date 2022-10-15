@@ -95,7 +95,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module) {
     this.updateTaskDockerConfig(task, (config, builder) -> builder.binds(config.binds().stream()
       .filter(entry -> !entry.equals(bind))
       .collect(Collectors.toSet())));
-    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "bind", bind, task.name()));
+    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "bind", task.name(), bind));
   }
 
   @CommandMethod("docker task <task> add volume <volume>")
@@ -126,7 +126,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module) {
     this.updateTaskDockerConfig(task, (config, builder) -> builder.volumes(config.volumes().stream()
       .filter(entry -> !entry.equals(volume))
       .collect(Collectors.toSet())));
-    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "volume", volume, task.name()));
+    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "volume", task.name(), volume));
   }
 
   @CommandMethod("docker task <task> add port <port> [protocol]")
@@ -160,7 +160,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module) {
     this.updateTaskDockerConfig(task, (config, builder) -> builder.exposedPorts(config.exposedPorts().stream()
       .filter(entry -> entry.getPort() != port && (protocol == null || !protocol.equals(entry.getProtocol())))
       .collect(Collectors.toSet())));
-    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "exposedPort", port, task.name()));
+    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "exposedPort", task.name(), port));
   }
 
   @CommandMethod("docker config network <network>")
