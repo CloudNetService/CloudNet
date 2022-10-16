@@ -57,6 +57,7 @@ public class RemoteNodeServer implements NodeServer {
 
   private volatile NodeInfoSnapshot currentSnapshot;
   private volatile NodeInfoSnapshot lastSnapshot;
+  private volatile Instant lastNodeInfoUpdate = Instant.now();
 
   public RemoteNodeServer(
     @NonNull Node node,
@@ -168,7 +169,7 @@ public class RemoteNodeServer implements NodeServer {
   }
 
   @Override
-  public @NonNull Instant lastStateChangeStamp() {
+  public @NonNull Instant lastStateChange() {
     return this.lastStateChange;
   }
 
@@ -207,6 +208,14 @@ public class RemoteNodeServer implements NodeServer {
       this.lastSnapshot = this.currentSnapshot;
       this.currentSnapshot = snapshot;
     }
+
+    // mark the last info update time
+    this.lastNodeInfoUpdate = Instant.now();
+  }
+
+  @Override
+  public @NonNull Instant lastNodeInfoUpdate() {
+    return this.lastNodeInfoUpdate;
   }
 
   @Override
