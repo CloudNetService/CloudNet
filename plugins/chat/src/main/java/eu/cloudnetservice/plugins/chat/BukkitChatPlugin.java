@@ -31,7 +31,7 @@ public class BukkitChatPlugin extends JavaPlugin implements Listener {
   @Override
   public void onEnable() {
     this.getConfig().options().copyDefaults(true);
-    this.saveConfig();
+    this.saveDefaultConfig();
 
     this.format = this.getConfig().getString("format");
     this.getServer().getPluginManager().registerEvents(this, this);
