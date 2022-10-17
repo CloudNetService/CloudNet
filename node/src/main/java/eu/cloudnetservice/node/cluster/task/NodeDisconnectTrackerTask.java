@@ -37,6 +37,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
   @Override
   public void run() {
     try {
+      var currentTime = Instant.now();
       var local = this.provider.localNode();
       // first check all currently connected nodes if they are idling for too long
       for (var server : this.provider.nodeServers()) {
@@ -45,8 +46,9 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
         if (server == local || !server.available()) {
           continue;
         }
+
         // check if the server has been idling for too long
-        var updateDelay = System.currentTimeMillis() - server.nodeInfoSnapshot().creationTime();
+        var updateDelay = Duration.between(server.lastNodeInfoUpdate(), currentTime).toMillis();
         if (updateDelay >= SOFT_DISCONNECT_MS_DELAY) {
           // the node is idling for too long! Mark the node as disconnected and begin to schedule all packets to the node
           server.state(NodeServerState.DISCONNECTED);
@@ -66,8 +68,9 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
         if (server == local || server.state() != NodeServerState.DISCONNECTED) {
           continue;
         }
+
         // check if the node is exceeding the hard disconnect delay
-        var disconnectMs = Duration.between(server.lastStateChangeStamp(), Instant.now()).toMillis();
+        var disconnectMs = Duration.between(server.lastStateChange(), currentTime).toMillis();
         if (disconnectMs >= HARD_DISCONNECT_MS_DELAY) {
           // close hard
           server.close();

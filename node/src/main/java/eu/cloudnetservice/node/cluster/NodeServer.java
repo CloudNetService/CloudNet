@@ -55,7 +55,7 @@ public interface NodeServer extends Nameable, Closeable {
 
   void state(@NonNull NodeServerState state);
 
-  @NonNull Instant lastStateChangeStamp();
+  @NonNull Instant lastStateChange();
 
   @UnknownNullability NetworkChannel channel();
 
@@ -66,6 +66,8 @@ public interface NodeServer extends Nameable, Closeable {
   @UnknownNullability NodeInfoSnapshot lastNodeInfoSnapshot();
 
   void updateNodeInfoSnapshot(@Nullable NodeInfoSnapshot snapshot);
+
+  @NonNull Instant lastNodeInfoUpdate();
 
   @NonNull CloudServiceFactory serviceFactory();
 

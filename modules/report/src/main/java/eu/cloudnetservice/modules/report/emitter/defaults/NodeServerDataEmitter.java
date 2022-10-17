@@ -50,7 +50,7 @@ public final class NodeServerDataEmitter extends SpecificReportDataEmitter<NodeS
         .appendString(value.head() ? " (head)" : "")
         .appendString(value instanceof LocalNodeServer ? " current" : " remote"))
       .appendString("Last State Change: ")
-      .appendTimestamp(ReportConstants.DATE_TIME_FORMATTER, value.lastStateChangeStamp())
+      .appendTimestamp(ReportConstants.DATE_TIME_FORMATTER, value.lastStateChange())
       .appendNewline()
       .appendString("Listeners: ")
       .appendString(value.info().listeners().stream().map(HostAndPort::toString).collect(Collectors.joining(", ")));

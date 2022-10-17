@@ -55,6 +55,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   // node info
   private volatile NodeInfoSnapshot currentSnapshot;
   private volatile NodeInfoSnapshot lastSnapshot;
+  private volatile Instant lastNodeInfoUpdate = Instant.now();
 
   public DefaultLocalNodeServer(@NonNull Node node, @NonNull NodeServerProvider provider) {
     this.node = node;
@@ -125,7 +126,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   }
 
   @Override
-  public @NonNull Instant lastStateChangeStamp() {
+  public @NonNull Instant lastStateChange() {
     return this.lastStateChange;
   }
 
@@ -155,6 +156,12 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
     // pre-move the current snapshot to the last snapshot
     this.lastSnapshot = this.currentSnapshot;
     this.currentSnapshot = snapshot;
+    this.lastNodeInfoUpdate = Instant.now();
+  }
+
+  @Override
+  public @NonNull Instant lastNodeInfoUpdate() {
+    return this.lastNodeInfoUpdate;
   }
 
   @Override
