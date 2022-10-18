@@ -17,10 +17,13 @@
 package eu.cloudnetservice.plugins.chat;
 
 import com.google.inject.Inject;
+import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import lombok.NonNull;
@@ -53,9 +56,17 @@ public class SpongeChatPlugin {
   @Listener
   public void handle(@NonNull ConstructPluginEvent event) {
     ConfigurationLoader<CommentedConfigurationNode> loader = HoconConfigurationLoader.builder()
+      .emitComments(false)
       .path(this.configFilePath)
       .build();
+
     try {
+      // check if we should copy the default config that's located inside the jar
+      if (Files.notExists(this.configFilePath)) {
+        // retrieve the file from the jar
+        event.plugin().openResource(URI.create("config.conf")).ifPresent(in -> FileUtil.copy(in, this.configFilePath));
+      }
+
       // load the root node
       ConfigurationNode root = loader.load();
       var format = root.node("format");
