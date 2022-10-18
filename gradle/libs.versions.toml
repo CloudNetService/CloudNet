@@ -16,7 +16,7 @@ guava = "31.1-jre"
 
 # testing
 junit = "5.9.1"
-mockito = "4.8.0"
+mockito = "4.8.1"
 tyrusClient = "2.1.1"
 testcontainers = "1.17.5"
 
