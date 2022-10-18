@@ -37,7 +37,7 @@ mysqlConnector = "8.0.30"
 
 # general
 asm = "9.4"
-oshi = "6.2.2"
+oshi = "6.3.0"
 sshj = "0.34.0"
 jjwt = "0.11.5"
 slf4j = "1.7.36"
