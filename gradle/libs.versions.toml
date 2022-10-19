@@ -16,7 +16,7 @@ guava = "31.1-jre"
 
 # testing
 junit = "5.9.1"
-mockito = "4.8.0"
+mockito = "4.8.1"
 tyrusClient = "2.1.1"
 testcontainers = "1.17.5"
 
@@ -37,14 +37,14 @@ mysqlConnector = "8.0.30"
 
 # general
 asm = "9.4"
-oshi = "6.2.2"
+oshi = "6.3.0"
 sshj = "0.34.0"
 jjwt = "0.11.5"
 slf4j = "1.7.36"
 javers = "6.7.1"
 caffeine = "3.1.1"
 awsSdk = "2.17.292"
-reflexion = "1.5.0"
+reflexion = "1.6.0"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
 nightConfig = "3.6.6"
