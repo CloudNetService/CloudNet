@@ -33,7 +33,7 @@ h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "4.7.2"
 hikariCp = "5.0.1"
-mysqlConnector = "8.0.30"
+mysqlConnector = "8.0.31"
 
 # general
 asm = "9.4"
@@ -144,7 +144,7 @@ h2 = { group = "com.h2database", name = "h2", version.ref = "h2" }
 hikariCp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariCp" }
 mongodb = { group = "org.mongodb", name = "mongodb-driver-sync", version.ref = "mongodb" }
 xodus = { group = "org.jetbrains.xodus", name = "xodus-environment", version.ref = "xodus" }
-mysqlConnector = { group = "mysql", name = "mysql-connector-java", version.ref = "mysqlConnector" }
+mysqlConnector = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysqlConnector" }
 
 # platform api
 nukkitX = { group = "cn.nukkit", name = "nukkit", version.ref = "nukkitX" }
