@@ -73,13 +73,15 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
         .currentGetter(group -> this.groupConfiguration(group.name()))
         .build());
 
+    // run the conversion of the old file
+    this.upgrade();
+
+    // load the groups
     if (Files.exists(GROUP_DIRECTORY_PATH)) {
       this.loadGroupConfigurations();
     } else {
       FileUtil.createDirectory(GROUP_DIRECTORY_PATH);
     }
-    // run the conversion of the old file
-    this.upgrade();
   }
 
   @Override
@@ -196,7 +198,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
       // TODO: remove in 4.1
       // check if the task has environment variables
-      if (!document.contains("environmentVariables")) {
+      var variables = document.get("environmentVariables");
+      if (variables == null) {
         document.append("environmentVariables", new HashMap<>());
       }
 

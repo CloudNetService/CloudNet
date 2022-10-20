@@ -276,7 +276,7 @@ public class JsonDocument implements Document<JsonDocument> {
   @Override
   public @UnknownNullability Object get(@NonNull String key, @Nullable Object def) {
     var element = this.object.get(key);
-    return element != null ? element : def;
+    return element == null || element.isJsonNull() ? def : element;
   }
 
   @Override
