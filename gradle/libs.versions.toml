@@ -70,7 +70,7 @@ placeholderApi = "2.11.2"
 
 # fabric platform special dependencies
 minecraft = "1.19.2"
-fabricLoader = "0.14.9"
+fabricLoader = "0.14.10"
 
 
 [libraries]
