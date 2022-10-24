@@ -36,6 +36,7 @@ allprojects {
     // must be before sponge as they mirror some repos including that one (which leads to outdated dependencies)
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("https://repo.spongepowered.org/maven/")
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
   }
 }
 

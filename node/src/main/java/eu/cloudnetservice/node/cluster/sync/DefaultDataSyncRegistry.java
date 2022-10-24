@@ -22,6 +22,8 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.sync.prettyprint.GulfHelper;
+import eu.cloudnetservice.node.cluster.sync.prettyprint.GulfPrettyPrint;
 import eu.cloudnetservice.node.console.Console;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,19 +31,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import lombok.NonNull;
-import org.javers.core.Javers;
-import org.javers.core.JaversBuilder;
-import org.javers.core.diff.ListCompareAlgorithm;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
   private static final Logger LOGGER = LogManager.logger(DefaultDataSyncRegistry.class);
-  private static final Javers JAVERS = JaversBuilder.javers()
-    .withInitialChanges(false)
-    .withTerminalChanges(false)
-    .withListCompareAlgorithm(ListCompareAlgorithm.LEVENSHTEIN_DISTANCE)
-    .build();
 
   private final Map<String, DataSyncHandler<?>> handlers = new ConcurrentHashMap<>();
 
@@ -135,16 +129,18 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
           }
           // get the diff between the current object and the data
           try {
-            var diff = JAVERS.compare(current, data).getChanges();
-            if (diff.isEmpty()) {
+            var changes = GulfHelper.findChanges(current, data);
+            if (changes.isEmpty()) {
               // no diff detected... just write
               handler.write(data);
               continue;
             }
+
             // pretty format the changes
-            for (var line : JaversPrettyPrint.prettyPrint(handler.name(current), diff)) {
+            for (var line : GulfPrettyPrint.prettyPrint(handler.name(current), changes)) {
               LOGGER.warning(line);
             }
+
             // print out the possibilities the user has now
             LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
