@@ -71,6 +71,6 @@ public final class GulfMapDiffPrinter {
   ) {
     // append the key information
     builder.append(indent).append("&6").append(change.key()).append("&r").append(System.lineSeparator());
-    GulfPrettyPrint.printChanges(builder, indent, change.entryChanges(), false);
+    GulfPrettyPrint.printChanges(builder, indent, change.changes(), false);
   }
 }

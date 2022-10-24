@@ -42,7 +42,7 @@ public final class GulfArrayDiffPrinter {
 
     // print all element changes
     var elementIndent = GulfPrettyPrint.pad(indent);
-    for (var diff : change.elementDiffs()) {
+    for (var diff : change.elementChanges()) {
       printIndexedChangeChange(builder, elementIndent, diff);
     }
   }
