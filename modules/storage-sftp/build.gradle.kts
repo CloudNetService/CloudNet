@@ -20,6 +20,7 @@ tasks.withType<Jar> {
 
 dependencies {
   "moduleLibrary"(libs.sshj)
+  "moduleLibrary"(libs.slf4jNop)
 }
 
 moduleJson {

@@ -31,10 +31,11 @@ public final class GulfMapDiffPrinter {
   public static void printMapChange(
     @NonNull StringBuilder builder,
     @NonNull String indent,
-    @NonNull MapChange<Object, Object, ? super Map<Object, Object>> change
+    @NonNull MapChange<Object, Object, Map<Object, Object>> change,
+    boolean path
   ) {
     // append the path information
-    GulfPrettyPrint.appendPathInformation(builder, indent, change.path()).append(System.lineSeparator());
+    GulfPrettyPrint.appendPathInformation(builder, indent, change.path(), GulfPrettyPrint::appendLineSeparator, path);
 
     // print all element changes
     var elementIndent = GulfPrettyPrint.pad(indent);
@@ -60,7 +61,7 @@ public final class GulfMapDiffPrinter {
 
     // get the diff between the removed values
     var changes = GulfHelper.findChanges(change.leftElement(), change.rightElement());
-    GulfPrettyPrint.printChanges(builder, indent, changes);
+    GulfPrettyPrint.printChanges(builder, indent, changes, false);
   }
 
   private static void printElementChange(
@@ -70,6 +71,6 @@ public final class GulfMapDiffPrinter {
   ) {
     // append the key information
     builder.append(indent).append("&6").append(change.key()).append("&r").append(System.lineSeparator());
-    GulfPrettyPrint.printChanges(builder, indent, change.entryChanges());
+    GulfPrettyPrint.printChanges(builder, indent, change.entryChanges(), false);
   }
 }

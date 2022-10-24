@@ -34,10 +34,11 @@ public final class GulfArrayDiffPrinter {
   public static void printArrayChange(
     @NonNull StringBuilder builder,
     @NonNull String indent,
-    @NonNull ArrayChange<Object> change
+    @NonNull ArrayChange<Object> change,
+    boolean path
   ) {
     // append the path information
-    GulfPrettyPrint.appendPathInformation(builder, indent, change.path()).append(System.lineSeparator());
+    GulfPrettyPrint.appendPathInformation(builder, indent, change.path(), GulfPrettyPrint::appendLineSeparator, path);
 
     // print all element changes
     var elementIndent = GulfPrettyPrint.pad(indent);
@@ -49,10 +50,11 @@ public final class GulfArrayDiffPrinter {
   public static void printCollectionChange(
     @NonNull StringBuilder builder,
     @NonNull String indent,
-    @NonNull CollectionChange<Object, ? super Collection<Object>> change
+    @NonNull CollectionChange<Object, Collection<Object>> change,
+    boolean path
   ) {
     // append the path information
-    GulfPrettyPrint.appendPathInformation(builder, indent, change.path()).append(System.lineSeparator());
+    GulfPrettyPrint.appendPathInformation(builder, indent, change.path(), GulfPrettyPrint::appendLineSeparator, path);
 
     // print all element changes
     var elementIndent = GulfPrettyPrint.pad(indent);
@@ -92,7 +94,7 @@ public final class GulfArrayDiffPrinter {
     @NonNull ArrayElementAddOrRemove<Object> change
   ) {
     var changes = GulfHelper.findChanges(change.leftElement(), change.rightElement());
-    GulfPrettyPrint.printChanges(builder, indent, changes);
+    GulfPrettyPrint.printChanges(builder, indent, changes, false);
   }
 
   private static void printElementChange(
@@ -100,7 +102,7 @@ public final class GulfArrayDiffPrinter {
     @NonNull String indent,
     @NonNull ArrayElementChange<Object> change
   ) {
-    GulfPrettyPrint.printChanges(builder, indent, change.changes());
+    GulfPrettyPrint.printChanges(builder, indent, change.changes(), false);
   }
 
   private static @NonNull String changeColor(@NonNull Change<Object> change) {

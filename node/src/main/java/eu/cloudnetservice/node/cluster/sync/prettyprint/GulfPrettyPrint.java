@@ -22,8 +22,9 @@ import dev.derklaro.gulf.diff.array.CollectionChange;
 import dev.derklaro.gulf.diff.map.MapChange;
 import dev.derklaro.gulf.path.ObjectPath;
 import java.util.Collection;
-import java.util.Map;
+import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class GulfPrettyPrint {
 
@@ -40,53 +41,71 @@ public final class GulfPrettyPrint {
       .append("&r:")
       .append(System.lineSeparator());
     // append all changes
-    printChanges(builder, " ", changes);
+    printChanges(builder, " ", changes, true);
     // stringify
     return builder.append(System.lineSeparator()).toString().split(System.lineSeparator());
   }
 
-  public static void printChanges(
+  @SuppressWarnings({"rawtypes", "unchecked"}) // generics (╯°□°）╯︵ ┻━┻
+  static void printChanges(
     @NonNull StringBuilder builder,
     @NonNull String indent,
-    @NonNull Collection<Change<Object>> changes
+    @NonNull Collection<Change<Object>> changes,
+    boolean withPath
   ) {
     for (var change : changes) {
-      if (change instanceof ArrayChange<Object> arrayChange) {
+      if (change instanceof ArrayChange arrayChange) {
         // changes in an array
-        GulfArrayDiffPrinter.printArrayChange(builder, indent, arrayChange);
-      } else if (change instanceof CollectionChange<Object, ? super Collection<Object>> collectionChange) {
+        GulfArrayDiffPrinter.printArrayChange(builder, indent, arrayChange, withPath);
+      } else if (change instanceof CollectionChange collectionChange) {
         // changes in a collection
-        GulfArrayDiffPrinter.printCollectionChange(builder, indent, collectionChange);
-      } else if (change instanceof MapChange<Object, Object, ? super Map<Object, Object>> mapChange) {
+        GulfArrayDiffPrinter.printCollectionChange(builder, indent, collectionChange, withPath);
+      } else if (change instanceof MapChange mapChange) {
         // changes in a map
-        GulfMapDiffPrinter.printMapChange(builder, indent, mapChange);
+        GulfMapDiffPrinter.printMapChange(builder, indent, mapChange, withPath);
       } else {
         // general change
-        printValueChange(builder, indent, change);
+        printValueChange(builder, indent, change, withPath);
       }
     }
   }
 
-  public static void printValueChange(
+  static void printValueChange(
     @NonNull StringBuilder builder,
     @NonNull String indent,
-    @NonNull Change<Object> change
+    @NonNull Change<Object> change,
+    boolean withPath
   ) {
-    appendPathInformation(builder, indent, change.path())
-      .append(": &c").append(change.leftElement()) // red: old value
+    appendPathInformation(builder, indent, change.path(), b -> b.append(": "), withPath)
+      .append("&c").append(change.leftElement()) // red: old value
       .append(" &r=> &a").append(change.rightElement()) // green: new value
       .append(System.lineSeparator());
   }
 
-  public static @NonNull StringBuilder appendPathInformation(
+  static @NonNull StringBuilder appendPathInformation(
     @NonNull StringBuilder builder,
     @NonNull String indent,
-    @NonNull ObjectPath path
+    @NonNull ObjectPath path,
+    @Nullable Consumer<StringBuilder> finisher,
+    boolean doAppendPath
   ) {
-    return builder.append(indent).append("&r- &6").append(path.toFullPath()).append("&r");
+    // always append the indent
+    builder.append(indent);
+    if (doAppendPath) {
+      // append the path & finisher if needed
+      builder.append("&r- &6").append(path.toFullPath()).append("&r");
+      if (finisher != null) {
+        finisher.accept(builder);
+      }
+    }
+    return builder;
   }
 
-  public static @NonNull String pad(@NonNull String currentIndent) {
+  static @NonNull String pad(@NonNull String currentIndent) {
     return currentIndent + "  ";
+  }
+
+  static void appendLineSeparator(@NonNull StringBuilder builder) {
+    builder.append(System.lineSeparator());
   }
 }
