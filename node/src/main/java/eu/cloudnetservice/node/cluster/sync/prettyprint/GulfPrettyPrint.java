@@ -76,7 +76,7 @@ public final class GulfPrettyPrint {
     @NonNull Change<Object> change,
     boolean withPath
   ) {
-    appendPathInformation(builder, indent, change.path(), b -> b.append(": "), withPath)
+    appendPathInformation(builder, indent, change.path(), b -> b.append(": "), withPath, true)
       .append("&c").append(change.leftElement()) // red: old value
       .append(" &r=> &a").append(change.rightElement()) // green: new value
       .append(System.lineSeparator());
@@ -89,8 +89,22 @@ public final class GulfPrettyPrint {
     @Nullable Consumer<StringBuilder> finisher,
     boolean doAppendPath
   ) {
-    // always append the indent
-    builder.append(indent);
+    return appendPathInformation(builder, indent, path, finisher, doAppendPath, false);
+  }
+
+  static @NonNull StringBuilder appendPathInformation(
+    @NonNull StringBuilder builder,
+    @NonNull String indent,
+    @NonNull ObjectPath path,
+    @Nullable Consumer<StringBuilder> finisher,
+    boolean doAppendPath,
+    boolean forceIndent
+  ) {
+    // only append the indent if needed
+    if (doAppendPath || forceIndent) {
+      builder.append(indent);
+    }
+
     if (doAppendPath) {
       // append the path & finisher if needed
       builder.append("&r- &6").append(path.toFullPath()).append("&r");

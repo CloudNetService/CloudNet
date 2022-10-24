@@ -163,8 +163,8 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
                 // skip the current change
                 LOGGER.info(I18n.trans("cluster-sync-skip"));
               default -> {
+                // cannot happen
               }
-              // cannot happen
             }
           } catch (Exception exception) {
             LOGGER.severe("Exception processing diff on key %s with %s and %s", null, key, data, current);
