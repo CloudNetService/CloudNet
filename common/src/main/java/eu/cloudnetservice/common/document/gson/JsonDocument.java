@@ -51,7 +51,6 @@ public class JsonDocument implements Document<JsonDocument> {
     .serializeNulls()
     .setPrettyPrinting()
     .disableHtmlEscaping()
-    .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
     .registerTypeHierarchyAdapter(Path.class, new PathTypeAdapter())
     .registerTypeHierarchyAdapter(Pattern.class, new PatternTypeAdapter())
     .registerTypeHierarchyAdapter(JsonDocument.class, new JsonDocumentTypeAdapter())

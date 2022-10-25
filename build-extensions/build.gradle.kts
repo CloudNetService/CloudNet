@@ -8,5 +8,5 @@ repositories {
 
 dependencies {
   implementation("net.kyori", "indra-common", "3.0.1")
-  implementation("com.google.code.gson", "gson", "2.9.1")
+  implementation("com.google.code.gson", "gson", "2.10")
 }
