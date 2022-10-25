@@ -199,6 +199,17 @@ public abstract class BukkitPlatformSelectorEntity
         }
       }
       case ONLINE -> layout = layouts.onlineLayout();
+      case STOPPED -> {
+        // reset the ItemStack in the wrapper as we currently don't have an item to display
+        wrapper.itemStack(null);
+        // update the service and rebuild the inventory & infoline
+        wrapper.service(service);
+        Bukkit.getScheduler().runTask(this.plugin, () -> {
+          this.rebuildInventory(configuration);
+          this.rebuildInfoLines();
+        });
+        return;
+      }
       default -> {
         return;
       }
@@ -255,7 +266,7 @@ public abstract class BukkitPlatformSelectorEntity
   public void handleInventoryInteract(@NonNull Inventory inv, @NonNull Player player, @NonNull ItemStack clickedItem) {
     // find the server associated with the clicked item
     for (var wrapper : this.serviceItems.values()) {
-      if (wrapper.itemStack().equals(clickedItem)) {
+      if (clickedItem.equals(wrapper.itemStack())) {
         // close the inventory
         player.closeInventory();
         // connect the player
@@ -436,7 +447,7 @@ public abstract class BukkitPlatformSelectorEntity
     }
     // add the service items
     for (var wrapper : this.serviceItems.values()) {
-      if (!inventory.addItem(wrapper.itemStack()).isEmpty()) {
+      if (wrapper.itemStack() != null && !inventory.addItem(wrapper.itemStack()).isEmpty()) {
         // the inventory is full
         break;
       }
@@ -463,16 +474,16 @@ public abstract class BukkitPlatformSelectorEntity
     private volatile ItemStack itemStack;
     private volatile ServiceInfoSnapshot serviceInfoSnapshot;
 
-    public ServiceItemWrapper(@NonNull ItemStack itemStack, @NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    public ServiceItemWrapper(@Nullable ItemStack itemStack, @NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
       this.itemStack = itemStack;
       this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
-    public @NonNull ItemStack itemStack() {
+    public @Nullable ItemStack itemStack() {
       return this.itemStack;
     }
 
-    public void itemStack(@NonNull ItemStack itemStack) {
+    public void itemStack(@Nullable ItemStack itemStack) {
       this.itemStack = itemStack;
     }
 
@@ -490,7 +501,7 @@ public abstract class BukkitPlatformSelectorEntity
     private final String basedInfoLine;
     private final ArmorStand armorStand;
 
-    public InfoLineWrapper(String basedInfoLine, ArmorStand armorStand) {
+    public InfoLineWrapper(@NonNull String basedInfoLine, @NonNull ArmorStand armorStand) {
       this.basedInfoLine = basedInfoLine;
       this.armorStand = armorStand;
     }
