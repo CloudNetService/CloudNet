@@ -31,12 +31,18 @@ allprojects {
   description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
 
   repositories {
-    mavenCentral()
-    maven("https://jitpack.io/")
-    // must be before sponge as they mirror some repos including that one (which leads to outdated dependencies)
-    maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    releasesOnly(mavenCentral())
+
+    // old and new sonatype snapshot repository
+    snapshotsOnly(maven("https://oss.sonatype.org/content/repositories/snapshots/"))
+    snapshotsOnly(maven("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+    // must be after sonatype as sponge mirrors sonatype which leads to outdated dependencies
     maven("https://repo.spongepowered.org/maven/")
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+
+    // ensure that we use these repositories for snapshots/releases only (improves lookup times)
+    releasesOnly(maven("https://repository.derklaro.dev/releases/"))
+    snapshotsOnly(maven("https://repository.derklaro.dev/snapshots/"))
   }
 }
 
