@@ -31,11 +31,14 @@ allprojects {
   description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
 
   repositories {
-    mavenCentral()
-    maven("https://jitpack.io/")
+    releasesOnly(mavenCentral())
     // must be before sponge as they mirror some repos including that one (which leads to outdated dependencies)
-    maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    snapshotsOnly(maven("https://oss.sonatype.org/content/repositories/snapshots/"))
     maven("https://repo.spongepowered.org/maven/")
+
+    // ensure that we use these repositories for snapshots/releases only (improves lookup times)
+    releasesOnly(maven("https://repository.derklaro.dev/releases/"))
+    snapshotsOnly(maven("https://repository.derklaro.dev/snapshots/"))
   }
 }
 

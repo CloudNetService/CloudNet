@@ -28,7 +28,6 @@ subprojects {
   }
 
   repositories {
-    maven("https://jitpack.io/")
     maven("https://repo.md-5.net/repository/releases/")
     maven("https://repo.waterdog.dev/artifactory/main/")
     maven("https://repo.opencollab.dev/maven-snapshots/")
