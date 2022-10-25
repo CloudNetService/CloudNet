@@ -17,6 +17,7 @@
 import net.kyori.indra.git.IndraGitExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.internal.artifacts.repositories.resolver.MavenUniqueSnapshotComponentIdentifier
 import org.gradle.api.plugins.JavaPluginExtension
@@ -63,6 +64,18 @@ fun Project.sourceSets(): SourceSetContainer = the<JavaPluginExtension>().source
 fun ProjectDependency.sourceSets(): SourceSetContainer = dependencyProject.sourceSets()
 
 fun Project.mavenRepositories(): Iterable<MavenArtifactRepository> = repositories.filterIsInstance<MavenArtifactRepository>()
+
+fun releasesOnly(repository: MavenArtifactRepository) {
+  repository.mavenContent {
+    releasesOnly()
+  }
+}
+
+fun snapshotsOnly(repository: MavenArtifactRepository) {
+  repository.mavenContent {
+    snapshotsOnly()
+  }
+}
 
 fun Project.exportLanguageFileInformation(): String {
   val file = project.buildDir.resolve("languages.txt")
