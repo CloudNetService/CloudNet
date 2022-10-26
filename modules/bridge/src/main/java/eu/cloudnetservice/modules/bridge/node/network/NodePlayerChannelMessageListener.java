@@ -40,6 +40,7 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import java.util.Locale;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 
 public final class NodePlayerChannelMessageListener {
 
@@ -70,10 +71,15 @@ public final class NodePlayerChannelMessageListener {
           var preLoginEvent = new LocalPlayerPreLoginEvent(info);
           // set the event cancelled by default if the player is already connected
           if (this.playerManager.onlinePlayer(info.uniqueId()) != null) {
-            preLoginEvent.result(LocalPlayerPreLoginEvent.Result.denied(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-              this.bridgeManagement.configuration().message(
-                Locale.ENGLISH,
-                "already-connected"))));
+            preLoginEvent.result(this.bridgeManagement.configuration().findMessage(
+              Locale.ENGLISH,
+              "already-connected",
+              message -> {
+                var component = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message);
+                return LocalPlayerPreLoginEvent.Result.denied(component);
+              },
+              LocalPlayerPreLoginEvent.Result.denied(Component.empty()),
+              true));
           }
           // publish the event
           var result = this.eventManager.callEvent(preLoginEvent).result();

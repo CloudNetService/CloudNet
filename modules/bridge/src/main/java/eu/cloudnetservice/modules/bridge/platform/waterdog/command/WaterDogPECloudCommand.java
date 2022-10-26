@@ -57,10 +57,11 @@ public final class WaterDogPECloudCommand extends Command {
         // check if the player has the required permission
         if (info == null || !sender.hasPermission(info.permission())) {
           // no permission
-          sender.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(this.management.configuration().message(
+          this.management.configuration().handleMessage(
             Locale.ENGLISH,
-            "command-cloud-sub-command-no-permission"
-          ).replace("%command%", args[0])));
+            "command-cloud-sub-command-no-permission",
+            message -> message.replace("%command%", args[0]),
+            sender::sendMessage);
         } else {
           // execute command
           this.executeNow(sender, commandLine);

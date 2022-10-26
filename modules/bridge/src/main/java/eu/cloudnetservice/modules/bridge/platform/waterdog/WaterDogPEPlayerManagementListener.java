@@ -54,18 +54,20 @@ public final class WaterDogPEPlayerManagementListener {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setCancelReason(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           Locale.ENGLISH,
-          "proxy-join-cancel-because-maintenance"));
+          "proxy-join-cancel-because-maintenance",
+          event::setCancelReason);
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
-        event.setCancelReason(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           Locale.ENGLISH,
-          "proxy-join-cancel-because-permission"));
+          "proxy-join-cancel-because-permission",
+          event::setCancelReason);
         return;
       }
     }

@@ -61,19 +61,21 @@ public final class VelocityPlayerManagementListener {
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
-        event.setResult(ResultedEvent.ComponentResult.denied(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-          this.management.configuration().message(
-            Locale.ENGLISH,
-            "proxy-join-cancel-because-maintenance"))));
+        this.management.configuration().handleMessage(
+          Locale.ENGLISH,
+          "proxy-join-cancel-because-maintenance",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          component -> event.setResult(ResultedEvent.ComponentResult.denied(component)));
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
-        event.setResult(ResultedEvent.ComponentResult.denied(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-          this.management.configuration().message(
-            Locale.ENGLISH,
-            "proxy-join-cancel-because-permission"))));
+        this.management.configuration().handleMessage(
+          Locale.ENGLISH,
+          "proxy-join-cancel-because-permission",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          component -> event.setResult(ResultedEvent.ComponentResult.denied(component)));
         return;
       }
     }
@@ -112,10 +114,12 @@ public final class VelocityPlayerManagementListener {
             return KickedFromServerEvent.RedirectPlayer.create(server, this.extractReasonComponent(event));
           }
         })
-        .orElse(KickedFromServerEvent.DisconnectPlayer.create(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-          this.management.configuration().message(
-            event.getPlayer().getEffectiveLocale(),
-            "proxy-join-disconnect-because-no-hub")))));
+        .orElse(KickedFromServerEvent.DisconnectPlayer.create(this.management.configuration().findMessage(
+          event.getPlayer().getEffectiveLocale(),
+          "proxy-join-disconnect-because-no-hub",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          Component.empty(),
+          true))));
     }
   }
 
@@ -171,20 +175,27 @@ public final class VelocityPlayerManagementListener {
         message = GlobalTranslator.render(message, playerLocale == null ? Locale.getDefault() : playerLocale);
       }
       // if the message is still not a TextComponent use the default message instead
-      if (message instanceof TextComponent) {
+      if (message instanceof TextComponent textComponent) {
         // wrap the message
-        var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
-          .replace("%server%", event.getServer().getServerInfo().getName())
-          .replace("%reason%", LegacyComponentSerializer.legacySection().serialize(message));
-        // format the message
-        return ComponentFormats.BUNGEE_TO_ADVENTURE.convert(baseMessage);
+        return this.management.configuration().findMessage(
+          playerLocale,
+          "error-connecting-to-server",
+          rawMessage -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(rawMessage
+            .replace("%server%", event.getServer().getServerInfo().getName())
+            .replace("%reason%", LegacyComponentSerializer.legacySection().serialize(textComponent))),
+          Component.empty(),
+          true);
       }
     }
-    // render the base message without a reason
-    var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
-      .replace("%server%", event.getServer().getServerInfo().getName())
-      .replace("%reason%", "§cUnknown");
-    // format the message
-    return ComponentFormats.BUNGEE_TO_ADVENTURE.convert(baseMessage);
+
+    // unknown reason
+    return this.management.configuration().findMessage(
+      playerLocale,
+      "error-connecting-to-server",
+      rawMessage -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(rawMessage
+        .replace("%server%", event.getServer().getServerInfo().getName())
+        .replace("%reason%", "§cUnknown")),
+      Component.empty(),
+      true);
   }
 }

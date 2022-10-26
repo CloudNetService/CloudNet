@@ -59,17 +59,21 @@ public final class MinestomPlayerManagementListener {
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-        player.kick(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           player.getLocale(),
-          "server-join-cancel-because-maintenance")));
+          "server-join-cancel-because-maintenance",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          player::kick);
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
-        player.kick(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           player.getLocale(),
-          "server-join-cancel-because-permission")));
+          "server-join-cancel-because-permission",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          player::kick);
       }
     }
   }

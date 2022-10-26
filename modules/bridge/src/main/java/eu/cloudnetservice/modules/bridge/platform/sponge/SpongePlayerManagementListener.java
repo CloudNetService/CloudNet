@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.sponge;
 
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -23,7 +24,6 @@ import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
-import net.kyori.adventure.text.Component;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -54,18 +54,22 @@ public final class SpongePlayerManagementListener {
       // check if maintenance is activated
       if (task.maintenance() && !user.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setMessage(Component.text(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           Locale.ENGLISH,
-          "server-join-cancel-because-maintenance")));
+          "server-join-cancel-because-maintenance",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          event::setMessage);
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !user.hasPermission(permission)) {
         event.setCancelled(true);
-        event.setMessage(Component.text(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           Locale.ENGLISH,
-          "server-join-cancel-because-permission")));
+          "server-join-cancel-because-permission",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          event::setMessage);
       }
     }
   }

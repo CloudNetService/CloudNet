@@ -20,6 +20,7 @@ import static eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHe
 
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -51,11 +52,11 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
       CloudNetDriver.instance().clusterNodeProvider().consoleCommandAsync(args[0]).thenAcceptAsync(info -> {
         // check if the player has the required permission
         if (info == null || !sender.hasPermission(info.permission())) {
-          // no permission
-          sender.sendMessage(translateToComponent(this.management.configuration().message(
+          this.management.configuration().handleMessage(
             player.getLocale(),
-            "command-cloud-sub-command-no-permission"
-          ).replace("%command%", args[0])));
+            "command-cloud-sub-command-no-permission",
+            message -> BungeeCordHelper.translateToComponent(message.replace("%command%", args[0])),
+            sender::sendMessage);
         } else {
           // execute command
           this.executeNow(sender, commandLine);
