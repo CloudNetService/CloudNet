@@ -318,6 +318,16 @@ public final class NPCCommand extends BaseTabExecutor {
           }
         }
 
+        // if the npc should show ingame services in the inventory
+        case "sis", "showingameservices" -> {
+          updatedNpc = NPC.builder(npc).showIngameServices(this.parseBoolean(args[2])).build();
+        }
+
+        // if the npc should full services in the inventory
+        case "sfs", "showfullservices" -> {
+          updatedNpc = NPC.builder(npc).showIngameServices(this.parseBoolean(args[2])).build();
+        }
+
         // sets the glowing color
         case "gc", "glowingcolor" -> {
           // try to parse the color
@@ -635,6 +645,8 @@ public final class NPCCommand extends BaseTabExecutor {
           "lookatplayer",
           "imitateplayer",
           "useplayerskin",
+          "showingameservices",
+          "showfullservices",
           "glowingcolor",
           "flyingwithelytra",
           "burning",
@@ -653,7 +665,7 @@ public final class NPCCommand extends BaseTabExecutor {
         return switch (StringUtil.toLower(args[1])) {
           // true-false options
           case "lap", "lookatplayer", "ip", "imitateplayer", "ups", "useplayerskin",
-            "fwe", "flyingwithelytra", "burning" -> TRUE_FALSE;
+            "fwe", "flyingwithelytra", "burning", "sis", "showingameservices", "sfs", "showfullservices" -> TRUE_FALSE;
           // click action options
           case "lca", "leftclickaction", "rca", "rightclickaction" -> CLICK_ACTIONS;
           // color options

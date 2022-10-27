@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.npc.node;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
@@ -35,6 +36,7 @@ import eu.cloudnetservice.node.Node;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
@@ -64,11 +66,11 @@ public class CloudNetNPCModule extends DriverModule {
               .defaultItems(new InventoryConfiguration.ItemLayoutHolder(
                 this.convertItemLayout(entry.emptyItem()),
                 this.convertItemLayout(entry.onlineItem()),
+                this.convertItemLayout(entry.fullItem()),
                 this.convertItemLayout(entry.fullItem())))
               .fixedItems(entry.inventoryLayout().entrySet().stream()
                 .map(mapEntry -> new Pair<>(mapEntry.getKey(), this.convertItemLayout(mapEntry.getValue())))
                 .collect(Collectors.toMap(Pair::first, Pair::second)))
-              .showFullServices(entry.showFullServices())
               .inventorySize(entry.inventorySize())
               .build())
             .npcPoolOptions(NPCPoolOptions.builder()
@@ -84,6 +86,28 @@ public class CloudNetNPCModule extends DriverModule {
             .entries(newEntries)
             .build())
           .write(this.configPath());
+      } else {
+        // we have to read the config manually as we have to upgrade it
+        var config = JsonDocument.newDocument(this.configPath());
+        List<JsonDocument> entries = config.get(
+          "entries",
+          TypeToken.getParameterized(List.class, JsonDocument.class).getType());
+
+        for (var entry : entries) {
+          var inventoryConfig = entry.getDocument("inventoryConfiguration").getDocument("defaultItems");
+          // check if the ingameLayout is missing - upgrade if its the case
+          if (inventoryConfig.get("ingameLayout") == null) {
+            inventoryConfig.append("ingameLayout", ItemLayout.builder()
+              .material("REDSTONE")
+              .displayName("§7%name%")
+              .lore(Arrays.asList(
+                "§8● §eIngame",
+                "§8● §7%online_players%§8/§7%max_players%",
+                "§8● §7%motd%")).build());
+          }
+        }
+
+        this.writeConfig(config);
       }
     }
 

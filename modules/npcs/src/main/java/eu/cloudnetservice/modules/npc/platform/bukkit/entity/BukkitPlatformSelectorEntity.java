@@ -192,23 +192,21 @@ public abstract class BukkitPlatformSelectorEntity
     switch (state) {
       case EMPTY_ONLINE -> layout = layouts.emptyLayout();
       case FULL_ONLINE -> {
-        if (configuration.showFullServices()) {
+        if (this.npc.showFullServices()) {
           layout = layouts.fullLayout();
         } else {
+          this.unregisterItem(wrapper, service, configuration);
           return;
         }
       }
       case ONLINE -> layout = layouts.onlineLayout();
       case STOPPED -> {
-        // reset the ItemStack in the wrapper as we currently don't have an item to display
-        wrapper.itemStack(null);
-        // update the service and rebuild the inventory & infoline
-        wrapper.service(service);
-        Bukkit.getScheduler().runTask(this.plugin, () -> {
-          this.rebuildInventory(configuration);
-          this.rebuildInfoLines();
-        });
-        return;
+        if (service.propertyOr(BridgeServiceProperties.IS_IN_GAME, false) && this.npc.showIngameServices()) {
+          layout = layouts.ingameLayout();
+        } else {
+          this.unregisterItem(wrapper, service, configuration);
+          return;
+        }
       }
       default -> {
         return;
@@ -408,6 +406,20 @@ public abstract class BukkitPlatformSelectorEntity
     }
     // unable to build the item
     return null;
+  }
+
+  protected void unregisterItem(
+    @NonNull ServiceItemWrapper wrapper,
+    @NonNull ServiceInfoSnapshot service,
+    @NonNull InventoryConfiguration configuration
+  ) {
+    // reset the ItemStack in the wrapper as we currently don't have an item to display
+    wrapper.itemStack(null);
+    // update the service and rebuild the inventory & infoline
+    wrapper.service(service);
+
+    this.rebuildInfoLines();
+    this.rebuildInventory(configuration);
   }
 
   protected void rebuildInfoLines() {
