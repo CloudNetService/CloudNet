@@ -32,8 +32,12 @@ allprojects {
 
   repositories {
     releasesOnly(mavenCentral())
-    // must be before sponge as they mirror some repos including that one (which leads to outdated dependencies)
+
+    // old and new sonatype snapshot repository
     snapshotsOnly(maven("https://oss.sonatype.org/content/repositories/snapshots/"))
+    snapshotsOnly(maven("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+    // must be after sonatype as sponge mirrors sonatype which leads to outdated dependencies
     maven("https://repo.spongepowered.org/maven/")
 
     // ensure that we use these repositories for snapshots/releases only (improves lookup times)

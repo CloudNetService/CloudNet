@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.storageSftp)
-}
+package eu.cloudnetservice.node.cluster.sync.prettyprint;
 
-dependencies {
-  "moduleLibrary"(libs.sshj)
-  "moduleLibrary"(libs.slf4jNop)
-}
+import dev.derklaro.gulf.Gulf;
+import dev.derklaro.gulf.diff.Change;
+import java.util.Collection;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
-moduleJson {
-  author = "CloudNetService"
-  name = "CloudNet-Storage-SFTP"
-  main = "eu.cloudnetservice.modules.sftp.SFTPTemplateStorageModule"
-  description = "CloudNet extension, which includes the sftp storage system"
-  storesSensitiveData = true
-  runtimeModule = true
+public final class GulfHelper {
+
+  private static final Gulf GULF = Gulf.builder().build();
+
+  private GulfHelper() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static @NonNull Collection<Change<Object>> findChanges(@Nullable Object left, @Nullable Object right) {
+    return GULF.findChanges(left, right);
+  }
 }

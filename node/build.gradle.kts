@@ -38,13 +38,13 @@ dependencies {
 
   // dependencies which are available for modules
   "api"(libs.guava)
-  "api"(libs.javers)
   "api"(libs.bundles.cloud)
 
   // internal libraries
   "implementation"(libs.h2)
   "implementation"(libs.asm)
   "implementation"(libs.gson)
+  "implementation"(libs.gulf)
   "implementation"(libs.xodus)
   "implementation"(libs.jline)
   "implementation"(libs.jansi)

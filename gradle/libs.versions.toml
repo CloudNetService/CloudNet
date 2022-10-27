@@ -41,7 +41,6 @@ oshi = "6.3.0"
 sshj = "0.34.0"
 jjwt = "0.11.5"
 slf4j = "1.7.36"
-javers = "6.7.1"
 caffeine = "3.1.1"
 awsSdk = "2.18.1"
 reflexion = "1.6.0"
@@ -51,6 +50,7 @@ nightConfig = "3.6.6"
 annotations = "23.0.0"
 influxClient = "6.6.0"
 netty = "5.0.0.Alpha5"
+gulf = "1.0.0-SNAPSHOT"
 
 # platform api versions
 sponge = "9.0.0"
@@ -130,8 +130,8 @@ nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue
 # general
 asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
+gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }
 slf4jNop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
-javers = { group = "org.javers", name = "javers-core", version.ref = "javers" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
 oshi = { group = "com.github.oshi", name = "oshi-core-java11", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
