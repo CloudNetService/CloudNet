@@ -39,7 +39,7 @@ import lombok.NonNull;
  */
 public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacketSender.Builder {
 
-  public static final int DEFAULT_CHUNK_SIZE = 1024 * 1024;
+  public static final int DEFAULT_CHUNK_SIZE = 50 * 1024 * 1024;
 
   protected InputStream source;
   protected String transferChannel;
