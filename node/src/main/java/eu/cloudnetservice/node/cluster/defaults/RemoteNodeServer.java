@@ -128,23 +128,13 @@ public class RemoteNodeServer implements NodeServer {
 
   @Override
   public void syncClusterData(boolean force) {
-    var channelMessage = ChannelMessage.builder()
+    ChannelMessage.builder()
       .message("sync_cluster_data")
       .targetNode(this.info.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(this.node.dataSyncRegistry().prepareClusterData(force))
-      .build();
-    // if the data sync is forced there is no need to wait for a response
-    if (force) {
-      channelMessage.send();
-    } else {
-      // send and await a response
-      var response = channelMessage.sendSingleQuery();
-      if (response != null && response.content().readBoolean()) {
-        // there was overridden data we need to handle
-        this.node.dataSyncRegistry().handle(response.content(), true);
-      }
-    }
+      .build()
+      .send();
   }
 
   @Override

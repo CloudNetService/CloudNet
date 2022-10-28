@@ -256,6 +256,9 @@ public class Node extends CloudNetDriver {
     this.nodeServerProvider.localNode().state(NodeServerState.READY);
     this.nodeServerProvider.selectHeadNode();
 
+    // setup done - register the command handler
+    this.commandProvider.registerConsoleHandler(this.console);
+
     // print out some network information, more for debug reasons in normal cases
     LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
     LOGGER.info(I18n.trans(
@@ -279,10 +282,9 @@ public class Node extends CloudNetDriver {
         .send();
     }
 
-    // enable console command handling
+    // register the default commands
     LOGGER.info(I18n.trans("start-commands"));
     this.commandProvider.registerDefaultCommands();
-    this.commandProvider.registerConsoleHandler(this.console);
     // start modules
     this.moduleProvider.startAll();
     // register listeners & post node startup finish
