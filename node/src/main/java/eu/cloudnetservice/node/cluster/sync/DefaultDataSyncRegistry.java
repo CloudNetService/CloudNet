@@ -142,7 +142,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
             }
 
             // print out the possibilities the user has now
-            LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
+            LOGGER.warning(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
             switch (this.waitForCorrectMergeInput(Node.instance().console())) {
               case 1 -> {
@@ -153,7 +153,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
               case 2 -> {
                 // accept yours - check if we already have a result buf
                 if (result == null) {
-                  result = DataBuf.empty().writeBoolean(true);
+                  result = DataBuf.empty();
                 }
                 // write the current data to the result buf
                 this.serializeData(current, handler, result);
@@ -181,7 +181,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     // try to release the input buf
     input.release();
     // return the created result
-    return result == null ? force ? null : DataBuf.empty().writeBoolean(false) : result;
+    return result;
   }
 
   protected void serializeData(

@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.network.listener.message;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -73,10 +74,20 @@ public final class NodeChannelMessageListener {
         case "sync_cluster_data" -> {
           // handle the sync and send back the data to override on the caller
           var result = this.dataSyncRegistry.handle(event.content(), event.content().readBoolean());
-          if (result != null && event.query()) {
-            event.binaryResponse(result);
+          if (result != null) {
+            // send the response content
+            ChannelMessage.builder()
+              .message("sync_cluster_data_response")
+              .target(event.sender().toTarget())
+              .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+              .buffer(result)
+              .build()
+              .send();
           }
         }
+
+        // handles the response to a cluster data sync
+        case "sync_cluster_data_response" -> this.dataSyncRegistry.handle(event.content(), true);
 
         // handle adding a new cluster node on other nodes
         case "register_known_node" -> {
