@@ -55,7 +55,7 @@ gulf = "1.0.0-SNAPSHOT"
 # platform api versions
 sponge = "9.0.0"
 velocity = "3.1.1"
-waterdogpe = "1.2.1"
+waterdogpe = "1.2.2"
 nukkitX = "1.0-SNAPSHOT"
 minestom = "b37bef427f"
 spigot = "1.8.8-R0.1-SNAPSHOT"
