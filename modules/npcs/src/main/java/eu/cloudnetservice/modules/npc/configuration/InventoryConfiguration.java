@@ -24,7 +24,6 @@ import lombok.NonNull;
 public record InventoryConfiguration(
   int inventorySize,
   boolean dynamicSize,
-  boolean showFullServices,
   @NonNull ItemLayoutHolder defaultItems,
   @NonNull Map<String, ItemLayoutHolder> perGroupLayouts,
   @NonNull Map<Integer, ItemLayout> fixedItems
@@ -38,7 +37,6 @@ public record InventoryConfiguration(
     return builder()
       .inventorySize(configuration.inventorySize())
       .dynamicSize(configuration.dynamicSize())
-      .showFullServices(configuration.showFullServices())
       .defaultItems(configuration.defaultItems())
       .perGroupLayouts(configuration.perGroupLayouts())
       .fixedItems(configuration.fixedItems());
@@ -64,7 +62,8 @@ public record InventoryConfiguration(
   public record ItemLayoutHolder(
     @NonNull ItemLayout emptyLayout,
     @NonNull ItemLayout onlineLayout,
-    @NonNull ItemLayout fullLayout
+    @NonNull ItemLayout fullLayout,
+    @NonNull ItemLayout ingameLayout
   ) {
 
   }
@@ -73,7 +72,6 @@ public record InventoryConfiguration(
 
     private int inventorySize = 54;
     private boolean dynamicSize = true;
-    private boolean showFullServices = true;
 
     private ItemLayoutHolder defaultItems = new ItemLayoutHolder(
       ItemLayout.builder()
@@ -102,6 +100,14 @@ public record InventoryConfiguration(
           "§8● §e%state%",
           "§8● §7%online_players%§8/§7%max_players%",
           "§8● §7%motd%"
+        )).build(),
+      ItemLayout.builder()
+        .material("REDSTONE")
+        .displayName("§7%name%")
+        .lore(Arrays.asList(
+          "§8● §eIngame",
+          "§8● §7%online_players%§8/§7%max_players%",
+          "§8● §7%motd%"
         )).build());
 
     private Map<Integer, ItemLayout> fixedItems = new HashMap<>();
@@ -114,11 +120,6 @@ public record InventoryConfiguration(
 
     public @NonNull Builder dynamicSize(boolean dynamicSize) {
       this.dynamicSize = dynamicSize;
-      return this;
-    }
-
-    public @NonNull Builder showFullServices(boolean showFullServices) {
-      this.showFullServices = showFullServices;
       return this;
     }
 
@@ -141,7 +142,6 @@ public record InventoryConfiguration(
       return new InventoryConfiguration(
         this.inventorySize,
         this.dynamicSize,
-        this.showFullServices,
         this.defaultItems,
         this.perGroupLayouts,
         this.fixedItems);

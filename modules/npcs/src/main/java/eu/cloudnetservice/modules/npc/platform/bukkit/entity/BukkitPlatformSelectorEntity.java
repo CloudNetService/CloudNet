@@ -28,11 +28,9 @@ import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -192,23 +190,21 @@ public abstract class BukkitPlatformSelectorEntity
     switch (state) {
       case EMPTY_ONLINE -> layout = layouts.emptyLayout();
       case FULL_ONLINE -> {
-        if (configuration.showFullServices()) {
+        if (this.npc.showFullServices()) {
           layout = layouts.fullLayout();
         } else {
+          this.unregisterItem(wrapper, service, configuration);
           return;
         }
       }
       case ONLINE -> layout = layouts.onlineLayout();
       case STOPPED -> {
-        // reset the ItemStack in the wrapper as we currently don't have an item to display
-        wrapper.itemStack(null);
-        // update the service and rebuild the inventory & infoline
-        wrapper.service(service);
-        Bukkit.getScheduler().runTask(this.plugin, () -> {
-          this.rebuildInventory(configuration);
-          this.rebuildInfoLines();
-        });
-        return;
+        if (service.propertyOr(BridgeServiceProperties.IS_IN_GAME, false) && this.npc.showIngameServices()) {
+          layout = layouts.ingameLayout();
+        } else {
+          this.unregisterItem(wrapper, service, configuration);
+          return;
+        }
       }
       default -> {
         return;
@@ -352,35 +348,30 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected void handleClickAction(@NonNull Player player, @NonNull NPC.ClickAction action) {
     switch (action) {
-      case OPEN_INVENTORY:
-        player.openInventory(this.inventory);
-        break;
-      case DIRECT_CONNECT_RANDOM: {
-        List<ServiceItemWrapper> wrappers = new ArrayList<>(this.serviceItems.values());
+      case OPEN_INVENTORY -> player.openInventory(this.inventory);
+      case DIRECT_CONNECT_RANDOM -> {
+        var wrappers = this.serviceItems.values().stream()
+          // make sure that we are allowed to connect to the service
+          .filter(ServiceItemWrapper::canConnectTo)
+          .toList();
         // connect the player to the first element if present
         if (!wrappers.isEmpty()) {
           var wrapper = wrappers.get(ThreadLocalRandom.current().nextInt(0, wrappers.size()));
           this.playerManager().playerExecutor(player.getUniqueId()).connect(wrapper.service().name());
         }
       }
-      break;
-      case DIRECT_CONNECT_LOWEST_PLAYERS: {
-        this.serviceItems.values().stream()
-          .map(ServiceItemWrapper::service)
-          .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
-          .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
+      case DIRECT_CONNECT_LOWEST_PLAYERS -> this.serviceItems.values().stream()
+        .filter(ServiceItemWrapper::canConnectTo)
+        .map(ServiceItemWrapper::service)
+        .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
+        .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
+      case DIRECT_CONNECT_HIGHEST_PLAYERS -> this.serviceItems.values().stream()
+        .filter(ServiceItemWrapper::canConnectTo)
+        .map(ServiceItemWrapper::service)
+        .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
+        .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
+      default -> {
       }
-      break;
-      case DIRECT_CONNECT_HIGHEST_PLAYERS: {
-        this.serviceItems.values().stream()
-          .map(ServiceItemWrapper::service)
-          .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
-          .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
-      }
-      break;
-      default:
-      case NOTHING:
-        break;
     }
   }
 
@@ -408,6 +399,20 @@ public abstract class BukkitPlatformSelectorEntity
     }
     // unable to build the item
     return null;
+  }
+
+  protected void unregisterItem(
+    @NonNull ServiceItemWrapper wrapper,
+    @NonNull ServiceInfoSnapshot service,
+    @NonNull InventoryConfiguration configuration
+  ) {
+    // reset the ItemStack in the wrapper as we currently don't have an item to display
+    wrapper.itemStack(null);
+    // update the service and rebuild the inventory & infoline
+    wrapper.service(service);
+
+    this.rebuildInfoLines();
+    this.rebuildInventory(configuration);
   }
 
   protected void rebuildInfoLines() {
@@ -447,7 +452,7 @@ public abstract class BukkitPlatformSelectorEntity
     }
     // add the service items
     for (var wrapper : this.serviceItems.values()) {
-      if (wrapper.itemStack() != null && !inventory.addItem(wrapper.itemStack()).isEmpty()) {
+      if (wrapper.canConnectTo() && !inventory.addItem(wrapper.itemStack()).isEmpty()) {
         // the inventory is full
         break;
       }
@@ -493,6 +498,10 @@ public abstract class BukkitPlatformSelectorEntity
 
     public void service(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
       this.serviceInfoSnapshot = serviceInfoSnapshot;
+    }
+
+    public boolean canConnectTo() {
+      return this.itemStack != null;
     }
   }
 

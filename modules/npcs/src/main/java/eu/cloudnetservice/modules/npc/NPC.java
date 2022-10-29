@@ -50,6 +50,9 @@ public class NPC extends JsonDocPropertyHolder {
   private final boolean imitatePlayer;
   private final boolean usePlayerSkin;
 
+  private final boolean showIngameServices;
+  private final boolean showFullServices;
+
   private final boolean glowing;
   private final String glowingColor;
   
@@ -72,6 +75,8 @@ public class NPC extends JsonDocPropertyHolder {
     boolean lookAtPlayer,
     boolean imitatePlayer,
     boolean usePlayerSkin,
+    boolean showIngameServices,
+    boolean showFullServices,
     boolean glowing,
     @NonNull String glowingColor,
     boolean flyingWithElytra,
@@ -91,6 +96,8 @@ public class NPC extends JsonDocPropertyHolder {
     this.lookAtPlayer = lookAtPlayer;
     this.imitatePlayer = imitatePlayer;
     this.usePlayerSkin = usePlayerSkin;
+    this.showIngameServices = showIngameServices;
+    this.showFullServices = showFullServices;
     this.glowing = glowing;
     this.glowingColor = glowingColor;
     this.flyingWithElytra = flyingWithElytra;
@@ -114,6 +121,8 @@ public class NPC extends JsonDocPropertyHolder {
       .lookAtPlayer(npc.lookAtPlayer())
       .imitatePlayer(npc.imitatePlayer())
       .usePlayerSkin(npc.usePlayerSkin())
+      .showIngameServices(npc.showIngameServices())
+      .showFullServices(npc.showFullServices())
       .glowing(npc.glowing())
       .glowingColor(npc.glowingColor())
       .flyingWithElytra(npc.flyingWithElytra())
@@ -171,6 +180,14 @@ public class NPC extends JsonDocPropertyHolder {
 
   public boolean usePlayerSkin() {
     return this.usePlayerSkin;
+  }
+
+  public boolean showIngameServices() {
+    return this.showIngameServices;
+  }
+
+  public boolean showFullServices() {
+    return this.showFullServices;
   }
 
   public boolean glowing() {
@@ -236,6 +253,9 @@ public class NPC extends JsonDocPropertyHolder {
     private boolean imitatePlayer = true;
     private boolean usePlayerSkin = false;
 
+    private boolean showIngameServices = false;
+    private boolean showFullServices = false;
+
     private boolean glowing = false;
     private String glowingColor = "§f";
     
@@ -297,6 +317,16 @@ public class NPC extends JsonDocPropertyHolder {
       return this;
     }
 
+    public @NonNull Builder showIngameServices(boolean showIngameServices) {
+      this.showIngameServices = showIngameServices;
+      return this;
+    }
+
+    public @NonNull Builder showFullServices(boolean showFullServices) {
+      this.showFullServices = showFullServices;
+      return this;
+    }
+
     public @NonNull Builder glowing(boolean glowing) {
       this.glowing = glowing;
       return this;
@@ -351,6 +381,8 @@ public class NPC extends JsonDocPropertyHolder {
         this.lookAtPlayer,
         this.imitatePlayer,
         this.usePlayerSkin,
+        this.showIngameServices,
+        this.showFullServices,
         this.glowing,
         this.glowingColor,
         this.flyingWithElytra,
