@@ -370,7 +370,8 @@ public abstract class BukkitPlatformSelectorEntity
         .map(ServiceItemWrapper::service)
         .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
         .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
-      default -> {}
+      default -> {
+      }
     }
   }
 
