@@ -352,7 +352,7 @@ public abstract class BukkitPlatformSelectorEntity
       case DIRECT_CONNECT_RANDOM -> {
         var wrappers = this.serviceItems.values().stream()
           // make sure that we are allowed to connect to the service
-          .filter(wrapper -> wrapper.itemStack() != null)
+          .filter(ServiceItemWrapper::canConnectTo)
           .toList();
         // connect the player to the first element if present
         if (!wrappers.isEmpty()) {
@@ -361,12 +361,12 @@ public abstract class BukkitPlatformSelectorEntity
         }
       }
       case DIRECT_CONNECT_LOWEST_PLAYERS -> this.serviceItems.values().stream()
-        .filter(wrapper -> wrapper.itemStack() != null)
+        .filter(ServiceItemWrapper::canConnectTo)
         .map(ServiceItemWrapper::service)
         .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
         .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       case DIRECT_CONNECT_HIGHEST_PLAYERS -> this.serviceItems.values().stream()
-        .filter(wrapper -> wrapper.itemStack() != null)
+        .filter(ServiceItemWrapper::canConnectTo)
         .map(ServiceItemWrapper::service)
         .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
         .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
@@ -452,7 +452,7 @@ public abstract class BukkitPlatformSelectorEntity
     }
     // add the service items
     for (var wrapper : this.serviceItems.values()) {
-      if (wrapper.itemStack() != null && !inventory.addItem(wrapper.itemStack()).isEmpty()) {
+      if (wrapper.canConnectTo() && !inventory.addItem(wrapper.itemStack()).isEmpty()) {
         // the inventory is full
         break;
       }
@@ -498,6 +498,10 @@ public abstract class BukkitPlatformSelectorEntity
 
     public void service(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
       this.serviceInfoSnapshot = serviceInfoSnapshot;
+    }
+
+    public boolean canConnectTo() {
+      return this.itemStack != null;
     }
   }
 
