@@ -28,11 +28,9 @@ import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -350,35 +348,29 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected void handleClickAction(@NonNull Player player, @NonNull NPC.ClickAction action) {
     switch (action) {
-      case OPEN_INVENTORY:
-        player.openInventory(this.inventory);
-        break;
-      case DIRECT_CONNECT_RANDOM: {
-        List<ServiceItemWrapper> wrappers = new ArrayList<>(this.serviceItems.values());
+      case OPEN_INVENTORY -> player.openInventory(this.inventory);
+      case DIRECT_CONNECT_RANDOM -> {
+        var wrappers = this.serviceItems.values().stream()
+          // make sure that we are allowed to connect to the service
+          .filter(wrapper -> wrapper.itemStack() != null)
+          .toList();
         // connect the player to the first element if present
         if (!wrappers.isEmpty()) {
           var wrapper = wrappers.get(ThreadLocalRandom.current().nextInt(0, wrappers.size()));
           this.playerManager().playerExecutor(player.getUniqueId()).connect(wrapper.service().name());
         }
       }
-      break;
-      case DIRECT_CONNECT_LOWEST_PLAYERS: {
-        this.serviceItems.values().stream()
-          .map(ServiceItemWrapper::service)
-          .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
-          .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
-      }
-      break;
-      case DIRECT_CONNECT_HIGHEST_PLAYERS: {
-        this.serviceItems.values().stream()
-          .map(ServiceItemWrapper::service)
-          .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
-          .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
-      }
-      break;
-      default:
-      case NOTHING:
-        break;
+      case DIRECT_CONNECT_LOWEST_PLAYERS -> this.serviceItems.values().stream()
+        .filter(wrapper -> wrapper.itemStack() != null)
+        .map(ServiceItemWrapper::service)
+        .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
+        .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
+      case DIRECT_CONNECT_HIGHEST_PLAYERS -> this.serviceItems.values().stream()
+        .filter(wrapper -> wrapper.itemStack() != null)
+        .map(ServiceItemWrapper::service)
+        .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
+        .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
+      default -> {}
     }
   }
 
