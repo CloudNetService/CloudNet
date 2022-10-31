@@ -137,9 +137,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     var fullPath = uri.getPath();
 
     // make the path understandable for the handlers
-    if (fullPath.isEmpty()) {
-      fullPath = "/";
-    } else if (fullPath.endsWith("/")) {
+    if (!fullPath.equals("/") && fullPath.endsWith("/")) {
       fullPath = fullPath.substring(0, fullPath.length() - 1);
     }
 

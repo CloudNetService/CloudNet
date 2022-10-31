@@ -138,6 +138,27 @@ public class NettyHttpServerTest extends NetworkTestCase {
   }
 
   @Test
+  @Order(25)
+  @Timeout(20)
+  void testRootHandler() throws Exception {
+    var port = this.randomFreePort();
+    HttpServer server = new NettyHttpServer();
+
+    server.registerHandler("/", new HttpHandler() {
+      @Override
+      public void handle(String path, HttpContext context) {
+        context.response().status(HttpResponseCode.OK).context().cancelNext(true);
+      }
+    });
+
+    Assertions.assertEquals(1, server.httpHandlers().size());
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
+
+    Assertions.assertEquals(200, connectTo(port, "").getResponseCode());
+    Assertions.assertEquals(404, connectTo(port, "test").getResponseCode());
+  }
+
+  @Test
   @Order(30)
   void testRequestPathParameters() throws Exception {
     var port = this.randomFreePort();
