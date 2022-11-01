@@ -35,8 +35,13 @@ final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandS
   public void accept(@NonNull CommandPostprocessingContext<CommandSource> context) {
     var commandContext = context.getCommandContext();
     var source = commandContext.getSender();
-
-    Node.instance().eventManager()
-      .callEvent(new CommandPostProcessEvent(commandContext.getRawInputJoined(), source));
+    // get the first argument and retrieve the command info using it
+    var firstArgument = commandContext.getRawInput().getFirst();
+    var commandInfo = Node.instance().commandProvider().command(firstArgument);
+    // should not happen - just make sure
+    if (commandInfo != null) {
+      Node.instance().eventManager()
+        .callEvent(new CommandPostProcessEvent(commandContext.getRawInputJoined(), commandInfo, source));
+    }
   }
 }

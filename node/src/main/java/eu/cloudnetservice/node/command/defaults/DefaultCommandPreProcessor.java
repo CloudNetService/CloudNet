@@ -41,18 +41,16 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
       return;
     }
 
+    // get the first argument and retrieve the command info using it
     var firstArgument = commandContext.getRawInput().getFirst();
-    var commandInfo = Node.instance().commandProvider()
-      .command(firstArgument);
-    // if there is no command, the command was unregistered, ignore confirm as the command is not registered.
-    if (commandInfo == null && !firstArgument.equalsIgnoreCase("confirm")) {
-      return;
-    }
-
-    var preProcessEvent = Node.instance().eventManager()
-      .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), source));
-    if (preProcessEvent.cancelled()) {
-      ConsumerService.interrupt();
+    var commandInfo = Node.instance().commandProvider().command(firstArgument);
+    // should never happen - just make sure
+    if (commandInfo != null) {
+      var preProcessEvent = Node.instance().eventManager()
+        .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), commandInfo, source));
+      if (preProcessEvent.cancelled()) {
+        ConsumerService.interrupt();
+      }
     }
   }
 }

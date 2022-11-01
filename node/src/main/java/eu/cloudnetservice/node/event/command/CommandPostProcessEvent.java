@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.event.command;
 
+import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import lombok.NonNull;
@@ -23,10 +24,16 @@ import lombok.NonNull;
 public class CommandPostProcessEvent extends Event {
 
   private final String commandLine;
+  private final CommandInfo command;
   private final CommandSource commandSource;
 
-  public CommandPostProcessEvent(@NonNull String commandLine, @NonNull CommandSource commandSource) {
+  public CommandPostProcessEvent(
+    @NonNull String commandLine,
+    @NonNull CommandInfo command,
+    @NonNull CommandSource commandSource
+  ) {
     this.commandLine = commandLine;
+    this.command = command;
     this.commandSource = commandSource;
   }
 
@@ -35,6 +42,15 @@ public class CommandPostProcessEvent extends Event {
    */
   public @NonNull CommandSource commandSource() {
     return this.commandSource;
+  }
+
+  /**
+   * Gets the corresponding root command info that is associated with the command line that is executed.
+   *
+   * @return the command info of the executed command.
+   */
+  public @NonNull CommandInfo command() {
+    return this.command;
   }
 
   /**
