@@ -264,7 +264,7 @@ public final class ModulesCommand {
       .toList();
   }
 
-  @CommandMethod(value = "modules|module info <module>")
+  @CommandMethod("modules|module info <module>")
   public void moduleInfo(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "existingModule") ModuleWrapper module
