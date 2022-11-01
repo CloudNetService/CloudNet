@@ -63,6 +63,7 @@ import java.net.Inet6Address;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
@@ -353,24 +354,31 @@ public abstract class AbstractService implements CloudService {
       // put the given http headers
       var headers = inclusion.property(ServiceRemoteInclusion.HEADERS);
       for (var key : headers.keys()) {
-        req.header(key, headers.get(key).toString());
+        req.header(key, Objects.toString(headers.get(key)));
       }
+
       // check if we should load the inclusion
       if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, req)).cancelled()) {
         // get a target path based on the download url
-        var destination = INCLUSION_TEMP_DIR.resolve(
-          Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8)).replace('/', '_'));
+        var encodedUrl = Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8));
+        var destination = INCLUSION_TEMP_DIR.resolve(encodedUrl.replace('/', '_'));
+
         // download the file from the given url to the temp path if it does not exist
         if (Files.notExists(destination)) {
           try {
-            // we only support success codes for downloading the file
-            req.asFile(destination.toString());
+            // copy the file to the temp path, ensure that the parent directory exists
+            FileUtil.createDirectory(INCLUSION_TEMP_DIR);
+            req.asFile(destination.toString(), StandardCopyOption.REPLACE_EXISTING);
           } catch (UnirestException exception) {
-            LOGGER.severe("Unable to download inclusion from %s to %s", exception.getCause(), inclusion.url(),
+            LOGGER.severe(
+              "Unable to download inclusion from %s to %s",
+              exception.getCause(),
+              inclusion.url(),
               destination);
             continue;
           }
         }
+
         // resolve the desired output path
         var target = this.serviceDirectory.resolve(inclusion.destination());
         FileUtil.ensureChild(this.serviceDirectory, target);
