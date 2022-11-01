@@ -40,6 +40,7 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.node.module.ModuleEntry;
 import eu.cloudnetservice.node.module.ModulesHolder;
@@ -286,7 +287,7 @@ public final class ModulesCommand {
     source.sendMessage(MODULE_ENTRY_FORMATTER.format(this.availableModules.entries()));
   }
 
-  @CommandMethod("modules|module load <module>")
+  @CommandMethod(value = "modules|module load <module>", requiredSender = ConsoleCommandSource.class)
   public void loadModule(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "modulePath") @Quoted Path path
@@ -299,7 +300,7 @@ public final class ModulesCommand {
     }
   }
 
-  @CommandMethod("modules|module install <module>")
+  @CommandMethod(value = "modules|module install <module>", requiredSender = ConsoleCommandSource.class)
   public void installModule(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "availableModule") @Greedy ModuleEntry entry,
@@ -351,7 +352,7 @@ public final class ModulesCommand {
     source.sendMessage(I18n.trans("command-modules-module-installed", wrapper.moduleConfiguration().name()));
   }
 
-  @CommandMethod("modules|module start <module>")
+  @CommandMethod(value = "modules|module start <module>", requiredSender = ConsoleCommandSource.class)
   public void startModule(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "toStartModule") ModuleWrapper wrapper
@@ -359,7 +360,7 @@ public final class ModulesCommand {
     wrapper.startModule();
   }
 
-  @CommandMethod("modules|module reload [module]")
+  @CommandMethod(value = "modules|module reload [module]", requiredSender = ConsoleCommandSource.class)
   public void reloadModule(
     @NonNull CommandSource source,
     @Nullable @Argument(value = "module", parserName = "toReloadModule") ModuleWrapper wrapper
@@ -371,7 +372,7 @@ public final class ModulesCommand {
     }
   }
 
-  @CommandMethod("modules|module stop <module>")
+  @CommandMethod(value = "modules|module stop <module>", requiredSender = ConsoleCommandSource.class)
   public void stopModule(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "toStopModule") ModuleWrapper wrapper
@@ -379,7 +380,7 @@ public final class ModulesCommand {
     wrapper.stopModule();
   }
 
-  @CommandMethod("modules|module unload <module>")
+  @CommandMethod(value = "modules|module unload <module>", requiredSender = ConsoleCommandSource.class)
   public void unloadModule(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "toUnloadModule") ModuleWrapper wrapper
@@ -387,7 +388,7 @@ public final class ModulesCommand {
     wrapper.unloadModule();
   }
 
-  @CommandMethod("modules|module uninstall <module>")
+  @CommandMethod(value = "modules|module uninstall <module>", requiredSender = ConsoleCommandSource.class)
   public void uninstallModule(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "existingModule") ModuleWrapper wrapper
