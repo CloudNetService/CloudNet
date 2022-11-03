@@ -144,7 +144,12 @@ public class SFTPTemplateStorage implements TemplateStorage {
   @Override
   public boolean pull(@NonNull ServiceTemplate template, @NonNull Path directory) {
     return this.executeWithClient(client -> {
-      client.get(this.constructRemotePath(template), new FileSystemFile(directory.toFile()));
+      // we cannot call "get" directly as that would cause a download of the file into a directory
+      // which is called the same way the template is called
+      var target = new FileSystemFile(directory.toFile());
+      for (var fileInfo : client.ls(this.constructRemotePath(template))) {
+        client.get(fileInfo.getPath(), target);
+      }
       return true;
     }, false);
   }
