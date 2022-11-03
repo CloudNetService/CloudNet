@@ -51,18 +51,20 @@ public final class NukkitPlayerManagementListener implements Listener {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setKickMessage(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
-          "server-join-cancel-because-maintenance"));
+          "server-join-cancel-because-maintenance",
+          event::setKickMessage);
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
-        event.setKickMessage(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
-          "server-join-cancel-because-permission"));
+          "server-join-cancel-because-permission",
+          event::setKickMessage);
       }
     }
   }

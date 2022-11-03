@@ -44,9 +44,11 @@ public final class WaterDogPEHubCommand extends Command {
     if (sender instanceof ProxiedPlayer player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           Locale.ENGLISH,
-          "command-hub-already-in-hub")));
+          "command-hub-already-in-hub",
+          ComponentFormats.ADVENTURE_TO_BUNGEE::convertText,
+          player::sendMessage);
       } else {
         // try to get a fallback for the player
         var hub = this.management.fallback(player)
@@ -55,10 +57,12 @@ public final class WaterDogPEHubCommand extends Command {
         // check if a fallback was found
         if (hub != null) {
           player.connect(hub);
-          player.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(this.management.configuration().message(
+          this.management.configuration().handleMessage(
             Locale.ENGLISH,
-            "command-hub-success-connect"
-          ).replace("%server%", hub.getServerName())));
+            "command-hub-success-connect",
+            message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convertText(
+              message.replace("%server%", hub.getServerName())),
+            player::sendMessage);
         }
       }
     }

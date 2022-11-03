@@ -58,13 +58,13 @@ public final class VelocityCloudCommand implements SimpleCommand {
         // check if the sender has the required permission to execute the command
         if (info == null || !invocation.source().hasPermission(info.permission())) {
           // no permission to execute the command
-          invocation.source().sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-            this.management.configuration().message(
-              invocation.source() instanceof Player
-                ? ((Player) invocation.source()).getEffectiveLocale()
-                : Locale.ENGLISH,
-              "command-cloud-sub-command-no-permission"
-            ).replace("%command%", arguments[0])));
+          this.management.configuration().handleMessage(
+            invocation.source() instanceof Player
+              ? ((Player) invocation.source()).getEffectiveLocale()
+              : Locale.ENGLISH,
+            "command-cloud-sub-command-no-permission",
+            message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message.replace("%command%", arguments[0])),
+            invocation.source()::sendMessage);
         } else {
           // execute the command
           this.executeNow(invocation.source(), commandLine);

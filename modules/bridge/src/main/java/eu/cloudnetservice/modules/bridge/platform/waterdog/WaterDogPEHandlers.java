@@ -48,9 +48,13 @@ final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler 
     @NonNull String kickMessage
   ) {
     // send the player the reason for the disconnect
-    player.sendMessage(this.management.configuration().message(Locale.ENGLISH, "error-connecting-to-server")
-      .replace("%server%", oldServer.getServerName())
-      .replace("%reason%", kickMessage));
+    this.management.configuration().handleMessage(
+      Locale.ENGLISH,
+      "error-connecting-to-server",
+      message -> message
+        .replace("%server%", oldServer.getServerName())
+        .replace("%reason%", kickMessage),
+      player::sendMessage);
     // filter the next fallback for the player
     return this.management.fallback(player, oldServer.getServerName())
       .map(server -> ProxyServer.getInstance().getServerInfo(server.name()))

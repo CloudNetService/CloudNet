@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
-import static eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper.translateToComponent;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
@@ -66,18 +65,22 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       // check if maintenance is activated
       if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setCancelReason(translateToComponent(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           Locale.ENGLISH,
-          "proxy-join-cancel-because-maintenance")));
+          "proxy-join-cancel-because-maintenance",
+          BungeeCordHelper::translateToComponent,
+          event::setCancelReason);
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
         event.setCancelled(true);
-        event.setCancelReason(translateToComponent(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           Locale.ENGLISH,
-          "proxy-join-cancel-because-permission")));
+          "proxy-join-cancel-because-permission",
+          BungeeCordHelper::translateToComponent,
+          event::setCancelReason);
         return;
       }
     }
@@ -137,19 +140,24 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         event.setCancelServer(target);
 
         // extract the reason for the disconnect and wrap it
-        var playerLocale = event.getPlayer().getLocale();
-        var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
-          .replace("%server%", event.getKickedFrom().getName())
-          .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()));
-        // send the player the reason for the disconnect
-        event.getPlayer().sendMessage(translateToComponent(baseMessage));
+        this.management.configuration().handleMessage(
+          event.getPlayer().getLocale(),
+          "error-connecting-to-server",
+          message -> BungeeCordHelper.translateToComponent(message
+            .replace("%server%", event.getKickedFrom().getName())
+            .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()))),
+          event.getPlayer()::sendMessage);
       } else {
         // no lobby server - the player will disconnect
         event.setCancelled(false);
         event.setCancelServer(null);
-        event.setKickReasonComponent(translateToComponent(this.management.configuration().message(
+
+        // set the cancel reason
+        this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
-          "proxy-join-disconnect-because-no-hub")));
+          "proxy-join-disconnect-because-no-hub",
+          BungeeCordHelper::translateToComponent,
+          event::setKickReasonComponent);
       }
     }
   }
