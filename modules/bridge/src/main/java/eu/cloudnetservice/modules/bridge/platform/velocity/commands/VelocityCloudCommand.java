@@ -59,9 +59,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
         if (info == null || !invocation.source().hasPermission(info.permission())) {
           // no permission to execute the command
           this.management.configuration().handleMessage(
-            invocation.source() instanceof Player
-              ? ((Player) invocation.source()).getEffectiveLocale()
-              : Locale.ENGLISH,
+            invocation.source() instanceof Player player ? player.getEffectiveLocale() : Locale.ENGLISH,
             "command-cloud-sub-command-no-permission",
             message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message.replace("%command%", arguments[0])),
             invocation.source()::sendMessage);
