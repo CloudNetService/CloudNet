@@ -128,8 +128,8 @@ public class DefaultCommandProvider implements CommandProvider {
       return builder;
     });
     // register pre- and post-processor to call our events
-    this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
-    this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
+    this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor(this));
+    this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor(this));
     this.commandManager.commandSuggestionProcessor(new DefaultSuggestionProcessor(this));
     // register the command confirmation handling
     this.registerCommandConfirmation();

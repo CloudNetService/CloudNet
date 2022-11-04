@@ -20,6 +20,7 @@ import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext
 import cloud.commandframework.execution.preprocessor.CommandPreprocessor;
 import cloud.commandframework.services.types.ConsumerService;
 import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.event.command.CommandPreProcessEvent;
 import lombok.NonNull;
@@ -28,6 +29,12 @@ import lombok.NonNull;
  * {@inheritDoc}
  */
 final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSource> {
+
+  private final CommandProvider provider;
+
+  DefaultCommandPreProcessor(@NonNull CommandProvider provider) {
+    this.provider = provider;
+  }
 
   /**
    * {@inheritDoc}
@@ -43,11 +50,11 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
 
     // get the first argument and retrieve the command info using it
     var firstArgument = commandContext.getRawInput().getFirst();
-    var commandInfo = Node.instance().commandProvider().command(firstArgument);
+    var commandInfo = this.provider.command(firstArgument);
     // should never happen - just make sure
     if (commandInfo != null) {
       var preProcessEvent = Node.instance().eventManager()
-        .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), commandInfo, source));
+        .callEvent(new CommandPreProcessEvent(commandContext.getRawInput(), commandInfo, source, this.provider));
       if (preProcessEvent.cancelled()) {
         ConsumerService.interrupt();
       }

@@ -18,52 +18,26 @@ package eu.cloudnetservice.node.event.command;
 
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.Cancelable;
-import eu.cloudnetservice.driver.event.Event;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import java.util.List;
 import lombok.NonNull;
 
 /**
  * This event is called before the actual processing of the given command is done. To cancel the execution of the
  * backing command use {@link #cancelled(boolean)} and set it to true
  */
-public class CommandPreProcessEvent extends Event implements Cancelable {
+public class CommandPreProcessEvent extends CommandProcessEvent implements Cancelable {
 
-  private final String commandLine;
-  private final CommandInfo command;
-  private final CommandSource commandSource;
-  private boolean cancelled = false;
+  private boolean cancelled;
 
   public CommandPreProcessEvent(
-    @NonNull String commandLine,
+    @NonNull List<String> commandLine,
     @NonNull CommandInfo command,
-    @NonNull CommandSource commandSource
+    @NonNull CommandSource commandSource,
+    @NonNull CommandProvider commandProvider
   ) {
-    this.commandLine = commandLine;
-    this.command = command;
-    this.commandSource = commandSource;
-  }
-
-  /**
-   * @return the command line that will be executed
-   */
-  public @NonNull String commandLine() {
-    return this.commandLine;
-  }
-
-  /**
-   * Gets the corresponding root command info that is associated with the command line that is executed.
-   *
-   * @return the command info of the executed command.
-   */
-  public @NonNull CommandInfo command() {
-    return this.command;
-  }
-
-  /**
-   * @return the source that executes the command
-   */
-  public @NonNull CommandSource commandSource() {
-    return this.commandSource;
+    super(commandLine, command, commandSource, commandProvider);
   }
 
   /**
