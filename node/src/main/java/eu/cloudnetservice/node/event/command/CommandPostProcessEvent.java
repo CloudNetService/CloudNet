@@ -22,7 +22,7 @@ import eu.cloudnetservice.node.command.source.CommandSource;
 import java.util.List;
 import lombok.NonNull;
 
-public class CommandPostProcessEvent extends CommandProcessEvent {
+public final class CommandPostProcessEvent extends CommandProcessEvent {
 
   public CommandPostProcessEvent(
     @NonNull List<String> commandLine,
