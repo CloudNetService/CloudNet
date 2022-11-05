@@ -20,35 +20,35 @@ import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
-import java.util.List;
+import java.util.Collection;
 import lombok.NonNull;
 
 class CommandProcessEvent extends Event {
 
-  private final List<String> commandLine;
+  private final Collection<String> tokenizedCommandInput;
   private final CommandInfo command;
   private final CommandSource commandSource;
   private final CommandProvider commandProvider;
 
   public CommandProcessEvent(
-    @NonNull List<String> commandLine,
+    @NonNull Collection<String> tokenizedCommandInput,
     @NonNull CommandInfo command,
     @NonNull CommandSource commandSource,
     @NonNull CommandProvider commandProvider
   ) {
-    this.commandLine = commandLine;
+    this.tokenizedCommandInput = tokenizedCommandInput;
     this.command = command;
     this.commandSource = commandSource;
     this.commandProvider = commandProvider;
   }
 
   /**
-   * Gets the command line that lead to this event call as a list of all typed arguments.
+   * Gets the tokenized command input as a collection of strings.
    *
    * @return the command line as a list.
    */
-  public @NonNull List<String> commandLine() {
-    return this.commandLine;
+  public @NonNull Collection<String> tokenizedCommandInput() {
+    return this.tokenizedCommandInput;
   }
 
   /**

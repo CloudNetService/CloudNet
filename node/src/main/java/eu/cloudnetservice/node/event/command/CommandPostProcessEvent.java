@@ -19,17 +19,17 @@ package eu.cloudnetservice.node.event.command;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
-import java.util.List;
+import java.util.Collection;
 import lombok.NonNull;
 
 public final class CommandPostProcessEvent extends CommandProcessEvent {
 
   public CommandPostProcessEvent(
-    @NonNull List<String> commandLine,
+    @NonNull Collection<String> tokenizedCommandInput,
     @NonNull CommandInfo command,
     @NonNull CommandSource commandSource,
     @NonNull CommandProvider commandProvider
   ) {
-    super(commandLine, command, commandSource, commandProvider);
+    super(tokenizedCommandInput, command, commandSource, commandProvider);
   }
 }

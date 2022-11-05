@@ -20,7 +20,7 @@ import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.Cancelable;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
-import java.util.List;
+import java.util.Collection;
 import lombok.NonNull;
 
 /**
@@ -32,12 +32,12 @@ public final class CommandPreProcessEvent extends CommandProcessEvent implements
   private boolean cancelled;
 
   public CommandPreProcessEvent(
-    @NonNull List<String> commandLine,
+    @NonNull Collection<String> tokenizedCommandInput,
     @NonNull CommandInfo command,
     @NonNull CommandSource commandSource,
     @NonNull CommandProvider commandProvider
   ) {
-    super(commandLine, command, commandSource, commandProvider);
+    super(tokenizedCommandInput, command, commandSource, commandProvider);
   }
 
   /**
