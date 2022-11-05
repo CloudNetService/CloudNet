@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.syncproxy.config;
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.NonNull;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -44,6 +46,17 @@ public record SyncProxyConfiguration(
     "player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network",
     "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
     "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
+
+  @Contract("null, _, _ -> null; !null, _, _ -> !null")
+  public static @Nullable String fillCommonPlaceholders(@Nullable String input, int onlinePlayers, int maxPlayers) {
+    if (input == null) {
+      return null;
+    }
+
+    return BridgeServiceHelper.fillCommonPlaceholders(input
+      .replace("%online_players%", String.valueOf(onlinePlayers))
+      .replace("%max_players%", String.valueOf(maxPlayers)), null, Wrapper.instance().currentServiceInfo());
+  }
 
   public static @NonNull Builder builder() {
     return new Builder();
