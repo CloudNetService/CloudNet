@@ -24,6 +24,8 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.event.instance.CloudNetTickEvent;
 import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -32,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 
+@Singleton
 public final class TickLoop {
 
   public static final int TPS = 10;
@@ -48,6 +51,7 @@ public final class TickLoop {
   private final AtomicLong currentTick = new AtomicLong();
   private final Queue<ScheduledTask<?>> processQueue = new ConcurrentLinkedQueue<>();
 
+  @Inject
   public TickLoop(@NonNull Node node) {
     this.node = node;
   }

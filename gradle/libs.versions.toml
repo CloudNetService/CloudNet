@@ -51,6 +51,7 @@ annotations = "23.0.0"
 influxClient = "6.6.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
+aerogel = "2.0.0-SNAPSHOT"
 
 # platform api versions
 sponge = "9.0.0"
@@ -139,6 +140,10 @@ reflexion = { group = "dev.derklaro.reflexion", name = "reflexion", version.ref 
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
 influxClient = { group = "com.influxdb", name = "influxdb-client-java", version.ref = "influxClient" }
 
+# aerogel
+aerogel = { group = "dev.derklaro.aerogel", name = "aerogel", version.ref = "aerogel" }
+aerogelAuto = { group = "dev.derklaro.aerogel", name = "aerogel-auto", version.ref = "aerogel" }
+
 # databases
 h2 = { group = "com.h2database", name = "h2", version.ref = "h2" }
 hikariCp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariCp" }
@@ -175,6 +180,7 @@ fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "
 
 [bundles]
 
+aerogel = ["aerogel", "aerogelAuto"]
 npcLib = ["npcLib", "npcLibLabymod"]
 unirest = ["unirest", "unirestGson"]
 mockito = ["mockito", "mockitoInline"]

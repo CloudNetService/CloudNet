@@ -18,6 +18,7 @@ package eu.cloudnetservice.node;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import dev.derklaro.aerogel.Order;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
@@ -83,6 +84,9 @@ import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.template.LocalTemplateStorage;
 import eu.cloudnetservice.node.template.NodeTemplateStorageProvider;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.io.File;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -101,6 +105,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents the implementation of the {@link CloudNetDriver} for nodes.
  */
+@Singleton
 public class Node extends CloudNetDriver {
 
   private static final Logger LOGGER = LogManager.logger(Node.class);
@@ -122,7 +127,6 @@ public class Node extends CloudNetDriver {
   private final ModulesHolder modulesHolder;
   private final UpdaterRegistry<ModuleUpdaterContext, ModulesHolder> moduleUpdaterRegistry;
 
-  private final TickLoop mainThread = new TickLoop(this);
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final DefaultInstallation installation = new DefaultInstallation();
   private final DataSyncRegistry dataSyncRegistry = new DefaultDataSyncRegistry();
@@ -130,7 +134,12 @@ public class Node extends CloudNetDriver {
 
   private volatile AbstractDatabaseProvider databaseProvider;
 
-  protected Node(@NonNull String[] args, @NonNull Console console, @NonNull Logger rootLogger) {
+  @Inject
+  protected Node(
+    @NonNull Console console,
+    @NonNull @Named("root") Logger rootLogger,
+    @NonNull @Named("consoleArgs") String[] args
+  ) {
     super(CloudNetVersion.fromPackage(Node.class.getPackage()), Lists.newArrayList(args), DriverEnvironment.NODE);
 
     instance(this);
@@ -290,12 +299,6 @@ public class Node extends CloudNetDriver {
     // register listeners & post node startup finish
     this.eventManager.registerListener(new FileDeployCallbackListener());
     this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));
-
-    Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));
-    LOGGER.info(I18n.trans("start-done", Duration.between(startInstant, Instant.now()).toMillis()));
-
-    // run the main loop
-    this.mainThread.start();
   }
 
   @Override
@@ -347,6 +350,16 @@ public class Node extends CloudNetDriver {
         LOGGER.severe("Exception during node shutdown", exception);
       }
     }
+  }
+
+  @Inject
+  @Order(Integer.MAX_VALUE)
+  private void finishStartup(@NonNull @Named("startInstant") Instant startInstant, @NonNull TickLoop tickLoop) {
+    // add shutdown hook & notify
+    Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));
+    LOGGER.info(I18n.trans("start-done", Duration.between(startInstant, Instant.now()).toMillis()));
+    // start the main tick loop
+    tickLoop.start();
   }
 
   @Override
@@ -422,7 +435,7 @@ public class Node extends CloudNetDriver {
   }
 
   public @NonNull TickLoop mainThread() {
-    return this.mainThread;
+    return new TickLoop(this);
   }
 
   public @NonNull CommandProvider commandProvider() {

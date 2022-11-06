@@ -16,6 +16,10 @@
 
 package eu.cloudnetservice.node;
 
+import dev.derklaro.aerogel.Bindings;
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.Injector;
+import dev.derklaro.aerogel.auto.AutoAnnotationRegistry;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.log.LoggingUtil;
@@ -25,7 +29,6 @@ import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
 import eu.cloudnetservice.common.log.defaults.ThreadedLogRecordDispatcher;
 import eu.cloudnetservice.common.log.io.LogOutputStream;
 import eu.cloudnetservice.node.console.Console;
-import eu.cloudnetservice.node.console.JLine3Console;
 import eu.cloudnetservice.node.console.log.ColouredLogFormatter;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -40,13 +43,27 @@ public final class BootLogic {
   public static void main(String[] args) throws Throwable {
     var startInstant = Instant.now();
 
+    // initialize injectors
+    var injector = Injector.newInjector();
+    installBindings(injector);
+
+    // initial bindings
+    injector.install(Bindings.fixed(Element.forType(String[].class).requireName("consoleArgs"), args));
+    injector.install(Bindings.fixed(Element.forType(Instant.class).requireName("startInstant"), Instant.now()));
+    injector.install(Bindings.fixed(Element.forType(Logger.class).requireName("root"), LogManager.rootLogger()));
+
     // init logger and console
-    var console = new JLine3Console();
+    var console = injector.instance(Console.class);
     initLoggerAndConsole(console, LogManager.rootLogger());
 
     // boot CloudNet
-    var nodeInstance = new Node(args, console, LogManager.rootLogger());
+    var nodeInstance = injector.instance(Node.class);
     nodeInstance.start(startInstant);
+  }
+
+  private static void installBindings(@NonNull Injector injector) {
+    var annotationRegistry = AutoAnnotationRegistry.newInstance();
+    annotationRegistry.installBindings(BootLogic.class.getClassLoader(), "auto-factories.txt", injector);
   }
 
   private static void initLoggerAndConsole(@NonNull Console console, @NonNull Logger logger) {

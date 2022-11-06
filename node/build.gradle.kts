@@ -39,6 +39,10 @@ dependencies {
   // dependencies which are available for modules
   "api"(libs.guava)
   "api"(libs.bundles.cloud)
+  "api"(libs.bundles.aerogel)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   // internal libraries
   "implementation"(libs.h2)

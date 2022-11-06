@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.config;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
@@ -29,6 +30,7 @@ import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.setup.DefaultConfigSetup;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import lombok.NonNull;
 
+@Singleton
 public final class JsonConfiguration implements Configuration {
 
   public static final Path CONFIG_FILE_PATH = Path.of(
@@ -115,6 +118,7 @@ public final class JsonConfiguration implements Configuration {
     }
   }
 
+  @Factory
   public static @NonNull Configuration loadFromFile(@NonNull Node nodeInstance) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exist
