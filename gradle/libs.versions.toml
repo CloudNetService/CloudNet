@@ -48,7 +48,7 @@ dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
 nightConfig = "3.6.6"
 annotations = "23.0.0"
-influxClient = "6.6.0"
+influxClient = "6.7.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
 
