@@ -370,7 +370,7 @@ public final class JLine3Console implements Console {
   }
 
   private void updatePrompt() {
-    this.prompt = ConsoleColor.toColouredString('&', this.prompt)
+    this.prompt = ConsoleColor.toColoredString('&', this.prompt)
       .replace("%version%", VERSION)
       .replace("%user%", USER);
     this.lineReader.setPrompt(this.prompt);
@@ -401,7 +401,7 @@ public final class JLine3Console implements Console {
   }
 
   private @NonNull String formatText(@NonNull String input, @NonNull String ensureEndsWith) {
-    var content = this.ansiSupported ? ConsoleColor.toColouredString('&', input) : ConsoleColor.stripColor('&', input);
+    var content = this.ansiSupported ? ConsoleColor.toColoredString('&', input) : ConsoleColor.stripColor('&', input);
     if (!content.endsWith(ensureEndsWith)) {
       content += ensureEndsWith;
     }
