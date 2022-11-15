@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import lombok.NonNull;
 
-public final class ColouredLogFormatter extends Formatter {
+public final class ColoredLogFormatter extends Formatter {
 
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM HH:mm:ss.SSS");
 

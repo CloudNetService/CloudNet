@@ -29,6 +29,10 @@ tasks.withType<ShadowJar> {
   }
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = listOf("-AaerogelAutoFileName=autoconfigure/driver.aero")
+}
+
 tasks.withType<Test> {
   dependsOn(":common:jar")
 }
@@ -46,6 +50,10 @@ dependencies {
   "api"(libs.caffeine)
   "api"(libs.reflexion)
   "api"(libs.bundles.unirest)
+  "api"(libs.bundles.aerogel)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   // internal libraries
   "implementation"(libs.asm)

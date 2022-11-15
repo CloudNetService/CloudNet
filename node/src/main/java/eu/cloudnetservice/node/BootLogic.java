@@ -29,7 +29,7 @@ import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
 import eu.cloudnetservice.common.log.defaults.ThreadedLogRecordDispatcher;
 import eu.cloudnetservice.common.log.io.LogOutputStream;
 import eu.cloudnetservice.node.console.Console;
-import eu.cloudnetservice.node.console.log.ColouredLogFormatter;
+import eu.cloudnetservice.node.console.log.ColoredLogFormatter;
 import java.nio.file.Path;
 import java.time.Instant;
 import lombok.NonNull;
@@ -68,7 +68,7 @@ public final class BootLogic {
 
   private static void initLoggerAndConsole(@NonNull Console console, @NonNull Logger logger) {
     var logFilePattern = Path.of(System.getProperty("cloudnet.log.path", "local/logs"), "cloudnet.%g.log");
-    var consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.END_CLEAN;
+    var consoleFormatter = console.hasColorSupport() ? new ColoredLogFormatter() : DefaultLogFormatter.END_CLEAN;
 
     LoggingUtil.removeHandlers(logger);
 

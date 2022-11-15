@@ -20,7 +20,7 @@ import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import lombok.NonNull;
 
-public class CommandNotFoundEvent extends Event {
+public final class CommandNotFoundEvent extends Event {
 
   private final CommandSource commandSource;
   private final String commandLine;

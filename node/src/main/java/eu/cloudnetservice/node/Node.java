@@ -54,7 +54,7 @@ import eu.cloudnetservice.node.command.defaults.DefaultCommandProvider;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.config.JsonConfiguration;
 import eu.cloudnetservice.node.console.Console;
-import eu.cloudnetservice.node.console.log.ColouredLogFormatter;
+import eu.cloudnetservice.node.console.log.ColoredLogFormatter;
 import eu.cloudnetservice.node.console.util.HeaderReader;
 import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
 import eu.cloudnetservice.node.database.h2.H2DatabaseProvider;
@@ -146,7 +146,7 @@ public class Node extends CloudNetDriver {
 
     // add the log handler here to capture all log lines of the startup
     this.logHandler.setFormatter(console.hasColorSupport()
-      ? new ColouredLogFormatter()
+      ? new ColoredLogFormatter()
       : DefaultLogFormatter.END_LINE_SEPARATOR);
     rootLogger.addHandler(this.logHandler);
 

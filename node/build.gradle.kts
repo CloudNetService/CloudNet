@@ -32,6 +32,10 @@ tasks.withType<Jar> {
   from(projects.common.sourceSets()["main"].output)
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = listOf("-AaerogelAutoFileName=autoconfigure/node.aero")
+}
+
 dependencies {
   "api"(projects.driver)
   "api"(projects.ext.updater)
@@ -39,7 +43,6 @@ dependencies {
   // dependencies which are available for modules
   "api"(libs.guava)
   "api"(libs.bundles.cloud)
-  "api"(libs.bundles.aerogel)
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)

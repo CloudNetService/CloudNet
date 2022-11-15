@@ -60,7 +60,7 @@ public enum ConsoleColor {
     this.ansiCode = ansiCode;
   }
 
-  public static @NonNull String toColouredString(char triggerChar, @NonNull String input) {
+  public static @NonNull String toColoredString(char triggerChar, @NonNull String input) {
     var contentBuilder = new StringBuilder(convertRGBColors(triggerChar, input));
 
     var breakIndex = contentBuilder.length() - 1;

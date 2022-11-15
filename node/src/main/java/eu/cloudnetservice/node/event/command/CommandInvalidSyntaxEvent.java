@@ -21,7 +21,7 @@ import eu.cloudnetservice.node.command.source.CommandSource;
 import java.util.List;
 import lombok.NonNull;
 
-public class CommandInvalidSyntaxEvent extends Event {
+public final class CommandInvalidSyntaxEvent extends Event {
 
   private final CommandSource source;
   private final String correctSyntax;
