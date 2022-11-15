@@ -140,6 +140,7 @@ public abstract class CloudNetDriver {
    * @return the current, jvm static instance of the current environment.
    */
   @SuppressWarnings("unchecked")
+  //@Deprecated // todo: remove this method in favor of injection?
   public static @NonNull <T extends CloudNetDriver> T instance() {
     return (T) CloudNetDriver.instance;
   }
