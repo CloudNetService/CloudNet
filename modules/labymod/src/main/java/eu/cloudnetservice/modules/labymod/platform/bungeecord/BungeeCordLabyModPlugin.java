@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.labymod.platform.bungeecord;
 
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModListener;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
 import eu.cloudnetservice.wrapper.Wrapper;
@@ -38,6 +38,6 @@ public class BungeeCordLabyModPlugin extends Plugin {
   @Override
   public void onDisable() {
     // unregister all listeners for cloudnet events
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

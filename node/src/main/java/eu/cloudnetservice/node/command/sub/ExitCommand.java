@@ -19,11 +19,12 @@ package eu.cloudnetservice.node.command.sub;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Confirmation;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import jakarta.inject.Singleton;
 
+@Singleton
 @CommandAlias({"shutdown", "stop"})
 @CommandPermission("cloudnet.command.exit")
 @Description("command-exit-description")
@@ -32,6 +33,6 @@ public final class ExitCommand {
   @Confirmation
   @CommandMethod(value = "exit|shutdown|stop", requiredSender = ConsoleCommandSource.class)
   public void exit() {
-    Node.instance().stop();
+    System.exit(0);
   }
 }

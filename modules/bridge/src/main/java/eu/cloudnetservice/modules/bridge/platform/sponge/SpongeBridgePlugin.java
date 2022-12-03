@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.bridge.platform.sponge;
 
 import com.google.inject.Inject;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 import org.spongepowered.api.Server;
@@ -49,6 +49,6 @@ public final class SpongeBridgePlugin {
 
   @Listener
   public void handle(@NonNull StoppingEngineEvent<Server> event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

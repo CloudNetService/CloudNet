@@ -30,7 +30,7 @@ import org.mockito.Mockito;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DefaultEventManagerTest {
-
+/*
   @BeforeAll
   public static void initDriver() {
     var driver = DriverTestUtil.mockAndSetDriverInstance();
@@ -151,5 +151,5 @@ public class DefaultEventManagerTest {
     private TestEvent(int number) {
       this.number = number;
     }
-  }
+  }*/
 }

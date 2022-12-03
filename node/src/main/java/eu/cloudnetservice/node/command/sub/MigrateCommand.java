@@ -28,16 +28,20 @@ import eu.cloudnetservice.common.function.ThrowableConsumer;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
+@Singleton
 @CommandPermission("cloudnet.command.migrate")
 @Description("command-migrate-description")
 public final class MigrateCommand {
@@ -45,13 +49,21 @@ public final class MigrateCommand {
   private static final int DEFAULT_CHUNK_SIZE = 100;
   private static final Logger LOGGER = LogManager.logger(MigrateCommand.class);
 
+  private final ServiceRegistry serviceRegistry;
+  private final DatabaseProvider databaseProvider;
+
+  @Inject
+  public MigrateCommand(@NonNull ServiceRegistry serviceRegistry, @NonNull DatabaseProvider databaseProvider) {
+    this.serviceRegistry = serviceRegistry;
+    this.databaseProvider = databaseProvider;
+  }
+
   @Parser(suggestions = "databaseProvider")
   public @NonNull AbstractDatabaseProvider defaultDatabaseProviderParser(
     @NonNull CommandContext<?> $,
     @NonNull Queue<String> input
   ) {
-    var abstractDatabaseProvider = Node.instance().serviceRegistry()
-      .provider(AbstractDatabaseProvider.class, input.remove());
+    var abstractDatabaseProvider = this.serviceRegistry.provider(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
@@ -61,7 +73,7 @@ public final class MigrateCommand {
 
   @Suggestions("databaseProvider")
   public @NonNull List<String> suggestDatabaseProvider(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().serviceRegistry().providers(AbstractDatabaseProvider.class)
+    return this.serviceRegistry.providers(AbstractDatabaseProvider.class)
       .stream()
       .map(Nameable::name)
       .toList();
@@ -115,7 +127,7 @@ public final class MigrateCommand {
     @NonNull AbstractDatabaseProvider sourceProvider,
     @NonNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler
   ) {
-    if (!Node.instance().databaseProvider().equals(sourceProvider)) {
+    if (!this.databaseProvider.equals(sourceProvider)) {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {

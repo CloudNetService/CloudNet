@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.event;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import lombok.NonNull;
 
@@ -26,7 +26,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class BridgeUpdateCloudPlayerEvent extends DriverEvent {
+public final class BridgeUpdateCloudPlayerEvent extends Event {
 
   private final CloudPlayer cloudPlayer;
 

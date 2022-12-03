@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.node.event.service;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.node.service.CloudService;
 import lombok.NonNull;
 
-public abstract class CloudServiceEvent extends DriverEvent {
+public abstract class CloudServiceEvent extends Event {
 
   private final CloudService service;
 

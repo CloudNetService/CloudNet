@@ -20,29 +20,37 @@ import com.github.dockerjava.api.DockerClient;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.TickLoop;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
-import eu.cloudnetservice.node.service.defaults.factory.AbstractServiceFactory;
+import eu.cloudnetservice.node.service.defaults.factory.BaseLocalCloudServiceFactory;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import lombok.NonNull;
 
-public class DockerizedServiceFactory extends AbstractServiceFactory {
+public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
 
-  protected final Node nodeInstance;
+  protected final TickLoop mainThread;
   protected final EventManager eventManager;
   protected final DockerClient dockerClient;
-  protected final DockerConfiguration configuration;
+  protected final DockerConfiguration dockerConfiguration;
+  protected final CloudServiceManager cloudServiceManager;
 
-  public DockerizedServiceFactory(
-    @NonNull Node nodeInstance,
+  public DockerizedLocalCloudServiceFactory(
+    @NonNull TickLoop tickLoop,
+    @NonNull Configuration nodeConfig,
+    @NonNull CloudServiceManager cloudServiceManager,
     @NonNull EventManager eventManager,
+    @NonNull ServiceVersionProvider versionProvider,
     @NonNull DockerClient dockerClient,
     @NonNull DockerConfiguration configuration
   ) {
-    this.nodeInstance = nodeInstance;
+    super(nodeConfig, versionProvider);
+    this.mainThread = tickLoop;
     this.eventManager = eventManager;
+    this.cloudServiceManager = cloudServiceManager;
     this.dockerClient = dockerClient;
-    this.configuration = configuration;
+    this.dockerConfiguration = configuration;
   }
 
   @Override
@@ -56,17 +64,19 @@ public class DockerizedServiceFactory extends AbstractServiceFactory {
     var preparer = manager.servicePreparer(config.serviceId().environment());
     // create the service
     return new DockerizedService(
-      config,
+      this.mainThread,
+      this.configuration,
+      configuration,
       manager,
       this.eventManager,
-      this.nodeInstance,
+      this.versionProvider,
       preparer,
       this.dockerClient,
-      this.configuration);
+      this.dockerConfiguration);
   }
 
   @Override
   public @NonNull String name() {
-    return this.configuration.factoryName();
+    return this.dockerConfiguration.factoryName();
   }
 }

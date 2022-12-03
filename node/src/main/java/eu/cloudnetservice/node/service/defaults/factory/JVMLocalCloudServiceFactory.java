@@ -18,20 +18,35 @@ package eu.cloudnetservice.node.service.defaults.factory;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.TickLoop;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.defaults.JVMService;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-public class JVMServiceFactory extends AbstractServiceFactory {
+@Singleton
+public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
 
-  private final Node nodeInstance;
-  private final EventManager eventManager;
+  protected final TickLoop mainThread;
+  protected final EventManager eventManager;
+  protected final CloudServiceManager cloudServiceManager;
 
-  public JVMServiceFactory(@NonNull Node nodeInstance, @NonNull EventManager eventManager) {
-    this.nodeInstance = nodeInstance;
+  @Inject
+  public JVMLocalCloudServiceFactory(
+    @NonNull TickLoop tickLoop,
+    @NonNull Configuration nodeConfig,
+    @NonNull CloudServiceManager cloudServiceManager,
+    @NonNull EventManager eventManager,
+    @NonNull ServiceVersionProvider versionProvider
+  ) {
+    super(nodeConfig, versionProvider);
+    this.mainThread = tickLoop;
     this.eventManager = eventManager;
+    this.cloudServiceManager = cloudServiceManager;
   }
 
   @Override
@@ -44,7 +59,14 @@ public class JVMServiceFactory extends AbstractServiceFactory {
     // select the configuration preparer for the environment
     var preparer = manager.servicePreparer(config.serviceId().environment());
     // create the service
-    return new JVMService(config, manager, this.eventManager, this.nodeInstance, preparer);
+    return new JVMService(
+      this.mainThread,
+      this.configuration,
+      configuration,
+      manager,
+      this.eventManager,
+      this.versionProvider,
+      preparer);
   }
 
   @Override

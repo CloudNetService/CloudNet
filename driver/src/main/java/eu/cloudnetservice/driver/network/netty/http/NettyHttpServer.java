@@ -31,6 +31,7 @@ import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.util.concurrent.Future;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
 public class NettyHttpServer extends NettySslServer implements HttpServer {
 
   private static final Logger LOGGER = LogManager.logger(NettyHttpServer.class);

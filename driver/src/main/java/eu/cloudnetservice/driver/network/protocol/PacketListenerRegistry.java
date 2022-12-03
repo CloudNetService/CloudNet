@@ -39,6 +39,10 @@ public interface PacketListenerRegistry {
    */
   @Nullable PacketListenerRegistry parent();
 
+  //TODO docs
+
+  void addListener(int channel, @NonNull Class<? extends PacketListener> listenerClass);
+
   /**
    * Adds a packet listener for each packet that uses the provided channel id. Multiple listeners for a channel are
    * indeed possible and will be called in the order of registration.
@@ -47,20 +51,22 @@ public interface PacketListenerRegistry {
    * responses and therefore reserved.
    *
    * @param channel   the channel the listener wants to listen to.
-   * @param listeners the listeners to register for the channel.
+   * @param listener the listeners to register for the channel.
    * @throws NullPointerException     if the given listeners are null.
    * @throws IllegalArgumentException if the given channel id is invalid.
    */
-  void addListener(int channel, @NonNull PacketListener... listeners);
+  void addListener(int channel, @NonNull PacketListener listener);
+
+  void removeListener(int channel, @NonNull Class<? extends PacketListener> listenerClass);
 
   /**
    * Removes all given listeners from the given channel if they were registered previously.
    *
    * @param channel   the id of the channel to remove the listener from.
-   * @param listeners the listeners to remove from the channel.
+   * @param listener the listeners to remove from the channel.
    * @throws NullPointerException if the given listeners are null.
    */
-  void removeListener(int channel, @NonNull PacketListener... listeners);
+  void removeListener(int channel, @NonNull PacketListener listener);
 
   /**
    * Removes all previously registered listeners from the given channel.

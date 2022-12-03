@@ -21,7 +21,6 @@ import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.SignConfigurationType;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
-import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import lombok.NonNull;
@@ -34,7 +33,7 @@ public final class SignEntryTaskSetup {
     .key("generateDefaultSignConfigurationEntry")
     .translatedQuestion("module-sign-tasks-setup-generate-default-config")
     .answerType(QuestionAnswerType.<Boolean>builder()
-      .parser(Parsers.bool())
+      //TODO .parser(Parsers.bool())
       .recommendation("no")
       .possibleResults("yes", "no")
       .build())

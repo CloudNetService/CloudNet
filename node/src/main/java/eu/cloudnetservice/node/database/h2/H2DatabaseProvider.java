@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.database.h2;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.node.database.DefaultDatabaseHandler;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
 import java.nio.file.Path;
@@ -29,12 +30,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
 import org.h2.Driver;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+@Deprecated(forRemoval = true)
 public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   static {
@@ -44,12 +45,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   private final Path h2dbFile;
   private Connection connection;
 
-  public H2DatabaseProvider(@NonNull String h2File) {
-    this(h2File, null);
-  }
-
-  public H2DatabaseProvider(@NonNull String h2File, @Nullable ExecutorService executorService) {
-    super(executorService);
+  public H2DatabaseProvider(@NonNull String h2File, @NonNull DefaultDatabaseHandler databaseHandler) {
+    super(null, databaseHandler);
     this.h2dbFile = Path.of(h2File);
   }
 

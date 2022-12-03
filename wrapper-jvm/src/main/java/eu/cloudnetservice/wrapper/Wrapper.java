@@ -108,7 +108,7 @@ public class Wrapper extends CloudNetDriver {
 
     instance(this);
 
-    super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.sslConfiguration());
+    //super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.sslConfiguration());
     super.messenger = new WrapperMessenger(this);
 
     // auto generated providers
@@ -141,7 +141,7 @@ public class Wrapper extends CloudNetDriver {
     this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager));
     this.eventManager.registerListener(new ServiceChannelMessageListener(this.eventManager));
 
-    super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
+    //super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
     super.moduleProvider.moduleDirectoryPath(Path.of(".wrapper", "modules"));
 
     var management = this.rpcFactory.generateRPCBasedApi(
@@ -399,9 +399,10 @@ public class Wrapper extends CloudNetDriver {
       this.networkClient.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
 
       // add the runtime packet listeners
-      this.networkClient.packetRegistry().addListener(
-        NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
-        new ChunkedPacketListener(EventChunkHandlerFactory.withDefaultEventManager()));
+      // TODO
+      //this.networkClient.packetRegistry().addListener(
+      //NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
+      //  new ChunkedPacketListener(EventChunkHandlerFactory.withDefaultEventManager()));
       this.networkClient.packetRegistry().addListener(
         NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
         new PacketServerChannelMessageListener());

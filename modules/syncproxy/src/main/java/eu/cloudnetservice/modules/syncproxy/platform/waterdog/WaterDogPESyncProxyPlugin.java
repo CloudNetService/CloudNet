@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 
 import dev.waterdog.waterdogpe.plugin.Plugin;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
 import eu.cloudnetservice.wrapper.Wrapper;
 
@@ -37,6 +37,6 @@ public final class WaterDogPESyncProxyPlugin extends Plugin {
   @Override
   public void onDisable() {
     // unregister all listeners for cloudnet events
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

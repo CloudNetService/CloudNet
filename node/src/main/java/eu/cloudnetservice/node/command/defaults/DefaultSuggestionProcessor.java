@@ -22,6 +22,8 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ import lombok.NonNull;
 /**
  * {@inheritDoc}
  */
+@Singleton
 final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<CommandSource> {
 
   private final CommandProvider provider;
@@ -40,7 +43,8 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
    *
    * @param provider the command provider to access the registered commands with.
    */
-  DefaultSuggestionProcessor(@NonNull CommandProvider provider) {
+  @Inject
+  private DefaultSuggestionProcessor(@NonNull CommandProvider provider) {
     this.provider = provider;
   }
 

@@ -143,7 +143,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
   }
 
   private void reloadConfig() {
-    this.node().reloadConfigFrom(JsonConfiguration.loadFromFile(this.node()));
+    //this.node().reloadConfigFrom(JsonConfiguration.loadFromFile(this.node()));
     this.node().serviceTaskProvider().reload();
     this.node().groupConfigurationProvider().reload();
     this.node().permissionManagement().reload();

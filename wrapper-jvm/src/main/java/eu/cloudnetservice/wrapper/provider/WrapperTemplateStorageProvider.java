@@ -49,6 +49,6 @@ public abstract class WrapperTemplateStorageProvider implements TemplateStorageP
       this.rpcSender,
       TemplateStorage.class,
       GenerationContext.forClass(RemoteTemplateStorage.class).build()
-    ).newInstance(storage);
+    ).newInstance(storage); // TODO: fix: this needs the component info and network client as well
   }
 }

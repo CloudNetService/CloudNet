@@ -34,13 +34,9 @@ public class DefaultPacketListenerRegistryTest {
   void testListenerRegister() {
     PacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
-    registry.addListener(
-      123,
-      (channel, packet) -> {
-      },
-      (channel, packet) -> {
-      }
-    );
+    registry.addListener(123, (channel, packet) -> {});
+    registry.addListener(123, (channel, packet) -> {});
+
     registry.addListener(456, (channel, packet) -> {
     });
 
@@ -62,7 +58,8 @@ public class DefaultPacketListenerRegistryTest {
     var firstListener = Mockito.mock(PacketListener.class);
     var secondListener = Mockito.mock(PacketListener.class);
 
-    registry.addListener(123, firstListener, secondListener);
+    registry.addListener(123, firstListener);
+    registry.addListener(123, secondListener);
     Assertions.assertEquals(2, registry.packetListeners().get(123).size());
 
     registry.removeListener(123, firstListener);
@@ -82,7 +79,8 @@ public class DefaultPacketListenerRegistryTest {
     var firstListener = Mockito.mock(PacketListener.class);
     var secondListener = Mockito.mock(PacketListener.class);
 
-    registry.addListener(123, firstListener, secondListener);
+    registry.addListener(123, firstListener);
+    registry.addListener(123, secondListener);
     Assertions.assertEquals(2, registry.packetListeners().get(123).size());
 
     registry.removeListeners(123);
@@ -97,7 +95,8 @@ public class DefaultPacketListenerRegistryTest {
     var firstListener = Mockito.mock(PacketListener.class);
     var secondListener = Mockito.mock(PacketListener.class);
 
-    registry.addListener(123, firstListener, secondListener);
+    registry.addListener(123, firstListener);
+    registry.addListener(123, secondListener);
     Assertions.assertEquals(2, registry.packetListeners().get(123).size());
 
     registry.removeListeners(firstListener.getClass().getClassLoader());
@@ -112,7 +111,8 @@ public class DefaultPacketListenerRegistryTest {
     var firstListener = Mockito.mock(PacketListener.class);
     var secondListener = Mockito.mock(PacketListener.class);
 
-    registry.addListener(123, firstListener, secondListener);
+    registry.addListener(123, firstListener);
+    registry.addListener(123, secondListener);
     Assertions.assertEquals(2, registry.packetListeners().get(123).size());
 
     registry.removeListeners();

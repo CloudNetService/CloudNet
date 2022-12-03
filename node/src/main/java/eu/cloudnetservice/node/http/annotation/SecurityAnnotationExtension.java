@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.http.annotation;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpContextPreprocessor;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
@@ -28,9 +27,12 @@ import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationPa
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessor;
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessorUtil;
 import eu.cloudnetservice.driver.permission.Permission;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -38,19 +40,23 @@ import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class SecurityAnnotationExtension {
 
-  private SecurityAnnotationExtension() {
-    throw new UnsupportedOperationException();
+  private final PermissionManagement permissionManagement;
+
+  @Inject
+  public SecurityAnnotationExtension(@NonNull PermissionManagement permissionManagement) {
+    this.permissionManagement = permissionManagement;
   }
 
-  public static void install(@NonNull HttpAnnotationParser<?> annotationParser, @NonNull V2HttpAuthentication auth) {
+  public void install(@NonNull HttpAnnotationParser<?> annotationParser, @NonNull V2HttpAuthentication auth) {
     annotationParser
       .registerAnnotationProcessor(new BasicAuthProcessor(auth))
       .registerAnnotationProcessor(new BearerAuthProcessor(auth));
   }
 
-  private static @Nullable <T> HttpContext handleAuthResult(
+  private @Nullable <T> HttpContext handleAuthResult(
     @NonNull HttpContext context,
     @NonNull V2HttpAuthentication.LoginResult<T> result,
     @NonNull Function<T, PermissionUser> userExtractor,
@@ -84,24 +90,29 @@ public final class SecurityAnnotationExtension {
     return null;
   }
 
-  private static boolean validatePermission(@NonNull PermissionUser user, @Nullable HandlerPermission permission) {
-    var permissionManagement = CloudNetDriver.instance().permissionManagement();
-    return permission == null || permissionManagement.hasPermission(user, Permission.of(permission.value()));
+  private boolean validatePermission(@NonNull PermissionUser user, @Nullable HandlerPermission permission) {
+    return permission == null || this.permissionManagement.hasPermission(user, Permission.of(permission.value()));
   }
 
-  private static @Nullable HandlerPermission resolvePermissionAnnotation(@NonNull Method method) {
+  private @Nullable HandlerPermission resolvePermissionAnnotation(@NonNull Method method) {
     var permission = method.getAnnotation(HandlerPermission.class);
     return permission == null ? method.getDeclaringClass().getAnnotation(HandlerPermission.class) : permission;
   }
 
-  private static byte[] buildErrorResponse(@Nullable String reason) {
+  private byte[] buildErrorResponse(@Nullable String reason) {
     return JsonDocument.newDocument("success", false)
       .append("reason", Objects.requireNonNullElse(reason, "undefined"))
       .toString()
       .getBytes(StandardCharsets.UTF_8);
   }
 
-  private record BasicAuthProcessor(@NonNull V2HttpAuthentication authentication) implements HttpAnnotationProcessor {
+  private final class BasicAuthProcessor implements HttpAnnotationProcessor {
+
+    private final @NonNull V2HttpAuthentication authentication;
+
+    private BasicAuthProcessor(@NonNull V2HttpAuthentication authentication) {
+      this.authentication = authentication;
+    }
 
     @Override
     public @Nullable HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {
@@ -150,7 +161,13 @@ public final class SecurityAnnotationExtension {
     }
   }
 
-  private record BearerAuthProcessor(@NonNull V2HttpAuthentication authentication) implements HttpAnnotationProcessor {
+  private final class BearerAuthProcessor implements HttpAnnotationProcessor {
+
+    private final @NonNull V2HttpAuthentication authentication;
+
+    private BearerAuthProcessor(@NonNull V2HttpAuthentication authentication) {
+      this.authentication = authentication;
+    }
 
     @Override
     public @Nullable HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {

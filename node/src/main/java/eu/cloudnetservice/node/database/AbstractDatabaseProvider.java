@@ -24,13 +24,18 @@ import eu.cloudnetservice.driver.database.DatabaseProvider;
 import java.time.Duration;
 import lombok.NonNull;
 
+// TODO: rename to something better, like NodeDatabaseProvider
 public abstract class AbstractDatabaseProvider implements DatabaseProvider, Nameable, AutoCloseable {
 
   protected final Cache<String, LocalDatabase> databaseCache = Caffeine.newBuilder()
     .scheduler(Scheduler.systemScheduler())
     .expireAfterAccess(Duration.ofMinutes(5))
     .build();
-  protected DatabaseHandler databaseHandler = new DefaultDatabaseHandler();
+  protected DatabaseHandler databaseHandler;
+
+  protected AbstractDatabaseProvider(@NonNull DatabaseHandler databaseHandler) {
+    this.databaseHandler = databaseHandler;
+  }
 
   public abstract boolean init() throws Exception;
 

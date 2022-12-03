@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordFakeReloadCommand;
@@ -57,6 +57,6 @@ public final class BungeeCordBridgePlugin extends Plugin {
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

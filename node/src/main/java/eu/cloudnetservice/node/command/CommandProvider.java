@@ -67,6 +67,9 @@ public interface CommandProvider {
    */
   @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input);
 
+  // TODO Docs
+  void register(@NonNull Class<?> commandClass);
+
   /**
    * Registers a command on a per-class basis. All methods annotated with
    * {@link cloud.commandframework.annotations.CommandMethod} are parsed into a command and only one common

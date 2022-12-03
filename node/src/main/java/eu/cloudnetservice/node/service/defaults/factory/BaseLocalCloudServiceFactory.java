@@ -17,27 +17,40 @@
 package eu.cloudnetservice.node.service.defaults.factory;
 
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.service.CloudServiceFactory;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import java.util.Objects;
 import lombok.NonNull;
 
-public abstract class AbstractServiceFactory implements CloudServiceFactory {
+public abstract class BaseLocalCloudServiceFactory implements LocalCloudServiceFactory {
+
+  protected final Configuration configuration;
+  protected final ServiceVersionProvider versionProvider;
+
+  protected BaseLocalCloudServiceFactory(
+    @NonNull Configuration configuration,
+    @NonNull ServiceVersionProvider versionProvider
+  ) {
+    this.configuration = configuration;
+    this.versionProvider = versionProvider;
+  }
 
   protected @NonNull ServiceConfiguration validateConfiguration(
     @NonNull CloudServiceManager manager,
     @NonNull ServiceConfiguration configuration
   ) {
     var configurationBuilder = ServiceConfiguration.builder(configuration);
+
     // set the node unique id
-    configurationBuilder.node(Node.instance().nodeUniqueId());
+    configurationBuilder.node(this.configuration.identity().uniqueId());
 
     // set the environment type
     if (configuration.serviceId().environment() == null) {
       var env = Objects.requireNonNull(
-        Node.instance().serviceVersionProvider().getEnvironmentType(configuration.serviceId().environmentName()),
+        this.versionProvider.getEnvironmentType(configuration.serviceId().environmentName()),
         "Unknown environment type " + configuration.serviceId().environmentName());
       // set the environment type
       configurationBuilder.environment(env);
@@ -53,7 +66,7 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
 
   protected @NonNull String resolveHostAddress(@NonNull ServiceConfiguration serviceConfiguration) {
     var hostAddress = serviceConfiguration.hostAddress();
-    var fallbackHostAddress = Node.instance().config().hostAddress();
+    var fallbackHostAddress = this.configuration.hostAddress();
     // if null is supplied use fallback address
     if (hostAddress == null) {
       return fallbackHostAddress;
@@ -66,7 +79,7 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
     }
 
     // retrieve the alias from the node
-    var alias = Node.instance().config().ipAliases().get(hostAddress);
+    var alias = this.configuration.ipAliases().get(hostAddress);
     if (alias == null) {
       return fallbackHostAddress;
     }

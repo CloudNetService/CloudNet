@@ -28,7 +28,6 @@ import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.node.listeners.NodeChannelMessageListener;
 import eu.cloudnetservice.modules.npc.node.listeners.NodeSetupListener;
-import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -63,9 +62,9 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     });
 
     // download protocol lib
-    ConsoleProgressWrappers.wrapDownload(
+    /* TODO ConsoleProgressWrappers.wrapDownload(
       "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar",
-      stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH));
+      stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH));*/
 
     // listener register
     eventManager.registerListener(new NodeSetupListener(this));

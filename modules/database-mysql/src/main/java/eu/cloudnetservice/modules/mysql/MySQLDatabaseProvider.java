@@ -41,8 +41,11 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   private final MySQLConfiguration config;
   private volatile HikariDataSource hikariDataSource;
 
-  public MySQLDatabaseProvider(@NonNull MySQLConfiguration config, @Nullable ExecutorService executorService) {
-    super(executorService);
+  public MySQLDatabaseProvider(
+    @NonNull MySQLConfiguration config,
+    @Nullable ExecutorService executorService
+  ) {
+    super(executorService, null); // TODO
     this.config = config;
   }
 

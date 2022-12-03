@@ -17,10 +17,10 @@
 package eu.cloudnetservice.node.event.database;
 
 import eu.cloudnetservice.driver.database.Database;
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import lombok.NonNull;
 
-abstract class DatabaseEvent extends DriverEvent {
+abstract class DatabaseEvent extends Event {
 
   private final Database database;
 

@@ -17,16 +17,24 @@
 package eu.cloudnetservice.node.service.defaults.config;
 
 import com.electronwill.nightconfig.yaml.YamlFormat;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.node.service.CloudService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class WaterdogPEConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
+  @Inject
+  public WaterdogPEConfigurationPreparer(@NonNull ServiceTaskProvider taskProvider) {
+    super(taskProvider);
+  }
+
   @Override
-  public void configure(@NonNull Node nodeInstance, @NonNull CloudService cloudService) {
+  public void configure(@NonNull CloudService cloudService) {
     // check if we should run now
-    if (this.shouldRewriteIp(nodeInstance, cloudService)) {
+    if (this.shouldRewriteIp(cloudService)) {
       var configFile = cloudService.directory().resolve("config.yml");
       try (var config = this.loadConfig(configFile, YamlFormat.defaultInstance(), "files/waterdogpe/config.yml")) {
         config.set("listener.host", String.format(

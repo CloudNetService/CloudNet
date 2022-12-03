@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
-import eu.cloudnetservice.driver.event.DefaultEventManager;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.permission.PermissionServiceSetEvent;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
@@ -56,6 +55,7 @@ import org.jetbrains.annotations.VisibleForTesting;
  *
  * @since 4.0
  */
+@Deprecated(forRemoval = true)
 public abstract class CloudNetDriver {
 
   @VisibleForTesting
@@ -73,7 +73,7 @@ public abstract class CloudNetDriver {
   protected final List<String> commandLineArguments;
   protected final DriverEnvironment driverEnvironment;
 
-  protected final EventManager eventManager = new DefaultEventManager();
+  protected final EventManager eventManager = null;// new DefaultEventManager();
   protected final ModuleProvider moduleProvider = new DefaultModuleProvider();
   protected final ServiceRegistry serviceRegistry = new DefaultServiceRegistry();
   protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
@@ -140,7 +140,7 @@ public abstract class CloudNetDriver {
    * @return the current, jvm static instance of the current environment.
    */
   @SuppressWarnings("unchecked")
-  //@Deprecated // todo: remove this method in favor of injection?
+  @Deprecated(forRemoval = true)
   public static @NonNull <T extends CloudNetDriver> T instance() {
     return (T) CloudNetDriver.instance;
   }

@@ -31,6 +31,7 @@ public abstract class V2HttpHandler {
 
   protected final RestConfiguration restConfiguration;
 
+  @Deprecated(forRemoval = true) // need to update modules first
   public V2HttpHandler() {
     this(Node.instance().config().restConfiguration());
   }
@@ -86,10 +87,12 @@ public abstract class V2HttpHandler {
     return JsonDocument.newDocument("success", false);
   }
 
+  @Deprecated(forRemoval = true) // need to update modules first
   protected @NonNull Node node() {
     return Node.instance();
   }
 
+  @Deprecated(forRemoval = true) // need to update modules first
   protected @NonNull Configuration nodeConfig() {
     return this.node().config();
   }

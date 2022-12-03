@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.permission;
 
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.property.DocPropertyHolder;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -207,7 +207,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
     @NonNull Collection<Permission> permissions,
     @NonNull Permission permission
   ) {
-    return CloudNetDriver.instance().permissionManagement().findHighestPermission(permissions, permission);
+    var permissionManagement = InjectionLayer.boot().instance(PermissionManagement.class);
+    return permissionManagement.findHighestPermission(permissions, permission);
   }
 
   /**

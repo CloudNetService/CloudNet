@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,6 +36,6 @@ public final class BukkitBridgePlugin extends JavaPlugin {
   @Override
   public void onDisable() {
     Bukkit.getScheduler().cancelTasks(this);
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

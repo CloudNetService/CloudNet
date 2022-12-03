@@ -24,7 +24,7 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityHubCommand;
@@ -73,6 +73,6 @@ public final class VelocityBridgePlugin {
 
   @Subscribe
   public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

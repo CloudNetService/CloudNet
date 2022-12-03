@@ -17,8 +17,13 @@
 package eu.cloudnetservice.node.cluster.defaults;
 
 import com.google.common.base.Preconditions;
+import dev.derklaro.aerogel.PostConstruct;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.CloudNetVersion;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
@@ -26,12 +31,16 @@ import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.DriverCommandSource;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.cluster.LocalNodeSnapshotConfigureEvent;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
@@ -40,10 +49,18 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+@Singleton
+@Provides(LocalNodeServer.class)
 public class DefaultLocalNodeServer implements LocalNodeServer {
 
-  private final Node node;
+  private final CloudNetVersion version;
+  private final EventManager eventManager;
   private final NodeServerProvider provider;
+  private final Configuration configuration;
+  private final ModuleProvider moduleProvider;
+  private final CommandProvider commandProvider;
+  private final CloudServiceFactory cloudServiceFactory;
+  private final CloudServiceManager cloudServiceProvider;
 
   private final long creationMillis = System.currentTimeMillis();
 
@@ -57,9 +74,31 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   private volatile NodeInfoSnapshot lastSnapshot;
   private volatile Instant lastNodeInfoUpdate = Instant.now();
 
-  public DefaultLocalNodeServer(@NonNull Node node, @NonNull NodeServerProvider provider) {
-    this.node = node;
+  @Inject
+  public DefaultLocalNodeServer(
+    @NonNull CloudNetVersion version,
+    @NonNull EventManager eventManager,
+    @NonNull NodeServerProvider provider,
+    @NonNull Configuration configuration,
+    @NonNull ModuleProvider moduleProvider,
+    @NonNull CommandProvider commandProvider,
+    @NonNull CloudServiceFactory cloudServiceFactory,
+    @NonNull CloudServiceManager cloudServiceProvider
+  ) {
+    this.version = version;
+    this.eventManager = eventManager;
     this.provider = provider;
+    this.configuration = configuration;
+    this.moduleProvider = moduleProvider;
+    this.commandProvider = commandProvider;
+    this.cloudServiceFactory = cloudServiceFactory;
+    this.cloudServiceProvider = cloudServiceProvider;
+  }
+
+  @PostConstruct
+  private void done() {
+    // TODO: life
+    ((DefaultNodeServerProvider) this.provider).finishConstruction();
   }
 
   @Override
@@ -69,7 +108,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
 
   @Override
   public boolean head() {
-    return this.provider().headNode() == this;
+    return this.provider().headNode().equals(this);
   }
 
   @Override
@@ -79,7 +118,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
 
   @Override
   public void shutdown() {
-    this.node.stop();
+    System.exit(0);
   }
 
   @Override
@@ -104,7 +143,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
 
   @Override
   public @NonNull NetworkClusterNode info() {
-    return this.node.config().identity();
+    return this.configuration.identity();
   }
 
   @Override
@@ -166,18 +205,18 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
 
   @Override
   public @NonNull CloudServiceFactory serviceFactory() {
-    return this.node.cloudServiceFactory();
+    return this.cloudServiceFactory;
   }
 
   @Override
   public @Nullable SpecificCloudServiceProvider serviceProvider(@NonNull UUID uniqueId) {
-    return this.node.cloudServiceProvider().localCloudService(uniqueId);
+    return this.cloudServiceProvider.localCloudService(uniqueId);
   }
 
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var sender = new DriverCommandSource();
-    this.node.commandProvider().execute(sender, commandLine).getOrNull();
+    this.commandProvider.execute(sender, commandLine).getOrNull();
     return sender.messages();
   }
 
@@ -192,21 +231,21 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
     var snapshot = new NodeInfoSnapshot(
       System.currentTimeMillis(),
       this.creationMillis,
-      this.node.config().maxMemory(),
-      this.node.cloudServiceProvider().currentUsedHeapMemory(),
-      this.node.cloudServiceProvider().currentReservedMemory(),
-      this.node.cloudServiceProvider().localCloudServices().size(),
+      this.configuration.maxMemory(),
+      this.cloudServiceProvider.currentUsedHeapMemory(),
+      this.cloudServiceProvider.currentReservedMemory(),
+      this.cloudServiceProvider.localCloudServices().size(),
       this.draining,
       this.info(),
-      this.node.version(),
+      this.version,
       ProcessSnapshot.self(),
-      this.node.config().maxCPUUsageToStartServices(),
-      this.node.moduleProvider().modules().stream()
+      this.configuration.maxCPUUsageToStartServices(),
+      this.moduleProvider.modules().stream()
         .map(ModuleWrapper::moduleConfiguration)
         .collect(Collectors.toSet()),
       this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.properties());
     // configure the snapshot
-    snapshot = this.node.eventManager().callEvent(new LocalNodeSnapshotConfigureEvent(snapshot)).snapshot();
+    snapshot = this.eventManager.callEvent(new LocalNodeSnapshotConfigureEvent(snapshot)).snapshot();
     this.updateNodeInfoSnapshot(snapshot);
   }
 }

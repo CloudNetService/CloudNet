@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.event.events.network;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import lombok.NonNull;
 
@@ -25,7 +25,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public abstract class NetworkEvent extends DriverEvent {
+public abstract class NetworkEvent extends Event {
 
   private final NetworkChannel channel;
 

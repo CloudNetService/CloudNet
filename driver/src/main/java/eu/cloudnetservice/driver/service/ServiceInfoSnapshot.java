@@ -20,8 +20,9 @@ import com.google.common.collect.ComparisonChain;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.property.ServiceProperty;
 import lombok.EqualsAndHashCode;
@@ -167,7 +168,8 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
    * @return a service provider targeting the current wrapped service.
    */
   public @NonNull SpecificCloudServiceProvider provider() {
-    return CloudNetDriver.instance().cloudServiceProvider().serviceProvider(this.serviceId().uniqueId());
+    var serviceProvider = InjectionLayer.boot().instance(CloudServiceProvider.class);
+    return serviceProvider.serviceProvider(this.serviceId().uniqueId());
   }
 
   /**

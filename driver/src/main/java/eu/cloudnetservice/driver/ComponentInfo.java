@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.service;
+package eu.cloudnetservice.driver;
 
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import lombok.NonNull;
 
-public interface CloudServiceFactory extends Nameable {
+/**
+ * Holds all information about the current component.
+ *
+ * @param environment   the environment of the current component.
+ * @param componentName the name of the current component.
+ * @param nodeUniqueId  the node unique id which is associated with this component.
+ * @since 4.0
+ */
+public record ComponentInfo(
+  @NonNull DriverEnvironment environment,
+  @NonNull String componentName,
+  @NonNull String nodeUniqueId
+) {
 
-  @NonNull CloudService createCloudService(@NonNull CloudServiceManager manager,
-    @NonNull ServiceConfiguration configuration);
 }

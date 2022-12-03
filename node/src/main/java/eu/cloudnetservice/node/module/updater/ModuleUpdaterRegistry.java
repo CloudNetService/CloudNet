@@ -21,12 +21,14 @@ import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.ext.updater.defaults.DefaultUpdaterRegistry;
 import eu.cloudnetservice.node.module.ModulesHolder;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
 
+@Singleton
 public final class ModuleUpdaterRegistry extends DefaultUpdaterRegistry<ModuleUpdaterContext, ModulesHolder> {
 
   @Override

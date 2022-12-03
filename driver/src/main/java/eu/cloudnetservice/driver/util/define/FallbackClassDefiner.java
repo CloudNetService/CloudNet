@@ -51,7 +51,7 @@ final class FallbackClassDefiner implements ClassDefiner {
   /**
    * A class loader which gives access to the normally protected defineClass method.
    *
-   * @since 1.0
+   * @since 4.0
    */
   private static final class DefiningClassLoader extends ClassLoader {
 

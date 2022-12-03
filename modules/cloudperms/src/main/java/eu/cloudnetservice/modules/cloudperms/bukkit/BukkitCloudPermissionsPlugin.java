@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.cloudperms.bukkit;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.bukkit.listener.BukkitCloudPermissionsPlayerListener;
 import eu.cloudnetservice.modules.cloudperms.bukkit.vault.VaultSupport;
@@ -48,7 +48,7 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 
   private void checkForVault() {

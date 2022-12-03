@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.event.events.permission;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import lombok.NonNull;
 
@@ -25,7 +25,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public abstract class PermissionEvent extends DriverEvent {
+public abstract class PermissionEvent extends Event {
 
   private final PermissionManagement permissionManagement;
 

@@ -114,6 +114,7 @@ public class DriverModule extends DefaultModule {
    * @param listener the listeners to register
    * @return the EventManager that was used to register the listeners.
    */
+  @Deprecated(forRemoval = true) // TODO: need to update modules first
   public final @NonNull EventManager registerListener(Object @NonNull ... listener) {
     return this.eventManager().registerListeners(listener);
   }
@@ -124,6 +125,7 @@ public class DriverModule extends DefaultModule {
    * @return the ServiceRegistry.
    * @see CloudNetDriver#serviceRegistry()
    */
+  @Deprecated(forRemoval = true) // TODO: need to update modules first
   public final @NonNull ServiceRegistry serviceRegistry() {
     return this.driver().serviceRegistry();
   }
@@ -134,6 +136,7 @@ public class DriverModule extends DefaultModule {
    * @return the EventManager.
    * @see CloudNetDriver#eventManager()
    */
+  @Deprecated(forRemoval = true) // TODO: need to update modules first
   public final @NonNull EventManager eventManager() {
     return this.driver().eventManager();
   }
@@ -144,6 +147,7 @@ public class DriverModule extends DefaultModule {
    * @return the RPCProviderFactory.
    * @see CloudNetDriver#rpcFactory()
    */
+  @Deprecated(forRemoval = true) // TODO: need to update modules first
   public final @NonNull RPCFactory rpcFactory() {
     return this.driver().rpcFactory();
   }
@@ -155,6 +159,7 @@ public class DriverModule extends DefaultModule {
    * @see CloudNetDriver#instance()
    */
   @Contract(pure = true)
+  @Deprecated(forRemoval = true) // TODO: need to update modules first
   public final @NonNull CloudNetDriver driver() {
     return CloudNetDriver.instance();
   }

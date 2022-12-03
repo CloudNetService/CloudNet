@@ -20,6 +20,7 @@ import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.node.database.DatabaseHandler;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,7 +41,8 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
   protected final ExecutorService executorService;
   protected final boolean autoShutdownExecutorService;
 
-  public SQLDatabaseProvider(@Nullable ExecutorService executorService) {
+  public SQLDatabaseProvider(@Nullable ExecutorService executorService, @NonNull DatabaseHandler databaseHandler) {
+    super(databaseHandler);
     this.autoShutdownExecutorService = executorService == null;
     this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;
   }

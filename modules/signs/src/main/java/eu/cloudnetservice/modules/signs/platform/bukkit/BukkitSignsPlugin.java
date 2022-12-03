@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.signs.platform.bukkit;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
 import eu.cloudnetservice.modules.signs.platform.bukkit.functionality.SignInteractListener;
@@ -49,6 +49,6 @@ public class BukkitSignsPlugin extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

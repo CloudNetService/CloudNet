@@ -21,7 +21,6 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
 import eu.cloudnetservice.modules.npc.node.NodeNPCManagement;
-import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
@@ -34,7 +33,7 @@ public final class NodeSetupListener {
     .key("generateDefaultNPCConfigurationEntry")
     .translatedQuestion("module-npc-tasks-setup-generate-default-config")
     .answerType(QuestionAnswerType.<Boolean>builder()
-      .parser(Parsers.bool())
+      // TODO .parser(Parsers.bool())
       .recommendation("no")
       .possibleResults("yes", "no")
       .build())

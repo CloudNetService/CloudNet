@@ -23,19 +23,21 @@ import cloud.commandframework.internal.CommandRegistrationHandler;
 import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Singleton;
 import java.util.concurrent.Executors;
 import lombok.NonNull;
 
 /**
  * {@inheritDoc}
  */
+@Singleton
 final class DefaultCommandManager extends CommandManager<CommandSource> {
 
   /**
    * Constructs the default implementation of the {@link CommandManager}. Applying asynchronous command executing using
    * a thread pool with 4 threads.
    */
-  public DefaultCommandManager() {
+  private DefaultCommandManager() {
     super(AsynchronousCommandExecutionCoordinator.<CommandSource>newBuilder()
         .withExecutor(Executors.newFixedThreadPool(4))
         .build(),

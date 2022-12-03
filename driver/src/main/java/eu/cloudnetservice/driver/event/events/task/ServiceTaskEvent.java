@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.event.events.task;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import lombok.NonNull;
 
@@ -25,7 +25,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public abstract class ServiceTaskEvent extends DriverEvent {
+public abstract class ServiceTaskEvent extends Event {
 
   private final ServiceTask task;
 

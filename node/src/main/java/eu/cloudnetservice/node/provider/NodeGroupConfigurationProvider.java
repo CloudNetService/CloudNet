@@ -17,6 +17,8 @@
 package eu.cloudnetservice.node.provider;
 
 import com.google.gson.reflect.TypeToken;
+import dev.derklaro.aerogel.PostConstruct;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
@@ -24,13 +26,17 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.event.group.LocalGroupConfigurationAddEvent;
 import eu.cloudnetservice.node.event.group.LocalGroupConfigurationRemoveEvent;
 import eu.cloudnetservice.node.network.listener.message.GroupChannelMessageListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,6 +50,8 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
+@Singleton
+@Provides(GroupConfigurationProvider.class)
 public class NodeGroupConfigurationProvider implements GroupConfigurationProvider {
 
   private static final Path OLD_GROUPS_FILE = Path.of(
@@ -56,14 +64,20 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   private final EventManager eventManager;
   private final Map<String, GroupConfiguration> groupConfigurations = new ConcurrentHashMap<>();
 
-  public NodeGroupConfigurationProvider(@NonNull Node nodeInstance) {
-    this.eventManager = nodeInstance.eventManager();
-    this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager, this));
+  @Inject
+  public NodeGroupConfigurationProvider(
+    @NonNull EventManager eventManager,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull DataSyncRegistry syncRegistry,
+    @NonNull RPCHandlerRegistry handlerRegistry
+  ) {
+    this.eventManager = eventManager;
 
     // rpc
-    nodeInstance.rpcFactory().newHandler(GroupConfigurationProvider.class, this).registerToDefaultRegistry();
+    rpcFactory.newHandler(GroupConfigurationProvider.class, this).registerTo(handlerRegistry);
+
     // cluster data sync
-    nodeInstance.dataSyncRegistry().registerHandler(
+    syncRegistry.registerHandler(
       DataSyncHandler.<GroupConfiguration>builder()
         .key("group_configuration")
         .nameExtractor(Nameable::name)
@@ -82,6 +96,11 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     } else {
       FileUtil.createDirectory(GROUP_DIRECTORY_PATH);
     }
+  }
+
+  @PostConstruct
+  private void registerChannelMessageListener() {
+    this.eventManager.registerListener(GroupChannelMessageListener.class);
   }
 
   @Override

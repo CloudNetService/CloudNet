@@ -33,6 +33,7 @@ public interface RPCHandler extends RPCProvider {
    * Registers this rpc handler to the default rpc handler registry provided through the cloudnet driver class.
    * Equivalent to {@code handler.registerTo(CloudNetDriver.instance().rpcHandlerRegistry())}.
    */
+  @Deprecated(forRemoval = true) // TODO: need to update modules first
   void registerToDefaultRegistry();
 
   /**

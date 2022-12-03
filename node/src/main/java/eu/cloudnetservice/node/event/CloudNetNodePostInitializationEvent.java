@@ -16,19 +16,8 @@
 
 package eu.cloudnetservice.node.event;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
-import eu.cloudnetservice.node.Node;
-import lombok.NonNull;
+import eu.cloudnetservice.driver.event.Event;
 
-public final class CloudNetNodePostInitializationEvent extends DriverEvent {
+public final class CloudNetNodePostInitializationEvent extends Event {
 
-  private final Node nodeInstance;
-
-  public CloudNetNodePostInitializationEvent(@NonNull Node nodeInstance) {
-    this.nodeInstance = nodeInstance;
-  }
-
-  public @NonNull Node node() {
-    return this.nodeInstance;
-  }
 }

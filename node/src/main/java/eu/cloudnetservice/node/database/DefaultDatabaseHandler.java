@@ -17,13 +17,23 @@
 package eu.cloudnetservice.node.database;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.event.database.DatabaseClearEntriesEvent;
 import eu.cloudnetservice.node.event.database.DatabaseDeleteEntryEvent;
 import eu.cloudnetservice.node.event.database.DatabaseInsertEntryEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class DefaultDatabaseHandler implements DatabaseHandler {
+
+  private final EventManager eventManager;
+
+  @Inject
+  public DefaultDatabaseHandler(@NonNull EventManager eventManager) {
+    this.eventManager = eventManager;
+  }
 
   @Override
   public void handleInsert(
@@ -31,16 +41,16 @@ public final class DefaultDatabaseHandler implements DatabaseHandler {
     @NonNull String key,
     @NonNull JsonDocument document
   ) {
-    CloudNetDriver.instance().eventManager().callEvent(new DatabaseInsertEntryEvent(database, key, document));
+    this.eventManager.callEvent(new DatabaseInsertEntryEvent(database, key, document));
   }
 
   @Override
   public void handleDelete(@NonNull LocalDatabase database, @NonNull String key) {
-    CloudNetDriver.instance().eventManager().callEvent(new DatabaseDeleteEntryEvent(database, key));
+    this.eventManager.callEvent(new DatabaseDeleteEntryEvent(database, key));
   }
 
   @Override
   public void handleClear(@NonNull LocalDatabase database) {
-    CloudNetDriver.instance().eventManager().callEvent(new DatabaseClearEntriesEvent(database));
+    this.eventManager.callEvent(new DatabaseClearEntriesEvent(database));
   }
 }

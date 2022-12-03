@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.bridge.platform.waterdog;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import dev.waterdog.waterdogpe.plugin.Plugin;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.waterdog.command.WaterDogPECloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.waterdog.command.WaterDogPEHubCommand;
@@ -57,6 +57,6 @@ public final class WaterDogPEBridgePlugin extends Plugin {
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

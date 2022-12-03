@@ -20,19 +20,30 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.node.Node;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.time.Duration;
 import java.util.Set;
 import lombok.NonNull;
 
+@Singleton
 public class DockerizedServicesModule extends DriverModule {
 
+  private final InjectionLayer<?> moduleInjectLayer;
   private DockerConfiguration configuration;
+
+  @Inject
+  public DockerizedServicesModule(@NonNull @Named("moduleLayer") InjectionLayer<?> moduleInjectLayer) {
+    this.moduleInjectLayer = moduleInjectLayer;
+  }
 
   @ModuleTask
   public void loadConfiguration() {
@@ -71,13 +82,13 @@ public class DockerizedServicesModule extends DriverModule {
       .build();
     // create the client and instantiate the service factory based on the information
     var dockerClient = DockerClientImpl.getInstance(clientConfig, dockerHttpClient);
-    Node.instance().cloudServiceProvider().addCloudServiceFactory(
+    /*Node.instance().cloudServiceProvider().addCloudServiceFactory(
       this.configuration.factoryName(),
-      new DockerizedServiceFactory(
+      new DockerizedLocalCloudServiceFactory(
         Node.instance(),
         this.eventManager(),
         dockerClient,
-        this.configuration));
+        this.configuration));*/
   }
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)

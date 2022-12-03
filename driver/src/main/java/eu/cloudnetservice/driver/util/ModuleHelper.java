@@ -22,9 +22,14 @@ import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.unsafe.ResourceResolver;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,12 +40,45 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class ModuleUtil {
+@Singleton
+public final class ModuleHelper {
 
-  private static final Logger LOGGER = LogManager.logger(ModuleUtil.class);
+  private static final Logger LOGGER = LogManager.logger(ModuleHelper.class);
 
-  private ModuleUtil() {
-    throw new UnsupportedOperationException();
+  private final EventManager eventManager;
+  private final NetworkClient networkClient;
+  private final ServiceRegistry serviceRegistry;
+  private final RPCHandlerRegistry rpcHandlerRegistry;
+
+  @Inject
+  public ModuleHelper(
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull RPCHandlerRegistry rpcHandlerRegistry
+  ) {
+    this.eventManager = eventManager;
+    this.networkClient = networkClient;
+    this.serviceRegistry = serviceRegistry;
+    this.rpcHandlerRegistry = rpcHandlerRegistry;
+  }
+
+  // TODO: pail methods - remove then when done
+  @Deprecated(forRemoval = true)
+  public static boolean copyJarContainingClass_deprecated(@NonNull Class<?> clazz, @NonNull Path target) {
+    return true;
+  }
+
+  @Deprecated(forRemoval = true)
+  public static void copyPluginConfigurationFileForEnvironment_deprecated(
+    @NonNull Class<?> clazz,
+    @NonNull ServiceEnvironmentType type,
+    @NonNull Path file
+  ) {
+  }
+
+  @Deprecated(forRemoval = true)
+  public static void unregisterAll_deprecated(@NonNull ClassLoader classLoader) {
   }
 
   /**
@@ -51,7 +89,7 @@ public final class ModuleUtil {
    * @return true if the entry was copied successfully, false otherwise.
    * @throws NullPointerException if clazz or target is null.
    */
-  public static boolean copyJarContainingClass(@NonNull Class<?> clazz, @NonNull Path target) {
+  public boolean copyJarContainingClass(@NonNull Class<?> clazz, @NonNull Path target) {
     try {
       // get the location of the class path entry associated with the given class
       var uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
@@ -82,7 +120,7 @@ public final class ModuleUtil {
    * @param file  the target file of the plugin to copy the file for.
    * @throws NullPointerException if clazz, type or file is null.
    */
-  public static void copyPluginConfigurationFileForEnvironment(
+  public void copyPluginConfigurationFileForEnvironment(
     @NonNull Class<?> clazz,
     @NonNull ServiceEnvironmentType type,
     @NonNull Path file
@@ -109,10 +147,10 @@ public final class ModuleUtil {
   /**
    * Unregisters all kind of listeners and bindings:
    * <ul>
-   *   <li>Registered events in the {@link eu.cloudnetservice.driver.event.EventManager}</li>
-   *   <li>Registered services in the {@link eu.cloudnetservice.driver.registry.ServiceRegistry}</li>
+   *   <li>Registered events in the {@link EventManager}</li>
+   *   <li>Registered services in the {@link ServiceRegistry}</li>
    *   <li>Registered bindings for the {@link DefaultObjectMapper#DEFAULT_MAPPER}</li>
-   *   <li>Registered rpc handlers in the {@link eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry}</li>
+   *   <li>Registered rpc handlers in the {@link RPCHandlerRegistry}</li>
    *   <li>Registered language files in {@link I18n}</li>
    *   <li>Registered packet listeners in the {@link eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry}</li>
    * </ul>
@@ -120,21 +158,20 @@ public final class ModuleUtil {
    * @param classLoader the class loader that registered all the mentioned listeners and bindings.
    * @throws NullPointerException if the given class loader is null.
    */
-  public static void unregisterAll(@NonNull ClassLoader classLoader) {
-    var driver = CloudNetDriver.instance();
+  public void unregisterAll(@NonNull ClassLoader classLoader) {
     // remove all event listeners
-    driver.eventManager().unregisterListeners(classLoader);
+    this.eventManager.unregisterListeners(classLoader);
     // remove all registered services
-    driver.serviceRegistry().unregisterAll(classLoader);
+    this.serviceRegistry.unregisterAll(classLoader);
     // remove custom mapper bindings
     DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(classLoader);
     // remove rpc handlers
-    driver.rpcHandlerRegistry().unregisterHandlers(classLoader);
+    this.rpcHandlerRegistry.unregisterHandlers(classLoader);
     // remove registered languages
     I18n.unregisterLanguageFiles(classLoader);
     // remove all packet listeners
-    driver.networkClient().packetRegistry().removeListeners(classLoader);
-    for (var channel : driver.networkClient().channels()) {
+    this.networkClient.packetRegistry().removeListeners(classLoader);
+    for (var channel : this.networkClient.channels()) {
       channel.packetRegistry().removeListeners(classLoader);
     }
   }

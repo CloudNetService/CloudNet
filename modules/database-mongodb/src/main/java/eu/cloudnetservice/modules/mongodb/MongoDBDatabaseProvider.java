@@ -43,6 +43,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   public MongoDBDatabaseProvider(@NonNull MongoDBConnectionConfig config, @Nullable ExecutorService executorService) {
+    super(null); // todo
     this.config = config;
     this.autoShutdownExecutorService = executorService == null;
     this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;

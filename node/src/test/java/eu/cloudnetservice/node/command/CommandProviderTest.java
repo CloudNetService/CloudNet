@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.command;
 
-
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.suggestions.Suggestions;
@@ -39,7 +38,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Iterables;
 
 public final class CommandProviderTest {
-
+/*
   private static final CommandProvider COMMAND_PROVIDER = new DefaultCommandProvider(Mockito.mock(Console.class),
     new DefaultEventManager());
 
@@ -130,5 +129,5 @@ public final class CommandProviderTest {
     ) {
       // no response
     }
-  }
+  }*/
 }

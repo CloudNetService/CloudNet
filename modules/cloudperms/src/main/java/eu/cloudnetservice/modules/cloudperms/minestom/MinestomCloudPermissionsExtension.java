@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.cloudperms.minestom;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.minestom.listener.MinestomCloudPermissionsPlayerListener;
 import net.minestom.server.MinecraftServer;
@@ -53,6 +53,6 @@ public final class MinestomCloudPermissionsExtension extends Extension {
 
   @Override
   public void terminate() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

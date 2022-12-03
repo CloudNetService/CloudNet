@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.cloudperms.sponge;
 
 import com.google.inject.Inject;
 import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.CloudPermsPermissionService;
 import lombok.NonNull;
@@ -65,7 +65,7 @@ public final class SpongeCloudPermissionsPlugin {
 
   @Listener
   public void handle(@NonNull StoppingEngineEvent<Server> event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 
   @Listener

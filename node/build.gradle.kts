@@ -60,4 +60,4 @@ dependencies {
   "implementation"(libs.bundles.nightConfig)
 }
 
-applyJarMetadata("eu.cloudnetservice.node.BootLogic", "eu.cloudnetservice.node")
+applyJarMetadata("eu.cloudnetservice.node.boot.Bootstrap", "eu.cloudnetservice.node")

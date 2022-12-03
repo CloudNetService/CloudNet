@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.database.xodus;
 
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.node.database.DatabaseHandler;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.util.LocalDatabaseUtil;
 import java.io.File;
@@ -43,15 +44,21 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
 
   protected Environment environment;
 
-  public XodusDatabaseProvider(@NonNull File databaseDirectory, boolean runsInCluster) {
-    this(databaseDirectory, runsInCluster, null);
+  public XodusDatabaseProvider(
+    @NonNull File databaseDirectory,
+    boolean runsInCluster,
+    @NonNull DatabaseHandler databaseHandler
+  ) {
+    this(databaseDirectory, runsInCluster, null, databaseHandler);
   }
 
   public XodusDatabaseProvider(
     @NonNull File databaseDirectory,
     boolean runsInCluster,
-    @Nullable ExecutorService executorService
+    @Nullable ExecutorService executorService,
+    @NonNull DatabaseHandler databaseHandler
   ) {
+    super(databaseHandler);
     this.runsInCluster = runsInCluster;
     this.databaseDirectory = databaseDirectory;
     this.autoShutdownExecutorService = executorService == null;

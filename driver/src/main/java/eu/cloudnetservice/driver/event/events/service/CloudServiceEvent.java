@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.event.events.service;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
 
@@ -26,7 +26,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public abstract class CloudServiceEvent extends DriverEvent {
+public abstract class CloudServiceEvent extends Event {
 
   protected final ServiceInfoSnapshot serviceInfo;
 

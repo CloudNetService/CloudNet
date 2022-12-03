@@ -41,15 +41,15 @@ public final class CloudNetRestModule extends DriverModule {
 
   @ModuleTask(order = 120, event = ModuleLifeCycle.STARTED)
   public void initHttpHandlers() {
-    var authentication = new V2HttpAuthentication();
+    //var authentication = new V2HttpAuthentication();
     var annotationParser = Node.instance().httpServer().annotationParser();
 
     // register the security annotation processor
-    SecurityAnnotationExtension.install(annotationParser, authentication);
+    // TODO: SecurityAnnotationExtension.install(annotationParser, authentication);
 
     // register all handlers
     annotationParser
-      .parseAndRegister(new V2HttpHandlerAuthorization(authentication))
+      //.parseAndRegister(new V2HttpHandlerAuthorization(authentication))
       .parseAndRegister(new V2HttpHandlerCluster())
       .parseAndRegister(new V2HttpHandlerDatabase())
       .parseAndRegister(new V2HttpHandlerDocumentation())

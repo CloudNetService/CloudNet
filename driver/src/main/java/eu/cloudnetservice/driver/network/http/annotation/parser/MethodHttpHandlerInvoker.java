@@ -54,7 +54,7 @@ final class MethodHttpHandlerInvoker extends HttpHandler {
     @NonNull Collection<String> supportedMethods
   ) throws IllegalAccessException {
     this.instance = handlerInstance;
-    this.handlerMethod = genericHandleForMethod(handlerMethod);
+    this.handlerMethod = genericHandleForMethod(handlerMethod); // TODO: reflexion (we can remove setAccessible then)
     this.handlerParameterTypes = handlerMethod.getParameterTypes();
     this.supportedMethods = supportedMethods;
   }

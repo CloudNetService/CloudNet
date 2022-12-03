@@ -23,7 +23,7 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
 import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
@@ -63,7 +63,7 @@ public final class VelocitySyncProxyPlugin {
   @Subscribe
   public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
     // unregister all listeners for cloudnet events
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 
 }

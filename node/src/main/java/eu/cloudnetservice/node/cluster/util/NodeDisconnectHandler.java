@@ -21,28 +21,47 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 
-public final class NodeServerUtil {
+@Singleton
+public final class NodeDisconnectHandler {
 
-  private static final Logger LOGGER = LogManager.logger(NodeServerUtil.class);
+  private static final Logger LOGGER = LogManager.logger(NodeDisconnectHandler.class);
 
-  private NodeServerUtil() {
-    throw new UnsupportedOperationException();
+  private final EventManager eventManager;
+  private final CloudServiceManager serviceManager;
+
+  @Inject
+  public NodeDisconnectHandler(@NonNull EventManager eventManager, @NonNull CloudServiceManager serviceManager) {
+    this.eventManager = eventManager;
+    this.serviceManager = serviceManager;
   }
 
-  public static void handleNodeServerClose(@NonNull NodeServer server) {
-    for (var snapshot : Node.instance().cloudServiceProvider().services()) {
+  private static @NonNull ChannelMessage.Builder targetServices(@NonNull Collection<CloudService> services) {
+    var builder = ChannelMessage.builder();
+    // iterate over all local services - if the service is connected append it as target
+    for (var service : services) {
+      builder.target(ChannelMessageTarget.Type.SERVICE, service.serviceId().name());
+    }
+    // for chaining
+    return builder;
+  }
+
+  public void handleNodeServerClose(@NonNull NodeServer server) {
+    for (var snapshot : this.serviceManager.services()) {
       if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.name())) {
         // rebuild the service snapshot with a DELETED state
         var lifeCycle = snapshot.lifeCycle();
@@ -55,12 +74,12 @@ public final class NodeServerUtil {
           ServiceLifeCycle.DELETED,
           snapshot.properties());
 
-        // publish the update to the local service manager
-        Node.instance().cloudServiceProvider().handleServiceUpdate(newSnapshot, null);
-        // call the local change event
-        Node.instance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, newSnapshot));
+        // publish the update to the local service manager & call the local change event
+        this.serviceManager.handleServiceUpdate(newSnapshot, null);
+        this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, newSnapshot));
+
         // send the change to all service - all other nodes will handle the close as well (if there are any)
-        var localServices = Node.instance().cloudServiceProvider().localCloudServices();
+        var localServices = this.serviceManager.localCloudServices();
         if (!localServices.isEmpty()) {
           targetServices(localServices)
             .message("update_service_lifecycle")
@@ -73,15 +92,5 @@ public final class NodeServerUtil {
     }
 
     LOGGER.info(I18n.trans("cluster-server-networking-disconnected", server.name()));
-  }
-
-  private static @NonNull ChannelMessage.Builder targetServices(@NonNull Collection<CloudService> services) {
-    var builder = ChannelMessage.builder();
-    // iterate over all local services - if the service is connected append it as target
-    for (var service : services) {
-      builder.target(ChannelMessageTarget.Type.SERVICE, service.serviceId().name());
-    }
-    // for chaining
-    return builder;
   }
 }

@@ -20,7 +20,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
 import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.nukkit.listener.NukkitCloudPermissionsPlayerListener;
 
@@ -41,6 +41,6 @@ public final class NukkitCloudPermissionsPlugin extends PluginBase {
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
   }
 }

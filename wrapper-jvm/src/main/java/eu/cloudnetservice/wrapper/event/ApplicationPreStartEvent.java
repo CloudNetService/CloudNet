@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.event;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Collection;
 import lombok.NonNull;
@@ -27,7 +27,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class ApplicationPreStartEvent extends DriverEvent {
+public final class ApplicationPreStartEvent extends Event {
 
   private final Wrapper cloudNetWrapper;
   private final Class<?> applicationMainClass;

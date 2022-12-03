@@ -20,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -32,6 +33,8 @@ import eu.cloudnetservice.driver.network.rpc.defaults.sender.DefaultRPCSender;
 import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Objects;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -42,6 +45,8 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
+@Provides(RPCFactory.class)
 public class DefaultRPCFactory implements RPCFactory {
 
   protected final ObjectMapper defaultObjectMapper;
@@ -57,6 +62,7 @@ public class DefaultRPCFactory implements RPCFactory {
    * @param defaultDataBufFactory the default data buf factory to use if no object mapper is provided in factory calls.
    * @throws NullPointerException if either the given object mapper or data buf factory is null.
    */
+  @Inject
   public DefaultRPCFactory(
     @NonNull ObjectMapper defaultObjectMapper,
     @NonNull DataBufFactory defaultDataBufFactory
