@@ -60,11 +60,11 @@ public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
         var group = permissionManagement.highestPermissionGroup(permissionUser);
 
         if (group != null) {
-          input = input.replace("%prefix%", group.prefix())
-            .replace("%suffix%", group.suffix())
-            .replace("%display%", group.display())
-            .replace("%color%", group.color())
-            .replace("%group%", group.name());
+          input = input.replace("%group_prefix%", group.prefix())
+            .replace("%group_suffix%", group.suffix())
+            .replace("%group_display%", group.display())
+            .replace("%group_color%", group.color())
+            .replace("%group_name%", group.name());
         }
       }
     }
