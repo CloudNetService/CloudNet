@@ -22,22 +22,21 @@ import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.lang.reflect.Type;
 import lombok.NonNull;
-import org.bukkit.Server;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
+import org.spongepowered.api.Server;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.plugin.PluginContainer;
 
-public class BukkitLayer {
+public class SpongeLayer {
 
-  public static @NonNull InjectionLayer<?> create(@NonNull JavaPlugin plugin) {
-    var server = plugin.getServer();
-
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), plugin.getName(), (specifiedLayer, injector) -> {
+  public static @NonNull InjectionLayer<?> create(@NonNull PluginContainer plugin) {
+    return InjectionLayer.specifiedChild(InjectionLayer.ext(), plugin.metadata().id(), (specifiedLayer, injector) -> {
       // some default bukkit bindings
-      specifiedLayer.install(fixedBinding(Server.class, server));
-      specifiedLayer.install(fixedBinding(BukkitScheduler.class, server.getScheduler()));
-      specifiedLayer.install(fixedBinding(PluginManager.class, server.getPluginManager()));
-      injector.installSpecified(fixedBinding(JavaPlugin.class, plugin));
+      specifiedLayer.install(fixedBinding(Server.class, Sponge.server()));
+      specifiedLayer.install(fixedBinding(Scheduler.class, Sponge.asyncScheduler()));
+      specifiedLayer.install(fixedBinding(PluginManager.class, Sponge.pluginManager()));
+      injector.installSpecified(fixedBinding(PluginContainer.class, plugin));
     });
   }
 

@@ -22,23 +22,11 @@ import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.lang.reflect.Type;
 import lombok.NonNull;
-import org.bukkit.Server;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
-public class BukkitLayer {
+public class FabricLayer {
 
-  public static @NonNull InjectionLayer<?> create(@NonNull JavaPlugin plugin) {
-    var server = plugin.getServer();
-
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), plugin.getName(), (specifiedLayer, injector) -> {
-      // some default bukkit bindings
-      specifiedLayer.install(fixedBinding(Server.class, server));
-      specifiedLayer.install(fixedBinding(BukkitScheduler.class, server.getScheduler()));
-      specifiedLayer.install(fixedBinding(PluginManager.class, server.getPluginManager()));
-      injector.installSpecified(fixedBinding(JavaPlugin.class, plugin));
-    });
+  public static @NonNull InjectionLayer<?> create(@NonNull String name) {
+    return InjectionLayer.specifiedChild(InjectionLayer.ext(), name, (specifiedLayer, injector) -> {});
   }
 
   private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {

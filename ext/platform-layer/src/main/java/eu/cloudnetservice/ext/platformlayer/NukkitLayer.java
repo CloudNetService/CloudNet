@@ -16,28 +16,28 @@
 
 package eu.cloudnetservice.ext.platformlayer;
 
+import cn.nukkit.Server;
+import cn.nukkit.plugin.Plugin;
+import cn.nukkit.plugin.PluginManager;
+import cn.nukkit.scheduler.ServerScheduler;
 import dev.derklaro.aerogel.BindingConstructor;
 import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.lang.reflect.Type;
 import lombok.NonNull;
-import org.bukkit.Server;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
-public class BukkitLayer {
+public class NukkitLayer {
 
-  public static @NonNull InjectionLayer<?> create(@NonNull JavaPlugin plugin) {
+  public static @NonNull InjectionLayer<?> create(@NonNull Plugin plugin) {
     var server = plugin.getServer();
 
     return InjectionLayer.specifiedChild(InjectionLayer.ext(), plugin.getName(), (specifiedLayer, injector) -> {
       // some default bukkit bindings
       specifiedLayer.install(fixedBinding(Server.class, server));
-      specifiedLayer.install(fixedBinding(BukkitScheduler.class, server.getScheduler()));
+      specifiedLayer.install(fixedBinding(ServerScheduler.class, server.getScheduler()));
       specifiedLayer.install(fixedBinding(PluginManager.class, server.getPluginManager()));
-      injector.installSpecified(fixedBinding(JavaPlugin.class, plugin));
+      injector.installSpecified(fixedBinding(Plugin.class, plugin));
     });
   }
 

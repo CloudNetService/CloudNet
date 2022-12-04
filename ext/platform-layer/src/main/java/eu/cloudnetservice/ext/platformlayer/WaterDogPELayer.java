@@ -19,26 +19,29 @@ package eu.cloudnetservice.ext.platformlayer;
 import dev.derklaro.aerogel.BindingConstructor;
 import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
+import dev.waterdog.waterdogpe.ProxyServer;
+import dev.waterdog.waterdogpe.plugin.Plugin;
+import dev.waterdog.waterdogpe.plugin.PluginManager;
+import dev.waterdog.waterdogpe.scheduler.WaterdogScheduler;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.lang.reflect.Type;
 import lombok.NonNull;
-import org.bukkit.Server;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
-public class BukkitLayer {
+public class WaterDogPELayer {
 
-  public static @NonNull InjectionLayer<?> create(@NonNull JavaPlugin plugin) {
-    var server = plugin.getServer();
+  public static @NonNull InjectionLayer<?> create(@NonNull dev.waterdog.waterdogpe.plugin.Plugin plugin) {
+    var proxy = plugin.getProxy();
 
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), plugin.getName(), (specifiedLayer, injector) -> {
-      // some default bukkit bindings
-      specifiedLayer.install(fixedBinding(Server.class, server));
-      specifiedLayer.install(fixedBinding(BukkitScheduler.class, server.getScheduler()));
-      specifiedLayer.install(fixedBinding(PluginManager.class, server.getPluginManager()));
-      injector.installSpecified(fixedBinding(JavaPlugin.class, plugin));
-    });
+    return InjectionLayer.specifiedChild(
+      InjectionLayer.ext(),
+      plugin.getDescription().getName(),
+      (specifiedLayer, injector) -> {
+        // some default bukkit bindings
+        specifiedLayer.install(fixedBinding(ProxyServer.class, proxy));
+        specifiedLayer.install(fixedBinding(WaterdogScheduler.class, proxy.getScheduler()));
+        specifiedLayer.install(fixedBinding(PluginManager.class, proxy.getPluginManager()));
+        injector.installSpecified(fixedBinding(Plugin.class, plugin));
+      });
   }
 
   private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {

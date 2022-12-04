@@ -32,13 +32,16 @@ public class BungeeCordLayer {
   public static @NonNull InjectionLayer<?> create(@NonNull Plugin plugin) {
     var proxy = plugin.getProxy();
 
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), plugin.getDescription().getName(), (specifiedLayer, injector) -> {
-      // some default bukkit bindings
-      specifiedLayer.install(fixedBinding(ProxyServer.class, proxy));
-      specifiedLayer.install(fixedBinding(TaskScheduler.class, proxy.getScheduler()));
-      specifiedLayer.install(fixedBinding(PluginManager.class, proxy.getPluginManager()));
-      injector.installSpecified(fixedBinding(Plugin.class, plugin));
-    });
+    return InjectionLayer.specifiedChild(
+      InjectionLayer.ext(),
+      plugin.getDescription().getName(),
+      (specifiedLayer, injector) -> {
+        // some default bukkit bindings
+        specifiedLayer.install(fixedBinding(ProxyServer.class, proxy));
+        specifiedLayer.install(fixedBinding(TaskScheduler.class, proxy.getScheduler()));
+        specifiedLayer.install(fixedBinding(PluginManager.class, proxy.getPluginManager()));
+        injector.installSpecified(fixedBinding(Plugin.class, plugin));
+      });
   }
 
   private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {

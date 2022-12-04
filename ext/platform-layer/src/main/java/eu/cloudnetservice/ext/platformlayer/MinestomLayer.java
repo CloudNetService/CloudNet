@@ -22,23 +22,25 @@ import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.lang.reflect.Type;
 import lombok.NonNull;
-import org.bukkit.Server;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.ServerProcess;
+import net.minestom.server.extensions.Extension;
+import net.minestom.server.timer.Scheduler;
 
-public class BukkitLayer {
+public class MinestomLayer {
 
-  public static @NonNull InjectionLayer<?> create(@NonNull JavaPlugin plugin) {
-    var server = plugin.getServer();
+  public static @NonNull InjectionLayer<?> create(@NonNull Extension extension) {
+    var process = MinecraftServer.process();
 
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), plugin.getName(), (specifiedLayer, injector) -> {
-      // some default bukkit bindings
-      specifiedLayer.install(fixedBinding(Server.class, server));
-      specifiedLayer.install(fixedBinding(BukkitScheduler.class, server.getScheduler()));
-      specifiedLayer.install(fixedBinding(PluginManager.class, server.getPluginManager()));
-      injector.installSpecified(fixedBinding(JavaPlugin.class, plugin));
-    });
+    return InjectionLayer.specifiedChild(
+      InjectionLayer.ext(),
+      extension.getOrigin().getName(),
+      (specifiedLayer, injector) -> {
+        // some default bukkit bindings
+        specifiedLayer.install(fixedBinding(ServerProcess.class, process));
+        specifiedLayer.install(fixedBinding(Scheduler.class, process.scheduler()));
+        injector.installSpecified(fixedBinding(Extension.class, extension));
+      });
   }
 
   private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {
