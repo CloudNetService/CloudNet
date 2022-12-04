@@ -20,11 +20,14 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Striped;
+import dev.derklaro.aerogel.PostConstruct;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.event.BridgeDeleteCloudOfflinePlayerEvent;
@@ -45,7 +48,11 @@ import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,10 +66,13 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@Provides(PlayerManager.class)
 public class NodePlayerManager implements PlayerManager {
 
   protected final String databaseName;
   protected final EventManager eventManager;
+  protected final CommandProvider commandProvider;
 
   protected final Map<UUID, CloudPlayer> onlinePlayers = new ConcurrentHashMap<>();
   protected final PlayerProvider allPlayerProvider = new NodePlayerProvider(() -> this.onlinePlayers.values().stream());
@@ -80,24 +90,22 @@ public class NodePlayerManager implements PlayerManager {
       }
     });
 
+  @Inject
   public NodePlayerManager(
-    @NonNull String databaseName,
     @NonNull EventManager eventManager,
-    @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull RPCFactory providerFactory,
-    @NonNull BridgeManagement bridgeManagement
+    @NonNull CommandProvider commandProvider,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull RPCHandlerRegistry handlerRegistry,
+    @NonNull @Named("bridgeDatabaseName") String databaseName
   ) {
     this.databaseName = databaseName;
     this.eventManager = eventManager;
-    // register the listeners which are required to run
-    eventManager.registerListener(new BridgeLocalProxyPlayerDisconnectListener(this));
-    eventManager.registerListener(new NodePlayerChannelMessageListener(eventManager, this, bridgeManagement));
-    // register the players command
-    Node.instance().commandProvider().register(new PlayersCommand(this));
+    this.commandProvider = commandProvider;
     // register the rpc listeners
-    providerFactory.newHandler(PlayerManager.class, this).registerToDefaultRegistry();
-    providerFactory.newHandler(PlayerExecutor.class, null).registerToDefaultRegistry();
-    providerFactory.newHandler(PlayerProvider.class, null).registerToDefaultRegistry();
+    providerFactory.newHandler(PlayerManager.class, this).registerTo(handlerRegistry);
+    providerFactory.newHandler(PlayerExecutor.class, null).registerTo(handlerRegistry);
+    providerFactory.newHandler(PlayerProvider.class, null).registerTo(handlerRegistry);
     // register the data sync handler
     dataSyncRegistry.registerHandler(DataSyncHandler.<CloudPlayer>builder()
       .alwaysForce()
@@ -108,6 +116,17 @@ public class NodePlayerManager implements PlayerManager {
       .currentGetter(player -> this.onlinePlayers.get(player.uniqueId()))
       .writer(player -> this.onlinePlayers.put(player.uniqueId(), player))
       .build());
+  }
+
+  @PostConstruct
+  private void registerPlayerCommand() {
+    this.commandProvider.register(PlayersCommand.class);
+  }
+
+  @PostConstruct
+  private void registerListeners() {
+    this.eventManager.registerListener(BridgeLocalProxyPlayerDisconnectListener.class);
+    this.eventManager.registerListeners(NodePlayerChannelMessageListener.class);
   }
 
   @Override

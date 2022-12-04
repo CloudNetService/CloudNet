@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.http.HttpComponent;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpContextPreprocessor;
@@ -223,6 +224,12 @@ public final class DefaultHttpAnnotationParser<T extends HttpComponent<T>> imple
     }
 
     return this;
+  }
+
+  @Override
+  public @NonNull HttpAnnotationParser<T> parseAndRegister(@NonNull Class<HttpAnnotationParser<?>> httpClass) {
+    var layer = InjectionLayer.findLayerOf(httpClass);
+    return this.parseAndRegister(layer.instance(httpClass));
   }
 
   /**

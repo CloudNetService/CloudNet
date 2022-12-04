@@ -22,20 +22,28 @@ import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
+import eu.cloudnetservice.node.config.RestConfiguration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import jakarta.inject.Singleton;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
+@Singleton
 @HandlerPermission("http.v2.bridge")
 public final class V2HttpHandlerBridge extends V2HttpHandler {
 
-  private final PlayerManager playerManager = ServiceRegistry.first(PlayerManager.class);
+  private final PlayerManager playerManager;
+
+  public V2HttpHandlerBridge(@NonNull PlayerManager playerManager, @NonNull RestConfiguration restConfiguration) {
+    super(restConfiguration);
+
+    this.playerManager = playerManager;
+  }
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/player/onlineCount")

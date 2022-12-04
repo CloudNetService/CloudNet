@@ -130,11 +130,6 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .orElse(null);
   }
 
-  @Override
-  public @NonNull PlayerManager playerManager() {
-    return this.playerManager;
-  }
-
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     snapshot.properties().append("Online", Boolean.TRUE);
     snapshot.properties().append("Motd", BridgeServiceHelper.MOTD.get());

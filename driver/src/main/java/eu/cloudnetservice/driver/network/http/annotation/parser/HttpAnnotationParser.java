@@ -86,4 +86,6 @@ public interface HttpAnnotationParser<T extends HttpComponent<T>> {
    * @throws InaccessibleObjectException if a http handler method is not accessible.
    */
   @NonNull HttpAnnotationParser<T> parseAndRegister(@NonNull Object handlerInstance);
+
+  @NonNull HttpAnnotationParser<T> parseAndRegister(@NonNull Class<HttpAnnotationParser<?>> httpClass);
 }
