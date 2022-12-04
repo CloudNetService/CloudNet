@@ -32,15 +32,12 @@ public class VelocityLayer {
     @NonNull ProxyServer proxy,
     @NonNull String name
   ) {
-    return InjectionLayer.specifiedChild(
-      InjectionLayer.ext(),
-      name,
-      (specifiedLayer, injector) -> {
-        // some default bukkit bindings
-        specifiedLayer.install(fixedBinding(ProxyServer.class, proxy));
-        specifiedLayer.install(fixedBinding(Scheduler.class, proxy.getScheduler()));
-        specifiedLayer.install(fixedBinding(PluginManager.class, proxy.getPluginManager()));
-      });
+    return InjectionLayer.specifiedChild(InjectionLayer.ext(), name, (specifiedLayer, injector) -> {
+      // some default bukkit bindings
+      specifiedLayer.install(fixedBinding(ProxyServer.class, proxy));
+      specifiedLayer.install(fixedBinding(Scheduler.class, proxy.getScheduler()));
+      specifiedLayer.install(fixedBinding(PluginManager.class, proxy.getPluginManager()));
+    });
   }
 
   private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {
