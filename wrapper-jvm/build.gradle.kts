@@ -50,6 +50,10 @@ tasks.withType<ShadowJar> {
   }
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = listOf("-AaerogelAutoFileName=autoconfigure/wrapper.aero")
+}
+
 dependencies {
   "api"(projects.driver)
   "api"(projects.ext.modlauncher)
@@ -58,6 +62,9 @@ dependencies {
   "implementation"(libs.asm)
   "implementation"(libs.gson)
   "implementation"(libs.guava)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 }
 
 applyJarMetadata(

@@ -34,7 +34,7 @@ public final class InternalPrintStreamLogHandler extends AbstractHandler {
   private final PrintStream outputStream;
   private final PrintStream errorStream;
 
-  private InternalPrintStreamLogHandler(PrintStream outputStream, PrintStream errorStream) {
+  private InternalPrintStreamLogHandler(@NonNull PrintStream outputStream, @NonNull PrintStream errorStream) {
     this.outputStream = outputStream;
     this.errorStream = errorStream;
     // set defaults
@@ -45,12 +45,12 @@ public final class InternalPrintStreamLogHandler extends AbstractHandler {
     return InternalPrintStreamLogHandler.newInstance(System.out, System.err);
   }
 
-  public static @NonNull InternalPrintStreamLogHandler newInstance(PrintStream out, PrintStream err) {
+  public static @NonNull InternalPrintStreamLogHandler newInstance(@NonNull PrintStream out, @NonNull PrintStream err) {
     return new InternalPrintStreamLogHandler(out, err);
   }
 
   @Override
-  public void publish(LogRecord record) {
+  public void publish(@NonNull LogRecord record) {
     var stream = record.getLevel().intValue() > Level.INFO.intValue() ? this.errorStream : this.outputStream;
     stream.println(super.getFormatter().format(record));
   }

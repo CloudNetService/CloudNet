@@ -21,7 +21,6 @@ import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.Node;
 import io.leangen.geantyref.TypeFactory;
@@ -44,7 +43,6 @@ public final class Bootstrap {
     bootInjectLayer.installAutoConfigureBindings(Bootstrap.class.getClassLoader(), "driver");
 
     // initial bindings which we cannot (or it makes no sense to) construct
-    bootInjectLayer.install(Bindings.fixed(Element.forType(DriverEnvironment.class), DriverEnvironment.NODE));
     bootInjectLayer.install(Bindings.fixed(Element.forType(Instant.class).requireName("startInstant"), startInstant));
     bootInjectLayer.install(Bindings.fixed(Element.forType(Logger.class).requireName("root"), LogManager.rootLogger()));
 
