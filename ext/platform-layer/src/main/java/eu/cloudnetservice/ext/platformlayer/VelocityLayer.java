@@ -19,29 +19,36 @@ package eu.cloudnetservice.ext.platformlayer;
 import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.scheduler.Scheduler;
-import dev.derklaro.aerogel.BindingConstructor;
-import dev.derklaro.aerogel.Bindings;
-import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.SpecifiedInjector;
+import eu.cloudnetservice.driver.inject.InjectUtil;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import java.lang.reflect.Type;
 import lombok.NonNull;
 
-public class VelocityLayer {
+public final class VelocityLayer {
 
-  public static @NonNull InjectionLayer<?> create(
+  private static InjectionLayer<SpecifiedInjector> VELOCITY_PLATFORM_LAYER;
+
+  private VelocityLayer() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static @NonNull InjectionLayer<SpecifiedInjector> create(
     @NonNull ProxyServer proxy,
     @NonNull String name
   ) {
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), name, (specifiedLayer, injector) -> {
-      // some default bukkit bindings
-      specifiedLayer.install(fixedBinding(ProxyServer.class, proxy));
-      specifiedLayer.install(fixedBinding(Scheduler.class, proxy.getScheduler()));
-      specifiedLayer.install(fixedBinding(PluginManager.class, proxy.getPluginManager()));
+    if (VELOCITY_PLATFORM_LAYER == null) {
+      VELOCITY_PLATFORM_LAYER = InjectionLayer.specifiedChild(
+        InjectionLayer.ext(),
+        "Velocity",
+        (specifiedLayer, injector) -> {
+          // some default bukkit bindings
+          specifiedLayer.install(InjectUtil.createFixedBinding(ProxyServer.class, proxy));
+          specifiedLayer.install(InjectUtil.createFixedBinding(Scheduler.class, proxy.getScheduler()));
+          specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, proxy.getPluginManager()));
+        });
+    }
+
+    return InjectionLayer.specifiedChild(VELOCITY_PLATFORM_LAYER, name, (specifiedLayer, injector) -> {
     });
   }
-
-  private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {
-    return Bindings.fixed(Element.forType(type), value);
-  }
-
 }

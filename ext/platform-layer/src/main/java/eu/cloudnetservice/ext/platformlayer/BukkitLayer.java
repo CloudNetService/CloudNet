@@ -16,33 +16,41 @@
 
 package eu.cloudnetservice.ext.platformlayer;
 
-import dev.derklaro.aerogel.BindingConstructor;
-import dev.derklaro.aerogel.Bindings;
-import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.SpecifiedInjector;
+import eu.cloudnetservice.driver.inject.InjectUtil;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import java.lang.reflect.Type;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-public class BukkitLayer {
+public final class BukkitLayer {
 
-  public static @NonNull InjectionLayer<?> create(@NonNull JavaPlugin plugin) {
-    var server = plugin.getServer();
+  private static final InjectionLayer<SpecifiedInjector> BUKKIT_PLATFORM_LAYER;
 
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), plugin.getName(), (specifiedLayer, injector) -> {
-      // some default bukkit bindings
-      specifiedLayer.install(fixedBinding(Server.class, server));
-      specifiedLayer.install(fixedBinding(BukkitScheduler.class, server.getScheduler()));
-      specifiedLayer.install(fixedBinding(PluginManager.class, server.getPluginManager()));
-      injector.installSpecified(fixedBinding(JavaPlugin.class, plugin));
-    });
+  static {
+    var server = Bukkit.getServer();
+    // create the base bukkit platform layer
+    BUKKIT_PLATFORM_LAYER = InjectionLayer.specifiedChild(
+      InjectionLayer.ext(),
+      "Bukkit",
+      (specifiedLayer, injector) -> {
+        specifiedLayer.install(InjectUtil.createFixedBinding(Server.class, server));
+        specifiedLayer.install(InjectUtil.createFixedBinding(BukkitScheduler.class, server.getScheduler()));
+        specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, server.getPluginManager()));
+      });
   }
 
-  private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {
-    return Bindings.fixed(Element.forType(type), value);
+  private BukkitLayer() {
+    throw new UnsupportedOperationException();
   }
 
+  public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull JavaPlugin plugin) {
+    return InjectionLayer.specifiedChild(
+      BUKKIT_PLATFORM_LAYER,
+      plugin.getName(),
+      (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(JavaPlugin.class, plugin)));
+  }
 }

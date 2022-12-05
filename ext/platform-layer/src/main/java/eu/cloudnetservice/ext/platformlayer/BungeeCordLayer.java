@@ -16,36 +16,40 @@
 
 package eu.cloudnetservice.ext.platformlayer;
 
-import dev.derklaro.aerogel.BindingConstructor;
-import dev.derklaro.aerogel.Bindings;
-import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.SpecifiedInjector;
+import eu.cloudnetservice.driver.inject.InjectUtil;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import java.lang.reflect.Type;
 import lombok.NonNull;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
 
-public class BungeeCordLayer {
+public final class BungeeCordLayer {
 
-  public static @NonNull InjectionLayer<?> create(@NonNull Plugin plugin) {
-    var proxy = plugin.getProxy();
+  private static final InjectionLayer<SpecifiedInjector> BUNGEECORD_PLATFORM_LAYER;
 
-    return InjectionLayer.specifiedChild(
+  static {
+    var proxy = ProxyServer.getInstance();
+    BUNGEECORD_PLATFORM_LAYER = InjectionLayer.specifiedChild(
       InjectionLayer.ext(),
-      plugin.getDescription().getName(),
+      "BungeeCord",
       (specifiedLayer, injector) -> {
-        // some default bukkit bindings
-        specifiedLayer.install(fixedBinding(ProxyServer.class, proxy));
-        specifiedLayer.install(fixedBinding(TaskScheduler.class, proxy.getScheduler()));
-        specifiedLayer.install(fixedBinding(PluginManager.class, proxy.getPluginManager()));
-        injector.installSpecified(fixedBinding(Plugin.class, plugin));
+        // some default bungee bindings
+        specifiedLayer.install(InjectUtil.createFixedBinding(ProxyServer.class, proxy));
+        specifiedLayer.install(InjectUtil.createFixedBinding(TaskScheduler.class, proxy.getScheduler()));
+        specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, proxy.getPluginManager()));
       });
   }
 
-  private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {
-    return Bindings.fixed(Element.forType(type), value);
+  private BungeeCordLayer() {
+    throw new UnsupportedOperationException();
   }
 
+  public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Plugin plugin) {
+    return InjectionLayer.specifiedChild(
+      BUNGEECORD_PLATFORM_LAYER,
+      plugin.getDescription().getName(),
+      (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Plugin.class, plugin)));
+  }
 }

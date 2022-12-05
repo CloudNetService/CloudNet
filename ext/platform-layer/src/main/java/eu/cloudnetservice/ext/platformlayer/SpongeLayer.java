@@ -16,11 +16,9 @@
 
 package eu.cloudnetservice.ext.platformlayer;
 
-import dev.derklaro.aerogel.BindingConstructor;
-import dev.derklaro.aerogel.Bindings;
-import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.SpecifiedInjector;
+import eu.cloudnetservice.driver.inject.InjectUtil;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import java.lang.reflect.Type;
 import lombok.NonNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
@@ -28,20 +26,30 @@ import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.plugin.PluginContainer;
 
-public class SpongeLayer {
+public final class SpongeLayer {
 
-  public static @NonNull InjectionLayer<?> create(@NonNull PluginContainer plugin) {
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), plugin.metadata().id(), (specifiedLayer, injector) -> {
-      // some default bukkit bindings
-      specifiedLayer.install(fixedBinding(Server.class, Sponge.server()));
-      specifiedLayer.install(fixedBinding(Scheduler.class, Sponge.asyncScheduler()));
-      specifiedLayer.install(fixedBinding(PluginManager.class, Sponge.pluginManager()));
-      injector.installSpecified(fixedBinding(PluginContainer.class, plugin));
-    });
+  private static final InjectionLayer<SpecifiedInjector> SPONGE_PLATFORM_LAYER;
+
+  static {
+    SPONGE_PLATFORM_LAYER = InjectionLayer.specifiedChild(
+      InjectionLayer.ext(),
+      "Sponge",
+      (specifiedLayer, injector) -> {
+        // some default sponge bindings
+        specifiedLayer.install(InjectUtil.createFixedBinding(Server.class, Sponge.server()));
+        specifiedLayer.install(InjectUtil.createFixedBinding(Scheduler.class, Sponge.asyncScheduler()));
+        specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, Sponge.pluginManager()));
+      });
   }
 
-  private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {
-    return Bindings.fixed(Element.forType(type), value);
+  private SpongeLayer() {
+    throw new UnsupportedOperationException();
   }
 
+  public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull PluginContainer plugin) {
+    return InjectionLayer.specifiedChild(
+      SPONGE_PLATFORM_LAYER,
+      plugin.metadata().id(),
+      (layer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(PluginContainer.class, plugin)));
+  }
 }

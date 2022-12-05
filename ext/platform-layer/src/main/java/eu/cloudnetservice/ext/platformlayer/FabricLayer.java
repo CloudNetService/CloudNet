@@ -16,21 +16,16 @@
 
 package eu.cloudnetservice.ext.platformlayer;
 
-import dev.derklaro.aerogel.BindingConstructor;
-import dev.derklaro.aerogel.Bindings;
-import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import java.lang.reflect.Type;
 import lombok.NonNull;
 
-public class FabricLayer {
+public final class FabricLayer {
+
+  private FabricLayer() {
+    throw new UnsupportedOperationException();
+  }
 
   public static @NonNull InjectionLayer<?> create(@NonNull String name) {
     return InjectionLayer.specifiedChild(InjectionLayer.ext(), name, (specifiedLayer, injector) -> {});
   }
-
-  private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {
-    return Bindings.fixed(Element.forType(type), value);
-  }
-
 }

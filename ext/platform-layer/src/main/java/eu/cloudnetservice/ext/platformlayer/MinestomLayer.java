@@ -16,35 +16,39 @@
 
 package eu.cloudnetservice.ext.platformlayer;
 
-import dev.derklaro.aerogel.BindingConstructor;
-import dev.derklaro.aerogel.Bindings;
-import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.SpecifiedInjector;
+import eu.cloudnetservice.driver.inject.InjectUtil;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import java.lang.reflect.Type;
 import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerProcess;
 import net.minestom.server.extensions.Extension;
 import net.minestom.server.timer.Scheduler;
 
-public class MinestomLayer {
+public final class MinestomLayer {
 
-  public static @NonNull InjectionLayer<?> create(@NonNull Extension extension) {
+  private static final InjectionLayer<SpecifiedInjector> MINESTOM_PLATFORM_LAYER;
+
+  static {
     var process = MinecraftServer.process();
-
-    return InjectionLayer.specifiedChild(
+    MINESTOM_PLATFORM_LAYER = InjectionLayer.specifiedChild(
       InjectionLayer.ext(),
-      extension.getOrigin().getName(),
+      "Minestom",
       (specifiedLayer, injector) -> {
-        // some default bukkit bindings
-        specifiedLayer.install(fixedBinding(ServerProcess.class, process));
-        specifiedLayer.install(fixedBinding(Scheduler.class, process.scheduler()));
-        injector.installSpecified(fixedBinding(Extension.class, extension));
+        // some default minestom bindings
+        specifiedLayer.install(InjectUtil.createFixedBinding(ServerProcess.class, process));
+        specifiedLayer.install(InjectUtil.createFixedBinding(Scheduler.class, process.scheduler()));
       });
   }
 
-  private static @NonNull BindingConstructor fixedBinding(@NonNull Type type, @NonNull Object value) {
-    return Bindings.fixed(Element.forType(type), value);
+  private MinestomLayer() {
+    throw new UnsupportedOperationException();
   }
 
+  public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Extension ext) {
+    return InjectionLayer.specifiedChild(
+      MINESTOM_PLATFORM_LAYER,
+      ext.getOrigin().getName(),
+      (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Extension.class, ext)));
+  }
 }
