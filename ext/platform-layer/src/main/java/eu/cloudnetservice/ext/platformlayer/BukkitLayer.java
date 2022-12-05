@@ -28,19 +28,13 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 public final class BukkitLayer {
 
-  private static final InjectionLayer<SpecifiedInjector> BUKKIT_PLATFORM_LAYER;
-
   static {
     var server = Bukkit.getServer();
-    // create the base bukkit platform layer
-    BUKKIT_PLATFORM_LAYER = InjectionLayer.specifiedChild(
-      InjectionLayer.ext(),
-      "Bukkit",
-      (specifiedLayer, injector) -> {
-        specifiedLayer.install(InjectUtil.createFixedBinding(Server.class, server));
-        specifiedLayer.install(InjectUtil.createFixedBinding(BukkitScheduler.class, server.getScheduler()));
-        specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, server.getPluginManager()));
-      });
+    var extLayer = InjectionLayer.ext();
+    // install the default bindings
+    extLayer.install(InjectUtil.createFixedBinding(Server.class, server));
+    extLayer.install(InjectUtil.createFixedBinding(BukkitScheduler.class, server.getScheduler()));
+    extLayer.install(InjectUtil.createFixedBinding(PluginManager.class, server.getPluginManager()));
   }
 
   private BukkitLayer() {
@@ -49,7 +43,7 @@ public final class BukkitLayer {
 
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull JavaPlugin plugin) {
     return InjectionLayer.specifiedChild(
-      BUKKIT_PLATFORM_LAYER,
+      InjectionLayer.ext(),
       plugin.getName(),
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(JavaPlugin.class, plugin)));
   }

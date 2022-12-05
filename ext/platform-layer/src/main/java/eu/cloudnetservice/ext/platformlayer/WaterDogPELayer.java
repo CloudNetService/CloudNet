@@ -27,19 +27,13 @@ import lombok.NonNull;
 
 public final class WaterDogPELayer {
 
-  private static final InjectionLayer<SpecifiedInjector> WATERDOG_PLATFORM_LAYER;
-
   static {
     var proxy = ProxyServer.getInstance();
-    WATERDOG_PLATFORM_LAYER = InjectionLayer.specifiedChild(
-      InjectionLayer.ext(),
-      "WaterDogPE",
-      (specifiedLayer, injector) -> {
-        // some default waterdog bindings
-        specifiedLayer.install(InjectUtil.createFixedBinding(ProxyServer.class, proxy));
-        specifiedLayer.install(InjectUtil.createFixedBinding(WaterdogScheduler.class, proxy.getScheduler()));
-        specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, proxy.getPluginManager()));
-      });
+    var extLayer = InjectionLayer.ext();
+    // install the default bindings
+    extLayer.install(InjectUtil.createFixedBinding(ProxyServer.class, proxy));
+    extLayer.install(InjectUtil.createFixedBinding(WaterdogScheduler.class, proxy.getScheduler()));
+    extLayer.install(InjectUtil.createFixedBinding(PluginManager.class, proxy.getPluginManager()));
   }
 
   private WaterDogPELayer() {
@@ -48,7 +42,7 @@ public final class WaterDogPELayer {
 
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Plugin plugin) {
     return InjectionLayer.specifiedChild(
-      WATERDOG_PLATFORM_LAYER,
+      InjectionLayer.ext(),
       plugin.getDescription().getName(),
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Plugin.class, plugin)));
   }

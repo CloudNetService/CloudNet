@@ -27,18 +27,12 @@ import net.minestom.server.timer.Scheduler;
 
 public final class MinestomLayer {
 
-  private static final InjectionLayer<SpecifiedInjector> MINESTOM_PLATFORM_LAYER;
-
   static {
     var process = MinecraftServer.process();
-    MINESTOM_PLATFORM_LAYER = InjectionLayer.specifiedChild(
-      InjectionLayer.ext(),
-      "Minestom",
-      (specifiedLayer, injector) -> {
-        // some default minestom bindings
-        specifiedLayer.install(InjectUtil.createFixedBinding(ServerProcess.class, process));
-        specifiedLayer.install(InjectUtil.createFixedBinding(Scheduler.class, process.scheduler()));
-      });
+    var extLayer = InjectionLayer.ext();
+    // install the default bindings
+    extLayer.install(InjectUtil.createFixedBinding(ServerProcess.class, process));
+    extLayer.install(InjectUtil.createFixedBinding(Scheduler.class, process.scheduler()));
   }
 
   private MinestomLayer() {
@@ -47,7 +41,7 @@ public final class MinestomLayer {
 
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Extension ext) {
     return InjectionLayer.specifiedChild(
-      MINESTOM_PLATFORM_LAYER,
+      InjectionLayer.ext(),
       ext.getOrigin().getName(),
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Extension.class, ext)));
   }

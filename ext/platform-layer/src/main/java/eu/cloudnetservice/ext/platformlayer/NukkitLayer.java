@@ -27,19 +27,13 @@ import lombok.NonNull;
 
 public final class NukkitLayer {
 
-  private static final InjectionLayer<SpecifiedInjector> NUKKIT_PLATFORM_LAYER;
-
   static {
     var server = Server.getInstance();
-    NUKKIT_PLATFORM_LAYER = InjectionLayer.specifiedChild(
-      InjectionLayer.ext(),
-      "Nukkit",
-      (specifiedLayer, injector) -> {
-        // some default nukkit bindings
-        specifiedLayer.install(InjectUtil.createFixedBinding(Server.class, server));
-        specifiedLayer.install(InjectUtil.createFixedBinding(ServerScheduler.class, server.getScheduler()));
-        specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, server.getPluginManager()));
-      });
+    var extLayer = InjectionLayer.ext();
+    // install the default bindings
+    extLayer.install(InjectUtil.createFixedBinding(Server.class, server));
+    extLayer.install(InjectUtil.createFixedBinding(ServerScheduler.class, server.getScheduler()));
+    extLayer.install(InjectUtil.createFixedBinding(PluginManager.class, server.getPluginManager()));
   }
 
   private NukkitLayer() {
@@ -48,7 +42,7 @@ public final class NukkitLayer {
 
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Plugin plugin) {
     return InjectionLayer.specifiedChild(
-      NUKKIT_PLATFORM_LAYER,
+      InjectionLayer.ext(),
       plugin.getName(),
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Plugin.class, plugin)));
   }

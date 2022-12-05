@@ -28,18 +28,12 @@ import org.spongepowered.plugin.PluginContainer;
 
 public final class SpongeLayer {
 
-  private static final InjectionLayer<SpecifiedInjector> SPONGE_PLATFORM_LAYER;
-
   static {
-    SPONGE_PLATFORM_LAYER = InjectionLayer.specifiedChild(
-      InjectionLayer.ext(),
-      "Sponge",
-      (specifiedLayer, injector) -> {
-        // some default sponge bindings
-        specifiedLayer.install(InjectUtil.createFixedBinding(Server.class, Sponge.server()));
-        specifiedLayer.install(InjectUtil.createFixedBinding(Scheduler.class, Sponge.asyncScheduler()));
-        specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, Sponge.pluginManager()));
-      });
+    var extLayer = InjectionLayer.ext();
+    // install the default bindings
+    extLayer.install(InjectUtil.createFixedBinding(Server.class, Sponge.server()));
+    extLayer.install(InjectUtil.createFixedBinding(Scheduler.class, Sponge.asyncScheduler()));
+    extLayer.install(InjectUtil.createFixedBinding(PluginManager.class, Sponge.pluginManager()));
   }
 
   private SpongeLayer() {
@@ -48,7 +42,7 @@ public final class SpongeLayer {
 
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull PluginContainer plugin) {
     return InjectionLayer.specifiedChild(
-      SPONGE_PLATFORM_LAYER,
+      InjectionLayer.ext(),
       plugin.metadata().id(),
       (layer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(PluginContainer.class, plugin)));
   }

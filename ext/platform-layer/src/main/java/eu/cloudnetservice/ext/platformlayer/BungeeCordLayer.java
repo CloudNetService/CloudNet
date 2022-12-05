@@ -27,19 +27,13 @@ import net.md_5.bungee.api.scheduler.TaskScheduler;
 
 public final class BungeeCordLayer {
 
-  private static final InjectionLayer<SpecifiedInjector> BUNGEECORD_PLATFORM_LAYER;
-
   static {
     var proxy = ProxyServer.getInstance();
-    BUNGEECORD_PLATFORM_LAYER = InjectionLayer.specifiedChild(
-      InjectionLayer.ext(),
-      "BungeeCord",
-      (specifiedLayer, injector) -> {
-        // some default bungee bindings
-        specifiedLayer.install(InjectUtil.createFixedBinding(ProxyServer.class, proxy));
-        specifiedLayer.install(InjectUtil.createFixedBinding(TaskScheduler.class, proxy.getScheduler()));
-        specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, proxy.getPluginManager()));
-      });
+    var extLayer = InjectionLayer.ext();
+    // install the default bindings
+    extLayer.install(InjectUtil.createFixedBinding(ProxyServer.class, proxy));
+    extLayer.install(InjectUtil.createFixedBinding(TaskScheduler.class, proxy.getScheduler()));
+    extLayer.install(InjectUtil.createFixedBinding(PluginManager.class, proxy.getPluginManager()));
   }
 
   private BungeeCordLayer() {
@@ -48,7 +42,7 @@ public final class BungeeCordLayer {
 
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Plugin plugin) {
     return InjectionLayer.specifiedChild(
-      BUNGEECORD_PLATFORM_LAYER,
+      InjectionLayer.ext(),
       plugin.getDescription().getName(),
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Plugin.class, plugin)));
   }

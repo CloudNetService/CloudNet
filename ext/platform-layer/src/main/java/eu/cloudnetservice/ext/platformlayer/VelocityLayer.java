@@ -26,7 +26,7 @@ import lombok.NonNull;
 
 public final class VelocityLayer {
 
-  private static InjectionLayer<SpecifiedInjector> VELOCITY_PLATFORM_LAYER;
+  private static boolean INSTALLED;
 
   private VelocityLayer() {
     throw new UnsupportedOperationException();
@@ -36,19 +36,18 @@ public final class VelocityLayer {
     @NonNull ProxyServer proxy,
     @NonNull String name
   ) {
-    if (VELOCITY_PLATFORM_LAYER == null) {
-      VELOCITY_PLATFORM_LAYER = InjectionLayer.specifiedChild(
-        InjectionLayer.ext(),
-        "Velocity",
-        (specifiedLayer, injector) -> {
-          // some default bukkit bindings
-          specifiedLayer.install(InjectUtil.createFixedBinding(ProxyServer.class, proxy));
-          specifiedLayer.install(InjectUtil.createFixedBinding(Scheduler.class, proxy.getScheduler()));
-          specifiedLayer.install(InjectUtil.createFixedBinding(PluginManager.class, proxy.getPluginManager()));
-        });
+    var extLayer = InjectionLayer.ext();
+    if (!INSTALLED) {
+      // install the default bindings
+      extLayer.install(InjectUtil.createFixedBinding(ProxyServer.class, proxy));
+      extLayer.install(InjectUtil.createFixedBinding(Scheduler.class, proxy.getScheduler()));
+      extLayer.install(InjectUtil.createFixedBinding(PluginManager.class, proxy.getPluginManager()));
+
+      // we've installed the bindings into the layer
+      INSTALLED = true;
     }
 
-    return InjectionLayer.specifiedChild(VELOCITY_PLATFORM_LAYER, name, (specifiedLayer, injector) -> {
+    return InjectionLayer.specifiedChild(InjectionLayer.ext(), name, (specifiedLayer, injector) -> {
     });
   }
 }

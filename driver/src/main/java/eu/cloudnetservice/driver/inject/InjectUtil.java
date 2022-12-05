@@ -133,6 +133,7 @@ public final class InjectUtil {
    * @param type  the type to create the element for.
    * @param value the value that is bound to the type.
    * @return the new binding constructor.
+   * @throws NullPointerException if the given type or value is null.
    */
   public static @NonNull BindingConstructor createFixedBinding(@NonNull Type type, @NonNull Object value) {
     return Bindings.fixed(Element.forType(type), value);
