@@ -26,6 +26,6 @@ public final class FabricLayer {
   }
 
   public static @NonNull InjectionLayer<?> create() {
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), "Plugin", (specifiedLayer, injector) -> {});
+    return InjectionLayer.specifiedChild(InjectionLayer.ext(), "plugin", (specifiedLayer, injector) -> {});
   }
 }

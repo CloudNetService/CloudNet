@@ -32,9 +32,9 @@ public final class MinestomLayer {
     var process = MinecraftServer.process();
     var extLayer = InjectionLayer.ext();
     // install the default bindings
-    extLayer.install(InjectUtil.createFixedBinding(ExtensionManager.class, process.extension()));
     extLayer.install(InjectUtil.createFixedBinding(ServerProcess.class, process));
     extLayer.install(InjectUtil.createFixedBinding(Scheduler.class, process.scheduler()));
+    extLayer.install(InjectUtil.createFixedBinding(ExtensionManager.class, process.extension()));
   }
 
   private MinestomLayer() {
@@ -44,7 +44,7 @@ public final class MinestomLayer {
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Extension ext) {
     return InjectionLayer.specifiedChild(
       InjectionLayer.ext(),
-      "Plugin",
+      "plugin",
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Extension.class, ext)));
   }
 }

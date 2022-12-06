@@ -43,7 +43,7 @@ public final class NukkitLayer {
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Plugin plugin) {
     return InjectionLayer.specifiedChild(
       InjectionLayer.ext(),
-      "Plugin",
+      "plugin",
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Plugin.class, plugin)));
   }
 }

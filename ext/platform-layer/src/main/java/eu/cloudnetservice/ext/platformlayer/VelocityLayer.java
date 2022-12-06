@@ -32,9 +32,7 @@ public final class VelocityLayer {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull InjectionLayer<SpecifiedInjector> create(
-    @NonNull ProxyServer proxy
-  ) {
+  public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull ProxyServer proxy) {
     var extLayer = InjectionLayer.ext();
     if (!INSTALLED) {
       // install the default bindings
@@ -46,7 +44,7 @@ public final class VelocityLayer {
       INSTALLED = true;
     }
 
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), "Plugin", (specifiedLayer, injector) -> {
+    return InjectionLayer.specifiedChild(InjectionLayer.ext(), "plugin", (specifiedLayer, injector) -> {
     });
   }
 }
