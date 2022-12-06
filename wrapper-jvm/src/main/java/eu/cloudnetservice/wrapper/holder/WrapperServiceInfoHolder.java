@@ -24,6 +24,8 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
+import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.util.VarHandleUtil;
@@ -104,6 +106,16 @@ public final class WrapperServiceInfoHolder implements ServiceInfoHolder {
   @Override
   public @NonNull ServiceInfoSnapshot serviceInfo() {
     return (ServiceInfoSnapshot) CURRENT_INFO_VARHANDLE.getAcquire(this);
+  }
+
+  @Override
+  public @NonNull ServiceConfiguration serviceConfiguration() {
+    return this.serviceInfo().configuration();
+  }
+
+  @Override
+  public @NonNull ServiceId serviceId() {
+    return this.serviceInfo().serviceId();
   }
 
   /**

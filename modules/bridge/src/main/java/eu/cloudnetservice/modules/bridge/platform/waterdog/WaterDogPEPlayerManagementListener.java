@@ -26,19 +26,26 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Locale;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
+@Singleton
 public final class WaterDogPEPlayerManagementListener {
 
+  private final ServiceInfoHolder serviceInfoHolder;
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 
+  @Inject
   public WaterDogPEPlayerManagementListener(
     @NonNull ProxyServer proxyServer,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
   ) {
+    this.serviceInfoHolder = serviceInfoHolder;
     this.management = management;
     // subscribe to all events
     proxyServer.getEventManager().subscribe(PlayerLoginEvent.class, this::handleLogin);
@@ -89,7 +96,7 @@ public final class WaterDogPEPlayerManagementListener {
         .map(NetworkServiceInfo::fromServiceInfoSnapshot)
         .orElse(null));
     // update the service info
-    Wrapper.instance().publishServiceInfoUpdate();
+    this.serviceInfoHolder.publishServiceInfoUpdate();
     // notify the management that the player successfully connected to a service
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
   }
@@ -111,7 +118,7 @@ public final class WaterDogPEPlayerManagementListener {
     if (event.getPlayer().getServerInfo() != null) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
-      ProxyServer.getInstance().getScheduler().scheduleDelayed(Wrapper.instance()::publishServiceInfoUpdate, 1);
+      ProxyServer.getInstance().getScheduler().scheduleDelayed(this.serviceInfoHolder::publishServiceInfoUpdate, 1);
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());

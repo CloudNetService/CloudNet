@@ -21,6 +21,11 @@ import dev.waterdog.waterdogpe.WaterdogPE;
 import dev.waterdog.waterdogpe.command.CommandSender;
 import dev.waterdog.waterdogpe.network.serverinfo.BedrockServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -31,7 +36,8 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Optional;
@@ -46,16 +52,32 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
 
   private final PlayerExecutor globalDirectPlayerExecutor;
 
-  public WaterDogPEBridgeManagement() {
-    super(Wrapper.instance());
+  @Inject
+  public WaterDogPEBridgeManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull BridgeServiceHelper bridgeServiceHelper
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceInfoHolder,
+      serviceProvider,
+      bridgeServiceHelper);
     // init fields
     this.globalDirectPlayerExecutor = new WaterDogPEDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       this,
       ProxyServer.getInstance().getPlayers()::values);
     // init the bridge properties
-    BridgeServiceHelper.MOTD.set(ProxyServer.getInstance().getConfiguration().getMotd());
-    BridgeServiceHelper.MAX_PLAYERS.set(ProxyServer.getInstance().getConfiguration().getMaxPlayerCount());
+    bridgeServiceHelper.motd().set(ProxyServer.getInstance().getConfiguration().getMotd());
+    bridgeServiceHelper.maxPlayers().set(ProxyServer.getInstance().getConfiguration().getMaxPlayerCount());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
       .and(service -> ServiceEnvironmentType.PE_SERVER.get(service.serviceId().environment().properties()));

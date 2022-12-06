@@ -37,6 +37,8 @@ dependencies {
   "runtimeImpl"(libs.bundles.adventure)
   "runtimeImpl"(projects.ext.adventureHelper)
 
+  "runtimeImpl"(projects.ext.platformLayer)
+
   "minecraft"(libs.minecraft)
   "modImplementation"(libs.fabricLoader)
   "mappings"(loom.officialMojangMappings())

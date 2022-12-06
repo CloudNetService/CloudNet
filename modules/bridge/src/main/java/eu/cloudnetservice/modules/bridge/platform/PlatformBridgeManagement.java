@@ -19,11 +19,14 @@ package eu.cloudnetservice.modules.bridge.platform;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -43,7 +46,7 @@ import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,6 +74,10 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   protected final RPCSender sender;
   protected final EventManager eventManager;
   protected final PlayerManager playerManager;
+  protected final ServiceTaskProvider taskProvider;
+  protected final ServiceInfoHolder serviceInfoHolder;
+  protected final CloudServiceProvider serviceProvider;
+  protected final BridgeServiceHelper bridgeServiceHelper;
   protected final NetworkServiceInfo ownNetworkServiceInfo;
   protected final LoadingCache<UUID, FallbackProfile> fallbackProfiles;
   protected final Map<UUID, ServiceInfoSnapshot> cachedServices;
@@ -83,8 +90,20 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   protected volatile Consumer<ServiceInfoSnapshot> cacheRegisterListener;
   protected volatile Consumer<ServiceInfoSnapshot> cacheUnregisterListener;
 
-  public PlatformBridgeManagement(@NonNull Wrapper wrapper) {
-    this.eventManager = wrapper.eventManager();
+  public PlatformBridgeManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull BridgeServiceHelper bridgeServiceHelper
+  ) {
+    this.eventManager = eventManager;
+    this.taskProvider = taskProvider;
+    this.serviceInfoHolder = serviceInfoHolder;
+    this.serviceProvider = serviceProvider;
+    this.bridgeServiceHelper = bridgeServiceHelper;
     this.cachedServices = new ConcurrentHashMap<>();
     this.fallbackProfiles = Caffeine.newBuilder()
       .expireAfterAccess(Duration.ofMinutes(10))
@@ -98,17 +117,17 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .registerBinding(Title.class, new TitleObjectSerializer(), false)
       .registerBinding(Component.class, new ComponentObjectSerializer(), false);
     // init the player manager once
-    this.playerManager = wrapper.rpcFactory().generateRPCBasedApi(
+    this.playerManager = rpcFactory.generateRPCBasedApi(
       PlayerManager.class,
-      GenerationContext.forClass(PlatformPlayerManager.class).component(wrapper.networkClient()).build());
-    this.sender = wrapper.rpcFactory().providerForClass(wrapper.networkClient(), BridgeManagement.class);
+      GenerationContext.forClass(PlatformPlayerManager.class).component(networkClient).build()).newInstance();
+    this.sender = rpcFactory.providerForClass(networkClient, BridgeManagement.class);
     // create the network service info of this service
-    this.ownNetworkServiceInfo = NetworkServiceInfo.fromServiceInfoSnapshot(wrapper.currentServiceInfo());
+    this.ownNetworkServiceInfo = NetworkServiceInfo.fromServiceInfoSnapshot(serviceInfoHolder.serviceInfo());
     // load the configuration using rpc - all updates will be received from the channel message
     this.configurationSilently(this.sender.invokeMethod("configuration").fireSync());
     // register the common listeners
-    wrapper.eventManager().registerListener(new PlatformInformationListener(this));
-    wrapper.eventManager().registerListener(new PlatformChannelMessageListener(this.eventManager, this));
+    eventManager.registerListener(new PlatformInformationListener(this));
+    eventManager.registerListener(new PlatformChannelMessageListener(this.eventManager, this));
   }
 
   @Override
@@ -125,17 +144,17 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     this.configuration = configuration;
     this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
     this.currentFallbackConfiguration = configuration.fallbackConfigurations().stream()
-      .filter(config -> Wrapper.instance().serviceConfiguration().groups().contains(config.targetGroup()))
+      .filter(config -> this.serviceInfoHolder.serviceConfiguration().groups().contains(config.targetGroup()))
       .findFirst()
       .orElse(null);
   }
 
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     snapshot.properties().append("Online", Boolean.TRUE);
-    snapshot.properties().append("Motd", BridgeServiceHelper.MOTD.get());
-    snapshot.properties().append("Extra", BridgeServiceHelper.EXTRA.get());
-    snapshot.properties().append("State", BridgeServiceHelper.STATE.get());
-    snapshot.properties().append("Max-Players", BridgeServiceHelper.MAX_PLAYERS.get());
+    snapshot.properties().append("Motd", this.bridgeServiceHelper.motd().get());
+    snapshot.properties().append("Extra", this.bridgeServiceHelper.extra().get());
+    snapshot.properties().append("State", this.bridgeServiceHelper.state().get());
+    snapshot.properties().append("Max-Players", this.bridgeServiceHelper.maxPlayers().get());
   }
 
   public @NonNull Collection<ServiceInfoSnapshot> cachedServices() {
@@ -147,7 +166,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   }
 
   public void handleTaskUpdate(@NonNull String name, @Nullable ServiceTask task) {
-    if (Wrapper.instance().serviceId().taskName().equals(name)) {
+    if (this.serviceInfoHolder.serviceId().taskName().equals(name)) {
       this.selfTask = task;
     }
   }
@@ -314,16 +333,15 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   @Override
   public void postInit() {
     // publish a service update to append all property information
-    Wrapper.instance().publishServiceInfoUpdate();
+    this.serviceInfoHolder.publishServiceInfoUpdate();
     // load all services and cache the ones which are matching the cache policy
-    CloudNetDriver.instance().cloudServiceProvider().servicesAsync().thenAccept(services -> {
+    this.serviceProvider.servicesAsync().thenAccept(services -> {
       for (var service : services) {
         this.handleServiceUpdate(service);
       }
     });
     // get the service task associated with this service if present
-    this.selfTask = CloudNetDriver.instance().serviceTaskProvider()
-      .serviceTask(Wrapper.instance().serviceId().taskName());
+    this.selfTask = this.taskProvider.serviceTask(this.serviceInfoHolder.serviceId().taskName());
   }
 
   public @NonNull NetworkServiceInfo ownNetworkServiceInfo() {
