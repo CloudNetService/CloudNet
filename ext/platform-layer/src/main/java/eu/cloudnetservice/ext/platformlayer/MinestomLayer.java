@@ -23,6 +23,7 @@ import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerProcess;
 import net.minestom.server.extensions.Extension;
+import net.minestom.server.extensions.ExtensionManager;
 import net.minestom.server.timer.Scheduler;
 
 public final class MinestomLayer {
@@ -31,6 +32,7 @@ public final class MinestomLayer {
     var process = MinecraftServer.process();
     var extLayer = InjectionLayer.ext();
     // install the default bindings
+    extLayer.install(InjectUtil.createFixedBinding(ExtensionManager.class, process.extension()));
     extLayer.install(InjectUtil.createFixedBinding(ServerProcess.class, process));
     extLayer.install(InjectUtil.createFixedBinding(Scheduler.class, process.scheduler()));
   }
@@ -42,7 +44,7 @@ public final class MinestomLayer {
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Extension ext) {
     return InjectionLayer.specifiedChild(
       InjectionLayer.ext(),
-      ext.getOrigin().getName(),
+      "Plugin",
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Extension.class, ext)));
   }
 }

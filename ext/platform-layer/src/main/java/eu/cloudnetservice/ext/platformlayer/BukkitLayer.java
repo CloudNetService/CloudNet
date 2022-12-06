@@ -44,7 +44,7 @@ public final class BukkitLayer {
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull JavaPlugin plugin) {
     return InjectionLayer.specifiedChild(
       InjectionLayer.ext(),
-      plugin.getName(),
+      "Plugin",
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(JavaPlugin.class, plugin)));
   }
 }

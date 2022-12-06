@@ -25,7 +25,7 @@ public final class FabricLayer {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull InjectionLayer<?> create(@NonNull String name) {
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), name, (specifiedLayer, injector) -> {});
+  public static @NonNull InjectionLayer<?> create() {
+    return InjectionLayer.specifiedChild(InjectionLayer.ext(), "Plugin", (specifiedLayer, injector) -> {});
   }
 }

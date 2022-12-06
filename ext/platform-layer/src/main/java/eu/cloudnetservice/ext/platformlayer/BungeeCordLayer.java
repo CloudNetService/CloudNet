@@ -43,7 +43,7 @@ public final class BungeeCordLayer {
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull Plugin plugin) {
     return InjectionLayer.specifiedChild(
       InjectionLayer.ext(),
-      plugin.getDescription().getName(),
+      "Plugin",
       (specifiedLayer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(Plugin.class, plugin)));
   }
 }

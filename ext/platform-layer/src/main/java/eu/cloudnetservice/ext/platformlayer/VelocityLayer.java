@@ -33,8 +33,7 @@ public final class VelocityLayer {
   }
 
   public static @NonNull InjectionLayer<SpecifiedInjector> create(
-    @NonNull ProxyServer proxy,
-    @NonNull String name
+    @NonNull ProxyServer proxy
   ) {
     var extLayer = InjectionLayer.ext();
     if (!INSTALLED) {
@@ -47,7 +46,7 @@ public final class VelocityLayer {
       INSTALLED = true;
     }
 
-    return InjectionLayer.specifiedChild(InjectionLayer.ext(), name, (specifiedLayer, injector) -> {
+    return InjectionLayer.specifiedChild(InjectionLayer.ext(), "Plugin", (specifiedLayer, injector) -> {
     });
   }
 }

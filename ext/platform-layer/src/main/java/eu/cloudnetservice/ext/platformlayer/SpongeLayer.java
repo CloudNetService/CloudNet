@@ -43,7 +43,7 @@ public final class SpongeLayer {
   public static @NonNull InjectionLayer<SpecifiedInjector> create(@NonNull PluginContainer plugin) {
     return InjectionLayer.specifiedChild(
       InjectionLayer.ext(),
-      plugin.metadata().id(),
+      "Plugin",
       (layer, injector) -> injector.installSpecified(InjectUtil.createFixedBinding(PluginContainer.class, plugin)));
   }
 }
