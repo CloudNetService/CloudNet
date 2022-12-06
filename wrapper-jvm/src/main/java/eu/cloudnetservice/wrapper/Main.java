@@ -16,16 +16,16 @@
 
 package eu.cloudnetservice.wrapper;
 
-import eu.cloudnetservice.common.language.I18n;
+import com.google.common.collect.Lists;
+import com.google.gson.reflect.TypeToken;
+import dev.derklaro.aerogel.Bindings;
+import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.log.LoggingUtil;
-import eu.cloudnetservice.common.log.defaults.DefaultFileHandler;
-import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
-import eu.cloudnetservice.common.log.defaults.ThreadedLogRecordDispatcher;
-import eu.cloudnetservice.wrapper.log.InternalPrintStreamLogHandler;
-import java.nio.file.Path;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
 import java.time.Instant;
+import java.util.List;
 import lombok.NonNull;
 
 public final class Main {
@@ -34,27 +34,27 @@ public final class Main {
     throw new UnsupportedOperationException();
   }
 
-  public static void main(String... args) throws Throwable {
+  public static void main(@NonNull String... args) throws Throwable {
     var startInstant = Instant.now();
-    // language init
-    I18n.loadFromLangPath(Main.class);
-    I18n.language(System.getProperty("cloudnet.wrapper.messages.language", "en_US"));
-    // logger init
-    initLogger(LogManager.rootLogger());
+
+    // initialize injector & install all autoconfigure bindings
+    var bootInjectLayer = InjectionLayer.boot();
+    bootInjectLayer.installAutoConfigureBindings(Main.class.getClassLoader(), "driver");
+    bootInjectLayer.installAutoConfigureBindings(Main.class.getClassLoader(), "wrapper");
+
+    // initial bindings which we cannot (or it makes no sense to) construct
+    bootInjectLayer.install(Bindings.fixed(Element.forType(Instant.class).requireName("startInstant"), startInstant));
+    bootInjectLayer.install(Bindings.fixed(Element.forType(Logger.class).requireName("root"), LogManager.rootLogger()));
+
+    // bind the transformer registry here - we *could* provided it by constructing, but we don't
+    // want to expose the Instrumentation instance
+    bootInjectLayer.install(Bindings.fixed(Element.forType(TransformerRegistry.class), Premain.transformerRegistry));
+
+    // console arguments
+    var type = TypeToken.getParameterized(List.class, String.class).getType();
+    bootInjectLayer.install(Bindings.fixed(Element.forType(type).requireName("consoleArgs"), Lists.newArrayList(args)));
+
     // boot the wrapper
-    var wrapper = new Wrapper(args);
-    wrapper.start(startInstant);
-  }
-
-  private static void initLogger(@NonNull Logger logger) {
-    LoggingUtil.removeHandlers(logger);
-    var logFilePattern = Path.of(".wrapper", "logs", "wrapper.%g.log");
-
-    logger.setLevel(LoggingUtil.defaultLogLevel());
-    logger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
-
-    logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
-    logger.addHandler(
-      DefaultFileHandler.newInstance(logFilePattern, false).withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
+    bootInjectLayer.instance(Wrapper.class);
   }
 }

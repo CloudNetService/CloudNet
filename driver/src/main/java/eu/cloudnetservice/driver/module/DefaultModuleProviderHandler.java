@@ -34,6 +34,8 @@ import eu.cloudnetservice.driver.event.events.module.ModulePreStartEvent;
 import eu.cloudnetservice.driver.event.events.module.ModulePreStopEvent;
 import eu.cloudnetservice.driver.event.events.module.ModulePreUnloadEvent;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 /**
@@ -42,6 +44,7 @@ import lombok.NonNull;
  * @see ModuleProviderHandler
  * @since 4.0
  */
+@Singleton
 public class DefaultModuleProviderHandler implements ModuleProviderHandler {
 
   private static final Logger LOGGER = LogManager.logger(DefaultModuleProviderHandler.class);
@@ -50,6 +53,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
   protected final ModuleProvider moduleProvider;
   protected final ServiceRegistry serviceRegistry;
 
+  @Inject
   protected DefaultModuleProviderHandler(
     @NonNull EventManager eventManager,
     @NonNull ModuleProvider moduleProvider,

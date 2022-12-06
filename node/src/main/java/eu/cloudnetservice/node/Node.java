@@ -146,8 +146,6 @@ public class Node extends CloudNetDriver {
     this.nodeServerProvider = null; //new DefaultNodeServerProvider(this);
 
     // language management init
-    I18n.loadFromLangPath(Node.class);
-    //I18n.language(this.configuration.language());
 
     this.clusterNodeProvider = null; //new NodeClusterNodeProvider(this);
     this.cloudServiceProvider = null;
@@ -265,6 +263,13 @@ public class Node extends CloudNetDriver {
     // could look out of place in the normal logging context
     System.setErr(LogOutputStream.forSevere(rootLogger).toPrintStream());
     System.setOut(LogOutputStream.forInformative(rootLogger).toPrintStream());
+  }
+
+  @Inject
+  @Order(0)
+  private void initLanguage(@NonNull Configuration configuration) {
+    I18n.loadFromLangPath(Node.class);
+    I18n.language(configuration.language());
   }
 
   @Inject
