@@ -32,7 +32,9 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Locale;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -41,16 +43,21 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
 
+@Singleton
 public final class VelocityPlayerManagementListener {
 
   private final ProxyServer proxyServer;
+  private final ServiceInfoHolder serviceInfoHolder;
   private final PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management;
 
+  @Inject
   public VelocityPlayerManagementListener(
     @NonNull ProxyServer proxyServer,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management
   ) {
     this.proxyServer = proxyServer;
+    this.serviceInfoHolder = serviceInfoHolder;
     this.management = management;
   }
 
@@ -137,7 +144,7 @@ public final class VelocityPlayerManagementListener {
         this.management.createPlayerInformation(event.getPlayer()),
         joinedServiceInfo);
       // update the service info
-      Wrapper.instance().publishServiceInfoUpdate();
+      this.serviceInfoHolder.publishServiceInfoUpdate();
     } else if (joinedServiceInfo != null) {
       // the player switched the service
       ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
@@ -155,7 +162,7 @@ public final class VelocityPlayerManagementListener {
       || status == DisconnectEvent.LoginStatus.PRE_SERVER_JOIN) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
-      Wrapper.instance().publishServiceInfoUpdate();
+      this.serviceInfoHolder.publishServiceInfoUpdate();
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());

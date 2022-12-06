@@ -23,7 +23,7 @@ import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,11 +54,17 @@ public final class BridgeServiceHelper {
 
   private final ServiceTaskProvider taskProvider;
   private final CloudServiceFactory serviceFactory;
+  private final ServiceInfoHolder serviceInfoHolder;
 
   @Inject
-  public BridgeServiceHelper(@NonNull ServiceTaskProvider taskProvider, @NonNull CloudServiceFactory serviceFactory) {
+  public BridgeServiceHelper(
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull CloudServiceFactory serviceFactory,
+    @NonNull ServiceInfoHolder serviceInfoHolder
+  ) {
     this.taskProvider = taskProvider;
     this.serviceFactory = serviceFactory;
+    this.serviceInfoHolder = serviceInfoHolder;
   }
 
   /**
@@ -96,7 +102,7 @@ public final class BridgeServiceHelper {
   public void changeToIngame(boolean autoStartService) {
     if (!this.state.getAndSet("INGAME").equalsIgnoreCase("ingame") && autoStartService) {
       // start a new service based on the task name
-      var taskName = Wrapper.instance().serviceId().taskName();
+      var taskName = this.serviceInfoHolder.serviceId().taskName();
       this.taskProvider
         .serviceTaskAsync(taskName)
         .thenApply(task -> ServiceConfiguration.builder(task).build())

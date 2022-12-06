@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.waterdog;
 
+import dev.derklaro.aerogel.auto.Provides;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.WaterdogPE;
 import dev.waterdog.waterdogpe.command.CommandSender;
@@ -29,6 +30,7 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -38,6 +40,7 @@ import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Optional;
@@ -46,6 +49,8 @@ import java.util.function.BiFunction;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@Provides({BridgeManagement.class, PlatformBridgeManagement.class})
 final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> {
 
   private static final BiFunction<ProxiedPlayer, String, Boolean> PERM_FUNCTION = CommandSender::hasPermission;
@@ -58,26 +63,19 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
     @NonNull EventManager eventManager,
     @NonNull NetworkClient networkClient,
     @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
-    @NonNull CloudServiceProvider serviceProvider,
-    @NonNull BridgeServiceHelper bridgeServiceHelper
+    @NonNull CloudServiceProvider serviceProvider
   ) {
-    super(
-      rpcFactory,
-      eventManager,
-      networkClient,
-      taskProvider,
-      serviceInfoHolder,
-      serviceProvider,
-      bridgeServiceHelper);
+    super(rpcFactory, eventManager, networkClient, taskProvider, serviceHelper, serviceInfoHolder, serviceProvider);
     // init fields
     this.globalDirectPlayerExecutor = new WaterDogPEDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       this,
       ProxyServer.getInstance().getPlayers()::values);
     // init the bridge properties
-    bridgeServiceHelper.motd().set(ProxyServer.getInstance().getConfiguration().getMotd());
-    bridgeServiceHelper.maxPlayers().set(ProxyServer.getInstance().getConfiguration().getMaxPlayerCount());
+    serviceHelper.motd().set(ProxyServer.getInstance().getConfiguration().getMotd());
+    serviceHelper.maxPlayers().set(ProxyServer.getInstance().getConfiguration().getMaxPlayerCount());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
       .and(service -> ServiceEnvironmentType.PE_SERVER.get(service.serviceId().environment().properties()));

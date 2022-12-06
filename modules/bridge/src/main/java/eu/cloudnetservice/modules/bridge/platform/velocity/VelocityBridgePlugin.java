@@ -21,14 +21,13 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import eu.cloudnetservice.ext.platformlayer.VelocityLayer;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityHubCommand;
-import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import java.util.Arrays;
 import lombok.NonNull;
 
@@ -43,22 +42,25 @@ import lombok.NonNull;
 public final class VelocityBridgePlugin {
 
   private final ProxyServer proxy;
+  private final InjectionLayer<?> injectionLayer;
 
   @Inject
   public VelocityBridgePlugin(@NonNull ProxyServer proxyServer) {
     this.proxy = proxyServer;
+    this.injectionLayer = VelocityLayer.create(proxyServer);
   }
 
   @Subscribe
   public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
     // init the bridge management
-    PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management = new VelocityBridgeManagement(this.proxy);
-    management.registerServices(CloudNetDriver.instance().serviceRegistry());
+    var management = this.injectionLayer.instance(VelocityBridgeManagement.class);
+    management.registerServices(this.injectionLayer.instance(ServiceRegistry.class));
     management.postInit();
     // register the player listeners
-    this.proxy.getEventManager().register(this, new VelocityPlayerManagementListener(this.proxy, management));
+    this.proxy.getEventManager().register(this, this.injectionLayer.instance(VelocityPlayerManagementListener.class));
     // register the cloud command
-    this.proxy.getCommandManager().register("cloudnet", new VelocityCloudCommand(management), "cloud");
+    var velocityCloudCommand = this.injectionLayer.instance(VelocityCloudCommand.class);
+    this.proxy.getCommandManager().register("cloudnet", velocityCloudCommand, "cloud");
     // register the hub command if requested
     if (!management.configuration().hubCommandNames().isEmpty()) {
       // convert to an array for easier access
@@ -73,6 +75,7 @@ public final class VelocityBridgePlugin {
 
   @Subscribe
   public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
-    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
+    var moduleHelper = this.injectionLayer.instance(ModuleHelper.class);
+    moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

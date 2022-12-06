@@ -95,15 +95,15 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @NonNull EventManager eventManager,
     @NonNull NetworkClient networkClient,
     @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
-    @NonNull CloudServiceProvider serviceProvider,
-    @NonNull BridgeServiceHelper bridgeServiceHelper
+    @NonNull CloudServiceProvider serviceProvider
   ) {
     this.eventManager = eventManager;
     this.taskProvider = taskProvider;
+    this.bridgeServiceHelper = serviceHelper;
     this.serviceInfoHolder = serviceInfoHolder;
     this.serviceProvider = serviceProvider;
-    this.bridgeServiceHelper = bridgeServiceHelper;
     this.cachedServices = new ConcurrentHashMap<>();
     this.fallbackProfiles = Caffeine.newBuilder()
       .expireAfterAccess(Duration.ofMinutes(10))
