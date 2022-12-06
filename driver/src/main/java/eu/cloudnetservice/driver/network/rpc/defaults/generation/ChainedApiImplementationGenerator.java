@@ -210,7 +210,7 @@ public final class ChainedApiImplementationGenerator {
     }
   }
 
-  private static @NonNull List<Class<?>> findSuperConstructorTypes(@Nullable Class<?> extendingClass) {
+  static @NonNull List<Class<?>> findSuperConstructorTypes(@Nullable Class<?> extendingClass) {
     if (extendingClass == null) {
       return List.of();
     }

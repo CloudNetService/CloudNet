@@ -85,7 +85,8 @@ public class RemoteNodeServer implements NodeServer {
     this.cloudServiceProvider = cloudServiceProvider;
     this.serviceFactory = rpcFactory.generateRPCBasedApi(
       CloudServiceFactory.class,
-      GenerationContext.forClass(CloudServiceFactory.class).channelSupplier(this::channel).build());
+      GenerationContext.forClass(CloudServiceFactory.class).channelSupplier(this::channel).build()
+    ).newInstance();
   }
 
   @Override

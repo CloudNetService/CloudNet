@@ -32,11 +32,11 @@ import eu.cloudnetservice.driver.network.rpc.defaults.handler.DefaultRPCHandler;
 import eu.cloudnetservice.driver.network.rpc.defaults.sender.DefaultRPCSender;
 import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.generation.InstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Objects;
-import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +52,7 @@ public class DefaultRPCFactory implements RPCFactory {
   protected final ObjectMapper defaultObjectMapper;
   protected final DataBufFactory defaultDataBufFactory;
 
-  protected final Cache<GenerationContext, Supplier<Object>> generatedApiCache = Caffeine.newBuilder().build();
+  protected final Cache<GenerationContext, InstanceFactory<?>> generatedApiCache = Caffeine.newBuilder().build();
   protected final Table<String, GenerationContext, ChainInstanceFactory<?>> chainFactoryCache = HashBasedTable.create();
 
   /**
@@ -113,11 +113,14 @@ public class DefaultRPCFactory implements RPCFactory {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> @NonNull T generateRPCBasedApi(@NonNull Class<T> baseClass, @NonNull GenerationContext context) {
-    return (T) this.generatedApiCache.get(context, $ -> {
+  public <T> @NonNull InstanceFactory<T> generateRPCBasedApi(
+    @NonNull Class<T> baseClass,
+    @NonNull GenerationContext context
+  ) {
+    return (InstanceFactory<T>) this.generatedApiCache.get(context, $ -> {
       var sender = this.senderFromGenerationContext(context, baseClass);
       return ApiImplementationGenerator.generateApiImplementation(baseClass, context, sender);
-    }).get();
+    });
   }
 
   /**

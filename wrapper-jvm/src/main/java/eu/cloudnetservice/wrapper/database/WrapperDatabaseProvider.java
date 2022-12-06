@@ -22,11 +22,11 @@ import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import lombok.NonNull;
 
-public abstract class DefaultWrapperDatabaseProvider implements DatabaseProvider {
+public abstract class WrapperDatabaseProvider implements DatabaseProvider {
 
   private final RPCSender rpcSender;
 
-  public DefaultWrapperDatabaseProvider(@NonNull RPCSender sender) {
+  public WrapperDatabaseProvider(@NonNull RPCSender sender) {
     this.rpcSender = sender;
   }
 
