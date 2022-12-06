@@ -34,7 +34,7 @@ rootProject.name = "cloudnet-root"
 include("bom", "ext", "common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
 
 // external lib helpers
-initializeSubProjects("ext", "modlauncher", "adventure-helper", "bukkit-command", "updater")
+initializeSubProjects("ext", "modlauncher", "adventure-helper", "bukkit-command", "updater", "platform-layer")
 // plugins
 initializeSubProjects("plugins", "chat", "simplenametags", "papi-expansion")
 // modules

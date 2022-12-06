@@ -99,7 +99,7 @@ final class InjectionLayerProvider {
    * @throws IllegalArgumentException if the given name is invalid.
    */
   public static @NonNull InjectionLayer<SpecifiedInjector> specifiedChild(
-    @NonNull InjectionLayer<Injector> parent,
+    @NonNull InjectionLayer<? extends Injector> parent,
     @NonNull String name,
     @NonNull BiConsumer<InjectionLayer<SpecifiedInjector>, SpecifiedInjector> configurator
   ) {
