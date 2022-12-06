@@ -18,9 +18,12 @@ package eu.cloudnetservice.driver.inject;
 
 import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.AerogelException;
+import dev.derklaro.aerogel.BindingConstructor;
+import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.internal.utility.ElementHelper;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -122,5 +125,17 @@ public final class InjectUtil {
       instances[i + offset] = layer.instance(elements[i]);
     }
     return instances;
+  }
+
+  /**
+   * Creates a fixed binding constructor without setting any required name or annotation. It is only based on the type.
+   *
+   * @param type  the type to create the element for.
+   * @param value the value that is bound to the type.
+   * @return the new binding constructor.
+   * @throws NullPointerException if the given type or value is null.
+   */
+  public static @NonNull BindingConstructor createFixedBinding(@NonNull Type type, @NonNull Object value) {
+    return Bindings.fixed(Element.forType(type), value);
   }
 }
