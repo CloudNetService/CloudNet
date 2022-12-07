@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.wrapper;
 
-import com.google.common.collect.Lists;
 import dev.derklaro.aerogel.Order;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
@@ -25,9 +24,6 @@ import eu.cloudnetservice.common.log.LoggingUtil;
 import eu.cloudnetservice.common.log.defaults.DefaultFileHandler;
 import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
 import eu.cloudnetservice.common.log.defaults.ThreadedLogRecordDispatcher;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.CloudNetVersion;
-import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.DefaultModuleProviderHandler;
 import eu.cloudnetservice.driver.module.ModuleProvider;
@@ -54,10 +50,10 @@ import eu.cloudnetservice.wrapper.transform.bukkit.PaperConfigTransformer;
 import eu.cloudnetservice.wrapper.transform.netty.OldEpollDisableTransformer;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,64 +68,9 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class Wrapper extends CloudNetDriver { // todo: make package private
+public final class Wrapper {
 
   private static final Logger LOGGER = LogManager.logger(Wrapper.class);
-
-  /**
-   * Constructs a new CloudNet wrapper instance. This constructor shouldn't be used directly and is only accessible for
-   * any class which provides a custom implementation of the wrapper. Use {@link #instance()} to obtain the current
-   * wrapper instance of the environment instead.
-   *
-   * @param args the command line arguments which were supplied to the wrapper when starting.
-   * @throws NullPointerException if the given arguments are null.
-   */
-  private Wrapper() {
-    super(CloudNetVersion.fromPackage(Wrapper.class.getPackage()), Lists.newArrayList(args), DriverEnvironment.WRAPPER);
-    instance(this);
-  }
-
-  /**
-   * Get the singleton instance of the currently running CloudNet wrapper. This instance is initialized once when
-   * starting the wrapper and will never change during the lifetime of the jvm. Therefore, the instance of the wrapper
-   * can be safely cached.
-   *
-   * @return the current, jvm static wrapper instance.
-   */
-  @Deprecated(forRemoval = true)
-  public static @NonNull Wrapper instance() {
-    return CloudNetDriver.instance();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected void start(@NonNull Instant startInstant) throws Exception {
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void stop() {
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull String componentName() {
-    return "";
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull String nodeUniqueId() {
-    return "";
-  }
 
   @Inject
   @Order(50)
@@ -214,8 +155,12 @@ public final class Wrapper extends CloudNetDriver { // todo: make package privat
 
   @Inject
   @Order(200)
-  private void installShutdownHook(@NonNull ShutdownHandler shutdownHandler) {
-    Runtime.getRuntime().addShutdownHook(new Thread(shutdownHandler));
+  private void installShutdownHook(@NonNull Provider<ShutdownHandler> shutdownHandlerProvider) {
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      // get the shutdown handler and execute the shutdown process
+      var shutdownHandler = shutdownHandlerProvider.get();
+      shutdownHandler.shutdown();
+    }));
   }
 
   @Inject

@@ -118,8 +118,16 @@ public final class JsonConfiguration implements Configuration {
     }
   }
 
+  public static @NonNull Configuration loadFromFile() {
+    if (Files.notExists(CONFIG_FILE_PATH)) {
+      return new JsonConfiguration().load();
+    } else {
+      return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
+    }
+  }
+
   @Factory
-  public static @NonNull Configuration loadFromFile(@NonNull DefaultInstallation installation) {
+  private static @NonNull Configuration loadFromFile(@NonNull DefaultInstallation installation) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exist
       installation.registerSetup(DefaultConfigSetup.class);

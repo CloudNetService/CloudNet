@@ -21,8 +21,6 @@ import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
 import eu.cloudnetservice.driver.network.http.HttpResponse;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
-import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.config.RestConfiguration;
 import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
@@ -30,11 +28,6 @@ import lombok.NonNull;
 public abstract class V2HttpHandler {
 
   protected final RestConfiguration restConfiguration;
-
-  @Deprecated(forRemoval = true) // need to update modules first
-  public V2HttpHandler() {
-    this(Node.instance().config().restConfiguration());
-  }
 
   public V2HttpHandler(@NonNull RestConfiguration restConfiguration) {
     this.restConfiguration = restConfiguration;
@@ -85,15 +78,5 @@ public abstract class V2HttpHandler {
 
   protected @NonNull JsonDocument failure() {
     return JsonDocument.newDocument("success", false);
-  }
-
-  @Deprecated(forRemoval = true) // need to update modules first
-  protected @NonNull Node node() {
-    return Node.instance();
-  }
-
-  @Deprecated(forRemoval = true) // need to update modules first
-  protected @NonNull Configuration nodeConfig() {
-    return this.node().config();
   }
 }
