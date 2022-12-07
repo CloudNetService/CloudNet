@@ -44,7 +44,9 @@ public final class TickLoop {
 
   public static final int TPS = 10;
   public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
-  public static final AtomicBoolean RUNNING = new AtomicBoolean(true);
+
+  // exposed to the package for internal use
+  static final AtomicBoolean RUNNING = new AtomicBoolean(true);
 
   private static final Logger LOGGER = LogManager.logger(TickLoop.class);
 

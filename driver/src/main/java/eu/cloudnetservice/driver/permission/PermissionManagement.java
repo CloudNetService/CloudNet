@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.permission;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.function.ThrowableSupplier;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.List;
@@ -44,14 +43,6 @@ public interface PermissionManagement {
    * @return the child management, null if there is no child.
    */
   @Nullable PermissionManagement childPermissionManagement();
-
-  /**
-   * Gets if this permission management can be overridden. If this is the case the permission management is replaceable
-   * using {@link CloudNetDriver#permissionManagement(PermissionManagement)}.
-   *
-   * @return if overriding is allowed.
-   */
-  boolean allowsOverride();
 
   /**
    * Initializes this permission management.

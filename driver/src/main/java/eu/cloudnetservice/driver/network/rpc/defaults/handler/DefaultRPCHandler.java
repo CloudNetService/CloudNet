@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Defaults;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
@@ -64,14 +63,6 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
     this.bindingClass = clazz;
     this.bindingInstance = binding;
     this.generator = new MethodInvokerGenerator();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void registerToDefaultRegistry() {
-    this.registerTo(CloudNetDriver.instance().rpcHandlerRegistry());
   }
 
   /**

@@ -194,11 +194,6 @@ public abstract class WrapperPermissionManagement extends DefaultCachedPermissio
   }
 
   @Override
-  public boolean allowsOverride() {
-    return true;
-  }
-
-  @Override
   public @Nullable PermissionUser firstUser(@NonNull String name) {
     for (var permissionUser : this.permissionUserCache.asMap().values()) {
       if (permissionUser.name().equals(name)) {

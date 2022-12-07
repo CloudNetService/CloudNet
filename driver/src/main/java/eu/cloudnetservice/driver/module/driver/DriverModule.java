@@ -18,19 +18,14 @@ package eu.cloudnetservice.driver.module.driver;
 
 import com.google.gson.JsonSyntaxException;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.DefaultModule;
 import eu.cloudnetservice.driver.module.Module;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 import lombok.NonNull;
-import org.jetbrains.annotations.Contract;
 
 /**
  * Represents a cloudnet driver specific implementation for the module. Usually this should be used as entry point of a
@@ -105,62 +100,5 @@ public class DriverModule extends DefaultModule {
    */
   protected @NonNull Path configPath() {
     return this.moduleWrapper().dataDirectory().resolve("config.json");
-  }
-
-  /**
-   * Registers the given listener to the {@link EventManager}. Down calls to {@link CloudNetDriver#eventManager()} and
-   * {@link EventManager#registerListeners(Object...)}.
-   *
-   * @param listener the listeners to register
-   * @return the EventManager that was used to register the listeners.
-   */
-  @Deprecated(forRemoval = true) // TODO: need to update modules first
-  public final @NonNull EventManager registerListener(Object @NonNull ... listener) {
-    return this.eventManager().registerListeners(listener);
-  }
-
-  /**
-   * Gets the {@link ServiceRegistry} of the driver.
-   *
-   * @return the ServiceRegistry.
-   * @see CloudNetDriver#serviceRegistry()
-   */
-  @Deprecated(forRemoval = true) // TODO: need to update modules first
-  public final @NonNull ServiceRegistry serviceRegistry() {
-    return this.driver().serviceRegistry();
-  }
-
-  /**
-   * Gets the {@link EventManager} of the driver.
-   *
-   * @return the EventManager.
-   * @see CloudNetDriver#eventManager()
-   */
-  @Deprecated(forRemoval = true) // TODO: need to update modules first
-  public final @NonNull EventManager eventManager() {
-    return this.driver().eventManager();
-  }
-
-  /**
-   * Gets the {@link RPCFactory} of the driver.
-   *
-   * @return the RPCProviderFactory.
-   * @see CloudNetDriver#rpcFactory()
-   */
-  @Deprecated(forRemoval = true) // TODO: need to update modules first
-  public final @NonNull RPCFactory rpcFactory() {
-    return this.driver().rpcFactory();
-  }
-
-  /**
-   * Gets the {@link CloudNetDriver} instance.
-   *
-   * @return the CloudNetDriver instance.
-   * @see CloudNetDriver#instance()
-   */
-  @Contract(pure = true)
-  @Deprecated(forRemoval = true) // TODO: need to update modules first
-  public final @NonNull CloudNetDriver driver() {
-    return CloudNetDriver.instance();
   }
 }

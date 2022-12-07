@@ -35,6 +35,7 @@ import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.config.JsonConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.List;
@@ -88,7 +89,7 @@ public final class ConfigCommand {
 
   @CommandMethod("config|cfg reload")
   public void reloadConfigs(@NonNull CommandSource source) {
-    //Node.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
+    this.configuration.reloadFrom(JsonConfiguration.loadFromFile());
     this.taskProvider.reload();
     this.groupProvider.reload();
     this.permissionManagement.reload();
@@ -97,7 +98,7 @@ public final class ConfigCommand {
 
   @CommandMethod("config|cfg node reload")
   public void reloadNodeConfig(@NonNull CommandSource source) {
-    //Node.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
+    this.configuration.reloadFrom(JsonConfiguration.loadFromFile());
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
