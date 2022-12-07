@@ -514,7 +514,8 @@ public class Node extends CloudNetDriver {
           futures.add(Task.supply(() -> {
             // wait for the connection to establish, max 7 seconds
             for (var i = 0; i < 140 && !node.available(); i++) {
-              Thread.onSpinWait();
+              //noinspection BusyWait
+              Thread.sleep(50);
             }
             return null;
           }));
