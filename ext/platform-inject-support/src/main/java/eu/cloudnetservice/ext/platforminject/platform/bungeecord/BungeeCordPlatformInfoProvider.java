@@ -22,7 +22,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 
 public class BungeeCordPlatformInfoProvider extends BasePlatformInfoProvider<String, Plugin> {
 
-  protected BungeeCordPlatformInfoProvider() {
+  public BungeeCordPlatformInfoProvider() {
     super(
       "bungeecord",
       BungeeCordPlatformPluginManager::new,

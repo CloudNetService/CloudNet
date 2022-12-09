@@ -42,7 +42,11 @@ public final class PluginUtil {
       // check if we are at the first char, in that case we need to prefix the name
       // with a different char as a lowercase one is required at the first position
       if (i == 0) {
-        idChars[0] = 'a';
+        if (charAtPos >= 'A' && charAtPos <= 'Z') {
+          idChars[i] = Character.toLowerCase(charAtPos);
+        } else {
+          idChars[i] = 'a';
+        }
         continue;
       }
 

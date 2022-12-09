@@ -21,6 +21,8 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import eu.cloudnetservice.ext.platforminject.data.ParsedPluginData;
 import eu.cloudnetservice.ext.platforminject.generator.BaseMainClassGenerator;
@@ -35,14 +37,15 @@ final class SpongeMainClassGenerator extends BaseMainClassGenerator {
   private static final ClassName LISTENER_ANNOTATION = ClassName.get("org.spongepowered.api.event", "Listener");
   private static final ClassName PLUGIN_ANNOTATION = ClassName.get("org.spongepowered.plugin.builtin.jvm", "Plugin");
 
+  private static final ClassName SERVER_CLASS = ClassName.get("org.spongepowered.api", "Server");
   private static final ClassName PLUGIN_CONTAINER_CLASS = ClassName.get("org.spongepowered.plugin", "PluginContainer");
 
-  private static final ClassName STARTED_ENGINE_EVENT_CLASS = ClassName.get(
-    "org.spongepowered.api.event.lifecycle",
-    "StartedEngineEvent");
-  private static final ClassName STOPPING_ENGINE_EVENT_CLASS = ClassName.get(
-    "org.spongepowered.api.event.lifecycle",
-    "StoppingEngineEvent");
+  private static final TypeName STARTED_ENGINE_EVENT = ParameterizedTypeName.get(
+    ClassName.get("org.spongepowered.api.event.lifecycle", "StartedEngineEvent"),
+    SERVER_CLASS);
+  private static final TypeName STOPPING_ENGINE_EVENT = ParameterizedTypeName.get(
+    ClassName.get("org.spongepowered.api.event.lifecycle", "StoppingEngineEvent"),
+    SERVER_CLASS);
 
   public SpongeMainClassGenerator() {
     super("sponge");
@@ -78,7 +81,7 @@ final class SpongeMainClassGenerator extends BaseMainClassGenerator {
     var engineStartListener = MethodSpec.methodBuilder("handleEngineStart")
       .addModifiers(Modifier.PUBLIC)
       .addAnnotation(LISTENER_ANNOTATION)
-      .addParameter(STARTED_ENGINE_EVENT_CLASS, "event")
+      .addParameter(STARTED_ENGINE_EVENT, "event")
       .addCode(this.visitPluginLoad(internalMainClass, CodeBlock.of("this.data")))
       .build();
     typeBuilder.addMethod(engineStartListener);
@@ -87,7 +90,7 @@ final class SpongeMainClassGenerator extends BaseMainClassGenerator {
     var engineStoppingListener = MethodSpec.methodBuilder("handleEngineStopping")
       .addModifiers(Modifier.PUBLIC)
       .addAnnotation(LISTENER_ANNOTATION)
-      .addParameter(STOPPING_ENGINE_EVENT_CLASS, "event")
+      .addParameter(STOPPING_ENGINE_EVENT, "event")
       .addCode(this.visitPluginDisableByData(CodeBlock.of("this.data")))
       .build();
     typeBuilder.addMethod(engineStoppingListener);

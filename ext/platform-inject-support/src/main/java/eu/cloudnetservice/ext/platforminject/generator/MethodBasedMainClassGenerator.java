@@ -20,6 +20,7 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import eu.cloudnetservice.ext.platforminject.data.ParsedPluginData;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -50,7 +51,7 @@ public abstract class MethodBasedMainClassGenerator extends BaseMainClassGenerat
 
     // build the constructor and add the construction listener call
     var constructor = this.appendConstructListenerConstruction(
-      MethodSpec.constructorBuilder(),
+      MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC),
       platformAccessBlock,
       pluginData.constructionListenerClass()
     ).build();
