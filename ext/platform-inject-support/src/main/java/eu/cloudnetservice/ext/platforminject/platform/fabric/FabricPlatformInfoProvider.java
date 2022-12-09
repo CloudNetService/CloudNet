@@ -20,7 +20,7 @@ import eu.cloudnetservice.ext.platforminject.provider.UnsupportedGenerationInfoP
 
 public class FabricPlatformInfoProvider extends UnsupportedGenerationInfoProvider<Integer, Object> {
 
-  protected FabricPlatformInfoProvider() {
+  public FabricPlatformInfoProvider() {
     super("fabric", FabricPlatformPluginManager::new);
   }
 }

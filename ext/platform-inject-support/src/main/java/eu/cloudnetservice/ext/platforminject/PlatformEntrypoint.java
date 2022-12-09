@@ -18,7 +18,9 @@ package eu.cloudnetservice.ext.platforminject;
 
 public interface PlatformEntrypoint {
 
-  void onLoad();
+  default void onLoad() {
+  }
 
-  void onDisable();
+  default void onDisable() {
+  }
 }

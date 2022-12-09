@@ -22,7 +22,7 @@ import eu.cloudnetservice.ext.platforminject.provider.BasePlatformInfoProvider;
 
 public class NukkitPlatformInfoProvider extends BasePlatformInfoProvider<String, PluginBase> {
 
-  protected NukkitPlatformInfoProvider() {
+  public NukkitPlatformInfoProvider() {
     super(
       "nukkit",
       NukkitPlatformPluginManager::new,

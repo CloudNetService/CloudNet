@@ -91,21 +91,22 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
 
       // construct information about the plugin & the new main class name
       var pluginData = platformInfo.dataParser().parseAndValidateData(platformAnno, listenerClass);
+
+      // generate the plugin main name
+      var packageName = this.environment.getElementUtils().getPackageOf(element).toString();
       var platformMainClass = PluginUtil.buildMainClassName(pluginData.name(), platformAnno.platform());
 
       try {
         // generate the plugin info file first
-        platformInfo.infoGenerator().generatePluginInfo(pluginData, platformMainClass, this.environment.getFiler());
+        var fullMainName = String.format("%s.%s", packageName, platformMainClass);
+        platformInfo.infoGenerator().generatePluginInfo(pluginData, fullMainName, this.environment.getFiler());
 
         // generate the main class
         var type = (TypeElement) element;
         var generated = platformInfo.mainClassGenerator().generatePluginMainClass(pluginData, type, platformMainClass);
 
-        // convert the generated class for writing
-        var packageName = this.environment.getElementUtils().getPackageOf(element).toString();
+        // convert the generated class & write it
         var javaFile = JavaFile.builder(packageName, generated).build();
-
-        // write the file to the environment
         javaFile.writeTo(this.environment.getFiler());
       } catch (IOException exception) {
         this.environment.getMessager().printMessage(
