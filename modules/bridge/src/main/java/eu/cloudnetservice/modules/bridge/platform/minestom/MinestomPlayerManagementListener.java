@@ -20,28 +20,36 @@ import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
+import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerPreLoginEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 
+@Singleton
 public final class MinestomPlayerManagementListener {
 
+  private final ServiceInfoHolder serviceInfoHolder;
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
+  @Inject
   public MinestomPlayerManagementListener(
+    @NonNull GlobalEventHandler eventHandler,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
   ) {
+    this.serviceInfoHolder = serviceInfoHolder;
     this.management = management;
     // listen on these events and redirect them into the methods
     var node = EventNode.type("cloudnet-bridge", EventFilter.PLAYER);
-    MinecraftServer.getGlobalEventHandler().addChild(node
+    eventHandler.addChild(node
       .addListener(AsyncPlayerPreLoginEvent.class, this::handleLogin)
       .addListener(PlayerSpawnEvent.class, this::handleJoin)
       .addListener(PlayerDisconnectEvent.class, this::handleDisconnect));
@@ -88,7 +96,7 @@ public final class MinestomPlayerManagementListener {
       event.getPlayer().getUuid(),
       this.management.createPlayerInformation(event.getPlayer()));
     // update the service info
-    Wrapper.instance().publishServiceInfoUpdate();
+    this.serviceInfoHolder.publishServiceInfoUpdate();
   }
 
   private void handleDisconnect(@NonNull PlayerDisconnectEvent event) {
@@ -101,6 +109,6 @@ public final class MinestomPlayerManagementListener {
       event.getPlayer().getUuid(),
       this.management.ownNetworkServiceInfo());
     // update the service info
-    Wrapper.instance().publishServiceInfoUpdate();
+    this.serviceInfoHolder.publishServiceInfoUpdate();
   }
 }

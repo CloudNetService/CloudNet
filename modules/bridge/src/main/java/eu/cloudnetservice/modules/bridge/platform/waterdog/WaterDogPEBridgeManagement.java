@@ -55,11 +55,13 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
 
   private static final BiFunction<ProxiedPlayer, String, Boolean> PERM_FUNCTION = CommandSender::hasPermission;
 
+  private final ProxyServer proxyServer;
   private final PlayerExecutor globalDirectPlayerExecutor;
 
   @Inject
   public WaterDogPEBridgeManagement(
     @NonNull RPCFactory rpcFactory,
+    @NonNull ProxyServer proxyServer,
     @NonNull EventManager eventManager,
     @NonNull NetworkClient networkClient,
     @NonNull ServiceTaskProvider taskProvider,
@@ -68,26 +70,29 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
     @NonNull CloudServiceProvider serviceProvider
   ) {
     super(rpcFactory, eventManager, networkClient, taskProvider, serviceHelper, serviceInfoHolder, serviceProvider);
+
     // init fields
+    this.proxyServer = proxyServer;
     this.globalDirectPlayerExecutor = new WaterDogPEDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,
+      this.proxyServer,
       this,
-      ProxyServer.getInstance().getPlayers()::values);
+      this.proxyServer.getPlayers()::values);
     // init the bridge properties
-    serviceHelper.motd().set(ProxyServer.getInstance().getConfiguration().getMotd());
-    serviceHelper.maxPlayers().set(ProxyServer.getInstance().getConfiguration().getMaxPlayerCount());
+    serviceHelper.motd().set(this.proxyServer.getConfiguration().getMotd());
+    serviceHelper.maxPlayers().set(this.proxyServer.getConfiguration().getMaxPlayerCount());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
       .and(service -> ServiceEnvironmentType.PE_SERVER.get(service.serviceId().environment().properties()));
     // register each service matching the service cache tester
-    this.cacheRegisterListener = service -> ProxyServer.getInstance().getServerInfoMap().put(
+    this.cacheRegisterListener = service -> this.proxyServer.getServerInfoMap().put(
       service.name(),
       new BedrockServerInfo(
         service.name(),
         new InetSocketAddress(service.address().host(), service.address().port()),
         new InetSocketAddress(service.address().host(), service.address().port())));
     // unregister each service matching the service cache tester
-    this.cacheUnregisterListener = service -> ProxyServer.getInstance().getServerInfoMap().remove(service.name());
+    this.cacheUnregisterListener = service -> this.proxyServer.getServerInfoMap().remove(service.name());
   }
 
   @Override
@@ -109,7 +114,7 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
       player.getXuid(),
       player.getProtocol().getRaknetVersion(),
       BridgeHostAndPortUtil.fromSocketAddress(player.getAddress()),
-      BridgeHostAndPortUtil.fromSocketAddress(ProxyServer.getInstance().getConfiguration().getBindAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(this.proxyServer.getConfiguration().getBindAddress()),
       player.getLoginData().isXboxAuthed(),
       this.ownNetworkServiceInfo);
   }
@@ -160,18 +165,19 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
       ? this.globalDirectPlayerExecutor
       : new WaterDogPEDirectPlayerExecutor(
         uniqueId,
+        this.proxyServer,
         this,
-        () -> Collections.singleton(ProxyServer.getInstance().getPlayer(uniqueId)));
+        () -> Collections.singleton(this.proxyServer.getPlayer(uniqueId)));
   }
 
   @Override
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the velocity specific information
-    snapshot.properties().append("Online-Count", ProxyServer.getInstance().getPlayers().size());
+    snapshot.properties().append("Online-Count", this.proxyServer.getPlayers().size());
     snapshot.properties().append("Version", WaterdogPE.version().baseVersion());
     // players
-    snapshot.properties().append("Players", ProxyServer.getInstance().getPlayers().values().stream()
+    snapshot.properties().append("Players", this.proxyServer.getPlayers().values().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

@@ -17,47 +17,65 @@
 package eu.cloudnetservice.modules.bridge.platform.waterdog;
 
 import dev.waterdog.waterdogpe.ProxyServer;
-import dev.waterdog.waterdogpe.plugin.Plugin;
-import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.ext.platformlayer.WaterDogPELayer;
+import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.bridge.platform.waterdog.command.WaterDogPECloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.waterdog.command.WaterDogPEHubCommand;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
+import lombok.NonNull;
 
-public final class WaterDogPEBridgePlugin extends Plugin {
+@Singleton
+@PlatformPlugin(platform = "waterdogpe", name = "CloudNet-Bridge", version = "{project.build.version}")
+public final class WaterDogPEBridgePlugin implements PlatformEntrypoint {
 
-  private InjectionLayer<?> injectionLayer;
+  private final ProxyServer proxyServer;
+  private final ModuleHelper moduleHelper;
+  private final ServiceRegistry serviceRegistry;
+  private final WaterDogPECloudCommand cloudCommand;
+  private final WaterDogPEBridgeManagement bridgeManagement;
+
+  @Inject
+  public WaterDogPEBridgePlugin(
+    @NonNull ProxyServer proxyServer,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull WaterDogPECloudCommand cloudCommand,
+    @NonNull WaterDogPEBridgeManagement bridgeManagement,
+    @NonNull WaterDogPEPlayerManagementListener managementListener
+  ) {
+    this.proxyServer = proxyServer;
+    this.moduleHelper = moduleHelper;
+    this.serviceRegistry = serviceRegistry;
+    this.cloudCommand = cloudCommand;
+    this.bridgeManagement = bridgeManagement;
+  }
 
   @Override
-  public void onEnable() {
-    this.injectionLayer = WaterDogPELayer.create(this);
-
+  public void onLoad() {
     // init the management
-    var management = this.injectionLayer.instance(WaterDogPEBridgeManagement.class);
-    management.registerServices(this.injectionLayer.instance(ServiceRegistry.class));
-    management.postInit();
-
-    // register the listeners (registered during the instance creation due to the weird event system)
-    this.injectionLayer.instance(WaterDogPEPlayerManagementListener.class);
+    this.bridgeManagement.registerServices(this.serviceRegistry);
+    this.bridgeManagement.postInit();
 
     // register the WaterDog handlers
-    var handlers = new WaterDogPEHandlers(management);
-    ProxyServer.getInstance().setReconnectHandler(handlers);
-    ProxyServer.getInstance().setForcedHostHandler(handlers);
+    var handlers = new WaterDogPEHandlers(this.proxyServer, this.bridgeManagement);
+    this.proxyServer.setReconnectHandler(handlers);
+    this.proxyServer.setForcedHostHandler(handlers);
 
     // register the commands
-    var waterDogCloudCommand = this.injectionLayer.instance(WaterDogPECloudCommand.class);
-    ProxyServer.getInstance().getCommandMap().registerCommand(waterDogCloudCommand);
+    this.proxyServer.getCommandMap().registerCommand(this.cloudCommand);
 
     // register the hub command if requested
-    if (!management.configuration().hubCommandNames().isEmpty()) {
+    if (!this.bridgeManagement.configuration().hubCommandNames().isEmpty()) {
       // convert to an array for easier access
-      var names = management.configuration().hubCommandNames().toArray(new String[0]);
+      var names = this.bridgeManagement.configuration().hubCommandNames().toArray(new String[0]);
       // register the command
-      ProxyServer.getInstance().getCommandMap().registerCommand(new WaterDogPEHubCommand(
-        management,
+      this.proxyServer.getCommandMap().registerCommand(new WaterDogPEHubCommand(
+        this.bridgeManagement,
+        this.proxyServer,
         names[0],
         names.length > 1 ? Arrays.copyOfRange(names, 1, names.length) : new String[0]));
     }
@@ -65,7 +83,6 @@ public final class WaterDogPEBridgePlugin extends Plugin {
 
   @Override
   public void onDisable() {
-    var moduleHelper = this.injectionLayer.instance(ModuleHelper.class);
-    moduleHelper.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

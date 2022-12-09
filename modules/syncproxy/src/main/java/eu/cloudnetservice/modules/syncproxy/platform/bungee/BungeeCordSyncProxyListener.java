@@ -93,7 +93,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
       return;
     }
 
-    var player = new PendingConnectionProxiedPlayer(event.getConnection());
+    var player = new PendingConnectionProxiedPlayer(proxyServer, event.getConnection());
 
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him

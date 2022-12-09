@@ -16,12 +16,13 @@
 
 package eu.cloudnetservice.modules.bridge.platform.waterdog;
 
-import dev.waterdog.waterdogpe.ProxyServer;
+import dev.waterdog.waterdogpe.event.EventManager;
 import dev.waterdog.waterdogpe.event.defaults.InitialServerConnectedEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.TransferCompleteEvent;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
+import dev.waterdog.waterdogpe.scheduler.WaterdogScheduler;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -36,22 +37,25 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 @Singleton
 public final class WaterDogPEPlayerManagementListener {
 
+  private final WaterdogScheduler scheduler;
   private final ServiceInfoHolder serviceInfoHolder;
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 
   @Inject
   public WaterDogPEPlayerManagementListener(
-    @NonNull ProxyServer proxyServer,
+    @NonNull EventManager eventManager,
+    @NonNull WaterdogScheduler scheduler,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
   ) {
+    this.scheduler = scheduler;
     this.serviceInfoHolder = serviceInfoHolder;
     this.management = management;
     // subscribe to all events
-    proxyServer.getEventManager().subscribe(PlayerLoginEvent.class, this::handleLogin);
-    proxyServer.getEventManager().subscribe(TransferCompleteEvent.class, this::handleTransfer);
-    proxyServer.getEventManager().subscribe(PlayerDisconnectEvent.class, this::handleDisconnected);
-    proxyServer.getEventManager().subscribe(InitialServerConnectedEvent.class, this::handleInitialConnect);
+    eventManager.subscribe(PlayerLoginEvent.class, this::handleLogin);
+    eventManager.subscribe(TransferCompleteEvent.class, this::handleTransfer);
+    eventManager.subscribe(PlayerDisconnectEvent.class, this::handleDisconnected);
+    eventManager.subscribe(InitialServerConnectedEvent.class, this::handleInitialConnect);
   }
 
   private void handleLogin(@NonNull PlayerLoginEvent event) {
@@ -118,7 +122,7 @@ public final class WaterDogPEPlayerManagementListener {
     if (event.getPlayer().getServerInfo() != null) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
-      ProxyServer.getInstance().getScheduler().scheduleDelayed(this.serviceInfoHolder::publishServiceInfoUpdate, 1);
+      this.scheduler.scheduleDelayed(this.serviceInfoHolder::publishServiceInfoUpdate, 1);
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());

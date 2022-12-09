@@ -17,29 +17,39 @@
 package eu.cloudnetservice.modules.bridge.platform.nukkit;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.plugin.Plugin;
+import cn.nukkit.scheduler.ServerScheduler;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class NukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
+  private final ServerScheduler scheduler;
+  private final ServiceInfoHolder serviceInfoHolder;
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
+  @Inject
   public NukkitPlayerManagementListener(
     @NonNull Plugin plugin,
+    @NonNull ServerScheduler scheduler,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
   ) {
     this.plugin = plugin;
+    this.scheduler = scheduler;
+    this.serviceInfoHolder = serviceInfoHolder;
     this.management = management;
   }
 
@@ -75,7 +85,7 @@ public final class NukkitPlayerManagementListener implements Listener {
       event.getPlayer().getUniqueId(),
       this.management.createPlayerInformation(event.getPlayer()));
     // update the service info in the next tick
-    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.instance()::publishServiceInfoUpdate);
+    this.scheduler.scheduleTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 
   @EventHandler
@@ -84,6 +94,6 @@ public final class NukkitPlayerManagementListener implements Listener {
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
-    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.instance()::publishServiceInfoUpdate);
+    this.scheduler.scheduleTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 }

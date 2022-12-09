@@ -23,7 +23,9 @@ import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -39,19 +41,35 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
+@Singleton
 public final class BungeeCordPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
+  private final TaskScheduler scheduler;
+  private final PluginManager pluginManager;
+  private final BungeeCordHelper bungeeHelper;
+  private final ServiceInfoHolder serviceInfoHolder;
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 
+  @Inject
   public BungeeCordPlayerManagementListener(
     @NonNull Plugin plugin,
+    @NonNull TaskScheduler scheduler,
+    @NonNull PluginManager pluginManager,
+    @NonNull BungeeCordHelper bungeeHelper,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
   ) {
     this.plugin = plugin;
+    this.scheduler = scheduler;
+    this.pluginManager = pluginManager;
+    this.bungeeHelper = bungeeHelper;
+    this.serviceInfoHolder = serviceInfoHolder;
     this.management = management;
   }
 
@@ -61,14 +79,14 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     // check if the current task is present
     if (task != null) {
       // we need to wrap the proxied player to allow permission checks
-      ProxiedPlayer player = new PendingConnectionProxiedPlayer(event.getConnection());
+      var player = new PendingConnectionProxiedPlayer(this.pluginManager, event.getConnection());
       // check if maintenance is activated
       if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance",
-          BungeeCordHelper::translateToComponent,
+          this.bungeeHelper::translateToComponent,
           event::setCancelReason);
         return;
       }
@@ -79,7 +97,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission",
-          BungeeCordHelper::translateToComponent,
+          this.bungeeHelper::translateToComponent,
           event::setCancelReason);
         return;
       }
@@ -143,7 +161,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "error-connecting-to-server",
-          message -> BungeeCordHelper.translateToComponent(message
+          message -> this.bungeeHelper.translateToComponent(message
             .replace("%server%", event.getKickedFrom().getName())
             .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()))),
           event.getPlayer()::sendMessage);
@@ -156,7 +174,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "proxy-join-disconnect-because-no-hub",
-          BungeeCordHelper::translateToComponent,
+          this.bungeeHelper::translateToComponent,
           event::setKickReasonComponent);
       }
     }
@@ -174,7 +192,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.createPlayerInformation(event.getPlayer()),
         joinedServiceInfo);
       // update the service info
-      Wrapper.instance().publishServiceInfoUpdate();
+      this.serviceInfoHolder.publishServiceInfoUpdate();
     } else if (joinedServiceInfo != null) {
       // the player switched the service
       ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
@@ -189,11 +207,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     if (event.getPlayer().getServer() != null) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
-      ProxyServer.getInstance().getScheduler().schedule(
-        this.plugin,
-        Wrapper.instance()::publishServiceInfoUpdate,
-        50,
-        TimeUnit.MILLISECONDS);
+      this.scheduler.schedule(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate, 50, TimeUnit.MILLISECONDS);
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());

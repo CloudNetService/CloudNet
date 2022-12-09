@@ -43,7 +43,9 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
   private final BridgedServer server;
   private final PlayerExecutor directGlobalExecutor;
 
-  public FabricBridgeManagement(@NonNull BridgedServer server) {
+  public FabricBridgeManagement(
+    @NonNull BridgedServer server
+  ) {
     super(Wrapper.instance());
     // field init
     this.server = server;

@@ -23,6 +23,7 @@ import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.defaults.BasePlatformPluginManager;
 import lombok.NonNull;
+import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
@@ -41,6 +42,7 @@ final class BungeeCordPlatformPluginManager extends BasePlatformPluginManager<St
       layer.install(createFixedBinding(platformData.getProxy(), ProxyServer.class));
       layer.install(createFixedBinding(platformData.getProxy().getScheduler(), TaskScheduler.class));
       layer.install(createFixedBinding(platformData.getProxy().getPluginManager(), PluginManager.class));
+      layer.install(createFixedBinding(platformData.getProxy().getConfig(), ProxyConfig.class));
 
       // install the bindings which are specific to the plugin
       layer.install(fixedBindingWithBound(platformData, Plugin.class));

@@ -31,11 +31,15 @@ import org.jetbrains.annotations.Nullable;
 
 final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
+  private final Server server;
+
   public NukkitDirectPlayerExecutor(
+    @NonNull Server server,
     @NonNull UUID targetUniqueId,
     @NonNull Supplier<Collection<? extends Player>> playerSupplier
   ) {
     super(targetUniqueId, playerSupplier);
+    this.server = server;
   }
 
   @Override
@@ -94,6 +98,6 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
 
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
-    this.forEach(player -> Server.getInstance().dispatchCommand(player, command));
+    this.forEach(player -> this.server.dispatchCommand(player, command));
   }
 }

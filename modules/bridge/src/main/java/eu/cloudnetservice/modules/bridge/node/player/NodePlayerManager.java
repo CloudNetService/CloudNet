@@ -45,10 +45,10 @@ import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerProvider;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
+import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -73,6 +73,7 @@ public class NodePlayerManager implements PlayerManager {
   protected final String databaseName;
   protected final EventManager eventManager;
   protected final CommandProvider commandProvider;
+  protected final AbstractDatabaseProvider abstractDatabaseProvider;
 
   protected final Map<UUID, CloudPlayer> onlinePlayers = new ConcurrentHashMap<>();
   protected final PlayerProvider allPlayerProvider = new NodePlayerProvider(() -> this.onlinePlayers.values().stream());
@@ -97,11 +98,13 @@ public class NodePlayerManager implements PlayerManager {
     @NonNull CommandProvider commandProvider,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull RPCHandlerRegistry handlerRegistry,
-    @NonNull @Named("bridgeDatabaseName") String databaseName
+    @NonNull @Named("bridgeDatabaseName") String databaseName,
+    @NonNull AbstractDatabaseProvider abstractDatabaseProvider
   ) {
     this.databaseName = databaseName;
     this.eventManager = eventManager;
     this.commandProvider = commandProvider;
+    this.abstractDatabaseProvider = abstractDatabaseProvider;
     // register the rpc listeners
     providerFactory.newHandler(PlayerManager.class, this).registerTo(handlerRegistry);
     providerFactory.newHandler(PlayerExecutor.class, null).registerTo(handlerRegistry);
@@ -302,7 +305,7 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   protected @NonNull LocalDatabase database() {
-    return Node.instance().databaseProvider().database(this.databaseName);
+    return this.abstractDatabaseProvider.database(this.databaseName);
   }
 
   public @NonNull Map<UUID, CloudPlayer> players() {
