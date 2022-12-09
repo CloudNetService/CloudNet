@@ -22,6 +22,7 @@ testcontainers = "1.17.5"
 
 # compile time processing
 lombok = "1.18.24"
+javapoet = "1.13.0"
 
 # console
 jansi = "2.4.0"
@@ -78,6 +79,7 @@ fabricLoader = "0.14.10"
 
 # compile time processing
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+javapoet = { group = "com.squareup", name = "javapoet", version.ref = "javapoet" }
 
 # google libs
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
@@ -90,6 +92,7 @@ jansi = { group = "org.fusesource.jansi", name = "jansi", version.ref = "jansi" 
 # night config
 nightConfigToml = { group = "com.electronwill.night-config", name = "toml", version.ref = "nightConfig" }
 nightConfigYaml = { group = "com.electronwill.night-config", name = "yaml", version.ref = "nightConfig" }
+nightConfigJson = { group = "com.electronwill.night-config", name = "json", version.ref = "nightConfig" }
 
 # cloud commands
 cloudCore = { group = "com.github.CloudNetService.cloud-command-framework", name = "cloud-core", version.ref = "cloud" }
@@ -189,9 +192,9 @@ cloud = ["cloudCore", "cloudAnnotations"]
 netty = ["nettyHandler", "nettyCodecHttp"]
 jjwt = ["jjwtApi", "jjwtImpl", "jjwtGson"]
 junit = ["junitApi", "junitParams", "junitEngine"]
-nightConfig = ["nightConfigToml", "nightConfigYaml"]
 dockerJava = ["dockerJavaApi", "dockerJavaHttpclient5"]
 testContainers = ["testContainers", "testContainersJunit"]
+nightConfig = ["nightConfigToml", "nightConfigYaml", "nightConfigJson"]
 adventure = ["adventureApi", "adventureSerializerGson", "adventureSerializerLegacy"]
 
 proxyPlatform = ["bungeecord", "velocity", "waterdogpe"]
