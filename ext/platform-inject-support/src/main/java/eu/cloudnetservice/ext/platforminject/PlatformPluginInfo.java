@@ -20,7 +20,7 @@ import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayerHolder;
 import lombok.NonNull;
 
-public interface PlatformPluginInfo<I, T, P extends PlatformPlugin> extends InjectionLayerHolder<SpecifiedInjector> {
+public interface PlatformPluginInfo<I, T, P extends PlatformEntrypoint> extends InjectionLayerHolder<SpecifiedInjector> {
 
   @NonNull I id();
 
@@ -28,7 +28,7 @@ public interface PlatformPluginInfo<I, T, P extends PlatformPlugin> extends Inje
 
   @NonNull P platformPluginInstance();
 
-  @NonNull Class<? extends PlatformPlugin> platformPluginClass();
+  @NonNull Class<? extends PlatformEntrypoint> platformPluginClass();
 
   void close();
 }

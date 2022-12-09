@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.ext.platforminject;
 
-public interface PlatformPlugin {
+public interface PlatformEntrypoint {
 
   void onLoad();
 

@@ -28,7 +28,7 @@ public interface PlatformPluginManager<I, T> {
 
   @Nullable PlatformPluginInfo<I, T, ?> loadedPluginById(@NonNull I id);
 
-  void constructAndLoad(@NonNull Class<? extends PlatformPlugin> pluginClass, @NonNull T platformData);
+  void constructAndLoad(@NonNull Class<? extends PlatformEntrypoint> pluginClass, @NonNull T platformData);
 
   void disablePlugin(@NonNull T platformData);
 

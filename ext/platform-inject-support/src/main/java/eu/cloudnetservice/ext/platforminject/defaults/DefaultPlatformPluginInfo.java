@@ -18,16 +18,16 @@ package eu.cloudnetservice.ext.platforminject.defaults;
 
 import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import eu.cloudnetservice.ext.platforminject.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.PlatformPluginInfo;
 import lombok.NonNull;
 
-public record DefaultPlatformPluginInfo<I, T, P extends PlatformPlugin>(
+public record DefaultPlatformPluginInfo<I, T, P extends PlatformEntrypoint>(
   @NonNull I id,
   @NonNull T platformData,
   @NonNull InjectionLayer<SpecifiedInjector> injectionLayer,
   @NonNull P platformPluginInstance,
-  @NonNull Class<? extends PlatformPlugin> platformPluginClass
+  @NonNull Class<? extends PlatformEntrypoint> platformPluginClass
 ) implements PlatformPluginInfo<I, T, P> {
 
   @Override

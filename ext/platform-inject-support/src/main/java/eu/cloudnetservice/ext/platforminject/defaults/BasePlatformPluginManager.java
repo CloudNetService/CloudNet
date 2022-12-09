@@ -19,7 +19,7 @@ package eu.cloudnetservice.ext.platforminject.defaults;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import eu.cloudnetservice.ext.platforminject.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.PlatformPluginInfo;
 import eu.cloudnetservice.ext.platforminject.PlatformPluginManager;
 import java.util.Collection;
@@ -58,7 +58,7 @@ public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginM
   }
 
   @Override
-  public void constructAndLoad(@NonNull Class<? extends PlatformPlugin> pluginClass, @NonNull T platformData) {
+  public void constructAndLoad(@NonNull Class<? extends PlatformEntrypoint> pluginClass, @NonNull T platformData) {
     // check if the plugin was constructed already
     var pluginId = this.idExtractor.apply(platformData);
     if (pluginId == null || this.constructedPlugins.containsKey(pluginId)) {
