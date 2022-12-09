@@ -21,10 +21,12 @@ import dev.derklaro.aerogel.AerogelException;
 import dev.derklaro.aerogel.BindingConstructor;
 import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.internal.binding.ImmediateBindingHolder;
 import dev.derklaro.aerogel.internal.utility.ElementHelper;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -130,12 +132,27 @@ public final class InjectUtil {
   /**
    * Creates a fixed binding constructor without setting any required name or annotation. It is only based on the type.
    *
-   * @param type  the type to create the element for.
    * @param value the value that is bound to the type.
+   * @param types the types to bind the given value to.
    * @return the new binding constructor.
-   * @throws NullPointerException if the given type or value is null.
+   * @throws NullPointerException      if the given type or value is null.
+   * @throws IndexOutOfBoundsException if the given type array is empty.
    */
-  public static @NonNull BindingConstructor createFixedBinding(@NonNull Type type, @NonNull Object value) {
-    return Bindings.fixed(Element.forType(type), value);
+  public static @NonNull BindingConstructor createFixedBinding(@NonNull Object value, @NonNull Type... types) {
+    Objects.checkIndex(0, types.length);
+
+    // extract the root binding type
+    var coreBinding = Element.forType(types[0]);
+    if (types.length == 1) {
+      // only one type given, no need for further checks
+      return Bindings.fixed(coreBinding, value);
+    }
+
+    // more than one binding, extract the other ones
+    var remainingBindings = Arrays.copyOfRange(types, 1, types.length);
+    var bindingElements = Arrays.stream(remainingBindings).map(Element::forType).toArray(Element[]::new);
+
+    // construct a binding holder
+    return injector -> new ImmediateBindingHolder(coreBinding, injector, bindingElements);
   }
 }
