@@ -30,13 +30,6 @@ import org.jetbrains.annotations.UnknownNullability;
 public interface RPCHandler extends RPCProvider {
 
   /**
-   * Registers this rpc handler to the default rpc handler registry provided through the cloudnet driver class.
-   * Equivalent to {@code handler.registerTo(CloudNetDriver.instance().rpcHandlerRegistry())}.
-   */
-  @Deprecated(forRemoval = true) // TODO: need to update modules first
-  void registerToDefaultRegistry();
-
-  /**
    * Registers this rpc handler to the given rpc handler registry.
    *
    * @param registry the registry to register to.

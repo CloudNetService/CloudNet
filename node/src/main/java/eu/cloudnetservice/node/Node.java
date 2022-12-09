@@ -16,12 +16,10 @@
 
 package eu.cloudnetservice.node;
 
-import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.Order;
 import dev.derklaro.aerogel.internal.binding.ImmediateBindingHolder;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -31,9 +29,6 @@ import eu.cloudnetservice.common.log.defaults.DefaultFileHandler;
 import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
 import eu.cloudnetservice.common.log.defaults.ThreadedLogRecordDispatcher;
 import eu.cloudnetservice.common.log.io.LogOutputStream;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.CloudNetVersion;
-import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
@@ -41,22 +36,17 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.DefaultModuleDependencyLoader;
 import eu.cloudnetservice.driver.module.ModuleProvider;
-import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
-import eu.cloudnetservice.ext.updater.UpdaterRegistry;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
-import eu.cloudnetservice.node.cluster.defaults.DefaultNodeServerProvider;
-import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
@@ -70,166 +60,34 @@ import eu.cloudnetservice.node.event.CloudNetNodePostInitializationEvent;
 import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
 import eu.cloudnetservice.node.module.ModulesHolder;
 import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
-import eu.cloudnetservice.node.module.updater.ModuleUpdaterContext;
 import eu.cloudnetservice.node.module.updater.ModuleUpdaterRegistry;
 import eu.cloudnetservice.node.network.chunk.FileDeployCallbackListener;
 import eu.cloudnetservice.node.permission.NodePermissionManagement;
-import eu.cloudnetservice.node.provider.NodeMessenger;
-import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.template.LocalTemplateStorage;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import java.io.File;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.NonNull;
 
-/**
- * Represents the implementation of the {@link CloudNetDriver} for nodes.
- */
 @Singleton
-public class Node extends CloudNetDriver {
+public final class Node {
 
   public static final boolean DEV_MODE = Boolean.getBoolean("cloudnet.dev");
   public static final boolean AUTO_UPDATE = Boolean.getBoolean("cloudnet.auto.update");
   private static final Logger LOGGER = LogManager.logger(Node.class);
-  private final Console console;
-  private final CommandProvider commandProvider;
-
-  private final HttpServer httpServer;
-  private final NetworkClient networkClient;
-  private final NetworkServer networkServer;
-
-  private final DefaultNodeServerProvider nodeServerProvider;
-  private final ServiceVersionProvider serviceVersionProvider;
-
-  private final Configuration configuration;
-  private final ModulesHolder modulesHolder;
-  private final UpdaterRegistry<ModuleUpdaterContext, ModulesHolder> moduleUpdaterRegistry;
-
-  private final AtomicBoolean running = new AtomicBoolean(true);
-  private final DefaultInstallation installation = null; //new DefaultInstallation();
-  private final DataSyncRegistry dataSyncRegistry = null; //new DefaultDataSyncRegistry();
-  private final QueuedConsoleLogHandler logHandler = null;// new QueuedConsoleLogHandler();
-
-  private volatile AbstractDatabaseProvider databaseProvider;
-
-  @Inject
-  protected Node(@NonNull @Named("consoleArgs") List<String> args) {
-    super(CloudNetVersion.fromPackage(Node.class.getPackage()), args, DriverEnvironment.NODE);
-
-    instance(this);
-
-    this.console = null; //console;
-    this.commandProvider = null; //new DefaultCommandProvider(console, this.eventManager);
-
-    this.modulesHolder = null; //ModuleUpdateUtil.readModuleJson(LAUNCHER_DIR);
-    this.moduleUpdaterRegistry = null; //new ModuleUpdaterRegistry();
-    //this.moduleUpdaterRegistry.registerUpdater(new ModuleUpdater());
-
-    this.templateStorageProvider = null; //new NodeTemplateStorageProvider(this);
-    this.serviceVersionProvider = null; //new ServiceVersionProvider(this.eventManager);
-
-    this.configuration = null; //JsonConfiguration.loadFromFile(this);
-    this.nodeServerProvider = null; //new DefaultNodeServerProvider(this);
-
-    // language management init
-
-    this.clusterNodeProvider = null; //new NodeClusterNodeProvider(this);
-    this.cloudServiceProvider = null;
-    //this.cloudServiceProvider = new DefaultCloudServiceManager(
-    //  this,
-    // passed down by the launcher, all arguments that we should append by default to service we're
-    // starting - these are seperated by ;;
-    //   Arrays.asList(this.commandLineArguments.remove(0).split(";;")));
-
-    this.messenger = null; //new NodeMessenger(this);
-    this.cloudServiceFactory = null; //new NodeCloudServiceFactory(this);
-
-    this.serviceTaskProvider = null; //new NodeServiceTaskProvider(this);
-    this.groupConfigurationProvider = null; //new NodeGroupConfigurationProvider(this);
-
-    // permission management init
-    //this.permissionManagement(new DefaultDatabasePermissionManagement(this));
-    //this.permissionManagement().permissionManagementHandler(
-    //  new DefaultPermissionManagementHandler(this.eventManager));
-
-    this.networkClient = null;
-    this.networkServer = null;
-    this.httpServer = null;
-  }
-
-  @Deprecated(forRemoval = true) // TODO...
-  public static @NonNull Node instance() {
-    return CloudNetDriver.instance();
-  }
-
-  @Override
-  public void start(@NonNull Instant startInstant) throws Exception {
-  }
-
-  @Override
-  public void stop() {
-    // check if the node is still running
-    if (this.running.getAndSet(false)) {
-      try {
-        LOGGER.info(I18n.trans("stop-application"));
-
-        // stop task execution
-        this.scheduler.shutdownNow();
-        this.serviceVersionProvider.interruptInstallSteps();
-
-        // interrupt the connection to other nodes
-        LOGGER.info(I18n.trans("stop-node-connections"));
-        this.nodeServerProvider.close();
-
-        // close all services
-        LOGGER.info(I18n.trans("stop-services"));
-        this.cloudServiceProvider().deleteAllCloudServices();
-
-        // close all networking listeners
-        LOGGER.info(I18n.trans("stop-network-components"));
-        this.httpServer.close();
-        this.networkClient.close();
-        this.networkServer.close();
-
-        // close all the other providers
-        LOGGER.info(I18n.trans("stop-providers"));
-        this.permissionManagement.close();
-        this.databaseProvider.close();
-
-        // stop & unload all modules
-        this.moduleProvider.stopAll();
-        this.moduleProvider.unloadAll();
-
-        // remove temp directory
-        LOGGER.info(I18n.trans("stop-delete-temp"));
-        FileUtil.delete(FileUtil.TEMP_DIR);
-
-        // close console
-        this.console.close();
-
-        // check if we are in the shutdown thread - execute a clean shutdown if not
-        if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
-          System.exit(0);
-        }
-      } catch (Exception exception) {
-        LOGGER.severe("Exception during node shutdown", exception);
-      }
-    }
-  }
 
   @Inject
   @Order(0)
@@ -282,7 +140,6 @@ public class Node extends CloudNetDriver {
   @Order(100)
   private void registerDefaultRPCHandlers(@NonNull RPCFactory rpcFactory, @NonNull RPCHandlerRegistry handlerRegistry) {
     rpcFactory.newHandler(Database.class, null).registerTo(handlerRegistry);
-    rpcFactory.newHandler(CloudNetDriver.class, this).registerTo(handlerRegistry); // TODO: HUH?
     rpcFactory.newHandler(TemplateStorage.class, null).registerTo(handlerRegistry);
   }
 
@@ -514,7 +371,8 @@ public class Node extends CloudNetDriver {
           futures.add(Task.supply(() -> {
             // wait for the connection to establish, max 7 seconds
             for (var i = 0; i < 140 && !node.available(); i++) {
-              Thread.onSpinWait();
+              //noinspection BusyWait
+              Thread.sleep(50);
             }
             return null;
           }));
@@ -564,6 +422,16 @@ public class Node extends CloudNetDriver {
   }
 
   @Inject
+  @Order(10_000)
+  private void installShutdownHook(@NonNull Provider<ShutdownHandler> shutdownHandlerProvider) {
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      // get the shutdown handler instance & execute the shutdown process
+      var shutdownHandler = shutdownHandlerProvider.get();
+      shutdownHandler.shutdown();
+    }));
+  }
+
+  @Inject
   @Order(Integer.MAX_VALUE)
   private void finishStartup(
     @NonNull TickLoop tickLoop,
@@ -579,122 +447,8 @@ public class Node extends CloudNetDriver {
     eventManager.registerListener(callbackListener);
     eventManager.callEvent(new CloudNetNodePostInitializationEvent());
 
-    // add shutdown hook & notify
-    Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));
+    // notify that we are done & start the main tick loop
     LOGGER.info(I18n.trans("start-done", Duration.between(startInstant, Instant.now()).toMillis()));
-
-    // start the main tick loop
     tickLoop.start();
   }
-
-  @Override
-  public @NonNull String componentName() {
-    return "";//this.configuration.identity().uniqueId();
-  }
-
-  @Override
-  public @NonNull String nodeUniqueId() {
-    return ""; //this.configuration.identity().uniqueId();
-  }
-
-  @Override
-  public @NonNull AbstractDatabaseProvider databaseProvider() {
-    return this.databaseProvider;
-  }
-
-  @Override
-  public @NonNull NetworkClient networkClient() {
-    return this.networkClient;
-  }
-
-  @Override
-  public @NonNull NodeMessenger messenger() {
-    return (NodeMessenger) super.messenger();
-  }
-
-  @Override
-  public @NonNull CloudServiceManager cloudServiceProvider() {
-    return (CloudServiceManager) super.cloudServiceProvider();
-  }
-
-  @Override
-  public @NonNull NodePermissionManagement permissionManagement() {
-    return (NodePermissionManagement) super.permissionManagement();
-  }
-
-  @Override
-  public void permissionManagement(@NonNull PermissionManagement management) { // TODO: remove
-    // nodes can only use node permission managements
-    Preconditions.checkArgument(management instanceof NodePermissionManagement);
-    super.permissionManagement(management);
-    // re-register the handler for the permission management - the call to super.setPermissionManagement will not exit
-    // if the permission management is invalid
-    //this.rpcFactory.newHandler(PermissionManagement.class, management).registerToDefaultRegistry();
-  }
-
-  public @NonNull Configuration config() {
-    return this.configuration;
-  }
-
-  public void reloadConfigFrom(@NonNull Configuration configuration) {
-    this.configuration.reloadFrom(configuration.save());
-  }
-
-  public @NonNull NodeServerProvider nodeServerProvider() {
-    return this.nodeServerProvider;
-  }
-
-  public @NonNull TickLoop mainThread() {
-    throw new UnsupportedOperationException();
-  }
-
-  public @NonNull CommandProvider commandProvider() {
-    return this.commandProvider;
-  }
-
-  public @NonNull Console console() {
-    return this.console;
-  }
-
-  public @NonNull ServiceVersionProvider serviceVersionProvider() {
-    return this.serviceVersionProvider;
-  }
-
-  public @NonNull NetworkServer networkServer() {
-    return this.networkServer;
-  }
-
-  public @NonNull HttpServer httpServer() {
-    return this.httpServer;
-  }
-
-  public @NonNull QueuedConsoleLogHandler logHandler() {
-    return this.logHandler;
-  }
-
-  public @NonNull DefaultInstallation installation() {
-    return this.installation;
-  }
-
-  public @NonNull DataSyncRegistry dataSyncRegistry() {
-    return this.dataSyncRegistry;
-  }
-
-  public @NonNull ModulesHolder modulesHolder() {
-    return this.modulesHolder;
-  }
-
-  public boolean dev() {
-    return DEV_MODE;
-  }
-
-  public boolean autoUpdate() {
-    return AUTO_UPDATE;
-  }
-
-  public boolean running() {
-    return this.running.get();
-  }
-
-
 }

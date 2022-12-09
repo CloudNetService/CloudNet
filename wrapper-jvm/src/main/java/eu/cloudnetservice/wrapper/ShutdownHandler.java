@@ -24,7 +24,7 @@ import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 @Singleton
-final class ShutdownHandler implements Runnable {
+final class ShutdownHandler {
 
   private final NetworkClient networkClient;
   private final ModuleProvider moduleProvider;
@@ -41,8 +41,7 @@ final class ShutdownHandler implements Runnable {
     this.serviceRegistry = serviceRegistry;
   }
 
-  @Override
-  public void run() {
+  public void shutdown() {
     try {
       this.networkClient.close();
     } catch (Exception ignored) {

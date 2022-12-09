@@ -52,14 +52,6 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
    * {@inheritDoc}
    */
   @Override
-  public boolean allowsOverride() {
-    return true;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public PermissionGroup highestPermissionGroup(@NonNull PermissionUser permissionUser) {
     PermissionGroup permissionGroup = null;
 
