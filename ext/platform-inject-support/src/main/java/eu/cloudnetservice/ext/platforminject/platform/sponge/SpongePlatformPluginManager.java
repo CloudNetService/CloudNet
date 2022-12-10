@@ -58,7 +58,7 @@ import org.spongepowered.plugin.PluginContainer;
 final class SpongePlatformPluginManager extends BasePlatformPluginManager<String, Container<PluginContainer>> {
 
   public SpongePlatformPluginManager() {
-    super(mapping -> mapping.container().metadata().id());
+    super(mapping -> mapping.container().metadata().id(), Container::pluginInstance);
   }
 
   @Override

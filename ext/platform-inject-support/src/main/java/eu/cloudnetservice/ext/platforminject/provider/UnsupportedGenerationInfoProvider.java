@@ -20,7 +20,7 @@ import eu.cloudnetservice.ext.platforminject.PlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.data.PluginDataParser;
 import eu.cloudnetservice.ext.platforminject.generator.PlatformMainClassGenerator;
 import eu.cloudnetservice.ext.platforminject.info.PluginInfoGenerator;
-import eu.cloudnetservice.ext.platforminject.util.SupplierUtil;
+import eu.cloudnetservice.ext.platforminject.util.FunctionalUtil;
 import java.util.function.Supplier;
 import lombok.NonNull;
 
@@ -34,7 +34,7 @@ public class UnsupportedGenerationInfoProvider<I, T> implements PlatformInfoProv
     @NonNull Supplier<PlatformPluginManager<I, T>> pluginManager
   ) {
     this.name = name;
-    this.pluginManager = SupplierUtil.memoizing(pluginManager);
+    this.pluginManager = FunctionalUtil.memoizing(pluginManager);
   }
 
   @Override

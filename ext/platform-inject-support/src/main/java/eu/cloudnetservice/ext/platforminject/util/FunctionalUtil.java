@@ -16,14 +16,22 @@
 
 package eu.cloudnetservice.ext.platforminject.util;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class SupplierUtil {
+public final class FunctionalUtil {
 
-  private SupplierUtil() {
+  private static final Function<?, Object> IDENTITY = Function.identity();
+
+  private FunctionalUtil() {
     throw new UnsupportedOperationException();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static @NonNull <I> Function<I, Object> identity() {
+    return (Function<I, Object>) IDENTITY;
   }
 
   public static @NonNull <T> Supplier<T> memoizing(@NonNull Supplier<T> delegate) {

@@ -22,6 +22,7 @@ import static eu.cloudnetservice.ext.platforminject.util.BindingUtil.fixedBindin
 import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.defaults.BasePlatformPluginManager;
+import eu.cloudnetservice.ext.platforminject.util.FunctionalUtil;
 import lombok.NonNull;
 import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
@@ -34,7 +35,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 final class BukkitPlatformPluginManager extends BasePlatformPluginManager<String, JavaPlugin> {
 
   public BukkitPlatformPluginManager() {
-    super(Plugin::getName);
+    super(Plugin::getName, FunctionalUtil.identity());
   }
 
   @Override
