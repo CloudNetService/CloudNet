@@ -48,16 +48,19 @@ public final class VelocityPlayerManagementListener {
 
   private final ProxyServer proxyServer;
   private final ServiceInfoHolder serviceInfoHolder;
+  private final ProxyPlatformHelper proxyPlatformHelper;
   private final PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management;
 
   @Inject
   public VelocityPlayerManagementListener(
     @NonNull ProxyServer proxyServer,
     @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ProxyPlatformHelper proxyPlatformHelper,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management
   ) {
     this.proxyServer = proxyServer;
     this.serviceInfoHolder = serviceInfoHolder;
+    this.proxyPlatformHelper = proxyPlatformHelper;
     this.management = management;
   }
 
@@ -87,7 +90,7 @@ public final class VelocityPlayerManagementListener {
       }
     }
     // check if the player is allowed to log in
-    var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
+    var loginResult = this.proxyPlatformHelper.sendChannelMessagePreLogin(
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.permitLogin()) {
       event.setResult(ResultedEvent.ComponentResult.denied(loginResult.result()));
@@ -140,14 +143,14 @@ public final class VelocityPlayerManagementListener {
     // check if the connection was initial
     if (event.getPreviousServer() == null) {
       // the player logged in successfully if he is now connected to a service for the first time
-      ProxyPlatformHelper.sendChannelMessageLoginSuccess(
+      this.proxyPlatformHelper.sendChannelMessageLoginSuccess(
         this.management.createPlayerInformation(event.getPlayer()),
         joinedServiceInfo);
       // update the service info
       this.serviceInfoHolder.publishServiceInfoUpdate();
     } else if (joinedServiceInfo != null) {
       // the player switched the service
-      ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
+      this.proxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
     }
     // notify the management that the player successfully connected to a service
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
@@ -160,7 +163,7 @@ public final class VelocityPlayerManagementListener {
     var status = event.getLoginStatus();
     if (status == DisconnectEvent.LoginStatus.SUCCESSFUL_LOGIN
       || status == DisconnectEvent.LoginStatus.PRE_SERVER_JOIN) {
-      ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
+      this.proxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
       this.serviceInfoHolder.publishServiceInfoUpdate();
     }

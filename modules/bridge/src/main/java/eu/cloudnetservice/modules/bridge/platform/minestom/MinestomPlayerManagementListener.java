@@ -37,15 +37,18 @@ import net.minestom.server.event.player.PlayerSpawnEvent;
 public final class MinestomPlayerManagementListener {
 
   private final ServiceInfoHolder serviceInfoHolder;
+  private final ServerPlatformHelper serverPlatformHelper;
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
   @Inject
   public MinestomPlayerManagementListener(
     @NonNull GlobalEventHandler eventHandler,
     @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ServerPlatformHelper serverPlatformHelper,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
   ) {
     this.serviceInfoHolder = serviceInfoHolder;
+    this.serverPlatformHelper = serverPlatformHelper;
     this.management = management;
     // listen on these events and redirect them into the methods
     var node = EventNode.type("cloudnet-bridge", EventFilter.PLAYER);
@@ -92,7 +95,7 @@ public final class MinestomPlayerManagementListener {
       return;
     }
 
-    ServerPlatformHelper.sendChannelMessageLoginSuccess(
+    this.serverPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUuid(),
       this.management.createPlayerInformation(event.getPlayer()));
     // update the service info
@@ -105,7 +108,7 @@ public final class MinestomPlayerManagementListener {
       return;
     }
 
-    ServerPlatformHelper.sendChannelMessageDisconnected(
+    this.serverPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUuid(),
       this.management.ownNetworkServiceInfo());
     // update the service info

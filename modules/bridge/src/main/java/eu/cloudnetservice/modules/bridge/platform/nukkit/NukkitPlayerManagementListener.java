@@ -38,6 +38,7 @@ public final class NukkitPlayerManagementListener implements Listener {
   private final Plugin plugin;
   private final ServerScheduler scheduler;
   private final ServiceInfoHolder serviceInfoHolder;
+  private final ServerPlatformHelper serverPlatformHelper;
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
   @Inject
@@ -45,11 +46,13 @@ public final class NukkitPlayerManagementListener implements Listener {
     @NonNull Plugin plugin,
     @NonNull ServerScheduler scheduler,
     @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ServerPlatformHelper serverPlatformHelper,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
   ) {
     this.plugin = plugin;
     this.scheduler = scheduler;
     this.serviceInfoHolder = serviceInfoHolder;
+    this.serverPlatformHelper = serverPlatformHelper;
     this.management = management;
   }
 
@@ -81,7 +84,7 @@ public final class NukkitPlayerManagementListener implements Listener {
 
   @EventHandler
   public void handle(@NonNull PlayerJoinEvent event) {
-    ServerPlatformHelper.sendChannelMessageLoginSuccess(
+    this.serverPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
       this.management.createPlayerInformation(event.getPlayer()));
     // update the service info in the next tick
@@ -90,7 +93,7 @@ public final class NukkitPlayerManagementListener implements Listener {
 
   @EventHandler
   public void handle(@NonNull PlayerQuitEvent event) {
-    ServerPlatformHelper.sendChannelMessageDisconnected(
+    this.serverPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
     // update the service info in the next tick

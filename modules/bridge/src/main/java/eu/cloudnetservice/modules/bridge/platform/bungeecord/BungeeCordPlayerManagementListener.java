@@ -50,26 +50,32 @@ import net.md_5.bungee.event.EventPriority;
 public final class BungeeCordPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
+  private final ProxyServer proxyServer;
   private final TaskScheduler scheduler;
   private final PluginManager pluginManager;
   private final BungeeCordHelper bungeeHelper;
   private final ServiceInfoHolder serviceInfoHolder;
+  private final ProxyPlatformHelper proxyPlatformHelper;
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 
   @Inject
   public BungeeCordPlayerManagementListener(
     @NonNull Plugin plugin,
+    @NonNull ProxyServer proxyServer,
     @NonNull TaskScheduler scheduler,
     @NonNull PluginManager pluginManager,
     @NonNull BungeeCordHelper bungeeHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ProxyPlatformHelper proxyPlatformHelper,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
   ) {
     this.plugin = plugin;
+    this.proxyServer = proxyServer;
     this.scheduler = scheduler;
     this.pluginManager = pluginManager;
     this.bungeeHelper = bungeeHelper;
     this.serviceInfoHolder = serviceInfoHolder;
+    this.proxyPlatformHelper = proxyPlatformHelper;
     this.management = management;
   }
 
@@ -103,7 +109,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       }
     }
     // check if the player is allowed to log in
-    var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(new NetworkPlayerProxyInfo(
+    var loginResult = this.proxyPlatformHelper.sendChannelMessagePreLogin(new NetworkPlayerProxyInfo(
       event.getConnection().getUniqueId(),
       event.getConnection().getName(),
       null,
@@ -123,7 +129,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     // initial connect reasons, LOBBY_FALLBACK will be used if the initial fallback is not present
     if (event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK) {
       var target = this.management.fallback(event.getPlayer())
-        .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+        .map(service -> this.proxyServer.getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present
       if (target != null) {
@@ -139,7 +145,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   public void handle(@NonNull ServerKickEvent event) {
     if (event.getPlayer().isConnected()) {
       var target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
-        .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+        .map(service -> this.proxyServer.getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present
       if (target != null) {
@@ -188,14 +194,14 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       .orElse(null);
     // check if the player connection was initial
     if (event.getPlayer().getServer() == null) {
-      ProxyPlatformHelper.sendChannelMessageLoginSuccess(
+      this.proxyPlatformHelper.sendChannelMessageLoginSuccess(
         this.management.createPlayerInformation(event.getPlayer()),
         joinedServiceInfo);
       // update the service info
       this.serviceInfoHolder.publishServiceInfoUpdate();
     } else if (joinedServiceInfo != null) {
       // the player switched the service
-      ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
+      this.proxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
     }
     // publish the player connection to the handler
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
@@ -205,7 +211,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   public void handle(@NonNull PlayerDisconnectEvent event) {
     // check if the player was connected to a server before
     if (event.getPlayer().getServer() != null) {
-      ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
+      this.proxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
       this.scheduler.schedule(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate, 50, TimeUnit.MILLISECONDS);
     }

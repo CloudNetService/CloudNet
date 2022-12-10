@@ -40,6 +40,7 @@ public final class SpongePlayerManagementListener {
 
   private final ServiceInfoHolder serviceInfoHolder;
   private final TaskExecutorService executorService;
+  private final ServerPlatformHelper serverPlatformHelper;
   private final PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management;
 
   @Inject
@@ -47,9 +48,11 @@ public final class SpongePlayerManagementListener {
     @NonNull PluginContainer plugin,
     @NonNull Scheduler scheduler,
     @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ServerPlatformHelper serverPlatformHelper,
     @NonNull SpongeBridgeManagement management
   ) {
     this.serviceInfoHolder = serviceInfoHolder;
+    this.serverPlatformHelper = serverPlatformHelper;
     this.management = management;
     this.executorService = scheduler.executor(plugin);
   }
@@ -84,7 +87,7 @@ public final class SpongePlayerManagementListener {
 
   @Listener
   public void handle(@NonNull ServerSideConnectionEvent.Join event, @First @NonNull ServerPlayer player) {
-    ServerPlatformHelper.sendChannelMessageLoginSuccess(
+    this.serverPlatformHelper.sendChannelMessageLoginSuccess(
       player.uniqueId(),
       this.management.createPlayerInformation(player));
     // update service info
@@ -93,7 +96,7 @@ public final class SpongePlayerManagementListener {
 
   @Listener
   public void handle(@NonNull ServerSideConnectionEvent.Disconnect event, @First @NonNull ServerPlayer player) {
-    ServerPlatformHelper.sendChannelMessageDisconnected(
+    this.serverPlatformHelper.sendChannelMessageDisconnected(
       player.uniqueId(),
       this.management.ownNetworkServiceInfo());
     // update service info

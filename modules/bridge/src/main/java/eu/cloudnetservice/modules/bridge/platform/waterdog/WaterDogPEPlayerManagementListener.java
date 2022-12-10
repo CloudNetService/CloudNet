@@ -39,6 +39,7 @@ public final class WaterDogPEPlayerManagementListener {
 
   private final WaterdogScheduler scheduler;
   private final ServiceInfoHolder serviceInfoHolder;
+  private final ProxyPlatformHelper proxyPlatformHelper;
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 
   @Inject
@@ -46,10 +47,12 @@ public final class WaterDogPEPlayerManagementListener {
     @NonNull EventManager eventManager,
     @NonNull WaterdogScheduler scheduler,
     @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ProxyPlatformHelper proxyPlatformHelper,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
   ) {
     this.scheduler = scheduler;
     this.serviceInfoHolder = serviceInfoHolder;
+    this.proxyPlatformHelper = proxyPlatformHelper;
     this.management = management;
     // subscribe to all events
     eventManager.subscribe(PlayerLoginEvent.class, this::handleLogin);
@@ -83,7 +86,7 @@ public final class WaterDogPEPlayerManagementListener {
       }
     }
     // check if the player is allowed to log in
-    var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
+    var loginResult = this.proxyPlatformHelper.sendChannelMessagePreLogin(
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.permitLogin()) {
       event.setCancelled(true);
@@ -93,7 +96,7 @@ public final class WaterDogPEPlayerManagementListener {
 
   private void handleInitialConnect(@NonNull InitialServerConnectedEvent event) {
     // the player logged in successfully if he is now connected to a service for the first time
-    ProxyPlatformHelper.sendChannelMessageLoginSuccess(
+    this.proxyPlatformHelper.sendChannelMessageLoginSuccess(
       this.management.createPlayerInformation(event.getPlayer()),
       this.management
         .cachedService(service -> service.name().equals(event.getInitialDownstream().getServerInfo().getServerName()))
@@ -111,7 +114,7 @@ public final class WaterDogPEPlayerManagementListener {
       .map(NetworkServiceInfo::fromServiceInfoSnapshot)
       .ifPresent(serviceInfo -> {
         // the player switched the service
-        ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), serviceInfo);
+        this.proxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), serviceInfo);
       });
     // notify the management that the player successfully connected to a service
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
@@ -120,7 +123,7 @@ public final class WaterDogPEPlayerManagementListener {
   private void handleDisconnected(@NonNull PlayerDisconnectEvent event) {
     // check if the player successfully connected to a server before
     if (event.getPlayer().getServerInfo() != null) {
-      ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
+      this.proxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
       this.scheduler.scheduleDelayed(this.serviceInfoHolder::publishServiceInfoUpdate, 1);
     }
