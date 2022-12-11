@@ -16,11 +16,19 @@
 
 package eu.cloudnetservice.ext.platforminject.platform.fabric;
 
-import eu.cloudnetservice.ext.platforminject.provider.UnsupportedGenerationInfoProvider;
+import eu.cloudnetservice.ext.platforminject.data.PluginDataParser;
+import eu.cloudnetservice.ext.platforminject.provider.BasePlatformInfoProvider;
 
-public class FabricPlatformInfoProvider extends UnsupportedGenerationInfoProvider<Integer, Object> {
+public class FabricPlatformInfoProvider extends BasePlatformInfoProvider<Integer, Object> {
 
   public FabricPlatformInfoProvider() {
-    super("fabric", FabricPlatformPluginManager::new);
+    super(
+      "fabric",
+      FabricPlatformPluginManager::new,
+      FabricPluginInfoGenerator::new,
+      FabricMainClassGenerator::new,
+      () -> PluginDataParser.create()
+        .enableSupport(PluginDataParser.PLUGIN_ID)
+        .enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
   }
 }
