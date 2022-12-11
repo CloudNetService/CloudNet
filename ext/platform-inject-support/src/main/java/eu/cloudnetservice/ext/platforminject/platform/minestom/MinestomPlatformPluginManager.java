@@ -22,6 +22,7 @@ import static eu.cloudnetservice.ext.platforminject.util.BindingUtil.fixedBindin
 import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.defaults.BasePlatformPluginManager;
+import eu.cloudnetservice.ext.platforminject.util.FunctionalUtil;
 import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.advancements.AdvancementManager;
@@ -40,7 +41,7 @@ import net.minestom.server.world.biomes.BiomeManager;
 final class MinestomPlatformPluginManager extends BasePlatformPluginManager<String, Extension> {
 
   public MinestomPlatformPluginManager() {
-    super(extension -> extension.getOrigin().getName());
+    super(extension -> extension.getOrigin().getName(), FunctionalUtil.identity());
   }
 
   @Override

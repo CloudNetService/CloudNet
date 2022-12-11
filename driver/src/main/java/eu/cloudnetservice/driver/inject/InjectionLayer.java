@@ -136,6 +136,7 @@ public sealed interface InjectionLayer<I extends Injector>
    * The following search rules apply (in order):
    * <ol>
    *   <li>If the given object is an {@link InjectionLayerHolder}, the layer stored in the holder is returned.
+   *   <li>If the given object has a layer associated in the layer registry, that layer is returned.
    *   <li>If the given object is a class the associated class loader of the given class is checked.
    *   <li>If the given object is not a class loader the loader of the object class is checked.
    *   <li>If none of the above rules matches the the default {@link #ext()} layer is returned.
@@ -154,6 +155,7 @@ public sealed interface InjectionLayer<I extends Injector>
    * following search rules apply (in order):
    * <ol>
    *   <li>If the given object is an {@link InjectionLayerHolder}, the layer stored in the holder is returned.
+   *   <li>If the given object has a layer associated in the layer registry, that layer is returned.
    *   <li>If the given object is a class the associated class loader of the given class is checked.
    *   <li>If the given object is not a class loader the loader of the object class is checked.
    *   <li>If none of the above rules matches the given default layer is returned.
@@ -247,6 +249,21 @@ public sealed interface InjectionLayer<I extends Injector>
    */
   @NonNull
   InjectionLayer<I> asUncloseable();
+
+  /**
+   * Registers this injection layer to the injection layer registry. Subsequent calls to
+   * {@link InjectionLayer#findLayerOf(Object)} will be able to resolve the layer if the given object value is the exact
+   * the same as given as one of the hints (exact as by using the {@code ==} compare operation).
+   * <p>
+   * Note that the layer lookup order is predictable based on the call order of register. If different layers are
+   * registered for the same objects, the first layer to be registered will be found.
+   *
+   * @param hints the hints to use for the layer registration.
+   * @return the same layer as used to call the method, for chaining.
+   * @throws NullPointerException if the given hints array is null.
+   */
+  @NonNull
+  InjectionLayer<I> register(@NonNull Object... hints);
 
   /**
    * Closes this injector and removes all leftover bindings (if any).

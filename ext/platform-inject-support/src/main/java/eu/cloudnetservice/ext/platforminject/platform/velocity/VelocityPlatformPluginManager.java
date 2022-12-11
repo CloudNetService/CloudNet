@@ -36,7 +36,7 @@ final class VelocityPlatformPluginManager
   extends BasePlatformPluginManager<String, PlatformedContainer<PluginContainer, ProxyServer>> {
 
   public VelocityPlatformPluginManager() {
-    super(mapping -> mapping.container().getDescription().getId());
+    super(mapping -> mapping.container().getDescription().getId(), PlatformedContainer::pluginInstance);
   }
 
   @Override

@@ -33,6 +33,9 @@ import lombok.NonNull;
  */
 final class InjectionLayerProvider {
 
+  // the boot layer registry
+  static final InjectionLayerRegistry REGISTRY = new InjectionLayerRegistry();
+
   private static InjectionLayer<Injector> boot;
   private static InjectionLayer<Injector> ext;
 
@@ -197,6 +200,7 @@ final class InjectionLayerProvider {
    * following search rules apply (in order):
    * <ol>
    *   <li>If the given object is an {@link InjectionLayerHolder}, the layer stored in the holder is returned.
+   *   <li>If the given object has a layer associated in the layer registry, that layer is returned.
    *   <li>If the given object is a class the associated class loader of the given class is checked.
    *   <li>If the given object is not a class loader the loader of the object class is checked.
    *   <li>If none of the above rules matches the given default layer is returned.
@@ -211,6 +215,12 @@ final class InjectionLayerProvider {
     // check if the given object is a layer holder
     if (object instanceof InjectionLayerHolder<?> layerHolder) {
       return layerHolder.injectionLayer();
+    }
+
+    // check if the layer is registered in the injection registry
+    var registeredLayer = REGISTRY.findByHint(object);
+    if (registeredLayer != null) {
+      return registeredLayer;
     }
 
     // check if the given object is a class, in that case fall back to the class loader

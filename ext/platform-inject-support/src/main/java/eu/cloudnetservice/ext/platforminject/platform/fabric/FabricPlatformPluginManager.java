@@ -21,12 +21,13 @@ import static eu.cloudnetservice.ext.platforminject.util.BindingUtil.fixedBindin
 import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.defaults.BasePlatformPluginManager;
+import eu.cloudnetservice.ext.platforminject.util.FunctionalUtil;
 import lombok.NonNull;
 
 final class FabricPlatformPluginManager extends BasePlatformPluginManager<Integer, Object> {
 
   public FabricPlatformPluginManager() {
-    super(System::identityHashCode);
+    super(System::identityHashCode, FunctionalUtil.identity());
   }
 
   @Override

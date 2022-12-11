@@ -34,11 +34,17 @@ public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginM
   protected static final InjectionLayer<Injector> BASE_INJECTION_LAYER = InjectionLayer.ext();
 
   private final Function<T, I> idExtractor;
+  private final Function<T, Object> mainClassExtractor;
+
   // todo: move this map construction to a util class?
   private final Map<I, PlatformPluginInfo<I, T, ?>> constructedPlugins = new ConcurrentHashMap<>(16, 0.9f, 1);
 
-  protected BasePlatformPluginManager(@NonNull Function<T, I> idExtractor) {
+  protected BasePlatformPluginManager(
+    @NonNull Function<T, I> idExtractor,
+    @NonNull Function<T, Object> mainClassExtractor
+  ) {
     this.idExtractor = idExtractor;
+    this.mainClassExtractor = mainClassExtractor;
   }
 
   @Override
@@ -65,8 +71,14 @@ public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginM
       return;
     }
 
-    // create an injection layer for the plugin and construct the plugin instance
+    // create the plugin injection layer
     var pluginLayer = this.createInjectionLayer(platformData);
+
+    // bind the layer to the plugin main class & main class loader
+    var platformMainInstance = this.mainClassExtractor.apply(platformData);
+    pluginLayer.register(platformMainInstance, platformMainInstance.getClass().getClassLoader());
+
+    // construct the platform main class instance
     var pluginInstance = pluginLayer.instance(pluginClass);
 
     // construct the plugin info
