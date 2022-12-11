@@ -24,6 +24,7 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +38,7 @@ import kong.unirest.Unirest;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public class CloudFlareRecordManager {
 
   protected static final String CLOUDFLARE_ENDPOINT = "https://api.cloudflare.com/client/v4/";
