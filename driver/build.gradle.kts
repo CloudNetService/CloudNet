@@ -59,6 +59,7 @@ dependencies {
   "implementation"(libs.asm)
   "implementation"(libs.gson)
   "implementation"(libs.guava)
+  "implementation"(libs.geantyref)
 
   // netty
   "implementation"(libs.bundles.netty)
