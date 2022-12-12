@@ -20,20 +20,15 @@ import com.influxdb.client.write.Point;
 import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.util.PointUtil;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Objects;
 import lombok.NonNull;
 
-public final class ConnectedNodeInfoPublisher implements Publisher {
-
-  private final NodeServerProvider nodeServerProvider;
-
-  public ConnectedNodeInfoPublisher() {
-    this.nodeServerProvider = Node.instance().nodeServerProvider();
-  }
+@Singleton
+public record ConnectedNodeInfoPublisher(@NonNull NodeServerProvider nodeServerProvider) implements Publisher {
 
   @Override
   public @NonNull Collection<Point> createPoints() {
