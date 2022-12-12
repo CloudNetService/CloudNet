@@ -38,6 +38,7 @@ import eu.cloudnetservice.modules.cloudflare.dns.DnsType;
 import eu.cloudnetservice.modules.cloudflare.listener.CloudflareServiceStateListener;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import jakarta.inject.Singleton;
 import java.net.Inet6Address;
 import java.util.Collection;
 import java.util.Map;
@@ -49,6 +50,7 @@ import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class CloudNetCloudflareModule extends DriverModule {
 
   private static final UUID NODE_RECORDS_ID = UUID.randomUUID();
