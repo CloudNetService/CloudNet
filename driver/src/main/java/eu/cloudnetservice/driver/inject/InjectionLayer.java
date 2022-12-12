@@ -46,10 +46,6 @@ public sealed interface InjectionLayer<I extends Injector>
    * {@code installAutoConfigureBindings} and gets formatted with the given component name to the method.
    */
   String AUTO_CONFIGURE_FILE_NAME_FORMAT = "autoconfigure/%s.aero";
-  /**
-   * The element which represents the boot injection layer.
-   */
-  Element LAYER_ELEMENT = Element.forType(InjectionLayer.class);
 
   /**
    * Returns the singleton boot injection layer. That layer contains all bindings which were used during the current
