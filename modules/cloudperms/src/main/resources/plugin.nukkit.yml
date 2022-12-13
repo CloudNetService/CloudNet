@@ -1,7 +1,0 @@
-name: CloudNet-CloudPerms
-version: "{project.build.version}"
-api: [ "1.0.5" ]
-author: CloudNetService
-description:  for players
-
-main: eu.cloudnetservice.modules.cloudperms.nukkit.NukkitCloudPermissionsPlugin
