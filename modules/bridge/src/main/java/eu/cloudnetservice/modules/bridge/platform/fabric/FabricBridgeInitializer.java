@@ -16,14 +16,9 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric;
 
-import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
 
-@Environment(EnvType.SERVER)
-public final class FabricBridgeInitializer implements DedicatedServerModInitializer {
-
-  @Override
-  public void onInitializeServer() {
-  }
+@PlatformPlugin(platform = "fabric", name = "CloudNet-Bridge", version = "{project.build.version}")
+public final class FabricBridgeInitializer implements PlatformEntrypoint {
 }
