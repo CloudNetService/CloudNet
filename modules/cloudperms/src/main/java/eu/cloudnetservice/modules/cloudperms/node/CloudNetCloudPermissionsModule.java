@@ -25,10 +25,12 @@ import eu.cloudnetservice.modules.cloudperms.node.config.CloudPermissionConfig;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import lombok.NonNull;
 
+@Singleton
 public final class CloudNetCloudPermissionsModule extends DriverModule {
 
   private volatile CloudPermissionConfig permissionsConfig;
