@@ -1,5 +1,5 @@
-name: CloudNet-CloudPerms
-version: "{project.build.version}"
+name:
+
 author: CloudNetService
 
 main: eu.cloudnetservice.modules.cloudperms.waterdogpe.WaterdogPECloudPermissionsPlugin

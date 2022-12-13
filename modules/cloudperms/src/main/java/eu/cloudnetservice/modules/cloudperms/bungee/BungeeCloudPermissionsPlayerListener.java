@@ -19,6 +19,8 @@ package eu.cloudnetservice.modules.cloudperms.bungee;
 import eu.cloudnetservice.driver.permission.Permission;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -31,10 +33,12 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
+@Singleton
 public final class BungeeCloudPermissionsPlayerListener implements Listener {
 
   private final PermissionManagement permissionsManagement;
 
+  @Inject
   public BungeeCloudPermissionsPlayerListener(@NonNull PermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
