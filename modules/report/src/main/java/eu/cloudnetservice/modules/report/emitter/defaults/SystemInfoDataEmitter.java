@@ -18,12 +18,14 @@ package eu.cloudnetservice.modules.report.emitter.defaults;
 
 import eu.cloudnetservice.modules.report.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
+import jakarta.inject.Singleton;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import lombok.NonNull;
 import oshi.SystemInfo;
 import oshi.util.FormatUtil;
 
+@Singleton
 public final class SystemInfoDataEmitter implements ReportDataEmitter {
 
   private static final SystemInfo SYSTEM_INFO = new SystemInfo();
