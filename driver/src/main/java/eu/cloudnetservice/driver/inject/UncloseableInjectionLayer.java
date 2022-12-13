@@ -22,6 +22,7 @@ import dev.derklaro.aerogel.InjectionContext;
 import dev.derklaro.aerogel.Injector;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
@@ -98,6 +99,15 @@ record UncloseableInjectionLayer<I extends Injector>(@NonNull InjectionLayer<I> 
    */
   @Override
   public @NonNull InjectionLayer<I> asUncloseable() {
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull InjectionLayer<I> register(@NotNull @NonNull Object... hints) {
+    InjectionLayerProvider.REGISTRY.registerLayer(this, hints);
     return this;
   }
 

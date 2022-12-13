@@ -45,6 +45,7 @@ slf4j = "1.7.36"
 caffeine = "3.1.1"
 awsSdk = "2.18.16"
 reflexion = "1.7.0"
+geantyref = "1.3.13"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
 nightConfig = "3.6.6"
@@ -139,6 +140,7 @@ slf4jNop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
 oshi = { group = "com.github.oshi", name = "oshi-core-java11", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
+geantyref = { group = "io.leangen.geantyref", name = "geantyref", version.ref = "geantyref" }
 reflexion = { group = "dev.derklaro.reflexion", name = "reflexion", version.ref = "reflexion" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
 influxClient = { group = "com.influxdb", name = "influxdb-client-java", version.ref = "influxClient" }

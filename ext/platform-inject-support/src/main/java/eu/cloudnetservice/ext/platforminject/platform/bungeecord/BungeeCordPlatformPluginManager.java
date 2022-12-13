@@ -22,6 +22,7 @@ import static eu.cloudnetservice.ext.platforminject.util.BindingUtil.fixedBindin
 import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.defaults.BasePlatformPluginManager;
+import eu.cloudnetservice.ext.platforminject.util.FunctionalUtil;
 import lombok.NonNull;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
@@ -32,7 +33,7 @@ import net.md_5.bungee.api.scheduler.TaskScheduler;
 final class BungeeCordPlatformPluginManager extends BasePlatformPluginManager<String, Plugin> {
 
   public BungeeCordPlatformPluginManager() {
-    super(plugin -> plugin.getDescription().getName());
+    super(plugin -> plugin.getDescription().getName(), FunctionalUtil.identity());
   }
 
   @Override

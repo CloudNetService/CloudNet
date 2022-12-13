@@ -20,7 +20,7 @@ import eu.cloudnetservice.ext.platforminject.PlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.data.PluginDataParser;
 import eu.cloudnetservice.ext.platforminject.generator.PlatformMainClassGenerator;
 import eu.cloudnetservice.ext.platforminject.info.PluginInfoGenerator;
-import eu.cloudnetservice.ext.platforminject.util.SupplierUtil;
+import eu.cloudnetservice.ext.platforminject.util.FunctionalUtil;
 import java.util.function.Supplier;
 import lombok.NonNull;
 
@@ -41,10 +41,10 @@ public class BasePlatformInfoProvider<I, T> implements PlatformInfoProvider<I, T
     @NonNull Supplier<PluginDataParser> pluginDataParser
   ) {
     this.name = name;
-    this.pluginManager = SupplierUtil.memoizing(pluginManager);
-    this.infoGenerator = SupplierUtil.memoizing(infoGenerator);
-    this.mainClassGenerator = SupplierUtil.memoizing(mainClassGenerator);
-    this.pluginDataParser = SupplierUtil.memoizing(pluginDataParser);
+    this.pluginManager = FunctionalUtil.memoizing(pluginManager);
+    this.infoGenerator = FunctionalUtil.memoizing(infoGenerator);
+    this.mainClassGenerator = FunctionalUtil.memoizing(mainClassGenerator);
+    this.pluginDataParser = FunctionalUtil.memoizing(pluginDataParser);
   }
 
   @Override

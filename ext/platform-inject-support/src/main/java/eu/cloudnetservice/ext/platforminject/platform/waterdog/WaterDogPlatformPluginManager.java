@@ -34,12 +34,13 @@ import dev.waterdog.waterdogpe.utils.ConfigurationManager;
 import dev.waterdog.waterdogpe.utils.config.LangConfig;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.defaults.BasePlatformPluginManager;
+import eu.cloudnetservice.ext.platforminject.util.FunctionalUtil;
 import lombok.NonNull;
 
 final class WaterDogPlatformPluginManager extends BasePlatformPluginManager<String, Plugin> {
 
   public WaterDogPlatformPluginManager() {
-    super(Plugin::getName);
+    super(Plugin::getName, FunctionalUtil.identity());
   }
 
   @Override

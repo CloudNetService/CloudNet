@@ -17,10 +17,12 @@
 package eu.cloudnetservice.driver.inject;
 
 import dev.derklaro.aerogel.Bindings;
+import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import dev.derklaro.aerogel.auto.AutoAnnotationRegistry;
 import eu.cloudnetservice.common.StringUtil;
+import io.leangen.geantyref.TypeFactory;
 import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -32,6 +34,23 @@ import lombok.NonNull;
  * @since 4.0
  */
 final class InjectionLayerProvider {
+
+  // generic elements
+  private static final Element RAW_ELEMENT = Element.forType(InjectionLayer.class);
+  private static final Element GENERIC_ELEMENT = Element.forType(TypeFactory.parameterizedClass(
+    InjectionLayer.class,
+    TypeFactory.unboundWildcard()));
+
+  // specified elements
+  private static final Element INJECTOR_ELEMENT = Element.forType(TypeFactory.parameterizedClass(
+    InjectionLayer.class,
+    Injector.class));
+  private static final Element SPECIFIED_INJECTOR_ELEMENT = Element.forType(TypeFactory.parameterizedClass(
+    InjectionLayer.class,
+    SpecifiedInjector.class));
+
+  // the boot layer registry
+  static final InjectionLayerRegistry REGISTRY = new InjectionLayerRegistry();
 
   private static InjectionLayer<Injector> boot;
   private static InjectionLayer<Injector> ext;
@@ -105,8 +124,9 @@ final class InjectionLayerProvider {
   ) {
     var childInjector = parent.injector().newSpecifiedInjector();
     return configuredLayer(name, childInjector, ((Consumer<InjectionLayer<SpecifiedInjector>>) layer -> {
-      var layerElement = InjectionLayer.LAYER_ELEMENT.requireName(name);
-      layer.install(Bindings.fixed(layerElement, layer));
+      layer.install(Bindings.fixed(RAW_ELEMENT.requireName(name), layer));
+      layer.install(Bindings.fixed(GENERIC_ELEMENT.requireName(name), layer));
+      layer.install(Bindings.fixed(SPECIFIED_INJECTOR_ELEMENT.requireName(name), layer));
     }).andThen(layer -> configurator.accept(layer, childInjector)));
   }
 
@@ -130,8 +150,9 @@ final class InjectionLayerProvider {
   ) {
     var childInjector = parent.injector().newChildInjector();
     return configuredLayer(name, childInjector, layer -> {
-      var layerElement = InjectionLayer.LAYER_ELEMENT.requireName(name);
-      layer.install(Bindings.fixed(layerElement, layer));
+      layer.install(Bindings.fixed(RAW_ELEMENT.requireName(name), layer));
+      layer.install(Bindings.fixed(GENERIC_ELEMENT.requireName(name), layer));
+      layer.install(Bindings.fixed(INJECTOR_ELEMENT.requireName(name), layer));
     });
   }
 
@@ -145,7 +166,11 @@ final class InjectionLayerProvider {
    * @throws IllegalArgumentException if the given name is invalid.
    */
   public static @NonNull InjectionLayer<Injector> fresh(@NonNull String name) {
-    return configuredLayer(name, layer -> layer.install(Bindings.fixed(InjectionLayer.LAYER_ELEMENT, layer)));
+    return configuredLayer(name, layer -> {
+      layer.install(Bindings.fixed(RAW_ELEMENT, layer));
+      layer.install(Bindings.fixed(GENERIC_ELEMENT, layer));
+      layer.install(Bindings.fixed(INJECTOR_ELEMENT, layer));
+    });
   }
 
   /**
@@ -197,6 +222,7 @@ final class InjectionLayerProvider {
    * following search rules apply (in order):
    * <ol>
    *   <li>If the given object is an {@link InjectionLayerHolder}, the layer stored in the holder is returned.
+   *   <li>If the given object has a layer associated in the layer registry, that layer is returned.
    *   <li>If the given object is a class the associated class loader of the given class is checked.
    *   <li>If the given object is not a class loader the loader of the object class is checked.
    *   <li>If none of the above rules matches the given default layer is returned.
@@ -211,6 +237,12 @@ final class InjectionLayerProvider {
     // check if the given object is a layer holder
     if (object instanceof InjectionLayerHolder<?> layerHolder) {
       return layerHolder.injectionLayer();
+    }
+
+    // check if the layer is registered in the injection registry
+    var registeredLayer = REGISTRY.findByHint(object);
+    if (registeredLayer != null) {
+      return registeredLayer;
     }
 
     // check if the given object is a class, in that case fall back to the class loader
