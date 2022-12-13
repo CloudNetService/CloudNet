@@ -28,7 +28,13 @@ import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 @Singleton
-@PlatformPlugin(platform = "nukkit", name = "CloudNet-Bridge", version = "{project.build.version}")
+@PlatformPlugin(
+  platform = "nukkit",
+  api = "1.0.5",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService")
 public final class NukkitBridgePlugin implements PlatformEntrypoint {
 
   private final Plugin plugin;

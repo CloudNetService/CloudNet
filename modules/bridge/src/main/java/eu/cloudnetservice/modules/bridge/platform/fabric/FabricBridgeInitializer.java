@@ -17,8 +17,19 @@
 package eu.cloudnetservice.modules.bridge.platform.fabric;
 
 import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
 
-@PlatformPlugin(platform = "fabric", name = "CloudNet-Bridge", version = "{project.build.version}")
+@PlatformPlugin(
+  platform = "fabric",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  dependencies = {
+    @Dependency(name = "fabricloader", version = ">=0.14.8"),
+    @Dependency(name = "minecraft", version = "~1.19.1"),
+    @Dependency(name = "java", version = ">=17")
+  },
+  authors = "CloudNetService")
 public final class FabricBridgeInitializer implements PlatformEntrypoint {
+
 }

@@ -19,7 +19,9 @@ package eu.cloudnetservice.modules.bridge.platform.minestom;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.stereotype.ExternalDependency;
 import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.stereotype.Repository;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -29,7 +31,17 @@ import net.minestom.server.extras.velocity.VelocityProxy;
 import org.slf4j.Logger;
 
 @Singleton
-@PlatformPlugin(platform = "minestom", name = "CloudNet-Bridge", version = "{project.build.version}")
+@PlatformPlugin(
+  platform = "minestom",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService",
+  externalDependencies = @ExternalDependency(
+    groupId = "com.google.guava",
+    artifactId = "guava",
+    version = "31.1-jre",
+    repository = @Repository(id = "Central", url = "https://repo1.maven.org/maven2/")))
 public final class MinestomBridgeExtension implements PlatformEntrypoint {
 
   private final Logger logger;

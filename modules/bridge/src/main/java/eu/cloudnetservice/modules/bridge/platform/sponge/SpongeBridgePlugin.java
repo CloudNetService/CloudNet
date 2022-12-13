@@ -27,7 +27,12 @@ import org.spongepowered.api.event.EventManager;
 import org.spongepowered.plugin.PluginContainer;
 
 @Singleton
-@PlatformPlugin(platform = "sponge", name = "CloudNet-Bridge", version = "{project.build.version}")
+@PlatformPlugin(
+  platform = "sponge",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService")
 public final class SpongeBridgePlugin implements PlatformEntrypoint {
 
   private final PluginContainer plugin;

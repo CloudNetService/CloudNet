@@ -28,7 +28,12 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 
 @Singleton
-@PlatformPlugin(platform = "bukkit", name = "CloudNet-Bridge", version = "{project.build.version}")
+@PlatformPlugin(
+  platform = "bukkit",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService")
 public final class BukkitBridgePlugin implements PlatformEntrypoint {
 
   private final Plugin plugin;

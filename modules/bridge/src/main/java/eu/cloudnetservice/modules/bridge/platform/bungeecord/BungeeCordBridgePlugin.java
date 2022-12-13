@@ -31,7 +31,12 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 
 @Singleton
-@PlatformPlugin(platform = "velocity", name = "CloudNet-Bridge", version = "{project.build.version}")
+@PlatformPlugin(
+  platform = "bungeecord",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService")
 public final class BungeeCordBridgePlugin implements PlatformEntrypoint {
 
   private final Plugin plugin;

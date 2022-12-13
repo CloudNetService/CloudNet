@@ -1,25 +1,7 @@
 {
-  "schemaVersion": 1,
   "license": "Apache 2.0",
-  "authors": [
-    {
-      "name": "CloudNetService",
-      "contact": {
-        "homepage": "https://cloudnetservice.eu"
-      }
-    }
-  ],
-  "contact": {
-    "sources": "https://github.com/CloudNetService/CloudNet-v3",
-    "issues": "https://github.com/CloudNetService/CloudNet-v3/issues"
-  },
   "mixins": [
     "cloudnet_bridge.mixins.json"
   ],
   "accessWidener": "cloudnet_bridge.accesswidener",
-  "depends": {
-    "fabricloader": ">=0.14.8",
-    "minecraft": "~1.19.1",
-    "java": ">=17"
-  }
 }

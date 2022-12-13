@@ -29,7 +29,12 @@ import java.util.Arrays;
 import lombok.NonNull;
 
 @Singleton
-@PlatformPlugin(platform = "waterdogpe", name = "CloudNet-Bridge", version = "{project.build.version}")
+@PlatformPlugin(
+  platform = "waterdogpe",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService")
 public final class WaterDogPEBridgePlugin implements PlatformEntrypoint {
 
   private final ProxyServer proxyServer;

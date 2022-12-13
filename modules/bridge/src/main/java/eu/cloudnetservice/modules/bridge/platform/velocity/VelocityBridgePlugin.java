@@ -28,16 +28,13 @@ import jakarta.inject.Inject;
 import java.util.Arrays;
 import lombok.NonNull;
 
-/*@Plugin(
-  id = "cloudnet_bridge",
+@Singleton
+@PlatformPlugin(
+  platform = "velocity",
   name = "CloudNet-Bridge",
   version = "{project.build.version}",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
-  url = "https://cloudnetservice.eu",
-  authors = "CloudNetService"
-)*/
-@Singleton
-@PlatformPlugin(platform = "velocity", name = "CloudNet-Bridge", version = "{project.build.version}")
+  authors = "CloudNetService")
 public final class VelocityBridgePlugin implements PlatformEntrypoint {
 
   private final ProxyServer proxy;
