@@ -25,6 +25,8 @@ import eu.cloudnetservice.ext.platforminject.util.ResourceUtil;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Objects;
+import java.util.Set;
 import javax.annotation.processing.Filer;
 import javax.tools.StandardLocation;
 import lombok.NonNull;
@@ -33,16 +35,19 @@ public abstract class NightConfigInfoGenerator implements PluginInfoGenerator {
 
   private static final String TEMPLATE_FILE_NAME_FORMAT = "%s.template";
 
-  protected final String platformFileName;
+  protected final Set<String> platformFileNames;
   protected final ConfigFormat<Config> configFormat;
 
   protected final ConfigWriter writer;
   protected final ConfigParser<Config> parser;
 
-  protected NightConfigInfoGenerator(@NonNull ConfigFormat<Config> configFormat, @NonNull String platformFileName) {
+  protected NightConfigInfoGenerator(@NonNull ConfigFormat<Config> configFormat, @NonNull String... platformFileNames) {
+    // assert that at least one file name is given
+    Objects.checkIndex(0, platformFileNames.length);
+
     // provided values
     this.configFormat = configFormat;
-    this.platformFileName = platformFileName;
+    this.platformFileNames = Set.of(platformFileNames);
 
     // create writer and parser once
     this.writer = configFormat.createWriter();
@@ -60,9 +65,11 @@ public abstract class NightConfigInfoGenerator implements PluginInfoGenerator {
     this.applyPlatformInfo(targetConfig, pluginData, platformMainClassName);
 
     // write the platform data
-    var fileObject = filer.createResource(StandardLocation.CLASS_OUTPUT, "", this.platformFileName);
-    try (var writer = fileObject.openWriter()) {
-      this.writer.write(targetConfig, writer);
+    for (var platformFileName : this.platformFileNames) {
+      var fileObject = filer.createResource(StandardLocation.CLASS_OUTPUT, "", platformFileName);
+      try (var writer = fileObject.openWriter()) {
+        this.writer.write(targetConfig, writer);
+      }
     }
   }
 
@@ -72,15 +79,17 @@ public abstract class NightConfigInfoGenerator implements PluginInfoGenerator {
     @NonNull String platformMainClassName);
 
   protected @NonNull Config loadFileTemplateOrNewConfig(@NonNull Filer filer) {
-    // find the expected template file in the resources directory
-    var templateFileName = String.format(TEMPLATE_FILE_NAME_FORMAT, this.platformFileName);
-    var templateFile = ResourceUtil.resolveResource(filer, templateFileName);
+    for (var fileNameCandidate : this.platformFileNames) {
+      // find the expected template file in the resources directory
+      var templateFileName = String.format(TEMPLATE_FILE_NAME_FORMAT, fileNameCandidate);
+      var templateFile = ResourceUtil.resolveResource(filer, templateFileName);
 
-    // check if the template file exists & load it if it does
-    if (templateFile != null) {
-      try (var reader = Files.newBufferedReader(templateFile, StandardCharsets.UTF_8)) {
-        return this.parser.parse(reader);
-      } catch (IOException ignored) {
+      // check if the template file exists & load it if it does
+      if (templateFile != null) {
+        try (var reader = Files.newBufferedReader(templateFile, StandardCharsets.UTF_8)) {
+          return this.parser.parse(reader);
+        } catch (IOException ignored) {
+        }
       }
     }
 
