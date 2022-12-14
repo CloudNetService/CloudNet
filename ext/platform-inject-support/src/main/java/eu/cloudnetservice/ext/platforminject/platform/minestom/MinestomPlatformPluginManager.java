@@ -27,13 +27,20 @@ import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
+import net.minestom.server.command.CommandManager;
+import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
 import net.minestom.server.extensions.Extension;
 import net.minestom.server.extensions.ExtensionManager;
 import net.minestom.server.gamedata.tags.TagManager;
+import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.instance.block.BlockManager;
+import net.minestom.server.listener.manager.PacketListenerManager;
 import net.minestom.server.monitoring.BenchmarkManager;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.network.PacketProcessor;
+import net.minestom.server.recipe.RecipeManager;
+import net.minestom.server.scoreboard.TeamManager;
 import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.world.DimensionTypeManager;
 import net.minestom.server.world.biomes.BiomeManager;
@@ -49,23 +56,23 @@ final class MinestomPlatformPluginManager extends BasePlatformPluginManager<Stri
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
       // install bindings for the platform
       layer.install(createFixedBinding(MinecraftServer.getTagManager(), TagManager.class));
+      layer.install(createFixedBinding(MinecraftServer.getTeamManager(), TeamManager.class));
       layer.install(createFixedBinding(MinecraftServer.getBiomeManager(), BiomeManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getTeamManager(), SchedulerManager.class));
+      layer.install(createFixedBinding(MinecraftServer.getBlockManager(), BlockManager.class));
+      layer.install(createFixedBinding(MinecraftServer.getRecipeManager(), RecipeManager.class));
       layer.install(createFixedBinding(MinecraftServer.getBossBarManager(), BossBarManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getBlockManager(), SchedulerManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getRecipeManager(), SchedulerManager.class));
+      layer.install(createFixedBinding(MinecraftServer.getCommandManager(), CommandManager.class));
       layer.install(createFixedBinding(MinecraftServer.getPacketProcessor(), PacketProcessor.class));
-      layer.install(createFixedBinding(MinecraftServer.getCommandManager(), SchedulerManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getInstanceManager(), SchedulerManager.class));
+      layer.install(createFixedBinding(MinecraftServer.getInstanceManager(), InstanceManager.class));
       layer.install(createFixedBinding(MinecraftServer.getExceptionManager(), ExtensionManager.class));
       layer.install(createFixedBinding(MinecraftServer.getExceptionManager(), ExceptionManager.class));
       layer.install(createFixedBinding(MinecraftServer.getBenchmarkManager(), BenchmarkManager.class));
       layer.install(createFixedBinding(MinecraftServer.getSchedulerManager(), SchedulerManager.class));
       layer.install(createFixedBinding(MinecraftServer.getConnectionManager(), ConnectionManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getGlobalEventHandler(), SchedulerManager.class));
+      layer.install(createFixedBinding(MinecraftServer.getGlobalEventHandler(), GlobalEventHandler.class));
       layer.install(createFixedBinding(MinecraftServer.getAdvancementManager(), AdvancementManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getPacketListenerManager(), SchedulerManager.class));
       layer.install(createFixedBinding(MinecraftServer.getDimensionTypeManager(), DimensionTypeManager.class));
+      layer.install(createFixedBinding(MinecraftServer.getPacketListenerManager(), PacketListenerManager.class));
 
       // install the bindings which are specific to the plugin
       injector.installSpecified(fixedBindingWithBound(platformData, Extension.class));

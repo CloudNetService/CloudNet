@@ -1,6 +1,0 @@
-name: 'CloudNet-CloudPerms'
-version: '{project.build.version}'
-author: 'CloudNetService'
-description: 'BungeeCord extension which implement the permission management system from CloudNet into BungeeCord for players'
-
-main: 'eu.cloudnetservice.modules.cloudperms.bungee.BungeeCloudPermissionsPlugin'
