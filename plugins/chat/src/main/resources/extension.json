@@ -1,8 +1,0 @@
-{
-  "name": "cloudnet_chat",
-  "version": "{project.build.version}",
-  "entrypoint": "eu.cloudnetservice.plugins.chat.MinestomChatExtension",
-  "dependencies": [
-    "cloudnet_cloudperms"
-  ]
-}
