@@ -24,14 +24,14 @@ import lombok.NonNull;
 
 public class NodeLabyModListener {
 
-  private final NodeLabyModManagement labyModManagement;
+  private final NodeLabyModManagement management;
 
-  public NodeLabyModListener(@NonNull NodeLabyModManagement labyModManagement) {
-    this.labyModManagement = labyModManagement;
+  public NodeLabyModListener(@NonNull NodeLabyModManagement management) {
+    this.management = management;
   }
 
   @EventListener
-  public void handleConfigUpdate(ChannelMessageReceiveEvent event) {
+  public void handleConfigUpdate(@NonNull ChannelMessageReceiveEvent event) {
     if (!event.channel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)) {
       return;
     }
@@ -40,7 +40,7 @@ public class NodeLabyModListener {
       // read the configuration from the databuf
       var configuration = event.content().readObject(LabyModConfiguration.class);
       // write the configuration silently to the file
-      this.labyModManagement.configurationSilently(configuration);
+      this.management.configurationSilently(configuration);
     }
   }
 }

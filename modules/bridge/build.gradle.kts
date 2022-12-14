@@ -36,6 +36,7 @@ dependencies {
   "annotationProcessor"(libs.velocity)
   "runtimeImpl"(libs.bundles.adventure)
   "runtimeImpl"(projects.ext.adventureHelper)
+  "runtimeImpl"(projects.ext.platformInjectSupport)
 
   "minecraft"(libs.minecraft)
   "modImplementation"(libs.fabricLoader)

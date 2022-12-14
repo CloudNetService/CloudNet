@@ -16,55 +16,71 @@
 
 package eu.cloudnetservice.modules.labymod.platform.velocity;
 
-import com.google.inject.Inject;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
-import com.velocitypowered.api.plugin.Dependency;
-import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModListener;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
-import eu.cloudnetservice.wrapper.Wrapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-@Plugin(
-  id = "cloudnet_labymod",
-  name = "CloudNet-LabyMod",
+@Singleton
+@PlatformPlugin(
+  platform = "velocity",
+  name = "CloudNet-Bridge",
   version = "{project.build.version}",
   description = "Displays LabyMod DiscordRPC information when playing on cloudnet a server",
-  url = "https://cloudnetservice.eu",
   authors = "CloudNetService",
-  dependencies = {
-    @Dependency(id = "cloudnet_bridge")
-  }
-)
-public class VelocityLabyModPlugin {
+dependencies = @Dependency(name = "CloudNet-Bridge"))
+public class VelocityLabyModPlugin implements PlatformEntrypoint {
 
   private final ProxyServer proxy;
+  private final RPCFactory rpcFactory;
+  private final EventManager eventManager;
+  private final ModuleHelper moduleHelper;
+  private final NetworkClient networkClient;
+  private final CloudServiceProvider serviceProvider;
 
   @Inject
-  public VelocityLabyModPlugin(@NonNull ProxyServer proxyServer) {
+  public VelocityLabyModPlugin(
+    @NonNull ProxyServer proxyServer,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull NetworkClient networkClient,
+    @NonNull CloudServiceProvider serviceProvider
+  ) {
     this.proxy = proxyServer;
+    this.rpcFactory = rpcFactory;
+    this.eventManager = eventManager;
+    this.moduleHelper = moduleHelper;
+    this.networkClient = networkClient;
+    this.serviceProvider = serviceProvider;
   }
 
-  @Subscribe
-  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
+  @Override
+  public void onLoad() {
     // init the labymod management
-    var labyModManagement = new PlatformLabyModManagement();
+    var labyModManagement = new PlatformLabyModManagement(this.rpcFactory, this.networkClient, this.serviceProvider);
     // register the plugin channel message listener
     this.proxy.getChannelRegistrar().register(new LegacyChannelIdentifier(LabyModManagement.LABYMOD_CLIENT_CHANNEL));
     this.proxy.getEventManager().register(this, new VelocityLabyModListener(labyModManagement));
     // register the common cloudnet listener for channel messages
-    Wrapper.instance().eventManager().registerListener(new PlatformLabyModListener(labyModManagement));
+    this.eventManager.registerListener(PlatformLabyModListener.class);
   }
 
-  @Subscribe
-  public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
+  @Override
+  public void onDisable() {
     // unregister all listeners for cloudnet events
-    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

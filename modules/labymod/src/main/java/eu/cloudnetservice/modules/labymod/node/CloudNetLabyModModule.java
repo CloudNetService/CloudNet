@@ -18,23 +18,28 @@ package eu.cloudnetservice.modules.labymod.node;
 
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.labymod.config.LabyModBanner;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.modules.labymod.config.LabyModDiscordRPC;
 import eu.cloudnetservice.modules.labymod.config.LabyModPermissions;
 import eu.cloudnetservice.modules.labymod.config.LabyModServiceDisplay;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Map;
 import lombok.NonNull;
 
+@Singleton
 public class CloudNetLabyModModule extends DriverModule {
 
   private NodeLabyModManagement labyModManagement;
@@ -72,10 +77,14 @@ public class CloudNetLabyModModule extends DriverModule {
   }
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
-  public void initManagement() {
-    this.labyModManagement = new NodeLabyModManagement(this, this.loadConfiguration(), this.rpcFactory());
+  public void initManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull RPCHandlerRegistry rpcHandlerRegistry
+  ) {
+    this.labyModManagement = new NodeLabyModManagement(this, this.loadConfiguration(), rpcFactory, rpcHandlerRegistry);
     // sync the config of the module into the cluster
-    Node.instance().dataSyncRegistry().registerHandler(
+    dataSyncRegistry.registerHandler(
       DataSyncHandler.<LabyModConfiguration>builder()
         .key("labymod-config")
         .nameExtractor($ -> "LabyMod Config")
@@ -92,10 +101,10 @@ public class CloudNetLabyModModule extends DriverModule {
   }
 
   @ModuleTask(order = 16, event = ModuleLifeCycle.LOADED)
-  public void initListeners() {
+  public void initListeners(@NonNull EventManager eventManager) {
     // register the listeners
-    this.registerListener(new NodeLabyModListener(this.labyModManagement));
-    this.registerListener(new PluginIncludeListener(
+    eventManager.registerListener(new NodeLabyModListener(this.labyModManagement));
+    eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-labymod",
       CloudNetLabyModModule.class,
       service -> this.labyModManagement.configuration().enabled()
