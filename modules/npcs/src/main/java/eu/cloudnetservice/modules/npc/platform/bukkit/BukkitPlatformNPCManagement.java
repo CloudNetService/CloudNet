@@ -22,6 +22,9 @@ import com.github.juliarn.npclib.bukkit.BukkitPlatform;
 import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.driver.ComponentInfo;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
@@ -32,6 +35,9 @@ import eu.cloudnetservice.modules.npc.platform.PlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.EntityBukkitPlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
@@ -45,6 +51,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.NumberConversions;
 
+@Singleton
 public class BukkitPlatformNPCManagement extends
   PlatformNPCManagement<Location, Player, ItemStack, Inventory, Scoreboard> {
 
@@ -54,7 +61,16 @@ public class BukkitPlatformNPCManagement extends
 
   protected volatile BukkitTask npcEmoteTask;
 
-  public BukkitPlatformNPCManagement(@NonNull Plugin plugin) {
+  @Inject
+  public BukkitPlatformNPCManagement(
+    @NonNull Plugin plugin,
+    @NonNull EventManager eventManager,
+    @NonNull ComponentInfo componentInfo,
+    @NonNull CloudServiceProvider cloudServiceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(eventManager, componentInfo, cloudServiceProvider, wrapperConfiguration);
+
     this.plugin = plugin;
 
     // npc pool init

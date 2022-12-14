@@ -26,17 +26,21 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
+@Singleton
 @CommandAlias("npcs")
 @CommandPermission("cloudnet.command.npc")
 @Description("module-npc-command-description")
@@ -48,10 +52,16 @@ public class NPCCommand {
     .column(NPCConfigurationEntry::targetGroup)
     .build();
 
-  private final NPCManagement npcManagement;
+  private final ServiceRegistry serviceRegistry;
+  private final GroupConfigurationProvider groupConfigurationProvider;
 
-  public NPCCommand(@NonNull NPCManagement npcManagement) {
-    this.npcManagement = npcManagement;
+  @Inject
+  public NPCCommand(
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull GroupConfigurationProvider groupConfigurationProvider
+  ) {
+    this.serviceRegistry = serviceRegistry;
+    this.groupConfigurationProvider = groupConfigurationProvider;
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
@@ -60,13 +70,12 @@ public class NPCCommand {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var configuration = Node.instance().groupConfigurationProvider()
-      .groupConfiguration(name);
+    var configuration = this.groupConfigurationProvider.groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
 
-    if (this.npcManagement.npcConfiguration().entries()
+    if (this.npcManagement().npcConfiguration().entries()
       .stream()
       .anyMatch(entry -> entry.targetGroup().equalsIgnoreCase(name))) {
       throw new ArgumentNotAvailableException(I18n.trans("module-npc-command-create-entry-group-already-exists"));
@@ -79,9 +88,9 @@ public class NPCCommand {
     @NonNull CommandContext<CommandSource> $,
     @NonNull String input
   ) {
-    return Node.instance().groupConfigurationProvider().groupConfigurations().stream()
+    return this.groupConfigurationProvider.groupConfigurations().stream()
       .map(Nameable::name)
-      .filter(group -> this.npcManagement.npcConfiguration()
+      .filter(group -> this.npcManagement().npcConfiguration()
         .entries()
         .stream()
         .noneMatch(entry -> entry.targetGroup().equals(group)))
@@ -90,7 +99,7 @@ public class NPCCommand {
 
   @CommandMethod("npc|npcs list|l")
   public void listConfiguration(@NonNull CommandSource source) {
-    source.sendMessage(ENTRY_LIST_FORMATTER.format(this.npcManagement.npcConfiguration().entries()));
+    source.sendMessage(ENTRY_LIST_FORMATTER.format(this.npcManagement().npcConfiguration().entries()));
   }
 
   @CommandMethod("npc|npcs create entry <targetGroup>")
@@ -99,8 +108,12 @@ public class NPCCommand {
     @NonNull @Argument(value = "targetGroup", parserName = "newConfiguration") String targetGroup
   ) {
     var entry = NPCConfigurationEntry.builder().targetGroup(targetGroup).build();
-    this.npcManagement.npcConfiguration().entries().add(entry);
-    this.npcManagement.npcConfiguration(this.npcManagement.npcConfiguration());
+    this.npcManagement().npcConfiguration().entries().add(entry);
+    this.npcManagement().npcConfiguration(this.npcManagement().npcConfiguration());
     source.sendMessage(I18n.trans("module-npc-command-create-entry-success"));
+  }
+
+  protected @NonNull NPCManagement npcManagement() {
+    return this.serviceRegistry.firstProvider(NPCManagement.class);
   }
 }
