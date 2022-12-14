@@ -18,6 +18,8 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -29,11 +31,13 @@ import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.NumberConversions;
 
+@Singleton
 public final class BukkitWorldListener implements Listener {
 
   private final Plugin plugin;
   private final BukkitPlatformNPCManagement management;
 
+  @Inject
   public BukkitWorldListener(@NonNull Plugin plugin, @NonNull BukkitPlatformNPCManagement management) {
     this.plugin = plugin;
     this.management = management;
