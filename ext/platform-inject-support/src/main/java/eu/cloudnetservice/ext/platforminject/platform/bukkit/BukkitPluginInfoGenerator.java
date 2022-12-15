@@ -30,7 +30,7 @@ import lombok.NonNull;
 final class BukkitPluginInfoGenerator extends NightConfigInfoGenerator {
 
   public BukkitPluginInfoGenerator() {
-    super(YamlFormat.defaultInstance(), "plugin.minecraft_server.yml");
+    super(YamlFormat.defaultInstance(), "plugin.minecraft_server.yml", "plugin.glowstone.yml");
   }
 
   @Override

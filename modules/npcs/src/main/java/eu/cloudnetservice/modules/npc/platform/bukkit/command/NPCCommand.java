@@ -22,12 +22,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +54,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class NPCCommand extends BaseTabExecutor {
 
   private static final List<String> MATERIAL_NAMES = Arrays.stream(Material.values()).map(Material::name).toList();
@@ -77,10 +80,17 @@ public final class NPCCommand extends BaseTabExecutor {
 
   private final Plugin plugin;
   private final BukkitPlatformNPCManagement management;
+  private final GroupConfigurationProvider groupConfigurationProvider;
 
-  public NPCCommand(@NonNull Plugin plugin, @NonNull BukkitPlatformNPCManagement management) {
+  @Inject
+  public NPCCommand(
+    @NonNull Plugin plugin,
+    @NonNull BukkitPlatformNPCManagement management,
+    @NonNull GroupConfigurationProvider groupConfigurationProvider
+  ) {
     this.plugin = plugin;
     this.management = management;
+    this.groupConfigurationProvider = groupConfigurationProvider;
   }
 
   @Override
@@ -605,9 +615,7 @@ public final class NPCCommand extends BaseTabExecutor {
     if (args[0].equalsIgnoreCase("create")) {
       switch (args.length) {
         case 2 -> {
-          return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations().stream()
-            .map(GroupConfiguration::name)
-            .toList();
+          return this.groupConfigurationProvider.groupConfigurations().stream().map(GroupConfiguration::name).toList();
         }
         case 3 -> {
           return NPC_TYPES;
@@ -683,7 +691,7 @@ public final class NPCCommand extends BaseTabExecutor {
           // npc skin profile based on a texture url
           case "urlprofile", "up" -> List.of("https://i.nmc1.net/23f502a9f94379f1.png");
           // target group
-          case "tg", "targetgroup" -> CloudNetDriver.instance().groupConfigurationProvider()
+          case "tg", "targetgroup" -> this.groupConfigurationProvider
             .groupConfigurations().stream()
             .map(GroupConfiguration::name)
             .toList();

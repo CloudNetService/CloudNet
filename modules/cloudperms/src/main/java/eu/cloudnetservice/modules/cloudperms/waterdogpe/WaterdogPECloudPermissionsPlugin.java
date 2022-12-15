@@ -16,19 +16,38 @@
 
 package eu.cloudnetservice.modules.cloudperms.waterdogpe;
 
-import dev.waterdog.waterdogpe.plugin.Plugin;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
-public class WaterdogPECloudPermissionsPlugin extends Plugin {
+@Singleton
+@PlatformPlugin(
+  platform = "waterdog",
+  name = "CloudNet-CloudPerms",
+  authors = "CloudNetService",
+  version = "{project.build.version}"
+)
+public class WaterdogPECloudPermissionsPlugin implements PlatformEntrypoint {
+
+  private final ModuleHelper moduleHelper;
+
+  @Inject
+  public WaterdogPECloudPermissionsPlugin(
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull WaterdogPECloudPermissionsPlayerListener $ // can ignore, on init the listeners we need are registered
+  ) {
+    this.moduleHelper = moduleHelper;
+  }
 
   @Override
-  public void onEnable() {
-    new WaterdogPECloudPermissionsPlayerListener(CloudNetDriver.instance().permissionManagement());
+  public void onLoad() {
   }
 
   @Override
   public void onDisable() {
-    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }
