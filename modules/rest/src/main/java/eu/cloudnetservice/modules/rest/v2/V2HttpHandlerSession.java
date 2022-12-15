@@ -18,13 +18,22 @@ package eu.cloudnetservice.modules.rest.v2;
 
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
+@Singleton
 public final class V2HttpHandlerSession extends V2HttpHandler {
+
+  @Inject
+  public V2HttpHandlerSession(@NonNull Configuration configuration) {
+    super(configuration.restConfiguration());
+  }
 
   @HttpRequestHandler(paths = "/api/v2/session/refresh")
   private void handleRefresh(@NonNull HttpContext context, @NonNull @BearerAuth HttpSession session) {
