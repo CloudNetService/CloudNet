@@ -26,27 +26,9 @@ import lombok.NonNull;
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PlatformPlugin {
+public @interface ProvidesFor {
 
   @NonNull String platform();
 
-  @NonNull String name();
-
-  @NonNull String version();
-
-  @NonNull String api() default "";
-
-  @NonNull String description() default "";
-
-  @NonNull String homepage() default "";
-
-  @NonNull String[] authors() default {};
-
-  @NonNull Command[] commands() default {};
-
-  @NonNull Dependency[] dependencies() default {};
-
-  @NonNull ExternalDependency[] externalDependencies() default {};
-
-  @NonNull String[] providesScan() default {};
+  @NonNull Class<?>[] types();
 }
