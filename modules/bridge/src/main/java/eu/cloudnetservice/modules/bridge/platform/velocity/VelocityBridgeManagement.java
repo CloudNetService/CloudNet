@@ -23,7 +23,6 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -32,6 +31,7 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.platforminject.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
@@ -52,7 +52,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-@Provides({BridgeManagement.class, PlatformBridgeManagement.class})
+@ProvidesFor(platform = "velocity", types = {PlatformBridgeManagement.class, BridgeManagement.class})
 final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> {
 
   private static final BiFunction<Player, String, Boolean> PERM_FUNCTION = PermissionSubject::hasPermission;

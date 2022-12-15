@@ -172,9 +172,9 @@ public final class CloudNetBridgeModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void initModule(
     @NonNull HttpServer httpServer,
+    @NonNull NodeBridgeManagement management,
     @NonNull ServiceRegistry serviceRegistry,
-    @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull NodeBridgeManagement management
+    @NonNull DataSyncRegistry dataSyncRegistry
   ) {
     management.registerServices(serviceRegistry);
     management.postInit();

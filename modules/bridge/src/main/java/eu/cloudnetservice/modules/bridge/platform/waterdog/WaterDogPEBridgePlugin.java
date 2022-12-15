@@ -30,7 +30,7 @@ import lombok.NonNull;
 
 @Singleton
 @PlatformPlugin(
-  platform = "waterdogpe",
+  platform = "waterdog",
   name = "CloudNet-Bridge",
   version = "{project.build.version}",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",

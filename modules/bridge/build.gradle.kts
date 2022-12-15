@@ -37,7 +37,8 @@ dependencies {
   "runtimeImpl"(libs.bundles.adventure)
   "runtimeImpl"(projects.ext.adventureHelper)
 
-  "runtimeImpl"(projects.ext.platformInjectSupport)
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   "minecraft"(libs.minecraft)
   "modImplementation"(libs.fabricLoader)

@@ -235,12 +235,6 @@ public final class DefaultHttpAnnotationParser<T extends HttpComponent<T>> imple
     return this;
   }
 
-  @Override
-  public @NonNull HttpAnnotationParser<T> parseAndRegister(@NonNull Class<HttpAnnotationParser<?>> httpClass) {
-    var layer = InjectionLayer.findLayerOf(httpClass);
-    return this.parseAndRegister(layer.instance(httpClass));
-  }
-
   /**
    * A processor for the {@code @FirstRequestQueryParam} annotation.
    *
