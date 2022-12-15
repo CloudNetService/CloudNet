@@ -164,6 +164,15 @@ public final class DefaultHttpAnnotationParser<T extends HttpComponent<T>> imple
    * {@inheritDoc}
    */
   @Override
+  public @NonNull HttpAnnotationParser<T> parseAndRegister(@NonNull Class<?> handlerClass) {
+    var injectionLayer = InjectionLayer.findLayerOf(handlerClass);
+    return this.parseAndRegister(injectionLayer.instance(handlerClass));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @NonNull HttpAnnotationParser<T> parseAndRegister(@NonNull Object handlerInstance) {
     for (var method : handlerInstance.getClass().getDeclaredMethods()) {
       // check if the handler is requested to be a request handler

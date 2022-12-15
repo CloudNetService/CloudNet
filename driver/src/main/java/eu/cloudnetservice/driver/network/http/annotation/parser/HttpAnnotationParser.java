@@ -78,6 +78,20 @@ public interface HttpAnnotationParser<T extends HttpComponent<T>> {
    * This method will call all previously registered annotation processors and build context preprocessors from them,
    * then register the final parsed handler to the http component associated with this parser.
    *
+   * @param handlerClass the class in which the handler methods to register are located.
+   * @return the same instance as used to call the method, for chaining.
+   * @throws NullPointerException        if the given handler instance is null.
+   * @throws IllegalArgumentException    if annotating a static method, not taking a context as the first arg or if the
+   *                                     annotation defines no paths or http methods to handle.
+   * @throws InaccessibleObjectException if a http handler method is not accessible.
+   */
+  @NonNull HttpAnnotationParser<T> parseAndRegister(@NonNull Class<?> handlerClass);
+
+  /**
+   * Parses all non-static http handlers methods annotated with {@code @HttpRequestHandler} in the given class instance.
+   * This method will call all previously registered annotation processors and build context preprocessors from them,
+   * then register the final parsed handler to the http component associated with this parser.
+   *
    * @param handlerInstance the instance of the class in which the handler methods to register are located.
    * @return the same instance as used to call the method, for chaining.
    * @throws NullPointerException        if the given handler instance is null.
