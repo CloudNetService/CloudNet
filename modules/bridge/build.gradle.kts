@@ -40,7 +40,6 @@ dependencies {
   "annotationProcessor"(libs.velocity)
   "runtimeImpl"(libs.bundles.adventure)
   "runtimeImpl"(projects.ext.adventureHelper)
-  "runtimeImpl"(projects.ext.platformInjectSupport)
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)

@@ -23,13 +23,17 @@ import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class NodeLabyModManagement implements LabyModManagement {
 
   private final CloudNetLabyModModule labyModModule;
   private LabyModConfiguration configuration;
 
+  @Inject
   public NodeLabyModManagement(
     @NonNull CloudNetLabyModModule labyModModule,
     @NonNull LabyModConfiguration configuration,

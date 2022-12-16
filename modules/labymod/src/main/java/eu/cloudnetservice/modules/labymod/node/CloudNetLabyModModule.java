@@ -22,8 +22,6 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.labymod.config.LabyModBanner;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
@@ -41,8 +39,6 @@ import lombok.NonNull;
 
 @Singleton
 public class CloudNetLabyModModule extends DriverModule {
-
-  private NodeLabyModManagement labyModManagement;
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
@@ -77,37 +73,32 @@ public class CloudNetLabyModModule extends DriverModule {
   }
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
-  public void initManagement(
-    @NonNull RPCFactory rpcFactory,
-    @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull RPCHandlerRegistry rpcHandlerRegistry
-  ) {
-    this.labyModManagement = new NodeLabyModManagement(this, this.loadConfiguration(), rpcFactory, rpcHandlerRegistry);
+  public void initManagement(@NonNull DataSyncRegistry dataSyncRegistry, @NonNull NodeLabyModManagement management) {
     // sync the config of the module into the cluster
     dataSyncRegistry.registerHandler(
       DataSyncHandler.<LabyModConfiguration>builder()
         .key("labymod-config")
         .nameExtractor($ -> "LabyMod Config")
         .convertObject(LabyModConfiguration.class)
-        .writer(this.labyModManagement::configuration)
-        .singletonCollector(this.labyModManagement::configuration)
-        .currentGetter($ -> this.labyModManagement.configuration())
+        .writer(management::configuration)
+        .singletonCollector(management::configuration)
+        .currentGetter($ -> management.configuration())
         .build());
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
-  public void handleReload() {
-    this.labyModManagement.configuration(this.loadConfiguration());
+  public void handleReload(@NonNull NodeLabyModManagement management) {
+    management.configuration(this.loadConfiguration());
   }
 
   @ModuleTask(order = 16, event = ModuleLifeCycle.LOADED)
-  public void initListeners(@NonNull EventManager eventManager) {
+  public void initListeners(@NonNull EventManager eventManager, @NonNull NodeLabyModManagement management) {
     // register the listeners
-    eventManager.registerListener(new NodeLabyModListener(this.labyModManagement));
+    eventManager.registerListener(NodeLabyModListener.class);
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-labymod",
       CloudNetLabyModModule.class,
-      service -> this.labyModManagement.configuration().enabled()
+      service -> management.configuration().enabled()
         && ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())));
   }
 
