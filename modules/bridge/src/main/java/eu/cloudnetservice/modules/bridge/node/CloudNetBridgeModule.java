@@ -23,6 +23,7 @@ import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -41,6 +42,8 @@ import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,9 +52,15 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class CloudNetBridgeModule extends DriverModule {
 
   private static final Logger LOGGER = LogManager.logger(CloudNetBridgeModule.class);
+
+  @Inject
+  public CloudNetBridgeModule(@NonNull InjectionLayer<?> layer) {
+    layer.installAutoConfigureBindings(this.classLoader(), "bridge");
+  }
 
   @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
   public void initNetworkHelpers() {
