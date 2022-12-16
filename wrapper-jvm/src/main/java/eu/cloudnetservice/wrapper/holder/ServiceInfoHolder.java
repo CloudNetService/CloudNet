@@ -17,8 +17,6 @@
 package eu.cloudnetservice.wrapper.holder;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
 
@@ -42,10 +40,6 @@ public interface ServiceInfoHolder {
    * @return the current service info snapshot.
    */
   @NonNull ServiceInfoSnapshot serviceInfo();
-
-  @NonNull ServiceConfiguration serviceConfiguration();
-
-  @NonNull ServiceId serviceId();
 
   /**
    * Gets the last service info snapshot before the current one was created.

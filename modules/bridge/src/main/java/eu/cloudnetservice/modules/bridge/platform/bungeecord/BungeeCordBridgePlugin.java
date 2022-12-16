@@ -24,6 +24,7 @@ import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordFakeReloadCommand;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordHubCommand;
+import jakarta.inject.Inject;
 import java.util.Arrays;
 import lombok.NonNull;
 import net.md_5.bungee.api.ProxyServer;
@@ -49,6 +50,7 @@ public final class BungeeCordBridgePlugin implements PlatformEntrypoint {
   private final BungeeCordBridgeManagement bridgeManagement;
   private final BungeeCordPlayerManagementListener playerListener;
 
+  @Inject
   public BungeeCordBridgePlugin(
     @NonNull Plugin plugin,
     @NonNull ProxyServer proxyServer,

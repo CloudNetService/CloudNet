@@ -23,7 +23,6 @@ import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -89,7 +88,7 @@ public final class BukkitPlayerManagementListener implements Listener {
       event.getPlayer().getUniqueId(),
       this.management.createPlayerInformation(event.getPlayer()));
     // update the service info in the next tick
-    Bukkit.getScheduler().runTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
+    this.scheduler.runTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 
   @EventHandler

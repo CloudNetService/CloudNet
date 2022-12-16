@@ -46,6 +46,7 @@ import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import java.time.Duration;
 import java.util.Collection;
@@ -79,6 +80,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   protected final CloudServiceProvider serviceProvider;
   protected final BridgeServiceHelper bridgeServiceHelper;
   protected final NetworkServiceInfo ownNetworkServiceInfo;
+  protected final WrapperConfiguration wrapperConfig;
   protected final LoadingCache<UUID, FallbackProfile> fallbackProfiles;
   protected final Map<UUID, ServiceInfoSnapshot> cachedServices;
 
@@ -97,13 +99,15 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
-    @NonNull CloudServiceProvider serviceProvider
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfig
   ) {
     this.eventManager = eventManager;
     this.taskProvider = taskProvider;
     this.bridgeServiceHelper = serviceHelper;
     this.serviceInfoHolder = serviceInfoHolder;
     this.serviceProvider = serviceProvider;
+    this.wrapperConfig = wrapperConfig;
     this.cachedServices = new ConcurrentHashMap<>();
     this.fallbackProfiles = Caffeine.newBuilder()
       .expireAfterAccess(Duration.ofMinutes(10))
@@ -122,7 +126,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       GenerationContext.forClass(PlatformPlayerManager.class).component(networkClient).build()).newInstance();
     this.sender = rpcFactory.providerForClass(networkClient, BridgeManagement.class);
     // create the network service info of this service
-    this.ownNetworkServiceInfo = NetworkServiceInfo.fromServiceInfoSnapshot(serviceInfoHolder.serviceInfo());
+    this.ownNetworkServiceInfo = NetworkServiceInfo.fromServiceInfoSnapshot(wrapperConfig.serviceInfoSnapshot());
     // load the configuration using rpc - all updates will be received from the channel message
     this.configurationSilently(this.sender.invokeMethod("configuration").fireSync());
     // register the common listeners
@@ -144,7 +148,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     this.configuration = configuration;
     this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
     this.currentFallbackConfiguration = configuration.fallbackConfigurations().stream()
-      .filter(config -> this.serviceInfoHolder.serviceConfiguration().groups().contains(config.targetGroup()))
+      .filter(config -> this.wrapperConfig.serviceConfiguration().groups().contains(config.targetGroup()))
       .findFirst()
       .orElse(null);
   }
@@ -166,7 +170,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   }
 
   public void handleTaskUpdate(@NonNull String name, @Nullable ServiceTask task) {
-    if (this.serviceInfoHolder.serviceId().taskName().equals(name)) {
+    if (this.wrapperConfig.serviceConfiguration().serviceId().taskName().equals(name)) {
       this.selfTask = task;
     }
   }
@@ -341,7 +345,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       }
     });
     // get the service task associated with this service if present
-    this.selfTask = this.taskProvider.serviceTask(this.serviceInfoHolder.serviceId().taskName());
+    this.selfTask = this.taskProvider.serviceTask(this.wrapperConfig.serviceConfiguration().serviceId().taskName());
   }
 
   public @NonNull NetworkServiceInfo ownNetworkServiceInfo() {

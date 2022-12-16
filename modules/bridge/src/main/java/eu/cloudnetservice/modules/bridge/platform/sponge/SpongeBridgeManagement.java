@@ -32,6 +32,7 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -73,9 +74,18 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
-    @NonNull CloudServiceProvider serviceProvider
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
   ) {
-    super(rpcFactory, eventManager, networkClient, taskProvider, serviceHelper, serviceInfoHolder, serviceProvider);
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
     // init fields
     this.server = server;
     this.platform = platform;

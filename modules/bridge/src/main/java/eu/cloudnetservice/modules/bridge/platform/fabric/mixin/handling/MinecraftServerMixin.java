@@ -73,7 +73,8 @@ public abstract class MinecraftServerMixin implements BridgedServer {
       this.injectionHolder.taskProvider(),
       this.injectionHolder.serviceHelper(),
       this.injectionHolder.serviceInfoHolder(),
-      this.injectionHolder.serviceProvider());
+      this.injectionHolder.serviceProvider(),
+      this.injectionHolder.wrapperConfiguration());
     this.management.registerServices(this.injectionHolder.serviceRegistry());
     this.management.postInit();
   }

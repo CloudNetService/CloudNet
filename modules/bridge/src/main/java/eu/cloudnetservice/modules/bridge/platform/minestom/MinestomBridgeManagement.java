@@ -34,6 +34,7 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -72,9 +73,18 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ConnectionManager connectionManager,
     @NonNull ServiceInfoHolder serviceInfoHolder,
-    @NonNull CloudServiceProvider serviceProvider
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
   ) {
-    super(rpcFactory, eventManager, networkClient, taskProvider, serviceHelper, serviceInfoHolder, serviceProvider);
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
     // init fields
     this.commandManager = commandManager;
     this.connectionManager = connectionManager;

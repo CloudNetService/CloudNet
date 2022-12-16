@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -38,7 +39,8 @@ public record FabricInjectionHolder(
   @NonNull BridgeServiceHelper serviceHelper,
   @NonNull ServiceInfoHolder serviceInfoHolder,
   @NonNull CloudServiceProvider serviceProvider,
-  @NonNull ServerPlatformHelper serverPlatformHelper
+  @NonNull ServerPlatformHelper serverPlatformHelper,
+  @NonNull WrapperConfiguration wrapperConfiguration
 ) {
 
 }

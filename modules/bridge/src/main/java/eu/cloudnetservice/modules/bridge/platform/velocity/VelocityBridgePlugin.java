@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.platform.velocity;
 
-import com.google.inject.Singleton;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
@@ -25,6 +24,7 @@ import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityHubCommand;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
 import lombok.NonNull;
 

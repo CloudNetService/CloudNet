@@ -74,7 +74,6 @@ public final class BukkitBridgePlugin implements PlatformEntrypoint {
 
   @Override
   public void onDisable() {
-    this.scheduler.cancelTasks(this.plugin);
     this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

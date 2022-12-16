@@ -3,5 +3,5 @@
   "mixins": [
     "cloudnet_bridge.mixins.json"
   ],
-  "accessWidener": "cloudnet_bridge.accesswidener",
+  "accessWidener": "cloudnet_bridge.accesswidener"
 }

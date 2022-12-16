@@ -31,6 +31,7 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import java.util.Collections;
 import java.util.Optional;
@@ -56,9 +57,18 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
-    @NonNull CloudServiceProvider serviceProvider
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
   ) {
-    super(rpcFactory, eventManager, networkClient, taskProvider, serviceHelper, serviceInfoHolder, serviceProvider);
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
     // field init
     this.server = server;
     this.directGlobalExecutor = new FabricDirectPlayerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID, server::players);

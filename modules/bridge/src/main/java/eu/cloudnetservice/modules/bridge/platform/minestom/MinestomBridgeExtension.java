@@ -82,6 +82,6 @@ public final class MinestomBridgeExtension implements PlatformEntrypoint {
 
   @Override
   public void onDisable() {
-
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

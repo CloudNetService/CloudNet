@@ -16,10 +16,15 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric;
 
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
+@Singleton
 @PlatformPlugin(
   platform = "fabric",
   name = "CloudNet-Bridge",
@@ -32,4 +37,15 @@ import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
   authors = "CloudNetService")
 public final class FabricBridgeInitializer implements PlatformEntrypoint {
 
+  private final ModuleHelper moduleHelper;
+
+  @Inject
+  public FabricBridgeInitializer(@NonNull ModuleHelper moduleHelper) {
+    this.moduleHelper = moduleHelper;
+  }
+
+  @Override
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
+  }
 }
