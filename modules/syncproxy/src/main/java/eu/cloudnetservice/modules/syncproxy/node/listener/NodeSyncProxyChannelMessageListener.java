@@ -24,13 +24,17 @@ import eu.cloudnetservice.modules.syncproxy.SyncProxyConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.node.NodeSyncProxyManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class NodeSyncProxyChannelMessageListener {
 
   private final NodeSyncProxyManagement management;
   private final EventManager eventManager;
 
+  @Inject
   public NodeSyncProxyChannelMessageListener(
     @NonNull NodeSyncProxyManagement management,
     @NonNull EventManager eventManager

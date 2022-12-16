@@ -17,26 +17,38 @@
 package eu.cloudnetservice.modules.syncproxy.node;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class NodeSyncProxyManagement implements SyncProxyManagement {
 
+  private final EventManager eventManager;
   private final CloudNetSyncProxyModule syncProxyModule;
+
   private SyncProxyConfiguration configuration;
 
+  @Inject
   public NodeSyncProxyManagement(
+    @NonNull EventManager eventManager,
     @NonNull CloudNetSyncProxyModule syncProxyModule,
     @NonNull SyncProxyConfiguration configuration,
+    @NonNull RPCHandlerRegistry rpcRegistry,
     @NonNull RPCFactory rpcFactory
   ) {
     this.syncProxyModule = syncProxyModule;
     this.configuration = configuration;
-    rpcFactory.newHandler(SyncProxyManagement.class, this).registerToDefaultRegistry();
+    this.eventManager = eventManager;
+
+    rpcFactory.newHandler(SyncProxyManagement.class, this).registerTo(rpcRegistry);
   }
 
   @Override
@@ -49,7 +61,7 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
     // write the configuration to the file
     this.configurationSilently(configuration);
     // call the local event for the update of the config
-    this.syncProxyModule.eventManager().callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
+    this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
     // send an update with the configuration to other components
     configuration.sendUpdate();
   }
@@ -57,11 +69,6 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
   @Override
   public void registerService(@NonNull ServiceRegistry registry) {
     registry.registerProvider(SyncProxyManagement.class, "NodeSyncProxyManagement", this);
-  }
-
-  @Override
-  public void unregisterService(@NonNull ServiceRegistry registry) {
-    registry.unregisterProvider(SyncProxyManagement.class, "NodeSyncProxyManagement");
   }
 
   public void configurationSilently(@NonNull SyncProxyConfiguration configuration) {

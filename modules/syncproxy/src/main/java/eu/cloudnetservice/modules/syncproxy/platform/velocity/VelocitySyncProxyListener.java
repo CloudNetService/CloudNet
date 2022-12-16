@@ -22,16 +22,26 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
 import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
 
+@Singleton
 public final class VelocitySyncProxyListener {
 
+  private final ServiceInfoHolder serviceInfoHolder;
   private final VelocitySyncProxyManagement syncProxyManagement;
 
-  public VelocitySyncProxyListener(@NonNull VelocitySyncProxyManagement syncProxyManagement) {
+  @Inject
+  public VelocitySyncProxyListener(
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull VelocitySyncProxyManagement syncProxyManagement
+  ) {
+    this.serviceInfoHolder = serviceInfoHolder;
     this.syncProxyManagement = syncProxyManagement;
   }
 
@@ -55,7 +65,8 @@ public final class VelocitySyncProxyListener {
         maxPlayers = loginConfiguration.maxPlayers();
       }
 
-      var protocolText = motd.format(motd.protocolText(), onlinePlayers, maxPlayers);
+      var serviceInfo = this.serviceInfoHolder.serviceInfo();
+      var protocolText = motd.format(serviceInfo, motd.protocolText(), onlinePlayers, maxPlayers);
       var version = event.getPing().getVersion();
       // check if a protocol text is specified in the config
       if (protocolText != null) {
@@ -75,7 +86,7 @@ public final class VelocitySyncProxyListener {
               UUID.randomUUID()
             )).toArray(ServerPing.SamplePlayer[]::new) : new ServerPing.SamplePlayer[0])
         .description(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-          motd.format(motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers)));
+          motd.format(serviceInfo, motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers)));
 
       event.getPing().getFavicon().ifPresent(builder::favicon);
       event.getPing().getModinfo().ifPresent(builder::mods);

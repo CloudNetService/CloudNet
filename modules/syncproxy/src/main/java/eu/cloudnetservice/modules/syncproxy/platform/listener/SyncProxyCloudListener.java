@@ -27,13 +27,7 @@ import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import lombok.NonNull;
 
-public final class SyncProxyCloudListener<P> {
-
-  private final PlatformSyncProxyManagement<P> management;
-
-  public SyncProxyCloudListener(@NonNull PlatformSyncProxyManagement<P> management) {
-    this.management = management;
-  }
+public record SyncProxyCloudListener<P>(@NonNull PlatformSyncProxyManagement<P> management) {
 
   @EventListener
   public void handleServiceLifecycleChange(@NonNull CloudServiceLifecycleChangeEvent event) {

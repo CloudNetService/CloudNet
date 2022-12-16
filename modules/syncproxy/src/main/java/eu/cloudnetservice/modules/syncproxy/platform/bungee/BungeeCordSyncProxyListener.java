@@ -19,6 +19,9 @@ package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 import static net.md_5.bungee.api.ChatColor.translateAlternateColorCodes;
 
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.PendingConnectionProxiedPlayer;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
@@ -30,13 +33,24 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.event.EventHandler;
 
+@Singleton
 public final class BungeeCordSyncProxyListener implements Listener {
 
+  private final PluginManager pluginManager;
+  private final ServiceInfoHolder serviceInfoHolder;
   private final BungeeCordSyncProxyManagement syncProxyManagement;
 
-  public BungeeCordSyncProxyListener(@NonNull BungeeCordSyncProxyManagement syncProxyManagement) {
+  @Inject
+  public BungeeCordSyncProxyListener(
+    @NonNull PluginManager pluginManager,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull BungeeCordSyncProxyManagement syncProxyManagement
+  ) {
+    this.pluginManager = pluginManager;
+    this.serviceInfoHolder = serviceInfoHolder;
     this.syncProxyManagement = syncProxyManagement;
   }
 
@@ -62,8 +76,12 @@ public final class BungeeCordSyncProxyListener implements Listener {
       }
 
       var response = event.getResponse();
-
-      var protocolText = motd.format(motd.protocolText(), onlinePlayers, maxPlayers);
+      var serviceInfo = this.serviceInfoHolder.serviceInfo();
+      var protocolText = motd.format(
+        serviceInfo,
+        motd.protocolText(),
+        onlinePlayers,
+        maxPlayers);
       // check if there is a protocol text in the config
       if (protocolText != null) {
         response.setVersion(new Protocol(translateAlternateColorCodes('&', protocolText), 1));
@@ -79,8 +97,11 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
       response.setPlayers(players);
       response.setDescriptionComponent(new TextComponent(TextComponent.fromLegacyText(
-        motd.format(translateAlternateColorCodes('&', motd.firstLine() + "\n" + motd.secondLine()),
-          onlinePlayers, maxPlayers))));
+        motd.format(
+          serviceInfo,
+          translateAlternateColorCodes('&', motd.firstLine() + "\n" + motd.secondLine()),
+          onlinePlayers,
+          maxPlayers))));
 
       event.setResponse(response);
     }
@@ -93,7 +114,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
       return;
     }
 
-    var player = new PendingConnectionProxiedPlayer(proxyServer, event.getConnection());
+    var player = new PendingConnectionProxiedPlayer(this.pluginManager, event.getConnection());
 
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
@@ -111,6 +132,5 @@ public final class BungeeCordSyncProxyListener implements Listener {
         event.setCancelled(true);
       }
     }
-
   }
 }

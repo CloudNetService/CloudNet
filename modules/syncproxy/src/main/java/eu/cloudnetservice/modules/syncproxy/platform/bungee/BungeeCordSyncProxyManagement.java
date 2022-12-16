@@ -16,24 +16,56 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManagement<ProxiedPlayer> {
 
-  private final Plugin plugin;
+  private final ProxyServer proxyServer;
 
-  public BungeeCordSyncProxyManagement(@NonNull Plugin plugin) {
-    this.plugin = plugin;
+  @Inject
+  public BungeeCordSyncProxyManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull ProxyServer proxyServer,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull WrapperConfiguration wrapperConfig,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull ScheduledExecutorService executorService,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      wrapperConfig,
+      serviceInfoHolder,
+      serviceProvider,
+      executorService,
+      permissionManagement);
+
+    this.proxyServer = proxyServer;
     this.init();
   }
 
@@ -43,13 +75,8 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void unregisterService(@NonNull ServiceRegistry registry) {
-    registry.unregisterProvider(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement");
-  }
-
-  @Override
   public @NonNull Collection<ProxiedPlayer> onlinePlayers() {
-    return this.plugin.getProxy().getPlayers();
+    return this.proxyServer.getPlayers();
   }
 
   @Override

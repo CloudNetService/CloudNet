@@ -18,19 +18,51 @@ package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManagement<ProxiedPlayer> {
 
   private final ProxyServer proxyServer;
 
-  public WaterDogPESyncProxyManagement(@NonNull ProxyServer proxyServer) {
+  @Inject
+  public WaterDogPESyncProxyManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull ProxyServer proxyServer,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull WrapperConfiguration wrapperConfig,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull ScheduledExecutorService executorService,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      wrapperConfig,
+      serviceInfoHolder,
+      serviceProvider,
+      executorService,
+      permissionManagement);
+
     this.proxyServer = proxyServer;
     this.init();
   }
@@ -38,11 +70,6 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
   @Override
   public void registerService(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement", this);
-  }
-
-  @Override
-  public void unregisterService(@NonNull ServiceRegistry registry) {
-    registry.unregisterProvider(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement");
   }
 
   @Override

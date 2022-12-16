@@ -19,20 +19,28 @@ package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.ProxyPingEvent;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.function.Function;
 import lombok.NonNull;
 
+@Singleton
 public final class WaterDogPESyncProxyListener {
 
   private static final Function<String, String> LEGACY_COLOR_REPLACER = s -> s.replace('&', '§');
 
+  private final ServiceInfoHolder serviceInfoHolder;
   private final WaterDogPESyncProxyManagement syncProxyManagement;
 
+  @Inject
   public WaterDogPESyncProxyListener(
     @NonNull WaterDogPESyncProxyManagement syncProxyManagement,
-    @NonNull ProxyServer proxyServer
+    @NonNull ProxyServer proxyServer,
+    @NonNull ServiceInfoHolder serviceInfoHolder
   ) {
     this.syncProxyManagement = syncProxyManagement;
+    this.serviceInfoHolder = serviceInfoHolder;
 
     // subscribe to the events and redirect them to the methods to handle them
     proxyServer.getEventManager().subscribe(ProxyPingEvent.class, this::handleProxyPing);
@@ -60,9 +68,10 @@ public final class WaterDogPESyncProxyListener {
       }
       event.setMaximumPlayerCount(maxPlayers);
 
-      // bedrock has just to lines that are separated  from each other
-      var mainMotd = LEGACY_COLOR_REPLACER.apply(motd.format(motd.firstLine(), onlinePlayers, maxPlayers));
-      var subMotd = LEGACY_COLOR_REPLACER.apply(motd.format(motd.secondLine(), onlinePlayers, maxPlayers));
+      // bedrock has just to lines that are separated from each other
+      var serviceInfo = this.serviceInfoHolder.serviceInfo();
+      var mainMotd = LEGACY_COLOR_REPLACER.apply(motd.format(serviceInfo, motd.firstLine(), onlinePlayers, maxPlayers));
+      var subMotd = LEGACY_COLOR_REPLACER.apply(motd.format(serviceInfo, motd.secondLine(), onlinePlayers, maxPlayers));
 
       event.setMotd(mainMotd);
       event.setSubMotd(subMotd);
