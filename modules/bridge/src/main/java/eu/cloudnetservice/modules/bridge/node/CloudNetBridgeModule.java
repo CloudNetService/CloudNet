@@ -20,12 +20,9 @@ import static eu.cloudnetservice.modules.bridge.BridgeManagement.BRIDGE_PLAYER_D
 
 import com.google.common.collect.Iterables;
 import com.google.gson.reflect.TypeToken;
-import dev.derklaro.aerogel.Bindings;
-import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -47,10 +44,10 @@ import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import jline.internal.Nullable;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.jetbrains.annotations.Nullable;
 
 public final class CloudNetBridgeModule extends DriverModule {
 
@@ -127,13 +124,6 @@ public final class CloudNetBridgeModule extends DriverModule {
         LOGGER.info("Successfully converted %d entries", null, convertedPlayers);
       }
     }
-  }
-
-  @ModuleTask(order = 30, event = ModuleLifeCycle.LOADED)
-  public void installBindings(@NonNull InjectionLayer<?> injectionLayer) {
-    injectionLayer.install(Bindings.fixed(
-      Element.forType(String.class).requireName("bridgeDatabaseName"),
-      BRIDGE_PLAYER_DB_NAME));
   }
 
   @ModuleTask(order = 40, event = ModuleLifeCycle.LOADED)

@@ -41,9 +41,9 @@ final class BungeeCordPlatformPluginManager extends BasePlatformPluginManager<St
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
       // install bindings for the platform
       layer.install(createFixedBinding(platformData.getProxy(), ProxyServer.class));
+      layer.install(createFixedBinding(platformData.getProxy().getConfig(), ProxyConfig.class));
       layer.install(createFixedBinding(platformData.getProxy().getScheduler(), TaskScheduler.class));
       layer.install(createFixedBinding(platformData.getProxy().getPluginManager(), PluginManager.class));
-      layer.install(createFixedBinding(platformData.getProxy().getConfig(), ProxyConfig.class));
 
       // install the bindings which are specific to the plugin
       layer.install(fixedBindingWithBound(platformData, Plugin.class));

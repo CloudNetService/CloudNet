@@ -24,10 +24,11 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
-import eu.cloudnetservice.node.config.RestConfiguration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -39,8 +40,9 @@ public final class V2HttpHandlerBridge extends V2HttpHandler {
 
   private final PlayerManager playerManager;
 
-  public V2HttpHandlerBridge(@NonNull PlayerManager playerManager, @NonNull RestConfiguration restConfiguration) {
-    super(restConfiguration);
+  @Inject
+  public V2HttpHandlerBridge(@NonNull PlayerManager playerManager, @NonNull Configuration configuration) {
+    super(configuration.restConfiguration());
 
     this.playerManager = playerManager;
   }

@@ -51,7 +51,6 @@ import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Map;
@@ -98,10 +97,9 @@ public class NodePlayerManager implements PlayerManager {
     @NonNull CommandProvider commandProvider,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull RPCHandlerRegistry handlerRegistry,
-    @NonNull @Named("bridgeDatabaseName") String databaseName,
     @NonNull AbstractDatabaseProvider abstractDatabaseProvider
   ) {
-    this.databaseName = databaseName;
+    this.databaseName = BridgeManagement.BRIDGE_PLAYER_DB_NAME;
     this.eventManager = eventManager;
     this.commandProvider = commandProvider;
     this.abstractDatabaseProvider = abstractDatabaseProvider;

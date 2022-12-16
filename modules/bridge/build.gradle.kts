@@ -28,6 +28,10 @@ configurations {
   }
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/bridge.aero")
+}
+
 dependencies {
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(libs.bundles.proxyPlatform)
