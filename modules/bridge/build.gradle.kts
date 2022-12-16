@@ -28,6 +28,10 @@ configurations {
   }
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/bridge.aero")
+}
+
 dependencies {
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(libs.bundles.proxyPlatform)
@@ -36,6 +40,9 @@ dependencies {
   "annotationProcessor"(libs.velocity)
   "runtimeImpl"(libs.bundles.adventure)
   "runtimeImpl"(projects.ext.adventureHelper)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   "minecraft"(libs.minecraft)
   "modImplementation"(libs.fabricLoader)

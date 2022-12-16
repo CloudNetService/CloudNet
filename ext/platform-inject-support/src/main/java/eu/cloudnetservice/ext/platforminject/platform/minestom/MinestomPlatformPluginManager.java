@@ -44,6 +44,7 @@ import net.minestom.server.scoreboard.TeamManager;
 import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.world.DimensionTypeManager;
 import net.minestom.server.world.biomes.BiomeManager;
+import org.slf4j.Logger;
 
 final class MinestomPlatformPluginManager extends BasePlatformPluginManager<String, Extension> {
 
@@ -76,6 +77,7 @@ final class MinestomPlatformPluginManager extends BasePlatformPluginManager<Stri
 
       // install the bindings which are specific to the plugin
       injector.installSpecified(fixedBindingWithBound(platformData, Extension.class));
+      injector.installSpecified(fixedBindingWithBound(platformData.getLogger(), Logger.class));
     });
   }
 }

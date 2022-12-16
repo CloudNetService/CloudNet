@@ -1,6 +1,0 @@
-name: CloudNet-Bridge
-version: "{project.build.version}"
-api-version: "1.13"
-author: CloudNetService
-description: Bridges service software support between all supported versions for easy CloudNet plugin development
-main: eu.cloudnetservice.modules.bridge.platform.bukkit.BukkitBridgePlugin
