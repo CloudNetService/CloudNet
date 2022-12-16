@@ -21,12 +21,16 @@ import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-public class VelocityLabyModListener {
+@Singleton
+public final class VelocityLabyModListener {
 
   private final PlatformLabyModManagement labyModManagement;
 
+  @Inject
   public VelocityLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
   }
