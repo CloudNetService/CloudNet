@@ -18,45 +18,33 @@ package eu.cloudnetservice.modules.bridge.node.listener;
 
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
 import eu.cloudnetservice.node.event.setup.SetupInitiateEvent;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import lombok.NonNull;
 
 public final class NodeSetupListener {
 
-  private static final QuestionListEntry<String> CREATE_BRIDGE_FALLBACK = QuestionListEntry.<String>builder()
-    .key("generateBridgeFallback")
-    .translatedQuestion("module-bridge-tasks-setup-default-fallback")
-    .answerType(QuestionAnswerType.<String>builder()
-      .parser(input -> {
-        // we allow an empty input or an existing task
-        if (!input.isEmpty() && Node.instance().serviceTaskProvider().serviceTask(input) == null) {
-          throw Parsers.ParserException.INSTANCE;
-        }
-        return input;
-      })
-      .possibleResults(Node.instance().serviceTaskProvider().serviceTasks().stream().filter(
-          task -> {
-            var env = Node.instance().serviceVersionProvider()
-              .getEnvironmentType(task.processConfiguration().environment());
-            // only minecraft servers are allowed to be a fallback
-            return env != null && ServiceEnvironmentType.minecraftServer(env);
-          })
-        .map(Nameable::name)
-        .toList()))
-    .build();
+  private final QuestionListEntry<String> bridgeFallbackQuestionEntry;
 
   private final BridgeManagement bridgeManagement;
 
-  public NodeSetupListener(@NonNull BridgeManagement bridgeManagement) {
+  public NodeSetupListener(
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeManagement bridgeManagement,
+    @NonNull ServiceVersionProvider versionProvider
+  ) {
     this.bridgeManagement = bridgeManagement;
+
+    // create the bridge fallback question entry
+    this.bridgeFallbackQuestionEntry = this.createBridgeFallbackEntry(taskProvider, versionProvider);
   }
 
   @EventListener
@@ -68,7 +56,7 @@ public final class NodeSetupListener {
         // only add an entry for minecraft proxies
         if (!event.setup().hasResult("generateBridgeFallback")
           && ServiceEnvironmentType.minecraftProxy((ServiceEnvironmentType) env)) {
-          event.setup().addEntries(CREATE_BRIDGE_FALLBACK);
+          event.setup().addEntries(this.bridgeFallbackQuestionEntry);
         }
       }));
   }
@@ -85,6 +73,32 @@ public final class NodeSetupListener {
         .build());
       this.bridgeManagement.configuration(config);
     }
+  }
+
+  private @NonNull QuestionListEntry<String> createBridgeFallbackEntry(
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull ServiceVersionProvider versionProvider
+  ) {
+    return QuestionListEntry.<String>builder()
+      .key("generateBridgeFallback")
+      .translatedQuestion("module-bridge-tasks-setup-default-fallback")
+      .answerType(QuestionAnswerType.<String>builder()
+        .parser(input -> {
+          // we allow an empty input or an existing task
+          if (!input.isEmpty() && taskProvider.serviceTask(input) == null) {
+            throw Parsers.ParserException.INSTANCE;
+          }
+          return input;
+        })
+        .possibleResults(taskProvider.serviceTasks().stream().filter(
+            task -> {
+              var env = versionProvider.getEnvironmentType(task.processConfiguration().environment());
+              // only minecraft servers are allowed to be a fallback
+              return env != null && ServiceEnvironmentType.minecraftServer(env);
+            })
+          .map(Nameable::name)
+          .toList()))
+      .build();
   }
 
 }

@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.PlatformPluginInfo;
 import eu.cloudnetservice.ext.platforminject.PlatformPluginManager;
+import eu.cloudnetservice.ext.platforminject.inject.BindingsInstaller;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +33,8 @@ import org.jetbrains.annotations.Nullable;
 public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginManager<I, T> {
 
   protected static final InjectionLayer<Injector> BASE_INJECTION_LAYER = InjectionLayer.ext();
+  protected static final StackWalker RETAINING_STACK_WALKER = StackWalker.getInstance(
+    StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
   private final Function<T, I> idExtractor;
   private final Function<T, Object> mainClassExtractor;
@@ -74,6 +77,10 @@ public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginM
     // create the plugin injection layer
     var pluginLayer = this.createInjectionLayer(platformData);
 
+    // configure the injection layer
+    var callerClass = RETAINING_STACK_WALKER.getCallerClass();
+    this.configureInjectionLayer(pluginLayer, callerClass);
+
     // bind the layer to the plugin main class & main class loader
     var platformMainInstance = this.mainClassExtractor.apply(platformData);
     pluginLayer.register(platformMainInstance, platformMainInstance.getClass().getClassLoader());
@@ -104,6 +111,24 @@ public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginM
     var pluginInfo = this.constructedPlugins.remove(id);
     if (pluginInfo != null) {
       pluginInfo.close();
+    }
+  }
+
+  protected void configureInjectionLayer(@NonNull InjectionLayer<?> layer, @NonNull Class<?> platformMainClass) {
+    try {
+      // kinda hacky, but it works...
+      var bindingsClassName = platformMainClass.getName().replaceFirst("(?s)(.*)Entrypoint", "Bindings");
+      var bindingsClass = Class.forName(bindingsClassName, false, platformMainClass.getClassLoader());
+
+      // get the no-args constructor, no need for accessible or something, the class & constructor must be public
+      var constructor = bindingsClass.getConstructor();
+      var installerInstance = constructor.newInstance();
+
+      // check if the bindings class is actually an installer, ignore in all other cases
+      if (installerInstance instanceof BindingsInstaller installer) {
+        installer.applyBindings(layer);
+      }
+    } catch (Exception ignored) {
     }
   }
 

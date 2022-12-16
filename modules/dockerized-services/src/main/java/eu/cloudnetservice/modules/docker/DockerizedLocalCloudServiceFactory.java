@@ -26,8 +26,11 @@ import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.defaults.factory.BaseLocalCloudServiceFactory;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
 
   protected final TickLoop mainThread;
@@ -36,6 +39,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
   protected final DockerConfiguration dockerConfiguration;
   protected final CloudServiceManager cloudServiceManager;
 
+  @Inject
   public DockerizedLocalCloudServiceFactory(
     @NonNull TickLoop tickLoop,
     @NonNull Configuration nodeConfig,

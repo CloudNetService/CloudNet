@@ -26,6 +26,8 @@ import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
@@ -45,6 +47,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class BukkitFunctionalityListener implements Listener {
 
   private static final ItemSlot[] ITEM_SLOTS = ItemSlot.values();
@@ -52,9 +55,10 @@ public final class BukkitFunctionalityListener implements Listener {
   private final BukkitPlatformNPCManagement management;
   private final Plugin plugin;
 
-  public BukkitFunctionalityListener(@NonNull BukkitPlatformNPCManagement management, @NonNull Plugin plugin) {
-    this.management = management;
+  @Inject
+  public BukkitFunctionalityListener(@NonNull Plugin plugin, @NonNull BukkitPlatformNPCManagement management) {
     this.plugin = plugin;
+    this.management = management;
 
     var bus = management.npcPlatform().eventBus();
     bus.subscribe(AttackNpcEvent.class, this::handleNpcAttack);

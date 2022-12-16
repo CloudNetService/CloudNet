@@ -16,23 +16,57 @@
 
 package eu.cloudnetservice.modules.bridge.platform.minestom;
 
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.wrapper.Wrapper;
-import net.minestom.server.extensions.Extension;
+import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.stereotype.ExternalDependency;
+import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.stereotype.Repository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.bungee.BungeeCordProxy;
 import net.minestom.server.extras.velocity.VelocityProxy;
+import org.slf4j.Logger;
 
-public final class MinestomBridgeExtension extends Extension {
+@Singleton
+@PlatformPlugin(
+  platform = "minestom",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService",
+  externalDependencies = @ExternalDependency(
+    groupId = "com.google.guava",
+    artifactId = "guava",
+    version = "31.1-jre",
+    repository = @Repository(id = "Central", url = "https://repo1.maven.org/maven2/")))
+public final class MinestomBridgeExtension implements PlatformEntrypoint {
+
+  private final Logger logger;
+  private final ModuleHelper moduleHelper;
+  private final ServiceRegistry serviceRegistry;
+  private final MinestomBridgeManagement bridgeManagement;
+
+  @Inject
+  public MinestomBridgeExtension(
+    @NonNull Logger logger,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull MinestomBridgeManagement bridgeManagement,
+    @NonNull MinestomPlayerManagementListener playerListener
+  ) {
+    this.logger = logger;
+    this.moduleHelper = moduleHelper;
+    this.serviceRegistry = serviceRegistry;
+    this.bridgeManagement = bridgeManagement;
+  }
 
   @Override
-  public void initialize() {
-    var management = new MinestomBridgeManagement();
-    management.registerServices(Wrapper.instance().serviceRegistry());
-    management.postInit();
-
-    // register the minestom listener
-    new MinestomPlayerManagementListener(management);
+  public void onLoad() {
+    this.bridgeManagement.registerServices(this.serviceRegistry);
+    this.bridgeManagement.postInit();
 
     // force initialize the bungeecord proxy forwarding
     if (!VelocityProxy.isEnabled()) {
@@ -41,13 +75,13 @@ public final class MinestomBridgeExtension extends Extension {
 
     // using bungeecord and mojang auth will not work, we can't do anything about it. Just send a warning
     if (!VelocityProxy.isEnabled() && MojangAuth.isEnabled()) {
-      this.getLogger().warn(
+      this.logger.warn(
         "Be aware that using BungeeCord player info forwarding in combination with Mojang authentication will not work!");
     }
   }
 
   @Override
-  public void terminate() {
-    ModuleHelper.unregisterAll_deprecated(this.getClass().getClassLoader());
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

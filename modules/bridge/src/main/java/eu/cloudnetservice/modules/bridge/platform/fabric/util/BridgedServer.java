@@ -37,4 +37,6 @@ public interface BridgedServer {
   @Nullable ServerPlayer player(@NonNull UUID uniqueId);
 
   @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management();
+
+  @NonNull FabricInjectionHolder injectionHolder();
 }

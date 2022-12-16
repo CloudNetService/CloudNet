@@ -49,7 +49,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     @NonNull Path configPath,
     @NonNull EventManager eventManager
   ) {
-    super(npcConfiguration);
+    super(npcConfiguration, eventManager);
     this.database = database;
     this.configurationPath = configPath;
 

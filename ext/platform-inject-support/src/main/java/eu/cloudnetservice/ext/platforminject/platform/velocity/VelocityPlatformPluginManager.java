@@ -17,7 +17,6 @@
 package eu.cloudnetservice.ext.platforminject.platform.velocity;
 
 import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
-import static eu.cloudnetservice.ext.platforminject.util.BindingUtil.fixedBindingWithBound;
 
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.EventManager;
@@ -26,6 +25,8 @@ import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.ChannelRegistrar;
 import com.velocitypowered.api.scheduler.Scheduler;
+import dev.derklaro.aerogel.Bindings;
+import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.defaults.BasePlatformPluginManager;
@@ -53,8 +54,10 @@ final class VelocityPlatformPluginManager
       layer.install(createFixedBinding(platformData.platformInstance().getChannelRegistrar(), ChannelRegistrar.class));
 
       // install the bindings which are specific to the plugin
-      injector.installSpecified(fixedBindingWithBound(platformData.pluginInstance()));
       injector.installSpecified(createFixedBinding(platformData.container(), PluginContainer.class));
+      injector.installSpecified(Bindings.fixed(
+        Element.forType(Object.class).requireName("plugin"),
+        platformData.platformInstance()));
     });
   }
 }
