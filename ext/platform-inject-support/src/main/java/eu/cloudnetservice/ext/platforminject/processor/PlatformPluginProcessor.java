@@ -40,6 +40,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import javax.tools.StandardLocation;
 import lombok.NonNull;
 
 public final class PlatformPluginProcessor extends AbstractProcessor {
@@ -100,13 +101,29 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
         var bindingClass = BindingClassGenerator.buildBindingClass(bindingClassName, bindings);
 
         try {
+          // small trick to prevent a compiler warning:
+          // as we need to create the source file in the last round, to ensure that we caught all annotations
+          // the compiler will print a warning because the generated source file will not be subject to further
+          // annotation processing. As this is not needed, and the warning is just annoying, we workaround that
+          // fact by calling "createResource" rather than "createSourceFile".
+          var outputResource = this.environment.getFiler().createResource(
+            StandardLocation.SOURCE_OUTPUT,
+            info.mainClassPackage(),
+            String.format("%s.java", bindingClass.name));
+
           // convert the generated class & write it
           var javaFile = JavaFile.builder(info.mainClassPackage(), bindingClass).build();
-          javaFile.writeTo(this.environment.getFiler());
+          try (var writer = outputResource.openWriter()) {
+            javaFile.writeTo(writer);
+          }
         } catch (IOException exception) {
           throw new IllegalStateException("Unable to write binding class file", exception);
         }
       }
+
+      // reset the state of this processor
+      this.scanEntries.clear();
+      this.bindingData.clear();
 
       // don't claim annotations
       return false;
