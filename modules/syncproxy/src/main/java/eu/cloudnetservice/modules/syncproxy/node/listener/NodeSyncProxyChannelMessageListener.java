@@ -44,7 +44,7 @@ public final class NodeSyncProxyChannelMessageListener {
   }
 
   @EventListener
-  public void handleConfigUpdate(ChannelMessageReceiveEvent event) {
+  public void handleConfigUpdate(@NonNull ChannelMessageReceiveEvent event) {
     if (!event.channel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL)) {
       return;
     }

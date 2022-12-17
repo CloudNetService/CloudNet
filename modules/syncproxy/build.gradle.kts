@@ -24,10 +24,17 @@ tasks.withType<Jar> {
   archiveFileName.set(Files.syncproxy)
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/syncproxy.aero")
+}
+
 dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   "annotationProcessor"(libs.velocity)
   "implementation"(projects.ext.adventureHelper)

@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.syncproxy.node;
 
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -30,10 +31,18 @@ import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import lombok.NonNull;
 
+@Singleton
 public final class CloudNetSyncProxyModule extends DriverModule {
+
+  @Inject
+  public CloudNetSyncProxyModule(@NonNull InjectionLayer<?> layer) {
+    layer.installAutoConfigureBindings(this.classLoader(), "syncproxy");
+  }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
