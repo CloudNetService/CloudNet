@@ -93,7 +93,7 @@ public final class CloudNetReportModule extends DriverModule {
     this.configuration = this.readConfig(
       ReportConfiguration.class,
       () -> new ReportConfiguration(Set.of(PasteServer.DEFAULT_PASTER_SERVER)));
-    commandProvider.register(new ReportCommand(this));
+    commandProvider.register(ReportCommand.class);
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
