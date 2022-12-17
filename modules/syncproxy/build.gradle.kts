@@ -36,7 +36,6 @@ dependencies {
   // processing
   "annotationProcessor"(libs.aerogelAuto)
 
-  "annotationProcessor"(libs.velocity)
   "implementation"(projects.ext.adventureHelper)
 }
 

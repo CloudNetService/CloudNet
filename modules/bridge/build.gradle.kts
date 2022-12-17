@@ -37,7 +37,6 @@ dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
 
-  "annotationProcessor"(libs.velocity)
   "runtimeImpl"(libs.bundles.adventure)
   "runtimeImpl"(projects.ext.adventureHelper)
 
