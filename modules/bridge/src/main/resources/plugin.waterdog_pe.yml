@@ -1,4 +1,0 @@
-name: CloudNet-Bridge
-version: "{project.build.version}"
-author: CloudNetService
-main: eu.cloudnetservice.modules.bridge.platform.waterdog.WaterDogPEBridgePlugin

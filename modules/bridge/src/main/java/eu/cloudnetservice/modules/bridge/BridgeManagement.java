@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.bridge;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -51,14 +50,6 @@ public interface BridgeManagement {
    * @throws NullPointerException if the given configuration is null.
    */
   void configuration(@NonNull BridgeConfiguration configuration);
-
-  /**
-   * Gets the player manager provided by this bridge management instance. The player manager is registered in the
-   * {@link ServiceRegistry} too.
-   *
-   * @return the player manager of this bridge management.
-   */
-  @NonNull PlayerManager playerManager();
 
   /**
    * Registers all services provided by this bridge management to the given service registry.

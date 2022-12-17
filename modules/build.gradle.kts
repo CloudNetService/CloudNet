@@ -39,6 +39,10 @@ subprojects {
     "compileOnly"(rootProject.projects.node)
     "testImplementation"(rootProject.projects.node)
 
+    // generation for platform main classes
+    "compileOnly"(rootProject.projects.ext.platformInjectSupport)
+    "annotationProcessor"(rootProject.projects.ext.platformInjectSupport)
+
     // internal dependencies
     "implementation"(rootProject.libs.guava)
   }

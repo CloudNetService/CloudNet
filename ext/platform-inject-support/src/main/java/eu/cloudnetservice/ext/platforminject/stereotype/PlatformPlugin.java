@@ -47,4 +47,6 @@ public @interface PlatformPlugin {
   @NonNull Dependency[] dependencies() default {};
 
   @NonNull ExternalDependency[] externalDependencies() default {};
+
+  @NonNull String[] providesScan() default {};
 }

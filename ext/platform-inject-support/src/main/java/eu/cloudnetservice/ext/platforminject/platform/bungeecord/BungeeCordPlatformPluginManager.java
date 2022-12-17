@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.util.FunctionalUtil;
 import lombok.NonNull;
+import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
@@ -40,6 +41,7 @@ final class BungeeCordPlatformPluginManager extends BasePlatformPluginManager<St
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
       // install bindings for the platform
       layer.install(createFixedBinding(platformData.getProxy(), ProxyServer.class));
+      layer.install(createFixedBinding(platformData.getProxy().getConfig(), ProxyConfig.class));
       layer.install(createFixedBinding(platformData.getProxy().getScheduler(), TaskScheduler.class));
       layer.install(createFixedBinding(platformData.getProxy().getPluginManager(), PluginManager.class));
 

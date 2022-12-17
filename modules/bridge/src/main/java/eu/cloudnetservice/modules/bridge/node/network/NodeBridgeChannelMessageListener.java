@@ -23,31 +23,26 @@ import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.bridge.node.NodeBridgeManagement;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class NodeBridgeChannelMessageListener {
 
-  private final EventManager eventManager;
-  private final NodeBridgeManagement management;
-
-  public NodeBridgeChannelMessageListener(
-    @NonNull NodeBridgeManagement management,
-    @NonNull EventManager eventManager
-  ) {
-    this.management = management;
-    this.eventManager = eventManager;
-  }
-
   @EventListener
-  public void handle(@NonNull ChannelMessageReceiveEvent event) {
+  public void handle(
+    @NonNull ChannelMessageReceiveEvent event,
+    @NonNull EventManager eventManager,
+    @NonNull NodeBridgeManagement management
+  ) {
     if (event.channel().equals(BridgeManagement.BRIDGE_CHANNEL_NAME)
       && event.message().equals("update_bridge_configuration")) {
       // read the config
       var configuration = event.content().readObject(BridgeConfiguration.class);
       // set the configuration
-      this.management.configurationSilently(configuration);
+      management.configurationSilently(configuration);
       // call the update event
-      this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
+      eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
     }
   }
 }

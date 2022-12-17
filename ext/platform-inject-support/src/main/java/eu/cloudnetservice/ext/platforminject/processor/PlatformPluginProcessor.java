@@ -18,24 +18,35 @@ package eu.cloudnetservice.ext.platforminject.processor;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeName;
 import eu.cloudnetservice.ext.platforminject.provider.PlatformInfoManager;
 import eu.cloudnetservice.ext.platforminject.stereotype.ConstructionListener;
 import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.stereotype.ProvidesFor;
+import eu.cloudnetservice.ext.platforminject.util.PatternUtil;
 import eu.cloudnetservice.ext.platforminject.util.PluginUtil;
+import eu.cloudnetservice.ext.platforminject.util.TypeUtil;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
+import javax.tools.StandardLocation;
 import lombok.NonNull;
 
 public final class PlatformPluginProcessor extends AbstractProcessor {
+
+  private final List<ScanPackageEntry> scanEntries = new LinkedList<>();
+  private final List<BindingClassGenerator.ParsedBindingData> bindingData = new LinkedList<>();
 
   private ProcessingEnvironment environment;
 
@@ -52,14 +63,69 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
   @Override
   public @NonNull Set<String> getSupportedAnnotationTypes() {
     return Set.of(
+      "eu.cloudnetservice.ext.platforminject.stereotype.ProvidesFor",
       "eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin",
       "eu.cloudnetservice.ext.platforminject.stereotype.ConstructionListener");
   }
 
   @Override
   public boolean process(@NonNull Set<? extends TypeElement> annotations, @NonNull RoundEnvironment roundEnv) {
-    // skip processing if processing is over
     if (roundEnv.processingOver()) {
+      // group the found bindings by plugin
+      Map<SimplifiedPluginInfo, Collection<BindingClassGenerator.ParsedBindingData>> bindingsPerPlugin = new HashMap<>();
+      for (var scanEntry : this.scanEntries) {
+        // find all data entries which are matching the plugin entry
+        var matchingBindings = this.bindingData.stream()
+          .filter(data -> data.platform().equalsIgnoreCase(scanEntry.platform()))
+          .filter(data -> scanEntry.packageNameMatchers().stream().anyMatch(pattern -> {
+            var matcher = pattern.matcher(data.packageName());
+            return matcher.matches();
+          }))
+          .toList();
+
+        // register the entry if any binding is matching
+        if (!matchingBindings.isEmpty()) {
+          var info = new SimplifiedPluginInfo(scanEntry.plugin(), scanEntry.platform(), scanEntry.mainClassPackage());
+          var knownBindings = bindingsPerPlugin.computeIfAbsent(info, $ -> new LinkedList<>());
+          knownBindings.addAll(matchingBindings);
+        }
+      }
+
+      // generate a class with all bindings for each plugin we know
+      for (var entry : bindingsPerPlugin.entrySet()) {
+        var info = entry.getKey();
+        var bindings = entry.getValue();
+
+        // generate a class for the bindings
+        var bindingClassName = PluginUtil.buildClassName(info.plugin(), info.platform(), "Bindings");
+        var bindingClass = BindingClassGenerator.buildBindingClass(bindingClassName, bindings);
+
+        try {
+          // small trick to prevent a compiler warning:
+          // as we need to create the source file in the last round, to ensure that we caught all annotations
+          // the compiler will print a warning because the generated source file will not be subject to further
+          // annotation processing. As this is not needed, and the warning is just annoying, we workaround that
+          // fact by calling "createResource" rather than "createSourceFile".
+          var outputResource = this.environment.getFiler().createResource(
+            StandardLocation.SOURCE_OUTPUT,
+            info.mainClassPackage(),
+            String.format("%s.java", bindingClass.name));
+
+          // convert the generated class & write it
+          var javaFile = JavaFile.builder(info.mainClassPackage(), bindingClass).build();
+          try (var writer = outputResource.openWriter()) {
+            javaFile.writeTo(writer);
+          }
+        } catch (IOException exception) {
+          throw new IllegalStateException("Unable to write binding class file", exception);
+        }
+      }
+
+      // reset the state of this processor
+      this.scanEntries.clear();
+      this.bindingData.clear();
+
+      // don't claim annotations
       return false;
     }
 
@@ -87,14 +153,36 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
 
       // check if the type has a construct listener
       var constructionListener = element.getAnnotation(ConstructionListener.class);
-      var listenerClass = constructionListener == null ? null : this.getListenerClass(constructionListener);
+      var listenerClass = constructionListener == null
+        ? null
+        : TypeUtil.lookupClassName(constructionListener::value).canonicalName();
 
       // construct information about the plugin & the new main class name
       var pluginData = platformInfo.dataParser().parseAndValidateData(platformAnno, listenerClass);
 
       // generate the plugin main name
       var packageName = this.environment.getElementUtils().getPackageOf(element).toString();
-      var platformMainClass = PluginUtil.buildMainClassName(pluginData.name(), platformAnno.platform());
+      var platformMainClass = PluginUtil.buildClassName(pluginData.name(), platformAnno.platform(), "Entrypoint");
+
+      // register provide scan entries
+      var providesScanPackages = platformAnno.providesScan();
+      if (providesScanPackages.length == 0) {
+        // only register the package of the plugin main class
+        var packagePattern = PatternUtil.literalPatternWithWildcardEnding(packageName);
+        this.scanEntries.add(new ScanPackageEntry(
+          pluginData.name(),
+          platformAnno.platform(),
+          packageName,
+          Set.of(packagePattern)));
+      } else {
+        // register the provided package names
+        var packagePatterns = PatternUtil.parsePattern(providesScanPackages);
+        this.scanEntries.add(new ScanPackageEntry(
+          pluginData.name(),
+          platformAnno.platform(),
+          packageName,
+          packagePatterns));
+      }
 
       try {
         // generate the plugin info file first
@@ -109,40 +197,56 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
         var javaFile = JavaFile.builder(packageName, generated).build();
         javaFile.writeTo(this.environment.getFiler());
       } catch (IOException exception) {
+        throw new IllegalStateException("Exception generating plugin info or main class", exception);
+      }
+    }
+
+    // find all @ProvidesFor annotated classes
+    for (var element : roundEnv.getElementsAnnotatedWith(ProvidesFor.class)) {
+      // ensure that only classes are annotated
+      if (element.getKind() != ElementKind.CLASS) {
         this.environment.getMessager().printMessage(
           Diagnostic.Kind.ERROR,
-          "Exception generating plugin info or main class: " + exception.getMessage(),
-          element);
+          "Only classes can be annotated with @PlatformPlugin");
+        continue;
       }
+
+      // extract the info from the element
+      var providedForAnnotation = element.getAnnotation(ProvidesFor.class);
+      var boundElement = ClassName.get((TypeElement) element);
+      var providedClassNames = TypeUtil.lookupClassNames(providedForAnnotation::types);
+
+      // build the data from the given information
+      var platform = providedForAnnotation.platform();
+      var data = new BindingClassGenerator.ParsedBindingData(
+        boundElement.packageName(),
+        platform,
+        boundElement,
+        providedClassNames);
+
+      // register the data
+      this.bindingData.add(data);
     }
 
     // don't claim annotations
     return false;
   }
 
-  private @NonNull String getListenerClass(@NonNull ConstructionListener listener) {
-    ClassName listenerClassName;
-    try {
-      // try to get the class name by invoking the value method directly
-      var listenerClass = listener.value();
-      listenerClassName = ClassName.get(listenerClass);
-    } catch (MirroredTypeException exception) {
-      // try to get the class name from the type mirror
-      var candidateName = TypeName.get(exception.getTypeMirror());
-      if (!(candidateName instanceof ClassName)) {
-        throw new IllegalStateException("@ConstructionListener uses non-class, an array or primitive as value");
-      }
+  private record ScanPackageEntry(
+    @NonNull String plugin,
+    @NonNull String platform,
+    @NonNull String mainClassPackage,
+    @NonNull Set<Pattern> packageNameMatchers
+  ) {
 
-      listenerClassName = (ClassName) candidateName;
-    }
+  }
 
-    // some basic validation
-    var pkg = listenerClassName.packageName();
-    if (pkg.startsWith("java.") || pkg.startsWith("javax.")) {
-      throw new IllegalArgumentException("@ConstructionListener might not use a java type as value");
-    }
 
-    // convert to fully qualified name
-    return listenerClassName.canonicalName();
+  private record SimplifiedPluginInfo(
+    @NonNull String plugin,
+    @NonNull String platform,
+    @NonNull String mainClassPackage
+  ) {
+
   }
 }

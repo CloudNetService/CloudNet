@@ -51,7 +51,11 @@ public final class PluginUtil {
       }
 
       // check if the char is within the allowed characters which aren't checked yet
-      if ((charAtPos >= '0' && charAtPos <= '9') || charAtPos == '-' || charAtPos == '_') {
+      if ((charAtPos >= 'A' && charAtPos <= 'Z')
+        || (charAtPos >= '0' && charAtPos <= '9')
+        || charAtPos == '-'
+        || charAtPos == '_'
+      ) {
         idChars[i] = charAtPos;
         continue;
       }
@@ -71,7 +75,11 @@ public final class PluginUtil {
     }
   }
 
-  public static @NonNull String buildMainClassName(@NonNull String pluginName, @NonNull String platformName) {
+  public static @NonNull String buildClassName(
+    @NonNull String pluginName,
+    @NonNull String platformName,
+    @NonNull String suffix
+  ) {
     // capitalize the first char of the platform name if needed
     if (platformName.length() > 1) {
       var firstChar = platformName.charAt(0);
@@ -96,6 +104,6 @@ public final class PluginUtil {
     }
 
     // finish the name
-    return String.format("Generated%sEntrypoint", builder);
+    return String.format("Generated%s%s", builder, suffix);
   }
 }

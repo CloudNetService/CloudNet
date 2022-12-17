@@ -29,7 +29,6 @@ dependencies {
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
 
-  "annotationProcessor"(libs.velocity)
   "implementation"(projects.ext.adventureHelper)
 }
 
