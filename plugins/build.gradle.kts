@@ -37,5 +37,9 @@ subprojects {
 
   dependencies {
     "implementation"(rootProject.libs.guava)
+
+    // generation for platform main classes
+    "compileOnly"(rootProject.projects.ext.platformInjectSupport)
+    "annotationProcessor"(rootProject.projects.ext.platformInjectSupport)
   }
 }
