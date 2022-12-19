@@ -57,7 +57,7 @@ public final class BukkitNPCPlugin implements PlatformEntrypoint {
   private final ModuleHelper moduleHelper;
 
   @Inject
-  public BukkitNPCPlugin(ModuleHelper moduleHelper) {
+  public BukkitNPCPlugin(@NonNull ModuleHelper moduleHelper) {
     this.moduleHelper = moduleHelper;
   }
 

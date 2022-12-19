@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 public record PluginIncludeListener(
   @NonNull String moduleName,
   @NonNull Class<?> moduleClass,
+  @NonNull ModuleHelper moduleHelper,
   @NonNull Function<CloudService, Boolean> includeChecker,
   @Nullable BiConsumer<CloudService, Path> includeHandler
 ) {
@@ -41,9 +42,10 @@ public record PluginIncludeListener(
   public PluginIncludeListener(
     @NonNull String moduleName,
     @NonNull Class<?> moduleClass,
+    @NonNull ModuleHelper moduleHelper,
     @NonNull Function<CloudService, Boolean> includeChecker
   ) {
-    this(moduleName, moduleClass, includeChecker, null);
+    this(moduleName, moduleClass, moduleHelper, includeChecker, null);
   }
 
   @EventListener
@@ -54,9 +56,9 @@ public record PluginIncludeListener(
       var pluginFile = event.service().pluginDirectory().resolve(this.moduleName + ".jar");
       FileUtil.delete(pluginFile);
       // try to copy the current plugin file
-      if (ModuleHelper.copyJarContainingClass_deprecated(this.moduleClass, pluginFile)) {
+      if (this.moduleHelper.copyJarContainingClass(this.moduleClass, pluginFile)) {
         // copy the plugin.yml file for the environment
-        ModuleHelper.copyPluginConfigurationFileForEnvironment_deprecated(
+        this.moduleHelper.copyPluginConfigurationFileForEnvironment(
           this.moduleClass,
           event.service().serviceId().environment(),
           pluginFile);

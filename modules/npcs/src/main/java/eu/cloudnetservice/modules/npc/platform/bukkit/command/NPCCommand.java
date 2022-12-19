@@ -42,10 +42,10 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import kong.unirest.Unirest;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -79,16 +79,19 @@ public final class NPCCommand extends BaseTabExecutor {
   private static final String COPIED_NPC_KEY = "npc_copy_entry";
 
   private final Plugin plugin;
+  private final Server server;
   private final BukkitPlatformNPCManagement management;
   private final GroupConfigurationProvider groupConfigurationProvider;
 
   @Inject
   public NPCCommand(
     @NonNull Plugin plugin,
+    @NonNull Server server,
     @NonNull BukkitPlatformNPCManagement management,
     @NonNull GroupConfigurationProvider groupConfigurationProvider
   ) {
     this.plugin = plugin;
+    this.server = server;
     this.management = management;
     this.groupConfigurationProvider = groupConfigurationProvider;
   }
@@ -196,7 +199,7 @@ public final class NPCCommand extends BaseTabExecutor {
         case "cu", "cleanup" -> {
           this.management.trackedEntities().values().stream()
             .map(PlatformSelectorEntity::npc)
-            .filter(npc -> Bukkit.getWorld(npc.location().world()) == null)
+            .filter(npc -> this.server.getWorld(npc.location().world()) == null)
             .forEach(npc -> {
               this.management.deleteNPC(npc);
               sender.sendMessage(String.format(
