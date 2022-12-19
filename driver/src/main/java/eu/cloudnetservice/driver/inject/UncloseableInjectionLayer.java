@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.driver.inject;
 
-import dev.derklaro.aerogel.BindingConstructor;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.InjectionContext;
 import dev.derklaro.aerogel.Injector;
+import dev.derklaro.aerogel.binding.BindingConstructor;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;

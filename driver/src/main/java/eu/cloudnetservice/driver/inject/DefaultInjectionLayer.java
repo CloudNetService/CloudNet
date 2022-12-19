@@ -17,12 +17,12 @@
 package eu.cloudnetservice.driver.inject;
 
 import dev.derklaro.aerogel.AerogelException;
-import dev.derklaro.aerogel.BindingConstructor;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.InjectionContext;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import dev.derklaro.aerogel.auto.AutoAnnotationRegistry;
+import dev.derklaro.aerogel.binding.BindingConstructor;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
@@ -71,6 +71,7 @@ record DefaultInjectionLayer<I extends Injector>(
    * {@inheritDoc}
    */
   @Override
+  @SuppressWarnings("unchecked")
   public <T> @UnknownNullability T instance(
     @NonNull Class<T> type,
     @NonNull Consumer<InjectionContext.Builder> builder
@@ -82,7 +83,7 @@ record DefaultInjectionLayer<I extends Injector>(
 
       // get the binding for the given type
       var binding = this.injector.binding(type);
-      return binding.get(injectionContext.build());
+      return (T) binding.provider().get(injectionContext.build());
     } catch (Throwable throwable) {
       throw AerogelException.forMessagedException("Unable to get bound type of " + type, throwable);
     }

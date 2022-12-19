@@ -16,11 +16,12 @@
 
 package eu.cloudnetservice.driver.inject;
 
-import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import dev.derklaro.aerogel.auto.AutoAnnotationRegistry;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.StringUtil;
 import io.leangen.geantyref.TypeFactory;
 import java.util.ServiceLoader;
@@ -35,12 +36,13 @@ import lombok.NonNull;
  */
 final class InjectionLayerProvider {
 
+  // the boot layer registry
+  static final InjectionLayerRegistry REGISTRY = new InjectionLayerRegistry();
   // generic elements
   private static final Element RAW_ELEMENT = Element.forType(InjectionLayer.class);
   private static final Element GENERIC_ELEMENT = Element.forType(TypeFactory.parameterizedClass(
     InjectionLayer.class,
     TypeFactory.unboundWildcard()));
-
   // specified elements
   private static final Element INJECTOR_ELEMENT = Element.forType(TypeFactory.parameterizedClass(
     InjectionLayer.class,
@@ -48,10 +50,6 @@ final class InjectionLayerProvider {
   private static final Element SPECIFIED_INJECTOR_ELEMENT = Element.forType(TypeFactory.parameterizedClass(
     InjectionLayer.class,
     SpecifiedInjector.class));
-
-  // the boot layer registry
-  static final InjectionLayerRegistry REGISTRY = new InjectionLayerRegistry();
-
   private static InjectionLayer<Injector> boot;
   private static InjectionLayer<Injector> ext;
 
@@ -123,11 +121,9 @@ final class InjectionLayerProvider {
     @NonNull BiConsumer<InjectionLayer<SpecifiedInjector>, SpecifiedInjector> configurator
   ) {
     var childInjector = parent.injector().newSpecifiedInjector();
-    return configuredLayer(name, childInjector, ((Consumer<InjectionLayer<SpecifiedInjector>>) layer -> {
-      layer.install(Bindings.fixed(RAW_ELEMENT.requireName(name), layer));
-      layer.install(Bindings.fixed(GENERIC_ELEMENT.requireName(name), layer));
-      layer.install(Bindings.fixed(SPECIFIED_INJECTOR_ELEMENT.requireName(name), layer));
-    }).andThen(layer -> configurator.accept(layer, childInjector)));
+    return configuredLayer(name, childInjector,
+      ((Consumer<InjectionLayer<SpecifiedInjector>>) layer -> registerBindings(layer, SPECIFIED_INJECTOR_ELEMENT, name))
+        .andThen(layer -> configurator.accept(layer, childInjector)));
   }
 
   /**
@@ -149,11 +145,7 @@ final class InjectionLayerProvider {
     @NonNull String name
   ) {
     var childInjector = parent.injector().newChildInjector();
-    return configuredLayer(name, childInjector, layer -> {
-      layer.install(Bindings.fixed(RAW_ELEMENT.requireName(name), layer));
-      layer.install(Bindings.fixed(GENERIC_ELEMENT.requireName(name), layer));
-      layer.install(Bindings.fixed(INJECTOR_ELEMENT.requireName(name), layer));
-    });
+    return configuredLayer(name, childInjector, layer -> registerBindings(layer, INJECTOR_ELEMENT, name));
   }
 
   /**
@@ -166,11 +158,7 @@ final class InjectionLayerProvider {
    * @throws IllegalArgumentException if the given name is invalid.
    */
   public static @NonNull InjectionLayer<Injector> fresh(@NonNull String name) {
-    return configuredLayer(name, layer -> {
-      layer.install(Bindings.fixed(RAW_ELEMENT, layer));
-      layer.install(Bindings.fixed(GENERIC_ELEMENT, layer));
-      layer.install(Bindings.fixed(INJECTOR_ELEMENT, layer));
-    });
+    return configuredLayer(name, layer -> registerBindings(layer, INJECTOR_ELEMENT, name));
   }
 
   /**
@@ -289,5 +277,21 @@ final class InjectionLayerProvider {
     if (normalizedName.isEmpty()) {
       throw new IllegalArgumentException("Injection layer name cannot be empty");
     }
+  }
+
+  private static void registerBindings(
+    @NonNull InjectionLayer<?> layer,
+    @NonNull Element mainElement,
+    @NonNull String name
+  ) {
+    layer.install(BindingBuilder.create()
+      .bind(RAW_ELEMENT.requireAnnotation(Qualifiers.named(name)))
+      .toInstance(layer));
+    layer.install(BindingBuilder.create()
+      .bind(GENERIC_ELEMENT.requireAnnotation(Qualifiers.named(name)))
+      .toInstance(layer));
+    layer.install(BindingBuilder.create()
+      .bind(mainElement.requireAnnotation(Qualifiers.named(name)))
+      .toInstance(layer));
   }
 }
