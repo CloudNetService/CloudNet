@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.labymod.node;
 
 import com.google.gson.reflect.TypeToken;
-import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -80,7 +79,7 @@ public class CloudNetLabyModModule extends DriverModule {
     // construct the management instance
     var management = layer.instance(
       NodeLabyModManagement.class,
-      builder -> builder.override(Element.forType(LabyModConfiguration.class), this.loadConfiguration()));
+      builder -> builder.override(LabyModConfiguration.class, this.loadConfiguration()));
 
     // sync the config of the module into the cluster
     dataSyncRegistry.registerHandler(
