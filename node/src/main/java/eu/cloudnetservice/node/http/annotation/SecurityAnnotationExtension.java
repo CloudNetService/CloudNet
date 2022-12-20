@@ -65,14 +65,14 @@ public final class SecurityAnnotationExtension {
     // if the auth succeeded check if the user has the required permission
     if (result.succeeded()) {
       var user = userExtractor.apply(result.result());
-      if (!validatePermission(user, permission)) {
+      if (!this.validatePermission(user, permission)) {
         // the user has no permission for the handler
         context
           .cancelNext(true)
           .closeAfter(true)
           .response()
           .status(HttpResponseCode.UNAUTHORIZED)
-          .body(buildErrorResponse("Required permission is not set"));
+          .body(this.buildErrorResponse("Required permission is not set"));
         return null;
       }
 
@@ -86,7 +86,7 @@ public final class SecurityAnnotationExtension {
       .closeAfter(true)
       .response()
       .status(HttpResponseCode.UNAUTHORIZED)
-      .body(buildErrorResponse(result.errorMessage()));
+      .body(this.buildErrorResponse(result.errorMessage()));
     return null;
   }
 
@@ -116,7 +116,7 @@ public final class SecurityAnnotationExtension {
 
     @Override
     public @Nullable HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {
-      var permission = resolvePermissionAnnotation(method);
+      var permission = SecurityAnnotationExtension.this.resolvePermissionAnnotation(method);
       var hints = HttpAnnotationProcessorUtil.mapParameters(
         method,
         BasicAuth.class,
@@ -128,11 +128,11 @@ public final class SecurityAnnotationExtension {
               path,
               "Unable to authenticate user: " + authResult.errorMessage(),
               HttpResponseCode.UNAUTHORIZED,
-              buildErrorResponse("Unable to authenticate user"));
+              SecurityAnnotationExtension.this.buildErrorResponse("Unable to authenticate user"));
           }
 
           // put the user into the context if he has the required permission
-          if (validatePermission(authResult.result(), permission)) {
+          if (SecurityAnnotationExtension.this.validatePermission(authResult.result(), permission)) {
             return authResult.result();
           }
 
@@ -140,7 +140,7 @@ public final class SecurityAnnotationExtension {
             path,
             "User has not the required permission to send a request",
             HttpResponseCode.FORBIDDEN,
-            buildErrorResponse("Missing required permission"));
+            SecurityAnnotationExtension.this.buildErrorResponse("Missing required permission"));
         });
       // check if we got any hints
       if (!hints.isEmpty()) {
@@ -152,7 +152,7 @@ public final class SecurityAnnotationExtension {
         return (path, ctx) -> {
           // drop the request if the authentication failed
           var authResult = this.authentication.handleBasicLoginRequest(ctx.request());
-          return handleAuthResult(ctx, authResult, Function.identity(), permission);
+          return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, Function.identity(), permission);
         };
       }
 
@@ -171,7 +171,7 @@ public final class SecurityAnnotationExtension {
 
     @Override
     public @Nullable HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {
-      var permission = resolvePermissionAnnotation(method);
+      var permission = SecurityAnnotationExtension.this.resolvePermissionAnnotation(method);
       var hints = HttpAnnotationProcessorUtil.mapParameters(
         method,
         BearerAuth.class,
@@ -183,11 +183,11 @@ public final class SecurityAnnotationExtension {
               path,
               "Unable to authenticate user: " + authResult.errorMessage(),
               HttpResponseCode.UNAUTHORIZED,
-              buildErrorResponse("Unable to authenticate user"));
+              SecurityAnnotationExtension.this.buildErrorResponse("Unable to authenticate user"));
           }
 
           // put the user into the context if he has the required permission
-          if (validatePermission(authResult.result().user(), permission)) {
+          if (SecurityAnnotationExtension.this.validatePermission(authResult.result().user(), permission)) {
             return authResult.result();
           }
 
@@ -195,7 +195,7 @@ public final class SecurityAnnotationExtension {
             path,
             "User has not the required permission to send a request",
             HttpResponseCode.FORBIDDEN,
-            buildErrorResponse("Missing required permission"));
+            SecurityAnnotationExtension.this.buildErrorResponse("Missing required permission"));
         });
       // check if we got any hints
       if (!hints.isEmpty()) {
@@ -207,7 +207,7 @@ public final class SecurityAnnotationExtension {
         return (path, ctx) -> {
           // drop the request if the authentication failed
           var authResult = this.authentication.handleBearerLoginRequest(ctx.request());
-          return handleAuthResult(ctx, authResult, HttpSession::user, permission);
+          return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, HttpSession::user, permission);
         };
       }
 

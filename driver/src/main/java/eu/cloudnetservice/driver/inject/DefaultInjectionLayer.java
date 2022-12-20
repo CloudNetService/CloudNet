@@ -25,7 +25,6 @@ import dev.derklaro.aerogel.auto.AutoAnnotationRegistry;
 import dev.derklaro.aerogel.binding.BindingConstructor;
 import java.util.function.Consumer;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
@@ -118,7 +117,7 @@ record DefaultInjectionLayer<I extends Injector>(
    * {@inheritDoc}
    */
   @Override
-  public @NonNull InjectionLayer<I> register(@NotNull @NonNull Object... hints) {
+  public @NonNull InjectionLayer<I> register(@NonNull Object... hints) {
     InjectionLayerProvider.REGISTRY.registerLayer(this, hints);
     return this;
   }

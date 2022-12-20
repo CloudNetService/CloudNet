@@ -52,7 +52,7 @@ public final class ConsoleProgressWrappers {
     @NonNull String task,
     @NonNull String unitName
   ) {
-    return wrapIterator(collection, this.console, task, unitName);
+    return this.wrapIterator(collection, this.console, task, unitName);
   }
 
   public @NonNull <T> Iterator<T> wrapIterator(

@@ -44,7 +44,7 @@ public final class TemplateStorageUtil {
     @NonNull TemplateStorage storage,
     @NonNull ServiceEnvironmentType env
   ) throws IOException {
-    return createAndPrepareTemplate(template, storage, env, true);
+    return this.createAndPrepareTemplate(template, storage, env, true);
   }
 
   public boolean createAndPrepareTemplate(
