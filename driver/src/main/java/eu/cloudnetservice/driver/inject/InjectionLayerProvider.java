@@ -158,7 +158,11 @@ final class InjectionLayerProvider {
    * @throws IllegalArgumentException if the given name is invalid.
    */
   public static @NonNull InjectionLayer<Injector> fresh(@NonNull String name) {
-    return configuredLayer(name, layer -> registerBindings(layer, INJECTOR_ELEMENT, name));
+    return configuredLayer(name, layer -> {
+      layer.install(BindingBuilder.create().bind(RAW_ELEMENT).toInstance(layer));
+      layer.install(BindingBuilder.create().bind(GENERIC_ELEMENT).toInstance(layer));
+      layer.install(BindingBuilder.create().bind(INJECTOR_ELEMENT).toInstance(layer));
+    });
   }
 
   /**

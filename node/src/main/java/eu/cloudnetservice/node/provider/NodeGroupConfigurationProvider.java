@@ -89,7 +89,10 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
     // run the conversion of the old file
     this.upgrade();
+  }
 
+  @PostConstruct
+  private void loadGroups() {
     // load the groups
     if (Files.exists(GROUP_DIRECTORY_PATH)) {
       this.loadGroupConfigurations();

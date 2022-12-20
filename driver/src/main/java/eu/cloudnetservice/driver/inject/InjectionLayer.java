@@ -24,7 +24,6 @@ import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import dev.derklaro.aerogel.binding.BindingConstructor;
 import eu.cloudnetservice.common.Nameable;
-import jakarta.inject.Singleton;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.NonNull;
@@ -36,7 +35,6 @@ import org.jetbrains.annotations.UnknownNullability;
  * @param <I> the type of injector this layer uses.
  * @since 4.0
  */
-@Singleton
 public sealed interface InjectionLayer<I extends Injector>
   extends Nameable, AutoCloseable
   permits DefaultInjectionLayer, UncloseableInjectionLayer {

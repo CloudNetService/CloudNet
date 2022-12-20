@@ -71,7 +71,6 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     @NonNull EventManager eventManager,
     @NonNull RPCFactory rpcFactory,
     @NonNull DataSyncRegistry syncRegistry,
-    @NonNull DefaultInstallation installation,
     @NonNull RPCHandlerRegistry handlerRegistry
   ) {
     this.eventManager = eventManager;
@@ -89,7 +88,10 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         .dataCollector(this::serviceTasks)
         .currentGetter(task -> this.serviceTask(task.name()))
         .build());
+  }
 
+  @Inject
+  private void loadTasks(@NonNull DefaultInstallation installation) {
     if (Files.exists(TASKS_DIRECTORY)) {
       this.loadServiceTasks();
     } else {
