@@ -234,7 +234,9 @@ public final class PendingConnectionProxiedPlayer implements ProxiedPlayer {
 
   @Override
   public boolean hasPermission(String permission) {
-    return this.pluginManager.callEvent(new PermissionCheckEvent(this, permission, false)).hasPermission();
+    return this.pluginManager
+      .callEvent(new PermissionCheckEvent(this, permission, false))
+      .hasPermission();
   }
 
   @Override

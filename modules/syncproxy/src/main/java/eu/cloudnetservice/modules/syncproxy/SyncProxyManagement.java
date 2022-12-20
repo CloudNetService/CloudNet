@@ -29,6 +29,4 @@ public interface SyncProxyManagement {
   void configuration(@NonNull SyncProxyConfiguration configuration);
 
   void registerService(@NonNull ServiceRegistry registry);
-
-  void unregisterService(@NonNull ServiceRegistry registry);
 }

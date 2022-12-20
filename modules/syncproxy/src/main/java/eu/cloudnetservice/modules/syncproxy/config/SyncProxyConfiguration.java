@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
-import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -66,11 +65,11 @@ public record SyncProxyConfiguration(
       .build();
   }
 
-  public static @Nullable SyncProxyConfiguration configurationFromNode() {
+  public static @Nullable SyncProxyConfiguration configurationFromNode(@NonNull String nodeUniqueId) {
     var response = ChannelMessage.builder()
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       .message(SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST)
-      .targetNode(Wrapper.instance().serviceId().nodeUniqueId())
+      .targetNode(nodeUniqueId)
       .build()
       .sendSingleQuery();
 
@@ -122,7 +121,8 @@ public record SyncProxyConfiguration(
       return this;
     }
 
-    public @NonNull Builder modifyTabListConfigurations(@NonNull Consumer<Set<SyncProxyTabListConfiguration>> modifier) {
+    public @NonNull Builder modifyTabListConfigurations(
+      @NonNull Consumer<Set<SyncProxyTabListConfiguration>> modifier) {
       modifier.accept(this.tabListConfigurations);
       return this;
     }
