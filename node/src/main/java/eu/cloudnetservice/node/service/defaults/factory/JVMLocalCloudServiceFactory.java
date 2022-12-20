@@ -62,7 +62,7 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
     return new JVMService(
       this.mainThread,
       this.configuration,
-      configuration,
+      config,
       manager,
       this.eventManager,
       this.versionProvider,
