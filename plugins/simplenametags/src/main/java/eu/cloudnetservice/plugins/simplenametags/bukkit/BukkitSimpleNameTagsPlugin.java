@@ -16,23 +16,54 @@
 
 package eu.cloudnetservice.plugins.simplenametags.bukkit;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
-public final class BukkitSimpleNameTagsPlugin extends JavaPlugin implements Listener {
+@Singleton
+@PlatformPlugin(
+  platform = "bukkit",
+  name = "CloudNet-SimpleNameTags",
+  version = "{project.build.version}",
+  authors = "CloudNetService",
+  description = "Adds prefix, suffix and display name support to all server platforms",
+  dependencies = @Dependency(name = "CloudNet-CloudPerms")
+)
+public final class BukkitSimpleNameTagsPlugin implements PlatformEntrypoint, Listener {
 
-  private final SimpleNameTagsManager<Player> nameTagsManager = new BukkitSimpleNameTagsManager(
-    runnable -> Bukkit.getScheduler().runTask(this, runnable));
+  private final Plugin plugin;
+  private final SimpleNameTagsManager<Player> nameTagsManager;
+
+  @Inject
+  public BukkitSimpleNameTagsPlugin(
+    @NonNull Plugin plugin,
+    @NonNull BukkitScheduler scheduler,
+    @NonNull EventManager eventManager,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    this.plugin = plugin;
+    this.nameTagsManager = new BukkitSimpleNameTagsManager(
+      runnable -> scheduler.runTask(plugin, runnable),
+      eventManager,
+      permissionManagement);
+  }
 
   @Override
-  public void onEnable() {
-    Bukkit.getPluginManager().registerEvents(this, this);
+  public void onLoad() {
+    Bukkit.getPluginManager().registerEvents(this, this.plugin);
   }
 
   @EventHandler

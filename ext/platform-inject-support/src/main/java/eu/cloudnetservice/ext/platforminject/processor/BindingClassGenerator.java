@@ -24,6 +24,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
 import eu.cloudnetservice.ext.platforminject.inject.BindingsInstaller;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
@@ -36,8 +37,7 @@ final class BindingClassGenerator {
     INJECTION_LAYER,
     WildcardTypeName.subtypeOf(TypeName.OBJECT));
 
-  private static final ClassName ELEMENT = ClassName.get("dev.derklaro.aerogel", "Element");
-  private static final ClassName BINDINGS = ClassName.get("dev.derklaro.aerogel", "Bindings");
+  private static final ClassName BINDING_BUILDER = ClassName.get("dev.derklaro.aerogel.binding", "BindingBuilder");
 
   public static @NonNull TypeSpec buildBindingClass(
     @NonNull String className,
@@ -53,12 +53,16 @@ final class BindingClassGenerator {
     for (var binding : bindingData) {
       // build the array block of the provided types
       var typesBlock = binding.providingElements().stream()
-        .map(type -> CodeBlock.of("$T.forType($T.class)", ELEMENT, type))
+        .map(type -> CodeBlock.of("$T.class", type))
         .collect(CodeBlock.joining(", ", "{", "}"));
 
       // build the block which actually adds the binding to the layer
-      var boundType = CodeBlock.of("$T.forType($T.class)", ELEMENT, binding.boundElement());
-      var block = CodeBlock.of("l.install($T.constructing($L, new $T[]$L));", BINDINGS, boundType, ELEMENT, typesBlock);
+      var constructorBuild = CodeBlock.of("$T.create().bindAllFully(new $T[]$L).toConstructing($T.class)",
+        BINDING_BUILDER,
+        Type.class,
+        typesBlock,
+        binding.boundElement());
+      var block = CodeBlock.of("l.install($L);", constructorBuild);
 
       // add the line to the method
       applyBindings.addCode(block);

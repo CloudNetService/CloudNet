@@ -31,6 +31,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 final class BukkitPlatformPluginManager extends BasePlatformPluginManager<String, JavaPlugin> {
 
@@ -46,6 +47,7 @@ final class BukkitPlatformPluginManager extends BasePlatformPluginManager<String
       layer.install(createFixedBinding(platformData.getServer().getScheduler(), BukkitScheduler.class));
       layer.install(createFixedBinding(platformData.getServer().getPluginManager(), PluginManager.class));
       layer.install(createFixedBinding(platformData.getServer().getServicesManager(), ServicesManager.class));
+      layer.install(createFixedBinding(platformData.getServer().getScoreboardManager(), ScoreboardManager.class));
 
       // install the bindings which are specific to the plugin
       injector.installSpecified(fixedBindingWithBound(platformData, Plugin.class, PluginBase.class, JavaPlugin.class));

@@ -18,10 +18,9 @@ package eu.cloudnetservice.driver.inject;
 
 import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.AerogelException;
-import dev.derklaro.aerogel.BindingConstructor;
-import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.internal.binding.ImmediateBindingHolder;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.binding.BindingConstructor;
 import dev.derklaro.aerogel.internal.utility.ElementHelper;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
@@ -142,17 +141,12 @@ public final class InjectUtil {
     Objects.checkIndex(0, types.length);
 
     // extract the root binding type
-    var coreBinding = Element.forType(types[0]);
     if (types.length == 1) {
       // only one type given, no need for further checks
-      return Bindings.fixed(coreBinding, value);
+      return BindingBuilder.create().bindFully(types[0]).toInstance(value);
+    } else {
+      // bind all given types fully
+      return BindingBuilder.create().bindAllFully(types).toInstance(value);
     }
-
-    // more than one binding, extract the other ones
-    var remainingBindings = Arrays.copyOfRange(types, 1, types.length);
-    var bindingElements = Arrays.stream(remainingBindings).map(Element::forType).toArray(Element[]::new);
-
-    // construct a binding holder
-    return injector -> new ImmediateBindingHolder(coreBinding, injector, bindingElements);
   }
 }

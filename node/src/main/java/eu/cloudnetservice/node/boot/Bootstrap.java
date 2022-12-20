@@ -17,8 +17,9 @@
 package eu.cloudnetservice.node.boot;
 
 import com.google.common.collect.Lists;
-import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -43,12 +44,18 @@ public final class Bootstrap {
     bootInjectLayer.installAutoConfigureBindings(Bootstrap.class.getClassLoader(), "driver");
 
     // initial bindings which we cannot (or it makes no sense to) construct
-    bootInjectLayer.install(Bindings.fixed(Element.forType(Instant.class).requireName("startInstant"), startInstant));
-    bootInjectLayer.install(Bindings.fixed(Element.forType(Logger.class).requireName("root"), LogManager.rootLogger()));
+    bootInjectLayer.install(BindingBuilder.create()
+      .bind(Element.forType(Logger.class).requireAnnotation(Qualifiers.named("root")))
+      .toInstance(LogManager.rootLogger()));
+    bootInjectLayer.install(BindingBuilder.create()
+      .bind(Element.forType(Instant.class).requireAnnotation(Qualifiers.named("startInstant")))
+      .toInstance(startInstant));
 
     // console arguments
     var type = TypeFactory.parameterizedClass(List.class, String.class);
-    bootInjectLayer.install(Bindings.fixed(Element.forType(type).requireName("consoleArgs"), Lists.newArrayList(args)));
+    bootInjectLayer.install(BindingBuilder.create()
+      .bind(Element.forType(type).requireAnnotation(Qualifiers.named("consoleArgs")))
+      .toInstance(Lists.newArrayList(args)));
 
     // boot CloudNet
     bootInjectLayer.instance(Node.class);

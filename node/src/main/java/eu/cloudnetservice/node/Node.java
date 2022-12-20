@@ -16,9 +16,8 @@
 
 package eu.cloudnetservice.node;
 
-import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.Order;
-import dev.derklaro.aerogel.internal.binding.ImmediateBindingHolder;
+import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
@@ -240,7 +239,8 @@ public final class Node {
   @Order(400)
   private void initializeDatabaseProvider(
     @NonNull Configuration configuration,
-    @NonNull ServiceRegistry serviceRegistry
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull InjectionLayer<?> bootLayer
   ) throws Exception {
     // initialize the default database provider
     var configuredProvider = configuration.properties().getString("database_provider", "xodus");
@@ -256,13 +256,10 @@ public final class Node {
     }
 
     // bind the provider for dependency injection
-    var selectedProvider = provider; // okay fine
-    var providerElement = Element.forType(DatabaseProvider.class);
-    InjectionLayer.boot().install(injector -> new ImmediateBindingHolder(
-      providerElement,
-      injector,
-      selectedProvider,
-      Element.forType(AbstractDatabaseProvider.class), providerElement));
+    var binding = BindingBuilder.create()
+      .bindAll(DatabaseProvider.class, AbstractDatabaseProvider.class)
+      .toInstance(provider);
+    bootLayer.install(binding);
 
     // notify the user about the selected database
     LOGGER.info(I18n.trans("start-connect-database", provider.name()));

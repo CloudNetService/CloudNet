@@ -65,8 +65,8 @@ final class MinestomPlatformPluginManager extends BasePlatformPluginManager<Stri
       layer.install(createFixedBinding(MinecraftServer.getCommandManager(), CommandManager.class));
       layer.install(createFixedBinding(MinecraftServer.getPacketProcessor(), PacketProcessor.class));
       layer.install(createFixedBinding(MinecraftServer.getInstanceManager(), InstanceManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getExceptionManager(), ExtensionManager.class));
       layer.install(createFixedBinding(MinecraftServer.getExceptionManager(), ExceptionManager.class));
+      layer.install(createFixedBinding(MinecraftServer.getExtensionManager(), ExtensionManager.class));
       layer.install(createFixedBinding(MinecraftServer.getBenchmarkManager(), BenchmarkManager.class));
       layer.install(createFixedBinding(MinecraftServer.getSchedulerManager(), SchedulerManager.class));
       layer.install(createFixedBinding(MinecraftServer.getConnectionManager(), ConnectionManager.class));

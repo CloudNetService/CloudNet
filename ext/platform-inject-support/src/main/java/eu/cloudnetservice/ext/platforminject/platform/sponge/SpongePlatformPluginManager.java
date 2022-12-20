@@ -19,9 +19,10 @@ package eu.cloudnetservice.ext.platforminject.platform.sponge;
 import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
 import static eu.cloudnetservice.ext.platforminject.util.BindingUtil.fixedBindingWithBound;
 
-import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.mapping.Container;
@@ -68,8 +69,12 @@ final class SpongePlatformPluginManager extends BasePlatformPluginManager<String
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
       // scheduler bindings
       var schedulerElement = Element.forType(Scheduler.class);
-      layer.install(Bindings.fixed(schedulerElement.requireName("sync"), Sponge.server().scheduler()));
-      layer.install(Bindings.fixed(schedulerElement.requireName("async"), Sponge.game().asyncScheduler()));
+      layer.install(BindingBuilder.create()
+        .bind(schedulerElement.requireAnnotation(Qualifiers.named("sync")))
+        .toInstance(Sponge.server().scheduler()));
+      layer.install(BindingBuilder.create()
+        .bind(schedulerElement.requireAnnotation(Qualifiers.named("async")))
+        .toInstance(Sponge.game().asyncScheduler()));
 
       // game bindings
       layer.install(createFixedBinding(Sponge.game(), Game.class));

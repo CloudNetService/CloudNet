@@ -16,9 +16,8 @@
 
 package eu.cloudnetservice.ext.platforminject.util;
 
-import com.google.common.collect.ObjectArrays;
-import dev.derklaro.aerogel.BindingConstructor;
-import eu.cloudnetservice.driver.inject.InjectUtil;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.binding.BindingConstructor;
 import lombok.NonNull;
 
 public final class BindingUtil {
@@ -30,11 +29,9 @@ public final class BindingUtil {
   public static @NonNull BindingConstructor fixedBindingWithBound(@NonNull Object object, @NonNull Class<?>... other) {
     // check if there are other types supplied
     if (other.length == 0) {
-      return InjectUtil.createFixedBinding(object, object.getClass());
+      return BindingBuilder.create().toInstance(object);
+    } else {
+      return BindingBuilder.create().bindFully(object.getClass()).bindAllFully(other).toInstance(object);
     }
-
-    // create a binding constructor which is primarily bound to the given object type
-    var boundTypes = ObjectArrays.concat(object.getClass(), other);
-    return InjectUtil.createFixedBinding(object, boundTypes);
   }
 }

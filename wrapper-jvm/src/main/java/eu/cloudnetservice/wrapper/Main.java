@@ -17,13 +17,13 @@
 package eu.cloudnetservice.wrapper;
 
 import com.google.common.collect.Lists;
-import com.google.gson.reflect.TypeToken;
-import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
+import io.leangen.geantyref.TypeFactory;
 import java.time.Instant;
 import java.util.List;
 import lombok.NonNull;
@@ -43,16 +43,22 @@ public final class Main {
     bootInjectLayer.installAutoConfigureBindings(Main.class.getClassLoader(), "wrapper");
 
     // initial bindings which we cannot (or it makes no sense to) construct
-    bootInjectLayer.install(Bindings.fixed(Element.forType(Instant.class).requireName("startInstant"), startInstant));
-    bootInjectLayer.install(Bindings.fixed(Element.forType(Logger.class).requireName("root"), LogManager.rootLogger()));
+    bootInjectLayer.install(BindingBuilder.create()
+      .bind(Element.forType(Logger.class).requireAnnotation(Qualifiers.named("root")))
+      .toInstance(LogManager.rootLogger()));
+    bootInjectLayer.install(BindingBuilder.create()
+      .bind(Element.forType(Instant.class).requireAnnotation(Qualifiers.named("startInstant")))
+      .toInstance(startInstant));
 
     // bind the transformer registry here - we *could* provided it by constructing, but we don't
     // want to expose the Instrumentation instance
-    bootInjectLayer.install(Bindings.fixed(Element.forType(TransformerRegistry.class), Premain.transformerRegistry));
+    bootInjectLayer.install(BindingBuilder.create().toInstance(Premain.transformerRegistry));
 
     // console arguments
-    var type = TypeToken.getParameterized(List.class, String.class).getType();
-    bootInjectLayer.install(Bindings.fixed(Element.forType(type).requireName("consoleArgs"), Lists.newArrayList(args)));
+    var type = TypeFactory.parameterizedClass(List.class, String.class);
+    bootInjectLayer.install(BindingBuilder.create()
+      .bind(Element.forType(type).requireAnnotation(Qualifiers.named("consoleArgs")))
+      .toInstance(Lists.newArrayList(args)));
 
     // boot the wrapper
     bootInjectLayer.instance(Wrapper.class);

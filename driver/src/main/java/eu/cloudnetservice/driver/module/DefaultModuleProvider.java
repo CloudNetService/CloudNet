@@ -17,9 +17,10 @@
 package eu.cloudnetservice.driver.module;
 
 import com.google.common.base.Preconditions;
-import dev.derklaro.aerogel.Bindings;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
@@ -65,7 +66,8 @@ public class DefaultModuleProvider implements ModuleProvider {
   protected static final ModuleDependencyLoader DEFAULT_DEP_LOADER = new DefaultModuleDependencyLoader(DEFAULT_LIB_DIR);
 
   private static final Element MODULE_CONFIGURATION_ELEMENT = Element.forType(ModuleConfiguration.class);
-  private static final Element DATA_DIRECTORY_ELEMENT = Element.forType(Path.class).requireName("dataDirectory");
+  private static final Element DATA_DIRECTORY_ELEMENT = Element.forType(Path.class)
+    .requireAnnotation(Qualifiers.named("dataDirectory"));
 
   protected final Collection<ModuleWrapper> modules = new CopyOnWriteArrayList<>();
 
@@ -201,8 +203,12 @@ public class DefaultModuleProvider implements ModuleProvider {
       // create the injection layer for the module
       var externalLayer = InjectionLayer.ext();
       var moduleLayer = InjectionLayer.specifiedChild(externalLayer, "module", (layer, injector) -> {
-        injector.installSpecified(Bindings.fixed(DATA_DIRECTORY_ELEMENT, dataDirectory));
-        injector.installSpecified(Bindings.fixed(MODULE_CONFIGURATION_ELEMENT, moduleConfiguration));
+        injector.installSpecified(BindingBuilder.create()
+          .bind(DATA_DIRECTORY_ELEMENT)
+          .toInstance(dataDirectory));
+        injector.installSpecified(BindingBuilder.create()
+          .bind(MODULE_CONFIGURATION_ELEMENT)
+          .toInstance(moduleConfiguration));
       });
 
       // initialize all dependencies of the module
