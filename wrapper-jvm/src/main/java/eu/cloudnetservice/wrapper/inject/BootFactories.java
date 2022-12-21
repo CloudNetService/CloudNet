@@ -44,7 +44,7 @@ final class BootFactories {
 
   @Factory
   @Singleton
-  public static @NonNull NetworkClient providerNetworkClient(
+  public static @NonNull NetworkClient provideNetworkClient(
     @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo,
     @NonNull WrapperConfiguration configuration,

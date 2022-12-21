@@ -158,7 +158,6 @@ public final class ApiImplementationGenerator {
 
       // check if the class has a constructor with a rpc sender instance, use that prioritized
       var targetConstructorArgs = ChainedApiImplementationGenerator.findSuperConstructorTypes(context.extendingClass());
-      var superDesc = targetConstructorArgs.stream().map(Type::getDescriptor).collect(Collectors.joining());
 
       // generate the constructor
       MethodVisitor mv;
@@ -169,7 +168,10 @@ public final class ApiImplementationGenerator {
           "(%s%s%s)V",
           SENDER_DESC,
           SUPPLIER_DESC,
-          superDesc),
+          targetConstructorArgs.stream()
+            .map(Type::getDescriptor)
+            .filter(type -> !type.equals(SENDER_DESC) && !type.equals(SUPPLIER_DESC))
+            .collect(Collectors.joining())),
         null,
         null);
       mv.visitAnnotation(INJECT_ANNOTATION_DESC, true);
@@ -192,11 +194,18 @@ public final class ApiImplementationGenerator {
             mv.visitVarInsn(ALOAD, 2);
           } else {
             var type = Type.getType(argumentType);
-            mv.visitVarInsn(type.getOpcode(ILOAD), 3 + i); // 0 = this, 1 = sender, 2 = channel supplier
+            mv.visitVarInsn(type.getOpcode(ILOAD), 2 + i); // 0 = this, 1 = sender, 2 = channel supplier
           }
         }
 
-        mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", superDesc, false);
+        mv.visitMethodInsn(
+          INVOKESPECIAL,
+          superName,
+          "<init>",
+          targetConstructorArgs.stream()
+            .map(Type::getDescriptor)
+            .collect(Collectors.joining("", "(", ")V")),
+          false);
       }
 
       // write the sender field
