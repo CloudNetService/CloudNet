@@ -21,6 +21,7 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
 import eu.cloudnetservice.modules.npc.node.NodeNPCManagement;
+import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
@@ -29,20 +30,20 @@ import lombok.NonNull;
 
 public final class NodeSetupListener {
 
-  private static final QuestionListEntry<Boolean> CREATE_ENTRY_QUESTION_LIST = QuestionListEntry.<Boolean>builder()
-    .key("generateDefaultNPCConfigurationEntry")
-    .translatedQuestion("module-npc-tasks-setup-generate-default-config")
-    .answerType(QuestionAnswerType.<Boolean>builder()
-      // TODO .parser(Parsers.bool())
-      .recommendation("no")
-      .possibleResults("yes", "no")
-      .build())
-    .build();
-
   private final NodeNPCManagement management;
+  private final QuestionListEntry<Boolean> createEntryQuestionEntry;
 
-  public NodeSetupListener(@NonNull NodeNPCManagement management) {
+  public NodeSetupListener(@NonNull NodeNPCManagement management, @NonNull Parsers parsers) {
     this.management = management;
+    this.createEntryQuestionEntry = QuestionListEntry.<Boolean>builder()
+      .key("generateDefaultNPCConfigurationEntry")
+      .translatedQuestion("module-npc-tasks-setup-generate-default-config")
+      .answerType(QuestionAnswerType.<Boolean>builder()
+        .parser(parsers.bool())
+        .recommendation("no")
+        .possibleResults("yes", "no")
+        .build())
+      .build();
   }
 
   @EventListener
@@ -53,7 +54,7 @@ public final class NodeSetupListener {
       .ifPresent(entry -> entry.answerType().thenAccept(($, environment) -> {
         if (!event.setup().hasResult("generateDefaultNPCConfigurationEntry")
           && ServiceEnvironmentType.minecraftServer((ServiceEnvironmentType) environment)) {
-          event.setup().addEntries(CREATE_ENTRY_QUESTION_LIST);
+          event.setup().addEntries(this.createEntryQuestionEntry);
         }
       }));
   }

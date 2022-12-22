@@ -46,8 +46,7 @@ import lombok.NonNull;
 @Description("module-npc-command-description")
 public class NPCCommand {
 
-  private static final RowBasedFormatter<NPCConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<NPCConfigurationEntry>
-      builder()
+  private static final RowBasedFormatter<NPCConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<NPCConfigurationEntry>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("targetGroup").build())
     .column(NPCConfigurationEntry::targetGroup)
     .build();

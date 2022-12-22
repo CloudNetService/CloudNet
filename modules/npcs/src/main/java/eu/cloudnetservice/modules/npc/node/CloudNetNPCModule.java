@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc._deprecated.CloudNPC;
@@ -36,6 +37,8 @@ import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCPoolOptions;
 import eu.cloudnetservice.node.command.CommandProvider;
+import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
+import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -173,10 +176,13 @@ public class CloudNetNPCModule extends DriverModule {
 
   @ModuleTask
   public void initModule(
+    @NonNull Parsers parsers,
     @NonNull DatabaseProvider databaseProvider,
     @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
     @NonNull ServiceRegistry serviceRegistry,
-    @NonNull CommandProvider commandProvider
+    @NonNull CommandProvider commandProvider,
+    @NonNull ConsoleProgressWrappers progressWrappers
   ) {
     var config = this.loadConfig();
     var database = databaseProvider.database(DATABASE_NAME);
@@ -185,7 +191,10 @@ public class CloudNetNPCModule extends DriverModule {
       config,
       database,
       this.configPath(),
-      eventManager);
+      parsers,
+      eventManager,
+      moduleHelper,
+      progressWrappers);
     management.registerToServiceRegistry(serviceRegistry);
     // register the npc module command
     commandProvider.register(NPCCommand.class);

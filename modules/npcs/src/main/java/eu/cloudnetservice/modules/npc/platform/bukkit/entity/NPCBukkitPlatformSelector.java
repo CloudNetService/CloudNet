@@ -29,11 +29,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.bukkit.Location;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.Scoreboard;
 
 public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
@@ -46,12 +48,14 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
   protected volatile Npc<World, Player, ItemStack, Plugin> handleNpc;
 
   public NPCBukkitPlatformSelector(
-    @NonNull BukkitPlatformNPCManagement npcManagement,
-    @NonNull Plugin plugin,
     @NonNull NPC npc,
+    @NonNull Plugin plugin,
+    @NonNull Server server,
+    @NonNull BukkitScheduler scheduler,
+    @NonNull BukkitPlatformNPCManagement npcManagement,
     @NonNull Platform<World, Player, ItemStack, Plugin> platform
   ) {
-    super(npcManagement, plugin, npc);
+    super(npc, plugin, server, scheduler, npcManagement);
     this.platform = platform;
   }
 

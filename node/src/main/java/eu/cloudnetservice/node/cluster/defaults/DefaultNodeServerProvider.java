@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.cluster.defaults;
 
-import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
@@ -154,7 +153,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
   public void registerNode(@NonNull NetworkClusterNode clusterNode) {
     var server = InjectionLayer.boot().instance(
       RemoteNodeServer.class,
-      builder -> builder.override(Element.forType(NetworkClusterNode.class), clusterNode));
+      builder -> builder.override(NetworkClusterNode.class, clusterNode));
     this.nodeServers.add(server);
   }
 

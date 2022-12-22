@@ -19,10 +19,12 @@ package eu.cloudnetservice.modules.labymod.node;
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.labymod.config.LabyModBanner;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.modules.labymod.config.LabyModDiscordRPC;
@@ -73,7 +75,12 @@ public class CloudNetLabyModModule extends DriverModule {
   }
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
-  public void initManagement(@NonNull DataSyncRegistry dataSyncRegistry, @NonNull NodeLabyModManagement management) {
+  public void initManagement(@NonNull DataSyncRegistry dataSyncRegistry, @NonNull InjectionLayer<?> layer) {
+    // construct the management instance
+    var management = layer.instance(
+      NodeLabyModManagement.class,
+      builder -> builder.override(LabyModConfiguration.class, this.loadConfiguration()));
+
     // sync the config of the module into the cluster
     dataSyncRegistry.registerHandler(
       DataSyncHandler.<LabyModConfiguration>builder()
@@ -92,12 +99,17 @@ public class CloudNetLabyModModule extends DriverModule {
   }
 
   @ModuleTask(order = 16, event = ModuleLifeCycle.LOADED)
-  public void initListeners(@NonNull EventManager eventManager, @NonNull NodeLabyModManagement management) {
+  public void initListeners(
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull EventManager eventManager,
+    @NonNull NodeLabyModManagement management
+  ) {
     // register the listeners
     eventManager.registerListener(NodeLabyModListener.class);
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-labymod",
       CloudNetLabyModModule.class,
+      moduleHelper,
       service -> management.configuration().enabled()
         && ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())));
   }
