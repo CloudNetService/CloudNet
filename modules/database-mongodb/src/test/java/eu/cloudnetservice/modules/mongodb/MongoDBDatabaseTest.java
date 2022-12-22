@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.mongodb;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
-import eu.cloudnetservice.node.database.DatabaseHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -51,7 +49,6 @@ class MongoDBDatabaseTest {
       "cn_db",
       null));
     this.databaseProvider.init();
-    this.databaseProvider.databaseHandler(Mockito.mock(DatabaseHandler.class));
   }
 
   @Test

@@ -18,7 +18,6 @@ package eu.cloudnetservice.node.database.xodus;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.node.database.DatabaseHandler;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class XodusDatabaseTest {
 
@@ -37,8 +35,7 @@ class XodusDatabaseTest {
 
   @BeforeEach
   void setup() {
-    this.databaseProvider = new XodusDatabaseProvider(BASE_DIRECTORY.toFile(), false, null);
-    this.databaseProvider.databaseHandler(Mockito.mock(DatabaseHandler.class));
+    this.databaseProvider = new XodusDatabaseProvider(BASE_DIRECTORY.toFile(), false);
     this.databaseProvider.init();
   }
 

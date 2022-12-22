@@ -48,8 +48,8 @@ import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.List;
@@ -72,7 +72,7 @@ public class NodePlayerManager implements PlayerManager {
   protected final String databaseName;
   protected final EventManager eventManager;
   protected final CommandProvider commandProvider;
-  protected final AbstractDatabaseProvider abstractDatabaseProvider;
+  protected final NodeDatabaseProvider nodeDatabaseProvider;
 
   protected final Map<UUID, CloudPlayer> onlinePlayers = new ConcurrentHashMap<>();
   protected final PlayerProvider allPlayerProvider = new NodePlayerProvider(() -> this.onlinePlayers.values().stream());
@@ -97,12 +97,12 @@ public class NodePlayerManager implements PlayerManager {
     @NonNull CommandProvider commandProvider,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull RPCHandlerRegistry handlerRegistry,
-    @NonNull AbstractDatabaseProvider abstractDatabaseProvider
+    @NonNull NodeDatabaseProvider nodeDatabaseProvider
   ) {
     this.databaseName = BridgeManagement.BRIDGE_PLAYER_DB_NAME;
     this.eventManager = eventManager;
     this.commandProvider = commandProvider;
-    this.abstractDatabaseProvider = abstractDatabaseProvider;
+    this.nodeDatabaseProvider = nodeDatabaseProvider;
     // register the rpc listeners
     providerFactory.newHandler(PlayerManager.class, this).registerTo(handlerRegistry);
     providerFactory.newHandler(PlayerExecutor.class, null).registerTo(handlerRegistry);
@@ -303,7 +303,7 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   protected @NonNull LocalDatabase database() {
-    return this.abstractDatabaseProvider.database(this.databaseName);
+    return this.nodeDatabaseProvider.database(this.databaseName);
   }
 
   public @NonNull Map<UUID, CloudPlayer> players() {

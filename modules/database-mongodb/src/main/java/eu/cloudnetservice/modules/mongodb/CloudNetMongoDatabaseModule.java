@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 
@@ -38,13 +38,13 @@ public class CloudNetMongoDatabaseModule extends DriverModule {
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
     serviceRegistry.registerProvider(
-      AbstractDatabaseProvider.class,
+      NodeDatabaseProvider.class,
       this.config.databaseServiceName(),
       new MongoDBDatabaseProvider(this.config));
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
-    serviceRegistry.unregisterProvider(AbstractDatabaseProvider.class, this.config.databaseServiceName());
+    serviceRegistry.unregisterProvider(NodeDatabaseProvider.class, this.config.databaseServiceName());
   }
 }

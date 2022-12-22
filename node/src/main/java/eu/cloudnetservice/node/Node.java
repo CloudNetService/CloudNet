@@ -51,8 +51,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.log.ColoredLogFormatter;
 import eu.cloudnetservice.node.console.util.HeaderReader;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
-import eu.cloudnetservice.node.database.DefaultDatabaseHandler;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.database.h2.H2DatabaseProvider;
 import eu.cloudnetservice.node.database.xodus.XodusDatabaseProvider;
 import eu.cloudnetservice.node.event.CloudNetNodePostInitializationEvent;
@@ -163,10 +162,7 @@ public final class Node {
 
   @Inject
   @Order(250)
-  private void registerDefaultServices(
-    @NonNull ServiceRegistry serviceRegistry,
-    @NonNull Configuration configuration,
-    @NonNull DefaultDatabaseHandler databaseHandler) {
+  private void registerDefaultServices(@NonNull ServiceRegistry serviceRegistry, @NonNull Configuration configuration) {
     // local template storage
     var localStoragePath = Path.of(System.getProperty("cloudnet.storage.local", "local/templates"));
     serviceRegistry.registerProvider(TemplateStorage.class, "local", new LocalTemplateStorage(localStoragePath));
@@ -175,28 +171,25 @@ public final class Node {
     var runsInCluster = !configuration.clusterConfig().nodes().isEmpty();
     var dbDirectory = new File(System.getProperty("cloudnet.database.xodus.path", "local/database/xodus"));
     serviceRegistry.registerProvider(
-      AbstractDatabaseProvider.class,
+      NodeDatabaseProvider.class,
       "xodus",
-      new XodusDatabaseProvider(dbDirectory, runsInCluster, databaseHandler));
+      new XodusDatabaseProvider(dbDirectory, runsInCluster));
   }
 
   @Inject
   @Order(300)
   private void convertDatabase(
     @NonNull Configuration configuration,
-    @NonNull ServiceRegistry serviceRegistry,
-    @NonNull DefaultDatabaseHandler databaseHandler
+    @NonNull ServiceRegistry serviceRegistry
   ) throws Exception { // TODO: remove in 4.1
     var configuredDatabase = configuration.properties().getString("database_provider", "xodus");
     // check if we need to migrate the old h2 database into a new xodus database
     if (configuredDatabase.equals("h2")) {
       // initialize the provider for the local h2 files
-      var h2Provider = new H2DatabaseProvider(
-        System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
-        databaseHandler);
+      var h2Provider = new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"));
       h2Provider.init();
       // initialize the provider for our new xodus database
-      var xodusProvider = serviceRegistry.provider(AbstractDatabaseProvider.class, "xodus");
+      var xodusProvider = serviceRegistry.provider(NodeDatabaseProvider.class, "xodus");
       xodusProvider.init();
       // run the migration on all tables in the h2 database
       for (var databaseName : h2Provider.databaseNames()) {
@@ -244,11 +237,11 @@ public final class Node {
   ) throws Exception {
     // initialize the default database provider
     var configuredProvider = configuration.properties().getString("database_provider", "xodus");
-    var provider = serviceRegistry.provider(AbstractDatabaseProvider.class, configuredProvider);
+    var provider = serviceRegistry.provider(NodeDatabaseProvider.class, configuredProvider);
 
     // check if the provider is present & can be initialized
     if (provider == null || !provider.init()) {
-      provider = serviceRegistry.provider(AbstractDatabaseProvider.class, "xodus");
+      provider = serviceRegistry.provider(NodeDatabaseProvider.class, "xodus");
       if (provider == null || !provider.init()) {
         // unable to start without a database
         throw new IllegalStateException("No database provider selected for startup - Unable to proceed");
@@ -257,7 +250,7 @@ public final class Node {
 
     // bind the provider for dependency injection
     var binding = BindingBuilder.create()
-      .bindAll(DatabaseProvider.class, AbstractDatabaseProvider.class)
+      .bindAll(DatabaseProvider.class, NodeDatabaseProvider.class)
       .toInstance(provider);
     bootLayer.install(binding);
 

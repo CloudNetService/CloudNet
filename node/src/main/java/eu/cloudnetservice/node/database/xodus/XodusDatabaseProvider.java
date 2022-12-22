@@ -17,52 +17,31 @@
 package eu.cloudnetservice.node.database.xodus;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
-import eu.cloudnetservice.node.database.DatabaseHandler;
 import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.database.util.LocalDatabaseUtil;
 import java.io.File;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.EnvironmentConfig;
 import jetbrains.exodus.env.Environments;
 import jetbrains.exodus.env.StoreConfig;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
-public class XodusDatabaseProvider extends AbstractDatabaseProvider {
+public class XodusDatabaseProvider extends NodeDatabaseProvider {
 
   protected final boolean runsInCluster;
-
   protected final File databaseDirectory;
-  protected final ExecutorService executorService;
-  protected final boolean autoShutdownExecutorService;
 
   protected final EnvironmentConfig environmentConfig;
 
   protected Environment environment;
 
-  public XodusDatabaseProvider(
-    @NonNull File databaseDirectory,
-    boolean runsInCluster,
-    @NonNull DatabaseHandler databaseHandler
-  ) {
-    this(databaseDirectory, runsInCluster, null, databaseHandler);
-  }
+  public XodusDatabaseProvider(@NonNull File databaseDirectory, boolean runsInCluster) {
+    super(DEFAULT_REMOVAL_LISTENER);
 
-  public XodusDatabaseProvider(
-    @NonNull File databaseDirectory,
-    boolean runsInCluster,
-    @Nullable ExecutorService executorService,
-    @NonNull DatabaseHandler databaseHandler
-  ) {
-    super(databaseHandler);
     this.runsInCluster = runsInCluster;
     this.databaseDirectory = databaseDirectory;
-    this.autoShutdownExecutorService = executorService == null;
-    this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;
 
     this.environmentConfig = new EnvironmentConfig()
       .setLogCacheShared(true)
@@ -85,7 +64,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   public @NonNull LocalDatabase database(@NonNull String name) {
     return this.databaseCache.get(name, $ -> this.environment.computeInTransaction(txn -> {
       var store = this.environment.openStore(name, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
-      return new XodusDatabase(name, this.executorService, store, this);
+      return new XodusDatabase(name, store, this);
     }));
   }
 
@@ -111,10 +90,6 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   public void close() throws Exception {
     super.close();
     this.environment.close();
-
-    if (this.autoShutdownExecutorService) {
-      this.executorService.shutdownNow();
-    }
   }
 
   @Override

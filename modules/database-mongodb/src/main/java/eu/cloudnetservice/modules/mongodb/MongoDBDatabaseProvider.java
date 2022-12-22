@@ -20,33 +20,22 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
-public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
+public class MongoDBDatabaseProvider extends NodeDatabaseProvider {
 
   protected final MongoDBConnectionConfig config;
-  protected final ExecutorService executorService;
-  protected final boolean autoShutdownExecutorService;
 
   protected MongoClient mongoClient;
   protected MongoDatabase mongoDatabase;
 
   public MongoDBDatabaseProvider(@NonNull MongoDBConnectionConfig config) {
-    this(config, null);
-  }
-
-  public MongoDBDatabaseProvider(@NonNull MongoDBConnectionConfig config, @Nullable ExecutorService executorService) {
-    super(null); // todo
+    super(DEFAULT_REMOVAL_LISTENER);
     this.config = config;
-    this.autoShutdownExecutorService = executorService == null;
-    this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;
   }
 
   @Override
@@ -61,7 +50,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   public @NonNull LocalDatabase database(@NonNull String name) {
     return this.databaseCache.get(name, $ -> {
       var collection = this.mongoDatabase.getCollection(name);
-      return new MongoDBDatabase(name, collection, this.executorService, this);
+      return new MongoDBDatabase(name, collection, this);
     });
   }
 
@@ -87,10 +76,6 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   public void close() throws Exception {
     super.close();
     this.mongoClient.close();
-
-    if (this.autoShutdownExecutorService) {
-      this.executorService.shutdownNow();
-    }
   }
 
   @Override

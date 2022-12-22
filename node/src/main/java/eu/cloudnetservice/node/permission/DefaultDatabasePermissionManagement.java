@@ -29,8 +29,8 @@ import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.network.listener.message.PermissionChannelMessageListener;
 import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
 import eu.cloudnetservice.node.permission.handler.PermissionManagementHandler;
@@ -68,7 +68,7 @@ public class DefaultDatabasePermissionManagement
   protected final CommandProvider commandProvider;
   protected final DefaultInstallation installation;
   protected final RPCHandlerRegistry handlerRegistry;
-  protected final AbstractDatabaseProvider databaseProvider;
+  protected final NodeDatabaseProvider databaseProvider;
 
   protected final Map<String, PermissionGroup> groups;
   protected final PermissionChannelMessageListener networkListener;
@@ -83,7 +83,7 @@ public class DefaultDatabasePermissionManagement
     @NonNull DefaultInstallation installation,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull RPCHandlerRegistry handlerRegistry,
-    @NonNull AbstractDatabaseProvider databaseProvider,
+    @NonNull NodeDatabaseProvider databaseProvider,
     @NonNull PermissionChannelMessageListener networkListener
   ) {
     this.rpcFactory = rpcFactory;

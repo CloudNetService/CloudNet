@@ -27,7 +27,7 @@ import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.console.Console;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import jakarta.inject.Inject;
@@ -51,7 +51,7 @@ final class ShutdownHandler {
   private final NetworkServer networkServer;
 
   // database stuff
-  private final AbstractDatabaseProvider databaseProvider;
+  private final NodeDatabaseProvider databaseProvider;
   private final PermissionManagement permissionManagement;
 
   @Inject
@@ -64,7 +64,7 @@ final class ShutdownHandler {
     @NonNull HttpServer httpServer,
     @NonNull NetworkClient networkClient,
     @NonNull NetworkServer networkServer,
-    @NonNull AbstractDatabaseProvider databaseProvider,
+    @NonNull NodeDatabaseProvider databaseProvider,
     @NonNull PermissionManagement permissionManagement
   ) {
     this.console = console;

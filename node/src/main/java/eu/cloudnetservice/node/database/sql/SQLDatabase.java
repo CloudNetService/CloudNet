@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.database.sql;
 
 import eu.cloudnetservice.node.database.AbstractDatabase;
-import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -30,8 +29,8 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   protected final SQLDatabaseProvider databaseProvider;
 
-  public SQLDatabase(@NonNull SQLDatabaseProvider provider, @NonNull String name, @NonNull ExecutorService executor) {
-    super(name, executor, provider);
+  public SQLDatabase(@NonNull SQLDatabaseProvider provider, @NonNull String name) {
+    super(name, provider);
     this.databaseProvider = provider;
   }
 }

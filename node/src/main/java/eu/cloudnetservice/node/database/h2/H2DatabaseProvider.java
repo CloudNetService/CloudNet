@@ -19,7 +19,6 @@ package eu.cloudnetservice.node.database.h2;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.node.database.DefaultDatabaseHandler;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
 import java.nio.file.Path;
@@ -45,8 +44,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   private final Path h2dbFile;
   private Connection connection;
 
-  public H2DatabaseProvider(@NonNull String h2File, @NonNull DefaultDatabaseHandler databaseHandler) {
-    super(null, databaseHandler);
+  public H2DatabaseProvider(@NonNull String h2File) {
+    super(DEFAULT_REMOVAL_LISTENER);
     this.h2dbFile = Path.of(h2File);
   }
 
@@ -60,9 +59,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
-    return this.databaseCache.get(
-      name,
-      $ -> new H2Database(this, name, super.executorService));
+    return this.databaseCache.get(name, $ -> new H2Database(this, name));
   }
 
   @Override
