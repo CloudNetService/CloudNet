@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.examples.npc;
+/*package de.dytanic.cloudnet.examples.npc;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
@@ -100,3 +100,4 @@ public class ExampleNPCs {
   }
 
 }
+*/

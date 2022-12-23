@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.bukkit;
 
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
@@ -31,14 +32,16 @@ import java.lang.invoke.MethodType;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
+
+  private static final InetAddress DUMMY_ADDRESS = new InetSocketAddress("127.0.0.1", 53345).getAddress();
 
   private Supplier<ServerListPingEvent> serverListPingEventConstructor;
 
@@ -116,45 +119,70 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
 
   private @Nullable ServerListPingEvent constructServerListPingEvent() {
     if (this.serverListPingEventConstructor == null) {
-      try {
-        // new method in 1.19 and above
-        MethodHandle constructor = MethodHandles.publicLookup().findConstructor(
-          ServerListPingEvent.class,
-          MethodType.methodType(void.class, InetAddress.class, String.class, boolean.class, int.class, int.class));
-        this.serverListPingEventConstructor = () -> {
-          try {
-            return (ServerListPingEvent) constructor.invokeExact(
-              new InetSocketAddress("127.0.0.1", 53345).getAddress(),
-              BridgeServerHelper.getMotd(),
-              false,
-              Bukkit.getOnlinePlayers().size(),
-              BridgeServerHelper.getMaxPlayers());
-          } catch (Throwable throwable) {
-            // wait what
-            this.getLogger().log(
-              Level.SEVERE,
-              "Unable to construct ServerListPingEvent using modern constructor; disabling event calling",
-              throwable);
-            this.serverListPingEventConstructor = () -> null;
-            return null;
-          }
-        };
-      } catch (IllegalAccessException exception) {
-        // wait what
-        this.serverListPingEventConstructor = () -> null;
-        this.getLogger().log(
-          Level.SEVERE,
-          "Unable to access modern constructor of ServerListPingEvent; disabling event calling",
-          exception);
-      } catch (NoSuchMethodException exception) {
-        // old method before 1.18
-        this.serverListPingEventConstructor = () -> new ServerListPingEvent(
-          new InetSocketAddress("127.0.0.1", 53345).getAddress(),
+      // 1.19.3 version
+      this.serverListPingEventConstructor = tryServerListPingReflect(
+        handle -> (ServerListPingEvent) handle.invokeExact(
+          "",
+          DUMMY_ADDRESS,
           BridgeServerHelper.getMotd(),
           Bukkit.getOnlinePlayers().size(),
-          BridgeServerHelper.getMaxPlayers());
+          BridgeServerHelper.getMaxPlayers()),
+        String.class, InetAddress.class, String.class, int.class, int.class);
+
+      if (this.serverListPingEventConstructor == null) {
+        // try 1.19 version
+        this.serverListPingEventConstructor = tryServerListPingReflect(
+          handle -> (ServerListPingEvent) handle.invokeExact(
+            DUMMY_ADDRESS,
+            BridgeServerHelper.getMotd(),
+            false,
+            Bukkit.getOnlinePlayers().size(),
+            BridgeServerHelper.getMaxPlayers()),
+          InetAddress.class, String.class, boolean.class, int.class, int.class);
+      }
+
+      if (this.serverListPingEventConstructor == null) {
+        // legacy variant (<1.19)
+        this.serverListPingEventConstructor = tryServerListPingReflect(
+          handle -> (ServerListPingEvent) handle.invokeExact(
+            DUMMY_ADDRESS,
+            BridgeServerHelper.getMotd(),
+            Bukkit.getOnlinePlayers().size(),
+            BridgeServerHelper.getMaxPlayers()),
+          InetAddress.class, String.class, int.class, int.class);
+      }
+
+      if (this.serverListPingEventConstructor == null) {
+        // this should not happen, just to make sure
+        this.getLogger().warning("Unable to locate constructor of ServerListPingEvent, "
+          + "not calling the event to determine motd/max player changes");
+        this.serverListPingEventConstructor = () -> null;
       }
     }
     return this.serverListPingEventConstructor.get();
+  }
+
+  private @Nullable Supplier<ServerListPingEvent> tryServerListPingReflect(
+    @NotNull ThrowableFunction<MethodHandle, ServerListPingEvent, Throwable> constructorHandler,
+    @NotNull Class<?>... constructorParameterTypes
+  ) {
+    try {
+      MethodType type = MethodType.methodType(void.class, constructorParameterTypes);
+      MethodHandle constructorHandle = MethodHandles.publicLookup().findConstructor(ServerListPingEvent.class, type);
+
+      return () -> {
+        try {
+          return constructorHandler.apply(constructorHandle);
+        } catch (Throwable throwable) {
+          return null;
+        }
+      };
+    } catch (IllegalAccessException exception) {
+      // no need to check further, the constructor exists but is unavailable
+      return () -> null;
+    } catch (NoSuchMethodException ignored) {
+      // version which doesn't have the target constructor
+      return null;
+    }
   }
 }

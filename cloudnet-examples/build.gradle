@@ -28,7 +28,7 @@ dependencies {
   compileOnly project(':cloudnet-modules').project('cloudnet-syncproxy')
   compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
   compileOnly project(':cloudnet-modules').project('cloudnet-signs')
-  compileOnly project(':cloudnet-modules').project('cloudnet-npcs')
+  //compileOnly project(':cloudnet-modules').project('cloudnet-npcs')
   compileOnly project(':cloudnet-plugins').project('cloudnet-simplenametags')
   compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
 }
