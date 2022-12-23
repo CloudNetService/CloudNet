@@ -18,9 +18,9 @@ package eu.cloudnetservice.plugins.simplenametags.minestom;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
-import eu.cloudnetservice.ext.platforminject.stereotype.Dependency;
-import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

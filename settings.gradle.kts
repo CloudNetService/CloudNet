@@ -34,7 +34,17 @@ rootProject.name = "cloudnet-root"
 include("bom", "ext", "common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
 
 // external lib helpers
-initializeSubProjects("ext", "modlauncher", "adventure-helper", "bukkit-command", "updater", "platform-inject-support")
+initializeSubProjects("ext",
+  "modlauncher",
+  "adventure-helper",
+  "bukkit-command",
+  "updater",
+  "platform-inject-support")
+// inject support
+initializePrefixedSubProjects(
+  "ext:platform-inject-support",
+  "platform-inject",
+  "api", "loader", "processor", "runtime")
 // plugins
 initializeSubProjects("plugins", "chat", "simplenametags", "papi-expansion")
 // modules
@@ -46,7 +56,7 @@ initializeSubProjects("modules",
   "database-mongodb",
   "database-mysql",
   "cloudperms",
-  "signs",
+  //"signs",
   "storage-sftp",
   "syncproxy",
   "smart",
@@ -64,5 +74,12 @@ fun initializeSubProjects(rootProject: String, vararg names: String) {
     // update the project properties
     project(":$rootProject:$it").name = it
     project(":$rootProject:$it").projectDir = file(rootProject).resolve(it)
+  }
+}
+
+fun initializePrefixedSubProjects(rootProject: String, prefix: String, vararg names: String) {
+  names.forEach {
+    include("$rootProject:$it")
+    project(":$rootProject:$it").name = "$prefix-$it"
   }
 }

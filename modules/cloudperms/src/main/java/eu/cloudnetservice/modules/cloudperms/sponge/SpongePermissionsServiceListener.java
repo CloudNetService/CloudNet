@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.cloudperms.sponge;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.ext.platforminject.mapping.Container;
+import eu.cloudnetservice.ext.platforminject.api.mapping.Container;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.CloudPermsPermissionService;
 import lombok.NonNull;
 import org.spongepowered.api.Sponge;

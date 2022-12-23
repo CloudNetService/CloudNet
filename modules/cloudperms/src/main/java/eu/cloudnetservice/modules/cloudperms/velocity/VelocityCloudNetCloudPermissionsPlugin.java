@@ -18,8 +18,8 @@ package eu.cloudnetservice.modules.cloudperms.velocity;
 
 import com.velocitypowered.api.event.EventManager;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
-import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.cloudperms.velocity.listener.VelocityCloudPermissionsPlayerListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;

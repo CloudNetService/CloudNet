@@ -18,14 +18,13 @@ package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
-import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.scheduler.BukkitScheduler;
 
 @Singleton
 @PlatformPlugin(
@@ -33,11 +32,11 @@ import org.bukkit.scheduler.BukkitScheduler;
   name = "CloudNet-Bridge",
   version = "{project.build.version}",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
-  authors = "CloudNetService")
+  authors = "CloudNetService"
+)
 public final class BukkitBridgePlugin implements PlatformEntrypoint {
 
   private final Plugin plugin;
-  private final BukkitScheduler scheduler;
   private final ModuleHelper moduleHelper;
   private final PluginManager pluginManager;
   private final ServiceRegistry serviceRegistry;
@@ -47,7 +46,6 @@ public final class BukkitBridgePlugin implements PlatformEntrypoint {
   @Inject
   public BukkitBridgePlugin(
     @NonNull Plugin plugin,
-    @NonNull BukkitScheduler scheduler,
     @NonNull ModuleHelper moduleHelper,
     @NonNull PluginManager pluginManager,
     @NonNull ServiceRegistry serviceRegistry,
@@ -55,7 +53,6 @@ public final class BukkitBridgePlugin implements PlatformEntrypoint {
     @NonNull BukkitPlayerManagementListener playerListener
   ) {
     this.plugin = plugin;
-    this.scheduler = scheduler;
     this.moduleHelper = moduleHelper;
     this.pluginManager = pluginManager;
     this.serviceRegistry = serviceRegistry;

@@ -20,9 +20,9 @@ import com.google.inject.Inject;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
-import eu.cloudnetservice.ext.platforminject.stereotype.Dependency;
-import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
 import lombok.NonNull;
 

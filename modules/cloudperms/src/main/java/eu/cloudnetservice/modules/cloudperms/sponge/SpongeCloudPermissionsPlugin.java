@@ -18,10 +18,10 @@ package eu.cloudnetservice.modules.cloudperms.sponge;
 
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
-import eu.cloudnetservice.ext.platforminject.stereotype.ConstructionListener;
-import eu.cloudnetservice.ext.platforminject.stereotype.Dependency;
-import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ConstructionListener;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

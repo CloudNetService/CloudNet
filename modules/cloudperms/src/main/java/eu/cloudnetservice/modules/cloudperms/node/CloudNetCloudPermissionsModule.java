@@ -21,6 +21,7 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.cloudperms.node.config.CloudPermissionConfig;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
@@ -60,10 +61,11 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
   }
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
-  public void registerListeners(@NonNull EventManager eventManager) {
+  public void registerListeners(@NonNull EventManager eventManager, @NonNull ModuleHelper moduleHelper) {
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-cloudperms",
       CloudNetCloudPermissionsModule.class,
+      moduleHelper,
       service -> this.permissionsConfig.enabled() && Collections.disjoint(
         this.permissionsConfig.excludedGroups(),
         service.serviceConfiguration().groups())));

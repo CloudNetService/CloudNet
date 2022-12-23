@@ -57,6 +57,7 @@ tasks.withType<JavaCompile> {
 dependencies {
   "api"(projects.driver)
   "api"(projects.ext.modlauncher)
+  "api"(projects.ext.platformInjectSupport.platformInjectLoader)
 
   // internal libraries
   "implementation"(libs.asm)

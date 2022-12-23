@@ -59,7 +59,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @Inject
   public CloudNetBridgeModule(@NonNull InjectionLayer<?> layer) {
-    layer.installAutoConfigureBindings(this.classLoader(), "bridge");
+    layer.installAutoConfigureBindings(CloudNetBridgeModule.class.getClassLoader(), "bridge");
   }
 
   @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
@@ -168,7 +168,7 @@ public final class CloudNetBridgeModule extends DriverModule {
     }
   }
 
-  @ModuleTask(event = ModuleLifeCycle.LOADED)
+  @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void initModule(
     @NonNull HttpServer httpServer,
     @NonNull NodeBridgeManagement management,

@@ -63,24 +63,6 @@ public final class ModuleHelper {
     this.rpcHandlerRegistry = rpcHandlerRegistry;
   }
 
-  // TODO: pail methods - remove then when done
-  @Deprecated(forRemoval = true)
-  public static boolean copyJarContainingClass_deprecated(@NonNull Class<?> clazz, @NonNull Path target) {
-    return true;
-  }
-
-  @Deprecated(forRemoval = true)
-  public static void copyPluginConfigurationFileForEnvironment_deprecated(
-    @NonNull Class<?> clazz,
-    @NonNull ServiceEnvironmentType type,
-    @NonNull Path file
-  ) {
-  }
-
-  @Deprecated(forRemoval = true)
-  public static void unregisterAll_deprecated(@NonNull ClassLoader classLoader) {
-  }
-
   /**
    * Copies the caller class location from the class path to the given target path.
    *

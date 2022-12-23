@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.node.command.SyncProxyCommand;
@@ -78,12 +79,16 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   }
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.LOADED)
-  public void initListeners(@NonNull EventManager eventManager, @NonNull NodeSyncProxyManagement syncProxyManagement) {
+  public void initListeners(
+    @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull NodeSyncProxyManagement syncProxyManagement) {
     // register the listeners
     eventManager.registerListener(NodeSyncProxyChannelMessageListener.class);
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-syncproxy",
       CloudNetSyncProxyModule.class,
+      moduleHelper,
       service -> ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())
         && (syncProxyManagement.configuration().loginConfigurations().stream()
         .anyMatch(config -> service.serviceConfiguration().groups().contains(config.targetGroup()))

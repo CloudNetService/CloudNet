@@ -18,10 +18,10 @@ package eu.cloudnetservice.modules.npc.platform.bukkit;
 
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
-import eu.cloudnetservice.ext.platforminject.stereotype.Command;
-import eu.cloudnetservice.ext.platforminject.stereotype.Dependency;
-import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Command;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.npc.platform.bukkit.command.NPCCommand;
 import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitEntityProtectionListener;
 import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitFunctionalityListener;

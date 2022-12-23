@@ -27,12 +27,16 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class BridgeLocalProxyPlayerDisconnectListener {
 
   private final NodePlayerManager playerManager;
 
+  @Inject
   public BridgeLocalProxyPlayerDisconnectListener(@NonNull NodePlayerManager playerManager) {
     this.playerManager = playerManager;
   }

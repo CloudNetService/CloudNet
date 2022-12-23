@@ -18,9 +18,9 @@ package eu.cloudnetservice.modules.labymod.platform.bungeecord;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
-import eu.cloudnetservice.ext.platforminject.stereotype.Dependency;
-import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

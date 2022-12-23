@@ -28,21 +28,17 @@ import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
 import eu.cloudnetservice.node.event.setup.SetupInitiateEvent;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class NodeSetupListener {
 
   private final QuestionListEntry<String> bridgeFallbackQuestionEntry;
 
-  private final BridgeManagement bridgeManagement;
-
-  public NodeSetupListener(
-    @NonNull ServiceTaskProvider taskProvider,
-    @NonNull BridgeManagement bridgeManagement,
-    @NonNull ServiceVersionProvider versionProvider
-  ) {
-    this.bridgeManagement = bridgeManagement;
-
+  @Inject
+  public NodeSetupListener(@NonNull ServiceTaskProvider taskProvider, @NonNull ServiceVersionProvider versionProvider) {
     // create the bridge fallback question entry
     this.bridgeFallbackQuestionEntry = this.createBridgeFallbackEntry(taskProvider, versionProvider);
   }
@@ -62,16 +58,16 @@ public final class NodeSetupListener {
   }
 
   @EventListener
-  public void handleSetupComplete(@NonNull SetupCompleteEvent event) {
+  public void handleSetupComplete(@NonNull SetupCompleteEvent event, @NonNull BridgeManagement bridgeManagement) {
     String fallbackName = event.setup().result("generateBridgeFallback");
     // check if we want to add a fallback
     if (fallbackName != null && !fallbackName.isEmpty()) {
-      var config = this.bridgeManagement.configuration();
+      var config = bridgeManagement.configuration();
       config.fallbackConfigurations().add(ProxyFallbackConfiguration.builder()
         .targetGroup(event.setup().result("taskName"))
         .defaultFallbackTask(fallbackName)
         .build());
-      this.bridgeManagement.configuration(config);
+      bridgeManagement.configuration(config);
     }
   }
 

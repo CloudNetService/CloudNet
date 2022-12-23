@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
@@ -51,6 +52,7 @@ public class NodeBridgeManagement implements BridgeManagement {
 
   @Inject
   public NodeBridgeManagement(
+    @NonNull ModuleHelper moduleHelper,
     @NonNull EventManager eventManager,
     @NonNull RPCFactory providerFactory,
     @NonNull PlayerManager playerManager,
@@ -68,6 +70,7 @@ public class NodeBridgeManagement implements BridgeManagement {
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-bridge",
       NodeBridgeManagement.class,
+      moduleHelper,
       service -> Collections.disjoint(this.configuration.excludedGroups(), service.serviceConfiguration().groups())));
     // register the rpc handler
     providerFactory.newHandler(BridgeManagement.class, this).registerTo(rpcHandlerRegistry);

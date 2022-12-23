@@ -18,10 +18,10 @@ package eu.cloudnetservice.modules.bridge.platform.minestom;
 
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
-import eu.cloudnetservice.ext.platforminject.PlatformEntrypoint;
-import eu.cloudnetservice.ext.platforminject.stereotype.ExternalDependency;
-import eu.cloudnetservice.ext.platforminject.stereotype.PlatformPlugin;
-import eu.cloudnetservice.ext.platforminject.stereotype.Repository;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ExternalDependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Repository;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
