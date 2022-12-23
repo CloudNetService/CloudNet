@@ -89,7 +89,7 @@ pipeline {
 
         sh 'mkdir temp/extras/modules'
         sh 'cp cloudnet-modules/cloudnet-labymod/build/libs/*.jar temp/extras/modules/'
-        sh 'cp cloudnet-modules/cloudnet-npcs/build/libs/*.jar temp/extras/modules/'
+        //sh 'cp cloudnet-modules/cloudnet-npcs/build/libs/*.jar temp/extras/modules/'
 
         sh 'cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar'
         zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip'

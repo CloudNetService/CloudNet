@@ -68,9 +68,9 @@ jar {
     include cloudnetModuleSignsFileName
   }
 
-  from('../cloudnet-modules/cloudnet-npcs/build/libs') {
-    include cloudnetModuleNPCsFileName
-  }
+  //from('../cloudnet-modules/cloudnet-npcs/build/libs') {
+  //  include cloudnetModuleNPCsFileName
+  //}
 
   from('../cloudnet-modules/cloudnet-syncproxy/build/libs') {
     include cloudnetModuleSyncProxyFileName
