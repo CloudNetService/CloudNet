@@ -98,14 +98,14 @@ public final class PacketServerChannelMessageListener implements PacketListener 
               }
               // serialize the response
               if (result.isEmpty()) {
-                responseContent = DataBuf.empty();
+                responseContent = DataBuf.empty().writeBoolean(false);
               } else {
                 responseContent = DataBuf.empty().writeObject(result);
               }
             }
           } else {
             // just respond with nothing when an exception was thrown
-            responseContent = DataBuf.empty();
+            responseContent = DataBuf.empty().writeBoolean(false);
           }
           // send the results to the sender
           channel.sendPacket(packet.constructResponse(responseContent));

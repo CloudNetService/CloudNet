@@ -25,6 +25,8 @@ import eu.cloudnetservice.driver.provider.defaults.DefaultMessenger;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import lombok.NonNull;
 
 public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
@@ -48,11 +50,12 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return this.component.firstChannel()
+    Collection<ChannelMessage> response = this.component.firstChannel()
       .queryPacketManager()
       .sendQueryPacket(new PacketServerChannelMessage(channelMessage, true))
       .join()
       .content()
       .readObject(MESSAGES);
+    return Objects.requireNonNullElse(response, List.of());
   }
 }
