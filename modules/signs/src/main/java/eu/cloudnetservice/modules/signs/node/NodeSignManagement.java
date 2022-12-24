@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
-import dev.derklaro.aerogel.Name;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -27,6 +26,7 @@ import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.NodeSignsConfigurationHelper;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -46,7 +46,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   @Inject
   public NodeSignManagement(
     @NonNull SignsConfiguration configuration,
-    @NonNull @Name("dataDirectory") Path dataDirectory,
+    @NonNull @Named("dataDirectory") Path dataDirectory,
     @NonNull Database database
   ) {
     super(configuration);
