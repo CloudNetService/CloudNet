@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.signs;
 
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import java.util.Collection;
@@ -113,10 +114,7 @@ public interface SignManagement {
   // Internal methods
 
   @ApiStatus.Internal
-  void registerToServiceRegistry();
-
-  @ApiStatus.Internal
-  void unregisterFromServiceRegistry();
+  void registerToServiceRegistry(@NonNull ServiceRegistry serviceRegistry);
 
   @ApiStatus.Internal
   void handleInternalSignCreate(@NonNull Sign sign);

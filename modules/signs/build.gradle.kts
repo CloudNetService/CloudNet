@@ -25,11 +25,18 @@ tasks.withType<Jar> {
   archiveFileName.set(Files.signs)
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/signs.aero")
+}
+
 dependencies {
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
   "compileOnly"(projects.ext.adventureHelper)
   "implementation"(projects.ext.bukkitCommand)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   "compileOnly"(libs.bundles.serverPlatform)
 }
