@@ -25,12 +25,16 @@ import cn.nukkit.level.Location;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class SignsCommand implements CommandExecutor {
 
   private final PlatformSignManagement<?, Location, ?> signManagement;
 
+  @Inject
   public SignsCommand(@NonNull PlatformSignManagement<?, Location, ?> signManagement) {
     this.signManagement = signManagement;
   }

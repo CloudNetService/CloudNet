@@ -16,26 +16,23 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
 
-import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.sponge.SpongeSignManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.spongepowered.api.block.entity.Sign;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.world.server.ServerLocation;
-import org.spongepowered.plugin.PluginContainer;
 
+@Singleton
 public class SignInteractListener {
 
-  protected final PluginContainer plugin;
-  protected final PlatformSignManagement<ServerPlayer, ServerLocation, ?> signManagement;
+  private final SpongeSignManagement signManagement;
 
-  public SignInteractListener(
-    @NonNull PluginContainer plugin,
-    @NonNull PlatformSignManagement<ServerPlayer, ServerLocation, ?> signManagement
-  ) {
-    this.plugin = plugin;
+  @Inject
+  public SignInteractListener(@NonNull SpongeSignManagement signManagement) {
     this.signManagement = signManagement;
   }
 

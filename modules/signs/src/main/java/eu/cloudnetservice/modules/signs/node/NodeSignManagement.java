@@ -25,6 +25,8 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.NodeSignsConfigurationHelper;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -41,7 +43,12 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   protected final Database database;
   protected final Path configurationFilePath;
 
-  public NodeSignManagement(SignsConfiguration configuration, Path configurationFilePath, Database database) {
+  @Inject
+  public NodeSignManagement(
+    @NonNull SignsConfiguration configuration,
+    @NonNull @Named("signs_config_file_path") Path configurationFilePath,
+    @NonNull Database database
+  ) {
     super(configuration);
 
     this.configurationFilePath = configurationFilePath;
