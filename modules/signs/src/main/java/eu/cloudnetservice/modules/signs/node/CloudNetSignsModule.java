@@ -79,7 +79,6 @@ public class CloudNetSignsModule extends DriverModule {
     var management = layer.instance(
       NodeSignManagement.class,
       builder -> builder.override(SignsConfiguration.class, this.configuration));
-
     management.registerToServiceRegistry(serviceRegistry);
 
     commandProvider.register(SignsCommand.class);

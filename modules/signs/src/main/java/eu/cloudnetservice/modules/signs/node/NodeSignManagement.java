@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
+import dev.derklaro.aerogel.Name;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -26,7 +27,6 @@ import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.NodeSignsConfigurationHelper;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,18 +40,18 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
 
   protected static final String NODE_TO_NODE_SET_SIGN_CONFIGURATION = "signs_node_node_set_signs_config";
 
+  protected final Path configPath;
   protected final Database database;
-  protected final Path configurationFilePath;
 
   @Inject
   public NodeSignManagement(
     @NonNull SignsConfiguration configuration,
-    @NonNull @Named("signs_config_file_path") Path configurationFilePath,
+    @NonNull @Name("dataDirectory") Path dataDirectory,
     @NonNull Database database
   ) {
     super(configuration);
 
-    this.configurationFilePath = configurationFilePath;
+    this.configPath = dataDirectory.resolve("config.json");
     this.database = database;
 
     this.database.documentsAsync().thenAccept(jsonDocuments -> {
@@ -134,13 +134,13 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
       .buffer(DataBuf.empty().writeObject(signsConfiguration))
       .targetAll()
       .build().send();
-    NodeSignsConfigurationHelper.write(signsConfiguration, this.configurationFilePath);
+    NodeSignsConfigurationHelper.write(signsConfiguration, this.configPath);
   }
 
   @Override
   public void handleInternalSignConfigUpdate(@NonNull SignsConfiguration configuration) {
     super.handleInternalSignConfigUpdate(configuration);
-    NodeSignsConfigurationHelper.write(configuration, this.configurationFilePath);
+    NodeSignsConfigurationHelper.write(configuration, this.configPath);
   }
 
   protected String documentKey(@NonNull WorldPosition position) {
