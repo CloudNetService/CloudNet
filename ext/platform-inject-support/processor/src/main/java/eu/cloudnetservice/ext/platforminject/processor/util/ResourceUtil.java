@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.UUID;
 import javax.annotation.processing.Filer;
+import javax.annotation.processing.FilerException;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import lombok.NonNull;
@@ -76,36 +78,44 @@ public final class ResourceUtil {
       return resourcesDirectory;
     }
 
-    // dummy file which will be deleted when the method execution finishes
-    FileObject dummyFile = null;
+    var attempts = 0;
+    while (attempts++ <= 5) {
+      // dummy file which will be deleted when the method execution finishes
+      FileObject dummyFile = null;
 
-    try {
-      // create a dummy resource to get the target directory of source files
-      var dummyFileName = System.currentTimeMillis() + ".dummy";
-      dummyFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", dummyFileName);
+      try {
+        // create a dummy resource to get the target directory of source files
+        var dummyFileName = UUID.randomUUID().toString().replace("-", "") + ".dummy";
+        dummyFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", dummyFileName);
 
-      // walk up the tree until we find the first resources directory
-      var candidate = Path.of(dummyFile.toUri());
-      do {
-        // check if the current directory has a resources subdirectory
-        var resourcesDirectory = candidate.resolve("resources");
-        if (Files.exists(resourcesDirectory) && Files.isDirectory(resourcesDirectory)) {
-          // cache & return
-          ResourceUtil.resourcesDirectory = candidate;
-          return candidate;
+        // walk up the tree until we find the first resources directory
+        var candidate = Path.of(dummyFile.toUri());
+        do {
+          // check if the current directory has a resources subdirectory
+          var resourcesDirectory = candidate.resolve("resources");
+          if (Files.exists(resourcesDirectory) && Files.isDirectory(resourcesDirectory)) {
+            // cache & return
+            ResourceUtil.resourcesDirectory = candidate;
+            return candidate;
+          }
+        } while ((candidate = candidate.getParent()) != null);
+
+        // unable to resolve the directory
+        return null;
+      } catch (FilerException ignored) {
+        // some filer guarantee was violated by the file creation, just try again
+      } catch (IOException exception) {
+        // unable to create the dummy file?
+        throw new IllegalStateException("Creation of dummy file to resolve resources directory failed", exception);
+      } finally {
+        // remove the dummy file, if created
+        if (dummyFile != null) {
+          dummyFile.delete();
         }
-      } while ((candidate = candidate.getParent()) != null);
-
-      // unable to resolve the directory
-      return null;
-    } catch (IOException exception) {
-      // unable to create the dummy file?
-      throw new IllegalStateException("Creation of dummy file to resolve resources directory failed", exception);
-    } finally {
-      // remove the dummy file, if created
-      if (dummyFile != null) {
-        dummyFile.delete();
       }
     }
+
+    // unable to resolve the directory
+    return null;
   }
 }

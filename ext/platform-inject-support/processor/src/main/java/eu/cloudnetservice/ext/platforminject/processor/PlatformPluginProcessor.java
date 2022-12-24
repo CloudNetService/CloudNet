@@ -45,8 +45,6 @@ import lombok.NonNull;
 
 public final class PlatformPluginProcessor extends AbstractProcessor {
 
-  private final List<ScanPackageEntry> scanEntries = new LinkedList<>();
-  private final List<BindingClassGenerator.ParsedBindingData> bindingData = new LinkedList<>();
   private final Map<String, PlatformDataGeneratorProvider> dataGeneratorProviders = new HashMap<>();
 
   private ProcessingEnvironment environment;
@@ -75,54 +73,8 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(@NonNull Set<? extends TypeElement> annotations, @NonNull RoundEnvironment roundEnv) {
-    if (roundEnv.processingOver()) {
-      // group the found bindings by plugin
-      Map<SimplifiedPluginInfo, Collection<BindingClassGenerator.ParsedBindingData>> bindingsPerPlugin = new HashMap<>();
-      for (var scanEntry : this.scanEntries) {
-        // find all data entries which are matching the plugin entry
-        var matchingBindings = this.bindingData.stream()
-          .filter(data -> data.platform().equalsIgnoreCase(scanEntry.platform()))
-          .filter(data -> scanEntry.packageNameMatchers().stream().anyMatch(pattern -> {
-            var matcher = pattern.matcher(data.packageName());
-            return matcher.matches();
-          }))
-          .toList();
-
-        // register the entry if any binding is matching
-        if (!matchingBindings.isEmpty()) {
-          var info = new SimplifiedPluginInfo(scanEntry.plugin(), scanEntry.platform(), scanEntry.mainClassPackage());
-          var knownBindings = bindingsPerPlugin.computeIfAbsent(info, $ -> new LinkedList<>());
-          knownBindings.addAll(matchingBindings);
-        }
-      }
-
-      // generate a class with all bindings for each plugin we know
-      for (var entry : bindingsPerPlugin.entrySet()) {
-        var info = entry.getKey();
-        var bindings = entry.getValue();
-
-        // generate a class for the bindings
-        var bindingClassName = PluginUtil.buildClassName(info.plugin(), info.platform(), "Bindings");
-        var bindingClass = BindingClassGenerator.buildBindingClass(bindingClassName, bindings);
-
-        try {
-          // convert the generated class & write it
-          var javaFile = JavaFile.builder(info.mainClassPackage(), bindingClass).build();
-          javaFile.writeTo(this.environment.getFiler());
-        } catch (IOException exception) {
-          throw new IllegalStateException("Unable to write binding class file", exception);
-        }
-      }
-
-      // reset the state of this processor
-      this.scanEntries.clear();
-      this.bindingData.clear();
-
-      // don't claim annotations
-      return false;
-    }
-
     // find all platform plugin classes
+    List<ScanPackageEntry> scanEntries = new LinkedList<>();
     for (var element : roundEnv.getElementsAnnotatedWith(PlatformPlugin.class)) {
       // ensure that only classes are annotated
       if (element.getKind() != ElementKind.CLASS) {
@@ -162,7 +114,7 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
       if (providesScanPackages.length == 0) {
         // only register the package of the plugin main class
         var packagePattern = PatternUtil.literalPatternWithWildcardEnding(packageName);
-        this.scanEntries.add(new ScanPackageEntry(
+        scanEntries.add(new ScanPackageEntry(
           pluginData.name(),
           platformAnno.platform(),
           packageName,
@@ -170,7 +122,7 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
       } else {
         // register the provided package names
         var packagePatterns = PatternUtil.parsePattern(providesScanPackages);
-        this.scanEntries.add(new ScanPackageEntry(
+        scanEntries.add(new ScanPackageEntry(
           pluginData.name(),
           platformAnno.platform(),
           packageName,
@@ -196,6 +148,7 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
     }
 
     // find all @ProvidesFor annotated classes
+    List<BindingClassGenerator.ParsedBindingData> bindingData = new LinkedList<>();
     for (var element : roundEnv.getElementsAnnotatedWith(ProvidesFor.class)) {
       // ensure that only classes are annotated
       if (element.getKind() != ElementKind.CLASS) {
@@ -219,11 +172,57 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
         providedClassNames);
 
       // register the data
-      this.bindingData.add(data);
+      bindingData.add(data);
     }
+
+    // generate the binding classes for the plugins
+    this.generateBindingClass(scanEntries, bindingData);
 
     // don't claim annotations
     return false;
+  }
+
+  private void generateBindingClass(
+    @NonNull Collection<ScanPackageEntry> scanEntries,
+    @NonNull List<BindingClassGenerator.ParsedBindingData> bindingData
+  ) {
+    // group the found bindings by plugin
+    Map<SimplifiedPluginInfo, Collection<BindingClassGenerator.ParsedBindingData>> bindingsPerPlugin = new HashMap<>();
+    for (var scanEntry : scanEntries) {
+      // find all data entries which are matching the plugin entry
+      var matchingBindings = bindingData.stream()
+        .filter(data -> data.platform().equalsIgnoreCase(scanEntry.platform()))
+        .filter(data -> scanEntry.packageNameMatchers().stream().anyMatch(pattern -> {
+          var matcher = pattern.matcher(data.packageName());
+          return matcher.matches();
+        }))
+        .toList();
+
+      // register the entry if any binding is matching
+      if (!matchingBindings.isEmpty()) {
+        var info = new SimplifiedPluginInfo(scanEntry.plugin(), scanEntry.platform(), scanEntry.mainClassPackage());
+        var knownBindings = bindingsPerPlugin.computeIfAbsent(info, $ -> new LinkedList<>());
+        knownBindings.addAll(matchingBindings);
+      }
+    }
+
+    // generate a class with all bindings for each plugin we know
+    for (var entry : bindingsPerPlugin.entrySet()) {
+      var info = entry.getKey();
+      var bindings = entry.getValue();
+
+      // generate a class for the bindings
+      var bindingClassName = PluginUtil.buildClassName(info.plugin(), info.platform(), "Bindings");
+      var bindingClass = BindingClassGenerator.buildBindingClass(bindingClassName, bindings);
+
+      try {
+        // convert the generated class & write it
+        var javaFile = JavaFile.builder(info.mainClassPackage(), bindingClass).build();
+        javaFile.writeTo(this.environment.getFiler());
+      } catch (IOException exception) {
+        throw new IllegalStateException("Unable to write binding class file", exception);
+      }
+    }
   }
 
   private record ScanPackageEntry(
@@ -234,7 +233,6 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
   ) {
 
   }
-
 
   private record SimplifiedPluginInfo(
     @NonNull String plugin,
