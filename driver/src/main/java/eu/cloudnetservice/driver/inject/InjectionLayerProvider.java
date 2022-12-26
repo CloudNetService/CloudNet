@@ -19,7 +19,7 @@ package eu.cloudnetservice.driver.inject;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.SpecifiedInjector;
-import dev.derklaro.aerogel.auto.AutoAnnotationRegistry;
+import dev.derklaro.aerogel.auto.runtime.AutoAnnotationRegistry;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.StringUtil;
