@@ -17,13 +17,18 @@
 package eu.cloudnetservice.driver.module.driver;
 
 import com.google.gson.JsonSyntaxException;
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.InjectionContext;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.DefaultModule;
 import eu.cloudnetservice.driver.module.Module;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.NonNull;
 
@@ -37,6 +42,9 @@ import lombok.NonNull;
  * @since 4.0
  */
 public class DriverModule extends DefaultModule {
+
+  protected static final Element CONFIG_PATH_ELEMENT = Element.forType(Path.class)
+    .requireAnnotation(Qualifiers.named("configPath"));
 
   /**
    * Reads the configuration file of this module from the default or overridden configuration path (via module.json)
@@ -89,6 +97,86 @@ public class DriverModule extends DefaultModule {
         throw new ModuleConfigurationInvalidException(this.configPath(), exception);
       }
     }
+  }
+
+  /**
+   * Reads the module configuration file and converts the type of the configuration to the given model type, creating
+   * the configuration if necessary. Any exceptions thrown when reading the configuration are forwarded to the caller.
+   * <p>
+   * Afterwards the given class type is instantiated with the loaded config and config path being known while creating
+   * the class instance. Bindings are respected by this method.
+   * <p>
+   * If further customization of the injection context which is taking over the injection process is needed, the method
+   * {@link #readConfigAndInstantiate(InjectionLayer, Class, Supplier, Class, Consumer)} is able to allow for further
+   * customization of the class injection context (for example needed if other non-constructable types are required to
+   * instantiate the binding of the given type).
+   *
+   * @param injectionLayer       the injection layer to use when instantiating the given type to instantiate.
+   * @param configModelType      the modeling class of the configuration.
+   * @param defaultConfigFactory a factory constructing a default config instance if needed.
+   * @param classToInstantiate   the class to instantiate after successfully loading the configuration.
+   * @param <C>                  the type of the configuration model.
+   * @param <T>                  the type modeling the class which should be instantiated.
+   * @return the constructed instance of the given type, constructed with the configuration known to the context.
+   * @throws NullPointerException                  if one of the given parameters is null.
+   * @throws ModuleConfigurationInvalidException   if the reader is unable to read the configuration from the file.
+   * @throws dev.derklaro.aerogel.AerogelException if no binding for T is present and no JIT binding can be created.
+   */
+  public @NonNull <C, T> T readConfigAndInstantiate(
+    @NonNull InjectionLayer<?> injectionLayer,
+    @NonNull Class<C> configModelType,
+    @NonNull Supplier<C> defaultConfigFactory,
+    @NonNull Class<T> classToInstantiate
+  ) {
+    return this.readConfigAndInstantiate(
+      injectionLayer,
+      configModelType,
+      defaultConfigFactory,
+      classToInstantiate,
+      $ -> {
+      });
+  }
+
+  /**
+   * Reads the module configuration file and converts the type of the configuration to the given model type, creating
+   * the configuration if necessary. Any exceptions thrown when reading the configuration are forwarded to the caller.
+   * <p>
+   * Afterwards the given class type is instantiated with the loaded config and config path being known while creating
+   * the class instance. Bindings are respected by this method.
+   * <p>
+   * If further customization of the injection context which is taking over the injection process is needed, the builder
+   * consumer passed to this method will be called <strong>after</strong> the overrides for the config type and config
+   * path were installed to it. This means that the decorator is able to override the previously installed overrides in
+   * the given builder.
+   *
+   * @param injectionLayer       the injection layer to use when instantiating the given type to instantiate.
+   * @param configModelType      the modeling class of the configuration.
+   * @param defaultConfigFactory a factory constructing a default config instance if needed.
+   * @param classToInstantiate   the class to instantiate after successfully loading the configuration.
+   * @param builderDecorator     the decorator to apply to the injection context builder, for further customization.
+   * @param <C>                  the type of the configuration model.
+   * @param <T>                  the type modeling the class which should be instantiated.
+   * @return the constructed instance of the given type, constructed with the configuration known to the context.
+   * @throws NullPointerException                  if one of the given parameters is null.
+   * @throws ModuleConfigurationInvalidException   if the reader is unable to read the configuration from the file.
+   * @throws dev.derklaro.aerogel.AerogelException if no binding for T is present and no JIT binding can be created.
+   */
+  public @NonNull <C, T> T readConfigAndInstantiate(
+    @NonNull InjectionLayer<?> injectionLayer,
+    @NonNull Class<C> configModelType,
+    @NonNull Supplier<C> defaultConfigFactory,
+    @NonNull Class<T> classToInstantiate,
+    @NonNull Consumer<InjectionContext.Builder> builderDecorator
+  ) {
+    // read the config
+    var config = this.readConfig(configModelType, defaultConfigFactory);
+    return injectionLayer.instance(classToInstantiate, builder -> {
+      // write the default elements to the builder
+      builder.override(configModelType, config);
+      builder.override(CONFIG_PATH_ELEMENT, this.configPath());
+      // apply the custom modifier
+      builderDecorator.accept(builder);
+    });
   }
 
   /**

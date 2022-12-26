@@ -65,6 +65,7 @@ public class CloudNetSignsModule extends DriverModule {
 
   @ModuleTask(order = 40)
   public void loadConfiguration() {
+    // TODO: remove
     this.configuration = NodeSignsConfigurationHelper.read(this.configPath());
   }
 

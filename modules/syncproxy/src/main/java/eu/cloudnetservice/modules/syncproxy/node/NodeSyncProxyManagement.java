@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy.node;
 
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -29,6 +30,7 @@ import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 @Singleton
+@Provides(SyncProxyManagement.class)
 public class NodeSyncProxyManagement implements SyncProxyManagement {
 
   private final EventManager eventManager;

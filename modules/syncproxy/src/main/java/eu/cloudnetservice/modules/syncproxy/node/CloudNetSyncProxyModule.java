@@ -62,10 +62,16 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   public void initManagement(
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull NodeSyncProxyManagement syncProxyManagement
+    @NonNull InjectionLayer<?> injectionLayer
   ) {
     // register the SyncProxyManagement to the ServiceRegistry
+    var syncProxyManagement = this.readConfigAndInstantiate(
+      injectionLayer,
+      SyncProxyConfiguration.class,
+      () -> SyncProxyConfiguration.createDefault("Proxy"),
+      SyncProxyManagement.class);
     syncProxyManagement.registerService(serviceRegistry);
+
     // sync the config of the module into the cluster
     dataSyncRegistry.registerHandler(
       DataSyncHandler.<SyncProxyConfiguration>builder()
@@ -82,7 +88,8 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   public void initListeners(
     @NonNull EventManager eventManager,
     @NonNull ModuleHelper moduleHelper,
-    @NonNull NodeSyncProxyManagement syncProxyManagement) {
+    @NonNull NodeSyncProxyManagement syncProxyManagement
+  ) {
     // register the listeners
     eventManager.registerListener(NodeSyncProxyChannelMessageListener.class);
     eventManager.registerListener(new PluginIncludeListener(

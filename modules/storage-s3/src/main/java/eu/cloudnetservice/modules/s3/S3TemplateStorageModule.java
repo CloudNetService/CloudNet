@@ -72,7 +72,7 @@ public final class S3TemplateStorageModule extends DriverModule {
 
   public void writeConfig(@NonNull S3TemplateStorageConfig config) {
     this.config = config;
-    JsonDocument.newDocument(config).write(this.configPath());
+    this.writeConfig(JsonDocument.newDocument(config));
   }
 
   public @NonNull S3TemplateStorageConfig config() {

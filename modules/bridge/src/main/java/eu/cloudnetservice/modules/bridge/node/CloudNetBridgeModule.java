@@ -171,12 +171,19 @@ public final class CloudNetBridgeModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void initModule(
     @NonNull HttpServer httpServer,
-    @NonNull NodeBridgeManagement management,
     @NonNull ServiceRegistry serviceRegistry,
-    @NonNull DataSyncRegistry dataSyncRegistry
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull InjectionLayer<?> injectionLayer
   ) {
+    // initialize the management
+    var management = this.readConfigAndInstantiate(
+      injectionLayer,
+      BridgeConfiguration.class,
+      BridgeConfiguration::new,
+      BridgeManagement.class);
     management.registerServices(serviceRegistry);
     management.postInit();
+
     // register the cluster sync handler
     dataSyncRegistry.registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
       .key("bridge-config")

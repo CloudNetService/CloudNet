@@ -77,9 +77,11 @@ public class CloudNetLabyModModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void initManagement(@NonNull DataSyncRegistry dataSyncRegistry, @NonNull InjectionLayer<?> layer) {
     // construct the management instance
-    var management = layer.instance(
-      NodeLabyModManagement.class,
-      builder -> builder.override(LabyModConfiguration.class, this.loadConfiguration()));
+    var management = this.readConfigAndInstantiate(
+      layer,
+      LabyModConfiguration.class,
+      () -> LabyModConfiguration.builder().build(),
+      NodeLabyModManagement.class);
 
     // sync the config of the module into the cluster
     dataSyncRegistry.registerHandler(
