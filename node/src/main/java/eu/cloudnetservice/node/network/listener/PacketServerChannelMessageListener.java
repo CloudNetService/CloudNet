@@ -89,7 +89,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
             // respond with the result or just the single initial response if given
             if (result == null) {
               responseContent = initialResponse == null
-                ? DataBuf.empty()
+                ? DataBuf.empty().writeBoolean(false)
                 : DataBuf.empty().writeObject(Set.of(initialResponse));
             } else {
               // add the initial response if given before writing
