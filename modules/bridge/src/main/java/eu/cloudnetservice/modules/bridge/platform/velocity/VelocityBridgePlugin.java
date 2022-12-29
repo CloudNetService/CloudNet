@@ -24,6 +24,7 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityHubCommand;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Arrays;
 import lombok.NonNull;
@@ -38,6 +39,8 @@ import lombok.NonNull;
 public final class VelocityBridgePlugin implements PlatformEntrypoint {
 
   private final ProxyServer proxy;
+  private final Object pluginInstance;
+
   private final ModuleHelper moduleHelper;
   private final ServiceRegistry serviceRegistry;
   private final VelocityCloudCommand cloudCommand;
@@ -46,6 +49,7 @@ public final class VelocityBridgePlugin implements PlatformEntrypoint {
 
   @Inject
   public VelocityBridgePlugin(
+    @NonNull @Named("plugin") Object pluginInstance,
     @NonNull ProxyServer proxyServer,
     @NonNull ModuleHelper moduleHelper,
     @NonNull ServiceRegistry serviceRegistry,
@@ -53,6 +57,7 @@ public final class VelocityBridgePlugin implements PlatformEntrypoint {
     @NonNull VelocityBridgeManagement bridgeManagement,
     @NonNull VelocityPlayerManagementListener playerListener
   ) {
+    this.pluginInstance = pluginInstance;
     this.proxy = proxyServer;
     this.moduleHelper = moduleHelper;
     this.serviceRegistry = serviceRegistry;
@@ -67,7 +72,7 @@ public final class VelocityBridgePlugin implements PlatformEntrypoint {
     this.bridgeManagement.registerServices(this.serviceRegistry);
     this.bridgeManagement.postInit();
     // register the player listeners
-    this.proxy.getEventManager().register(this, this.playerListener);
+    this.proxy.getEventManager().register(this.pluginInstance, this.playerListener);
     // register the cloud command
     this.proxy.getCommandManager().register("cloudnet", this.cloudCommand, "cloud");
     // register the hub command if requested

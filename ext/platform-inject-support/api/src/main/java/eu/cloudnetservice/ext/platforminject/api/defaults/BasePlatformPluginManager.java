@@ -77,7 +77,11 @@ public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginM
     var pluginLayer = this.createInjectionLayer(platformData);
 
     // configure the injection layer
-    var callerClass = RETAINING_STACK_WALKER.getCallerClass();
+    var callerClass = RETAINING_STACK_WALKER.walk(stream -> stream
+      .skip(2)
+      .map(StackWalker.StackFrame::getDeclaringClass)
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("Unable to resolve calling platform main class")));
     this.configureInjectionLayer(pluginLayer, callerClass);
 
     // bind the layer to the plugin main class & main class loader
@@ -116,7 +120,7 @@ public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginM
   protected void configureInjectionLayer(@NonNull InjectionLayer<?> layer, @NonNull Class<?> platformMainClass) {
     try {
       // kinda hacky, but it works...
-      var bindingsClassName = platformMainClass.getName().replaceFirst("(?s)(.*)Entrypoint", "Bindings");
+      var bindingsClassName = platformMainClass.getName().replaceFirst("(?s)(.*)Entrypoint", "$1Bindings");
       var bindingsClass = Class.forName(bindingsClassName, false, platformMainClass.getClassLoader());
 
       // get the no-args constructor, no need for accessible or something, the class & constructor must be public

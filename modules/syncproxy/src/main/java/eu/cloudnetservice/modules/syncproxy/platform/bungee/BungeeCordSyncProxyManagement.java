@@ -26,6 +26,7 @@ import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.UUID;
@@ -52,7 +53,7 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull CloudServiceProvider serviceProvider,
-    @NonNull ScheduledExecutorService executorService,
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService,
     @NonNull PermissionManagement permissionManagement
   ) {
     super(

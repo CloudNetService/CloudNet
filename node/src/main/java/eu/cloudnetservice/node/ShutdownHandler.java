@@ -31,7 +31,9 @@ import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 
 @Singleton
@@ -43,6 +45,7 @@ final class ShutdownHandler {
   private final ModuleProvider moduleProvider;
   private final CloudServiceManager serviceManager;
   private final NodeServerProvider nodeServerProvider;
+  private final ScheduledExecutorService scheduledExecutor;
   private final ServiceVersionProvider serviceVersionProvider;
 
   // network
@@ -60,6 +63,7 @@ final class ShutdownHandler {
     @NonNull ModuleProvider moduleProvider,
     @NonNull CloudServiceManager serviceManager,
     @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull @Named("taskScheduler") ScheduledExecutorService scheduledExecutor,
     @NonNull ServiceVersionProvider serviceVersionProvider,
     @NonNull HttpServer httpServer,
     @NonNull NetworkClient networkClient,
@@ -71,6 +75,7 @@ final class ShutdownHandler {
     this.moduleProvider = moduleProvider;
     this.serviceManager = serviceManager;
     this.nodeServerProvider = nodeServerProvider;
+    this.scheduledExecutor = scheduledExecutor;
     this.serviceVersionProvider = serviceVersionProvider;
     this.httpServer = httpServer;
     this.networkClient = networkClient;
@@ -85,7 +90,7 @@ final class ShutdownHandler {
         LOGGER.info(I18n.trans("stop-application"));
 
         // stop task execution
-        // this.scheduler.shutdownNow(); // todo: do we leave this to modules, or do we get this back?
+        this.scheduledExecutor.shutdownNow();
         this.serviceVersionProvider.interruptInstallSteps();
 
         // interrupt the connection to other nodes

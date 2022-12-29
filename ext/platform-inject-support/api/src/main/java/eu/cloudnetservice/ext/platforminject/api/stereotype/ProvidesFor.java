@@ -31,4 +31,8 @@ public @interface ProvidesFor {
   @NonNull String platform();
 
   @NonNull Class<?>[] types();
+
+  boolean bindGenericSupertypes() default true;
+
+  boolean bindWildcardTypeOfParameterizedTypes() default true;
 }

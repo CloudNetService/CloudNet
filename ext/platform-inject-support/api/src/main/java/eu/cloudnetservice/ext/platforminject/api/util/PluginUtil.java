@@ -40,23 +40,20 @@ public final class PluginUtil {
       }
 
       // check if we are at the first char, in that case we need to prefix the name
-      // with a different char as a lowercase one is required at the first position
-      if (i == 0) {
-        if (charAtPos >= 'A' && charAtPos <= 'Z') {
-          idChars[i] = Character.toLowerCase(charAtPos);
-        } else {
-          idChars[i] = 'a';
-        }
+      // with a different char as a lowercase character is required at the first position
+      if (i == 0 && (charAtPos < 'A' || charAtPos > 'Z')) {
+        idChars[i] = 'a';
         continue;
       }
 
       // check if the char is within the allowed characters which aren't checked yet
+      // convert all characters to lower case by default
       if ((charAtPos >= 'A' && charAtPos <= 'Z')
         || (charAtPos >= '0' && charAtPos <= '9')
         || charAtPos == '-'
         || charAtPos == '_'
       ) {
-        idChars[i] = charAtPos;
+        idChars[i] = Character.toLowerCase(charAtPos);
         continue;
       }
 

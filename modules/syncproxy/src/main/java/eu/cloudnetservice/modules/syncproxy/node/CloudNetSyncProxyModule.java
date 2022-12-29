@@ -42,7 +42,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
 
   @Inject
   public CloudNetSyncProxyModule(@NonNull InjectionLayer<?> layer) {
-    layer.installAutoConfigureBindings(this.classLoader(), "syncproxy");
+    layer.installAutoConfigureBindings(this.getClass().getClassLoader(), "syncproxy");
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)

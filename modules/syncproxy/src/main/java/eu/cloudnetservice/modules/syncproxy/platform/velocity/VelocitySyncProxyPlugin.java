@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 
-import com.google.inject.Inject;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
@@ -24,6 +23,8 @@ import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import lombok.NonNull;
 
 @PlatformPlugin(
@@ -32,7 +33,8 @@ import lombok.NonNull;
   version = "{project.build.version}",
   description = "CloudNet extension which serves proxy utils with CloudNet support",
   authors = "CloudNetService",
-  dependencies = {@Dependency(name = "cloudnet_bridge"), @Dependency(name = "cloudnet_cloudperms", optional = true)})
+  dependencies = {@Dependency(name = "cloudnet_bridge"), @Dependency(name = "cloudnet_cloudperms", optional = true)}
+)
 public final class VelocitySyncProxyPlugin implements PlatformEntrypoint {
 
   private final EventManager eventManager;
@@ -61,11 +63,13 @@ public final class VelocitySyncProxyPlugin implements PlatformEntrypoint {
     this.eventManager.registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
   }
 
+  @Inject
   private void registerListener(
+    @NonNull @Named("plugin") Object pluginInstance,
     @NonNull com.velocitypowered.api.event.EventManager eventManager,
     @NonNull VelocitySyncProxyListener listener
   ) {
-    eventManager.register(this, listener);
+    eventManager.register(pluginInstance, listener);
   }
 
   @Override

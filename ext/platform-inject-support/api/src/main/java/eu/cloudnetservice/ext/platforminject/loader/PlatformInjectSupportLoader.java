@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.ext.platforminject.api.loader;
+package eu.cloudnetservice.ext.platforminject.loader;
 
 import lombok.NonNull;
 

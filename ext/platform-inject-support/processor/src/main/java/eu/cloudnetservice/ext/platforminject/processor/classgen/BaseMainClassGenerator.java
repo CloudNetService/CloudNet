@@ -19,7 +19,7 @@ package eu.cloudnetservice.ext.platforminject.processor.classgen;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import eu.cloudnetservice.ext.platforminject.api.loader.PlatformInjectSupportLoader;
+import eu.cloudnetservice.ext.platforminject.loader.PlatformInjectSupportLoader;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import lombok.NonNull;

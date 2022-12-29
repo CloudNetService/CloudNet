@@ -27,6 +27,8 @@ import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
 import io.leangen.geantyref.TypeFactory;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 
 public final class Main {
@@ -50,6 +52,9 @@ public final class Main {
     bootInjectLayer.install(BindingBuilder.create()
       .bind(Element.forType(Instant.class).requireAnnotation(Qualifiers.named("startInstant")))
       .toInstance(startInstant));
+    bootInjectLayer.install(BindingBuilder.create()
+      .bind(Element.forType(ScheduledExecutorService.class).requireAnnotation(Qualifiers.named("taskScheduler")))
+      .toInstance(Executors.newScheduledThreadPool(2)));
 
     // bind the transformer registry here - we *could* provided it by constructing, but we don't
     // want to expose the Instrumentation instance

@@ -18,6 +18,7 @@ package eu.cloudnetservice.ext.platforminject.processor;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeName;
 import eu.cloudnetservice.ext.platforminject.api.spi.PlatformDataGeneratorProvider;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ConstructionListener;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
@@ -28,6 +29,7 @@ import eu.cloudnetservice.ext.platforminject.processor.util.TypeUtil;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,8 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import lombok.NonNull;
 
@@ -158,18 +162,40 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
         continue;
       }
 
+      // we can safely cast to a type element now
+      var typeElement = (TypeElement) element;
+
       // extract the info from the element
+      var boundElement = ClassName.get(typeElement);
       var providedForAnnotation = element.getAnnotation(ProvidesFor.class);
-      var boundElement = ClassName.get((TypeElement) element);
       var providedClassNames = TypeUtil.lookupClassNames(providedForAnnotation::types);
+
+      // filter out the interfaces & superclass which are directly given through the provided annotation
+      // to allow better generic type detection
+      // we do nothing if the annotated class is parameterized, as this is a hint that the extended classes
+      // might take type parameters which are not available during compile time
+      Set<TypeName> genericTypes = new LinkedHashSet<>();
+      if (typeElement.getTypeParameters().isEmpty() && providedForAnnotation.bindGenericSupertypes()) {
+        // check the direct super class
+        var supertype = typeElement.getSuperclass();
+        this.findAndRegisterGenericType(providedClassNames, genericTypes, supertype);
+
+        // check all interfaces
+        var interfaces = typeElement.getInterfaces();
+        for (var implementedInterface : interfaces) {
+          this.findAndRegisterGenericType(providedClassNames, genericTypes, implementedInterface);
+        }
+      }
 
       // build the data from the given information
       var platform = providedForAnnotation.platform();
       var data = new BindingClassGenerator.ParsedBindingData(
+        providedForAnnotation.bindWildcardTypeOfParameterizedTypes(),
         boundElement.packageName(),
         platform,
         boundElement,
-        providedClassNames);
+        providedClassNames,
+        genericTypes);
 
       // register the data
       bindingData.add(data);
@@ -221,6 +247,26 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
         javaFile.writeTo(this.environment.getFiler());
       } catch (IOException exception) {
         throw new IllegalStateException("Unable to write binding class file", exception);
+      }
+    }
+  }
+
+  private void findAndRegisterGenericType(
+    @NonNull Collection<ClassName> providedClasses,
+    @NonNull Collection<TypeName> target,
+    @NonNull TypeMirror currentType
+  ) {
+    if (!(currentType instanceof NoType)) {
+      // get the full type name and erase the type
+      var genericType = TypeName.get(currentType);
+      var erasedType = TypeUtil.erasure(genericType);
+
+      // check if there is a direct bound present in the provided classes
+      for (var providedClass : providedClasses) {
+        if (providedClass.equals(erasedType)) {
+          target.add(genericType);
+          break;
+        }
       }
     }
   }

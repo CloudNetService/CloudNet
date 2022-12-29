@@ -27,6 +27,8 @@ import eu.cloudnetservice.node.Node;
 import io.leangen.geantyref.TypeFactory;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 
 public final class Bootstrap {
@@ -50,6 +52,9 @@ public final class Bootstrap {
     bootInjectLayer.install(BindingBuilder.create()
       .bind(Element.forType(Instant.class).requireAnnotation(Qualifiers.named("startInstant")))
       .toInstance(startInstant));
+    bootInjectLayer.install(BindingBuilder.create()
+      .bind(Element.forType(ScheduledExecutorService.class).requireAnnotation(Qualifiers.named("taskScheduler")))
+      .toInstance(Executors.newScheduledThreadPool(2)));
 
     // console arguments
     var type = TypeFactory.parameterizedClass(List.class, String.class);

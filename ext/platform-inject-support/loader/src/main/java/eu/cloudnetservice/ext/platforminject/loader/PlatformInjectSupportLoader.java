@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.ext.platforminject.loader;
 
-import dev.derklaro.reflexion.Result;
-import dev.derklaro.reflexion.internal.util.Util;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.spi.PlatformPluginManagerRegistry;
 import lombok.NonNull;
 
 public final class PlatformInjectSupportLoader {
@@ -28,7 +28,7 @@ public final class PlatformInjectSupportLoader {
 
   public static void loadPlugin(
     @NonNull String platform,
-    @NonNull Class<?> pluginClass,
+    @NonNull Class<? extends PlatformEntrypoint> pluginClass,
     @NonNull Object platformData,
     @NonNull ClassLoader platformClassLoader
   ) {
@@ -36,23 +36,15 @@ public final class PlatformInjectSupportLoader {
     PlatformInjectLoaderLazy.ensureInitialized(platformClassLoader);
 
     // construct and load the plugin
-    resolvePlatformManager(platform)
-      .flatMap(manager -> PlatformInjectLoaderLazy.constructAndLoad.invoke(manager, pluginClass, platformData))
-      .ifExceptional(Util::throwUnchecked);
+    var platformPluginManager = PlatformPluginManagerRegistry.registry().safeManager(platform);
+    platformPluginManager.constructAndLoad(pluginClass, platformData);
   }
 
   public static void disablePlugin(@NonNull String platform, @NonNull Object platformData) {
     // should not happen, when a plugin is loaded the init process should be executed
     if (PlatformInjectLoaderLazy.loader != null) {
-      resolvePlatformManager(platform)
-        .flatMap(manager -> PlatformInjectLoaderLazy.disablePlugin.invoke(manager, platformData))
-        .ifExceptional(Util::throwUnchecked);
+      var platformPluginManager = PlatformPluginManagerRegistry.registry().safeManager(platform);
+      platformPluginManager.disablePlugin(platformData);
     }
-  }
-
-  private static @NonNull Result<Object> resolvePlatformManager(@NonNull String platform) {
-    return PlatformInjectLoaderLazy.getPlatformInfoManager.invoke()
-      .flatMap(manager -> PlatformInjectLoaderLazy.getPlatformInfoProvider.invoke(manager, platform))
-      .flatMap(provider -> PlatformInjectLoaderLazy.getPluginManager.invoke(provider));
   }
 }

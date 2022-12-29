@@ -39,6 +39,7 @@ public final class LazyClassInstantiationUtil {
         var constructor = clazz.getDeclaredConstructor();
 
         // instantiate the class
+        constructor.setAccessible(true);
         return (T) constructor.newInstance();
       } catch (ReflectiveOperationException exception) {
         throw new IllegalStateException("Unable to instantiate " + className + " with no-args constructor", exception);
