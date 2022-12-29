@@ -56,9 +56,7 @@ final class BindingClassGenerator {
       // build the layer install code block for the raw types
       var rawTypesGetter = binding.providingElements().stream()
         .map(type -> CodeBlock.of("$T.class", type))
-        .collect(CodeBlock.joining(", ", "{", "}"));
-      var layerInstallRawBlock = buildLayerInstallBlock(rawTypesGetter, binding.boundElement());
-      applyBindings.addCode(layerInstallRawBlock);
+        .collect(CodeBlock.joining(", "));
 
       // build the layer install block for the generic types, if any
       var genericElements = binding.providedGenericElements();
@@ -85,9 +83,18 @@ final class BindingClassGenerator {
             // only add the generic constructor
             return Stream.of(genericTypeConstructor);
           })
-          .collect(CodeBlock.joining(", ", "{", "}"));
-        var layerInstallGenericBlock = buildLayerInstallBlock(genericTypesGetter, binding.boundElement());
+          .collect(CodeBlock.joining(", "));
+
+        // concat the raw and generic bindings
+        var fullTypesGetter = CodeBlock.of("{$L, $L}", rawTypesGetter, genericTypesGetter);
+
+        // install all bindings to the layer
+        var layerInstallGenericBlock = buildLayerInstallBlock(fullTypesGetter, binding.boundElement());
         applyBindings.addCode(layerInstallGenericBlock);
+      } else {
+        // there are only the raw bindings
+        var layerInstallRawBlock = buildLayerInstallBlock(rawTypesGetter, binding.boundElement());
+        applyBindings.addCode(layerInstallRawBlock);
       }
     }
 
