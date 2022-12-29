@@ -127,7 +127,7 @@ public class NodePlayerManager implements PlayerManager {
   @PostConstruct
   private void registerListeners() {
     this.eventManager.registerListener(BridgeLocalProxyPlayerDisconnectListener.class);
-    this.eventManager.registerListeners(NodePlayerChannelMessageListener.class);
+    this.eventManager.registerListener(NodePlayerChannelMessageListener.class);
   }
 
   @Override
