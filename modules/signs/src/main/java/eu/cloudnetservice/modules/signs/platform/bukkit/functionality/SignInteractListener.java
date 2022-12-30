@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.signs.platform.bukkit.functionality;
 
 import eu.cloudnetservice.modules.signs.platform.bukkit.BukkitSignManagement;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.bukkit.event.EventHandler;
@@ -29,6 +30,7 @@ public class SignInteractListener implements Listener {
 
   private final BukkitSignManagement signManagement;
 
+  @Inject
   public SignInteractListener(@NonNull BukkitSignManagement signManagement) {
     this.signManagement = signManagement;
   }

@@ -20,12 +20,15 @@ import com.google.common.util.concurrent.MoreExecutors;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
+import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
@@ -41,6 +44,7 @@ import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
+@ProvidesFor(platform = "minestom", types = {PlatformSignManagement.class, SignManagement.class})
 public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<Point, Instance>, String> {
 
   private final GlobalEventHandler eventHandler;
@@ -55,7 +59,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<
     @NonNull SchedulerManager schedulerManager,
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull CloudServiceProvider serviceProvider,
-    @NonNull ScheduledExecutorService executorService
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
   ) {
     super(eventManager, MoreExecutors.directExecutor(), wrapperConfig, serviceProvider, executorService);
     this.eventHandler = eventHandler;

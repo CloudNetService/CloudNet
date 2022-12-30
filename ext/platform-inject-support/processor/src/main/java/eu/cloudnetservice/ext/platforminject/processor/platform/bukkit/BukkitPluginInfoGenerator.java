@@ -66,14 +66,20 @@ final class BukkitPluginInfoGenerator extends NightConfigInfoGenerator {
     ConfigUtil.putIfValuesPresent(target, "libraries", libraries);
 
     // collect the commands
-    var commands = pluginData.commands().stream().map(command -> {
+    var commandsSection = pluginData.commands().stream().map(command -> {
       var commandSection = this.configFormat.createConfig();
       ConfigUtil.putIfNotBlank(commandSection, "usage", command.usage());
       ConfigUtil.putIfNotBlank(commandSection, "permission", command.permission());
       ConfigUtil.putIfNotBlank(commandSection, "description", command.description());
       ConfigUtil.putIfValuesPresent(commandSection, "aliases", command.aliases());
       return Map.entry(command, commandSection);
-    }).collect(Collectors.toMap(entry -> entry.getKey().name(), Map.Entry::getValue));
-    ConfigUtil.putIfValuesPresent(target, "commands", commands);
+    }).collect(Collectors.collectingAndThen(Collectors.toList(), commands -> {
+      var finalSection = this.configFormat.createConfig();
+      for (var entry : commands) {
+        finalSection.add(entry.getKey().name(), entry.getValue());
+      }
+      return finalSection;
+    }));
+    target.add("commands", commandsSection);
   }
 }

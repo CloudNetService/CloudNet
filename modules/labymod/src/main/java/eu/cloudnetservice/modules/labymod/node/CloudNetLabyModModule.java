@@ -33,6 +33,7 @@ import eu.cloudnetservice.modules.labymod.config.LabyModServiceDisplay;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Collection;
@@ -75,7 +76,10 @@ public class CloudNetLabyModModule extends DriverModule {
   }
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
-  public void initManagement(@NonNull DataSyncRegistry dataSyncRegistry, @NonNull InjectionLayer<?> layer) {
+  public void initManagement(
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull @Named("module") InjectionLayer<?> layer
+  ) {
     // construct the management instance
     var management = this.readConfigAndInstantiate(
       layer,

@@ -17,12 +17,15 @@
 package eu.cloudnetservice.modules.signs.platform.sponge;
 
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
+import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +43,7 @@ import org.spongepowered.api.world.server.WorldManager;
 import org.spongepowered.math.vector.Vector3d;
 
 @Singleton
+@ProvidesFor(platform = "sponge", types = {PlatformSignManagement.class, SignManagement.class})
 public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, ServerLocation, Component> {
 
   private final Game game;
@@ -56,7 +60,7 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull CloudServiceProvider serviceProvider,
     @NonNull TaskExecutorService mainThreadExecutor,
-    @NonNull ScheduledExecutorService executorService,
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService,
     @NonNull eu.cloudnetservice.driver.event.EventManager eventManager
   ) {
     super(eventManager, runnable -> {

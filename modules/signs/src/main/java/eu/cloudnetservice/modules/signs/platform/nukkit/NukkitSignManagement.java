@@ -25,18 +25,22 @@ import cn.nukkit.plugin.PluginManager;
 import cn.nukkit.scheduler.ServerScheduler;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
+import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
+@ProvidesFor(platform = "nukkit", types = {PlatformSignManagement.class, SignManagement.class})
 public class NukkitSignManagement extends PlatformSignManagement<Player, Location, String> {
 
   private final Server server;
@@ -53,7 +57,7 @@ public class NukkitSignManagement extends PlatformSignManagement<Player, Locatio
     @NonNull PluginManager pluginManager,
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull CloudServiceProvider serviceProvider,
-    @NonNull ScheduledExecutorService executorService
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
   ) {
     super(
       eventManager,

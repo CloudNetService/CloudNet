@@ -43,6 +43,7 @@ import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public final class CloudNetBridgeModule extends DriverModule {
   private static final Logger LOGGER = LogManager.logger(CloudNetBridgeModule.class);
 
   @Inject
-  public CloudNetBridgeModule(@NonNull InjectionLayer<?> layer) {
+  public CloudNetBridgeModule(@NonNull @Named("module") InjectionLayer<?> layer) {
     layer.installAutoConfigureBindings(CloudNetBridgeModule.class.getClassLoader(), "bridge");
   }
 
@@ -173,7 +174,7 @@ public final class CloudNetBridgeModule extends DriverModule {
     @NonNull HttpServer httpServer,
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull InjectionLayer<?> injectionLayer
+    @NonNull @Named("module") InjectionLayer<?> injectionLayer
   ) {
     // initialize the management
     var management = this.readConfigAndInstantiate(

@@ -33,6 +33,7 @@ import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import lombok.NonNull;
@@ -41,7 +42,7 @@ import lombok.NonNull;
 public final class CloudNetSyncProxyModule extends DriverModule {
 
   @Inject
-  public CloudNetSyncProxyModule(@NonNull InjectionLayer<?> layer) {
+  public CloudNetSyncProxyModule(@NonNull @Named("module") InjectionLayer<?> layer) {
     layer.installAutoConfigureBindings(this.getClass().getClassLoader(), "syncproxy");
   }
 
@@ -62,7 +63,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   public void initManagement(
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull InjectionLayer<?> injectionLayer
+    @NonNull @Named("module") InjectionLayer<?> injectionLayer
   ) {
     // register the SyncProxyManagement to the ServiceRegistry
     var syncProxyManagement = this.readConfigAndInstantiate(
