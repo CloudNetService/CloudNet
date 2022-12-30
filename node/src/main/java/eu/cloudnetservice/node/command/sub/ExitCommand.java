@@ -19,10 +19,14 @@ package eu.cloudnetservice.node.command.sub;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Confirmation;
+import eu.cloudnetservice.node.ShutdownHandler;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
+import lombok.NonNull;
 
 @Singleton
 @CommandAlias({"shutdown", "stop"})
@@ -30,9 +34,20 @@ import jakarta.inject.Singleton;
 @Description("command-exit-description")
 public final class ExitCommand {
 
+  private final Provider<ShutdownHandler> shutdownHandlerProvider;
+
+  @Inject
+  public ExitCommand(@NonNull Provider<ShutdownHandler> shutdownHandlerProvider) {
+    this.shutdownHandlerProvider = shutdownHandlerProvider;
+  }
+
   @Confirmation
   @CommandMethod(value = "exit|shutdown|stop", requiredSender = ConsoleCommandSource.class)
   public void exit() {
-    System.exit(0);
+    // call our shutdown handler, this prevents the Cleaner shutdown hook which is added
+    // by java to run first. The cleaner task will close all logging providers, which makes it
+    // impossible for us to log any messages while shutting down
+    var shutdownHandler = this.shutdownHandlerProvider.get();
+    shutdownHandler.shutdown();
   }
 }
