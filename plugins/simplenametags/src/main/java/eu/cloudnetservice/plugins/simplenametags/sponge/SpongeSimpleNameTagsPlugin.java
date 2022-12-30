@@ -23,6 +23,7 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.spongepowered.api.Server;
@@ -55,7 +56,7 @@ public final class SpongeSimpleNameTagsPlugin implements PlatformEntrypoint {
   @Inject
   public SpongeSimpleNameTagsPlugin(
     @NonNull Server server,
-    @NonNull Scheduler scheduler,
+    @NonNull @Named("sync") Scheduler scheduler,
     @NonNull PluginContainer pluginContainer,
     @NonNull EventManager eventManager,
     @NonNull PermissionManagement permissionManagement,

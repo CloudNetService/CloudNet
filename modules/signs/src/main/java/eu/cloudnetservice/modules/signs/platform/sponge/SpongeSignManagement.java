@@ -37,10 +37,13 @@ import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.scheduler.TaskExecutorService;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.WorldManager;
 import org.spongepowered.math.vector.Vector3d;
+import org.spongepowered.plugin.PluginContainer;
 
 @Singleton
 @ProvidesFor(platform = "sponge", types = {PlatformSignManagement.class, SignManagement.class})
@@ -57,9 +60,10 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
     @NonNull Server server,
     @NonNull WorldManager worldManager,
     @NonNull EventManager spongeEventManager,
+    @NonNull PluginContainer pluginContainer,
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull CloudServiceProvider serviceProvider,
-    @NonNull TaskExecutorService mainThreadExecutor,
+    @NonNull @Named("sync") Scheduler syncScheduler,
     @NonNull @Named("taskScheduler") ScheduledExecutorService executorService,
     @NonNull eu.cloudnetservice.driver.event.EventManager eventManager
   ) {
@@ -68,14 +72,14 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
       if (server.onMainThread()) {
         runnable.run();
       } else {
-        mainThreadExecutor.execute(runnable);
+        syncScheduler.submit(Task.builder().plugin(pluginContainer).execute(runnable).build());
       }
     }, wrapperConfig, serviceProvider, executorService);
 
     this.game = game;
     this.worldManager = worldManager;
     this.eventManager = spongeEventManager;
-    this.syncExecutor = mainThreadExecutor;
+    this.syncExecutor = syncScheduler.executor(pluginContainer);
   }
 
   @Override

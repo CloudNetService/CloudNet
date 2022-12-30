@@ -70,7 +70,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     return new DockerizedService(
       this.mainThread,
       this.configuration,
-      configuration,
+      config,
       manager,
       this.eventManager,
       this.versionProvider,

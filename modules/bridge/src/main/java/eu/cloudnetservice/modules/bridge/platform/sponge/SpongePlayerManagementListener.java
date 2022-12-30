@@ -22,6 +22,7 @@ import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,7 @@ public final class SpongePlayerManagementListener {
   @Inject
   public SpongePlayerManagementListener(
     @NonNull PluginContainer plugin,
-    @NonNull Scheduler scheduler,
+    @NonNull @Named("sync") Scheduler scheduler,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull ServerPlatformHelper serverPlatformHelper,
     @NonNull SpongeBridgeManagement management
