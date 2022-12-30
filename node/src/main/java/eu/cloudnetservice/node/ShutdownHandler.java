@@ -37,7 +37,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 
 @Singleton
-final class ShutdownHandler {
+public final class ShutdownHandler {
 
   private static final Logger LOGGER = LogManager.logger(ShutdownHandler.class);
 
@@ -125,6 +125,11 @@ final class ShutdownHandler {
       } catch (Exception exception) {
         LOGGER.severe("Caught exception while trying to cleanly stop CloudNet", exception);
       }
+
+      // exit cleanly in all cases, this tricks the jvm into thinking that all shutdown hooks should
+      // get executed. If we call exit with a non-zero exit code, and the jvm is already shutting down
+      // this would cause the jvm the directly halt
+      System.exit(0);
     }
   }
 }
