@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.cluster.defaults;
 
 import com.google.common.base.Preconditions;
-import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
@@ -93,12 +92,6 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
     this.commandProvider = commandProvider;
     this.cloudServiceFactory = cloudServiceFactory;
     this.cloudServiceProvider = cloudServiceProvider;
-  }
-
-  @PostConstruct
-  private void done() {
-    // TODO: life
-    ((DefaultNodeServerProvider) this.provider).finishConstruction();
   }
 
   @Override
