@@ -21,6 +21,7 @@ import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import dev.derklaro.aerogel.auto.runtime.AutoAnnotationRegistry;
 import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.binding.BindingConstructor;
 import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.StringUtil;
 import io.leangen.geantyref.TypeFactory;
@@ -122,8 +123,12 @@ final class InjectionLayerProvider {
   ) {
     var childInjector = parent.injector().newSpecifiedInjector();
     return configuredLayer(name, childInjector,
-      ((Consumer<InjectionLayer<SpecifiedInjector>>) layer -> registerBindings(layer, SPECIFIED_INJECTOR_ELEMENT, name))
-        .andThen(layer -> configurator.accept(layer, childInjector)));
+      ((Consumer<InjectionLayer<SpecifiedInjector>>) layer -> registerBindings(
+        layer,
+        SPECIFIED_INJECTOR_ELEMENT,
+        name,
+        ($, constructor) -> childInjector.installSpecified(constructor))
+      ).andThen(layer -> configurator.accept(layer, childInjector)));
   }
 
   /**
@@ -145,7 +150,8 @@ final class InjectionLayerProvider {
     @NonNull String name
   ) {
     var childInjector = parent.injector().newChildInjector();
-    return configuredLayer(name, childInjector, layer -> registerBindings(layer, INJECTOR_ELEMENT, name));
+    return configuredLayer(name, childInjector,
+      layer -> registerBindings(layer, INJECTOR_ELEMENT, name, InjectionLayer::install));
   }
 
   /**
@@ -286,15 +292,16 @@ final class InjectionLayerProvider {
   private static void registerBindings(
     @NonNull InjectionLayer<?> layer,
     @NonNull Element mainElement,
-    @NonNull String name
+    @NonNull String name,
+    @NonNull BiConsumer<InjectionLayer<?>, BindingConstructor> registerFunction
   ) {
-    layer.install(BindingBuilder.create()
+    registerFunction.accept(layer, BindingBuilder.create()
       .bind(RAW_ELEMENT.requireAnnotation(Qualifiers.named(name)))
       .toInstance(layer));
-    layer.install(BindingBuilder.create()
+    registerFunction.accept(layer, BindingBuilder.create()
       .bind(GENERIC_ELEMENT.requireAnnotation(Qualifiers.named(name)))
       .toInstance(layer));
-    layer.install(BindingBuilder.create()
+    registerFunction.accept(layer, BindingBuilder.create()
       .bind(mainElement.requireAnnotation(Qualifiers.named(name)))
       .toInstance(layer));
   }
