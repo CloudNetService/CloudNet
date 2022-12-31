@@ -37,12 +37,10 @@ import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.information.TemplateVersionInstaller;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
-@Singleton
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
 
   private final Configuration nodeConfig;
