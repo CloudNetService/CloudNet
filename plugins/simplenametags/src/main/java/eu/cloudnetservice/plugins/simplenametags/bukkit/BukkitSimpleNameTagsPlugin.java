@@ -25,12 +25,12 @@ import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 
 @Singleton
@@ -46,6 +46,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 public final class BukkitSimpleNameTagsPlugin implements PlatformEntrypoint, Listener {
 
   private final Plugin plugin;
+  private final PluginManager pluginManager;
   private final SimpleNameTagsManager<Player> nameTagsManager;
 
   @Inject
@@ -53,6 +54,7 @@ public final class BukkitSimpleNameTagsPlugin implements PlatformEntrypoint, Lis
     @NonNull Plugin plugin,
     @NonNull BukkitScheduler scheduler,
     @NonNull EventManager eventManager,
+    @NonNull PluginManager pluginManager,
     @NonNull PermissionManagement permissionManagement
   ) {
     this.plugin = plugin;
@@ -60,11 +62,12 @@ public final class BukkitSimpleNameTagsPlugin implements PlatformEntrypoint, Lis
       runnable -> scheduler.runTask(plugin, runnable),
       eventManager,
       permissionManagement);
+    this.pluginManager = pluginManager;
   }
 
   @Override
   public void onLoad() {
-    Bukkit.getPluginManager().registerEvents(this, this.plugin);
+    this.pluginManager.registerEvents(this, this.plugin);
   }
 
   @EventHandler
