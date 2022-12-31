@@ -21,12 +21,14 @@ import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
+@ProvidesFor(platform = "velocity", types = PermissionProvider.class)
 final class VelocityCloudPermissionProvider implements PermissionProvider {
 
   private final PermissionManagement permissionsManagement;

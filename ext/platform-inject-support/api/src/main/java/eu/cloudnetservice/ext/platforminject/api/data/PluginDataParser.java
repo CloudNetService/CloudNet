@@ -80,15 +80,28 @@ public final class PluginDataParser {
     // validate & convert arrays to collections
     List<String> authors = Arrays.stream(plugin.authors()).filter(s -> !s.isBlank()).distinct().toList();
     List<Dependency> deps = this.hasFlag(PLUGIN_DEPENDENCIES)
-      ? List.of()
-      : Arrays.stream(plugin.dependencies()).filter(dep -> !dep.name().isBlank()).toList();
+      ? Arrays.stream(plugin.dependencies()).filter(dep -> !dep.name().isBlank()).toList()
+      : List.of();
     List<Command> commands = this.hasFlag(PLUGIN_COMMANDS)
-      ? List.of()
-      : Arrays.stream(plugin.commands()).filter(cmd -> !cmd.name().isBlank()).toList();
+      ? Arrays.stream(plugin.commands()).filter(cmd -> !cmd.name().isBlank()).toList()
+      : List.of();
+    List<String> pluginFileNames = Arrays.stream(plugin.pluginFileNames()).filter(fileName -> !name.isBlank()).toList();
 
     // check if external dependencies are supported, no need to check them if not
     if (!this.hasFlag(EXTERNAL_DEPENDENCIES)) {
-      return new ParsedPluginData(name, version, api, id, desc, homepage, listener, authors, commands, deps, List.of());
+      return new ParsedPluginData(
+        name,
+        version,
+        api,
+        id,
+        desc,
+        homepage,
+        listener,
+        authors,
+        commands,
+        pluginFileNames,
+        deps,
+        List.of());
     }
 
     // validate the dependencies
@@ -120,6 +133,7 @@ public final class PluginDataParser {
       listener,
       authors,
       commands,
+      pluginFileNames,
       deps,
       externalDeps);
   }

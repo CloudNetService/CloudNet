@@ -24,6 +24,7 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.spongepowered.api.Server;
@@ -65,7 +66,7 @@ public final class SpongeCloudPermissionsPlugin implements PlatformEntrypoint {
     @NonNull eu.cloudnetservice.driver.event.EventManager cloudEventManager,
     @NonNull Server server,
     @NonNull PluginContainer plugin,
-    @NonNull Scheduler syncScheduler,
+    @NonNull @Named("sync") Scheduler syncScheduler,
     @NonNull EventManager eventManager,
     @NonNull CommandManager commandManager,
     @NonNull SpongeCloudPermissionsListener playerListener

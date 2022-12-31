@@ -19,9 +19,9 @@ package eu.cloudnetservice.modules.signs.platform.sponge;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ConstructionListener;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
-import eu.cloudnetservice.modules.signs.platform.sponge.functionality.CommandRegistrationListener;
 import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignInteractListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -36,7 +36,9 @@ import org.spongepowered.plugin.PluginContainer;
   version = "{project.build.version}",
   description = "Sponge extension for the CloudNet runtime which adds sign connector support",
   authors = "CloudNetService",
-  dependencies = @Dependency(name = "CloudNet-Bridge"))
+  dependencies = @Dependency(name = "CloudNet-Bridge")
+)
+@ConstructionListener(CommandRegistrationListener.class)
 public class SpongeSignsPlugin implements PlatformEntrypoint {
 
   private final PluginContainer plugin;
@@ -45,7 +47,6 @@ public class SpongeSignsPlugin implements PlatformEntrypoint {
   private final ServiceRegistry serviceRegistry;
   private final SpongeSignManagement signManagement;
   private final SignInteractListener interactListener;
-  private final CommandRegistrationListener commandListener;
 
   @Inject
   public SpongeSignsPlugin(
@@ -54,8 +55,7 @@ public class SpongeSignsPlugin implements PlatformEntrypoint {
     @NonNull EventManager eventManager,
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull SpongeSignManagement signManagement,
-    @NonNull SignInteractListener interactListener,
-    @NonNull CommandRegistrationListener commandListener
+    @NonNull SignInteractListener interactListener
   ) {
     this.plugin = plugin;
     this.moduleHelper = moduleHelper;
@@ -63,7 +63,6 @@ public class SpongeSignsPlugin implements PlatformEntrypoint {
     this.serviceRegistry = serviceRegistry;
     this.signManagement = signManagement;
     this.interactListener = interactListener;
-    this.commandListener = commandListener;
   }
 
   @Override
@@ -72,7 +71,6 @@ public class SpongeSignsPlugin implements PlatformEntrypoint {
     this.signManagement.registerToServiceRegistry(this.serviceRegistry);
 
     this.eventManager.registerListeners(this.plugin, this.interactListener);
-    this.eventManager.registerListeners(this.plugin, this.commandListener);
   }
 
   @Override

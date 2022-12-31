@@ -28,6 +28,8 @@ import lombok.NonNull;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PlatformPlugin {
 
+  @NonNull String[] pluginFileNames() default {};
+
   @NonNull String platform();
 
   @NonNull String name();

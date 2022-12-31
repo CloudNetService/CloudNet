@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
 import lombok.NonNull;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
@@ -44,7 +45,6 @@ import net.minestom.server.scoreboard.TeamManager;
 import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.world.DimensionTypeManager;
 import net.minestom.server.world.biomes.BiomeManager;
-import org.slf4j.Logger;
 
 public final class MinestomPlatformPluginManager extends BasePlatformPluginManager<String, Extension> {
 
@@ -56,7 +56,7 @@ public final class MinestomPlatformPluginManager extends BasePlatformPluginManag
   protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull Extension platformData) {
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
       // install bindings for the platform
-      layer.install(createFixedBinding(platformData.getLogger(), Logger.class));
+      layer.install(createFixedBinding(platformData.getLogger(), ComponentLogger.class));
       layer.install(createFixedBinding(MinecraftServer.getTagManager(), TagManager.class));
       layer.install(createFixedBinding(MinecraftServer.getTeamManager(), TeamManager.class));
       layer.install(createFixedBinding(MinecraftServer.getBiomeManager(), BiomeManager.class));

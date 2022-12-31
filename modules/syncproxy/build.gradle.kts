@@ -51,7 +51,3 @@ moduleJson {
     version = project.version.toString()
   })
 }
-
-configure<net.kyori.blossom.BlossomExtension> {
-  replaceToken("{project.build.version}", project.version)
-}

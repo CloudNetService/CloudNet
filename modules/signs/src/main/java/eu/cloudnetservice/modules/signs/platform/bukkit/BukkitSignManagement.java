@@ -18,12 +18,15 @@ package eu.cloudnetservice.modules.signs.platform.bukkit;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
+import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
@@ -36,6 +39,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
+@ProvidesFor(platform = "bukkit", types = {PlatformSignManagement.class, SignManagement.class})
 public class BukkitSignManagement extends PlatformSignManagement<Player, Location, String> {
 
   protected final Plugin plugin;
@@ -51,7 +55,7 @@ public class BukkitSignManagement extends PlatformSignManagement<Player, Locatio
     @NonNull PluginManager pluginManager,
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull CloudServiceProvider serviceProvider,
-    @NonNull ScheduledExecutorService executorService
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
   ) {
     super(eventManager, runnable -> {
       // check if we're already on main

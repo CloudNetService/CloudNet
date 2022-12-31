@@ -20,6 +20,7 @@ import com.google.inject.Singleton;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import jakarta.inject.Inject;
 import lombok.NonNull;
@@ -32,7 +33,9 @@ import org.spongepowered.plugin.PluginContainer;
   name = "CloudNet-Bridge",
   version = "{project.build.version}",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
-  authors = "CloudNetService")
+  authors = "CloudNetService",
+  dependencies = @Dependency(name = "spongeapi", version = "8.0.0")
+)
 public final class SpongeBridgePlugin implements PlatformEntrypoint {
 
   private final PluginContainer plugin;

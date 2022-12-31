@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.cluster.defaults;
 
+import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
@@ -84,7 +85,8 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
     this.nodeServers = new HashSet<>();
   }
 
-  public void finishConstruction() { // todo: move to setter for local node once we have that
+  @PostConstruct
+  private void finishConstruction() {
     // register the local node server
     this.nodeServers.add(this.localNode);
 

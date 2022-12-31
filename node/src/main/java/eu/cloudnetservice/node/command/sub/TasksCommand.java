@@ -35,6 +35,7 @@ import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -51,7 +52,10 @@ import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
+import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.setup.SpecificTaskSetup;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
 import eu.cloudnetservice.node.util.NetworkUtil;
 import jakarta.inject.Inject;
@@ -71,17 +75,13 @@ import org.jetbrains.annotations.Nullable;
 @Description("command-tasks-description")
 public final class TasksCommand {
 
-  // Task Setup ASCII TODO
-  // private static final ConsoleSetupAnimation TASK_SETUP = new ConsoleSetupAnimation(
-  //   """
-  //     &f _____              _       &b           _                \s
-  //     &f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __ \s
-  //     &f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\\s
-  //     &f / /   | (_| |\\__ \\|   <  &b \\__ \\|  __/| |_ | |_| || |_) |
-  //     &f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/\s
-  //     &f                             &b                     |_|   \s""",
-  //   "Task creation complete!",
-  //   "&r> &e");
+  private static final String TASK_SETUP_HEADER = """
+    &f _____              _       &b           _                \s
+    &f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __ \s
+    &f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\\s
+    &f / /   | (_| |\\__ \\|   <  &b \\__ \\|  __/| |_ | |_| || |_) |
+    &f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/\s
+    &f                             &b                     |_|   \s""";
   // Formatter for the table based looking
   private static final RowBasedFormatter<ServiceTask> TASK_LIST_FORMATTER = RowBasedFormatter.<ServiceTask>builder()
     .defaultFormatter(ColumnFormatter.builder()
@@ -96,23 +96,32 @@ public final class TasksCommand {
 
   private final Console console;
   private final Configuration configuration;
+  private final ConsoleSetupAnimation taskSetupAnimation;
   private final ServiceTaskProvider taskProvider;
-  private final ClusterNodeProvider clusterNodeProvider;
   private final CloudServiceManager serviceManager;
+  private final ClusterNodeProvider clusterNodeProvider;
 
   @Inject
   public TasksCommand(
     @NonNull Console console,
+    @NonNull EventManager eventManager,
     @NonNull Configuration configuration,
     @NonNull ServiceTaskProvider taskProvider,
-    @NonNull ClusterNodeProvider clusterNodeProvider,
-    @NonNull CloudServiceManager serviceManager
+    @NonNull QueuedConsoleLogHandler logHandler,
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull ClusterNodeProvider clusterNodeProvider
   ) {
     this.console = console;
     this.configuration = configuration;
     this.taskProvider = taskProvider;
-    this.clusterNodeProvider = clusterNodeProvider;
     this.serviceManager = serviceManager;
+    this.clusterNodeProvider = clusterNodeProvider;
+    this.taskSetupAnimation = new ConsoleSetupAnimation(
+      eventManager,
+      logHandler,
+      TASK_SETUP_HEADER,
+      "Task creation complete!",
+      "&r> &e");
   }
 
   public static void applyServiceConfigurationDisplay(
@@ -276,14 +285,12 @@ public final class TasksCommand {
   }
 
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
-  public void taskSetup(@NonNull CommandSource source) {
-    // TODO
-    // var setup = this.injectionLayer.instance(SpecificTaskSetup.class);
-    // setup.applyQuestions(TASK_SETUP);
-
-    // TASK_SETUP.addFinishHandler(() -> setup.handleResults(TASK_SETUP));
-
-    // this.console.startAnimation(TASK_SETUP);
+  public void taskSetup(@NonNull CommandSource source, @NonNull SpecificTaskSetup taskSetup) {
+    // apply the questions and handle the results
+    taskSetup.applyQuestions(this.taskSetupAnimation);
+    this.taskSetupAnimation.addFinishHandler(() -> taskSetup.handleResults(this.taskSetupAnimation));
+    // start the animation
+    this.console.startAnimation(this.taskSetupAnimation);
   }
 
   @CommandMethod("tasks reload")

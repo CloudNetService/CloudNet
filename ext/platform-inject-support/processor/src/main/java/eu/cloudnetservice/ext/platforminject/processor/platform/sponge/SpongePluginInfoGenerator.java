@@ -45,8 +45,7 @@ final class SpongePluginInfoGenerator extends NightConfigInfoGenerator {
     target.set("loader", loaderSection);
 
     // put in the license info
-    // todo: should we support this?
-    target.set("license", "See project page");
+    target.add("license", "See project page");
 
     // construct the plugin information
     var pluginMeta = ConfigUtil.tap(this.configFormat, config -> {

@@ -35,10 +35,10 @@ import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs._deprecated.SignConstants;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.NodeSignsConfigurationHelper;
-import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignsCommand;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
@@ -54,8 +54,8 @@ public class CloudNetSignsModule extends DriverModule {
   protected SignsConfiguration configuration;
 
   @Inject
-  public CloudNetSignsModule(@NonNull InjectionLayer<?> layer) {
-    layer.installAutoConfigureBindings(this.classLoader(), "signs");
+  public CloudNetSignsModule(@NonNull @Named("module") InjectionLayer<?> layer) {
+    layer.installAutoConfigureBindings(this.getClass().getClassLoader(), "signs");
   }
 
   @ModuleTask(order = 50)
@@ -71,7 +71,7 @@ public class CloudNetSignsModule extends DriverModule {
 
   @ModuleTask(order = 30)
   public void handleInitialization(
-    @NonNull InjectionLayer<?> layer,
+    @NonNull @Named("module") InjectionLayer<?> layer,
     @NonNull EventManager eventManager,
     @NonNull ModuleHelper moduleHelper,
     @NonNull ServiceRegistry serviceRegistry,
@@ -79,10 +79,12 @@ public class CloudNetSignsModule extends DriverModule {
   ) {
     var management = layer.instance(
       NodeSignManagement.class,
-      builder -> builder.override(SignsConfiguration.class, this.configuration));
+      builder -> builder
+        .override(SignsConfiguration.class, this.configuration)
+        .override(Database.class, this.database));
     management.registerToServiceRegistry(serviceRegistry);
 
-    commandProvider.register(SignsCommand.class);
+    commandProvider.register(SignCommand.class);
 
     eventManager.registerListener(SharedChannelMessageListener.class);
     eventManager.registerListener(NodeSignsListener.class);
