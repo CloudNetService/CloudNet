@@ -30,11 +30,12 @@ import lombok.NonNull;
   name = "CloudNet-Bridge",
   version = "{project.build.version}",
   dependencies = {
-    @Dependency(name = "fabricloader", version = ">=0.14.8"),
-    @Dependency(name = "minecraft", version = "~1.19.1"),
+    @Dependency(name = "fabricloader", version = ">=0.14.11"),
+    @Dependency(name = "minecraft", version = "~1.19.3"),
     @Dependency(name = "java", version = ">=17")
   },
-  authors = "CloudNetService")
+  authors = "CloudNetService"
+)
 public final class FabricBridgeInitializer implements PlatformEntrypoint {
 
   private final ModuleHelper moduleHelper;
