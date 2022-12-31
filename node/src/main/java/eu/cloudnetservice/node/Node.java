@@ -58,6 +58,7 @@ import eu.cloudnetservice.node.event.CloudNetNodePostInitializationEvent;
 import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
 import eu.cloudnetservice.node.module.ModulesHolder;
 import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
+import eu.cloudnetservice.node.module.updater.ModuleUpdater;
 import eu.cloudnetservice.node.module.updater.ModuleUpdaterRegistry;
 import eu.cloudnetservice.node.network.chunk.FileDeployCallbackListener;
 import eu.cloudnetservice.node.permission.NodePermissionManagement;
@@ -216,11 +217,13 @@ public final class Node {
   private void updateAndLoadModules(
     @NonNull ModulesHolder modulesHolder,
     @NonNull ModuleProvider moduleProvider,
+    @NonNull ModuleUpdater moduleUpdater,
     @NonNull ModuleUpdaterRegistry updaterRegistry
   ) throws Exception {
     // apply all module updates if we're not running in dev mode
     if (!DEV_MODE) {
       LOGGER.info(I18n.trans("start-module-updater"));
+      updaterRegistry.registerUpdater(moduleUpdater);
       updaterRegistry.runUpdater(modulesHolder, !AUTO_UPDATE);
     }
 
