@@ -85,14 +85,6 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
     this.listeners.put(channel, listener);
   }
 
-  @Override
-  public void removeListener(int channel, @NonNull Class<? extends PacketListener> listenerClass) {
-    var registeredListeners = this.listeners.get(channel);
-    if (!registeredListeners.isEmpty()) {
-      registeredListeners.remove(InjectionLayer.findLayerOf(listenerClass).instance(listenerClass));
-    }
-  }
-
   /**
    * {@inheritDoc}
    */

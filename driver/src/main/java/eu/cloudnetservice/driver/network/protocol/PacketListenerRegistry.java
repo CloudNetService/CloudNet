@@ -39,8 +39,21 @@ public interface PacketListenerRegistry {
    */
   @Nullable PacketListenerRegistry parent();
 
-  //TODO docs
-
+  /**
+   * Adds a packet listener for each packet that uses the provided channel id. Multiple listeners for a channel are
+   * indeed possible and will be called in the order of registration.
+   * <p>
+   * The only channel to which no listener can be registered is the channel with the id -1 as it is used for query
+   * responses and therefore reserved.
+   * <p>
+   * This method takes a class instead of an instance and creates the instance using our dependency injection framework.
+   * Make sure that the given class supports the instantiation using dependency injection.
+   *
+   * @param channel       the channel the listener wants to listen to.
+   * @param listenerClass the listener class to instantiate and register afterwards.
+   * @throws NullPointerException     if the given listeners are null.
+   * @throws IllegalArgumentException if the given channel id is invalid.
+   */
   void addListener(int channel, @NonNull Class<? extends PacketListener> listenerClass);
 
   /**
@@ -50,20 +63,18 @@ public interface PacketListenerRegistry {
    * The only channel to which no listener can be registered is the channel with the id -1 as it is used for query
    * responses and therefore reserved.
    *
-   * @param channel   the channel the listener wants to listen to.
+   * @param channel  the channel the listener wants to listen to.
    * @param listener the listeners to register for the channel.
    * @throws NullPointerException     if the given listeners are null.
    * @throws IllegalArgumentException if the given channel id is invalid.
    */
   void addListener(int channel, @NonNull PacketListener listener);
 
-  void removeListener(int channel, @NonNull Class<? extends PacketListener> listenerClass);
-
   /**
-   * Removes all given listeners from the given channel if they were registered previously.
+   * Removes the given listener from the given channel if it was registered previously.
    *
-   * @param channel   the id of the channel to remove the listener from.
-   * @param listener the listeners to remove from the channel.
+   * @param channel  the id of the channel to remove the listener from.
+   * @param listener the listener to remove from the channel.
    * @throws NullPointerException if the given listeners are null.
    */
   void removeListener(int channel, @NonNull PacketListener listener);

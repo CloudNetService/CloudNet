@@ -67,7 +67,17 @@ public interface CommandProvider {
    */
   @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input);
 
-  // TODO Docs
+  /**
+   * Registers a command on a per-class basis. All methods annotated with
+   * {@link cloud.commandframework.annotations.CommandMethod} are parsed into a command and only one common
+   * {@link CommandInfo}.
+   * <p>
+   * This method takes a class instead of an instance and creates the instance using our dependency injection framework.
+   * Make sure that the given class supports the instantiation using dependency injection.
+   *
+   * @param commandClass the class to instantiate and register the commands for afterwards.
+   * @throws NullPointerException if object is null.
+   */
   void register(@NonNull Class<?> commandClass);
 
   /**
