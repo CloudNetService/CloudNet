@@ -36,7 +36,7 @@ import net.md_5.bungee.api.plugin.PluginManager;
   version = "{project.build.version}",
   description = "CloudNet extension which serves proxy utils with CloudNet support",
   authors = "CloudNetService",
-  dependencies = {@Dependency(name = "cloudnet_bridge"), @Dependency(name = "cloudnet_cloudperms", optional = true)})
+  dependencies = {@Dependency(name = "CloudNet-Bridge"), @Dependency(name = "CloudNet-CloudPerms", optional = true)})
 public final class BungeeCordSyncProxyPlugin implements PlatformEntrypoint {
 
   private final Plugin plugin;
@@ -65,7 +65,7 @@ public final class BungeeCordSyncProxyPlugin implements PlatformEntrypoint {
     // register the SyncProxyManagement in our service registry
     this.syncProxyManagement.registerService(this.serviceRegistry);
     // register the event listener to handle service updates
-    this.eventManager.registerListener(SyncProxyCloudListener.class);
+    this.eventManager.registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
   }
 
   @Inject
