@@ -64,7 +64,10 @@ final class MinestomPluginInfoGenerator extends NightConfigInfoGenerator {
       .toList();
 
     // put in the repos and dependencies
-    ConfigUtil.putIfValuesPresent(target, "artifacts", dependencies);
-    ConfigUtil.putIfValuesPresent(target, "repositories", repositories);
+    var externalDependencies = ConfigUtil.tap(this.configFormat, config -> {
+      ConfigUtil.putIfValuesPresent(config, "artifacts", dependencies);
+      ConfigUtil.putIfValuesPresent(config, "repositories", repositories);
+    });
+    target.set("externalDependencies", externalDependencies);
   }
 }

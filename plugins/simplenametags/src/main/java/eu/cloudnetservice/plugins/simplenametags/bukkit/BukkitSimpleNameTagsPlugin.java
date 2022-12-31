@@ -36,11 +36,12 @@ import org.bukkit.scheduler.BukkitScheduler;
 @Singleton
 @PlatformPlugin(
   platform = "bukkit",
+  authors = "CloudNetService",
+  pluginFileNames = "plugin.yml",
   name = "CloudNet-SimpleNameTags",
   version = "{project.build.version}",
-  authors = "CloudNetService",
-  description = "Adds prefix, suffix and display name support to all server platforms",
-  dependencies = @Dependency(name = "CloudNet-CloudPerms")
+  dependencies = @Dependency(name = "CloudNet-CloudPerms"),
+  description = "Adds prefix, suffix and display name support to all server platforms"
 )
 public final class BukkitSimpleNameTagsPlugin implements PlatformEntrypoint, Listener {
 

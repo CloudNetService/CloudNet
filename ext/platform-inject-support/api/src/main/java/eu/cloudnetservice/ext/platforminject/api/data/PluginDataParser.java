@@ -85,10 +85,23 @@ public final class PluginDataParser {
     List<Command> commands = this.hasFlag(PLUGIN_COMMANDS)
       ? Arrays.stream(plugin.commands()).filter(cmd -> !cmd.name().isBlank()).toList()
       : List.of();
+    List<String> pluginFileNames = Arrays.stream(plugin.pluginFileNames()).filter(fileName -> !name.isBlank()).toList();
 
     // check if external dependencies are supported, no need to check them if not
     if (!this.hasFlag(EXTERNAL_DEPENDENCIES)) {
-      return new ParsedPluginData(name, version, api, id, desc, homepage, listener, authors, commands, deps, List.of());
+      return new ParsedPluginData(
+        name,
+        version,
+        api,
+        id,
+        desc,
+        homepage,
+        listener,
+        authors,
+        commands,
+        pluginFileNames,
+        deps,
+        List.of());
     }
 
     // validate the dependencies
@@ -120,6 +133,7 @@ public final class PluginDataParser {
       listener,
       authors,
       commands,
+      pluginFileNames,
       deps,
       externalDeps);
   }

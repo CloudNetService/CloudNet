@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import net.kyori.blossom.BlossomExtension
+
 plugins {
   alias(libs.plugins.blossom) apply false
 }
@@ -27,12 +29,8 @@ subprojects {
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
   }
 
-  tasks.named<Copy>("processResources") {
-    filter {
-      it
-        .replace("{project.build.version}", project.version.toString())
-        .replace("{project.perms.build.version}", projects.modules.cloudperms.version.toString())
-    }
+  configure<BlossomExtension> {
+    replaceToken("{project.build.version}", project.version)
   }
 
   dependencies {

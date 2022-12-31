@@ -44,7 +44,7 @@ import org.spongepowered.plugin.PluginContainer;
   description = "Adds prefix, suffix and display name support to all server platforms",
   dependencies = {
     @Dependency(name = "spongeapi", version = "8.0.0"),
-    @Dependency(name = "CloudNet-CloudPerms", version = "{project.perms.build.version}")
+    @Dependency(name = "CloudNet-CloudPerms", version = "{project.build.version}")
   }
 )
 public final class SpongeSimpleNameTagsPlugin implements PlatformEntrypoint {
