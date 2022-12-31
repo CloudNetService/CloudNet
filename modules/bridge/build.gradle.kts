@@ -15,7 +15,6 @@
  */
 
 import net.fabricmc.loom.task.RemapJarTask
-import net.kyori.blossom.BlossomExtension
 
 plugins {
   alias(libs.plugins.fabricLoom)
@@ -70,8 +69,4 @@ moduleJson {
   author = "CloudNetService"
   main = "eu.cloudnetservice.modules.bridge.node.CloudNetBridgeModule"
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development"
-}
-
-configure<BlossomExtension> {
-  replaceToken("{project.build.version}", project.version)
 }

@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
+package eu.cloudnetservice.modules.signs.platform.sponge;
 
-import eu.cloudnetservice.modules.signs.platform.sponge.SpongeSignManagement;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.ext.platforminject.api.mapping.Container;
+import eu.cloudnetservice.modules.signs.SignManagement;
+import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignsCommand;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.plugin.PluginContainer;
 
-@Singleton
-public class CommandRegistrationListener {
+final class CommandRegistrationListener {
 
   private final PluginContainer plugin;
-  private final SpongeSignManagement signManagement;
 
-  @Inject
-  public CommandRegistrationListener(@NonNull PluginContainer plugin, @NonNull SpongeSignManagement signManagement) {
-    this.plugin = plugin;
-    this.signManagement = signManagement;
+  public CommandRegistrationListener(@NonNull Container<PluginContainer> platformData) {
+    this.plugin = platformData.container();
+    Sponge.eventManager().registerListeners(platformData.container(), this);
   }
 
   @Listener
@@ -51,10 +50,12 @@ public class CommandRegistrationListener {
           Parameter.string().key(SignsCommand.TARGET_GROUP).optional().build(),
           Parameter.string().key(SignsCommand.TARGET_TEMPLATE).optional().build()
         )
-        .executor(new SignsCommand(() -> this.signManagement))
+        .executor(new SignsCommand(() -> {
+          var layer = InjectionLayer.findLayerOf(SignManagement.class);
+          return layer.instance(SpongeSignManagement.class);
+        }))
         .build(),
       "cloudsigns",
       "cs", "signs", "cloudsign");
   }
-
 }

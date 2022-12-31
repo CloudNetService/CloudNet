@@ -38,7 +38,7 @@ import net.minestom.server.extensions.Extension;
 @Singleton
 @PlatformPlugin(
   platform = "minestom",
-  name = "cloudnet_chat",
+  name = "CloudNet_Chat",
   authors = "CloudNetService",
   version = "{project.build.version}",
   dependencies = @Dependency(name = "cloudnet_cloudperms")

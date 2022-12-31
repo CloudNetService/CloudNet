@@ -34,6 +34,7 @@ public class MinestomCloudSignInteractEvent implements CancellableEvent {
   public MinestomCloudSignInteractEvent(@NonNull Player player, @NonNull PlatformSign<Player, String> sign) {
     this.player = player;
     this.sign = sign;
+    this.target = sign.currentTarget();
   }
 
   public @NonNull Player player() {

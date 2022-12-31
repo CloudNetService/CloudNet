@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import net.kyori.blossom.BlossomExtension
+
 plugins {
   alias(libs.plugins.blossom) apply false
   alias(libs.plugins.juppiter) apply false
@@ -47,9 +49,7 @@ subprojects {
     "implementation"(rootProject.libs.guava)
   }
 
-  tasks.named<Copy>("processResources") {
-    filter {
-      it.replace("{project.build.version}", project.version.toString())
-    }
+  configure<BlossomExtension> {
+    replaceToken("{project.build.version}", project.version)
   }
 }

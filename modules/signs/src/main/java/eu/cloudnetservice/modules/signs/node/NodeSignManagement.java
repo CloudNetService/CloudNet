@@ -16,8 +16,10 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.AbstractSignManagement;
@@ -27,6 +29,7 @@ import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.NodeSignsConfigurationHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,6 +39,8 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@Provides({AbstractSignManagement.class, SignManagement.class})
 public class NodeSignManagement extends AbstractSignManagement implements SignManagement {
 
   protected static final String NODE_TO_NODE_SET_SIGN_CONFIGURATION = "signs_node_node_set_signs_config";
@@ -47,12 +52,12 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   public NodeSignManagement(
     @NonNull SignsConfiguration configuration,
     @NonNull @Named("dataDirectory") Path dataDirectory,
-    @NonNull Database database
+    @NonNull DatabaseProvider databaseProvider
   ) {
     super(configuration);
 
     this.configPath = dataDirectory.resolve("config.json");
-    this.database = database;
+    this.database = databaseProvider.database("");
 
     this.database.documentsAsync().thenAccept(jsonDocuments -> {
       for (var document : jsonDocuments) {

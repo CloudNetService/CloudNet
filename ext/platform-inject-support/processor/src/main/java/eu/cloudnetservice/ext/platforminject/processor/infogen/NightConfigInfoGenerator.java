@@ -66,7 +66,8 @@ public abstract class NightConfigInfoGenerator implements PluginInfoGenerator {
     this.applyPlatformInfo(targetConfig, pluginData, platformMainClassName);
 
     // write the platform data
-    for (var platformFileName : this.platformFileNames) {
+    var fileNames = pluginData.pluginFileNames().isEmpty() ? this.platformFileNames : pluginData.pluginFileNames();
+    for (var platformFileName : fileNames) {
       var fileObject = filer.createResource(StandardLocation.CLASS_OUTPUT, "", platformFileName);
       try (var writer = fileObject.openWriter()) {
         this.writer.write(targetConfig, writer);

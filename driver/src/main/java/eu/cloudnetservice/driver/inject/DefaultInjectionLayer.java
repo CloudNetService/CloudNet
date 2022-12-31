@@ -77,7 +77,7 @@ record DefaultInjectionLayer<I extends Injector>(
   ) {
     try {
       // build the injection context
-      var injectionContext = InjectionContext.builder().injector(this.injector);
+      var injectionContext = InjectionContext.builder();
       builder.accept(injectionContext);
 
       // get the binding for the given type

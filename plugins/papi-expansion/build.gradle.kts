@@ -28,7 +28,3 @@ dependencies {
   compileOnly(projects.wrapperJvm)
   compileOnly(projects.modules.bridge)
 }
-
-configure<net.kyori.blossom.BlossomExtension> {
-  replaceToken("{project.build.version}", project.version)
-}

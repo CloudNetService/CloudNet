@@ -34,6 +34,7 @@ public record ParsedPluginData(
   @Nullable String constructionListenerClass,
   @NonNull Collection<String> authors,
   @NonNull Collection<Command> commands,
+  @NonNull Collection<String> pluginFileNames,
   @NonNull Collection<Dependency> dependencies,
   @NonNull Collection<ExternalDependency> externalDependencies
 ) {

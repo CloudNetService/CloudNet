@@ -36,10 +36,10 @@ import net.minestom.server.scoreboard.TeamManager;
 @Singleton
 @PlatformPlugin(
   platform = "minestom",
-  name = "CloudNet-SimpleNameTags",
+  name = "CloudNet_SimpleNameTags",
   version = "{project.build.version}",
   authors = "CloudNetService",
-  dependencies = @Dependency(name = "CloudNet-CloudPerms")
+  dependencies = @Dependency(name = "cloudnet_cloudperms")
 )
 public class MinestomSimpleNameTagsExtension implements PlatformEntrypoint {
 
