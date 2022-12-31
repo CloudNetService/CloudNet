@@ -169,7 +169,7 @@ public final class CloudNetBridgeModule extends DriverModule {
     }
   }
 
-  @ModuleTask(event = ModuleLifeCycle.STARTED)
+  @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void initModule(
     @NonNull HttpServer httpServer,
     @NonNull ServiceRegistry serviceRegistry,
