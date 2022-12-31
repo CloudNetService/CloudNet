@@ -16,9 +16,10 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
-import static net.md_5.bungee.api.ChatColor.translateAlternateColorCodes;
-
+import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.PendingConnectionProxiedPlayer;
+import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -39,17 +40,22 @@ import net.md_5.bungee.event.EventHandler;
 @Singleton
 public final class BungeeCordSyncProxyListener implements Listener {
 
+  private static final PlayerInfo[] EMPTY_PLAYER_INFO = new PlayerInfo[0];
+
   private final PluginManager pluginManager;
+  private final BungeeCordHelper bungeeCordHelper;
   private final ServiceInfoHolder serviceInfoHolder;
   private final BungeeCordSyncProxyManagement syncProxyManagement;
 
   @Inject
   public BungeeCordSyncProxyListener(
     @NonNull PluginManager pluginManager,
+    @NonNull BungeeCordHelper bungeeCordHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull BungeeCordSyncProxyManagement syncProxyManagement
   ) {
     this.pluginManager = pluginManager;
+    this.bungeeCordHelper = bungeeCordHelper;
     this.serviceInfoHolder = serviceInfoHolder;
     this.syncProxyManagement = syncProxyManagement;
   }
@@ -64,11 +70,11 @@ public final class BungeeCordSyncProxyListener implements Listener {
     }
 
     var motd = this.syncProxyManagement.randomMotd();
-    // only display a motd if there is one in the config
+    // only display the motd if its desired
     if (motd != null) {
       var onlinePlayers = this.syncProxyManagement.onlinePlayerCount();
       int maxPlayers;
-
+      // calculate the slots to display based on the autoslot configuration
       if (motd.autoSlot()) {
         maxPlayers = Math.min(loginConfiguration.maxPlayers(), onlinePlayers + motd.autoSlotMaxPlayersDistance());
       } else {
@@ -76,32 +82,40 @@ public final class BungeeCordSyncProxyListener implements Listener {
       }
 
       var response = event.getResponse();
+
       var serviceInfo = this.serviceInfoHolder.serviceInfo();
-      var protocolText = motd.format(
+      var protocolText = SyncProxyConfiguration.fillCommonPlaceholders(
         serviceInfo,
         motd.protocolText(),
         onlinePlayers,
         maxPlayers);
       // check if there is a protocol text in the config
       if (protocolText != null) {
-        response.setVersion(new Protocol(translateAlternateColorCodes('&', protocolText), 1));
+        response.setVersion(new Protocol(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(protocolText), 1));
       }
 
-      // map the playerInfo from the config to ServerPing.Players to display other information
-      var players = new Players(maxPlayers, onlinePlayers, motd.playerInfo() != null ?
-        Arrays.stream(motd.playerInfo())
+      var playerSamples = EMPTY_PLAYER_INFO;
+      if (motd.playerInfo() != null) {
+        // convert the player info into individual player samples
+        playerSamples = Arrays.stream(motd.playerInfo())
           .filter(Objects::nonNull)
-          .map(s ->
-            new PlayerInfo(translateAlternateColorCodes('&', s),
-              UUID.randomUUID())).toArray(PlayerInfo[]::new) : new PlayerInfo[0]);
+          .map(info -> SyncProxyConfiguration.fillCommonPlaceholders(serviceInfo, info, onlinePlayers, maxPlayers))
+          .map(ComponentFormats.ADVENTURE_TO_BUNGEE::convertText)
+          .map(info -> new PlayerInfo(info, UUID.randomUUID()))
+          .toArray(PlayerInfo[]::new);
+      }
 
+      var players = new Players(maxPlayers, onlinePlayers, playerSamples);
       response.setPlayers(players);
-      response.setDescriptionComponent(new TextComponent(TextComponent.fromLegacyText(
-        motd.format(
-          serviceInfo,
-          translateAlternateColorCodes('&', motd.firstLine() + "\n" + motd.secondLine()),
-          onlinePlayers,
-          maxPlayers))));
+
+      var description = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
+        motd.firstLine() + "\n" + motd.secondLine(),
+        onlinePlayers,
+        maxPlayers);
+
+      // thanks bungeecord - convert the component array into a single component
+      response.setDescriptionComponent(new TextComponent(this.bungeeCordHelper.translateToComponent(description)));
 
       event.setResponse(response);
     }
@@ -119,7 +133,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
-        event.setCancelReason(this.syncProxyManagement.asComponent(
+        event.setCancelReason(this.bungeeCordHelper.translateToComponent(
           this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null)));
         event.setCancelled(true);
       }
@@ -127,7 +141,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
       // check if the proxy is full and if the player is allowed to join or not
       if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
         && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-        event.setCancelReason(this.syncProxyManagement.asComponent(
+        event.setCancelReason(this.bungeeCordHelper.translateToComponent(
           this.syncProxyManagement.configuration().message("player-login-full-server", null)));
         event.setCancelled(true);
       }

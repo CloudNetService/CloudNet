@@ -17,8 +17,6 @@
 package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,20 +41,6 @@ public record SyncProxyMotd(
       .autoSlotDistance(motd.autoSlotMaxPlayersDistance())
       .playerInfo(motd.playerInfo())
       .protocolText(motd.protocolText());
-  }
-
-  public @Nullable String format(
-    @NonNull ServiceInfoSnapshot serviceInfo,
-    @Nullable String input,
-    int onlinePlayers,
-    int maxPlayers
-  ) {
-    if (input == null) {
-      return null;
-    }
-    return BridgeServiceHelper.fillCommonPlaceholders(input
-      .replace("%online_players%", String.valueOf(onlinePlayers))
-      .replace("%max_players%", String.valueOf(maxPlayers)), null, serviceInfo);
   }
 
   public static class Builder {

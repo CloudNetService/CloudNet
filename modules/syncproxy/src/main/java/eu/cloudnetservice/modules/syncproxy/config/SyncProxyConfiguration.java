@@ -19,6 +19,8 @@ package eu.cloudnetservice.modules.syncproxy.config;
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +45,24 @@ public record SyncProxyConfiguration(
     "player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network",
     "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
     "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
+
+  public static @Nullable String fillCommonPlaceholders(
+    @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
+    @Nullable String input,
+    int onlinePlayers,
+    int maxPlayers
+  ) {
+    if (input == null) {
+      return null;
+    }
+
+    return BridgeServiceHelper.fillCommonPlaceholders(
+      input
+        .replace("%online_players%", String.valueOf(onlinePlayers))
+        .replace("%max_players%", String.valueOf(maxPlayers)),
+      null,
+      serviceInfoSnapshot);
+  }
 
   public static @NonNull Builder builder() {
     return new Builder();

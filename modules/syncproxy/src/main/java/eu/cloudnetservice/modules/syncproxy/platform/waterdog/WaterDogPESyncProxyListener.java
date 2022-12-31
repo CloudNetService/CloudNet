@@ -19,16 +19,16 @@ package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.ProxyPingEvent;
+import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.function.Function;
 import lombok.NonNull;
 
 @Singleton
 public final class WaterDogPESyncProxyListener {
 
-  private static final Function<String, String> LEGACY_COLOR_REPLACER = s -> s.replace('&', '§');
 
   private final ServiceInfoHolder serviceInfoHolder;
   private final WaterDogPESyncProxyManagement syncProxyManagement;
@@ -70,11 +70,19 @@ public final class WaterDogPESyncProxyListener {
 
       // bedrock has just to lines that are separated from each other
       var serviceInfo = this.serviceInfoHolder.serviceInfo();
-      var mainMotd = LEGACY_COLOR_REPLACER.apply(motd.format(serviceInfo, motd.firstLine(), onlinePlayers, maxPlayers));
-      var subMotd = LEGACY_COLOR_REPLACER.apply(motd.format(serviceInfo, motd.secondLine(), onlinePlayers, maxPlayers));
+      var mainMotd = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
+        motd.firstLine(),
+        onlinePlayers,
+        maxPlayers);
+      var subMotd = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
+        motd.secondLine(),
+        onlinePlayers,
+        maxPlayers);
 
-      event.setMotd(mainMotd);
-      event.setSubMotd(subMotd);
+      event.setMotd(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(mainMotd));
+      event.setSubMotd(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(subMotd));
     }
   }
 
@@ -88,18 +96,16 @@ public final class WaterDogPESyncProxyListener {
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (!this.syncProxyManagement.checkPlayerMaintenance(proxiedPlayer)) {
-        event.setCancelReason(this.syncProxyManagement.configuration().message(
-          "player-login-not-whitelisted",
-          LEGACY_COLOR_REPLACER));
+        var cancelReason = this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null);
+        event.setCancelReason(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(cancelReason));
         event.setCancelled(true);
       }
     } else {
       // check if the proxy is full and if the player is allowed to join or not
       if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
         && !proxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
-        event.setCancelReason(this.syncProxyManagement.configuration().message(
-          "player-login-full-server",
-          LEGACY_COLOR_REPLACER));
+        var cancelReason = this.syncProxyManagement.configuration().message("player-login-full-server", null);
+        event.setCancelReason(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(cancelReason));
         event.setCancelled(true);
       }
     }

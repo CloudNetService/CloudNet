@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
@@ -32,10 +33,7 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,6 +41,7 @@ import org.jetbrains.annotations.Nullable;
 public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManagement<ProxiedPlayer> {
 
   private final ProxyServer proxyServer;
+  private final BungeeCordHelper bungeeCordHelper;
 
   @Inject
   public BungeeCordSyncProxyManagement(
@@ -50,6 +49,7 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
     @NonNull ProxyServer proxyServer,
     @NonNull EventManager eventManager,
     @NonNull NetworkClient networkClient,
+    @NonNull BungeeCordHelper bungeeCordHelper,
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull CloudServiceProvider serviceProvider,
@@ -67,6 +67,7 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
       permissionManagement);
 
     this.proxyServer = proxyServer;
+    this.bungeeCordHelper = bungeeCordHelper;
     this.init();
   }
 
@@ -93,29 +94,25 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   @Override
   public void playerTabList(@NonNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
     player.setTabHeader(
-      header != null ? this.asComponent(this.replaceTabPlaceholder(header, player)) : null,
-      footer != null ? this.asComponent(this.replaceTabPlaceholder(footer, player)) : null);
+      header != null ? this.bungeeCordHelper.translateToComponent(this.replaceTabPlaceholder(header, player)) : null,
+      footer != null ? this.bungeeCordHelper.translateToComponent(this.replaceTabPlaceholder(footer, player)) : null);
   }
 
   @Override
   public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull String message) {
-    player.disconnect(this.asComponent(message));
+    player.disconnect(this.bungeeCordHelper.translateToComponent(message));
   }
 
   @Override
   public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable String message) {
     if (message != null) {
-      player.sendMessage(this.asComponent(message));
+      player.sendMessage(this.bungeeCordHelper.translateToComponent(message));
     }
   }
 
   @Override
   public boolean checkPlayerPermission(@NonNull ProxiedPlayer player, @NonNull String permission) {
     return player.hasPermission(permission);
-  }
-
-  public @NonNull BaseComponent[] asComponent(@NonNull String message) {
-    return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
   }
 
   private @NonNull String replaceTabPlaceholder(@NonNull String input, @NonNull ProxiedPlayer player) {
