@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.event.instance;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.node.TickLoop;
 import lombok.NonNull;
 
-public final class CloudNetTickEvent extends DriverEvent {
+public final class CloudNetTickEvent extends Event {
 
   private final TickLoop ticker;
 

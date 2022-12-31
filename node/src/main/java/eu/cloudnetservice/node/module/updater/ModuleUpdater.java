@@ -23,10 +23,12 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.ext.updater.Updater;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
+import jakarta.inject.Singleton;
 import java.nio.file.StandardCopyOption;
 import kong.unirest.Unirest;
 import lombok.NonNull;
 
+@Singleton
 public final class ModuleUpdater implements Updater<ModuleUpdaterContext> {
 
   private static final Logger LOGGER = LogManager.logger(ModuleUpdater.class);

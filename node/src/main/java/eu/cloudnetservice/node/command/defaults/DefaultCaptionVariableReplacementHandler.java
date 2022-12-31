@@ -19,10 +19,15 @@ package eu.cloudnetservice.node.command.defaults;
 import cloud.commandframework.captions.Caption;
 import cloud.commandframework.captions.CaptionVariableReplacementHandler;
 import eu.cloudnetservice.common.language.I18n;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 final class DefaultCaptionVariableReplacementHandler implements CaptionVariableReplacementHandler {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String replaceVariables(@NonNull Caption caption, @NonNull Object... variables) {
     return I18n.trans(caption.getKey().replace('.', '-'), variables);

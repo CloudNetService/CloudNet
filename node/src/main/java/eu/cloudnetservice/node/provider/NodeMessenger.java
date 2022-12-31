@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.provider;
 
 import com.google.common.collect.Iterables;
 import com.google.gson.reflect.TypeToken;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.CountingTask;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
@@ -27,10 +28,11 @@ import eu.cloudnetservice.driver.network.def.PacketServerChannelMessage;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
 import eu.cloudnetservice.driver.provider.defaults.DefaultMessenger;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,6 +43,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
+@Singleton
+@Provides(CloudMessenger.class)
 public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
   protected static final Type COL_MSG = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
@@ -48,9 +52,13 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   protected final NodeServerProvider nodeServerProvider;
   protected final CloudServiceManager cloudServiceManager;
 
-  public NodeMessenger(@NonNull Node nodeInstance) {
-    this.nodeServerProvider = nodeInstance.nodeServerProvider();
-    this.cloudServiceManager = nodeInstance.cloudServiceProvider();
+  @Inject
+  public NodeMessenger(
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull CloudServiceManager cloudServiceManager
+  ) {
+    this.nodeServerProvider = nodeServerProvider;
+    this.cloudServiceManager = cloudServiceManager;
   }
 
   @Override

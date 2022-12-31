@@ -15,7 +15,6 @@
  */
 
 import net.fabricmc.loom.task.RemapJarTask
-import net.kyori.blossom.BlossomExtension
 
 plugins {
   alias(libs.plugins.fabricLoom)
@@ -28,14 +27,20 @@ configurations {
   }
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/bridge.aero")
+}
+
 dependencies {
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
 
-  "annotationProcessor"(libs.velocity)
   "runtimeImpl"(libs.bundles.adventure)
   "runtimeImpl"(projects.ext.adventureHelper)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   "minecraft"(libs.minecraft)
   "modImplementation"(libs.fabricLoader)
@@ -64,8 +69,4 @@ moduleJson {
   author = "CloudNetService"
   main = "eu.cloudnetservice.modules.bridge.node.CloudNetBridgeModule"
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development"
-}
-
-configure<BlossomExtension> {
-  replaceToken("{project.build.version}", project.version)
 }

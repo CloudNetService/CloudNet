@@ -22,11 +22,13 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
+import jakarta.inject.Singleton;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
+@Singleton
 public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) implements Runnable {
 
   private static final Logger LOGGER = LogManager.logger(NodeDisconnectTrackerTask.class);
@@ -54,7 +56,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
           server.state(NodeServerState.DISCONNECTED);
           server.channel(new QueuedNetworkChannel(server.channel()));
           // trigger a head node refresh if the server is the head node to ensure that we're not using a head node which is dead
-          if (this.provider.headNode() == server) {
+          if (this.provider.headNode().equals(server)) {
             this.provider.selectHeadNode();
           }
           // warn about that

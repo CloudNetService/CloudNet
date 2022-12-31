@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 /**
@@ -28,6 +29,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
+@Singleton
 public interface WrapperConfiguration {
 
   /**

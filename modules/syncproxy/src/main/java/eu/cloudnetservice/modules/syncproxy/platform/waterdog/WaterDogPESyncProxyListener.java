@@ -21,17 +21,26 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.ProxyPingEvent;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class WaterDogPESyncProxyListener {
 
+
+  private final ServiceInfoHolder serviceInfoHolder;
   private final WaterDogPESyncProxyManagement syncProxyManagement;
 
+  @Inject
   public WaterDogPESyncProxyListener(
     @NonNull WaterDogPESyncProxyManagement syncProxyManagement,
-    @NonNull ProxyServer proxyServer
+    @NonNull ProxyServer proxyServer,
+    @NonNull ServiceInfoHolder serviceInfoHolder
   ) {
     this.syncProxyManagement = syncProxyManagement;
+    this.serviceInfoHolder = serviceInfoHolder;
 
     // subscribe to the events and redirect them to the methods to handle them
     proxyServer.getEventManager().subscribe(ProxyPingEvent.class, this::handleProxyPing);
@@ -60,8 +69,17 @@ public final class WaterDogPESyncProxyListener {
       event.setMaximumPlayerCount(maxPlayers);
 
       // bedrock has just to lines that are separated from each other
-      var mainMotd = SyncProxyConfiguration.fillCommonPlaceholders(motd.firstLine(), onlinePlayers, maxPlayers);
-      var subMotd = SyncProxyConfiguration.fillCommonPlaceholders(motd.secondLine(), onlinePlayers, maxPlayers);
+      var serviceInfo = this.serviceInfoHolder.serviceInfo();
+      var mainMotd = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
+        motd.firstLine(),
+        onlinePlayers,
+        maxPlayers);
+      var subMotd = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
+        motd.secondLine(),
+        onlinePlayers,
+        maxPlayers);
 
       event.setMotd(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(mainMotd));
       event.setSubMotd(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(subMotd));

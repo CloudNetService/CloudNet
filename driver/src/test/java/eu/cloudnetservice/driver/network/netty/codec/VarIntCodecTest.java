@@ -30,7 +30,7 @@ public class VarIntCodecTest {
       for (var curr = 1; curr < 5_000_000; curr += 31) {
         // write an extra long to try trick the deserializer
         NettyUtil.writeVarInt(buffer, curr);
-        buffer.writeLong(ThreadLocalRandom.current().nextLong());
+        NettyUtil.writeVarInt(buffer, ThreadLocalRandom.current().nextInt());
 
         // read
         Assertions.assertEquals(curr, NettyUtil.readVarInt(buffer));

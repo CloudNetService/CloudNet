@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.version.execute;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.version.execute.defaults.BuildStepExecutor;
 import eu.cloudnetservice.node.version.execute.defaults.CopyFilterStepExecutor;
 import eu.cloudnetservice.node.version.execute.defaults.DeployStepExecutor;
@@ -32,8 +33,8 @@ import lombok.NonNull;
 
 public enum InstallStep {
 
-  DOWNLOAD(new DownloadStepExecutor()),
-  BUILD(new BuildStepExecutor()),
+  DOWNLOAD(DownloadStepExecutor.class),
+  BUILD(BuildStepExecutor.class),
   UNZIP(new UnzipStepExecutor()),
   COPY_FILTER(new CopyFilterStepExecutor()),
   DEPLOY(new DeployStepExecutor()),
@@ -45,6 +46,10 @@ public enum InstallStep {
 
   InstallStep(@NonNull InstallStepExecutor executor) {
     this.executor = executor;
+  }
+
+  InstallStep(@NonNull Class<? extends InstallStepExecutor> executorClass) {
+    this(InjectionLayer.findLayerOf(executorClass).instance(executorClass));
   }
 
   public @NonNull Set<Path> execute(

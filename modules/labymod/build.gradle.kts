@@ -24,8 +24,6 @@ dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
-
-  "annotationProcessor"(libs.velocity)
 }
 
 moduleJson {
@@ -39,8 +37,4 @@ moduleJson {
     group = project.group.toString()
     version = project.version.toString()
   })
-}
-
-configure<net.kyori.blossom.BlossomExtension> {
-  replaceToken("{project.build.version}", project.version)
 }

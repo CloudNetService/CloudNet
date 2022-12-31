@@ -35,20 +35,23 @@ import org.jetbrains.annotations.Nullable;
 
 final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ProxiedPlayer> {
 
+  private final ProxyServer proxyServer;
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
 
   public WaterDogPEDirectPlayerExecutor(
     @NonNull UUID uniqueId,
+    @NonNull ProxyServer proxyServer,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
     @NonNull Supplier<Collection<? extends ProxiedPlayer>> playerSupplier
   ) {
     super(uniqueId, playerSupplier);
     this.management = management;
+    this.proxyServer = proxyServer;
   }
 
   @Override
   public void connect(@NonNull String serviceName) {
-    var serverInfo = ProxyServer.getInstance().getServerInfo(serviceName);
+    var serverInfo = this.proxyServer.getServerInfo(serviceName);
     if (serverInfo != null) {
       this.forEach(player -> player.connect(serverInfo));
     }
@@ -58,7 +61,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   public void connectSelecting(@NonNull ServerSelectorType selectorType) {
     this.management.cachedServices().stream()
       .sorted(selectorType.comparator())
-      .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+      .map(service -> this.proxyServer.getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .findFirst()
       .ifPresent(server -> this.forEach(player -> player.connect(server)));
@@ -70,7 +73,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .filter(Objects::nonNull)
       .map(player -> new Pair<>(player, this.management.fallback(player)))
       .filter(pair -> pair.second().isPresent())
-      .map(p -> new Pair<>(p.first(), ProxyServer.getInstance().getServerInfo(p.second().get().name())))
+      .map(p -> new Pair<>(p.first(), this.proxyServer.getServerInfo(p.second().get().name())))
       .filter(pair -> pair.second() != null)
       .forEach(pair -> pair.first().connect(pair.second()));
   }
@@ -80,7 +83,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
     this.management.cachedServices().stream()
       .filter(service -> service.configuration().groups().contains(group))
       .sorted(selectorType.comparator())
-      .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+      .map(service -> this.proxyServer.getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .forEach(server -> this.forEach(player -> player.connect(server)));
   }
@@ -90,7 +93,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
     this.management.cachedServices().stream()
       .filter(service -> service.serviceId().taskName().equals(task))
       .sorted(selectorType.comparator())
-      .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+      .map(service -> this.proxyServer.getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .forEach(server -> this.forEach(player -> player.connect(server)));
   }
@@ -117,7 +120,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     this.forEach(player -> {
-      if (!ProxyServer.getInstance().dispatchCommand(player, command) && redirectToServer) {
+      if (!this.proxyServer.dispatchCommand(player, command) && redirectToServer) {
         player.chat('/' + command);
       }
     });

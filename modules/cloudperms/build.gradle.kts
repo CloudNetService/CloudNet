@@ -24,8 +24,6 @@ dependencies {
   "compileOnly"(libs.vault)
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
-
-  "annotationProcessor"(libs.velocity)
 }
 
 moduleJson {
@@ -33,8 +31,4 @@ moduleJson {
   name = "CloudNet-CloudPerms"
   main = "eu.cloudnetservice.modules.cloudperms.node.CloudNetCloudPermissionsModule"
   description = "Node extension for the CloudNet node runtime, which include a player permission system"
-}
-
-configure<net.kyori.blossom.BlossomExtension> {
-  replaceToken("{project.build.version}", project.version)
 }

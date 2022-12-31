@@ -16,19 +16,27 @@
 
 package eu.cloudnetservice.node.service.defaults.config;
 
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.node.service.CloudService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
 import lombok.NonNull;
 
+@Singleton
 public class NukkitConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
+  @Inject
+  public NukkitConfigurationPreparer(@NonNull ServiceTaskProvider taskProvider) {
+    super(taskProvider);
+  }
+
   @Override
-  public void configure(@NonNull Node nodeInstance, @NonNull CloudService cloudService) {
+  public void configure(@NonNull CloudService cloudService) {
     // check if we should run now
-    if (this.shouldRewriteIp(nodeInstance, cloudService)) {
+    if (this.shouldRewriteIp(cloudService)) {
       // copy the default file
       var configFile = cloudService.directory().resolve("server.properties");
       this.copyCompiledFile("files/nukkit/server.properties", configFile);

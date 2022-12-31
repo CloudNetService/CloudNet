@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.chunk.defaults.factory;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
@@ -36,22 +35,13 @@ public class EventChunkHandlerFactory implements Function<ChunkSessionInformatio
 
   /**
    * Constructs a new event chunk handler factory instance. This constructor should only be used when extending from the
-   * class, see {@link #withEventManager(EventManager)} and {@link #withDefaultEventManager()} instead.
+   * class, see {@link #withEventManager(EventManager)} instead.
    *
    * @param eventManager the event manager to use to call events.
    * @throws NullPointerException if the given event manager is null.
    */
   protected EventChunkHandlerFactory(@NonNull EventManager eventManager) {
     this.eventManager = eventManager;
-  }
-
-  /**
-   * Constructs a new instance of this factory using the default event manager provided by the driver.
-   *
-   * @return a new factory using the default system event manager.
-   */
-  public static @NonNull EventChunkHandlerFactory withDefaultEventManager() {
-    return withEventManager(CloudNetDriver.instance().eventManager());
   }
 
   /**

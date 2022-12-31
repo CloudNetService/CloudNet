@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.event.log;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import java.util.logging.LogRecord;
 import lombok.NonNull;
 
-public final class LoggingEntryEvent extends DriverEvent {
+public final class LoggingEntryEvent extends Event {
 
   private final LogRecord record;
 

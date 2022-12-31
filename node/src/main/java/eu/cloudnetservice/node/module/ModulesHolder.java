@@ -16,10 +16,12 @@
 
 package eu.cloudnetservice.node.module;
 
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Optional;
 import lombok.NonNull;
 
+@Singleton
 public record ModulesHolder(@NonNull Collection<ModuleEntry> entries) {
 
   public @NonNull Optional<ModuleEntry> findByName(@NonNull String name) {

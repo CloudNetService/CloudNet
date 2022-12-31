@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.wrapper.configuration;
 
+import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
@@ -34,6 +35,7 @@ public record DocumentWrapperConfiguration(
   private static final Path WRAPPER_CONFIG_PATH = Path.of(
     System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
+  @Factory
   public static @NonNull WrapperConfiguration load() {
     return JsonDocument.newDocument(WRAPPER_CONFIG_PATH).toInstanceOf(DocumentWrapperConfiguration.class);
   }

@@ -21,5 +21,4 @@ import lombok.NonNull;
 
 public record CloudPermissionConfig(boolean enabled, @NonNull List<String> excludedGroups) {
 
-  public static final CloudPermissionConfig DEFAULT = new CloudPermissionConfig(true, List.of());
 }

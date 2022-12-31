@@ -21,8 +21,10 @@ import cloud.commandframework.annotations.CommandPermission;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.LoggingUtil;
 import eu.cloudnetservice.node.command.annotation.Description;
+import jakarta.inject.Singleton;
 import java.util.logging.Level;
 
+@Singleton
 @Description("command-debug-description")
 @CommandPermission("cloudnet.command.debug")
 public final class DebugCommand {

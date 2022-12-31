@@ -32,6 +32,10 @@ tasks.withType<Jar> {
   from(projects.common.sourceSets()["main"].output)
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = listOf("-AaerogelAutoFileName=autoconfigure/node.aero")
+}
+
 dependencies {
   "api"(projects.driver)
   "api"(projects.ext.updater)
@@ -39,6 +43,9 @@ dependencies {
   // dependencies which are available for modules
   "api"(libs.guava)
   "api"(libs.bundles.cloud)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   // internal libraries
   "implementation"(libs.h2)
@@ -53,4 +60,4 @@ dependencies {
   "implementation"(libs.bundles.nightConfig)
 }
 
-applyJarMetadata("eu.cloudnetservice.node.BootLogic", "eu.cloudnetservice.node")
+applyJarMetadata("eu.cloudnetservice.node.boot.Bootstrap", "eu.cloudnetservice.node")

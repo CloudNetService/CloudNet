@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.event;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import lombok.NonNull;
 
@@ -26,7 +26,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class BridgeConfigurationUpdateEvent extends DriverEvent {
+public final class BridgeConfigurationUpdateEvent extends Event {
 
   private final BridgeConfiguration bridgeConfiguration;
 

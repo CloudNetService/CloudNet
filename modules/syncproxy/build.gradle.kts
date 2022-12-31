@@ -24,12 +24,18 @@ tasks.withType<Jar> {
   archiveFileName.set(Files.syncproxy)
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/syncproxy.aero")
+}
+
 dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
 
-  "annotationProcessor"(libs.velocity)
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
+
   "implementation"(projects.ext.adventureHelper)
 }
 
@@ -44,8 +50,4 @@ moduleJson {
     group = project.group.toString()
     version = project.version.toString()
   })
-}
-
-configure<net.kyori.blossom.BlossomExtension> {
-  replaceToken("{project.build.version}", project.version)
 }

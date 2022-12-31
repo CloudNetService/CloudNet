@@ -27,15 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class MySQLDatabase extends SQLDatabase {
 
-  public MySQLDatabase(@NonNull SQLDatabaseProvider provider, @NonNull String name, @NonNull ExecutorService executor) {
-    super(provider, name, executor);
+  public MySQLDatabase(@NonNull SQLDatabaseProvider provider, @NonNull String name) {
+    super(provider, name);
 
     // create the table
     provider.executeUpdate(String.format(
@@ -53,10 +52,9 @@ public final class MySQLDatabase extends SQLDatabase {
 
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
-    this.databaseProvider.databaseHandler().handleInsert(this, key, document);
     return this.databaseProvider.executeUpdate(
       String.format(
-        "INSERT INTO `%s`(%s, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = ?;",
+        "INSERT INTO `%s` (%s, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = ?;",
         this.name,
         TABLE_COLUMN_KEY,
         TABLE_COLUMN_VAL,
@@ -75,7 +73,6 @@ public final class MySQLDatabase extends SQLDatabase {
 
   @Override
   public boolean delete(@NonNull String key) {
-    this.databaseProvider.databaseHandler().handleDelete(this, key);
     return this.databaseProvider.executeUpdate(
       String.format("DELETE FROM %s WHERE `%s` = ?;", this.name, TABLE_COLUMN_KEY),
       key) > 0;
@@ -191,7 +188,6 @@ public final class MySQLDatabase extends SQLDatabase {
 
   @Override
   public void clear() {
-    this.databaseProvider.databaseHandler().handleClear(this);
     this.databaseProvider.executeUpdate(String.format("TRUNCATE TABLE `%s`;", this.name));
   }
 

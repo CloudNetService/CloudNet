@@ -32,10 +32,13 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
+@Singleton
 @CommandAlias({"ask", "?"})
 @CommandPermission("cloudnet.command.help")
 @Description("commnad-help-description")
@@ -50,6 +53,7 @@ public final class HelpCommand {
 
   private final CommandProvider commandProvider;
 
+  @Inject
   public HelpCommand(@NonNull CommandProvider commandProvider) {
     this.commandProvider = commandProvider;
   }

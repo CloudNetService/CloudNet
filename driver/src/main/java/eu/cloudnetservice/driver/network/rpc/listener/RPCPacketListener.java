@@ -28,6 +28,8 @@ import eu.cloudnetservice.driver.network.rpc.RPCInvocationContext;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
 import eu.cloudnetservice.driver.network.rpc.exception.CannotDecideException;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
 public class RPCPacketListener implements PacketListener {
 
   private final RPCHandlerRegistry rpcHandlerRegistry;
@@ -47,6 +50,7 @@ public class RPCPacketListener implements PacketListener {
    * @param rpcHandlerRegistry the registry to use to downstream call instructions to.
    * @throws NullPointerException if the given rpc handler registry is null.
    */
+  @Inject
   public RPCPacketListener(@NonNull RPCHandlerRegistry rpcHandlerRegistry) {
     this.rpcHandlerRegistry = rpcHandlerRegistry;
   }

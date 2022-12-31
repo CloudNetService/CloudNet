@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.event.events.service;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import java.util.UUID;
@@ -30,7 +30,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class CloudServiceDeferredStateEvent extends DriverEvent {
+public final class CloudServiceDeferredStateEvent extends Event {
 
   private final UUID creationId;
   private final ServiceCreateResult createResult;

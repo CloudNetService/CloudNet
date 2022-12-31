@@ -22,6 +22,8 @@ import lombok.NonNull;
 
 public interface PublisherRegistry extends Closeable {
 
+  @NonNull PublisherRegistry registerPublisher(@NonNull Class<? extends Publisher> publisher);
+
   @NonNull PublisherRegistry registerPublisher(@NonNull Publisher publisher);
 
   @NonNull PublisherRegistry unregisterPublisher(@NonNull Publisher publisher);

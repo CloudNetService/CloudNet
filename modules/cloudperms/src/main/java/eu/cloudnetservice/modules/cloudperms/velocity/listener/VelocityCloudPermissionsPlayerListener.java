@@ -27,15 +27,19 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
+@Singleton
 public final class VelocityCloudPermissionsPlayerListener {
 
   private final ProxyServer proxyServer;
   private final PermissionProvider permissionProvider;
   private final PermissionManagement permissionsManagement;
 
+  @Inject
   public VelocityCloudPermissionsPlayerListener(
     @NonNull ProxyServer proxyServer,
     @NonNull PermissionProvider permissionProvider,

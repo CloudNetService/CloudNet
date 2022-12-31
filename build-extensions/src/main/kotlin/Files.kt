@@ -22,6 +22,8 @@ object Files {
   const val launcher = "launcher.jar"
   const val launcherPatcher = "launcher-patcher.jar"
 
+  const val injectSupport = "platform-inject-support.jar"
+
   const val chatPlugin = "cloudnet-chat.jar"
   const val papiExpansion = "cloudnet-papi-expansion.jar"
   const val simpleNameTagsPlugin = "cloudnet-simplenametags.jar"

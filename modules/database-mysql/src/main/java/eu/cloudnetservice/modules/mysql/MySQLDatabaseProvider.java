@@ -41,8 +41,11 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   private final MySQLConfiguration config;
   private volatile HikariDataSource hikariDataSource;
 
-  public MySQLDatabaseProvider(@NonNull MySQLConfiguration config, @Nullable ExecutorService executorService) {
-    super(executorService);
+  public MySQLDatabaseProvider(
+    @NonNull MySQLConfiguration config,
+    @Nullable ExecutorService executorService
+  ) {
+    super(DEFAULT_REMOVAL_LISTENER);
     this.config = config;
   }
 
@@ -82,9 +85,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
-    return this.databaseCache.get(
-      name,
-      $ -> new MySQLDatabase(this, name, super.executorService));
+    return this.databaseCache.get(name, $ -> new MySQLDatabase(this, name));
   }
 
   @Override

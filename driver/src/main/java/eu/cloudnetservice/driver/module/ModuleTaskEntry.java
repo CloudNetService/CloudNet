@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.module;
 
-import java.lang.invoke.MethodHandle;
 import lombok.NonNull;
 
 /**
@@ -51,13 +50,6 @@ public interface ModuleTaskEntry {
    * @return the task information.
    */
   @NonNull ModuleTask taskInfo();
-
-  /**
-   * The method handle this task will invoke when calling {@link #fire()}.
-   *
-   * @return the annotated detected method.
-   */
-  @NonNull MethodHandle method();
 
   /**
    * Get the full method signature of the detected method. This must not be in the standard java signature declaration

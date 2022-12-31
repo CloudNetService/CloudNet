@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.registry;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
@@ -44,7 +44,8 @@ public interface ServiceRegistry {
    * @throws NullPointerException if the given service class is null.
    */
   static <T> @UnknownNullability T first(@NonNull Class<T> service) {
-    return CloudNetDriver.instance().serviceRegistry().firstProvider(service);
+    var registry = InjectionLayer.boot().instance(ServiceRegistry.class);
+    return registry.firstProvider(service);
   }
 
   /**

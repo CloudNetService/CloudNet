@@ -27,7 +27,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public final class PermissionCacheListener {
+final class PermissionCacheListener {
 
   private final WrapperPermissionManagement permissionManagement;
 

@@ -19,9 +19,9 @@ package eu.cloudnetservice.modules.syncproxy.config;
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
-import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.NonNull;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -47,15 +46,22 @@ public record SyncProxyConfiguration(
     "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
     "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
 
-  @Contract("null, _, _ -> null; !null, _, _ -> !null")
-  public static @Nullable String fillCommonPlaceholders(@Nullable String input, int onlinePlayers, int maxPlayers) {
+  public static @Nullable String fillCommonPlaceholders(
+    @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
+    @Nullable String input,
+    int onlinePlayers,
+    int maxPlayers
+  ) {
     if (input == null) {
       return null;
     }
 
-    return BridgeServiceHelper.fillCommonPlaceholders(input
-      .replace("%online_players%", String.valueOf(onlinePlayers))
-      .replace("%max_players%", String.valueOf(maxPlayers)), null, Wrapper.instance().currentServiceInfo());
+    return BridgeServiceHelper.fillCommonPlaceholders(
+      input
+        .replace("%online_players%", String.valueOf(onlinePlayers))
+        .replace("%max_players%", String.valueOf(maxPlayers)),
+      null,
+      serviceInfoSnapshot);
   }
 
   public static @NonNull Builder builder() {
@@ -79,11 +85,11 @@ public record SyncProxyConfiguration(
       .build();
   }
 
-  public static @Nullable SyncProxyConfiguration configurationFromNode() {
+  public static @Nullable SyncProxyConfiguration configurationFromNode(@NonNull String nodeUniqueId) {
     var response = ChannelMessage.builder()
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       .message(SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST)
-      .targetNode(Wrapper.instance().serviceId().nodeUniqueId())
+      .targetNode(nodeUniqueId)
       .build()
       .sendSingleQuery();
 
@@ -135,7 +141,8 @@ public record SyncProxyConfiguration(
       return this;
     }
 
-    public @NonNull Builder modifyTabListConfigurations(@NonNull Consumer<Set<SyncProxyTabListConfiguration>> modifier) {
+    public @NonNull Builder modifyTabListConfigurations(
+      @NonNull Consumer<Set<SyncProxyTabListConfiguration>> modifier) {
       modifier.accept(this.tabListConfigurations);
       return this;
     }

@@ -16,9 +16,11 @@
 
 package eu.cloudnetservice.node.module.util;
 
+import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.node.module.ModulesHolder;
+import jakarta.inject.Named;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +36,8 @@ public final class ModuleUpdateUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull ModulesHolder readModuleJson(@NonNull Path launcherDirPath) {
+  @Factory
+  private static @NonNull ModulesHolder readModuleJson(@NonNull @Named("launcherDir") Path launcherDirPath) {
     var jsonFile = launcherDirPath.resolve("modules.json");
     // check if the file exists, if the file does not exist (probably when running in development mode) then we silently
     // ignore that and return an empty module holder

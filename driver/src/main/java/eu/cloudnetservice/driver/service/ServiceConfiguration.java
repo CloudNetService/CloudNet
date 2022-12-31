@@ -19,7 +19,7 @@ package eu.cloudnetservice.driver.service;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import java.util.Collection;
 import java.util.HashSet;
@@ -436,7 +436,8 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    * @see CloudServiceFactory#createCloudService(ServiceConfiguration)
    */
   public @NonNull ServiceCreateResult createNewService() {
-    return CloudNetDriver.instance().cloudServiceFactory().createCloudService(this);
+    var serviceFactory = InjectionLayer.boot().instance(CloudServiceFactory.class);
+    return serviceFactory.createCloudService(this);
   }
 
   /**
@@ -446,7 +447,8 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    * @see CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)
    */
   public @NonNull Task<ServiceCreateResult> createNewServiceAsync() {
-    return CloudNetDriver.instance().cloudServiceFactory().createCloudServiceAsync(this);
+    var serviceFactory = InjectionLayer.boot().instance(CloudServiceFactory.class);
+    return serviceFactory.createCloudServiceAsync(this);
   }
 
   /**

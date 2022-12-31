@@ -38,17 +38,23 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface CloudServiceManager extends CloudServiceProvider {
 
   @NonNull
-  @UnmodifiableView Map<String, CloudServiceFactory> cloudServiceFactories();
+  @UnmodifiableView Map<String, LocalCloudServiceFactory> cloudServiceFactories();
 
-  @Nullable CloudServiceFactory cloudServiceFactory(@NonNull String runtime);
+  @Nullable LocalCloudServiceFactory cloudServiceFactory(@NonNull String runtime);
 
-  void addCloudServiceFactory(@NonNull String runtime, @NonNull CloudServiceFactory factory);
+  void addCloudServiceFactory(@NonNull String runtime, @NonNull LocalCloudServiceFactory factory);
+
+  void addCloudServiceFactory(@NonNull String runtime, @NonNull Class<? extends LocalCloudServiceFactory> factory);
 
   void removeCloudServiceFactory(@NonNull String runtime);
 
   @NonNull Collection<ServiceConfigurationPreparer> servicePreparers();
 
   @NonNull ServiceConfigurationPreparer servicePreparer(@NonNull ServiceEnvironmentType environmentType);
+
+  void addServicePreparer(
+    @NonNull ServiceEnvironmentType type,
+    @NonNull Class<? extends ServiceConfigurationPreparer> preparer);
 
   void addServicePreparer(@NonNull ServiceEnvironmentType type, @NonNull ServiceConfigurationPreparer preparer);
 

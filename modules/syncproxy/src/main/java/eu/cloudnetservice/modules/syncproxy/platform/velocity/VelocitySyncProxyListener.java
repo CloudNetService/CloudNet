@@ -23,18 +23,28 @@ import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
 
+@Singleton
 public final class VelocitySyncProxyListener {
 
   private static final ServerPing.SamplePlayer[] EMPTY_SAMPLE_PLAYER = new ServerPing.SamplePlayer[0];
 
+  private final ServiceInfoHolder serviceInfoHolder;
   private final VelocitySyncProxyManagement syncProxyManagement;
 
-  public VelocitySyncProxyListener(@NonNull VelocitySyncProxyManagement syncProxyManagement) {
+  @Inject
+  public VelocitySyncProxyListener(
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull VelocitySyncProxyManagement syncProxyManagement
+  ) {
+    this.serviceInfoHolder = serviceInfoHolder;
     this.syncProxyManagement = syncProxyManagement;
   }
 
@@ -59,7 +69,12 @@ public final class VelocitySyncProxyListener {
         maxPlayers = loginConfiguration.maxPlayers();
       }
 
-      var protocolText = SyncProxyConfiguration.fillCommonPlaceholders(motd.protocolText(), onlinePlayers, maxPlayers);
+      var serviceInfo = this.serviceInfoHolder.serviceInfo();
+      var protocolText = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
+        motd.protocolText(),
+        onlinePlayers,
+        maxPlayers);
       var version = event.getPing().getVersion();
       // check if a protocol text is specified in the config
       if (protocolText != null) {
@@ -72,7 +87,7 @@ public final class VelocitySyncProxyListener {
         // convert the player info into individual player samples
         samplePlayers = Arrays.stream(motd.playerInfo())
           .filter(Objects::nonNull)
-          .map(info -> SyncProxyConfiguration.fillCommonPlaceholders(info, onlinePlayers, maxPlayers))
+          .map(info -> SyncProxyConfiguration.fillCommonPlaceholders(serviceInfo, info, onlinePlayers, maxPlayers))
           .map(ComponentFormats.ADVENTURE_TO_BUNGEE::convertText)
           .map(info -> new ServerPing.SamplePlayer(info, UUID.randomUUID()))
           .toArray(ServerPing.SamplePlayer[]::new);
@@ -80,6 +95,7 @@ public final class VelocitySyncProxyListener {
 
       // construct the description for the response
       var description = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
         motd.firstLine() + "\n" + motd.secondLine(),
         onlinePlayers,
         maxPlayers);

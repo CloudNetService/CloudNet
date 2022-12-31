@@ -69,7 +69,7 @@ public final class BridgeServiceProperties {
    * <p>
    * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
    * <p>
-   * Setting the state is possible using {@link BridgeServiceHelper#MOTD} on the service itself.
+   * Setting the state is possible using {@link BridgeServiceHelper#motd()} on the service itself.
    */
   public static final ServiceProperty<String> MOTD = createFromClass("Motd", String.class).forbidModification();
   /**
@@ -78,7 +78,7 @@ public final class BridgeServiceProperties {
    * <p>
    * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
    * <p>
-   * Setting the state is possible using {@link BridgeServiceHelper#EXTRA} on the service itself.
+   * Setting the state is possible using {@link BridgeServiceHelper#extra()} on the service itself.
    */
   public static final ServiceProperty<String> EXTRA = createFromClass("Extra", String.class).forbidModification();
   /**
@@ -87,7 +87,7 @@ public final class BridgeServiceProperties {
    * <p>
    * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
    * <p>
-   * Setting the state is possible using {@link BridgeServiceHelper#STATE} on the service itself.
+   * Setting the state is possible using {@link BridgeServiceHelper#state()} on the service itself.
    */
   public static final ServiceProperty<String> STATE = createFromClass("State", String.class).forbidModification();
   /**

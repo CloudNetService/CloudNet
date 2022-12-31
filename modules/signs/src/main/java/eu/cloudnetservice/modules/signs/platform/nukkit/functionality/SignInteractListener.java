@@ -23,18 +23,22 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.level.Location;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class SignInteractListener implements Listener {
 
   protected final PlatformSignManagement<Player, Location, ?> signManagement;
 
+  @Inject
   public SignInteractListener(@NonNull PlatformSignManagement<Player, Location, ?> signManagement) {
     this.signManagement = signManagement;
   }
 
   @EventHandler
-  public void handle(PlayerInteractEvent event) {
+  public void handle(@NonNull PlayerInteractEvent event) {
     if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK && event.getBlock() != null) {
       var blockEntity = event.getBlock().getLevel().getBlockEntity(event.getBlock().getLocation());
       if (blockEntity instanceof BlockEntitySign) {

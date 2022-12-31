@@ -28,16 +28,21 @@ import org.jetbrains.annotations.Nullable;
 
 final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler {
 
+  private final ProxyServer proxyServer;
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
 
-  public WaterDogPEHandlers(@NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management) {
+  public WaterDogPEHandlers(
+    @NonNull ProxyServer proxyServer,
+    @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management
+  ) {
+    this.proxyServer = proxyServer;
     this.management = management;
   }
 
   @Override
   public ServerInfo resolveForcedHost(@Nullable String domain, @NonNull ProxiedPlayer player) {
     return this.management.fallback(player.getUniqueId(), null, domain, player::hasPermission)
-      .map(server -> ProxyServer.getInstance().getServerInfo(server.name()))
+      .map(server -> this.proxyServer.getServerInfo(server.name()))
       .orElse(null);
   }
 
@@ -57,7 +62,7 @@ final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler 
       player::sendMessage);
     // filter the next fallback for the player
     return this.management.fallback(player, oldServer.getServerName())
-      .map(server -> ProxyServer.getInstance().getServerInfo(server.name()))
+      .map(server -> this.proxyServer.getServerInfo(server.name()))
       .orElse(null);
   }
 }

@@ -24,13 +24,17 @@ import eu.cloudnetservice.driver.event.events.group.GroupConfigurationRemoveEven
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.node.provider.NodeGroupConfigurationProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class GroupChannelMessageListener {
 
   private final EventManager eventManager;
   private final NodeGroupConfigurationProvider groupProvider;
 
+  @Inject
   public GroupChannelMessageListener(
     @NonNull EventManager eventManager,
     @NonNull NodeGroupConfigurationProvider groupProvider

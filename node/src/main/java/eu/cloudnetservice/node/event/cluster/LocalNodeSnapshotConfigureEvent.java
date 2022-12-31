@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.event.cluster;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import lombok.NonNull;
 
-public final class LocalNodeSnapshotConfigureEvent extends DriverEvent {
+public final class LocalNodeSnapshotConfigureEvent extends Event {
 
   private final NodeInfoSnapshot nodeInfoSnapshot;
 

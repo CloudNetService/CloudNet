@@ -18,21 +18,27 @@ package eu.cloudnetservice.node.command.defaults;
 
 import cloud.commandframework.execution.postprocessor.CommandPostprocessingContext;
 import cloud.commandframework.execution.postprocessor.CommandPostprocessor;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.event.command.CommandPostProcessEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 /**
  * {@inheritDoc}
  */
+@Singleton
 final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandSource> {
 
   private final CommandProvider provider;
+  private final EventManager eventManager;
 
-  DefaultCommandPostProcessor(@NonNull CommandProvider provider) {
+  @Inject
+  private DefaultCommandPostProcessor(@NonNull CommandProvider provider, @NonNull EventManager eventManager) {
     this.provider = provider;
+    this.eventManager = eventManager;
   }
 
   /**
@@ -42,13 +48,20 @@ final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandS
   public void accept(@NonNull CommandPostprocessingContext<CommandSource> context) {
     var commandContext = context.getCommandContext();
     var source = commandContext.getSender();
+
+    // we only process command executions and not the tab complete handling
+    if (commandContext.isSuggestions()) {
+      return;
+    }
+
     // get the first argument and retrieve the command info using it
-    var firstArgument = commandContext.getRawInput().getFirst();
+    var rawInput = commandContext.getRawInput();
+    var firstArgument = rawInput.getFirst();
     var commandInfo = this.provider.command(firstArgument);
+
     // should not happen - just make sure
     if (commandInfo != null) {
-      Node.instance().eventManager()
-        .callEvent(new CommandPostProcessEvent(commandContext.getRawInput(), commandInfo, source, this.provider));
+      this.eventManager.callEvent(new CommandPostProcessEvent(rawInput, commandInfo, source, this.provider));
     }
   }
 }
