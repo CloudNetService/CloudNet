@@ -39,6 +39,7 @@ public final class SystemInfoDataEmitter implements ReportDataEmitter {
   public @NonNull ReportDataWriter emitData(@NonNull ReportDataWriter writer) {
     var hardware = SYSTEM_INFO.getHardware();
     var operatingSystem = SYSTEM_INFO.getOperatingSystem();
+    var fileSystem = operatingSystem.getFileSystem();
 
     // general information about the system
     var dataWriter = writer
@@ -71,6 +72,11 @@ public final class SystemInfoDataEmitter implements ReportDataEmitter {
       // Memory: 31,9 GiB; Available: 13,2 GiB
       .appendString("Memory: ").appendString(FormatUtil.formatBytes(hardware.getMemory().getTotal()))
       .appendString("; Available: ").appendString(FormatUtil.formatBytes(hardware.getMemory().getAvailable()))
+      .appendNewline()
+      // File Descriptors: Open: 1152; Max: 9223372036854775807; Per-Process-Max: 9223372036854775807
+      .appendString("File Descriptors: Open: ").appendLong(fileSystem.getOpenFileDescriptors())
+      .appendString("; Max: ").appendLong(fileSystem.getMaxFileDescriptors())
+      .appendString("; Per-Process-Max: ").appendLong(fileSystem.getMaxFileDescriptorsPerProcess())
       .appendNewline()
       .appendNewline();
 
