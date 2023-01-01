@@ -27,6 +27,8 @@ public interface DocPropertyHolder {
 
   @UnknownNullability <E> E property(@NonNull DocProperty<E> docProperty);
 
+  @UnknownNullability <E> E propertyOr(@NonNull DocProperty<E> docProperty, @Nullable E def);
+
   @NonNull <E> DocPropertyHolder removeProperty(@NonNull DocProperty<E> docProperty);
 
   <E> boolean hasProperty(@NonNull DocProperty<E> docProperty);

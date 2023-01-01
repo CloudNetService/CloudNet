@@ -117,7 +117,7 @@ public class CloudNetLabyModModule extends DriverModule {
       CloudNetLabyModModule.class,
       moduleHelper,
       service -> management.configuration().enabled()
-        && ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())));
+        && service.serviceId().environment().propertyOr(ServiceEnvironmentType.JAVA_PROXY, false)));
   }
 
   private @NonNull LabyModServiceDisplay convertDisplayEntry(@NonNull JsonDocument entry) {

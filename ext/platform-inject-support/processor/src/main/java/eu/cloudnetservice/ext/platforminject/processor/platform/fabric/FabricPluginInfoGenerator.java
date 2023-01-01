@@ -20,10 +20,11 @@ import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.json.JsonFormat;
 import eu.cloudnetservice.ext.platforminject.api.data.ParsedPluginData;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
-import eu.cloudnetservice.ext.platforminject.api.util.PluginUtil;
 import eu.cloudnetservice.ext.platforminject.processor.infogen.NightConfigInfoGenerator;
 import eu.cloudnetservice.ext.platforminject.processor.util.ConfigUtil;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 
 final class FabricPluginInfoGenerator extends NightConfigInfoGenerator {
@@ -68,21 +69,27 @@ final class FabricPluginInfoGenerator extends NightConfigInfoGenerator {
     // put in the dependencies (if any)
     var dependencies = pluginData.dependencies().stream()
       .filter(dependency -> !dependency.optional())
-      .map(dependency -> ConfigUtil.tap(this.configFormat, config -> {
-        var id = PluginUtil.convertNameToId(dependency.name());
-        config.add(id, dependency.version());
-      }))
-      .toList();
-    ConfigUtil.putIfValuesPresent(target, "depends", dependencies);
+      .map(dependency -> Map.entry(dependency.name(), dependency.version()))
+      .collect(Collectors.collectingAndThen(
+        Collectors.toList(),
+        entries -> ConfigUtil.tap(this.configFormat, config -> {
+          for (var entry : entries) {
+            config.add(entry.getKey(), entry.getValue());
+          }
+        })));
+    target.add("depends", dependencies);
 
     // put in the soft dependencies (if any)
     var softDepends = pluginData.dependencies().stream()
       .filter(Dependency::optional)
-      .map(dependency -> ConfigUtil.tap(this.configFormat, config -> {
-        var id = PluginUtil.convertNameToId(dependency.name());
-        config.add(id, dependency.version());
-      }))
-      .toList();
-    ConfigUtil.putIfValuesPresent(target, "recommends", softDepends);
+      .map(dependency -> Map.entry(dependency.name(), dependency.version()))
+      .collect(Collectors.collectingAndThen(
+        Collectors.toList(),
+        entries -> ConfigUtil.tap(this.configFormat, config -> {
+          for (var entry : entries) {
+            config.add(entry.getKey(), entry.getValue());
+          }
+        })));
+    target.add("recommends", softDepends);
   }
 }

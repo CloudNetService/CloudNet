@@ -21,10 +21,9 @@ import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandExecutor;
 import cn.nukkit.command.CommandSender;
-import cn.nukkit.level.Location;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
-import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.nukkit.NukkitSignManagement;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -32,10 +31,10 @@ import lombok.NonNull;
 @Singleton
 public class SignsCommand implements CommandExecutor {
 
-  private final PlatformSignManagement<?, Location, ?> signManagement;
+  private final NukkitSignManagement signManagement;
 
   @Inject
-  public SignsCommand(@NonNull PlatformSignManagement<?, Location, ?> signManagement) {
+  public SignsCommand(@NonNull NukkitSignManagement signManagement) {
     this.signManagement = signManagement;
   }
 
