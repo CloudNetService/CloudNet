@@ -57,7 +57,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     super(configuration);
 
     this.configPath = dataDirectory.resolve("config.json");
-    this.database = databaseProvider.database("");
+    this.database = databaseProvider.database(CloudNetSignsModule.DATABASE_NAME);
 
     this.database.documentsAsync().thenAccept(jsonDocuments -> {
       for (var document : jsonDocuments) {
