@@ -91,11 +91,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.19.2"
+            "versionGroup": "1.19.3"
           }
         },
         {
-          "name": "1.19.2",
+          "name": "1.19.3",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -106,7 +106,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.19.2"
+            "versionGroup": "1.19.3"
           }
         },
         {
@@ -262,7 +262,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.19.2/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.19.3/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -276,8 +276,8 @@
           }
         },
         {
-          "name": "1.19.2",
-          "url": "https://api.purpurmc.org/v2/purpur/1.19.2/latest/download",
+          "name": "1.19.3",
+          "url": "https://api.purpurmc.org/v2/purpur/1.19.3/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -329,12 +329,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.2.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.3.jar",
           "cacheFiles": false
         },
         {
-          "name": "1.19.2",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.2.jar"
+          "name": "1.19.3",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.19.3.jar"
         },
         {
           "name": "1.18.2",
@@ -405,7 +405,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.19.2",
+          "name": "1.19.3",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -446,11 +446,11 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.19.2"
+            "mcVersion": "1.19.3"
           }
         },
         {
-          "name": "1.19.2",
+          "name": "1.19.3",
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -459,7 +459,7 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.19.2"
+            "mcVersion": "1.19.3"
           }
         },
         {

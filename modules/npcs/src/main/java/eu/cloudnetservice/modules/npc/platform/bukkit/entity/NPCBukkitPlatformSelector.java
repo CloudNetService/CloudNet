@@ -94,7 +94,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
         this.npc.profileProperties().stream()
           .map(prop -> ProfileProperty.property(prop.name(), prop.value(), prop.signature()))
           .collect(Collectors.toSet())))
-      .position(BukkitPlatformUtil.positionFromBukkit(this.npcLocation))
+      .position(BukkitPlatformUtil.positionFromBukkitLegacy(this.npcLocation))
       .buildAndTrack();
   }
 
