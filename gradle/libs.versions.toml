@@ -9,7 +9,7 @@ fabricLoom = "1.0.16"
 nexusPublish = "1.1.0"
 
 # google libs
-gson = "2.10"
+gson = "2.10.1"
 guava = "31.1-jre"
 
 # testing
