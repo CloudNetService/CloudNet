@@ -51,7 +51,7 @@ annotations = "23.1.0"
 influxClient = "6.7.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
-aerogel = "2.0.0.ctx3-SNAPSHOT"
+aerogel = "2.0.0-SNAPSHOT"
 
 # platform api versions
 sponge = "9.0.0"
