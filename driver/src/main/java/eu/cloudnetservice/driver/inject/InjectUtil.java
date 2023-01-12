@@ -21,7 +21,7 @@ import dev.derklaro.aerogel.AerogelException;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.binding.BindingConstructor;
-import dev.derklaro.aerogel.internal.utility.ElementHelper;
+import dev.derklaro.aerogel.internal.util.ElementHelper;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
