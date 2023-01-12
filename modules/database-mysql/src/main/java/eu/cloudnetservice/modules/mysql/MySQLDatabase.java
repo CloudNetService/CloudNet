@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,7 @@ public final class MySQLDatabase extends SQLDatabase {
         TABLE_COLUMN_VAL,
         this.name,
         TABLE_COLUMN_VAL,
-        Objects.toString(fieldValue).replaceAll("([_%])", "\\$1"),
+        Objects.toString(fieldValue).replaceAll("([_%])", "\\\\$1"),
         fieldName),
       resultSet -> {
         List<JsonDocument> results = new ArrayList<>();
@@ -128,7 +128,7 @@ public final class MySQLDatabase extends SQLDatabase {
           .append("JSON_SEARCH(")
           .append(TABLE_COLUMN_VAL)
           .append(", 'one', '")
-          .append(entry.getValue().replaceAll("([_%])", "\\$1"))
+          .append(entry.getValue().replaceAll("([_%])", "\\\\$1"))
           .append("', NULL, '$.")
           .append(entry.getKey())
           .append("') IS NOT NULL")
