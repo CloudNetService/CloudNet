@@ -45,12 +45,6 @@ public class JsonDocPropertyHolder implements DocPropertyHolder {
   }
 
   @Override
-  public <E> @UnknownNullability E propertyOr(@NonNull DocProperty<E> docProperty, @Nullable E def) {
-    var property = docProperty.get(this.properties);
-    return property == null ? def : property;
-  }
-
-  @Override
   public @NonNull <E> DocPropertyHolder removeProperty(@NonNull DocProperty<E> docProperty) {
     docProperty.remove(this.properties);
     return this;

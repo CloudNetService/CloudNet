@@ -161,12 +161,6 @@ public interface Document<R extends Document<R>>
   }
 
   @Override
-  default <E> @UnknownNullability E propertyOr(@NonNull DocProperty<E> docProperty, @Nullable E def) {
-    var property = docProperty.get(this);
-    return property == null ? def : property;
-  }
-
-  @Override
   @SuppressWarnings("unchecked")
   default @NonNull <E> R removeProperty(@NonNull DocProperty<E> docProperty) {
     docProperty.remove(this);
