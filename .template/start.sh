@@ -1,5 +1,4 @@
 #!/bin/sh
-
 cd "$(dirname "$(readlink -fn "$0")")" || exit 1
 
 # check if java is installed
