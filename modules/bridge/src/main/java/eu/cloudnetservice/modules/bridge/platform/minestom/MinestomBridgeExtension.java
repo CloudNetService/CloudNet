@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 @Singleton
 @PlatformPlugin(
   platform = "minestom",
-  name = "CloudNet_Bridge",
+  name = "CloudNet-Bridge",
   version = "{project.build.version}",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
   authors = "CloudNetService",

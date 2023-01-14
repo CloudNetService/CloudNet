@@ -19,12 +19,28 @@ package eu.cloudnetservice.ext.platforminject.processor.platform.velocity;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.json.JsonFormat;
 import eu.cloudnetservice.ext.platforminject.api.data.ParsedPluginData;
-import eu.cloudnetservice.ext.platforminject.api.util.PluginUtil;
+import eu.cloudnetservice.ext.platforminject.processor.id.CharRange;
+import eu.cloudnetservice.ext.platforminject.processor.id.PluginIdGenerator;
 import eu.cloudnetservice.ext.platforminject.processor.infogen.NightConfigInfoGenerator;
 import eu.cloudnetservice.ext.platforminject.processor.util.ConfigUtil;
 import lombok.NonNull;
 
 final class VelocityPluginInfoGenerator extends NightConfigInfoGenerator {
+
+  // [a-z][a-z0-9-_]{0,63}
+  private static final PluginIdGenerator PLUGIN_ID_GENERATOR = PluginIdGenerator.withBoundedLength(1, 63)
+    .registerRange(
+      0,
+      1,
+      'a',
+      CharRange.range('a', 'z'))
+    .registerRange(
+      1,
+      '_',
+      CharRange.range('-'),
+      CharRange.range('_'),
+      CharRange.range('a', 'z'),
+      CharRange.range('0', '9'));
 
   public VelocityPluginInfoGenerator() {
     super(JsonFormat.minimalInstance(), "velocity-plugin.json");
@@ -37,10 +53,10 @@ final class VelocityPluginInfoGenerator extends NightConfigInfoGenerator {
     @NonNull String platformMainClassName
   ) {
     // base values
-    target.add("id", pluginData.id());
     target.add("name", pluginData.name());
     target.add("version", pluginData.name());
     target.add("main", platformMainClassName);
+    target.add("id", PLUGIN_ID_GENERATOR.convert(pluginData.name()));
 
     // optional values
     ConfigUtil.putIfPresent(target, "url", pluginData.homepage());
@@ -50,7 +66,7 @@ final class VelocityPluginInfoGenerator extends NightConfigInfoGenerator {
     // collect the plugin dependencies
     var depends = pluginData.dependencies().stream().map(dependency -> {
       var dependencySection = this.configFormat.createConfig();
-      dependencySection.add("id", PluginUtil.convertNameToId(dependency.name()));
+      dependencySection.add("id", PLUGIN_ID_GENERATOR.convert(dependency.name()));
       dependencySection.add("optional", dependency.optional());
       return dependencySection;
     }).toList();

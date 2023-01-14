@@ -26,8 +26,6 @@ public final class VelocityPlatformInfoProvider extends PlatformDataGeneratorPro
       "velocity",
       VelocityPluginInfoGenerator::new,
       VelocityMainClassGenerator::new,
-      () -> PluginDataParser.create()
-        .enableSupport(PluginDataParser.PLUGIN_ID)
-        .enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
+      () -> PluginDataParser.create().enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
   }
 }

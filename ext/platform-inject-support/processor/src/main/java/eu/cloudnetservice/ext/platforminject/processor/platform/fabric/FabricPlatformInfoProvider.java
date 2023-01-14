@@ -26,8 +26,6 @@ public class FabricPlatformInfoProvider extends PlatformDataGeneratorProvider {
       "fabric",
       FabricPluginInfoGenerator::new,
       FabricMainClassGenerator::new,
-      () -> PluginDataParser.create()
-        .enableSupport(PluginDataParser.PLUGIN_ID)
-        .enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
+      () -> PluginDataParser.create().enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
   }
 }

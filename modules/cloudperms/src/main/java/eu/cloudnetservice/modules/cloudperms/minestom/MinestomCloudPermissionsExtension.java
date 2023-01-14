@@ -37,7 +37,7 @@ import net.minestom.server.network.ConnectionManager;
 @Singleton
 @PlatformPlugin(
   platform = "minestom",
-  name = "cloudnet_cloudperms",
+  name = "CloudNet-CloudPerms",
   authors = "CloudNetService",
   version = "{project.build.version}",
   externalDependencies = @ExternalDependency(

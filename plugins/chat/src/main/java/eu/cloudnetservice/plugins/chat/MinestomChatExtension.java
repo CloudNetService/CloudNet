@@ -38,10 +38,10 @@ import net.minestom.server.extensions.Extension;
 @Singleton
 @PlatformPlugin(
   platform = "minestom",
-  name = "CloudNet_Chat",
+  name = "CloudNet-Chat",
   authors = "CloudNetService",
   version = "{project.build.version}",
-  dependencies = @Dependency(name = "cloudnet_cloudperms")
+  dependencies = @Dependency(name = "CloudNet-CloudPerms")
 )
 public class MinestomChatExtension implements PlatformEntrypoint {
 
