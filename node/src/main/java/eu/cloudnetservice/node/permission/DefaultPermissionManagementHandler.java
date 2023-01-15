@@ -31,13 +31,17 @@ import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.node.permission.handler.PermissionManagementHandler;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 
+@Singleton
 public final class DefaultPermissionManagementHandler implements PermissionManagementHandler {
 
   private final EventManager eventManager;
 
+  @Inject
   public DefaultPermissionManagementHandler(@NonNull EventManager eventManager) {
     this.eventManager = eventManager;
   }
