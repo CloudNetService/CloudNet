@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ public class FabricPlatformInfoProvider extends PlatformDataGeneratorProvider {
       "fabric",
       FabricPluginInfoGenerator::new,
       FabricMainClassGenerator::new,
-      () -> PluginDataParser.create()
-        .enableSupport(PluginDataParser.PLUGIN_ID)
-        .enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
+      () -> PluginDataParser.create().enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,29 @@ package eu.cloudnetservice.ext.platforminject.processor.platform.sponge;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.json.JsonFormat;
 import eu.cloudnetservice.ext.platforminject.api.data.ParsedPluginData;
-import eu.cloudnetservice.ext.platforminject.api.util.PluginUtil;
+import eu.cloudnetservice.ext.platforminject.processor.id.CharRange;
+import eu.cloudnetservice.ext.platforminject.processor.id.PluginIdGenerator;
 import eu.cloudnetservice.ext.platforminject.processor.infogen.NightConfigInfoGenerator;
 import eu.cloudnetservice.ext.platforminject.processor.util.ConfigUtil;
 import java.util.List;
 import lombok.NonNull;
 
 final class SpongePluginInfoGenerator extends NightConfigInfoGenerator {
+
+  // ^[a-z][a-z0-9-_]{1,63}$
+  static final PluginIdGenerator PLUGIN_ID_GENERATOR = PluginIdGenerator.withBoundedLength(2, 63)
+    .registerRange(
+      0,
+      1,
+      'a',
+      CharRange.range('a', 'z'))
+    .registerRange(
+      1,
+      '_',
+      CharRange.range('-'),
+      CharRange.range('_'),
+      CharRange.range('a', 'z'),
+      CharRange.range('0', '9'));
 
   public SpongePluginInfoGenerator() {
     super(JsonFormat.minimalInstance(), "META-INF/sponge_plugins.json");
@@ -50,10 +66,10 @@ final class SpongePluginInfoGenerator extends NightConfigInfoGenerator {
     // construct the plugin information
     var pluginMeta = ConfigUtil.tap(this.configFormat, config -> {
       // base values
-      config.add("id", pluginData.id());
       config.add("name", pluginData.name());
       config.add("version", pluginData.version());
       config.add("entrypoint", platformMainClassName);
+      config.add("id", PLUGIN_ID_GENERATOR.convert(pluginData.name()));
 
       // optional values
       ConfigUtil.putIfPresent(config, "description", pluginData.description());
@@ -74,7 +90,7 @@ final class SpongePluginInfoGenerator extends NightConfigInfoGenerator {
       // put in the plugin dependencies
       var dependencies = pluginData.dependencies().stream()
         .map(dependency -> ConfigUtil.tap(this.configFormat, section -> {
-          section.add("id", PluginUtil.convertNameToId(dependency.name()));
+          section.add("id", PLUGIN_ID_GENERATOR.convert(dependency.name()));
           section.add("version", dependency.version());
           section.add("optional", dependency.optional());
         }))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,11 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.ExternalDependency;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 public record ParsedPluginData(
   @NonNull String name,
   @NonNull String version,
   @Nullable String apiVersion,
-  @UnknownNullability String id,
   @Nullable String description,
   @Nullable String homepage,
   @Nullable String constructionListenerClass,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,10 +36,10 @@ import net.minestom.server.scoreboard.TeamManager;
 @Singleton
 @PlatformPlugin(
   platform = "minestom",
-  name = "CloudNet_SimpleNameTags",
+  name = "CloudNet-SimpleNameTags",
   version = "{project.build.version}",
   authors = "CloudNetService",
-  dependencies = @Dependency(name = "cloudnet_cloudperms")
+  dependencies = @Dependency(name = "CloudNet-CloudPerms")
 )
 public class MinestomSimpleNameTagsExtension implements PlatformEntrypoint {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import lombok.NonNull;
   version = "{project.build.version}",
   description = "CloudNet extension which serves proxy utils with CloudNet support",
   authors = "CloudNetService",
-  dependencies = {@Dependency(name = "cloudnet_bridge"), @Dependency(name = "cloudnet_cloudperms", optional = true)})
+  dependencies = {@Dependency(name = "CloudNet-Bridge"), @Dependency(name = "CloudNet-CloudPerms", optional = true)})
 public final class WaterDogPESyncProxyPlugin implements PlatformEntrypoint {
 
   private final EventManager eventManager;

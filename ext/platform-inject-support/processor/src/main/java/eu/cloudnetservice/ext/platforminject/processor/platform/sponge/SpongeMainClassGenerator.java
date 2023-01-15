@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,8 @@ final class SpongeMainClassGenerator extends BaseMainClassGenerator {
     @NonNull TypeSpec.Builder typeBuilder
   ) {
     // add the @Plugin annotation to the class
-    var pluginAnnotation = AnnotationSpec.builder(PLUGIN_ANNOTATION).addMember("value", "$S", pluginData.id()).build();
+    var id = SpongePluginInfoGenerator.PLUGIN_ID_GENERATOR.convert(pluginData.name());
+    var pluginAnnotation = AnnotationSpec.builder(PLUGIN_ANNOTATION).addMember("value", "$S", id).build();
     typeBuilder.addAnnotation(pluginAnnotation);
 
     // add a field for the platform info

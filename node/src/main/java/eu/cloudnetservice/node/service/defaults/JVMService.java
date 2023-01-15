@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,7 @@ public class JVMService extends AbstractService {
     arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
 
     // fabric specific class path
-    arguments.add(String.format("-Dfabric.systemLibraries=%s", wrapperInformation.first().toAbsolutePath()));
+    arguments.add(String.format("-Dfabric.systemLibraries=%s", classPath));
 
     // set the used host and port as system property
     arguments.add("-Dservice.bind.host=" + this.serviceConfiguration().hostAddress());

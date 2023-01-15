@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.Command;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ExternalDependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
-import eu.cloudnetservice.ext.platforminject.api.util.PluginUtil;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,11 +29,10 @@ import org.jetbrains.annotations.Nullable;
 
 public final class PluginDataParser {
 
-  public static final int PLUGIN_ID = 0x01;
-  public static final int PLUGIN_COMMANDS = 0x02;
-  public static final int PLUGIN_DEPENDENCIES = 0x04;
-  public static final int EXTERNAL_DEPENDENCIES = 0x08;
-  public static final int EXTERNAL_REPOSITORIES = 0x10;
+  public static final int PLUGIN_COMMANDS = 0x01;
+  public static final int PLUGIN_DEPENDENCIES = 0x02;
+  public static final int EXTERNAL_DEPENDENCIES = 0x04;
+  public static final int EXTERNAL_REPOSITORIES = 0x08;
 
   private int supportedPlatformComponents;
 
@@ -69,9 +67,6 @@ public final class PluginDataParser {
     var name = validateName(plugin.name(), "name");
     var version = validateName(plugin.version(), "version");
 
-    // only generate a plugin id if needed
-    var id = this.hasFlag(PLUGIN_ID) ? PluginUtil.convertNameToId(name) : null;
-
     // non required values
     var api = normalizeValue(plugin.api());
     var homepage = normalizeValue(plugin.homepage());
@@ -93,7 +88,6 @@ public final class PluginDataParser {
         name,
         version,
         api,
-        id,
         desc,
         homepage,
         listener,
@@ -127,7 +121,6 @@ public final class PluginDataParser {
       name,
       version,
       api,
-      id,
       desc,
       homepage,
       listener,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.yaml.YamlFormat;
 import eu.cloudnetservice.ext.platforminject.api.data.ParsedPluginData;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.processor.id.CharRange;
+import eu.cloudnetservice.ext.platforminject.processor.id.PluginIdGenerator;
 import eu.cloudnetservice.ext.platforminject.processor.infogen.NightConfigInfoGenerator;
 import eu.cloudnetservice.ext.platforminject.processor.util.ConfigUtil;
 import java.util.Map;
@@ -28,6 +30,20 @@ import lombok.NonNull;
 
 @SuppressWarnings("DuplicatedCode") // nukkit...
 final class BukkitPluginInfoGenerator extends NightConfigInfoGenerator {
+
+  // ^[A-Za-z0-9 _.-]+$
+  // while bukkit does allow spaces in the plugin name it would replace the spaces with underscores at runtime anyway
+  private static final PluginIdGenerator PLUGIN_NAME_GENERATOR = PluginIdGenerator.withInfiniteLength()
+    .registerRange(0, '_', CharRange.range(' '))
+    .registerRange(
+      0,
+      '_',
+      CharRange.range('_'),
+      CharRange.range('.'),
+      CharRange.range('-'),
+      CharRange.range('A', 'Z'),
+      CharRange.range('a', 'z'),
+      CharRange.range('0', '9'));
 
   public BukkitPluginInfoGenerator() {
     super(YamlFormat.defaultInstance(), "plugin.minecraft_server.yml", "plugin.glowstone.yml");
@@ -40,9 +56,9 @@ final class BukkitPluginInfoGenerator extends NightConfigInfoGenerator {
     @NonNull String platformMainClassName
   ) {
     // base values
-    target.add("name", pluginData.name());
     target.add("version", pluginData.version());
     target.add("main", platformMainClassName);
+    target.add("name", PLUGIN_NAME_GENERATOR.convert(pluginData.name()));
 
     // optional values
     ConfigUtil.putIfPresent(target, "website", pluginData.homepage());
@@ -52,8 +68,16 @@ final class BukkitPluginInfoGenerator extends NightConfigInfoGenerator {
     ConfigUtil.putOrDefault(target, "api-version", pluginData.apiVersion(), "1.13");
 
     // collect the plugin dependencies
-    var depends = pluginData.dependencies().stream().filter(dep -> !dep.optional()).map(Dependency::name).toList();
-    var softDepends = pluginData.dependencies().stream().filter(Dependency::optional).map(Dependency::name).toList();
+    var depends = pluginData.dependencies().stream()
+      .filter(dep -> !dep.optional())
+      .map(Dependency::name)
+      .map(PLUGIN_NAME_GENERATOR::convert)
+      .toList();
+    var softDepends = pluginData.dependencies().stream()
+      .filter(Dependency::optional)
+      .map(Dependency::name)
+      .map(PLUGIN_NAME_GENERATOR::convert)
+      .toList();
 
     // put the plugin dependencies
     ConfigUtil.putIfValuesPresent(target, "depend", depends);

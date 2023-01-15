@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import lombok.NonNull;
 
 @Singleton
 public final class WaterDogPESyncProxyListener {
-
 
   private final ServiceInfoHolder serviceInfoHolder;
   private final WaterDogPESyncProxyManagement syncProxyManagement;

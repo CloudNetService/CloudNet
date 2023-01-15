@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ import org.spongepowered.plugin.ResourceQueryable;
   description = "Brings chat prefixes and colored message support to all server platforms",
   dependencies = {
     @Dependency(name = "spongeapi", version = "8.0.0"),
-    @Dependency(name = "cloudnet-cloudperms", version = "{project.build.version}")
+    @Dependency(name = "CloudNet-CloudPerms", version = "{project.build.version}")
   }
 )
 public class SpongeChatPlugin implements PlatformEntrypoint {

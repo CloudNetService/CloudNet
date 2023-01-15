@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,29 @@ import com.electronwill.nightconfig.json.JsonFormat;
 import eu.cloudnetservice.ext.platforminject.api.data.ParsedPluginData;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ExternalDependency;
+import eu.cloudnetservice.ext.platforminject.processor.id.CharRange;
+import eu.cloudnetservice.ext.platforminject.processor.id.PluginIdGenerator;
 import eu.cloudnetservice.ext.platforminject.processor.infogen.NightConfigInfoGenerator;
 import eu.cloudnetservice.ext.platforminject.processor.util.ConfigUtil;
 import lombok.NonNull;
 
 final class MinestomPluginInfoGenerator extends NightConfigInfoGenerator {
+
+  // [A-Za-z][_A-Za-z0-9]+
+  private static final PluginIdGenerator EXTENSION_NAME_GENERATOR = PluginIdGenerator.withInfiniteLength()
+    .registerRange(
+      0,
+      1,
+      'a',
+      CharRange.range('a', 'z'),
+      CharRange.range('A', 'Z'))
+    .registerRange(
+      1,
+      '_',
+      CharRange.range('_'),
+      CharRange.range('a', 'z'),
+      CharRange.range('A', 'Z'),
+      CharRange.range('0', '9'));
 
   public MinestomPluginInfoGenerator() {
     super(JsonFormat.minimalInstance(), "extension.json");
@@ -38,15 +56,18 @@ final class MinestomPluginInfoGenerator extends NightConfigInfoGenerator {
     @NonNull String platformMainClassName
   ) {
     // base values
-    target.add("name", pluginData.name());
     target.add("version", pluginData.version());
     target.add("entrypoint", platformMainClassName);
+    target.add("name", EXTENSION_NAME_GENERATOR.convert(pluginData.name()));
 
     // optional values
     ConfigUtil.putIfValuesPresent(target, "authors", pluginData.authors());
 
     // put in the extension dependencies
-    var depends = pluginData.dependencies().stream().map(Dependency::name).toList();
+    var depends = pluginData.dependencies().stream()
+      .map(Dependency::name)
+      .map(EXTENSION_NAME_GENERATOR::convert)
+      .toList();
     ConfigUtil.putIfValuesPresent(target, "dependencies", depends);
 
     // collect the external dependencies
