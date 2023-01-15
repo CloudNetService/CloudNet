@@ -30,7 +30,7 @@ cloud = "1.8.0-cn1"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "4.8.1"
+mongodb = "4.8.2"
 hikariCp = "5.0.1"
 mysqlConnector = "8.0.31"
 
