@@ -75,8 +75,8 @@ subprojects {
     // annotations
     "compileOnly"(rootProject.libs.annotations)
     // testing
+    "testImplementation"(rootProject.libs.mockito)
     "testImplementation"(rootProject.libs.bundles.junit)
-    "testImplementation"(rootProject.libs.bundles.mockito)
     "testImplementation"(rootProject.libs.bundles.testContainers)
   }
 
