@@ -26,8 +26,6 @@ public final class SpongePlatformInfoProvider extends PlatformDataGeneratorProvi
       "sponge",
       SpongePluginInfoGenerator::new,
       SpongeMainClassGenerator::new,
-      () -> PluginDataParser.create()
-        .enableSupport(PluginDataParser.PLUGIN_ID)
-        .enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
+      () -> PluginDataParser.create().enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
   }
 }

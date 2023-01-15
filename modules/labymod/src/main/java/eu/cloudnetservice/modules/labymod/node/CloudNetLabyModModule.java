@@ -38,6 +38,7 @@ import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import lombok.NonNull;
 
 @Singleton
@@ -116,8 +117,15 @@ public class CloudNetLabyModModule extends DriverModule {
       "cloudnet-labymod",
       CloudNetLabyModModule.class,
       moduleHelper,
-      service -> management.configuration().enabled()
-        && ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())));
+      service -> {
+        if (management.configuration().enabled()) {
+          // todo: replace
+          return Objects.requireNonNullElse(
+            service.serviceId().environment().property(ServiceEnvironmentType.JAVA_PROXY),
+            false);
+        }
+        return false;
+      }));
   }
 
   private @NonNull LabyModServiceDisplay convertDisplayEntry(@NonNull JsonDocument entry) {

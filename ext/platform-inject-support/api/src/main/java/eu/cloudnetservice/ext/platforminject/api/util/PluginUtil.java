@@ -16,60 +16,12 @@
 
 package eu.cloudnetservice.ext.platforminject.api.util;
 
-import java.util.Arrays;
 import lombok.NonNull;
 
 public final class PluginUtil {
 
   private PluginUtil() {
     throw new UnsupportedOperationException();
-  }
-
-  public static @NonNull String convertNameToId(@NonNull String pluginName) {
-    var chars = pluginName.toCharArray();
-
-    // construct a new char array to which we write all converted chars of the plugin id
-    // we can use the same amount of chars as we're not removing any char from the name, only replace
-    var idChars = new char[chars.length];
-    for (int i = 0; i < chars.length; i++) {
-      // check if the current char is a lowercase char (allowed at all positions)
-      var charAtPos = chars[i];
-      if ((charAtPos >= 'a' && charAtPos <= 'z')) {
-        idChars[i] = charAtPos;
-        continue;
-      }
-
-      // check if we are at the first char, in that case we need to prefix the name
-      // with a different char as a lowercase character is required at the first position
-      if (i == 0 && (charAtPos < 'A' || charAtPos > 'Z')) {
-        idChars[i] = 'a';
-        continue;
-      }
-
-      // check if the char is within the allowed characters which aren't checked yet
-      // convert all characters to lower case by default
-      if ((charAtPos >= 'A' && charAtPos <= 'Z')
-        || (charAtPos >= '0' && charAtPos <= '9')
-        || charAtPos == '-'
-        || charAtPos == '_'
-      ) {
-        idChars[i] = Character.toLowerCase(charAtPos);
-        continue;
-      }
-
-      // we need to replace the char at the current position
-      idChars[i] = '_';
-    }
-
-    // check if we need to substring the id
-    if (idChars.length > 64) {
-      // to long, substring
-      var includedChars = Arrays.copyOf(idChars, 64);
-      return new String(includedChars);
-    } else {
-      // size is within bounds
-      return new String(idChars);
-    }
   }
 
   public static @NonNull String buildClassName(

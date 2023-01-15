@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.ext.platforminject.processor.platform.fabric;
+package eu.cloudnetservice.ext.platforminject.processor.id;
 
-import eu.cloudnetservice.ext.platforminject.api.data.PluginDataParser;
-import eu.cloudnetservice.ext.platforminject.api.spi.PlatformDataGeneratorProvider;
+import lombok.NonNull;
 
-public class FabricPlatformInfoProvider extends PlatformDataGeneratorProvider {
+public record CharRange(char lowerBounds, char upperBounds) {
 
-  public FabricPlatformInfoProvider() {
-    super(
-      "fabric",
-      FabricPluginInfoGenerator::new,
-      FabricMainClassGenerator::new,
-      () -> PluginDataParser.create().enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES));
+  public static @NonNull CharRange range(char singleBound) {
+    return new CharRange(singleBound, singleBound);
+  }
+
+  public static @NonNull CharRange range(char lowerBounds, char upperBounds) {
+    return new CharRange(lowerBounds, upperBounds);
+  }
+
+  public boolean inRange(char c) {
+    return c >= this.lowerBounds && c <= this.upperBounds;
   }
 }

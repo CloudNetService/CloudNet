@@ -22,13 +22,11 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.ExternalDependency;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 public record ParsedPluginData(
   @NonNull String name,
   @NonNull String version,
   @Nullable String apiVersion,
-  @UnknownNullability String id,
   @Nullable String description,
   @Nullable String homepage,
   @Nullable String constructionListenerClass,

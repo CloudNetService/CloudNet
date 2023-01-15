@@ -29,7 +29,6 @@ import lombok.NonNull;
 @Singleton
 public final class WaterDogPESyncProxyListener {
 
-
   private final ServiceInfoHolder serviceInfoHolder;
   private final WaterDogPESyncProxyManagement syncProxyManagement;
 

@@ -61,6 +61,7 @@ import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
 import eu.cloudnetservice.node.module.updater.ModuleUpdater;
 import eu.cloudnetservice.node.module.updater.ModuleUpdaterRegistry;
 import eu.cloudnetservice.node.network.chunk.FileDeployCallbackListener;
+import eu.cloudnetservice.node.permission.DefaultPermissionManagementHandler;
 import eu.cloudnetservice.node.permission.NodePermissionManagement;
 import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.template.LocalTemplateStorage;
@@ -265,10 +266,14 @@ public final class Node {
   @Order(450)
   private void executeSetupIfRequired(
     @NonNull DefaultInstallation installation,
-    @NonNull NodePermissionManagement permissionManagement
+    @NonNull NodePermissionManagement permissionManagement,
+    @NonNull DefaultPermissionManagementHandler permissionHandler
   ) {
     // init the permission management before the setup
     permissionManagement.init();
+    permissionManagement.permissionManagementHandler(permissionHandler);
+
+    // execute the setup if needed
     installation.executeFirstStartSetup();
   }
 

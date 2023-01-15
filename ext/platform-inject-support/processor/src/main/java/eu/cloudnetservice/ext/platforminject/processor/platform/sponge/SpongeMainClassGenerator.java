@@ -58,7 +58,8 @@ final class SpongeMainClassGenerator extends BaseMainClassGenerator {
     @NonNull TypeSpec.Builder typeBuilder
   ) {
     // add the @Plugin annotation to the class
-    var pluginAnnotation = AnnotationSpec.builder(PLUGIN_ANNOTATION).addMember("value", "$S", pluginData.id()).build();
+    var id = SpongePluginInfoGenerator.PLUGIN_ID_GENERATOR.convert(pluginData.name());
+    var pluginAnnotation = AnnotationSpec.builder(PLUGIN_ANNOTATION).addMember("value", "$S", id).build();
     typeBuilder.addAnnotation(pluginAnnotation);
 
     // add a field for the platform info

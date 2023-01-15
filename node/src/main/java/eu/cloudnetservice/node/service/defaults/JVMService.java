@@ -139,7 +139,7 @@ public class JVMService extends AbstractService {
     arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
 
     // fabric specific class path
-    arguments.add(String.format("-Dfabric.systemLibraries=%s", wrapperInformation.first().toAbsolutePath()));
+    arguments.add(String.format("-Dfabric.systemLibraries=%s", classPath));
 
     // set the used host and port as system property
     arguments.add("-Dservice.bind.host=" + this.serviceConfiguration().hostAddress());
