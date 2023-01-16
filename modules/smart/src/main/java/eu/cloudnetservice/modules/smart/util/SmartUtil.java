@@ -36,7 +36,7 @@ public final class SmartUtil {
     // get the min service count
     var minServiceCount = Math.max(task.minServiceCount(), config.smartMinServiceCount());
     // check if stopping the service would instantly cause a new service to start - beware
-    return (runningServices - 1) > minServiceCount;
+    return (runningServices - 1) >= minServiceCount;
   }
 
   public static double playerPercentage(@NonNull ServiceInfoSnapshot snapshot) {
