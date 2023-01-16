@@ -30,7 +30,7 @@ public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
       .header(tabList.header())
       .footer(tabList.footer());
   }
-  
+
   public static class Builder {
 
     private String header;
