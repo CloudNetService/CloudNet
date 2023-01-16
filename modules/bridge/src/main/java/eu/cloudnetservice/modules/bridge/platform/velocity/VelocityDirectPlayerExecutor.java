@@ -75,7 +75,8 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
       .filter(pair -> pair.second().isPresent())
       .map(pair -> new Pair<>(pair.first(), this.proxyServer.getServer(pair.second().get().name())))
       .filter(pair -> pair.second().isPresent())
-      .forEach(pair -> pair.first().createConnectionRequest(pair.second().get()).fireAndForget());
+      .findFirst()
+      .ifPresent(pair -> pair.first().createConnectionRequest(pair.second().get()).fireAndForget());
   }
 
   @Override
@@ -86,7 +87,8 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
       .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .forEach(server -> this.forEach(player -> player.createConnectionRequest(server).fireAndForget()));
+      .findFirst()
+      .ifPresent(server -> this.forEach(player -> player.createConnectionRequest(server).fireAndForget()));
   }
 
   @Override
@@ -97,7 +99,8 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
       .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .forEach(server -> this.forEach(player -> player.createConnectionRequest(server).fireAndForget()));
+      .findFirst()
+      .ifPresent(server -> this.forEach(player -> player.createConnectionRequest(server).fireAndForget()));
   }
 
   @Override
