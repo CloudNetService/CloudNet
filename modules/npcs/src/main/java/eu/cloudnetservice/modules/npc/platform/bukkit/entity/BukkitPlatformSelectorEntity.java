@@ -409,17 +409,19 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   protected void unregisterItem(
-    @NonNull ServiceItemWrapper wrapper,
+    @Nullable ServiceItemWrapper wrapper,
     @NonNull ServiceInfoSnapshot service,
     @NonNull InventoryConfiguration configuration
   ) {
-    // reset the ItemStack in the wrapper as we currently don't have an item to display
-    wrapper.itemStack(null);
-    // update the service and rebuild the inventory & infoline
-    wrapper.service(service);
+    if (wrapper != null) {
+      // reset the ItemStack in the wrapper as we currently don't have an item to display
+      wrapper.itemStack(null);
+      // update the service and rebuild the inventory & infoline
+      wrapper.service(service);
 
-    this.rebuildInfoLines();
-    this.rebuildInventory(configuration);
+      this.rebuildInfoLines();
+      this.rebuildInventory(configuration);
+    }
   }
 
   protected void rebuildInfoLines() {
