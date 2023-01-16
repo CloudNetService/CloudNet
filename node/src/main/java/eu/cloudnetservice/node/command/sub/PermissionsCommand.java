@@ -491,10 +491,10 @@ public final class PermissionsCommand {
   }
 
   private void updatePermissible(@NonNull Permissible permissible) {
-    if (permissible instanceof PermissionUser) {
-      this.permissionManagement.updateUser((PermissionUser) permissible);
-    } else if (permissible instanceof PermissionGroup) {
-      this.permissionManagement.updateGroup((PermissionGroup) permissible);
+    if (permissible instanceof PermissionUser user) {
+      this.permissionManagement.updateUser(user);
+    } else if (permissible instanceof PermissionGroup group) {
+      this.permissionManagement.updateGroup(group);
     }
   }
 
