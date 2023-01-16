@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,59 @@
 
 package eu.cloudnetservice.modules.signs.platform.bukkit;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
+import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@ProvidesFor(platform = "bukkit", types = {PlatformSignManagement.class, SignManagement.class})
 public class BukkitSignManagement extends PlatformSignManagement<Player, Location, String> {
 
   protected final Plugin plugin;
+  protected final PluginManager pluginManager;
+  protected final BukkitScheduler scheduler;
 
-  protected BukkitSignManagement(@NonNull Plugin plugin) {
-    super(runnable -> {
+  @Inject
+  protected BukkitSignManagement(
+    @NonNull Plugin plugin,
+    @NonNull Server server,
+    @NonNull BukkitScheduler scheduler,
+    @NonNull EventManager eventManager,
+    @NonNull PluginManager pluginManager,
+    @NonNull WrapperConfiguration wrapperConfig,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
+  ) {
+    super(eventManager, runnable -> {
       // check if we're already on main
-      if (Bukkit.isPrimaryThread()) {
+      if (server.isPrimaryThread()) {
         runnable.run();
       } else {
-        Bukkit.getScheduler().runTask(plugin, runnable);
+        scheduler.runTask(plugin, runnable);
       }
-    });
+    }, wrapperConfig, serviceProvider, executorService);
+
     this.plugin = plugin;
+    this.scheduler = scheduler;
+    this.pluginManager = pluginManager;
   }
 
   @Override
@@ -50,7 +78,7 @@ public class BukkitSignManagement extends PlatformSignManagement<Player, Locatio
 
   @Override
   protected void startKnockbackTask() {
-    Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+    this.scheduler.runTaskTimer(this.plugin, () -> {
       var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
         var conf = entry.knockbackConfiguration();
@@ -99,6 +127,6 @@ public class BukkitSignManagement extends PlatformSignManagement<Player, Locatio
 
   @Override
   protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
-    return new BukkitPlatformSign(base);
+    return new BukkitPlatformSign(base, this.plugin.getServer(), this.pluginManager);
   }
 }

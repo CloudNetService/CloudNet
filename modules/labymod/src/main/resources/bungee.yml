@@ -1,7 +1,0 @@
-name: 'CloudNet-LabyMod'
-version: '1.0'
-author: 'CloudNetService'
-depends: [ 'CloudNet-Bridge' ]
-description: 'Displays LabyMod DiscordRPC information when playing on cloudnet a server'
-
-main: 'eu.cloudnetservice.modules.labymod.platform.bungeecord.BungeeCordLabyModPlugin'

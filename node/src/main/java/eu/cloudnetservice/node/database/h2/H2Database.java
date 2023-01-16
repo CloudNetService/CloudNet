@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class H2Database extends SQLDatabase {
 
-  public H2Database(@NonNull SQLDatabaseProvider provider, @NonNull String name, @NonNull ExecutorService executor) {
-    super(provider, name, executor);
+  public H2Database(@NonNull SQLDatabaseProvider provider, @NonNull String name) {
+    super(provider, name);
 
     // create the table
     provider.executeUpdate(String.format(
@@ -47,12 +46,10 @@ public final class H2Database extends SQLDatabase {
 
   @Override
   public void close() {
-    this.databaseProvider.databaseCache().invalidate(this.name);
   }
 
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
-    this.databaseProvider.databaseHandler().handleInsert(this, key, document);
     return this.insertOrUpdate(key, document);
   }
 
@@ -85,7 +82,6 @@ public final class H2Database extends SQLDatabase {
 
   @Override
   public boolean delete(@NonNull String key) {
-    this.databaseProvider.databaseHandler().handleDelete(this, key);
     return this.delete0(key);
   }
 
@@ -222,7 +218,6 @@ public final class H2Database extends SQLDatabase {
 
   @Override
   public void clear() {
-    this.databaseProvider.databaseHandler().handleClear(this);
     this.databaseProvider.executeUpdate(String.format("TRUNCATE TABLE `%s`", this.name));
   }
 

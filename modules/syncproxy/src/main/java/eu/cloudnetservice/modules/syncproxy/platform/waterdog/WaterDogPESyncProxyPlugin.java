@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,61 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 
-import dev.waterdog.waterdogpe.plugin.Plugin;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
-import eu.cloudnetservice.wrapper.Wrapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
-public final class WaterDogPESyncProxyPlugin extends Plugin {
+@Singleton
+@PlatformPlugin(
+  platform = "waterdog",
+  name = "CloudNet-SyncProxy",
+  version = "{project.build.version}",
+  description = "CloudNet extension which serves proxy utils with CloudNet support",
+  authors = "CloudNetService",
+  dependencies = {@Dependency(name = "CloudNet-Bridge"), @Dependency(name = "CloudNet-CloudPerms", optional = true)})
+public final class WaterDogPESyncProxyPlugin implements PlatformEntrypoint {
+
+  private final EventManager eventManager;
+  private final ModuleHelper moduleHelper;
+  private final ServiceRegistry serviceRegistry;
+  private final WaterDogPESyncProxyManagement syncProxyManagement;
+
+  @Inject
+  public WaterDogPESyncProxyPlugin(
+    @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull WaterDogPESyncProxyManagement syncProxyManagement
+  ) {
+    this.eventManager = eventManager;
+    this.moduleHelper = moduleHelper;
+    this.serviceRegistry = serviceRegistry;
+    this.syncProxyManagement = syncProxyManagement;
+  }
 
   @Override
-  public void onEnable() {
-    var syncProxyManagement = new WaterDogPESyncProxyManagement(this.getProxy());
+  public void onLoad() {
     // register the SyncProxyManagement in our service registry
-    syncProxyManagement.registerService(Wrapper.instance().serviceRegistry());
+    this.syncProxyManagement.registerService(this.serviceRegistry);
     // register the event listener to handle service updates
-    Wrapper.instance().eventManager().registerListener(new SyncProxyCloudListener<>(syncProxyManagement));
-    // register the waterdog ping & join listener
-    new WaterDogPESyncProxyListener(syncProxyManagement, this.getProxy());
+    this.eventManager.registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
+  }
+
+  @Inject
+  private void registerListener(@NonNull WaterDogPESyncProxyListener listener) {
+    // just need to create the instance
   }
 
   @Override
   public void onDisable() {
     // unregister all listeners for cloudnet events
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.plugins.chat;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -36,9 +36,10 @@ public final class ChatFormatter {
     @NonNull String format,
     @NonNull String message,
     @NonNull Function<String, Boolean> permissionTester,
-    @NonNull BiFunction<Character, String, String> colorReplacer
+    @NonNull BiFunction<Character, String, String> colorReplacer,
+    @NonNull PermissionManagement permissionManagement
   ) {
-    var permissionUser = CloudNetDriver.instance().permissionManagement().user(playerId);
+    var permissionUser = permissionManagement.user(playerId);
     // check if the cloud knows a permission player
     if (permissionUser == null) {
       return null;
@@ -53,8 +54,7 @@ public final class ChatFormatter {
       return null;
     }
 
-    var group = CloudNetDriver.instance().permissionManagement()
-      .highestPermissionGroup(permissionUser);
+    var group = permissionManagement.highestPermissionGroup(permissionUser);
     format = format
       .replace("%name%", playerName)
       .replace("%display_name%", displayName)

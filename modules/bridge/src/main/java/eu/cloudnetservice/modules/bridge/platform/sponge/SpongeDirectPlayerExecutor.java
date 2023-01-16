@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,18 +26,26 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.ResourceKey;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.manager.CommandManager;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.network.channel.ChannelManager;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
 
 final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ServerPlayer> {
 
+  private final ChannelManager channelManager;
+  private final CommandManager commandManager;
+
   public SpongeDirectPlayerExecutor(
+    @NonNull ChannelManager channelManager,
+    @NonNull CommandManager commandManager,
     @NonNull UUID targetUniqueId,
     @NonNull Supplier<Collection<? extends ServerPlayer>> playerSupplier
   ) {
     super(targetUniqueId, playerSupplier);
+    this.channelManager = channelManager;
+    this.commandManager = commandManager;
   }
 
   @Override
@@ -86,7 +94,7 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Ser
 
   @Override
   public void sendPluginMessage(@NonNull String key, byte[] data) {
-    var playChannel = Sponge.channelManager().ofType(ResourceKey.resolve(key), RawDataChannel.class).play();
+    var playChannel = this.channelManager.ofType(ResourceKey.resolve(key), RawDataChannel.class).play();
     this.forEach(player -> playChannel.sendTo(player, buffer -> buffer.writeByteArray(data)));
   }
 
@@ -94,7 +102,7 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Ser
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     this.forEach(player -> {
       try {
-        Sponge.server().commandManager().process(player, command);
+        this.commandManager.process(player, command);
       } catch (CommandException ignored) {
         // ignore
       }

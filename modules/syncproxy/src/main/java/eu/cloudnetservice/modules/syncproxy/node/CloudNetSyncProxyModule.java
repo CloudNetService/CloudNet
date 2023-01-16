@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,35 @@
 
 package eu.cloudnetservice.modules.syncproxy.node;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.node.command.SyncProxyCommand;
 import eu.cloudnetservice.modules.syncproxy.node.listener.NodeSyncProxyChannelMessageListener;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import lombok.NonNull;
 
+@Singleton
 public final class CloudNetSyncProxyModule extends DriverModule {
 
-  private NodeSyncProxyManagement nodeSyncProxyManagement;
+  @Inject
+  public CloudNetSyncProxyModule(@NonNull @Named("module") InjectionLayer<?> layer) {
+    layer.installAutoConfigureBindings(this.getClass().getClassLoader(), "syncproxy");
+  }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
@@ -48,46 +60,60 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   }
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
-  public void initManagement() {
-    this.nodeSyncProxyManagement = new NodeSyncProxyManagement(this, this.loadConfiguration(), this.rpcFactory());
+  public void initManagement(
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull @Named("module") InjectionLayer<?> injectionLayer
+  ) {
     // register the SyncProxyManagement to the ServiceRegistry
-    this.nodeSyncProxyManagement.registerService(this.serviceRegistry());
+    var syncProxyManagement = this.readConfigAndInstantiate(
+      injectionLayer,
+      SyncProxyConfiguration.class,
+      () -> SyncProxyConfiguration.createDefault("Proxy"),
+      SyncProxyManagement.class);
+    syncProxyManagement.registerService(serviceRegistry);
+
     // sync the config of the module into the cluster
-    Node.instance().dataSyncRegistry().registerHandler(
+    dataSyncRegistry.registerHandler(
       DataSyncHandler.<SyncProxyConfiguration>builder()
         .key("syncproxy-config")
         .nameExtractor($ -> "SyncProxy Config")
         .convertObject(SyncProxyConfiguration.class)
-        .writer(this.nodeSyncProxyManagement::configuration)
-        .singletonCollector(this.nodeSyncProxyManagement::configuration)
-        .currentGetter($ -> this.nodeSyncProxyManagement.configuration())
+        .writer(syncProxyManagement::configuration)
+        .singletonCollector(syncProxyManagement::configuration)
+        .currentGetter($ -> syncProxyManagement.configuration())
         .build());
   }
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.LOADED)
-  public void initListeners() {
+  public void initListeners(
+    @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull NodeSyncProxyManagement syncProxyManagement
+  ) {
     // register the listeners
-    this.registerListener(new NodeSyncProxyChannelMessageListener(this.nodeSyncProxyManagement, this.eventManager()));
-    this.registerListener(new PluginIncludeListener(
+    eventManager.registerListener(NodeSyncProxyChannelMessageListener.class);
+    eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-syncproxy",
       CloudNetSyncProxyModule.class,
+      moduleHelper,
       service -> ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())
-        && (this.nodeSyncProxyManagement.configuration().loginConfigurations().stream()
+        && (syncProxyManagement.configuration().loginConfigurations().stream()
         .anyMatch(config -> service.serviceConfiguration().groups().contains(config.targetGroup()))
-        || this.nodeSyncProxyManagement.configuration().tabListConfigurations().stream()
+        || syncProxyManagement.configuration().tabListConfigurations().stream()
         .anyMatch(config -> service.serviceConfiguration().groups().contains(config.targetGroup())))
     ));
   }
 
   @ModuleTask(order = 60, event = ModuleLifeCycle.LOADED)
-  public void registerCommands() {
+  public void registerCommands(@NonNull CommandProvider commandProvider) {
     // register the syncproxy command to provide config management
-    Node.instance().commandProvider().register(new SyncProxyCommand(this.nodeSyncProxyManagement));
+    commandProvider.register(SyncProxyCommand.class);
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
-  public void handleReload() {
-    var management = this.serviceRegistry().firstProvider(SyncProxyManagement.class);
+  public void handleReload(@NonNull ServiceRegistry serviceRegistry) {
+    var management = serviceRegistry.firstProvider(SyncProxyManagement.class);
     if (management != null) {
       management.configuration(this.loadConfiguration());
     }

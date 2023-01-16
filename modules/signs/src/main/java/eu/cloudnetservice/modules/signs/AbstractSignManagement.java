@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.signs;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import java.util.Collection;
@@ -99,13 +99,8 @@ public abstract class AbstractSignManagement implements SignManagement {
   }
 
   @Override
-  public void registerToServiceRegistry() {
-    CloudNetDriver.instance().serviceRegistry().registerProvider(SignManagement.class, "SignManagement", this);
-  }
-
-  @Override
-  public void unregisterFromServiceRegistry() {
-    CloudNetDriver.instance().serviceRegistry().unregisterProvider(SignManagement.class, "SignManagement");
+  public void registerToServiceRegistry(@NonNull ServiceRegistry serviceRegistry) {
+    serviceRegistry.registerProvider(SignManagement.class, "SignManagement", this);
   }
 
   @Override

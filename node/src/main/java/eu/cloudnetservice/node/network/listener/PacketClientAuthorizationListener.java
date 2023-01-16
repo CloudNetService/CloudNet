@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.network.listener;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -26,19 +27,49 @@ import eu.cloudnetservice.driver.network.def.PacketClientAuthorization;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.driver.service.ServiceId;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeAuthSuccessEvent;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeReconnectEvent;
 import eu.cloudnetservice.node.event.network.NetworkServiceAuthSuccessEvent;
 import eu.cloudnetservice.node.network.NodeNetworkUtil;
 import eu.cloudnetservice.node.network.packet.PacketServerAuthorizationResponse;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class PacketClientAuthorizationListener implements PacketListener {
 
   private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
+
+  private final EventManager eventManager;
+  private final Configuration configuration;
+  private final NodeNetworkUtil networkUtil;
+  private final DataSyncRegistry dataSyncRegistry;
+  private final NodeServerProvider nodeServerProvider;
+  private final CloudServiceManager cloudServiceManager;
+
+  @Inject
+  public PacketClientAuthorizationListener(
+    @NonNull EventManager eventManager,
+    @NonNull Configuration configuration,
+    @NonNull NodeNetworkUtil networkUtil,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull CloudServiceManager cloudServiceManager
+  ) {
+    this.eventManager = eventManager;
+    this.configuration = configuration;
+    this.networkUtil = networkUtil;
+    this.dataSyncRegistry = dataSyncRegistry;
+    this.nodeServerProvider = nodeServerProvider;
+    this.cloudServiceManager = cloudServiceManager;
+  }
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
@@ -53,29 +84,27 @@ public final class PacketClientAuthorizationListener implements PacketListener {
           var clusterId = content.readUniqueId();
           var node = content.readObject(NetworkClusterNode.class);
           // check if the cluster id matches
-          if (!Node.instance().config().clusterConfig().clusterId().equals(clusterId)) {
+          if (!this.configuration.clusterConfig().clusterId().equals(clusterId)) {
             break;
           }
           // search for the node server which represents the connected node and initialize it
-          for (var server : Node.instance().nodeServerProvider().nodeServers()) {
+          for (var server : this.nodeServerProvider.nodeServers()) {
             if (server.info().uniqueId().equals(node.uniqueId())) {
               // add the required packet listeners
-              NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), Node.instance());
+              this.networkUtil.addDefaultPacketListeners(channel.packetRegistry());
               channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
               // check if the node is currently marked disconnected and reconnected to the network
               if (server.state() == NodeServerState.DISCONNECTED) {
                 // respond with an auth success
-                var data = Node.instance().dataSyncRegistry().prepareClusterData(
-                  true,
-                  DataSyncHandler::alwaysForceApply);
+                var data = this.dataSyncRegistry.prepareClusterData(true, DataSyncHandler::alwaysForceApply);
                 channel.sendPacket(new PacketServerAuthorizationResponse(true, true, data));
                 channel.packetRegistry().addListener(
                   NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL,
-                  new PacketClientServiceSyncAckListener());
+                  PacketClientServiceSyncAckListener.class);
                 // reset the state of the server
                 server.state(NodeServerState.SYNCING);
                 // call the node reconnect success event
-                Node.instance().eventManager().callEvent(new NetworkClusterNodeReconnectEvent(server, channel));
+                this.eventManager.callEvent(new NetworkClusterNodeReconnectEvent(server, channel));
               } else {
                 // reply with a default auth success
                 channel.sendPacket(new PacketServerAuthorizationResponse(true, false, null));
@@ -83,7 +112,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
                 server.channel(channel);
                 server.state(NodeServerState.READY);
                 // call the auth success event
-                Node.instance().eventManager().callEvent(new NetworkClusterNodeAuthSuccessEvent(server, channel));
+                this.eventManager.callEvent(new NetworkClusterNodeAuthSuccessEvent(server, channel));
               }
 
               // do not search for more nodes
@@ -98,8 +127,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
           var connectionKey = content.readString();
           var id = content.readObject(ServiceId.class);
           // get the cloud service associated with the service id
-          var service = Node.instance().cloudServiceProvider()
-            .localCloudService(id.uniqueId());
+          var service = this.cloudServiceManager.localCloudService(id.uniqueId());
           // we can only accept the connection if the service is present, and the connection key is correct
           if (service != null && service.connectionKey().equals(connectionKey)) {
             // update the cloud service
@@ -108,11 +136,11 @@ public final class PacketClientAuthorizationListener implements PacketListener {
             service.publishServiceInfoSnapshot();
             // add the required packet listeners
             channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-            NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), Node.instance());
+            this.networkUtil.addDefaultPacketListeners(channel.packetRegistry());
             // successful auth
             channel.sendPacket(new PacketServerAuthorizationResponse(true, false, null));
             // call the auth success event
-            Node.instance().eventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
+            this.eventManager.callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
             var serviceId = service.serviceId();
             LOGGER.info(I18n.trans("cloudnet-service-networking-connected",
               serviceId.uniqueId(),

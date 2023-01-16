@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,20 @@ import com.influxdb.client.InfluxDBClientFactory;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
 import eu.cloudnetservice.modules.influx.publish.defaults.DefaultPublisherRegistry;
 import eu.cloudnetservice.modules.influx.publish.publishers.ConnectedNodeInfoPublisher;
 import eu.cloudnetservice.modules.influx.publish.publishers.RunningServiceProcessSnapshotPublisher;
 import eu.cloudnetservice.node.TickLoop;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
+@Singleton
 public final class InfluxModule extends DriverModule {
 
   @ModuleTask
-  public void start() {
+  public void start(@NonNull ServiceRegistry serviceRegistry, @NonNull TickLoop mainThread) {
     // read the config and connect to influx
     var conf = this.readConfig(InfluxConfiguration.class, () -> new InfluxConfiguration(
       new HostAndPort("http://127.0.0.1", 8086),
@@ -43,12 +47,12 @@ public final class InfluxModule extends DriverModule {
       conf.org(),
       conf.bucket());
     // create an influx publisher registry based on that
-    var reg = new DefaultPublisherRegistry(influxClient);
-    this.driver().serviceRegistry().registerProvider(PublisherRegistry.class, "InfluxPublishers", reg);
+    var reg = new DefaultPublisherRegistry(influxClient, mainThread);
+    serviceRegistry.registerProvider(PublisherRegistry.class, "InfluxPublishers", reg);
     // register all default publishers
     reg
-      .registerPublisher(new ConnectedNodeInfoPublisher())
-      .registerPublisher(new RunningServiceProcessSnapshotPublisher());
+      .registerPublisher(ConnectedNodeInfoPublisher.class)
+      .registerPublisher(RunningServiceProcessSnapshotPublisher.class);
     // start the emitting task
     reg.scheduleTask(conf.publishDelaySeconds() * TickLoop.TPS);
   }

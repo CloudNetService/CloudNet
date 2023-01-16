@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ dependencies {
   "compileOnly"(libs.vault)
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
-
-  "annotationProcessor"(libs.velocity)
 }
 
 moduleJson {
@@ -33,8 +31,4 @@ moduleJson {
   name = "CloudNet-CloudPerms"
   main = "eu.cloudnetservice.modules.cloudperms.node.CloudNetCloudPermissionsModule"
   description = "Node extension for the CloudNet node runtime, which include a player permission system"
-}
-
-configure<net.kyori.blossom.BlossomExtension> {
-  replaceToken("{project.build.version}", project.version)
 }

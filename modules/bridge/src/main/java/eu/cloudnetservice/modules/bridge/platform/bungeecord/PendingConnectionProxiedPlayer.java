@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import java.util.UUID;
 import lombok.NonNull;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
@@ -37,13 +36,16 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.score.Scoreboard;
 
 public final class PendingConnectionProxiedPlayer implements ProxiedPlayer {
 
+  private final PluginManager pluginManager;
   private final PendingConnection connection;
 
-  public PendingConnectionProxiedPlayer(@NonNull PendingConnection connection) {
+  public PendingConnectionProxiedPlayer(@NonNull PluginManager pluginManager, @NonNull PendingConnection connection) {
+    this.pluginManager = pluginManager;
     this.connection = connection;
   }
 
@@ -232,7 +234,7 @@ public final class PendingConnectionProxiedPlayer implements ProxiedPlayer {
 
   @Override
   public boolean hasPermission(String permission) {
-    return ProxyServer.getInstance().getPluginManager()
+    return this.pluginManager
       .callEvent(new PermissionCheckEvent(this, permission, false))
       .hasPermission();
   }

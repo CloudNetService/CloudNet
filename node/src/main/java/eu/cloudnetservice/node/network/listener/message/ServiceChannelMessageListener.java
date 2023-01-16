@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,11 @@ import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class ServiceChannelMessageListener {
 
   private static final Logger LOGGER = LogManager.logger(ServiceChannelMessageListener.class);
@@ -45,6 +48,7 @@ public final class ServiceChannelMessageListener {
   private final CloudServiceManager serviceManager;
   private final CloudServiceFactory cloudServiceFactory;
 
+  @Inject
   public ServiceChannelMessageListener(
     @NonNull EventManager eventManager,
     @NonNull CloudServiceManager serviceManager,

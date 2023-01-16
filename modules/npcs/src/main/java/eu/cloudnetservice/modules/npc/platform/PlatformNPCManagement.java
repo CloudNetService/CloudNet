@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package eu.cloudnetservice.modules.npc.platform;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
@@ -28,7 +31,7 @@ import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -48,25 +51,41 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
   public static final String NPC_REQUEST_CONFIG = "npcs_request_config";
   public static final String NPC_SET_CONFIG = "npcs_update_npc_config";
 
+  protected final ComponentInfo componentInfo;
+  protected final CloudServiceProvider cloudServiceProvider;
+  protected final ServiceConfiguration currentServiceConfiguration;
+
   protected final Map<UUID, ServiceInfoSnapshot> trackedServices = new ConcurrentHashMap<>();
   protected final Map<WorldPosition, PlatformSelectorEntity<L, P, M, I, S>> trackedEntities = new ConcurrentHashMap<>();
 
-  public PlatformNPCManagement() {
-    super(loadNPCConfiguration());
+  public PlatformNPCManagement(
+    @NonNull EventManager eventManager,
+    @NonNull ComponentInfo componentInfo,
+    @NonNull CloudServiceProvider cloudServiceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(loadNPCConfiguration(componentInfo), eventManager);
+
+    // assign the fields
+    this.componentInfo = componentInfo;
+    this.cloudServiceProvider = cloudServiceProvider;
+    this.currentServiceConfiguration = wrapperConfiguration.serviceConfiguration();
+
     // get the npcs for the current group
-    var groups = Wrapper.instance().serviceConfiguration().groups();
+    var groups = this.currentServiceConfiguration.groups();
     for (var npc : this.npcs(groups)) {
       this.npcs.put(npc.location(), npc);
     }
+
     // register the listeners
-    CloudNetDriver.instance().eventManager().registerListener(new CloudNetServiceListener(this));
+    eventManager.registerListener(new CloudNetServiceListener(this));
   }
 
-  protected static @Nullable NPCConfiguration loadNPCConfiguration() {
+  protected static @Nullable NPCConfiguration loadNPCConfiguration(@NonNull ComponentInfo componentInfo) {
     var response = ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(NPC_REQUEST_CONFIG)
-      .targetNode(Wrapper.instance().nodeUniqueId())
+      .targetNode(componentInfo.nodeUniqueId())
       .build()
       .sendSingleQuery();
     return response == null ? null : response.content().readObject(NPCConfiguration.class);
@@ -120,7 +139,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
   @Override
   public void handleInternalNPCCreate(@NonNull NPC npc) {
     // check if the npc is on this group
-    if (Wrapper.instance().serviceConfiguration().groups().contains(npc.location().group())) {
+    if (this.currentServiceConfiguration.groups().contains(npc.location().group())) {
       super.handleInternalNPCCreate(npc);
       // remove the old selector npc
       var entity = this.trackedEntities.remove(npc.location());
@@ -166,7 +185,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message)
-      .target(ChannelMessageTarget.Type.NODE, Wrapper.instance().nodeUniqueId());
+      .target(ChannelMessageTarget.Type.NODE, this.componentInfo.nodeUniqueId());
   }
 
   public void initialize() {
@@ -175,7 +194,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
       this.trackedEntities.put(value.location(), this.createSelectorEntity(value));
     }
     // initialize the services now
-    CloudNetDriver.instance().cloudServiceProvider().servicesAsync().thenAccept(services -> {
+    this.cloudServiceProvider.servicesAsync().thenAccept(services -> {
       for (var service : services) {
         if (this.shouldTrack(service)) {
           this.handleServiceUpdate(service);
@@ -186,7 +205,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
 
   public @Nullable NPCConfigurationEntry applicableNPCConfigurationEntry() {
     for (var entry : this.npcConfiguration.entries()) {
-      if (Wrapper.instance().serviceConfiguration().groups().contains(entry.targetGroup())) {
+      if (this.currentServiceConfiguration.groups().contains(entry.targetGroup())) {
         return entry;
       }
     }

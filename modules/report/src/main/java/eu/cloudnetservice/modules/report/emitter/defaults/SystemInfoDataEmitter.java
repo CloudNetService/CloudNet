@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ package eu.cloudnetservice.modules.report.emitter.defaults;
 
 import eu.cloudnetservice.modules.report.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
+import jakarta.inject.Singleton;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import lombok.NonNull;
 import oshi.SystemInfo;
 import oshi.util.FormatUtil;
 
+@Singleton
 public final class SystemInfoDataEmitter implements ReportDataEmitter {
 
   private static final SystemInfo SYSTEM_INFO = new SystemInfo();

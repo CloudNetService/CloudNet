@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,79 @@
 
 package eu.cloudnetservice.modules.signs.platform.bukkit;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
-import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
-import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Command;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.signs.platform.bukkit.functionality.SignInteractListener;
 import eu.cloudnetservice.modules.signs.platform.bukkit.functionality.SignsCommand;
-import org.bukkit.Bukkit;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class BukkitSignsPlugin extends JavaPlugin {
+@Singleton
+@PlatformPlugin(
+  api = "1.13",
+  platform = "bukkit",
+  name = "CloudNet-Signs",
+  version = "{project.build.version}",
+  description = "Bukkit extension for the CloudNet runtime which adds sign connector support",
+  authors = "CloudNetService",
+  dependencies = @Dependency(name = "CloudNet-Bridge"),
+  commands = @Command(
+    name = "cloudsign",
+    permission = "cloudnet.command.cloudsign",
+    aliases = {"cs", "signs", "cloudsigns"}))
+public class BukkitSignsPlugin implements PlatformEntrypoint {
+
+  private final JavaPlugin plugin;
+  private final SignsCommand signsCommand;
+  private final ModuleHelper moduleHelper;
+  private final PluginManager pluginManager;
+  private final ServiceRegistry serviceRegistry;
+  private final BukkitSignManagement signManagement;
+  private final SignInteractListener signInteractListener;
+
+  @Inject
+  public BukkitSignsPlugin(
+    @NonNull JavaPlugin plugin,
+    @NonNull SignsCommand signsCommand,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull PluginManager pluginManager,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull BukkitSignManagement signManagement,
+    @NonNull SignInteractListener signInteractListener
+  ) {
+    this.plugin = plugin;
+    this.signsCommand = signsCommand;
+    this.moduleHelper = moduleHelper;
+    this.pluginManager = pluginManager;
+    this.serviceRegistry = serviceRegistry;
+    this.signManagement = signManagement;
+    this.signInteractListener = signInteractListener;
+  }
 
   @Override
-  public void onEnable() {
-    var signManagement = new BukkitSignManagement(this);
-    signManagement.initialize();
-    signManagement.registerToServiceRegistry();
+  public void onLoad() {
+    this.signManagement.initialize();
+    this.signManagement.registerToServiceRegistry(this.serviceRegistry);
     // bukkit command
-    var pluginCommand = this.getCommand("cloudsign");
+    var pluginCommand = this.plugin.getCommand("cloudsign");
     if (pluginCommand != null) {
-      var commandSigns = new SignsCommand(signManagement);
-      pluginCommand.setExecutor(commandSigns);
-      pluginCommand.setTabCompleter(commandSigns);
+      pluginCommand.setExecutor(this.signsCommand);
+      pluginCommand.setTabCompleter(this.signsCommand);
     }
+
     // bukkit listeners
-    Bukkit.getPluginManager().registerEvents(new SignInteractListener(signManagement), this);
-    // cloudnet listeners
-    CloudNetDriver.instance().eventManager().registerListeners(
-      new SharedChannelMessageListener(signManagement),
-      new SignsPlatformListener(signManagement));
+    this.pluginManager.registerEvents(this.signInteractListener, this.plugin);
   }
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

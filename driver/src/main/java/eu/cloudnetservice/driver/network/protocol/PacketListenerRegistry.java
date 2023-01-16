@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,22 +45,39 @@ public interface PacketListenerRegistry {
    * <p>
    * The only channel to which no listener can be registered is the channel with the id -1 as it is used for query
    * responses and therefore reserved.
+   * <p>
+   * This method takes a class instead of an instance and creates the instance using our dependency injection framework.
+   * Make sure that the given class supports the instantiation using dependency injection.
    *
-   * @param channel   the channel the listener wants to listen to.
-   * @param listeners the listeners to register for the channel.
+   * @param channel       the channel the listener wants to listen to.
+   * @param listenerClass the listener class to instantiate and register afterwards.
    * @throws NullPointerException     if the given listeners are null.
    * @throws IllegalArgumentException if the given channel id is invalid.
    */
-  void addListener(int channel, @NonNull PacketListener... listeners);
+  void addListener(int channel, @NonNull Class<? extends PacketListener> listenerClass);
 
   /**
-   * Removes all given listeners from the given channel if they were registered previously.
+   * Adds a packet listener for each packet that uses the provided channel id. Multiple listeners for a channel are
+   * indeed possible and will be called in the order of registration.
+   * <p>
+   * The only channel to which no listener can be registered is the channel with the id -1 as it is used for query
+   * responses and therefore reserved.
    *
-   * @param channel   the id of the channel to remove the listener from.
-   * @param listeners the listeners to remove from the channel.
+   * @param channel  the channel the listener wants to listen to.
+   * @param listener the listeners to register for the channel.
+   * @throws NullPointerException     if the given listeners are null.
+   * @throws IllegalArgumentException if the given channel id is invalid.
+   */
+  void addListener(int channel, @NonNull PacketListener listener);
+
+  /**
+   * Removes the given listener from the given channel if it was registered previously.
+   *
+   * @param channel  the id of the channel to remove the listener from.
+   * @param listener the listener to remove from the channel.
    * @throws NullPointerException if the given listeners are null.
    */
-  void removeListener(int channel, @NonNull PacketListener... listeners);
+  void removeListener(int channel, @NonNull PacketListener listener);
 
   /**
    * Removes all previously registered listeners from the given channel.

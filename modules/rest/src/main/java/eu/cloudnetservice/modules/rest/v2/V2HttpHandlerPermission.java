@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,21 +25,33 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
+@Singleton
 @HandlerPermission("http.v2.permission")
 public final class V2HttpHandlerPermission extends V2HttpHandler {
+
+  private final PermissionManagement permissionManagement;
+
+  @Inject
+  public V2HttpHandlerPermission(@NonNull Configuration config, @NonNull PermissionManagement permissionManagement) {
+    super(config.restConfiguration());
+    this.permissionManagement = permissionManagement;
+  }
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/permission/group")
   private void handlePermissionGroupList(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("groups", this.permissionManagement().groups()).toString())
+      .body(this.success().append("groups", this.permissionManagement.groups()).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -84,7 +96,7 @@ public final class V2HttpHandlerPermission extends V2HttpHandler {
       return;
     }
 
-    this.permissionManagement().addPermissionGroup(permissionGroup);
+    this.permissionManagement.addPermissionGroup(permissionGroup);
     this.response(ctx, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
@@ -99,7 +111,7 @@ public final class V2HttpHandlerPermission extends V2HttpHandler {
     @NonNull @RequestPathParam("name") String name
   ) {
     this.handleWithPermissionGroupContext(context, name, false, group -> {
-      this.permissionManagement().deletePermissionGroup(group);
+      this.permissionManagement.deletePermissionGroup(group);
       this.ok(context)
         .body(this.success().toString())
         .context()
@@ -144,7 +156,7 @@ public final class V2HttpHandlerPermission extends V2HttpHandler {
       return;
     }
 
-    this.permissionManagement().addPermissionUser(permissionUser);
+    this.permissionManagement.addPermissionUser(permissionUser);
     this.response(context, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
@@ -159,7 +171,7 @@ public final class V2HttpHandlerPermission extends V2HttpHandler {
     @NonNull @RequestPathParam("id") String id
   ) {
     this.handleWithPermissionUserContext(context, id, false, user -> {
-      this.permissionManagement().deletePermissionUser(user);
+      this.permissionManagement.deletePermissionUser(user);
       this.ok(context)
         .body(this.success().toString())
         .context()
@@ -175,7 +187,7 @@ public final class V2HttpHandlerPermission extends V2HttpHandler {
     @NonNull Consumer<PermissionGroup> handler
   ) {
     // try to get the group
-    var group = this.permissionManagement().group(name);
+    var group = this.permissionManagement.group(name);
     if (group == null && !mayBeNull) {
       this.ok(context)
         .body(this.failure().append("reason", "Unknown permission group").toString())
@@ -200,9 +212,9 @@ public final class V2HttpHandlerPermission extends V2HttpHandler {
     try {
       // try to parse a player unique id from the string
       var uniqueId = UUID.fromString(identifier);
-      user = this.permissionManagement().user(uniqueId);
+      user = this.permissionManagement.user(uniqueId);
     } catch (Exception exception) {
-      user = this.permissionManagement().firstUser(identifier);
+      user = this.permissionManagement.firstUser(identifier);
     }
 
     // check if the user is present before applying to the handler
@@ -217,9 +229,5 @@ public final class V2HttpHandlerPermission extends V2HttpHandler {
 
     // post to handler
     handler.accept(user);
-  }
-
-  private @NonNull PermissionManagement permissionManagement() {
-    return this.node().permissionManagement();
   }
 }

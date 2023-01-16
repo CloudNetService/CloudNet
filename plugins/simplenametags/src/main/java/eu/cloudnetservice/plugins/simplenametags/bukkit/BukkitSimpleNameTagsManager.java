@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package eu.cloudnetservice.plugins.simplenametags.bukkit;
 
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;
@@ -29,8 +31,12 @@ import org.jetbrains.annotations.Nullable;
 
 final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
 
-  public BukkitSimpleNameTagsManager(@NonNull Executor syncTaskExecutor) {
-    super(syncTaskExecutor);
+  public BukkitSimpleNameTagsManager(
+    @NonNull Executor syncTaskExecutor,
+    @NonNull EventManager eventManager,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    super(syncTaskExecutor, eventManager, permissionManagement);
   }
 
   @Override

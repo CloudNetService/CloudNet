@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 
 package eu.cloudnetservice.node.service;
 
-import eu.cloudnetservice.node.Node;
 import lombok.NonNull;
 
 @FunctionalInterface
 public interface ServiceConfigurationPreparer {
 
-  void configure(@NonNull Node nodeInstance, @NonNull CloudService cloudService);
+  void configure(@NonNull CloudService cloudService);
 }

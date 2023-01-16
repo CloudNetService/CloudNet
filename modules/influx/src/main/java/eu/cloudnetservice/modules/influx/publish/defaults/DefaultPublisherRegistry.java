@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,10 @@ import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.exceptions.InfluxException;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.TickLoop;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,15 +35,23 @@ public class DefaultPublisherRegistry implements PublisherRegistry {
 
   private static final Logger LOGGER = LogManager.logger(DefaultPublisherRegistry.class);
 
+  private final TickLoop mainThread;
   private final WriteApiBlocking writeApi;
   private final InfluxDBClient influxClient;
   private final List<Publisher> publishers = new LinkedList<>();
 
   private Future<?> publishFuture;
 
-  public DefaultPublisherRegistry(@NonNull InfluxDBClient influxClient) {
+  public DefaultPublisherRegistry(@NonNull InfluxDBClient influxClient, @NonNull TickLoop tickLoop) {
+    this.mainThread = tickLoop;
     this.influxClient = influxClient;
     this.writeApi = influxClient.getWriteApiBlocking();
+  }
+
+  @Override
+  public @NonNull PublisherRegistry registerPublisher(@NonNull Class<? extends Publisher> publisher) {
+    var injectionLayer = InjectionLayer.findLayerOf(publisher);
+    return this.registerPublisher(injectionLayer.instance(publisher));
   }
 
   @Override
@@ -92,7 +101,7 @@ public class DefaultPublisherRegistry implements PublisherRegistry {
 
   @Override
   public void scheduleTask(int delayTicks) {
-    this.publishFuture = Node.instance().mainThread().scheduleTask(() -> {
+    this.publishFuture = this.mainThread.scheduleTask(() -> {
       this.publishData();
       return null;
     }, delayTicks);

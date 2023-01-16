@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,18 +90,36 @@ public interface EventManager {
 
   /**
    * Registers all methods in the given listener class which are annotated with {@link EventListener} and are taking
+   * only one argument with a subtype of {@link Event}. The instance the constructed event listeners are bound to are
+   * created by requesting it from the default external injection layer.
+   * <p>
+   * This method accepts public, protected, default (package) access, and private methods but will not include inherited
+   * methods at all.
+   * <p>
+   * All methods which are not annotated with {@link EventListener}, are static and are not taking one or more arguments
+   * are silently ignored.
+   *
+   * @param listenerClass the class to create an instance of and register all listeners in.
+   * @return the same event manager as used to call the method, for chaining.
+   * @throws NullPointerException     if the given listener class is null.
+   * @throws IllegalArgumentException if an event listener target doesn't take an event as it's first argument.
+   */
+  @NonNull EventManager registerListener(@NonNull Class<?> listenerClass);
+
+  /**
+   * Registers all methods in the given listener class which are annotated with {@link EventListener} and are taking
    * only one argument with a subtype of {@link Event}.
    * <p>
    * This method accepts public, protected, default (package) access, and private methods but will not include inherited
    * methods at all.
    * <p>
-   * All methods which are not annotated with {@link EventListener} and are not taking exactly one argument are silently
-   * ignored.
+   * All methods which are not annotated with {@link EventListener}, are static and are not taking one or more arguments
+   * are silently ignored.
    *
    * @param listener the instance of the listener to register the methods in.
    * @return the same event manager as used to call the method, for chaining.
    * @throws NullPointerException     if the given listener is null.
-   * @throws IllegalArgumentException if an event listener target doesn't take an event as it's only argument.
+   * @throws IllegalArgumentException if an event listener target doesn't take an event as it's first argument.
    */
   @NonNull EventManager registerListener(@NonNull Object listener);
 

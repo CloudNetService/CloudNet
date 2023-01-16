@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
@@ -33,11 +34,12 @@ import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -48,6 +50,7 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandAlias({"pl", "player"})
 @CommandPermission("cloudnet.command.players")
 @Description("module-bridge-player-command-description")
@@ -56,9 +59,12 @@ public class PlayersCommand {
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
   private final NodePlayerManager playerManager;
+  private final CloudServiceProvider serviceProvider;
 
-  public PlayersCommand(@NonNull NodePlayerManager playerManager) {
+  @Inject
+  public PlayersCommand(@NonNull NodePlayerManager playerManager, @NonNull CloudServiceProvider serviceProvider) {
     this.playerManager = playerManager;
+    this.serviceProvider = serviceProvider;
   }
 
   @Parser(suggestions = "onlinePlayers")
@@ -97,8 +103,7 @@ public class PlayersCommand {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var serviceInfoSnapshot = Node.instance().cloudServiceProvider()
-      .serviceByName(name);
+    var serviceInfoSnapshot = this.serviceProvider.serviceByName(name);
     if (serviceInfoSnapshot == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
@@ -107,7 +112,7 @@ public class PlayersCommand {
 
   @Suggestions("playerService")
   public @NonNull List<String> suggestPlayerService(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
-    return Node.instance().cloudServiceProvider().services()
+    return this.serviceProvider.services()
       .stream()
       .filter(snapshot -> ServiceEnvironmentType.minecraftServer(snapshot.serviceId().environment()))
       .map(Nameable::name)

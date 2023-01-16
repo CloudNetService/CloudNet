@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
 
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
-import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.sponge.SpongeSignManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -31,17 +33,18 @@ import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.util.blockray.RayTrace;
-import org.spongepowered.api.world.server.ServerLocation;
 
+@Singleton
 public class SignsCommand implements CommandExecutor {
 
   public static final Parameter.Key<String> ACTION = Parameter.key("action", String.class);
   public static final Parameter.Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
   public static final Parameter.Key<String> TARGET_TEMPLATE = Parameter.key("target_template_path", String.class);
 
-  protected final Supplier<PlatformSignManagement<?, ServerLocation, ?>> signManagement;
+  protected final Supplier<SpongeSignManagement> signManagement;
 
-  public SignsCommand(@NonNull Supplier<PlatformSignManagement<?, ServerLocation, ?>> signManagement) {
+  @Inject
+  public SignsCommand(@NonNull Supplier<SpongeSignManagement> signManagement) {
     this.signManagement = signManagement;
   }
 

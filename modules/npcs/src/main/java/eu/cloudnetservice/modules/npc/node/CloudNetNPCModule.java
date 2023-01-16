@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc._deprecated.CloudNPC;
@@ -32,7 +36,10 @@ import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCPoolOptions;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.command.CommandProvider;
+import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
+import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,12 +47,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
+@Singleton
 public class CloudNetNPCModule extends DriverModule {
 
   protected static final String DATABASE_NAME = "cloudnet_npcs";
 
   @ModuleTask(order = Byte.MAX_VALUE)
-  public void convertConfiguration() {
+  public void convertConfiguration(@NonNull DatabaseProvider databaseProvider) {
     if (Files.exists(this.configPath())) {
       var old = JsonDocument.newDocument(this.configPath()).get("config", NPCConfiguration.class);
       if (old != null) {
@@ -112,9 +120,9 @@ public class CloudNetNPCModule extends DriverModule {
     }
 
     // convert the old database (old h2 databases convert the name to lower case - we need to check both names)
-    var db = Node.instance().databaseProvider().database("cloudNet_module_configuration");
+    var db = databaseProvider.database("cloudNet_module_configuration");
     if (db.documentCount() == 0) {
-      db = Node.instance().databaseProvider().database("cloudnet_module_configuration");
+      db = databaseProvider.database("cloudnet_module_configuration");
     }
 
     // get the npc_store field of the database entry
@@ -125,7 +133,7 @@ public class CloudNetNPCModule extends DriverModule {
       db.delete("npc_store");
       if (theOldOnes != null) {
         // get the new database
-        var target = Node.instance().databaseProvider().database(DATABASE_NAME);
+        var target = databaseProvider.database(DATABASE_NAME);
         // convert the old entries
         theOldOnes.stream()
           .map(npc -> NPC.builder()
@@ -146,7 +154,7 @@ public class CloudNetNPCModule extends DriverModule {
       }
     } else {
       // convert 4.0.0-RC1 npcs to RC2 npcs
-      var database = Node.instance().databaseProvider().database(DATABASE_NAME);
+      var database = databaseProvider.database(DATABASE_NAME);
       database.documents().stream()
         .filter(doc -> doc.contains("displayName"))
         .map(doc -> {
@@ -167,23 +175,34 @@ public class CloudNetNPCModule extends DriverModule {
   }
 
   @ModuleTask
-  public void initModule() {
+  public void initModule(
+    @NonNull Parsers parsers,
+    @NonNull DatabaseProvider databaseProvider,
+    @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull CommandProvider commandProvider,
+    @NonNull ConsoleProgressWrappers progressWrappers
+  ) {
     var config = this.loadConfig();
-    var database = Node.instance().databaseProvider().database(DATABASE_NAME);
+    var database = databaseProvider.database(DATABASE_NAME);
     // management init
     var management = new NodeNPCManagement(
       config,
       database,
       this.configPath(),
-      Node.instance().eventManager());
-    management.registerToServiceRegistry();
+      parsers,
+      eventManager,
+      moduleHelper,
+      progressWrappers);
+    management.registerToServiceRegistry(serviceRegistry);
     // register the npc module command
-    Node.instance().commandProvider().register(new NPCCommand(management));
+    commandProvider.register(NPCCommand.class);
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
-  public void handleReload() {
-    var management = this.serviceRegistry().firstProvider(NPCManagement.class);
+  public void handleReload(@NonNull ServiceRegistry serviceRegistry) {
+    var management = serviceRegistry.firstProvider(NPCManagement.class);
     if (management != null) {
       management.npcConfiguration(this.loadConfig());
     }

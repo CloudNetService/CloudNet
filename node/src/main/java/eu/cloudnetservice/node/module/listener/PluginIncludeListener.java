@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventListener;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.node.service.CloudService;
 import java.nio.file.Path;
@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 public record PluginIncludeListener(
   @NonNull String moduleName,
   @NonNull Class<?> moduleClass,
+  @NonNull ModuleHelper moduleHelper,
   @NonNull Function<CloudService, Boolean> includeChecker,
   @Nullable BiConsumer<CloudService, Path> includeHandler
 ) {
@@ -41,9 +42,10 @@ public record PluginIncludeListener(
   public PluginIncludeListener(
     @NonNull String moduleName,
     @NonNull Class<?> moduleClass,
+    @NonNull ModuleHelper moduleHelper,
     @NonNull Function<CloudService, Boolean> includeChecker
   ) {
-    this(moduleName, moduleClass, includeChecker, null);
+    this(moduleName, moduleClass, moduleHelper, includeChecker, null);
   }
 
   @EventListener
@@ -54,9 +56,9 @@ public record PluginIncludeListener(
       var pluginFile = event.service().pluginDirectory().resolve(this.moduleName + ".jar");
       FileUtil.delete(pluginFile);
       // try to copy the current plugin file
-      if (ModuleUtil.copyJarContainingClass(this.moduleClass, pluginFile)) {
+      if (this.moduleHelper.copyJarContainingClass(this.moduleClass, pluginFile)) {
         // copy the plugin.yml file for the environment
-        ModuleUtil.copyPluginConfigurationFileForEnvironment(
+        this.moduleHelper.copyPluginConfigurationFileForEnvironment(
           this.moduleClass,
           event.service().serviceId().environment(),
           pluginFile);

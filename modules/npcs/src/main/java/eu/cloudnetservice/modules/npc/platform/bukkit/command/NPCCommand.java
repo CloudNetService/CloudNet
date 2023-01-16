@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,10 +42,10 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import kong.unirest.Unirest;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -52,6 +54,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class NPCCommand extends BaseTabExecutor {
 
   private static final List<String> MATERIAL_NAMES = Arrays.stream(Material.values()).map(Material::name).toList();
@@ -76,11 +79,21 @@ public final class NPCCommand extends BaseTabExecutor {
   private static final String COPIED_NPC_KEY = "npc_copy_entry";
 
   private final Plugin plugin;
+  private final Server server;
   private final BukkitPlatformNPCManagement management;
+  private final GroupConfigurationProvider groupConfigurationProvider;
 
-  public NPCCommand(@NonNull Plugin plugin, @NonNull BukkitPlatformNPCManagement management) {
+  @Inject
+  public NPCCommand(
+    @NonNull Plugin plugin,
+    @NonNull Server server,
+    @NonNull BukkitPlatformNPCManagement management,
+    @NonNull GroupConfigurationProvider groupConfigurationProvider
+  ) {
     this.plugin = plugin;
+    this.server = server;
     this.management = management;
+    this.groupConfigurationProvider = groupConfigurationProvider;
   }
 
   @Override
@@ -186,7 +199,7 @@ public final class NPCCommand extends BaseTabExecutor {
         case "cu", "cleanup" -> {
           this.management.trackedEntities().values().stream()
             .map(PlatformSelectorEntity::npc)
-            .filter(npc -> Bukkit.getWorld(npc.location().world()) == null)
+            .filter(npc -> this.server.getWorld(npc.location().world()) == null)
             .forEach(npc -> {
               this.management.deleteNPC(npc);
               sender.sendMessage(String.format(
@@ -486,7 +499,7 @@ public final class NPCCommand extends BaseTabExecutor {
                 .collect(Collectors.toSet()))
               .build())
             .exceptionally(throwable -> {
-              sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[3]));
+              sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[2]));
               return null;
             }).join();
 
@@ -605,9 +618,7 @@ public final class NPCCommand extends BaseTabExecutor {
     if (args[0].equalsIgnoreCase("create")) {
       switch (args.length) {
         case 2 -> {
-          return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations().stream()
-            .map(GroupConfiguration::name)
-            .toList();
+          return this.groupConfigurationProvider.groupConfigurations().stream().map(GroupConfiguration::name).toList();
         }
         case 3 -> {
           return NPC_TYPES;
@@ -683,7 +694,7 @@ public final class NPCCommand extends BaseTabExecutor {
           // npc skin profile based on a texture url
           case "urlprofile", "up" -> List.of("https://i.nmc1.net/23f502a9f94379f1.png");
           // target group
-          case "tg", "targetgroup" -> CloudNetDriver.instance().groupConfigurationProvider()
+          case "tg", "targetgroup" -> this.groupConfigurationProvider
             .groupConfigurations().stream()
             .map(GroupConfiguration::name)
             .toList();

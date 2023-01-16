@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
 package eu.cloudnetservice.driver.module;
 
 import com.google.common.collect.ObjectArrays;
+import dev.derklaro.aerogel.SpecifiedInjector;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.inject.InjectionLayerHolder;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -35,7 +38,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @since 4.0
  */
 @ApiStatus.Internal
-public class ModuleURLClassLoader extends URLClassLoader {
+public class ModuleURLClassLoader extends URLClassLoader implements InjectionLayerHolder<SpecifiedInjector> {
 
   /**
    * All loaders which were created and of which the associated module is still loaded.
@@ -47,17 +50,25 @@ public class ModuleURLClassLoader extends URLClassLoader {
     ClassLoader.registerAsParallelCapable();
   }
 
+  protected final InjectionLayer<SpecifiedInjector> injectionLayer;
+
   /**
    * Creates an instance of this FinalizeURLClassLoader.
    *
    * @param moduleFileUrl        the module file to which this loader is associated.
    * @param moduleDependencyUrls all dependencies which were loaded for the module.
+   * @param injectionLayer       the injection layer for the module associated with this loader.
    * @throws NullPointerException if moduleFileUrl or moduleDependencyUrls is null.
    */
-  public ModuleURLClassLoader(@NonNull URL moduleFileUrl, @NonNull Set<URL> moduleDependencyUrls) {
+  public ModuleURLClassLoader(
+    @NonNull URL moduleFileUrl,
+    @NonNull Set<URL> moduleDependencyUrls,
+    @NonNull InjectionLayer<SpecifiedInjector> injectionLayer
+  ) {
     super(
       ObjectArrays.concat(moduleFileUrl, moduleDependencyUrls.toArray(new URL[0])),
       ModuleURLClassLoader.class.getClassLoader());
+    this.injectionLayer = injectionLayer;
   }
 
   /**
@@ -82,6 +93,9 @@ public class ModuleURLClassLoader extends URLClassLoader {
       CLASS_LOADING_LOCK.lock();
       // remove first to prevent other trying to load classes while closed
       LOADERS.remove(this);
+
+      // remove all injection stuff created by the associated module layer, then close the loader itself
+      this.injectionLayer.close();
       super.close();
     } finally {
       CLASS_LOADING_LOCK.unlock();
@@ -94,6 +108,14 @@ public class ModuleURLClassLoader extends URLClassLoader {
   @Override
   protected @NonNull Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
     return this.loadClass(name, resolve, true);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull InjectionLayer<SpecifiedInjector> injectionLayer() {
+    return this.injectionLayer;
   }
 
   /**

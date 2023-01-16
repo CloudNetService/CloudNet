@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package eu.cloudnetservice.node.database.h2;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.node.database.DatabaseHandler;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class H2DatabaseTest {
 
@@ -39,8 +37,7 @@ class H2DatabaseTest {
     var baseDirectory = Path.of("build", "tmp", "h2");
     FileUtil.delete(baseDirectory);
 
-    this.databaseProvider = new H2DatabaseProvider(baseDirectory.resolve("db").toString(), null);
-    this.databaseProvider.databaseHandler(Mockito.mock(DatabaseHandler.class));
+    this.databaseProvider = new H2DatabaseProvider(baseDirectory.resolve("db").toString());
     this.databaseProvider.init();
   }
 

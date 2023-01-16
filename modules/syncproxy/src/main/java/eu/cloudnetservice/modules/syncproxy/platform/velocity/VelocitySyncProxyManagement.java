@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,52 @@ package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class VelocitySyncProxyManagement extends PlatformSyncProxyManagement<Player> {
 
   private final ProxyServer proxyServer;
 
-  public VelocitySyncProxyManagement(@NonNull ProxyServer proxyServer) {
+  @Inject
+  public VelocitySyncProxyManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull ProxyServer proxyServer,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull WrapperConfiguration wrapperConfig,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      wrapperConfig,
+      serviceInfoHolder,
+      serviceProvider,
+      executorService,
+      permissionManagement);
+
     this.proxyServer = proxyServer;
     this.init();
   }
@@ -38,11 +71,6 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   @Override
   public void registerService(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement", this);
-  }
-
-  @Override
-  public void unregisterService(@NonNull ServiceRegistry registry) {
-    registry.unregisterProvider(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement");
   }
 
   @Override

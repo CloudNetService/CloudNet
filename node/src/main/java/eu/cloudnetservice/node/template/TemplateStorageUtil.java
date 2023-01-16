@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,38 @@
 
 package eu.cloudnetservice.node.template;
 
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.event.template.ServiceTemplateInstallEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import lombok.NonNull;
 
 /**
  * An util class to prepare created templates with needed files
  */
+@Singleton
 public final class TemplateStorageUtil {
 
-  private TemplateStorageUtil() {
-    throw new UnsupportedOperationException();
+  private final EventManager eventManager;
+
+  @Inject
+  public TemplateStorageUtil(@NonNull EventManager eventManager) {
+    this.eventManager = eventManager;
   }
 
-  public static boolean createAndPrepareTemplate(
+  public boolean createAndPrepareTemplate(
     @NonNull ServiceTemplate template,
     @NonNull TemplateStorage storage,
     @NonNull ServiceEnvironmentType env
   ) throws IOException {
-    return createAndPrepareTemplate(template, storage, env, true);
+    return this.createAndPrepareTemplate(template, storage, env, true);
   }
 
-  public static boolean createAndPrepareTemplate(
+  public boolean createAndPrepareTemplate(
     @NonNull ServiceTemplate template,
     @NonNull TemplateStorage storage,
     @NonNull ServiceEnvironmentType env,
@@ -53,7 +59,7 @@ public final class TemplateStorageUtil {
 
       // call the installation event if the default installation process should be executed
       if (installDefaultFiles) {
-        Node.instance().eventManager().callEvent(new ServiceTemplateInstallEvent(template, storage, env));
+        this.eventManager.callEvent(new ServiceTemplateInstallEvent(template, storage, env));
       }
 
       return true;

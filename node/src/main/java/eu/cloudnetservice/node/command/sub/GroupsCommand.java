@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,11 @@ import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,15 +47,23 @@ import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandPermission("cloudnet.command.groups")
 @Description("command-groups-description")
 public final class GroupsCommand {
+
+  private final GroupConfigurationProvider groupProvider;
+
+  @Inject
+  public GroupsCommand(@NonNull GroupConfigurationProvider groupProvider) {
+    this.groupProvider = groupProvider;
+  }
 
   @Parser(suggestions = "groupConfiguration")
   public @NonNull GroupConfiguration defaultGroupParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
 
-    var configuration = this.groupProvider().groupConfiguration(name);
+    var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
@@ -64,35 +73,34 @@ public final class GroupsCommand {
 
   @Suggestions("groupConfiguration")
   public @NonNull List<String> suggestGroups(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.groupProvider().groupConfigurations().stream().map(Nameable::name).toList();
+    return this.groupProvider.groupConfigurations().stream().map(Nameable::name).toList();
   }
 
   @CommandMethod("groups delete <name>")
   public void deleteGroup(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration configuration) {
-    Node.instance().groupConfigurationProvider().removeGroupConfiguration(configuration);
+    this.groupProvider.removeGroupConfiguration(configuration);
     source.sendMessage(I18n.trans("command-groups-delete-group"));
   }
 
   @CommandMethod("groups create <name>")
   public void createGroup(@NonNull CommandSource source, @NonNull @Argument("name") String groupName) {
-    if (this.groupProvider().groupConfiguration(groupName) != null) {
+    if (this.groupProvider.groupConfiguration(groupName) != null) {
       source.sendMessage(I18n.trans("command-groups-group-already-existing", groupName));
     } else {
-      this.groupProvider().addGroupConfiguration(GroupConfiguration.builder().name(groupName).build());
+      this.groupProvider.addGroupConfiguration(GroupConfiguration.builder().name(groupName).build());
       source.sendMessage(I18n.trans("command-groups-create-success", groupName));
     }
   }
 
   @CommandMethod("groups reload")
   public void reloadGroups(@NonNull CommandSource source) {
-    Node.instance().groupConfigurationProvider().reload();
+    this.groupProvider.reload();
     source.sendMessage(I18n.trans("command-groups-reload-success"));
   }
 
   @CommandMethod("groups list")
   public void listGroups(@NonNull CommandSource source) {
-    var groups = Node.instance().groupConfigurationProvider()
-      .groupConfigurations();
+    var groups = this.groupProvider.groupConfigurations();
     if (groups.isEmpty()) {
       return;
     }
@@ -120,12 +128,12 @@ public final class GroupsCommand {
     @NonNull @Argument(value = "oldName") GroupConfiguration group,
     @NonNull @Argument("newName") String newName
   ) {
-    if (this.groupProvider().groupConfiguration(newName) != null) {
+    if (this.groupProvider.groupConfiguration(newName) != null) {
       source.sendMessage(I18n.trans("command-groups-group-already-existing", newName));
     } else {
       // create a copy with the new name and remove the old group
-      this.groupProvider().removeGroupConfiguration(group);
-      this.groupProvider().addGroupConfiguration(GroupConfiguration.builder(group).name(newName).build());
+      this.groupProvider.removeGroupConfiguration(group);
+      this.groupProvider.addGroupConfiguration(GroupConfiguration.builder(group).name(newName).build());
       source.sendMessage(I18n.trans("command-groups-rename-success", group.name(), newName));
     }
   }
@@ -338,11 +346,7 @@ public final class GroupsCommand {
 
   private void updateGroup(@NonNull GroupConfiguration group, Consumer<GroupConfiguration.Builder> modifier) {
     modifier
-      .andThen(builder -> this.groupProvider().addGroupConfiguration(builder.build()))
+      .andThen(builder -> this.groupProvider.addGroupConfiguration(builder.build()))
       .accept(GroupConfiguration.builder(group));
-  }
-
-  private @NonNull GroupConfigurationProvider groupProvider() {
-    return Node.instance().groupConfigurationProvider();
   }
 }

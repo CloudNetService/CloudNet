@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,61 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
+import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
+import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@ProvidesFor(platform = "bungeecord", types = {PlatformSyncProxyManagement.class, SyncProxyManagement.class})
 public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManagement<ProxiedPlayer> {
 
-  private final Plugin plugin;
+  private final ProxyServer proxyServer;
+  private final BungeeCordHelper bungeeCordHelper;
 
-  public BungeeCordSyncProxyManagement(@NonNull Plugin plugin) {
-    this.plugin = plugin;
+  @Inject
+  public BungeeCordSyncProxyManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull ProxyServer proxyServer,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull BungeeCordHelper bungeeCordHelper,
+    @NonNull WrapperConfiguration wrapperConfig,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      wrapperConfig,
+      serviceInfoHolder,
+      serviceProvider,
+      executorService,
+      permissionManagement);
+
+    this.proxyServer = proxyServer;
+    this.bungeeCordHelper = bungeeCordHelper;
     this.init();
   }
 
@@ -43,13 +80,8 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void unregisterService(@NonNull ServiceRegistry registry) {
-    registry.unregisterProvider(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement");
-  }
-
-  @Override
   public @NonNull Collection<ProxiedPlayer> onlinePlayers() {
-    return this.plugin.getProxy().getPlayers();
+    return this.proxyServer.getPlayers();
   }
 
   @Override
@@ -65,29 +97,25 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   @Override
   public void playerTabList(@NonNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
     player.setTabHeader(
-      header != null ? this.asComponent(this.replaceTabPlaceholder(header, player)) : null,
-      footer != null ? this.asComponent(this.replaceTabPlaceholder(footer, player)) : null);
+      header != null ? this.bungeeCordHelper.translateToComponent(this.replaceTabPlaceholder(header, player)) : null,
+      footer != null ? this.bungeeCordHelper.translateToComponent(this.replaceTabPlaceholder(footer, player)) : null);
   }
 
   @Override
   public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull String message) {
-    player.disconnect(this.asComponent(message));
+    player.disconnect(this.bungeeCordHelper.translateToComponent(message));
   }
 
   @Override
   public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable String message) {
     if (message != null) {
-      player.sendMessage(this.asComponent(message));
+      player.sendMessage(this.bungeeCordHelper.translateToComponent(message));
     }
   }
 
   @Override
   public boolean checkPlayerPermission(@NonNull ProxiedPlayer player, @NonNull String permission) {
     return player.hasPermission(permission);
-  }
-
-  public @NonNull BaseComponent[] asComponent(@NonNull String message) {
-    return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
   }
 
   private @NonNull String replaceTabPlaceholder(@NonNull String input, @NonNull ProxiedPlayer player) {

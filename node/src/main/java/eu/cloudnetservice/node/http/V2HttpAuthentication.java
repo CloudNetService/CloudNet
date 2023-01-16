@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package eu.cloudnetservice.node.http;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
-import eu.cloudnetservice.node.Node;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
@@ -30,6 +30,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.PrematureJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.sql.Date;
@@ -44,13 +46,11 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+@Singleton
 public class V2HttpAuthentication {
 
+  protected static final String JWT_ISSUER_FORMAT = "CloudNet %s";
   protected static final Logger LOGGER = LogManager.logger(V2HttpAuthentication.class);
-  protected static final String ISSUER = "CloudNet " + Node.instance().componentName();
-
-  protected static final Key SIGN_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-  protected static final JwtParser PARSER = Jwts.parserBuilder().setSigningKey(SIGN_KEY).requireIssuer(ISSUER).build();
 
   protected static final Pattern BASIC_LOGIN_PATTERN = Pattern.compile("Basic ([a-zA-Z\\d=]+)$");
   protected static final Pattern BEARER_LOGIN_PATTERN = Pattern.compile("Bearer ([a-zA-Z\\d-_.]+)$");
@@ -61,12 +61,36 @@ public class V2HttpAuthentication {
     "Unable to process bearer login: user gone");
   protected static final LoginResult<PermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
+
+  protected final PermissionManagement permissionManagement;
   protected final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
+
+  protected final Key signingKey;
+  protected final String jwtIssuer;
+  protected final JwtParser jwtParser;
+
+  @Inject
+  public V2HttpAuthentication(
+    @NonNull PermissionManagement permissionManagement,
+    @NonNull ComponentInfo componentInfo
+  ) {
+    this.permissionManagement = permissionManagement;
+    this.jwtIssuer = String.format(JWT_ISSUER_FORMAT, componentInfo.componentName());
+
+    // initialize the secret & parser
+    // todo: can we use a key written to the disk so that issued jwts survive node restarts?
+    this.signingKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    this.jwtParser = Jwts.parserBuilder().setSigningKey(this.signingKey).requireIssuer(this.jwtIssuer).build();
+  }
 
   public @NonNull String createJwt(@NonNull PermissionUser subject, long sessionTimeMillis) {
     var session = this.sessions().computeIfAbsent(
       subject.uniqueId().toString(),
-      userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.uniqueId(), this));
+      userUniqueId -> new DefaultHttpSession(
+        System.currentTimeMillis() + sessionTimeMillis,
+        subject.uniqueId(),
+        this,
+        this.permissionManagement));
     return this.generateJwt(subject, session);
   }
 
@@ -80,7 +104,7 @@ public class V2HttpAuthentication {
     if (matcher.matches()) {
       var auth = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8).split(":");
       if (auth.length == 2) {
-        var users = CloudNetDriver.instance().permissionManagement().usersByName(auth[0]);
+        var users = this.permissionManagement.usersByName(auth[0]);
         for (var user : users) {
           if (user.checkPassword(auth[1])) {
             return LoginResult.success(user);
@@ -102,7 +126,7 @@ public class V2HttpAuthentication {
     var matcher = BEARER_LOGIN_PATTERN.matcher(authenticationHeader);
     if (matcher.matches()) {
       try {
-        var jws = PARSER.parseClaimsJws(matcher.group(1));
+        var jws = this.jwtParser.parseClaimsJws(matcher.group(1));
         var session = this.sessionById(jws.getBody().getId());
         if (session != null) {
           var user = session.user();
@@ -169,8 +193,8 @@ public class V2HttpAuthentication {
 
   protected @NonNull String generateJwt(@NonNull PermissionUser subject, @NonNull HttpSession session) {
     return Jwts.builder()
-      .setIssuer(ISSUER)
-      .signWith(SIGN_KEY)
+      .setIssuer(this.jwtIssuer)
+      .signWith(this.signingKey)
       .setSubject(subject.name())
       .setId(session.uniqueId())
       .setIssuedAt(Calendar.getInstance().getTime())

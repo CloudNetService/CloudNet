@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
@@ -25,11 +24,18 @@ tasks.withType<Jar> {
   archiveFileName.set(Files.signs)
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/signs.aero")
+}
+
 dependencies {
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
   "compileOnly"(projects.ext.adventureHelper)
   "implementation"(projects.ext.bukkitCommand)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   "compileOnly"(libs.bundles.serverPlatform)
 }

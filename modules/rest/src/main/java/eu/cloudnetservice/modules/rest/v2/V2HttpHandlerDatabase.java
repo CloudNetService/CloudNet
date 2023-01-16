@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,24 +24,36 @@ import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 
+@Singleton
 @HandlerPermission("http.v2.database")
 public final class V2HttpHandlerDatabase extends V2HttpHandler {
 
   private static final Type MAP_TYPE = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
 
+  private final DatabaseProvider databaseProvider;
+
+  @Inject
+  public V2HttpHandlerDatabase(@NonNull Configuration config, @NonNull DatabaseProvider databaseProvider) {
+    super(config.restConfiguration());
+    this.databaseProvider = databaseProvider;
+  }
+
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/database")
   private void handleNamesRequest(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("names", this.databaseProvider().databaseNames()).toString())
+      .body(this.success().append("names", this.databaseProvider.databaseNames()).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -50,7 +62,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/database/{name}/clear")
   private void handleClearRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
-    var database = this.databaseProvider().database(name);
+    var database = this.databaseProvider.database(name);
     database.clear();
 
     this.ok(context)
@@ -66,7 +78,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
     @NonNull @RequestPathParam("name") String name,
     @NonNull @FirstRequestQueryParam("key") String key
   ) {
-    var database = this.databaseProvider().database(name);
+    var database = this.databaseProvider.database(name);
     this.ok(context)
       .body(this.success().append("result", database.contains(key)).toString())
       .context()
@@ -77,7 +89,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/database/{name}/keys")
   private void handleKeysRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
-    var database = this.databaseProvider().database(name);
+    var database = this.databaseProvider.database(name);
     this.ok(context)
       .body(this.success().append("keys", database.keys()).toString())
       .context()
@@ -88,7 +100,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/database/{name}/count")
   private void handleCountRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
-    var database = this.databaseProvider().database(name);
+    var database = this.databaseProvider.database(name);
     this.ok(context)
       .body(this.success().append("count", database.documentCount()).toString())
       .context()
@@ -103,7 +115,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
     @NonNull @RequestPathParam("name") String name,
     @NonNull @RequestBody JsonDocument document
   ) {
-    var database = this.databaseProvider().database(name);
+    var database = this.databaseProvider.database(name);
     this.withContextData(context, document, (key, data) -> {
       if (database.insert(key, data)) {
         this.ok(context)
@@ -128,7 +140,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
     @NonNull @RequestPathParam("name") String name,
     @NonNull @FirstRequestQueryParam("key") String key
   ) {
-    var database = this.databaseProvider().database(name);
+    var database = this.databaseProvider.database(name);
     this.ok(context)
       .body(this.success().append("result", database.get(key)).toString())
       .context()
@@ -143,7 +155,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
     @NonNull @RequestPathParam("name") String name,
     @NonNull @RequestBody JsonDocument body
   ) {
-    var database = this.databaseProvider().database(name);
+    var database = this.databaseProvider.database(name);
 
     var result = database.find(body.toInstanceOf(MAP_TYPE));
     this.ok(context)
@@ -160,7 +172,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
     @NonNull @RequestPathParam("name") String name,
     @NonNull @FirstRequestQueryParam("key") String key
   ) {
-    var database = this.databaseProvider().database(name);
+    var database = this.databaseProvider.database(name);
     if (database.delete(key)) {
       this.ok(context)
         .body(this.success().toString())
@@ -194,9 +206,5 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
     }
 
     handler.accept(key, data);
-  }
-
-  private @NonNull DatabaseProvider databaseProvider() {
-    return this.node().databaseProvider();
   }
 }

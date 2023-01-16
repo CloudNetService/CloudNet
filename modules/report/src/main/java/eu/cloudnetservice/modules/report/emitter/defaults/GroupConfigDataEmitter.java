@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,29 @@
 
 package eu.cloudnetservice.modules.report.emitter.defaults;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.emitter.SpecificReportDataEmitter;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 
+@Singleton
 public final class GroupConfigDataEmitter extends SpecificReportDataEmitter<GroupConfiguration> {
 
-  public GroupConfigDataEmitter() {
+  private final GroupConfigurationProvider groupConfigurationProvider;
+
+  @Inject
+  public GroupConfigDataEmitter(@NonNull GroupConfigurationProvider groupConfigurationProvider) {
     super((writer, groups) -> writer.appendString("Groups (").appendInt(groups.size()).appendString("):"));
+    this.groupConfigurationProvider = groupConfigurationProvider;
   }
 
   @Override
   public @NonNull Collection<GroupConfiguration> collectData() {
-    return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations();
+    return this.groupConfigurationProvider.groupConfigurations();
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +23,23 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.InputStream;
 import java.nio.file.Files;
 import lombok.NonNull;
 
+@Singleton
 final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback {
-
-  public static final StaticServiceDeployCallback INSTANCE = new StaticServiceDeployCallback();
 
   private static final Logger LOGGER = LogManager.logger(StaticServiceDeployCallback.class);
 
-  private StaticServiceDeployCallback() {
+  private final CloudServiceManager cloudServiceManager;
+
+  @Inject
+  public StaticServiceDeployCallback(@NonNull CloudServiceManager cloudServiceManager) {
+    this.cloudServiceManager = cloudServiceManager;
   }
 
   @Override
@@ -46,15 +51,15 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
     var service = information.transferInformation().readString();
     var overwriteService = information.transferInformation().readBoolean();
 
-    var serviceManager = Node.instance().cloudServiceProvider();
     // only copy the static service running with the same name
-    if (serviceManager.localCloudService(service) == null) {
-      var servicePath = serviceManager.persistentServicesDirectory().resolve(service);
+    if (this.cloudServiceManager.localCloudService(service) == null) {
+      var servicePath = this.cloudServiceManager.persistentServicesDirectory().resolve(service);
       // check if the service path exists, and we can overwrite it
       if (Files.exists(servicePath) && !overwriteService) {
         LOGGER.severe(I18n.trans("command-cluster-push-static-service-existing", service));
         return;
       }
+
       // delete the old contents
       FileUtil.delete(servicePath);
       // recreate the directory

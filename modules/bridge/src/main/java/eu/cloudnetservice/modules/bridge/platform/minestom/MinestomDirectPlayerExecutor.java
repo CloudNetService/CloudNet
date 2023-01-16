@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,21 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 final class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
+  private final CommandManager commandManager;
+
   public MinestomDirectPlayerExecutor(
+    @NonNull CommandManager commandManager,
     @NonNull UUID uniqueId,
     @NonNull Supplier<? extends Collection<? extends Player>> supplier
   ) {
     super(uniqueId, supplier);
+    this.commandManager = commandManager;
   }
 
   @Override
@@ -88,6 +92,6 @@ final class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
 
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
-    this.forEach(player -> MinecraftServer.getCommandManager().execute(player, command));
+    this.forEach(player -> this.commandManager.execute(player, command));
   }
 }

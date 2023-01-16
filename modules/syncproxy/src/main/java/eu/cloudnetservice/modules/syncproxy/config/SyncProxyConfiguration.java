@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ package eu.cloudnetservice.modules.syncproxy.config;
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
-import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,6 +46,24 @@ public record SyncProxyConfiguration(
     "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
     "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
 
+  public static @Nullable String fillCommonPlaceholders(
+    @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
+    @Nullable String input,
+    int onlinePlayers,
+    int maxPlayers
+  ) {
+    if (input == null) {
+      return null;
+    }
+
+    return BridgeServiceHelper.fillCommonPlaceholders(
+      input
+        .replace("%online_players%", String.valueOf(onlinePlayers))
+        .replace("%max_players%", String.valueOf(maxPlayers)),
+      null,
+      serviceInfoSnapshot);
+  }
+
   public static @NonNull Builder builder() {
     return new Builder();
   }
@@ -66,11 +85,11 @@ public record SyncProxyConfiguration(
       .build();
   }
 
-  public static @Nullable SyncProxyConfiguration configurationFromNode() {
+  public static @Nullable SyncProxyConfiguration configurationFromNode(@NonNull String nodeUniqueId) {
     var response = ChannelMessage.builder()
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       .message(SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST)
-      .targetNode(Wrapper.instance().serviceId().nodeUniqueId())
+      .targetNode(nodeUniqueId)
       .build()
       .sendSingleQuery();
 
@@ -122,7 +141,8 @@ public record SyncProxyConfiguration(
       return this;
     }
 
-    public @NonNull Builder modifyTabListConfigurations(@NonNull Consumer<Set<SyncProxyTabListConfiguration>> modifier) {
+    public @NonNull Builder modifyTabListConfigurations(
+      @NonNull Consumer<Set<SyncProxyTabListConfiguration>> modifier) {
       modifier.accept(this.tabListConfigurations);
       return this;
     }

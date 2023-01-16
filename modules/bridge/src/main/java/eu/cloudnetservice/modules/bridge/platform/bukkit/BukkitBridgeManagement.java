@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,15 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
+import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -25,36 +32,64 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@ProvidesFor(platform = "bukkit", types = {PlatformBridgeManagement.class, BridgeManagement.class})
 final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
 
   private static final BiFunction<Player, String, Boolean> PERM_FUNCTION = Permissible::hasPermission;
 
+  private final Server server;
   private final Plugin plugin;
   private final PlayerExecutor directGlobalExecutor;
 
-  public BukkitBridgeManagement(@NonNull Plugin plugin) {
-    super(Wrapper.instance());
+  @Inject
+  public BukkitBridgeManagement(
+    @NonNull Server server,
+    @NonNull Plugin plugin,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeServiceHelper serviceHelper,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
     // init fields
+    this.server = server;
     this.plugin = plugin;
     this.directGlobalExecutor = new BukkitDirectPlayerExecutor(
       plugin,
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       Bukkit::getOnlinePlayers);
     // init the bridge properties
-    BridgeServiceHelper.MOTD.set(Bukkit.getMotd());
-    BridgeServiceHelper.MAX_PLAYERS.set(Bukkit.getMaxPlayers());
+    serviceHelper.motd().set(server.getMotd());
+    serviceHelper.maxPlayers().set(server.getMaxPlayers());
   }
 
   @Override
@@ -112,17 +147,20 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   public @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
-      : new BukkitDirectPlayerExecutor(this.plugin, uniqueId, () -> Collections.singleton(Bukkit.getPlayer(uniqueId)));
+      : new BukkitDirectPlayerExecutor(
+        this.plugin,
+        uniqueId,
+        () -> Collections.singleton(this.server.getPlayer(uniqueId)));
   }
 
   @Override
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the bukkit specific information
-    snapshot.properties().append("Online-Count", Bukkit.getOnlinePlayers().size());
-    snapshot.properties().append("Version", Bukkit.getVersion());
+    snapshot.properties().append("Online-Count", this.server.getOnlinePlayers().size());
+    snapshot.properties().append("Version", this.server.getVersion());
     // players
-    snapshot.properties().append("Players", Bukkit.getOnlinePlayers().stream()
+    snapshot.properties().append("Players", this.server.getOnlinePlayers().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

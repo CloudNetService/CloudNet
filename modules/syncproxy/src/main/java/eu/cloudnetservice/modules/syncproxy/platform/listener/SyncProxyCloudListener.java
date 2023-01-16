@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,7 @@ import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import lombok.NonNull;
 
-public final class SyncProxyCloudListener<P> {
-
-  private final PlatformSyncProxyManagement<P> management;
-
-  public SyncProxyCloudListener(@NonNull PlatformSyncProxyManagement<P> management) {
-    this.management = management;
-  }
+public record SyncProxyCloudListener<P>(@NonNull PlatformSyncProxyManagement<P> management) {
 
   @EventListener
   public void handleServiceLifecycleChange(@NonNull CloudServiceLifecycleChangeEvent event) {

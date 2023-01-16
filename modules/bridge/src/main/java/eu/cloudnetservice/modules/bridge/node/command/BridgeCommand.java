@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,32 +24,41 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
+@Singleton
 @CommandPermission("cloudnet.command.bridge")
 @Description("module-bridge-command-description")
 public class BridgeCommand {
 
+  private final ServiceTaskProvider taskProvider;
   private final BridgeManagement bridgeManagement;
   private final GroupConfigurationProvider groupConfigurationProvider;
 
-  public BridgeCommand(@NonNull BridgeManagement bridgeManagement) {
+  @Inject
+  public BridgeCommand(
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeManagement bridgeManagement,
+    @NonNull GroupConfigurationProvider groupConfigurationProvider
+  ) {
+    this.taskProvider = taskProvider;
     this.bridgeManagement = bridgeManagement;
-    this.groupConfigurationProvider = Node.instance().groupConfigurationProvider();
+    this.groupConfigurationProvider = groupConfigurationProvider;
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")
@@ -102,7 +111,7 @@ public class BridgeCommand {
     @NonNull @Argument("permission") String permission
   ) {
     for (var task : serviceTasks) {
-      CloudNetDriver.instance().serviceTaskProvider().addServiceTask(ServiceTask.builder(task)
+      this.taskProvider.addServiceTask(ServiceTask.builder(task)
         .properties(task.properties().append("requiredPermission", permission))
         .build());
       source.sendMessage(I18n.trans("command-tasks-set-property-success",

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,12 @@ import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -36,13 +39,22 @@ import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @HandlerPermission("http.v2.module")
 public final class V2HttpHandlerModule extends V2HttpHandler {
+
+  private final ModuleProvider moduleProvider;
+
+  @Inject
+  public V2HttpHandlerModule(@NonNull Configuration config, @NonNull ModuleProvider moduleProvider) {
+    super(config.restConfiguration());
+    this.moduleProvider = moduleProvider;
+  }
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/module/reload")
   private void handleReloadRequest(@NonNull HttpContext context) {
-    this.node().moduleProvider().reloadAll();
+    this.moduleProvider.reloadAll();
 
     this.ok(context)
       .body(this.success().toString())
@@ -56,7 +68,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   private void handleModuleListRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success()
-        .append("modules", this.moduleProvider().modules().stream()
+        .append("modules", this.moduleProvider.modules().stream()
           .map(module -> JsonDocument.newDocument()
             .append("lifecycle", module.moduleLifeCycle())
             .append("configuration", module.moduleConfiguration()))
@@ -106,8 +118,8 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
     @NonNull @RequestPathParam("module") String name,
     @NonNull @RequestBody InputStream body
   ) {
-    var moduleTarget = this.moduleProvider().moduleDirectoryPath().resolve(name);
-    FileUtil.ensureChild(this.moduleProvider().moduleDirectoryPath(), moduleTarget);
+    var moduleTarget = this.moduleProvider.moduleDirectoryPath().resolve(name);
+    FileUtil.ensureChild(this.moduleProvider.moduleDirectoryPath(), moduleTarget);
 
     try (var outputStream = Files.newOutputStream(moduleTarget)) {
       FileUtil.copy(body, outputStream);
@@ -121,7 +133,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
       return;
     }
 
-    this.showModule(context, this.moduleProvider().loadModule(moduleTarget));
+    this.showModule(context, this.moduleProvider.loadModule(moduleTarget));
   }
 
   @BearerAuth
@@ -192,7 +204,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
     @NonNull String name,
     @NonNull Consumer<ModuleWrapper> handler
   ) {
-    var wrapper = this.moduleProvider().module(name);
+    var wrapper = this.moduleProvider.module(name);
     if (wrapper == null) {
       this.notFound(context)
         .body(this.failure().append("reason", "No such module").toString())
@@ -203,9 +215,5 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
     }
 
     handler.accept(wrapper);
-  }
-
-  private @NonNull ModuleProvider moduleProvider() {
-    return this.node().moduleProvider();
   }
 }

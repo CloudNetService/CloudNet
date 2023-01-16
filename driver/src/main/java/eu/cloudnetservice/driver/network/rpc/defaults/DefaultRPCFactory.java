@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -31,9 +32,11 @@ import eu.cloudnetservice.driver.network.rpc.defaults.handler.DefaultRPCHandler;
 import eu.cloudnetservice.driver.network.rpc.defaults.sender.DefaultRPCSender;
 import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.generation.InstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Objects;
-import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,12 +45,14 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
+@Provides(RPCFactory.class)
 public class DefaultRPCFactory implements RPCFactory {
 
   protected final ObjectMapper defaultObjectMapper;
   protected final DataBufFactory defaultDataBufFactory;
 
-  protected final Cache<GenerationContext, Supplier<Object>> generatedApiCache = Caffeine.newBuilder().build();
+  protected final Cache<GenerationContext, InstanceFactory<?>> generatedApiCache = Caffeine.newBuilder().build();
   protected final Table<String, GenerationContext, ChainInstanceFactory<?>> chainFactoryCache = HashBasedTable.create();
 
   /**
@@ -57,6 +62,7 @@ public class DefaultRPCFactory implements RPCFactory {
    * @param defaultDataBufFactory the default data buf factory to use if no object mapper is provided in factory calls.
    * @throws NullPointerException if either the given object mapper or data buf factory is null.
    */
+  @Inject
   public DefaultRPCFactory(
     @NonNull ObjectMapper defaultObjectMapper,
     @NonNull DataBufFactory defaultDataBufFactory
@@ -107,11 +113,14 @@ public class DefaultRPCFactory implements RPCFactory {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> @NonNull T generateRPCBasedApi(@NonNull Class<T> baseClass, @NonNull GenerationContext context) {
-    return (T) this.generatedApiCache.get(context, $ -> {
+  public <T> @NonNull InstanceFactory<T> generateRPCBasedApi(
+    @NonNull Class<T> baseClass,
+    @NonNull GenerationContext context
+  ) {
+    return (InstanceFactory<T>) this.generatedApiCache.get(context, $ -> {
       var sender = this.senderFromGenerationContext(context, baseClass);
       return ApiImplementationGenerator.generateApiImplementation(baseClass, context, sender);
-    }).get();
+    });
   }
 
   /**

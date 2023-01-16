@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.event;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,14 +24,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation to mark a method in a class as a method listening for an event. An event method should only take one
- * argument which is the event the method is listening to. The argument type must extend from {@link Event} and must be
- * the event to listen to, not a super class of an event. More specific filtering can be done by providing a specific
- * channel this event listener listens to. The event channel can be specified by when calling the event being listened
- * to.
+ * An annotation to mark a method in a class as a method listening for an event. An event method must not be static and
+ * take the event the method is listening to as it's first argument. More specific filtering can be done by providing a
+ * specific channel this event listener listens to. The event channel can be specified by when calling the event being
+ * listened to.
+ * <p>
+ * If an event listener is taking more than one argument, all other arguments except the event one will be requested
+ * from the parent injection layer. The layer can be given to the specified {@code EventManager#registerListener}
+ * methods. By default, the {@link InjectionLayer#ext()} layer is used.
  * <p>
  * All listeners (or in other words, all method annotated with this annotation) specified in a class will get registered
- * when calling {@link EventManager#registerListener(Object)}.
+ * when calling one of the {@code EventManager#registerListener} methods.
  *
  * @see EventManager#registerListener(Object)
  * @see EventManager#callEvent(String, Event)

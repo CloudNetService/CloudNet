@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,15 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.config.Configuration;
+import jakarta.inject.Singleton;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.RuntimeMXBean;
@@ -32,6 +36,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 
+@Singleton
 @CommandAlias("info")
 @CommandPermission("cloudnet.command.me")
 @Description("command-me-description")
@@ -46,12 +51,16 @@ public final class MeCommand {
   private static final String UPDATE_REPO = System.getProperty("cloudnet.updateRepo", "CloudNetService/launchermeta");
 
   @CommandMethod("me|info")
-  public void me(@NonNull CommandSource source, @Flag("showClusterId") boolean showFullClusterId) {
-    var nodeInstance = Node.instance();
-    var nodeInfoSnapshot = nodeInstance.nodeServerProvider().localNode().nodeInfoSnapshot();
+  public void me(
+    @NonNull CloudNetVersion version,
+    @NonNull Configuration configuration,
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull CommandSource source,
+    @Flag("showClusterId") boolean showFullClusterId) {
+    var nodeInfoSnapshot = nodeServerProvider.localNode().nodeInfoSnapshot();
 
     // hide the middle parts of the uuid if not explicitly requested to show them
-    var clusterId = nodeInstance.config().clusterConfig().clusterId().toString();
+    var clusterId = configuration.clusterConfig().clusterId().toString();
     if (!showFullClusterId) {
       var matcher = UUID_REPLACE_PATTERN.matcher(clusterId);
       clusterId = matcher.replaceAll("-****-");
@@ -59,12 +68,12 @@ public final class MeCommand {
 
     source.sendMessage(List.of(
       " ",
-      Node.instance().version().toString(),
+      version.toString(),
       "Discord: <https://discord.cloudnetservice.eu/>",
       " ",
       "ClusterId: " + clusterId,
-      "NodeId: " + nodeInstance.config().identity().uniqueId(),
-      "Head-NodeId: " + nodeInstance.nodeServerProvider().headNode().info().uniqueId(),
+      "NodeId: " + configuration.identity().uniqueId(),
+      "Head-NodeId: " + nodeServerProvider.headNode().info().uniqueId(),
       "CPU usage: (P/S) "
         + CPUUsageResolver.defaultFormat().format(CPUUsageResolver.processCPUUsage())
         + "/"
@@ -95,7 +104,7 @@ public final class MeCommand {
         + UPDATE_REPO
         + ", Update Branch: "
         + UPDATE_BRANCH
-        + (nodeInstance.dev() ? " (development mode)" : ""),
+        + (Node.DEV_MODE ? " (development mode)" : ""),
       " "));
   }
 }

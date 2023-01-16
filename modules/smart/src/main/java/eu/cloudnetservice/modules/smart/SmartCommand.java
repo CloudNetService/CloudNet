@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,33 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Function;
 import lombok.NonNull;
 
+@Singleton
 @CommandPermission("cloudnet.command.smart")
 @Description("module-smart-command-description")
 public class SmartCommand {
 
+  private final ServiceTaskProvider taskProvider;
+
+  @Inject
+  public SmartCommand(@NonNull ServiceTaskProvider taskProvider) {
+    this.taskProvider = taskProvider;
+  }
+
   @Parser(name = "smartTask", suggestions = "smartTask")
   public @NonNull ServiceTask smartTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var task = Node.instance().serviceTaskProvider().serviceTask(input.remove());
+    var task = this.taskProvider.serviceTask(input.remove());
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -54,7 +64,7 @@ public class SmartCommand {
 
   @Suggestions("smartTask")
   public @NonNull List<String> suggestSmartTasks(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().serviceTaskProvider().serviceTasks()
+    return this.taskProvider.serviceTasks()
       .stream()
       .filter(serviceTask -> serviceTask.properties().contains("smartConfig"))
       .map(Nameable::name)
@@ -243,6 +253,6 @@ public class SmartCommand {
       .properties(serviceTask.properties()
         .append("smartConfig", modifier.apply(SmartServiceTaskConfig.builder(property)).build()))
       .build();
-    Node.instance().serviceTaskProvider().addServiceTask(task);
+    this.taskProvider.addServiceTask(task);
   }
 }

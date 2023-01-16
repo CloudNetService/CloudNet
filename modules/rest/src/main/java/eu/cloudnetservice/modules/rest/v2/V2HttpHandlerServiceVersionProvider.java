@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,23 +23,38 @@ import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.Optional;
 import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @HandlerPermission("http.v2.service.provider")
 public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
+
+  private final ServiceVersionProvider versionProvider;
+
+  @Inject
+  public V2HttpHandlerServiceVersionProvider(
+    @NonNull Configuration config,
+    @NonNull ServiceVersionProvider versionProvider
+  ) {
+    super(config.restConfiguration());
+    this.versionProvider = versionProvider;
+  }
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/serviceversion")
   private void handleVersionListRequest(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("versions", this.versionProvider().serviceVersionTypes()).toString())
+      .body(this.success().append("versions", this.versionProvider.serviceVersionTypes()).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -48,7 +63,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/serviceversion/{version}")
   private void handleVersionRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("version") String version) {
-    var serviceVersion = this.versionProvider().getServiceVersionType(version);
+    var serviceVersion = this.versionProvider.getServiceVersionType(version);
     if (serviceVersion == null) {
       this.badRequest(ctx)
         .body(this.failure().append("reason", "Unknown service version").toString())
@@ -72,10 +87,10 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     @Nullable @Optional @FirstRequestQueryParam("url") String url
   ) {
     if (url == null) {
-      this.versionProvider().loadDefaultVersionTypes();
+      this.versionProvider.loadDefaultVersionTypes();
     } else {
       try {
-        if (!this.versionProvider().loadServiceVersionTypes(url)) {
+        if (!this.versionProvider.loadServiceVersionTypes(url)) {
           this.ok(context)
             .body(this.failure().toString())
             .context()
@@ -109,15 +124,11 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       return;
     }
 
-    this.versionProvider().registerServiceVersionType(type);
+    this.versionProvider.registerServiceVersionType(type);
     this.ok(context)
       .body(this.success().toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
-  }
-
-  private @NonNull ServiceVersionProvider versionProvider() {
-    return this.node().serviceVersionProvider();
   }
 }

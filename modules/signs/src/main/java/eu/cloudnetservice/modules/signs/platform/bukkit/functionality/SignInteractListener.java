@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,27 @@
 
 package eu.cloudnetservice.modules.signs.platform.bukkit.functionality;
 
-import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.bukkit.BukkitSignManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+@Singleton
 public class SignInteractListener implements Listener {
 
-  protected final PlatformSignManagement<Player, Location, ?> signManagement;
+  private final BukkitSignManagement signManagement;
 
-  public SignInteractListener(@NonNull PlatformSignManagement<Player, Location, ?> signManagement) {
+  @Inject
+  public SignInteractListener(@NonNull BukkitSignManagement signManagement) {
     this.signManagement = signManagement;
   }
 
   @EventHandler
-  public void handle(PlayerInteractEvent event) {
+  public void handle(@NonNull PlayerInteractEvent event) {
     if (event.getAction() == Action.RIGHT_CLICK_BLOCK
       && event.getClickedBlock() != null
       && event.getClickedBlock().getState() instanceof org.bukkit.block.Sign) {

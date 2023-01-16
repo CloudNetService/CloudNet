@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,25 @@ import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.permission.PermissionUser;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BasicAuth;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
+@Singleton
 public final class V2HttpHandlerAuthorization extends V2HttpHandler {
 
   private final V2HttpAuthentication authentication;
 
-  public V2HttpHandlerAuthorization(@NonNull V2HttpAuthentication authentication) {
+  @Inject
+  public V2HttpHandlerAuthorization(@NonNull Configuration config, @NonNull V2HttpAuthentication authentication) {
+    super(config.restConfiguration());
     this.authentication = authentication;
   }
 
