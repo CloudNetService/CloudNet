@@ -27,6 +27,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import lombok.NonNull;
 
 @Singleton
@@ -53,11 +55,12 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return this.networkClient.firstChannel()
+    Collection<ChannelMessage> response =  this.networkClient.firstChannel()
       .queryPacketManager()
       .sendQueryPacket(new PacketServerChannelMessage(channelMessage, true))
       .join()
       .content()
       .readObject(MESSAGES);
+    return Objects.requireNonNullElse(response, List.of());
   }
 }
