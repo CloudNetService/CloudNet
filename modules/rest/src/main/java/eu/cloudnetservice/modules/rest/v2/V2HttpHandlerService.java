@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import eu.cloudnetservice.driver.network.http.websocket.WebSocketChannel;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketFrameType;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketListener;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
-import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
@@ -36,12 +36,16 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,14 +53,32 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
+@Singleton
 @HandlerPermission("http.v2.services")
 public final class V2HttpHandlerService extends V2HttpHandler {
+
+  private final CloudServiceFactory serviceFactory;
+  private final CloudServiceManager serviceManager;
+  private final ServiceTaskProvider serviceTaskProvider;
+
+  @Inject
+  public V2HttpHandlerService(
+    @NonNull Configuration config,
+    @NonNull CloudServiceFactory serviceFactory,
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull ServiceTaskProvider serviceTaskProvider
+  ) {
+    super(config.restConfiguration());
+    this.serviceFactory = serviceFactory;
+    this.serviceManager = serviceManager;
+    this.serviceTaskProvider = serviceTaskProvider;
+  }
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/service")
   private void handleListServicesRequest(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("services", this.generalServiceProvider().services()).toString())
+      .body(this.success().append("services", this.serviceManager.services()).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -174,7 +196,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   @HttpRequestHandler(paths = "/api/v2/service/{id}/liveLog")
   private void handleLiveLogRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("id") String id) {
     this.handleWithServiceContext(context, id, service -> {
-      var cloudService = this.node().cloudServiceProvider().localCloudService(service.serviceId().uniqueId());
+      var cloudService = this.serviceManager.localCloudService(service.serviceId().uniqueId());
       if (cloudService != null) {
         context.upgrade().thenAccept(channel -> {
           ServiceConsoleLineHandler handler = (console, line, stderr) -> channel.sendWebSocketFrame(
@@ -211,7 +233,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
         // fallback to a service task name which has to exist
         var serviceTaskName = body.getString("serviceTaskName");
         if (serviceTaskName != null) {
-          var task = this.node().serviceTaskProvider().serviceTask(serviceTaskName);
+          var task = this.serviceTaskProvider.serviceTask(serviceTaskName);
           if (task != null) {
             configuration = ServiceConfiguration.builder(task).build();
           } else {
@@ -230,7 +252,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
       }
     }
 
-    var createResult = this.serviceFactory().createCloudService(configuration);
+    var createResult = this.serviceFactory.createCloudService(configuration);
     var start = body.getBoolean("start", false);
     if (start && createResult.state() == ServiceCreateResult.State.CREATED) {
       createResult.serviceInfo().provider().start();
@@ -339,9 +361,9 @@ public final class V2HttpHandlerService extends V2HttpHandler {
     try {
       // try to parse a unique id from that
       var serviceId = UUID.fromString(identifier);
-      serviceInfoSnapshot = this.generalServiceProvider().service(serviceId);
+      serviceInfoSnapshot = this.serviceManager.service(serviceId);
     } catch (Exception exception) {
-      serviceInfoSnapshot = this.generalServiceProvider().serviceByName(identifier);
+      serviceInfoSnapshot = this.serviceManager.serviceByName(identifier);
     }
 
     // check if the snapshot is present before applying to the handler
@@ -364,14 +386,6 @@ public final class V2HttpHandlerService extends V2HttpHandler {
       .context()
       .closeAfter(true)
       .cancelNext(true);
-  }
-
-  private @NonNull CloudServiceProvider generalServiceProvider() {
-    return this.node().cloudServiceProvider();
-  }
-
-  private @NonNull CloudServiceFactory serviceFactory() {
-    return this.node().cloudServiceFactory();
   }
 
   protected record ConsoleHandlerWebSocketListener(

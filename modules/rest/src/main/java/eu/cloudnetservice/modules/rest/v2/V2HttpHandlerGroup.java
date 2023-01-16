@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,19 +24,31 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 @HandlerPermission("http.v2.groups")
 public final class V2HttpHandlerGroup extends V2HttpHandler {
+
+  private final GroupConfigurationProvider groupProvider;
+
+  @Inject
+  public V2HttpHandlerGroup(@NonNull Configuration config, @NonNull GroupConfigurationProvider groupProvider) {
+    super(config.restConfiguration());
+    this.groupProvider = groupProvider;
+  }
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/group")
   private void handleGroupListRequest(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("groups", this.groupProvider().groupConfigurations()).toString())
+      .body(this.success().append("groups", this.groupProvider.groupConfigurations()).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -49,7 +61,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
     @NonNull @RequestPathParam("name") String name
   ) {
     this.ok(context)
-      .body(this.success().append("result", this.groupProvider().groupConfiguration(name) != null).toString())
+      .body(this.success().append("result", this.groupProvider.groupConfiguration(name) != null).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -58,7 +70,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/group/{name}")
   private void handleGroupRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
-    var configuration = this.groupProvider().groupConfiguration(name);
+    var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
       this.ok(context)
         .body(this.failure().append("reason", "Unknown configuration").toString())
@@ -87,7 +99,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
       return;
     }
 
-    this.groupProvider().addGroupConfiguration(configuration);
+    this.groupProvider.addGroupConfiguration(configuration);
     this.response(context, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
@@ -101,8 +113,8 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
     @NonNull HttpContext context,
     @NonNull @RequestPathParam("name") String name
   ) {
-    if (this.groupProvider().groupConfiguration(name) != null) {
-      this.groupProvider().removeGroupConfigurationByName(name);
+    if (this.groupProvider.groupConfiguration(name) != null) {
+      this.groupProvider.removeGroupConfigurationByName(name);
       this.ok(context)
         .body(this.success().toString())
         .context()
@@ -115,9 +127,5 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
         .closeAfter(true)
         .cancelNext(true);
     }
-  }
-
-  private @NonNull GroupConfigurationProvider groupProvider() {
-    return this.node().groupConfigurationProvider();
   }
 }

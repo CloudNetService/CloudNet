@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,34 +25,28 @@ import lombok.NonNull;
 
 public final class SharedChannelMessageListener {
 
-  private final SignManagement signManagement;
-
-  public SharedChannelMessageListener(@NonNull SignManagement signManagement) {
-    this.signManagement = signManagement;
-  }
-
   @EventListener
-  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event, @NonNull SignManagement signManagement) {
     if (event.channel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME)) {
       switch (event.message()) {
         // as sign was created
-        case AbstractSignManagement.SIGN_CREATED -> this.signManagement.handleInternalSignCreate(
+        case AbstractSignManagement.SIGN_CREATED -> signManagement.handleInternalSignCreate(
           event.content().readObject(Sign.class));
 
         // a sign was deleted
-        case AbstractSignManagement.SIGN_DELETED -> this.signManagement.handleInternalSignRemove(
+        case AbstractSignManagement.SIGN_DELETED -> signManagement.handleInternalSignRemove(
           event.content().readObject(WorldPosition.class));
 
         // a bulk of signs gets deleted
         case AbstractSignManagement.SIGN_BULK_DELETE -> {
           Collection<WorldPosition> positions = event.content().readObject(WorldPosition.COL_TYPE);
           for (var position : positions) {
-            this.signManagement.handleInternalSignRemove(position);
+            signManagement.handleInternalSignRemove(position);
           }
         }
 
         // the sign configuration was updated
-        case AbstractSignManagement.SIGN_CONFIGURATION_UPDATE -> this.signManagement.handleInternalSignConfigUpdate(
+        case AbstractSignManagement.SIGN_CONFIGURATION_UPDATE -> signManagement.handleInternalSignConfigUpdate(
           event.content().readObject(SignsConfiguration.class));
 
         // unknown message

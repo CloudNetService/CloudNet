@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.AbstractSignManagement;
@@ -25,6 +27,9 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.NodeSignsConfigurationHelper;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,18 +39,25 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@Provides({AbstractSignManagement.class, SignManagement.class})
 public class NodeSignManagement extends AbstractSignManagement implements SignManagement {
 
   protected static final String NODE_TO_NODE_SET_SIGN_CONFIGURATION = "signs_node_node_set_signs_config";
 
+  protected final Path configPath;
   protected final Database database;
-  protected final Path configurationFilePath;
 
-  public NodeSignManagement(SignsConfiguration configuration, Path configurationFilePath, Database database) {
+  @Inject
+  public NodeSignManagement(
+    @NonNull SignsConfiguration configuration,
+    @NonNull @Named("dataDirectory") Path dataDirectory,
+    @NonNull DatabaseProvider databaseProvider
+  ) {
     super(configuration);
 
-    this.configurationFilePath = configurationFilePath;
-    this.database = database;
+    this.configPath = dataDirectory.resolve("config.json");
+    this.database = databaseProvider.database(CloudNetSignsModule.DATABASE_NAME);
 
     this.database.documentsAsync().thenAccept(jsonDocuments -> {
       for (var document : jsonDocuments) {
@@ -127,13 +139,13 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
       .buffer(DataBuf.empty().writeObject(signsConfiguration))
       .targetAll()
       .build().send();
-    NodeSignsConfigurationHelper.write(signsConfiguration, this.configurationFilePath);
+    NodeSignsConfigurationHelper.write(signsConfiguration, this.configPath);
   }
 
   @Override
   public void handleInternalSignConfigUpdate(@NonNull SignsConfiguration configuration) {
     super.handleInternalSignConfigUpdate(configuration);
-    NodeSignsConfigurationHelper.write(configuration, this.configurationFilePath);
+    NodeSignsConfigurationHelper.write(configuration, this.configPath);
   }
 
   protected String documentKey(@NonNull WorldPosition position) {

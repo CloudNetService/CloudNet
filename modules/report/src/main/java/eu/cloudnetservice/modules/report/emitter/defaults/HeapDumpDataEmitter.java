@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.modules.report.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
+import jakarta.inject.Singleton;
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -32,6 +33,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
+@Singleton
 public final class HeapDumpDataEmitter implements ReportDataEmitter {
 
   // https://regex101.com/r/yAG1eb/1

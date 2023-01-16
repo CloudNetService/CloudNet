@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,12 +33,14 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.TickLoop;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.service.CloudServicePostProcessStartEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.log.ProcessServiceLogCache;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -73,15 +75,16 @@ public class JVMService extends AbstractService {
   protected volatile Process process;
 
   public JVMService(
+    @NonNull TickLoop tickLoop,
+    @NonNull Configuration nodeConfig,
     @NonNull ServiceConfiguration configuration,
     @NonNull CloudServiceManager manager,
     @NonNull EventManager eventManager,
-    @NonNull Node nodeInstance,
+    @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
-    super(configuration, manager, eventManager, nodeInstance, serviceConfigurationPreparer);
-    super.logCache = new ProcessServiceLogCache(() -> this.process, nodeInstance, this);
-
+    super(tickLoop, nodeConfig, configuration, manager, eventManager, versionProvider, serviceConfigurationPreparer);
+    super.logCache = new ProcessServiceLogCache(() -> this.process, nodeConfig, this);
     this.initLogHandler();
   }
 
@@ -98,10 +101,7 @@ public class JVMService extends AbstractService {
     // load the application file information if possible
     var applicationInformation = this.prepareApplicationFile(environmentType);
     if (applicationInformation == null) {
-      LOGGER.severe(I18n.trans("cloudnet-service-jar-file-not-found-error",
-        this.serviceId().uniqueId(),
-        this.serviceId().taskName(),
-        this.serviceId().name()));
+      LOGGER.severe(I18n.trans("cloudnet-service-jar-file-not-found-error", this.serviceReplacement()));
       return;
     }
 
@@ -123,7 +123,7 @@ public class JVMService extends AbstractService {
 
     // add the java command to start the service
     var overriddenJavaCommand = this.serviceConfiguration().javaCommand();
-    arguments.add(overriddenJavaCommand == null ? this.nodeConfiguration().javaCommand() : overriddenJavaCommand);
+    arguments.add(overriddenJavaCommand == null ? this.configuration.javaCommand() : overriddenJavaCommand);
 
     // add the jvm flags of the service configuration
     arguments.addAll(this.cloudServiceManager().defaultJvmOptions());
@@ -139,7 +139,7 @@ public class JVMService extends AbstractService {
     arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
 
     // fabric specific class path
-    arguments.add(String.format("-Dfabric.systemLibraries=%s", wrapperInformation.first().toAbsolutePath()));
+    arguments.add(String.format("-Dfabric.systemLibraries=%s", classPath));
 
     // set the used host and port as system property
     arguments.add("-Dservice.bind.host=" + this.serviceConfiguration().hostAddress());
@@ -173,7 +173,7 @@ public class JVMService extends AbstractService {
 
       try {
         // wait until the process termination seconds exceeded
-        if (this.process.waitFor(this.nodeConfiguration().processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+        if (this.process.waitFor(this.configuration.processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
           this.process.exitValue(); // validation that the process terminated
           this.process = null; // reset as there is no fall-through
           return;
@@ -288,7 +288,7 @@ public class JVMService extends AbstractService {
     @NonNull ServiceEnvironmentType environmentType
   ) {
     // collect all names of environment names
-    var environments = this.nodeInstance.serviceVersionProvider().serviceVersionTypes().values().stream()
+    var environments = this.serviceVersionProvider.serviceVersionTypes().values().stream()
       .filter(environment -> environment.environmentType().equals(environmentType.name()))
       .map(ServiceEnvironment::name)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), result -> {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
 import io.netty5.buffer.Buffer;
@@ -85,14 +84,16 @@ public final class NettyUtil {
    * up just-in-time handling of packets. Given tasks are queued in the order they are given into the dispatcher and if
    * the dispatcher has no capacity to run the task, the caller will automatically call the task instead.
    *
+   * @param driverEnvironment the driver environment to get the executor for.
    * @return a new packet dispatcher instance.
-   * @see #threadAmount()
+   * @throws NullPointerException if the given environment is null.
+   * @see #threadAmount(DriverEnvironment)
    */
-  public static @NonNull Executor newPacketDispatcher() {
+  public static @NonNull Executor newPacketDispatcher(@NonNull DriverEnvironment driverEnvironment) {
     // a cached pool with a thread idle-lifetime of 30 seconds
     // rejected tasks will be executed on the calling thread (See ThreadPoolExecutor.CallerRunsPolicy)
     // at least one thread is always idling in this executor
-    var maximumPoolSize = threadAmount();
+    var maximumPoolSize = threadAmount(driverEnvironment);
     return ExecutorServiceUtil.newVirtualThreadExecutor("Packet-Dispatcher-", threadFactory -> new ThreadPoolExecutor(
       maximumPoolSize,
       maximumPoolSize,
@@ -231,10 +232,11 @@ public final class NettyUtil {
    * running in as a wrapper and the amount of processors cores multiplied by 2 when running either embedded or as a
    * node.
    *
+   * @param environment the environment to get the thread count for.
    * @return the thread amount used by the packet dispatcher to dispatch incoming packets.
+   * @throws NullPointerException if the given environment is null.
    */
-  public static @Range(from = 2, to = Integer.MAX_VALUE) int threadAmount() {
-    var environment = CloudNetDriver.instance().environment();
+  public static @Range(from = 2, to = Integer.MAX_VALUE) int threadAmount(@NonNull DriverEnvironment environment) {
     return environment.equals(DriverEnvironment.NODE) ? Math.max(8, Runtime.getRuntime().availableProcessors() * 2) : 4;
   }
 

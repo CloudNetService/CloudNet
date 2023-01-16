@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,10 @@ tasks.withType<ShadowJar> {
   }
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = listOf("-AaerogelAutoFileName=autoconfigure/driver.aero")
+}
+
 tasks.withType<Test> {
   dependsOn(":common:jar")
 }
@@ -46,11 +50,16 @@ dependencies {
   "api"(libs.caffeine)
   "api"(libs.reflexion)
   "api"(libs.bundles.unirest)
+  "api"(libs.bundles.aerogel)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 
   // internal libraries
   "implementation"(libs.asm)
   "implementation"(libs.gson)
   "implementation"(libs.guava)
+  "implementation"(libs.geantyref)
 
   // netty
   "implementation"(libs.bundles.netty)

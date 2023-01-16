@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@
 package eu.cloudnetservice.node.log;
 
 import eu.cloudnetservice.common.log.AbstractHandler;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.event.log.LoggingEntryEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -29,12 +31,20 @@ import lombok.NonNull;
 /**
  * A logging handler for developers, that can easy handle and get the logging outputs from this node instance
  */
+@Singleton
 public final class QueuedConsoleLogHandler extends AbstractHandler {
+
+  private final EventManager eventManager;
 
   /**
    * A queue that contain the last 128 logging output as LogEntries that should print into the console
    */
   private final Queue<LogRecord> cachedQueuedLogEntries = new ConcurrentLinkedQueue<>();
+
+  @Inject
+  public QueuedConsoleLogHandler(@NonNull EventManager eventManager) {
+    this.eventManager = eventManager;
+  }
 
   @Override
   public void publish(@NonNull LogRecord record) {
@@ -43,7 +53,7 @@ public final class QueuedConsoleLogHandler extends AbstractHandler {
       this.cachedQueuedLogEntries.poll();
     }
 
-    CloudNetDriver.instance().eventManager().callEvent(new LoggingEntryEvent(record));
+    this.eventManager.callEvent(new LoggingEntryEvent(record));
   }
 
   public @NonNull Queue<LogRecord> cachedLogEntries() {

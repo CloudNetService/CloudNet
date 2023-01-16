@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.event;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import lombok.NonNull;
@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
+public final class BridgeProxyPlayerServerSwitchEvent extends Event {
 
   private final CloudPlayer cloudPlayer;
   private final NetworkServiceInfo previous;

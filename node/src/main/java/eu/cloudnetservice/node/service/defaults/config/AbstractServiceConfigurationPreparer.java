@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.electronwill.nightconfig.core.file.FileConfig;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import java.io.IOException;
@@ -33,8 +33,14 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
 
   protected static final Logger LOGGER = LogManager.logger(ServiceConfigurationPreparer.class);
 
-  protected boolean shouldRewriteIp(@NonNull Node nodeInstance, @NonNull CloudService service) {
-    var task = nodeInstance.serviceTaskProvider().serviceTask(service.serviceId().taskName());
+  protected final ServiceTaskProvider taskProvider;
+
+  protected AbstractServiceConfigurationPreparer(@NonNull ServiceTaskProvider taskProvider) {
+    this.taskProvider = taskProvider;
+  }
+
+  protected boolean shouldRewriteIp(@NonNull CloudService service) {
+    var task = this.taskProvider.serviceTask(service.serviceId().taskName());
     return task == null || !task.disableIpRewrite();
   }
 

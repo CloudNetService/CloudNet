@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@
 package eu.cloudnetservice.modules.signs.platform.bukkit.functionality;
 
 import com.google.common.collect.ImmutableList;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.bukkit.BukkitSignManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
@@ -32,11 +35,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@Singleton
 public class SignsCommand extends BaseTabExecutor {
 
-  protected final PlatformSignManagement<?, Location, ?> signManagement;
+  private final GroupConfigurationProvider groupProvider;
+  private final PlatformSignManagement<?, Location, ?> signManagement;
 
-  public SignsCommand(@NonNull PlatformSignManagement<?, Location, ?> signManagement) {
+  @Inject
+  public SignsCommand(@NonNull GroupConfigurationProvider groupProvider, @NonNull BukkitSignManagement signManagement) {
+    this.groupProvider = groupProvider;
     this.signManagement = signManagement;
   }
 
@@ -138,7 +145,7 @@ public class SignsCommand extends BaseTabExecutor {
       return Arrays.asList("create", "remove", "removeall", "cleanup");
     }
     if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
-      return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations().stream()
+      return this.groupProvider.groupConfigurations().stream()
         .map(GroupConfiguration::name)
         .toList();
     }

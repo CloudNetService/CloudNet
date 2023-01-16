@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,56 @@
 package eu.cloudnetservice.node.module;
 
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.DefaultModuleProviderHandler;
+import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleProviderHandler;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.NetworkServer;
+import eu.cloudnetservice.driver.network.http.HttpServer;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.command.CommandProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 
+@Singleton
 public final class NodeModuleProviderHandler extends DefaultModuleProviderHandler implements ModuleProviderHandler {
 
-  private final Node nodeInstance;
+  private final HttpServer httpServer;
+  private final NetworkClient networkClient;
+  private final NetworkServer networkServer;
+  private final RPCHandlerRegistry rpcHandlerRegistry;
 
-  public NodeModuleProviderHandler(@NonNull Node nodeInstance) {
-    this.nodeInstance = nodeInstance;
+  private final CommandProvider commandProvider;
+  private final DataSyncRegistry dataSyncRegistry;
+
+  @Inject
+  public NodeModuleProviderHandler(
+    @NonNull ModuleProvider moduleProvider,
+    @NonNull HttpServer httpServer,
+    @NonNull NetworkClient networkClient,
+    @NonNull NetworkServer networkServer,
+    @NonNull RPCHandlerRegistry rpcHandlerRegistry,
+    @NonNull EventManager eventManager,
+    @NonNull CommandProvider commandProvider,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull DataSyncRegistry dataSyncRegistry
+  ) {
+    super(eventManager, moduleProvider, serviceRegistry);
+
+    this.httpServer = httpServer;
+    this.networkClient = networkClient;
+    this.networkServer = networkServer;
+    this.rpcHandlerRegistry = rpcHandlerRegistry;
+    this.commandProvider = commandProvider;
+    this.dataSyncRegistry = dataSyncRegistry;
   }
 
   @Override
@@ -39,27 +74,23 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     super.handlePostModuleStop(moduleWrapper);
 
     // unregister all listeners from the http server
-    this.nodeInstance.httpServer().removeHandler(moduleWrapper.classLoader());
+    this.httpServer.removeHandler(moduleWrapper.classLoader());
     // unregister all listeners added to the network handlers
-    this.nodeInstance.networkClient().packetRegistry().removeListeners(moduleWrapper.classLoader());
-    this.nodeInstance.networkServer().packetRegistry().removeListeners(moduleWrapper.classLoader());
+    this.networkClient.packetRegistry().removeListeners(moduleWrapper.classLoader());
+    this.networkServer.packetRegistry().removeListeners(moduleWrapper.classLoader());
     // remove all rpc handlers
-    this.nodeInstance.rpcHandlerRegistry().unregisterHandlers(moduleWrapper.classLoader());
+    this.rpcHandlerRegistry.unregisterHandlers(moduleWrapper.classLoader());
     // unregister all listeners added to the network channels
-    this.removeListeners(this.nodeInstance.networkClient().channels(), moduleWrapper.classLoader());
-    this.removeListeners(this.nodeInstance.networkServer().channels(), moduleWrapper.classLoader());
-    // unregister all listeners
-    this.nodeInstance.eventManager().unregisterListeners(moduleWrapper.classLoader());
+    this.removeListeners(this.networkClient.channels(), moduleWrapper.classLoader());
+    this.removeListeners(this.networkServer.channels(), moduleWrapper.classLoader());
     // unregister all commands
-    this.nodeInstance.commandProvider().unregister(moduleWrapper.classLoader());
+    this.commandProvider.unregister(moduleWrapper.classLoader());
     // unregister everything the module syncs to the cluster
-    this.nodeInstance.dataSyncRegistry().unregisterHandler(moduleWrapper.classLoader());
+    this.dataSyncRegistry.unregisterHandler(moduleWrapper.classLoader());
     // unregister all object mappers which are registered
     DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.classLoader());
     // unregister all language files
     I18n.unregisterLanguageFiles(moduleWrapper.classLoader());
-    // unregister all services from the service registry
-    this.nodeInstance.serviceRegistry().unregisterAll(moduleWrapper.classLoader());
   }
 
   private void removeListeners(@NonNull Collection<NetworkChannel> channels, @NonNull ClassLoader loader) {

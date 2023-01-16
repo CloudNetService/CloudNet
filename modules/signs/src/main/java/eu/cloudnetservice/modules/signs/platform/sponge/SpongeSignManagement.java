@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,43 +16,70 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge;
 
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
+import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.api.Sponge;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.scheduler.TaskExecutorService;
 import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.WorldManager;
 import org.spongepowered.math.vector.Vector3d;
 import org.spongepowered.plugin.PluginContainer;
 
+@Singleton
+@ProvidesFor(platform = "sponge", types = {PlatformSignManagement.class, SignManagement.class})
 public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, ServerLocation, Component> {
 
-  protected final PluginContainer plugin;
-  protected final TaskExecutorService syncExecutor;
+  private final Game game;
+  private final WorldManager worldManager;
+  private final TaskExecutorService syncExecutor;
+  private final EventManager eventManager;
 
-  protected SpongeSignManagement(@NonNull PluginContainer plugin, @NonNull TaskExecutorService mainThreadExecutor) {
-    super(runnable -> {
+  @Inject
+  protected SpongeSignManagement(
+    @NonNull Game game,
+    @NonNull Server server,
+    @NonNull WorldManager worldManager,
+    @NonNull EventManager spongeEventManager,
+    @NonNull PluginContainer pluginContainer,
+    @NonNull WrapperConfiguration wrapperConfig,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull @Named("sync") Scheduler syncScheduler,
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService,
+    @NonNull eu.cloudnetservice.driver.event.EventManager eventManager
+  ) {
+    super(eventManager, runnable -> {
       // check if we're already on main
-      if (Sponge.server().onMainThread()) {
+      if (server.onMainThread()) {
         runnable.run();
       } else {
-        mainThreadExecutor.execute(runnable);
+        syncScheduler.submit(Task.builder().plugin(pluginContainer).execute(runnable).build());
       }
-    });
-    this.plugin = plugin;
-    this.syncExecutor = mainThreadExecutor;
-  }
+    }, wrapperConfig, serviceProvider, executorService);
 
-  public static @NonNull SpongeSignManagement newInstance(@NonNull PluginContainer plugin) {
-    var executor = Sponge.server().scheduler().executor(plugin);
-    return new SpongeSignManagement(plugin, executor);
+    this.game = game;
+    this.worldManager = worldManager;
+    this.eventManager = spongeEventManager;
+    this.syncExecutor = syncScheduler.executor(pluginContainer);
   }
 
   @Override
@@ -112,6 +139,6 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
 
   @Override
   protected @NonNull PlatformSign<ServerPlayer, Component> createPlatformSign(@NonNull Sign base) {
-    return new SpongePlatformSign(base);
+    return new SpongePlatformSign(base, this.game, this.eventManager, this.worldManager);
   }
 }

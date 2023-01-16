@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import cn.nukkit.block.BlockWallSign;
 import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockFace;
+import cn.nukkit.plugin.PluginManager;
 import cn.nukkit.utils.Faceable;
 import cn.nukkit.utils.TextFormat;
 import com.google.common.primitives.Ints;
@@ -39,10 +40,16 @@ public class NukkitPlatformSign extends PlatformSign<Player, String> {
 
   private final String[] lineBuffer = new String[4];
 
+  private final Server server;
+  private final PluginManager pluginManager;
+
   private Location signLocation;
 
-  public NukkitPlatformSign(@NonNull Sign base) {
+  public NukkitPlatformSign(@NonNull Sign base, @NonNull Server server, @NonNull PluginManager pluginManager) {
     super(base, input -> TextFormat.colorize('&', input));
+
+    this.server = server;
+    this.pluginManager = pluginManager;
   }
 
   @Override
@@ -113,7 +120,7 @@ public class NukkitPlatformSign extends PlatformSign<Player, String> {
   @Override
   public @Nullable ServiceInfoSnapshot callSignInteractEvent(@NonNull Player player) {
     var event = new NukkitCloudSignInteractEvent(player, this);
-    Server.getInstance().getPluginManager().callEvent(event);
+    this.pluginManager.callEvent(event);
 
     return event.isCancelled() ? null : event.target();
   }
@@ -126,7 +133,7 @@ public class NukkitPlatformSign extends PlatformSign<Player, String> {
 
     // check if the world associated with the sign is available
     var pos = this.base.location();
-    var level = Server.getInstance().getLevelByName(pos.world());
+    var level = this.server.getLevelByName(pos.world());
     if (level == null) {
       return null;
     }

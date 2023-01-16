@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.TickLoop;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.service.CloudServiceCreateEvent;
 import eu.cloudnetservice.node.event.service.CloudServiceDeploymentEvent;
@@ -59,6 +59,7 @@ import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import java.net.Inet6Address;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -91,14 +92,16 @@ public abstract class AbstractService implements CloudService {
   protected static final BiPredicate<String, Pattern> FILE_MATCHER_PREDICATE =
     (fileName, pattern) -> pattern.matcher(fileName).matches();
 
-  protected final EventManager eventManager;
-
   protected final String connectionKey;
-  protected final Path serviceDirectory;
   protected final Path pluginDirectory;
-  protected final Node nodeInstance;
+  protected final Path serviceDirectory;
+
+  protected final TickLoop mainThread;
+  protected final EventManager eventManager;
+  protected final Configuration configuration;
   protected final CloudServiceManager cloudServiceManager;
   protected final ServiceConfiguration serviceConfiguration;
+  protected final ServiceVersionProvider serviceVersionProvider;
   protected final ServiceConfigurationPreparer serviceConfigurationPreparer;
 
   protected final Lock lifecycleLock = new ReentrantLock(true);
@@ -121,16 +124,20 @@ public abstract class AbstractService implements CloudService {
   protected volatile ServiceInfoSnapshot currentServiceInfo;
 
   protected AbstractService(
+    @NonNull TickLoop tickLoop,
+    @NonNull Configuration nodeConfig,
     @NonNull ServiceConfiguration configuration,
     @NonNull CloudServiceManager manager,
     @NonNull EventManager eventManager,
-    @NonNull Node nodeInstance,
+    @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
+    this.mainThread = tickLoop;
+    this.configuration = nodeConfig;
     this.eventManager = eventManager;
-    this.nodeInstance = nodeInstance;
     this.cloudServiceManager = manager;
     this.serviceConfiguration = configuration;
+    this.serviceVersionProvider = versionProvider;
     this.serviceConfigurationPreparer = serviceConfigurationPreparer;
 
     this.connectionKey = StringUtil.generateRandomString(64);
@@ -149,7 +156,7 @@ public abstract class AbstractService implements CloudService {
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
 
     manager.registerLocalService(this);
-    nodeInstance.eventManager().callEvent(new CloudServiceCreateEvent(this));
+    eventManager.callEvent(new CloudServiceCreateEvent(this));
   }
 
   protected static @NonNull Path resolveServicePath(
@@ -545,10 +552,6 @@ public abstract class AbstractService implements CloudService {
     return this.logTargets.add(pair);
   }
 
-  protected @NonNull Configuration nodeConfiguration() {
-    return this.nodeInstance.config();
-  }
-
   protected void executeDeployment(@NonNull ServiceDeployment deployment) {
     // check if we should execute the deployment
     var storage = deployment.template().storage();
@@ -645,10 +648,10 @@ public abstract class AbstractService implements CloudService {
     // check jvm heap size
     if (this.cloudServiceManager.currentUsedHeapMemory()
       + this.serviceConfiguration().processConfig().maxHeapMemorySize()
-      >= this.nodeConfiguration().maxMemory()) {
+      >= this.configuration.maxMemory()) {
       // schedule a retry
-      if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
-        Node.instance().mainThread().runTask(this::start);
+      if (this.configuration.runBlockedServiceStartTryLaterAutomatic()) {
+        this.mainThread.runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloudnet-service-manager-max-memory-error"));
       }
@@ -656,10 +659,10 @@ public abstract class AbstractService implements CloudService {
       return false;
     }
     // check for cpu usage
-    if (CPUUsageResolver.systemCPUUsage() >= this.nodeConfiguration().maxCPUUsageToStartServices()) {
+    if (CPUUsageResolver.systemCPUUsage() >= this.configuration.maxCPUUsageToStartServices()) {
       // schedule a retry
-      if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
-        Node.instance().mainThread().runTask(this::start);
+      if (this.configuration.runBlockedServiceStartTryLaterAutomatic()) {
+        this.mainThread.runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloudnet-service-manager-cpu-usage-to-high-error"));
       }
@@ -676,7 +679,7 @@ public abstract class AbstractService implements CloudService {
     FileUtil.createDirectory(this.serviceDirectory);
     FileUtil.createDirectory(this.pluginDirectory);
     // load the ssl configuration if enabled
-    var sslConfiguration = this.nodeConfiguration().serverSSLConfig();
+    var sslConfiguration = this.configuration.serverSSLConfig();
     if (sslConfiguration.enabled()) {
       sslConfiguration = this.prepareSslConfiguration(sslConfiguration);
     }
@@ -694,9 +697,9 @@ public abstract class AbstractService implements CloudService {
     // check if we should load the templates of the service
     this.includeWaitingServiceTemplates(firstStartup);
     // update the service configuration
-    this.serviceConfigurationPreparer.configure(this.nodeInstance, this);
+    this.serviceConfigurationPreparer.configure(this);
     // write the configuration file for the service
-    var listener = this.selectConnectListener(this.nodeConfiguration().identity().listeners());
+    var listener = this.selectConnectListener(this.configuration.identity().listeners());
     JsonDocument.newDocument()
       .append("targetListener", listener)
       .append("connectionKey", this.connectionKey())

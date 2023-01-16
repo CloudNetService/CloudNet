@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -35,8 +36,9 @@ import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration
 import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
 import eu.cloudnetservice.modules.cloudflare.dns.DnsType;
 import eu.cloudnetservice.modules.cloudflare.listener.CloudflareServiceStateListener;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import jakarta.inject.Singleton;
 import java.net.Inet6Address;
 import java.util.Collection;
 import java.util.Map;
@@ -48,12 +50,12 @@ import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class CloudNetCloudflareModule extends DriverModule {
 
   private static final UUID NODE_RECORDS_ID = UUID.randomUUID();
   private static final Logger LOGGER = LogManager.logger(CloudNetCloudflareModule.class);
 
-  private final CloudFlareRecordManager recordManager = new CloudFlareRecordManager();
   private CloudflareConfiguration cloudflareConfiguration;
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
@@ -82,7 +84,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
   }
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
-  public void createNodeRecordsWhenNeeded() {
+  public void createNodeRecordsWhenNeeded(@NonNull CloudFlareRecordManager recordManager) {
     for (var entry : this.cloudflareConfiguration.entries()) {
       if (entry.enabled()) {
         // collect the host information, continue if invalid
@@ -93,7 +95,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
         // list all records of the entry and check if we need to create a dns record
         var expectedName = String.format("%s.%s", entry.entryName(), entry.domainName());
-        this.recordManager.listRecords(entry).thenAccept(records -> {
+        recordManager.listRecords(entry).thenAccept(records -> {
           var existingRecord = records.stream()
             .filter(record -> record.type().equals(hostInformation.first().name())
               && record.name().equalsIgnoreCase(expectedName) && record.content().equals(hostInformation.second()))
@@ -102,7 +104,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
           // check if the record exists or create a new record
           if (existingRecord == null) {
-            this.recordManager.createRecord(NODE_RECORDS_ID, entry, new DnsRecord(
+            recordManager.createRecord(NODE_RECORDS_ID, entry, new DnsRecord(
               hostInformation.first(),
               expectedName,
               hostInformation.second(),
@@ -112,7 +114,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
           } else {
             // mark the record as created
             LOGGER.fine("Skipping creation of record for %s because the record %s exists", null, entry, existingRecord);
-            this.recordManager.trackedRecords().put(
+            recordManager.trackedRecords().put(
               NODE_RECORDS_ID,
               new DnsRecordDetail(existingRecord.id(), existingRecord, entry));
           }
@@ -122,12 +124,12 @@ public final class CloudNetCloudflareModule extends DriverModule {
   }
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
-  public void finishStartup() {
-    this.registerListener(new CloudflareServiceStateListener(this));
+  public void finishStartup(@NonNull EventManager eventManager) {
+    eventManager.registerListener(CloudflareServiceStateListener.class);
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
-  public void handleReload() {
+  public void handleReload(@NonNull CloudFlareRecordManager recordManager, @NonNull Configuration nodeConfig) {
     // store the old entries for later comparison
     var oldEntries = this.cloudflareConfiguration.entries();
 
@@ -136,7 +138,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
     var newEntries = this.cloudflareConfiguration.entries();
 
     // get all entries which are tracked & the entries created for all nodes
-    var trackedEntries = this.recordManager.trackedRecords();
+    var trackedEntries = recordManager.trackedRecords();
     var nodeRecordEntries = trackedEntries.get(NODE_RECORDS_ID);
 
     // find all newly added records - while we could also remove all old records, this could result in unexpected issues
@@ -180,11 +182,11 @@ public final class CloudNetCloudflareModule extends DriverModule {
         CompletableFuture<DnsRecordDetail> future;
         if (pair.second() == null) {
           // no previous record found, create a new one
-          future = this.recordManager.createRecord(NODE_RECORDS_ID, pair.first(), record);
+          future = recordManager.createRecord(NODE_RECORDS_ID, pair.first(), record);
         } else {
           // previous record found, remove the tracked one & patch the existing one
           trackedEntries.remove(NODE_RECORDS_ID, pair.second());
-          future = this.recordManager.patchRecord(NODE_RECORDS_ID, pair.second(), record);
+          future = recordManager.patchRecord(NODE_RECORDS_ID, pair.second(), record);
         }
 
         // add a listener to the future to print out a nice message
@@ -194,7 +196,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
             LOGGER.info(I18n.trans(
               "module-cloudflare-create-dns-record-for-service",
               pair.first().domainName(),
-              Node.instance().config().identity().uniqueId(),
+              nodeConfig.identity().uniqueId(),
               detail.id()));
           }
         });
@@ -205,12 +207,12 @@ public final class CloudNetCloudflareModule extends DriverModule {
       .filter(entry -> !oldEntries.contains(entry) && stillExistingEntries.stream()
         .noneMatch(pair -> Objects.equals(pair.second().entryName(), entry.entryName())))
       .toList();
-    this.createRecordsForEntries(addedEntries);
+    this.createRecordsForEntries(nodeConfig, recordManager, addedEntries);
   }
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
-  public void removeAllServiceRecords() {
-    var deletionFutures = this.recordManager.trackedRecords().entries().stream()
+  public void removeAllServiceRecords(@NonNull CloudFlareRecordManager recordManager) {
+    var deletionFutures = recordManager.trackedRecords().entries().stream()
       .filter(trackedRecordEntry -> {
         // check if the entry is a record for our node
         if (trackedRecordEntry.getKey().equals(NODE_RECORDS_ID)) {
@@ -223,7 +225,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
         return true;
       })
       .map(Map.Entry::getValue)
-      .map(this.recordManager::deleteRecord)
+      .map(recordManager::deleteRecord)
       .toArray(CompletableFuture[]::new);
 
     // create one final future from all deletion futures and wait
@@ -232,10 +234,6 @@ public final class CloudNetCloudflareModule extends DriverModule {
       .orTimeout(15, TimeUnit.SECONDS)
       .exceptionally(ex -> null)
       .join();
-  }
-
-  public @NonNull CloudFlareRecordManager recordManager() {
-    return this.recordManager;
   }
 
   public @NonNull CloudflareConfiguration configuration() {
@@ -247,15 +245,18 @@ public final class CloudNetCloudflareModule extends DriverModule {
     this.writeConfig(JsonDocument.newDocument(cloudflareConfiguration));
   }
 
-  private void createRecordsForEntries(@NonNull Collection<CloudflareConfigurationEntry> entries) {
-    var nodeConfig = Node.instance().config();
+  private void createRecordsForEntries(
+    @NonNull Configuration nodeConfig,
+    @NonNull CloudFlareRecordManager recordManager,
+    @NonNull Collection<CloudflareConfigurationEntry> entries
+  ) {
     for (var entry : entries) {
       if (entry.enabled()) {
         // build a record which we can create if possible
         var record = this.buildRecord(entry);
         if (record != null) {
           // create a new record for the entry
-          this.recordManager.createRecord(NODE_RECORDS_ID, entry, record).thenAccept(detail -> {
+          recordManager.createRecord(NODE_RECORDS_ID, entry, record).thenAccept(detail -> {
             // check if the record was created
             if (detail != null) {
               LOGGER.info(I18n.trans(

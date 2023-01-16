@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -41,13 +40,8 @@ public class XodusDatabase extends AbstractDatabase {
   protected final Environment environment;
   protected final AtomicReference<Store> store;
 
-  protected XodusDatabase(
-    @NonNull String name,
-    @NonNull ExecutorService executorService,
-    @NonNull Store store,
-    @NonNull XodusDatabaseProvider provider
-  ) {
-    super(name, executorService, provider);
+  protected XodusDatabase(@NonNull String name, @NonNull Store store, @NonNull XodusDatabaseProvider provider) {
+    super(name, provider);
 
     this.environment = store.getEnvironment();
     this.store = new AtomicReference<>(store);
@@ -55,12 +49,6 @@ public class XodusDatabase extends AbstractDatabase {
 
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
-    this.databaseProvider.databaseHandler().handleInsert(this, key, document);
-
-    return this.insert0(key, document);
-  }
-
-  protected boolean insert0(String key, JsonDocument document) {
     return this.environment.computeInExclusiveTransaction(
       txn -> this.store().put(
         txn,
@@ -76,12 +64,6 @@ public class XodusDatabase extends AbstractDatabase {
 
   @Override
   public boolean delete(@NonNull String key) {
-    this.databaseProvider.databaseHandler().handleDelete(this, key);
-
-    return this.delete0(key);
-  }
-
-  protected boolean delete0(String key) {
     return this.environment.computeInTransaction(txn -> this.store().delete(txn, StringBinding.stringToEntry(key)));
   }
 
@@ -140,7 +122,6 @@ public class XodusDatabase extends AbstractDatabase {
 
   @Override
   public void clear() {
-    this.databaseProvider.databaseHandler().handleClear(this);
     this.environment.executeInExclusiveTransaction(txn -> {
       this.environment.truncateStore(this.name, txn);
       this.store.set(this.environment.openStore(this.name, this.store().getConfig(), txn));

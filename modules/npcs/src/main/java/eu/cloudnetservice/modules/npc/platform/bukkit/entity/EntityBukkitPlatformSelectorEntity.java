@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -36,6 +37,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitScheduler;
 
 public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEntity {
 
@@ -60,10 +62,6 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   @LazyInit
   protected static PotionEffect glowingEffect;
 
-  protected double entityHeight;
-
-  protected volatile LivingEntity entity;
-
   static {
     ENTITY_HEIGHT_GETTER = Reflexion.on(Entity.class).findMethod("getHeight")
       // use the modern "getHeight" method (1.11+) to get the entity height
@@ -83,12 +81,17 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
       });
   }
 
+  protected double entityHeight;
+  protected volatile LivingEntity entity;
+
   public EntityBukkitPlatformSelectorEntity(
-    @NonNull BukkitPlatformNPCManagement npcManagement,
+    @NonNull NPC npc,
     @NonNull Plugin plugin,
-    @NonNull NPC npc
+    @NonNull Server server,
+    @NonNull BukkitScheduler scheduler,
+    @NonNull BukkitPlatformNPCManagement npcManagement
   ) {
-    super(npcManagement, plugin, npc);
+    super(npc, plugin, server, scheduler, npcManagement);
   }
 
   @Override

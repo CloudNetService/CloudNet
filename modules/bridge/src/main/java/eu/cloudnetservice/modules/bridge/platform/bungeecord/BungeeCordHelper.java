@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,50 +19,62 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.net.InetSocketAddress;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 
+@Singleton
 public final class BungeeCordHelper {
 
-  static final Consumer<ServiceInfoSnapshot> SERVER_REGISTER_HANDLER;
-  static final Consumer<ServiceInfoSnapshot> SERVER_UNREGISTER_HANDLER;
+  private final ProxyServer proxyServer;
+  private final Consumer<ServiceInfoSnapshot> serverRegisterHandler;
+  private final Consumer<ServiceInfoSnapshot> serverUnregisterHandler;
 
-  static {
-    var proxyInstance = ProxyServer.getInstance();
-    var proxyConfig = proxyInstance.getConfig();
+  @Inject
+  public BungeeCordHelper(
+    @NonNull ProxyServer proxyServer,
+    @NonNull ProxyConfig proxyConfig
+  ) {
+    this.proxyServer = proxyServer;
 
     // waterfall adds a dynamic api to register a server from the proxy.
     // we need to use that api as the backing map is not concurrent and other plugins might cause issues
-    SERVER_REGISTER_HANDLER = Reflexion.onBound(proxyConfig)
+    this.serverRegisterHandler = Reflexion.onBound(proxyConfig)
       .findMethod("addServer", ServerInfo.class)
-      .map(acc -> (Consumer<ServiceInfoSnapshot>) service -> acc.invokeWithArgs(constructServerInfo(service)))
+      .map(acc -> (Consumer<ServiceInfoSnapshot>) service -> acc.invokeWithArgs(this.constructServerInfo(service)))
       .orElse(service -> {
-        var serverInfo = constructServerInfo(service);
-        proxyInstance.getServers().put(service.name(), serverInfo);
+        var serverInfo = this.constructServerInfo(service);
+        proxyServer.getServers().put(service.name(), serverInfo);
       });
 
     // waterfall adds a dynamic api to unregister a server from the proxy.
     // we need to use that api as the backing map is not concurrent and other plugins might cause issues
-    SERVER_UNREGISTER_HANDLER = Reflexion.onBound(proxyConfig)
+    this.serverUnregisterHandler = Reflexion.onBound(proxyConfig)
       .findMethod("removeServerNamed", String.class)
       .map(acc -> (Consumer<ServiceInfoSnapshot>) service -> acc.invokeWithArgs(service.name()))
-      .orElse(service -> proxyInstance.getServers().remove(service.name()));
+      .orElse(service -> proxyServer.getServers().remove(service.name()));
   }
 
-  private BungeeCordHelper() {
-    throw new UnsupportedOperationException();
+  @NonNull Consumer<ServiceInfoSnapshot> serverRegisterHandler() {
+    return this.serverRegisterHandler;
   }
 
-  public static @NonNull BaseComponent[] translateToComponent(@NonNull String input) {
+  @NonNull Consumer<ServiceInfoSnapshot> serverUnregisterHandler() {
+    return this.serverUnregisterHandler;
+  }
+
+  public @NonNull BaseComponent[] translateToComponent(@NonNull String input) {
     return ComponentFormats.ADVENTURE_TO_BUNGEE.convert(input);
   }
 
-  private static @NonNull ServerInfo constructServerInfo(@NonNull ServiceInfoSnapshot snapshot) {
-    return ProxyServer.getInstance().constructServerInfo(
+  private @NonNull ServerInfo constructServerInfo(@NonNull ServiceInfoSnapshot snapshot) {
+    return this.proxyServer.constructServerInfo(
       snapshot.name(),
       new InetSocketAddress(snapshot.address().host(), snapshot.address().port()),
       "Just another CloudNet provided service info",

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,6 @@ import org.jetbrains.annotations.UnknownNullability;
  * @since 4.0
  */
 public interface RPCHandler extends RPCProvider {
-
-  /**
-   * Registers this rpc handler to the default rpc handler registry provided through the cloudnet driver class.
-   * Equivalent to {@code handler.registerTo(CloudNetDriver.instance().rpcHandlerRegistry())}.
-   */
-  void registerToDefaultRegistry();
 
   /**
    * Registers this rpc handler to the given rpc handler registry.

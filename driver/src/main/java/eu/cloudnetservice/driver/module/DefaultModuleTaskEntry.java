@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package eu.cloudnetservice.driver.module;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.reflexion.MethodAccessor;
+import dev.derklaro.reflexion.Reflexion;
+import eu.cloudnetservice.driver.inject.InjectUtil;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.lang.reflect.Method;
 import lombok.NonNull;
 
@@ -34,9 +37,18 @@ public class DefaultModuleTaskEntry implements ModuleTaskEntry {
    */
   protected static final String METHOD_SIGNATURE_FORMAT = "%s@%s()";
 
-  protected final MethodHandle method;
+  // the underlying method we're calling
+  protected final MethodAccessor<?> methodAccessor;
+
+  // information for injection
+  protected final Element[] paramTypes;
+  protected final InjectionLayer<?> injectionLayer;
+
+  // information about the task
   protected final ModuleTask moduleTask;
   protected final ModuleWrapper moduleWrapper;
+
+  // debug stuff
   protected final String fullMethodSignatureCached;
 
   /**
@@ -55,10 +67,20 @@ public class DefaultModuleTaskEntry implements ModuleTaskEntry {
   ) throws IllegalAccessException {
     this.moduleTask = task;
     this.moduleWrapper = wrapper;
-    this.method = MethodHandles.lookup().unreflect(method);
-    // init the method signature here, later when the jlrMethod field is gone there is no way to get this information.
+    this.injectionLayer = wrapper.injectionLayer();
+
+    // init the method signature here as it cannot change anyway
     this.fullMethodSignatureCached = String.format(
-      METHOD_SIGNATURE_FORMAT, method.getDeclaringClass().getCanonicalName(), method.getName());
+      METHOD_SIGNATURE_FORMAT,
+      method.getDeclaringClass().getCanonicalName(),
+      method.getName());
+
+    // init the method accessor
+    var reflexion = Reflexion.onBound(this.module());
+    this.methodAccessor = reflexion.unreflect(method);
+
+    // parameter injection
+    this.paramTypes = InjectUtil.buildElementsForParameters(method.getParameters());
   }
 
   /**
@@ -89,14 +111,6 @@ public class DefaultModuleTaskEntry implements ModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull MethodHandle method() {
-    return this.method;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public @NonNull String fullMethodSignature() {
     return this.fullMethodSignatureCached;
   }
@@ -106,6 +120,13 @@ public class DefaultModuleTaskEntry implements ModuleTaskEntry {
    */
   @Override
   public void fire() throws Throwable {
-    this.method.invoke(this.moduleWrapper().module());
+    // collect all the arguments we need to the method invocation
+    var arguments = InjectUtil.findAllInstances(this.injectionLayer, this.paramTypes);
+
+    // invoke the method, rethrow if there was an exception
+    var result = this.methodAccessor.invokeWithArgs(arguments);
+    if (result.wasExceptional()) {
+      throw result.getException();
+    }
   }
 }

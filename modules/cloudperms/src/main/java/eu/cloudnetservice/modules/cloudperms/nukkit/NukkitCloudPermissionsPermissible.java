@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import cn.nukkit.permission.PermissibleBase;
 import cn.nukkit.permission.Permission;
 import cn.nukkit.permission.PermissionAttachmentInfo;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,13 +32,19 @@ import org.jetbrains.annotations.Nullable;
 public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
 
   private final Player player;
+  private final Collection<String> groups;
   private final PermissionManagement permissionsManagement;
 
-  public NukkitCloudPermissionsPermissible(Player player, PermissionManagement permissionsManagement) {
+  public NukkitCloudPermissionsPermissible(
+    @NonNull Player player,
+    @NonNull WrapperConfiguration wrapperConfiguration,
+    @NonNull PermissionManagement permissionsManagement
+  ) {
     super(player);
 
     this.player = player;
     this.permissionsManagement = permissionsManagement;
+    this.groups = wrapperConfiguration.serviceConfiguration().groups();
   }
 
   @Override
@@ -48,7 +55,7 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
       return infos;
     }
 
-    for (var group : Wrapper.instance().serviceConfiguration().groups()) {
+    for (var group : this.groups) {
       infos.putAll(
         this.permissionsManagement.allGroupPermissions(permissionUser, group)
           .stream()

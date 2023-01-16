@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ import static eu.cloudnetservice.modules.bridge.BridgeServiceProperties.IS_IN_GA
 
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
@@ -32,22 +34,30 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.modules.labymod.config.LabyModPlayerOptions;
-import eu.cloudnetservice.wrapper.Wrapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public class PlatformLabyModManagement implements LabyModManagement {
 
   private final RPCSender rpcSender;
   private final PlayerManager playerManager;
+  private final CloudServiceProvider cloudServiceProvider;
   private final PlatformBridgeManagement<?, ?> bridgeManagement;
+
   private LabyModConfiguration configuration;
 
-  public PlatformLabyModManagement() {
-    this.rpcSender = Wrapper.instance().rpcFactory().providerForClass(
-      Wrapper.instance().networkClient(),
-      LabyModManagement.class);
+  @Inject
+  public PlatformLabyModManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull NetworkClient networkClient,
+    @NonNull CloudServiceProvider cloudServiceProvider
+  ) {
+    this.cloudServiceProvider = cloudServiceProvider;
+    this.rpcSender = rpcFactory.providerForClass(networkClient, LabyModManagement.class);
     this.playerManager = ServiceRegistry.first(PlayerManager.class);
     this.bridgeManagement = ServiceRegistry.first(PlatformBridgeManagement.class);
     this.setConfigurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
@@ -295,8 +305,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   protected void connectPlayer(@NonNull CloudPlayer player, @NonNull CloudPlayer target) {
-    var serviceInfoSnapshot = CloudNetDriver.instance().cloudServiceProvider()
-      .service(target.connectedService().uniqueId());
+    var serviceInfoSnapshot = this.cloudServiceProvider.service(target.connectedService().uniqueId());
     // check if there is a service to connect to
     if (serviceInfoSnapshot != null) {
       // construct the updated discord rpc

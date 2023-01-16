@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.version.execute.defaults;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
+import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +31,13 @@ import lombok.NonNull;
 
 public class DownloadStepExecutor implements InstallStepExecutor {
 
+  private final ConsoleProgressWrappers consoleProgressWrappers;
+
+  @Inject
+  public DownloadStepExecutor(@NonNull ConsoleProgressWrappers consoleProgressWrappers) {
+    this.consoleProgressWrappers = consoleProgressWrappers;
+  }
+
   @Override
   public @NonNull Set<Path> execute(
     @NonNull VersionInstaller installer,
@@ -38,7 +46,7 @@ public class DownloadStepExecutor implements InstallStepExecutor {
   ) throws IOException {
     var targetPath = workingDirectory.resolve(installer.serviceVersionType().name() + ".jar");
 
-    ConsoleProgressWrappers.wrapDownload(
+    this.consoleProgressWrappers.wrapDownload(
       installer.serviceVersion().url(),
       stream -> Files.copy(stream, targetPath, StandardCopyOption.REPLACE_EXISTING));
     return new HashSet<>(Collections.singleton(targetPath));

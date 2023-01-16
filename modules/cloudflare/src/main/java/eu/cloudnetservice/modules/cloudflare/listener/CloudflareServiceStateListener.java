@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,22 +22,32 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule;
+import eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareRecordManager;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
 import eu.cloudnetservice.modules.cloudflare.dns.SrvRecord;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.service.CloudService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 
+@Singleton
 public final class CloudflareServiceStateListener {
 
   private static final Logger LOGGER = LogManager.logger(CloudflareServiceStateListener.class);
 
   private final CloudNetCloudflareModule module;
+  private final CloudFlareRecordManager recordManager;
 
-  public CloudflareServiceStateListener(@NonNull CloudNetCloudflareModule module) {
+  @Inject
+  public CloudflareServiceStateListener(
+    @NonNull CloudNetCloudflareModule module,
+    @NonNull CloudFlareRecordManager recordManager
+  ) {
     this.module = module;
+    this.recordManager = recordManager;
   }
 
   @EventListener
@@ -46,7 +56,7 @@ public final class CloudflareServiceStateListener {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
         // create the new record
         var record = SrvRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port());
-        this.module.recordManager()
+        this.recordManager
           .createRecord(event.service().serviceId().uniqueId(), entry, record)
           .thenAccept(detail -> {
             // print out the info about the record if it was created successfully
@@ -67,8 +77,8 @@ public final class CloudflareServiceStateListener {
     if (event.newLifeCycle() == ServiceLifeCycle.STOPPED || event.newLifeCycle() == ServiceLifeCycle.DELETED) {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
         // delete all records of the service
-        for (var record : this.module.recordManager().getAndRemoveRecords(event.service().serviceId().uniqueId())) {
-          this.module.recordManager().deleteRecord(record).thenAccept(deleted -> {
+        for (var record : this.recordManager.getAndRemoveRecords(event.service().serviceId().uniqueId())) {
+          this.recordManager.deleteRecord(record).thenAccept(deleted -> {
             // print a message if the record was deleted successfully
             if (deleted) {
               LOGGER.info(I18n.trans(

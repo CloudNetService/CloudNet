@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.driver.module;
 
+import dev.derklaro.aerogel.SpecifiedInjector;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.inject.InjectionLayerHolder;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
@@ -33,7 +36,7 @@ import org.jetbrains.annotations.Unmodifiable;
  * @see ModuleLifeCycle
  * @since 4.0
  */
-public interface ModuleWrapper {
+public interface ModuleWrapper extends InjectionLayerHolder<SpecifiedInjector> {
 
   /**
    * Get all module tasks which were detected in the main class of the module.
@@ -161,4 +164,12 @@ public interface ModuleWrapper {
    * @return the uri from where the module was loaded.
    */
   @NonNull URI uri();
+
+  /**
+   * Get the injection layer which was used while creating this module instance and is used to inject module tasks.
+   *
+   * @return the injection layer of the module.
+   */
+  @Override
+  @NonNull InjectionLayer<SpecifiedInjector> injectionLayer();
 }

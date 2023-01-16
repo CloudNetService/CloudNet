@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,19 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
+@Singleton
 public final class VelocityCloudPermissionsPlayerListener {
 
   private final ProxyServer proxyServer;
   private final PermissionProvider permissionProvider;
   private final PermissionManagement permissionsManagement;
 
+  @Inject
   public VelocityCloudPermissionsPlayerListener(
     @NonNull ProxyServer proxyServer,
     @NonNull PermissionProvider permissionProvider,

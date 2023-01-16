@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,9 @@
 package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
-import eu.cloudnetservice.wrapper.Wrapper;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import lombok.NonNull;
 
 public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
-
-  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
   public static @NonNull Builder builder() {
     return new Builder();
@@ -39,39 +30,7 @@ public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
       .header(tabList.header())
       .footer(tabList.footer());
   }
-
-  public static @NonNull String replaceTabListItem(
-    @NonNull String input,
-    @NonNull UUID playerUniqueId,
-    int onlinePlayers,
-    int maxPlayers
-  ) {
-    input = BridgeServiceHelper.fillCommonPlaceholders(input
-      .replace("%time%", TIME_FORMATTER.format(LocalTime.now()))
-      .replace("%online_players%", String.valueOf(onlinePlayers))
-      .replace("%max_players%", String.valueOf(maxPlayers)), null, Wrapper.instance().currentServiceInfo());
-
-    if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
-      var permissionManagement = CloudNetDriver.instance().permissionManagement();
-
-      var permissionUser = permissionManagement.user(playerUniqueId);
-
-      if (permissionUser != null) {
-        var group = permissionManagement.highestPermissionGroup(permissionUser);
-
-        if (group != null) {
-          input = input.replace("%group_prefix%", group.prefix())
-            .replace("%group_suffix%", group.suffix())
-            .replace("%group_display%", group.display())
-            .replace("%group_color%", group.color())
-            .replace("%group_name%", group.name());
-        }
-      }
-    }
-
-    return input;
-  }
-
+  
   public static class Builder {
 
     private String header;

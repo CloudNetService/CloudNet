@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,22 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.template.TemplateStorageProvider;
+import eu.cloudnetservice.node.TickLoop;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.template.TemplateStorageUtil;
 import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandAlias("t")
 @CommandPermission("cloudnet.command.template")
 @Description("command-template-description")
@@ -63,6 +69,27 @@ public final class TemplateCommand {
     .expireAfterWrite(30, TimeUnit.SECONDS)
     .build(TemplateStorage::templates);
 
+  private final TickLoop tickLoop;
+  private final TemplateStorageUtil storageUtil;
+  private final ServiceRegistry serviceRegistry;
+  private final ServiceVersionProvider serviceVersionProvider;
+  private final TemplateStorageProvider templateStorageProvider;
+
+  @Inject
+  public TemplateCommand(
+    @NonNull TickLoop tickLoop,
+    @NonNull TemplateStorageUtil storageUtil,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull ServiceVersionProvider serviceVersionProvider,
+    @NonNull TemplateStorageProvider templateStorageProvider
+  ) {
+    this.tickLoop = tickLoop;
+    this.storageUtil = storageUtil;
+    this.serviceRegistry = serviceRegistry;
+    this.serviceVersionProvider = serviceVersionProvider;
+    this.templateStorageProvider = templateStorageProvider;
+  }
+
   @Parser(suggestions = "serviceTemplate")
   public @NonNull ServiceTemplate defaultServiceTemplateParser(
     @NonNull CommandContext<?> $,
@@ -77,8 +104,8 @@ public final class TemplateCommand {
 
   @Suggestions("serviceTemplate")
   public @NonNull List<String> suggestServiceTemplate(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().templateStorageProvider().availableTemplateStorages().stream()
-      .map(storage -> Node.instance().templateStorageProvider().templateStorage(storage))
+    return this.templateStorageProvider.availableTemplateStorages().stream()
+      .map(storage -> this.templateStorageProvider.templateStorage(storage))
       .filter(Objects::nonNull)
       .flatMap(storage -> STORED_TEMPLATES.get(storage).stream())
       .map(ServiceTemplate::toString)
@@ -91,7 +118,7 @@ public final class TemplateCommand {
     @NonNull Queue<String> input
   ) {
     var storage = input.remove();
-    var templateStorage = Node.instance().templateStorageProvider().templateStorage(storage);
+    var templateStorage = this.templateStorageProvider.templateStorage(storage);
     if (templateStorage == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-template-storage-not-found", storage));
     }
@@ -101,7 +128,7 @@ public final class TemplateCommand {
 
   @Suggestions("templateStorage")
   public @NonNull List<String> suggestTemplateStorage(@NonNull CommandContext<?> $, @NonNull String input) {
-    return List.copyOf(Node.instance().templateStorageProvider().availableTemplateStorages());
+    return List.copyOf(this.templateStorageProvider.availableTemplateStorages());
   }
 
   @Parser(suggestions = "version")
@@ -136,7 +163,7 @@ public final class TemplateCommand {
     @NonNull Queue<String> input
   ) {
     var env = input.remove();
-    var type = Node.instance().serviceVersionProvider().getEnvironmentType(env);
+    var type = this.serviceVersionProvider.getEnvironmentType(env);
     if (type != null) {
       return type;
     }
@@ -146,7 +173,7 @@ public final class TemplateCommand {
 
   @Suggestions("serviceEnvironments")
   public @NonNull List<String> suggestServiceEnvironments(@NonNull CommandContext<?> context, @NonNull String input) {
-    return List.copyOf(Node.instance().serviceVersionProvider().knownEnvironments().keySet());
+    return List.copyOf(this.serviceVersionProvider.knownEnvironments().keySet());
   }
 
   @CommandMethod("template|t list [storage]")
@@ -157,7 +184,7 @@ public final class TemplateCommand {
     Collection<ServiceTemplate> templates;
     // get all templates if no specific template is given
     if (templateStorage == null) {
-      templates = Node.instance().serviceRegistry().providers(TemplateStorage.class).stream()
+      templates = this.serviceRegistry.providers(TemplateStorage.class).stream()
         .flatMap(storage -> storage.templates().stream())
         .toList();
     } else {
@@ -196,7 +223,7 @@ public final class TemplateCommand {
     }
 
     try {
-      if (TemplateStorageUtil.createAndPrepareTemplate(template, template.storage(), environmentType)) {
+      if (this.storageUtil.createAndPrepareTemplate(template, template.storage(), environmentType)) {
         source.sendMessage(I18n.trans("command-template-create-success", template.fullName(), template.storageName()));
       }
     } catch (IOException exception) {
@@ -218,7 +245,7 @@ public final class TemplateCommand {
     var sourceStorage = sourceTemplate.storage();
     var targetStorage = targetTemplate.storage();
 
-    Node.instance().mainThread().runTask(() -> {
+    this.tickLoop.runTask(() -> {
       source.sendMessage(I18n.trans("command-template-copy", sourceTemplate, targetTemplate));
 
       targetStorage.delete(targetTemplate);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,15 @@ import org.jetbrains.annotations.Nullable;
 
 final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
+  private final Server server;
+
   public NukkitDirectPlayerExecutor(
+    @NonNull Server server,
     @NonNull UUID targetUniqueId,
     @NonNull Supplier<Collection<? extends Player>> playerSupplier
   ) {
     super(targetUniqueId, playerSupplier);
+    this.server = server;
   }
 
   @Override
@@ -94,6 +98,6 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
 
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
-    this.forEach(player -> Server.getInstance().dispatchCommand(player, command));
+    this.forEach(player -> this.server.dispatchCommand(player, command));
   }
 }

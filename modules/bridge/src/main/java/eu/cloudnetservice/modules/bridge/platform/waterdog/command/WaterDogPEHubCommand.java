@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,15 +28,18 @@ import lombok.NonNull;
 
 public final class WaterDogPEHubCommand extends Command {
 
+  private final ProxyServer proxyServer;
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
 
   public WaterDogPEHubCommand(
     @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
+    @NonNull ProxyServer proxyServer,
     @NonNull String name,
     String @NonNull [] aliases
   ) {
     super(name, CommandSettings.builder().setAliases(aliases).build());
     this.management = management;
+    this.proxyServer = proxyServer;
   }
 
   @Override
@@ -52,7 +55,7 @@ public final class WaterDogPEHubCommand extends Command {
       } else {
         // try to get a fallback for the player
         var hub = this.management.fallback(player)
-          .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+          .map(service -> this.proxyServer.getServerInfo(service.name()))
           .orElse(null);
         // check if a fallback was found
         if (hub != null) {

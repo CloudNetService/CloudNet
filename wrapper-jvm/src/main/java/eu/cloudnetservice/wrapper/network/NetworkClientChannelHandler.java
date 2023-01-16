@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.network;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelInitEvent;
@@ -26,37 +26,43 @@ import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.PacketClientAuthorization;
 import eu.cloudnetservice.driver.network.protocol.Packet;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import jakarta.inject.Inject;
 import lombok.NonNull;
 
-public class NetworkClientChannelHandler implements NetworkChannelHandler {
+public final class NetworkClientChannelHandler implements NetworkChannelHandler {
+
+  private final EventManager eventManager;
+  private final WrapperConfiguration wrapperConfiguration;
+
+  @Inject
+  public NetworkClientChannelHandler(@NonNull EventManager eventManager, @NonNull WrapperConfiguration configuration) {
+    this.eventManager = eventManager;
+    this.wrapperConfiguration = configuration;
+  }
 
   @Override
   public void handleChannelInitialize(@NonNull NetworkChannel channel) {
-    var networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.CLIENT_CHANNEL);
-    CloudNetDriver.instance().eventManager().callEvent(networkChannelInitEvent);
-
-    if (networkChannelInitEvent.cancelled()) {
+    var event = this.eventManager.callEvent(new NetworkChannelInitEvent(channel, ChannelType.CLIENT_CHANNEL));
+    if (event.cancelled()) {
       channel.close();
       return;
     }
 
-    networkChannelInitEvent.networkChannel().sendPacket(new PacketClientAuthorization(
+    channel.sendPacket(new PacketClientAuthorization(
       PacketClientAuthorization.PacketAuthorizationType.WRAPPER_TO_NODE,
       DataBuf.empty()
-        .writeString(Wrapper.instance().config().connectionKey())
-        .writeObject(Wrapper.instance().config().serviceConfiguration().serviceId())));
+        .writeString(this.wrapperConfiguration.connectionKey())
+        .writeObject(this.wrapperConfiguration.serviceConfiguration().serviceId())));
   }
 
   @Override
   public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    return !CloudNetDriver.instance().eventManager().callEvent(
-      new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
+    return !this.eventManager.callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
   public void handleChannelClose(@NonNull NetworkChannel channel) {
-    CloudNetDriver.instance().eventManager().callEvent(
-      new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
+    this.eventManager.callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.network;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelInitEvent;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -25,29 +25,30 @@ import eu.cloudnetservice.driver.network.chunk.network.ChunkedPacketListener;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.rpc.listener.RPCPacketListener;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.network.listener.PacketServerChannelMessageListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class NodeNetworkUtil {
 
-  private NodeNetworkUtil() {
-    throw new UnsupportedOperationException();
+  private final EventManager eventManager;
+
+  @Inject
+  public NodeNetworkUtil(@NonNull EventManager eventManager) {
+    this.eventManager = eventManager;
   }
 
-  static boolean shouldInitializeChannel(@NonNull NetworkChannel channel, @NonNull ChannelType type) {
-    return !CloudNetDriver.instance().eventManager().callEvent(new NetworkChannelInitEvent(channel, type)).cancelled();
+  boolean shouldInitializeChannel(@NonNull NetworkChannel channel, @NonNull ChannelType type) {
+    return !this.eventManager.callEvent(new NetworkChannelInitEvent(channel, type)).cancelled();
   }
 
-  public static void addDefaultPacketListeners(@NonNull PacketListenerRegistry registry, @NonNull Node node) {
-    registry.addListener(
-      NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
-      new PacketServerChannelMessageListener(node.messenger(), node.eventManager()));
-    registry.addListener(
-      NetworkConstants.INTERNAL_RPC_COM_CHANNEL,
-      new RPCPacketListener(node.rpcHandlerRegistry()));
+  public void addDefaultPacketListeners(@NonNull PacketListenerRegistry registry) {
+    registry.addListener(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, PacketServerChannelMessageListener.class);
+    registry.addListener(NetworkConstants.INTERNAL_RPC_COM_CHANNEL, RPCPacketListener.class);
     registry.addListener(
       NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
-      new ChunkedPacketListener(EventChunkHandlerFactory.withDefaultEventManager()));
+      new ChunkedPacketListener(EventChunkHandlerFactory.withEventManager(this.eventManager)));
   }
 }

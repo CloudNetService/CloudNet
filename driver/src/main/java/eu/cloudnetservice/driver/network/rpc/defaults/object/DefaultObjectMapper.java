@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -40,6 +41,7 @@ import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.UUIDObj
 import eu.cloudnetservice.driver.network.rpc.exception.MissingObjectSerializerException;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -74,6 +76,8 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
+@Provides(ObjectMapper.class)
 public class DefaultObjectMapper implements ObjectMapper {
 
   public static final ObjectMapper DEFAULT_MAPPER;

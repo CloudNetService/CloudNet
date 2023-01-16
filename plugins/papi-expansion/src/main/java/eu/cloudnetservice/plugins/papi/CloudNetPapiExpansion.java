@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,23 @@
 
 package eu.cloudnetservice.plugins.papi;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import lombok.NonNull;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.Nullable;
 
 public class CloudNetPapiExpansion extends PlaceholderExpansion {
+
+  private final ServiceInfoHolder serviceInfoHolder;
+
+  public CloudNetPapiExpansion() {
+    // not an ideal solution but should be enough in order to let this expansion
+    // work without the need to wrap it in a plugin
+    this.serviceInfoHolder = InjectionLayer.ext().instance(ServiceInfoHolder.class);
+  }
 
   @Override
   public @NonNull String getIdentifier() {
@@ -56,7 +65,7 @@ public class CloudNetPapiExpansion extends PlaceholderExpansion {
     // The bridge will just replace all placeholders in the string with the correct association.
     // We can just return null if the resulting string matches the input string
     var input = '%' + params + '%';
-    var out = BridgeServiceHelper.fillCommonPlaceholders(input, null, Wrapper.instance().currentServiceInfo());
+    var out = BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
 
     return out.equals(input) ? null : out;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.network;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -27,15 +27,41 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.listener.PacketClientAuthorizationListener;
 import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class DefaultNetworkServerChannelHandler implements NetworkChannelHandler {
 
   private static final Logger LOGGER = LogManager.logger(DefaultNetworkServerChannelHandler.class);
+
+  private final EventManager eventManager;
+  private final NodeNetworkUtil networkUtil;
+  private final Configuration configuration;
+  private final NodeServerProvider nodeServerProvider;
+  private final CloudServiceManager cloudServiceManager;
+
+  @Inject
+  public DefaultNetworkServerChannelHandler(
+    @NonNull EventManager eventManager,
+    @NonNull NodeNetworkUtil networkUtil,
+    @NonNull Configuration configuration,
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull CloudServiceManager cloudServiceManager
+  ) {
+    this.eventManager = eventManager;
+    this.networkUtil = networkUtil;
+    this.configuration = configuration;
+    this.nodeServerProvider = nodeServerProvider;
+    this.cloudServiceManager = cloudServiceManager;
+  }
 
   @Override
   public void handleChannelInitialize(@NonNull NetworkChannel channel) {
@@ -45,11 +71,11 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       return;
     }
 
-    if (NodeNetworkUtil.shouldInitializeChannel(channel, ChannelType.SERVER_CHANNEL)) {
+    if (this.networkUtil.shouldInitializeChannel(channel, ChannelType.SERVER_CHANNEL)) {
       // add the auth listener
       channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
-        new PacketClientAuthorizationListener());
+        PacketClientAuthorizationListener.class);
 
       LOGGER.fine(I18n.trans("server-network-channel-init",
         channel.serverAddress(),
@@ -61,22 +87,18 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
 
   @Override
   public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    return !CloudNetDriver.instance().eventManager().callEvent(
-      new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
+    return !this.eventManager.callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
   public void handleChannelClose(@NonNull NetworkChannel channel) {
-    CloudNetDriver.instance().eventManager().callEvent(
-      new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
+    this.eventManager.callEvent(new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
     LOGGER.fine(I18n.trans("server-network-channel-close",
       channel.serverAddress(),
       channel.clientAddress()));
 
-    var cloudService = Node.instance()
-      .cloudServiceProvider()
-      .localCloudServices()
+    var cloudService = this.cloudServiceManager.localCloudServices()
       .stream()
       .filter(service -> {
         var serviceNetworkChannel = service.networkChannel();
@@ -89,7 +111,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       return;
     }
 
-    var nodeServer = Node.instance().nodeServerProvider().node(channel);
+    var nodeServer = this.nodeServerProvider.node(channel);
     if (nodeServer != null && nodeServer.state() != NodeServerState.DISCONNECTED) {
       nodeServer.close();
     }
@@ -108,8 +130,6 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
   }
 
   private boolean shouldDenyConnection(@NonNull NetworkChannel channel) {
-    return Node.instance().config().ipWhitelist()
-      .stream()
-      .noneMatch(channel.clientAddress().host()::equals);
+    return this.configuration.ipWhitelist().stream().noneMatch(channel.clientAddress().host()::equals);
   }
 }

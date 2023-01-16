@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,27 +20,19 @@ import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-public class NodeLabyModListener {
-
-  private final NodeLabyModManagement labyModManagement;
-
-  public NodeLabyModListener(@NonNull NodeLabyModManagement labyModManagement) {
-    this.labyModManagement = labyModManagement;
-  }
+@Singleton
+final class NodeLabyModListener {
 
   @EventListener
-  public void handleConfigUpdate(ChannelMessageReceiveEvent event) {
-    if (!event.channel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)) {
-      return;
-    }
-
-    if (LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.message())) {
-      // read the configuration from the databuf
+  public void handleConfigUpdate(@NonNull ChannelMessageReceiveEvent event, @NonNull NodeLabyModManagement management) {
+    if (event.channel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)
+      && LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.message())) {
+      // read the configuration & write it
       var configuration = event.content().readObject(LabyModConfiguration.class);
-      // write the configuration silently to the file
-      this.labyModManagement.configurationSilently(configuration);
+      management.configurationSilently(configuration);
     }
   }
 }

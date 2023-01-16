@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,16 @@ package eu.cloudnetservice.node.database;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.Database;
-import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 
 public abstract class AbstractDatabase implements LocalDatabase, Database {
 
   protected final String name;
-  protected final ExecutorService executorService;
-  protected final AbstractDatabaseProvider databaseProvider;
+  protected final NodeDatabaseProvider databaseProvider;
 
-  protected AbstractDatabase(
-    @NonNull String name,
-    @NonNull ExecutorService executorService,
-    @NonNull AbstractDatabaseProvider databaseProvider
-  ) {
+  protected AbstractDatabase(@NonNull String name, @NonNull NodeDatabaseProvider databaseProvider) {
     this.name = name;
-    this.executorService = executorService;
     this.databaseProvider = databaseProvider;
   }
 

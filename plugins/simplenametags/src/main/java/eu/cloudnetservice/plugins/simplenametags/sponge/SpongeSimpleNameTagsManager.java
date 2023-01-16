@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package eu.cloudnetservice.plugins.simplenametags.sponge;
 
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
@@ -25,7 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.api.Sponge;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.scoreboard.Scoreboard;
 import org.spongepowered.api.scoreboard.Team;
@@ -34,8 +36,16 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
 
   private static final Scoreboard.Builder BUILDER = Scoreboard.builder();
 
-  public SpongeSimpleNameTagsManager(@NonNull Executor syncTaskExecutor) {
-    super(syncTaskExecutor);
+  private final Server server;
+
+  public SpongeSimpleNameTagsManager(
+    @NonNull Server server,
+    @NonNull Executor syncTaskExecutor,
+    @NonNull EventManager eventManager,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    super(syncTaskExecutor, eventManager, permissionManagement);
+    this.server = server;
   }
 
   @Override
@@ -55,7 +65,7 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
 
   @Override
   public void resetScoreboard(@NonNull ServerPlayer player) {
-    if (Sponge.server().serverScoreboard().map(player.scoreboard()::equals).orElse(false)) {
+    if (this.server.serverScoreboard().map(player.scoreboard()::equals).orElse(false)) {
       player.setScoreboard(BUILDER.build());
     }
   }
@@ -87,11 +97,11 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
 
   @Override
   public @NonNull Collection<? extends ServerPlayer> onlinePlayers() {
-    return Sponge.server().onlinePlayers();
+    return this.server.onlinePlayers();
   }
 
   @Override
   public @Nullable ServerPlayer onlinePlayer(@NonNull UUID uniqueId) {
-    return Sponge.server().player(uniqueId).orElse(null);
+    return this.server.player(uniqueId).orElse(null);
   }
 }

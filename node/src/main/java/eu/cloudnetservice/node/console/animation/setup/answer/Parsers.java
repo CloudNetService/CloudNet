@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,40 @@ import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
 import eu.cloudnetservice.node.util.NetworkUtil;
 import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 
+@Singleton
 public final class Parsers {
 
-  public Parsers() {
-    throw new UnsupportedOperationException();
+  private final Configuration configuration;
+  private final ServiceTaskProvider taskProvider;
+  private final ServiceVersionProvider versionProvider;
+
+  @Inject
+  public Parsers(
+    @NonNull Configuration configuration,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull ServiceVersionProvider versionProvider
+  ) {
+    this.configuration = configuration;
+    this.taskProvider = taskProvider;
+    this.versionProvider = versionProvider;
   }
 
-  public static @NonNull QuestionAnswerType.Parser<String> nonEmptyStr() {
+  public @NonNull QuestionAnswerType.Parser<String> nonEmptyStr() {
     return input -> {
       if (input.trim().isEmpty()) {
         throw ParserException.INSTANCE;
@@ -48,7 +64,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<String> limitedStr(int length) {
+  public @NonNull QuestionAnswerType.Parser<String> limitedStr(int length) {
     return input -> {
       if (input.length() > length) {
         throw ParserException.INSTANCE;
@@ -57,11 +73,11 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull <T extends Enum<T>> QuestionAnswerType.Parser<T> enumConstant(@NonNull Class<T> enumClass) {
+  public @NonNull <T extends Enum<T>> QuestionAnswerType.Parser<T> enumConstant(@NonNull Class<T> enumClass) {
     return input -> Preconditions.checkNotNull(Enums.getIfPresent(enumClass, StringUtil.toUpper(input)).orNull());
   }
 
-  public static @NonNull QuestionAnswerType.Parser<String> regex(@NonNull Pattern pattern) {
+  public @NonNull QuestionAnswerType.Parser<String> regex(@NonNull Pattern pattern) {
     return input -> {
       if (pattern.matcher(input).matches()) {
         return input;
@@ -70,7 +86,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<Pair<String, JavaVersion>> javaVersion() {
+  public @NonNull QuestionAnswerType.Parser<Pair<String, JavaVersion>> javaVersion() {
     return input -> {
       var version = JavaVersionResolver.resolveFromJavaExecutable(input);
       if (version == null) {
@@ -80,7 +96,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<Pair<ServiceVersionType, ServiceVersion>> serviceVersion() {
+  public @NonNull QuestionAnswerType.Parser<Pair<ServiceVersionType, ServiceVersion>> serviceVersion() {
     return input -> {
       // install no version
       if (input.equalsIgnoreCase("none")) {
@@ -92,7 +108,7 @@ public final class Parsers {
         throw ParserException.INSTANCE;
       }
       // get the type
-      var type = Node.instance().serviceVersionProvider().getServiceVersionType(result[0]);
+      var type = this.versionProvider.getServiceVersionType(result[0]);
       if (type == null) {
         throw ParserException.INSTANCE;
       }
@@ -108,9 +124,9 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<ServiceEnvironmentType> serviceEnvironmentType() {
+  public @NonNull QuestionAnswerType.Parser<ServiceEnvironmentType> serviceEnvironmentType() {
     return input -> {
-      var type = Node.instance().serviceVersionProvider().getEnvironmentType(input);
+      var type = this.versionProvider.getEnvironmentType(input);
       if (type != null) {
         return type;
       }
@@ -119,9 +135,9 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<String> nonExistingTask() {
+  public @NonNull QuestionAnswerType.Parser<String> nonExistingTask() {
     return input -> {
-      var task = Node.instance().serviceTaskProvider().serviceTask(input);
+      var task = this.taskProvider.serviceTask(input);
       if (task != null) {
         throw ParserException.INSTANCE;
       }
@@ -130,7 +146,7 @@ public final class Parsers {
   }
 
   @SafeVarargs
-  public static @NonNull <T> QuestionAnswerType.Parser<T> allOf(@NonNull QuestionAnswerType.Parser<T>... parsers) {
+  public final @NonNull <T> QuestionAnswerType.Parser<T> allOf(@NonNull QuestionAnswerType.Parser<T>... parsers) {
     return input -> {
       T result = null;
       for (var parser : parsers) {
@@ -140,15 +156,15 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<UUID> uuid() {
+  public @NonNull QuestionAnswerType.Parser<UUID> uuid() {
     return UUID::fromString;
   }
 
-  public static @NonNull QuestionAnswerType.Parser<Integer> anyNumber() {
+  public @NonNull QuestionAnswerType.Parser<Integer> anyNumber() {
     return Integer::parseInt;
   }
 
-  public static @NonNull QuestionAnswerType.Parser<Integer> ranged(int from, int to) {
+  public @NonNull QuestionAnswerType.Parser<Integer> ranged(int from, int to) {
     return input -> {
       var value = Integer.parseInt(input);
       if (value < from || value > to) {
@@ -158,7 +174,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<Boolean> bool() {
+  public @NonNull QuestionAnswerType.Parser<Boolean> bool() {
     return input -> {
       if (input.equalsIgnoreCase("yes") || input.equalsIgnoreCase("no")) {
         return input.equalsIgnoreCase("yes");
@@ -168,7 +184,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<HostAndPort> validatedHostAndPort(boolean withPort) {
+  public @NonNull QuestionAnswerType.Parser<HostAndPort> validatedHostAndPort(boolean withPort) {
     return input -> {
       var host = NetworkUtil.parseHostAndPort(input, withPort);
       if (host == null) {
@@ -178,7 +194,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<HostAndPort> assignableHostAndPort(boolean withPort) {
+  public @NonNull QuestionAnswerType.Parser<HostAndPort> assignableHostAndPort(boolean withPort) {
     return input -> {
       var host = NetworkUtil.parseAssignableHostAndPort(input, withPort);
       if (host == null) {
@@ -188,7 +204,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<HostAndPort> nonWildcardHost(
+  public @NonNull QuestionAnswerType.Parser<HostAndPort> nonWildcardHost(
     @NonNull QuestionAnswerType.Parser<HostAndPort> parser
   ) {
     return input -> {
@@ -201,9 +217,9 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull QuestionAnswerType.Parser<String> assignableHostAndPortOrAlias() {
+  public @NonNull QuestionAnswerType.Parser<String> assignableHostAndPortOrAlias() {
     return input -> {
-      var ipAlias = Node.instance().config().ipAliases().get(input);
+      var ipAlias = this.configuration.ipAliases().get(input);
       // the input is an ip alias
       if (ipAlias != null) {
         return ipAlias;
@@ -218,7 +234,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull <I, O> QuestionAnswerType.Parser<O> andThen(
+  public @NonNull <I, O> QuestionAnswerType.Parser<O> andThen(
     @NonNull QuestionAnswerType.Parser<I> parser,
     @NonNull Function<I, O> combiner
   ) {

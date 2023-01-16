@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,12 @@ import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.bukkit.event.BukkitCloudSignInteractEvent;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,9 +36,14 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
 
   // lazy initialized once available
   private Location signLocation;
+  private final Server server;
+  private final PluginManager pluginManager;
 
-  public BukkitPlatformSign(@NonNull Sign base) {
+  public BukkitPlatformSign(@NonNull Sign base, @NonNull Server server, @NonNull PluginManager pluginManager) {
     super(base, input -> ChatColor.translateAlternateColorCodes('&', input));
+    this.server = server;
+
+    this.pluginManager = pluginManager;
   }
 
   @Override
@@ -110,7 +116,7 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
   @Override
   public @Nullable ServiceInfoSnapshot callSignInteractEvent(@NonNull Player player) {
     var event = new BukkitCloudSignInteractEvent(player, this);
-    Bukkit.getPluginManager().callEvent(event);
+    this.pluginManager.callEvent(event);
 
     return event.isCancelled() ? null : event.target();
   }
@@ -123,7 +129,7 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
 
     // check if the world associated with the sign is available
     var pos = this.base.location();
-    var world = Bukkit.getWorld(pos.world());
+    var world = this.server.getWorld(pos.world());
     if (world == null) {
       return null;
     }
