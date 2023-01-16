@@ -499,7 +499,7 @@ public final class NPCCommand extends BaseTabExecutor {
                 .collect(Collectors.toSet()))
               .build())
             .exceptionally(throwable -> {
-              sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[3]));
+              sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[2]));
               return null;
             }).join();
 
