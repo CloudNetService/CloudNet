@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,82 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
-import eu.cloudnetservice.driver.util.ModuleUtil;
-import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import com.google.inject.Singleton;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordFakeReloadCommand;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordHubCommand;
-import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
+import jakarta.inject.Inject;
 import java.util.Arrays;
+import lombok.NonNull;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 
-public final class BungeeCordBridgePlugin extends Plugin {
+@Singleton
+@PlatformPlugin(
+  platform = "bungeecord",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService")
+public final class BungeeCordBridgePlugin implements PlatformEntrypoint {
+
+  private final Plugin plugin;
+  private final ProxyServer proxyServer;
+  private final ModuleHelper moduleHelper;
+  private final PluginManager pluginManager;
+  private final BungeeCordHelper bungeeHelper;
+  private final ServiceRegistry serviceRegistry;
+  private final BungeeCordCloudCommand cloudCommand;
+  private final BungeeCordBridgeManagement bridgeManagement;
+  private final BungeeCordPlayerManagementListener playerListener;
+
+  @Inject
+  public BungeeCordBridgePlugin(
+    @NonNull Plugin plugin,
+    @NonNull ProxyServer proxyServer,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull PluginManager pluginManager,
+    @NonNull BungeeCordHelper bungeeHelper,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull BungeeCordCloudCommand cloudCommand,
+    @NonNull BungeeCordBridgeManagement bridgeManagement,
+    @NonNull BungeeCordPlayerManagementListener playerListener
+  ) {
+    this.plugin = plugin;
+    this.proxyServer = proxyServer;
+    this.moduleHelper = moduleHelper;
+    this.pluginManager = pluginManager;
+    this.bungeeHelper = bungeeHelper;
+    this.serviceRegistry = serviceRegistry;
+    this.cloudCommand = cloudCommand;
+    this.bridgeManagement = bridgeManagement;
+    this.playerListener = playerListener;
+  }
 
   @Override
-  public void onEnable() {
+  public void onLoad() {
     // init the management
-    PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management = new BungeeCordBridgeManagement();
-    management.registerServices(Wrapper.instance().serviceRegistry());
-    management.postInit();
+    this.bridgeManagement.registerServices(this.serviceRegistry);
+    this.bridgeManagement.postInit();
     // register the listeners
-    ProxyServer.getInstance().getPluginManager().registerListener(
-      this,
-      new BungeeCordPlayerManagementListener(this, management));
+    this.pluginManager.registerListener(this.plugin, this.playerListener);
     // register the cloud command
-    ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeeCordFakeReloadCommand());
-    ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeeCordCloudCommand(management));
+    this.pluginManager.registerCommand(this.plugin, new BungeeCordFakeReloadCommand());
+    this.pluginManager.registerCommand(this.plugin, this.cloudCommand);
     // register the hub command if requested
-    if (!management.configuration().hubCommandNames().isEmpty()) {
+    if (!this.bridgeManagement.configuration().hubCommandNames().isEmpty()) {
       // convert to an array for easier access
-      var names = management.configuration().hubCommandNames().toArray(new String[0]);
+      var names = this.bridgeManagement.configuration().hubCommandNames().toArray(new String[0]);
       // register the command
-      ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeeCordHubCommand(
-        management,
+      this.pluginManager.registerCommand(this.plugin, new BungeeCordHubCommand(
+        this.proxyServer,
+        this.bungeeHelper,
+        this.bridgeManagement,
         names[0],
         names.length > 1 ? Arrays.copyOfRange(names, 1, names.length) : new String[0]));
     }
@@ -57,6 +99,6 @@ public final class BungeeCordBridgePlugin extends Plugin {
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

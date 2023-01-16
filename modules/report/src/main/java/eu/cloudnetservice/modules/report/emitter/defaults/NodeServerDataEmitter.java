@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,29 @@ import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.emitter.SpecificReportDataEmitter;
 import eu.cloudnetservice.modules.report.util.ReportConstants;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServer;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
+@Singleton
 public final class NodeServerDataEmitter extends SpecificReportDataEmitter<NodeServer> {
 
-  public NodeServerDataEmitter() {
+  private final NodeServerProvider nodeServerProvider;
+
+  @Inject
+  public NodeServerDataEmitter(@NonNull NodeServerProvider nodeServerProvider) {
     super((writer, nodes) -> writer.appendString("Node Servers (").appendInt(nodes.size()).appendString("):"));
+    this.nodeServerProvider = nodeServerProvider;
   }
 
   @Override
   public @NonNull Collection<NodeServer> collectData() {
-    return Node.instance().nodeServerProvider().nodeServers();
+    return this.nodeServerProvider.nodeServers();
   }
 
   @Override

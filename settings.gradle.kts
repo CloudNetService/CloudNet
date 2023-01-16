@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,17 @@ rootProject.name = "cloudnet-root"
 include("bom", "ext", "common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
 
 // external lib helpers
-initializeSubProjects("ext", "modlauncher", "adventure-helper", "bukkit-command", "updater")
+initializeSubProjects("ext",
+  "modlauncher",
+  "adventure-helper",
+  "bukkit-command",
+  "updater",
+  "platform-inject-support")
+// inject support
+initializePrefixedSubProjects(
+  "ext:platform-inject-support",
+  "platform-inject",
+  "api", "loader", "processor", "runtime")
 // plugins
 initializeSubProjects("plugins", "chat", "simplenametags", "papi-expansion")
 // modules
@@ -64,5 +74,12 @@ fun initializeSubProjects(rootProject: String, vararg names: String) {
     // update the project properties
     project(":$rootProject:$it").name = it
     project(":$rootProject:$it").projectDir = file(rootProject).resolve(it)
+  }
+}
+
+fun initializePrefixedSubProjects(rootProject: String, prefix: String, vararg names: String) {
+  names.forEach {
+    include("$rootProject:$it")
+    project(":$rootProject:$it").name = "$prefix-$it"
   }
 }

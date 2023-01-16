@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,52 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerChatEvent;
+import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.plugin.PluginManager;
 import cn.nukkit.utils.TextFormat;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-public class NukkitChatPlugin extends PluginBase implements Listener {
+@Singleton
+@PlatformPlugin(
+  platform = "nukkit",
+  name = "CloudNet-Chat",
+  authors = "CloudNetService",
+  version = "{project.build.version}",
+  description = "Brings chat prefixes and colored message support to all server platforms",
+  dependencies = @Dependency(name = "CloudNet-CloudPerms")
+)
+public class NukkitChatPlugin implements PlatformEntrypoint, Listener {
 
-  private String format;
+  private final String format;
+  private final Plugin plugin;
+  private final PluginManager pluginManager;
+  private final PermissionManagement permissionManagement;
+
+  @Inject
+  public NukkitChatPlugin(
+    @NonNull PluginBase plugin,
+    @NonNull PluginManager pluginManager,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    this.plugin = plugin;
+    this.pluginManager = pluginManager;
+    this.permissionManagement = permissionManagement;
+
+    // load the config
+    plugin.saveDefaultConfig();
+    this.format = plugin.getConfig().getString("format", "%display%%name% &8:&f %message%");
+  }
 
   @Override
-  public void onEnable() {
-    super.saveDefaultConfig();
-    this.format = super.getConfig().getString("format", "%display%%name% &8:&f %message%");
+  public void onLoad() {
+    this.pluginManager.registerEvents(this, this.plugin);
   }
 
   @EventHandler(priority = EventPriority.HIGH)
@@ -44,8 +78,8 @@ public class NukkitChatPlugin extends PluginBase implements Listener {
       this.format,
       event.getMessage(),
       event.getPlayer()::hasPermission,
-      TextFormat::colorize
-    );
+      TextFormat::colorize,
+      this.permissionManagement);
     if (format == null) {
       event.setCancelled(true);
     } else {

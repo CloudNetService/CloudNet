@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,73 +16,65 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge;
 
-import com.google.inject.Inject;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
-import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
-import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
-import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ConstructionListener;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignInteractListener;
-import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignsCommand;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.kyori.adventure.text.Component;
-import org.spongepowered.api.Server;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
-import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.plugin.PluginContainer;
-import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-@Plugin("cloudnet_signs")
-public class SpongeSignsPlugin {
+@Singleton
+@PlatformPlugin(
+  platform = "sponge",
+  name = "CloudNet-Signs",
+  version = "{project.build.version}",
+  description = "Sponge extension for the CloudNet runtime which adds sign connector support",
+  authors = "CloudNetService",
+  dependencies = @Dependency(name = "CloudNet-Bridge")
+)
+@ConstructionListener(CommandRegistrationListener.class)
+public class SpongeSignsPlugin implements PlatformEntrypoint {
 
   private final PluginContainer plugin;
-  private PlatformSignManagement<ServerPlayer, ServerLocation, Component> signManagement;
+  private final ModuleHelper moduleHelper;
+  private final EventManager eventManager;
+  private final ServiceRegistry serviceRegistry;
+  private final SpongeSignManagement signManagement;
+  private final SignInteractListener interactListener;
 
   @Inject
-  public SpongeSignsPlugin(@NonNull PluginContainer plugin) {
+  public SpongeSignsPlugin(
+    @NonNull PluginContainer plugin,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull EventManager eventManager,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull SpongeSignManagement signManagement,
+    @NonNull SignInteractListener interactListener
+  ) {
     this.plugin = plugin;
+    this.moduleHelper = moduleHelper;
+    this.eventManager = eventManager;
+    this.serviceRegistry = serviceRegistry;
+    this.signManagement = signManagement;
+    this.interactListener = interactListener;
   }
 
-  @Listener
-  public void handleStart(@NonNull StartedEngineEvent<Server> event) {
-    this.signManagement = SpongeSignManagement.newInstance(this.plugin);
+  @Override
+  public void onLoad() {
     this.signManagement.initialize();
-    this.signManagement.registerToServiceRegistry();
-    // sponge events
-    Sponge.eventManager().registerListeners(this.plugin, new SignInteractListener(this.plugin, this.signManagement));
-    // cloudnet events
-    CloudNetDriver.instance().eventManager().registerListeners(
-      new SharedChannelMessageListener(this.signManagement),
-      new SignsPlatformListener(this.signManagement));
+    this.signManagement.registerToServiceRegistry(this.serviceRegistry);
+
+    this.eventManager.registerListeners(this.plugin, this.interactListener);
   }
 
-  @Listener
-  public void handleShutdown(@NonNull StoppingEngineEvent<Server> event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
-  }
-
-  @Listener
-  public void handleCommandRegister(@NonNull RegisterCommandEvent<Command.Parameterized> event) {
-    event.register(
-      this.plugin,
-      Command.builder()
-        .shortDescription(Component.text("Management of the signs"))
-        .permission("cloudnet.command.cloudsign")
-        .addParameters(
-          Parameter.string().key(SignsCommand.ACTION).build(),
-          Parameter.string().key(SignsCommand.TARGET_GROUP).optional().build(),
-          Parameter.string().key(SignsCommand.TARGET_TEMPLATE).optional().build()
-        )
-        .executor(new SignsCommand(() -> this.signManagement))
-        .build(),
-      "cloudsigns",
-      "cs", "signs", "cloudsign");
+  @Override
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

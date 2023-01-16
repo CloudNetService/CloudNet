@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelPacketSendEvent;
 import eu.cloudnetservice.driver.network.DefaultNetworkChannel;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -39,11 +39,13 @@ import org.jetbrains.annotations.Nullable;
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements NetworkChannel {
 
   private final Channel channel;
+  private final EventManager eventManager;
 
   /**
    * Constructs a new netty network channel instance.
    *
    * @param channel               the netty channel to wrap.
+   * @param eventManager          the event manager for the current component.
    * @param packetRegistry        the packet registry for this channel.
    * @param handler               the handler to post events to.
    * @param serverAddress         the server address to which the client connected.
@@ -53,6 +55,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    */
   public NettyNetworkChannel(
     @NonNull Channel channel,
+    @NonNull EventManager eventManager,
     @NonNull PacketListenerRegistry packetRegistry,
     @NonNull NetworkChannelHandler handler,
     @NonNull HostAndPort serverAddress,
@@ -61,6 +64,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   ) {
     super(packetRegistry, serverAddress, clientAddress, clientProvidedChannel, handler);
     this.channel = channel;
+    this.eventManager = eventManager;
   }
 
   /**
@@ -145,7 +149,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    * @throws NullPointerException if the given packet is null.
    */
   private @Nullable Future<Void> writePacket(@NonNull Packet packet, boolean flushAfter) {
-    var event = CloudNetDriver.instance().eventManager().callEvent(new NetworkChannelPacketSendEvent(this, packet));
+    var event = this.eventManager.callEvent(new NetworkChannelPacketSendEvent(this, packet));
     if (!event.cancelled()) {
       return flushAfter ? this.channel.writeAndFlush(packet) : this.channel.write(packet);
     } else {

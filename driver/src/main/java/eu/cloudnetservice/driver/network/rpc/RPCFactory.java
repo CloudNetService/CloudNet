@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
 import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.generation.InstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,7 +97,9 @@ public interface RPCFactory {
    * @throws NullPointerException   if the given base class or generation context is null.
    * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
    */
-  @NonNull <T> T generateRPCBasedApi(@NonNull Class<T> baseClass, @NonNull GenerationContext context);
+  @NonNull <T> InstanceFactory<T> generateRPCBasedApi(
+    @NonNull Class<T> baseClass,
+    @NonNull GenerationContext context);
 
   /**
    * Generates an api implementation for the given base class, invoking all of its method using a chained rpc call. The

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
-
-  "annotationProcessor"(libs.velocity)
 }
 
 moduleJson {
@@ -39,8 +37,4 @@ moduleJson {
     group = project.group.toString()
     version = project.version.toString()
   })
-}
-
-configure<net.kyori.blossom.BlossomExtension> {
-  replaceToken("{project.build.version}", project.version)
 }

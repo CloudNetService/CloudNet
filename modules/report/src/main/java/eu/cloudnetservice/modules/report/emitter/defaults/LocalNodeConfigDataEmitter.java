@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,15 @@ package eu.cloudnetservice.modules.report.emitter.defaults;
 
 import eu.cloudnetservice.modules.report.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-public final class LocalNodeConfigDataEmitter implements ReportDataEmitter {
+@Singleton
+public record LocalNodeConfigDataEmitter(@NonNull Configuration configuration) implements ReportDataEmitter {
 
   @Override
   public @NonNull ReportDataWriter emitData(@NonNull ReportDataWriter writer) {
-    return writer.beginSection("Node Configuration").appendAsJson(Node.instance().config()).endSection();
+    return writer.beginSection("Node Configuration").appendAsJson(this.configuration).endSection();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,20 +38,22 @@ import eu.cloudnetservice.modules.report.emitter.defaults.ServiceInfoDataEmitter
 import eu.cloudnetservice.modules.report.emitter.defaults.ServiceTasksDataEmitter;
 import eu.cloudnetservice.modules.report.emitter.defaults.SystemInfoDataEmitter;
 import eu.cloudnetservice.modules.report.emitter.defaults.ThreadInfoDataEmitter;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
+import eu.cloudnetservice.node.command.CommandProvider;
+import jakarta.inject.Singleton;
 import java.util.Map;
 import java.util.Set;
 import lombok.NonNull;
 
+@Singleton
 public final class CloudNetReportModule extends DriverModule {
 
   private ReportConfiguration configuration;
 
   @ModuleTask(order = 127)
-  public void prepareEmitterRegistry() {
+  public void prepareEmitterRegistry(@NonNull ServiceRegistry serviceRegistry) {
     var emitterRegistry = new EmitterRegistry();
-    this.driver().serviceRegistry().registerProvider(EmitterRegistry.class, "ReportEmitterRegistry", emitterRegistry);
+    serviceRegistry.registerProvider(EmitterRegistry.class, "ReportEmitterRegistry", emitterRegistry);
   }
 
   @ModuleTask(order = 64)
@@ -59,16 +61,16 @@ public final class CloudNetReportModule extends DriverModule {
     var emitterRegistry = ServiceRegistry.first(EmitterRegistry.class);
     emitterRegistry
       // general emitters
-      .registerEmitter(new SystemInfoDataEmitter())
-      .registerEmitter(new ThreadInfoDataEmitter())
-      .registerEmitter(new HeapDumpDataEmitter())
-      .registerEmitter(new LocalNodeConfigDataEmitter())
+      .registerEmitter(SystemInfoDataEmitter.class)
+      .registerEmitter(ThreadInfoDataEmitter.class)
+      .registerEmitter(HeapDumpDataEmitter.class)
+      .registerEmitter(LocalNodeConfigDataEmitter.class)
       // specific class emitters
-      .registerSpecificEmitter(NodeServer.class, new NodeServerDataEmitter())
-      .registerSpecificEmitter(ModuleWrapper.class, new LocalModuleDataEmitter())
-      .registerSpecificEmitter(ServiceTask.class, new ServiceTasksDataEmitter())
-      .registerSpecificEmitter(GroupConfiguration.class, new GroupConfigDataEmitter())
-      .registerSpecificEmitter(ServiceInfoSnapshot.class, new ServiceInfoDataEmitter());
+      .registerSpecificEmitter(NodeServer.class, NodeServerDataEmitter.class)
+      .registerSpecificEmitter(ModuleWrapper.class, LocalModuleDataEmitter.class)
+      .registerSpecificEmitter(ServiceTask.class, ServiceTasksDataEmitter.class)
+      .registerSpecificEmitter(GroupConfiguration.class, GroupConfigDataEmitter.class)
+      .registerSpecificEmitter(ServiceInfoSnapshot.class, ServiceInfoDataEmitter.class);
   }
 
   @ModuleTask(order = 46)
@@ -87,11 +89,11 @@ public final class CloudNetReportModule extends DriverModule {
   }
 
   @ModuleTask
-  public void finishStartup() {
+  public void finishStartup(@NonNull CommandProvider commandProvider) {
     this.configuration = this.readConfig(
       ReportConfiguration.class,
       () -> new ReportConfiguration(Set.of(PasteServer.DEFAULT_PASTER_SERVER)));
-    Node.instance().commandProvider().register(new ReportCommand(this));
+    commandProvider.register(ReportCommand.class);
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,28 @@ import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class PacketClientServiceSyncAckListener implements PacketListener {
+
+  private final DataSyncRegistry dataSyncRegistry;
+  private final NodeServerProvider nodeServerProvider;
+
+  @Inject
+  public PacketClientServiceSyncAckListener(
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull NodeServerProvider nodeServerProvider
+  ) {
+    this.dataSyncRegistry = dataSyncRegistry;
+    this.nodeServerProvider = nodeServerProvider;
+  }
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
@@ -34,12 +50,12 @@ public final class PacketClientServiceSyncAckListener implements PacketListener 
     var snapshot = packet.content().readObject(NodeInfoSnapshot.class);
     var syncData = packet.content().readDataBuf();
     // select the node server and validate that it is in the right state for the packet
-    var server = Node.instance().nodeServerProvider().node(snapshot.node().uniqueId());
+    var server = this.nodeServerProvider.node(snapshot.node().uniqueId());
     if (server != null && server.state() == NodeServerState.SYNCING) {
       // remove this listener
       channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL);
       // sync the data between the nodes
-      Node.instance().dataSyncRegistry().handle(syncData, syncData.readBoolean());
+      this.dataSyncRegistry.handle(syncData, syncData.readBoolean());
       if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
         queuedChannel.drainPacketQueue(channel);
       }
@@ -53,7 +69,7 @@ public final class PacketClientServiceSyncAckListener implements PacketListener 
       server.updateNodeInfoSnapshot(snapshot);
       server.state(NodeServerState.READY);
       // re-select the head node
-      Node.instance().nodeServerProvider().selectHeadNode();
+      this.nodeServerProvider.selectHeadNode();
     }
   }
 }

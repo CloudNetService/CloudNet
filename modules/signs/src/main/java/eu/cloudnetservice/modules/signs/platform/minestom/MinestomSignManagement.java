@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,53 @@ package eu.cloudnetservice.modules.signs.platform.minestom;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
+import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
+import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@ProvidesFor(platform = "minestom", types = {PlatformSignManagement.class, SignManagement.class})
 public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<Point, Instance>, String> {
 
-  protected MinestomSignManagement() {
-    super(MoreExecutors.directExecutor());
+  private final GlobalEventHandler eventHandler;
+  private final InstanceManager instanceManager;
+  private final SchedulerManager schedulerManager;
+
+  @Inject
+  protected MinestomSignManagement(
+    @NonNull EventManager eventManager,
+    @NonNull GlobalEventHandler eventHandler,
+    @NonNull InstanceManager instanceManager,
+    @NonNull SchedulerManager schedulerManager,
+    @NonNull WrapperConfiguration wrapperConfig,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
+  ) {
+    super(eventManager, MoreExecutors.directExecutor(), wrapperConfig, serviceProvider, executorService);
+    this.eventHandler = eventHandler;
+    this.instanceManager = instanceManager;
+    this.schedulerManager = schedulerManager;
   }
 
   @Override
@@ -44,7 +74,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<
 
   @Override
   protected void startKnockbackTask() {
-    MinecraftServer.getSchedulerManager().scheduleTask(() -> {
+    this.schedulerManager.scheduleTask(() -> {
       var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
         var conf = entry.knockbackConfiguration();
@@ -91,6 +121,6 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<
 
   @Override
   protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
-    return new MinestomPlatformSign(base);
+    return new MinestomPlatformSign(base, this.eventHandler, this.instanceManager);
   }
 }

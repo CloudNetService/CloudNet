@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,15 @@
 package eu.cloudnetservice.driver.event;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.DriverTestUtil;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.Mockito;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DefaultEventManagerTest {
-
-  @BeforeAll
-  public static void initDriver() {
-    var driver = DriverTestUtil.mockAndSetDriverInstance();
-    Mockito.when(driver.componentName()).thenReturn("Node-1");
-    Mockito.when(driver.environment()).thenReturn(DriverEnvironment.NODE);
-  }
 
   @Test
   void testNullListenerRegistration() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 package eu.cloudnetservice.wrapper.event;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.driver.event.Event;
 import java.util.Collection;
 import lombok.NonNull;
 
@@ -27,9 +26,8 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class ApplicationPreStartEvent extends DriverEvent {
+public final class ApplicationPreStartEvent extends Event {
 
-  private final Wrapper cloudNetWrapper;
   private final Class<?> applicationMainClass;
   private final Collection<String> arguments;
   private final ClassLoader classLoader;
@@ -37,31 +35,19 @@ public final class ApplicationPreStartEvent extends DriverEvent {
   /**
    * Constructs a new ApplicationPreStartEvent instance.
    *
-   * @param cloudNetWrapper      the wrapper instance which will start the application.
    * @param applicationMainClass the main class instance which will be invoked to start the application.
    * @param arguments            the process arguments which will be passed to the application.
    * @param classLoader          the class loader which loaded the application main class.
-   * @throws NullPointerException if the given wrapper instance, application main, arguments or class loader is null.
+   * @throws NullPointerException if the given application main, arguments or class loader is null.
    */
   public ApplicationPreStartEvent(
-    @NonNull Wrapper cloudNetWrapper,
     @NonNull Class<?> applicationMainClass,
     @NonNull Collection<String> arguments,
     @NonNull ClassLoader classLoader
   ) {
-    this.cloudNetWrapper = cloudNetWrapper;
     this.applicationMainClass = applicationMainClass;
     this.arguments = arguments;
     this.classLoader = classLoader;
-  }
-
-  /**
-   * Get the wrapper instance which started the application.
-   *
-   * @return the wrapper instance.
-   */
-  public @NonNull Wrapper wrapper() {
-    return this.cloudNetWrapper;
   }
 
   /**

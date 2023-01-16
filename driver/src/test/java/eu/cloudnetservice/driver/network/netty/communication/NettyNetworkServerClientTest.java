@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.driver.network.netty.communication;
 
+import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.DriverTestUtil;
+import eu.cloudnetservice.driver.event.DefaultEventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.NetworkClient;
@@ -28,25 +29,20 @@ import eu.cloudnetservice.driver.network.netty.server.NettyNetworkServer;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class NettyNetworkServerClientTest extends NetworkTestCase {
 
-  @BeforeAll
-  static void setupDriver() {
-    Mockito
-      .when(DriverTestUtil.mockAndSetDriverInstance().environment())
-      .thenReturn(DriverEnvironment.WRAPPER);
-  }
-
   @Test
   void testNetworkServerClientCommunication() throws Exception {
     var networkPort = this.randomFreePort();
 
-    NetworkServer server = new NettyNetworkServer(this::newDummyHandler);
-    NetworkClient client = new NettyNetworkClient(this::newDummyHandler);
+    var eventManager = new DefaultEventManager();
+    var componentInfo = new ComponentInfo(DriverEnvironment.WRAPPER, "Testing", "Testing-Node");
+
+    NetworkServer server = new NettyNetworkServer(eventManager, componentInfo, this::newDummyHandler);
+    NetworkClient client = new NettyNetworkClient(eventManager, componentInfo, this::newDummyHandler);
 
     Assertions.assertDoesNotThrow(() -> server.addListener(networkPort).join());
     Assertions.assertDoesNotThrow(() -> client.connect(

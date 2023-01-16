@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,26 +27,20 @@ import lombok.NonNull;
 
 public final class TaskChannelMessageListener {
 
-  private final EventManager eventManager;
-
-  public TaskChannelMessageListener(@NonNull EventManager eventManager) {
-    this.eventManager = eventManager;
-  }
-
   @EventListener
-  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event, @NonNull EventManager eventManager) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // add task
         case "add_service_task" -> {
           var task = event.content().readObject(ServiceTask.class);
-          this.eventManager.callEvent(new ServiceTaskAddEvent(task));
+          eventManager.callEvent(new ServiceTaskAddEvent(task));
         }
 
         // remove task
         case "remove_service_task" -> {
           var task = event.content().readObject(ServiceTask.class);
-          this.eventManager.callEvent(new ServiceTaskRemoveEvent(task));
+          eventManager.callEvent(new ServiceTaskRemoveEvent(task));
         }
 
         // none of our business

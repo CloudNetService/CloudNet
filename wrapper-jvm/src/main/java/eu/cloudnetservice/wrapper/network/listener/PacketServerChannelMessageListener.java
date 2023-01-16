@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,25 @@
 
 package eu.cloudnetservice.wrapper.network.listener;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
+import jakarta.inject.Inject;
 import java.util.Set;
 import lombok.NonNull;
 
 public final class PacketServerChannelMessageListener implements PacketListener {
+
+  private final EventManager eventManager;
+
+  @Inject
+  public PacketServerChannelMessageListener(@NonNull EventManager eventManager) {
+    this.eventManager = eventManager;
+  }
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
@@ -35,7 +43,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
     // read the channel message from the buffer
     var message = packet.content().readObject(ChannelMessage.class);
     // get the query response if available
-    var response = CloudNetDriver.instance().eventManager()
+    var response = this.eventManager
       .callEvent(new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null))
       .queryResponse();
     // check if we need to respond to the channel message

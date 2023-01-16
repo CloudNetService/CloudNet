@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,26 +20,41 @@ import eu.cloudnetservice.common.concurrent.ListenableTask;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.event.instance.CloudNetTickEvent;
 import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 
+@Singleton
 public final class TickLoop {
 
   public static final int TPS = 10;
   public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
 
+  // exposed to the package for internal use
+  static final AtomicBoolean RUNNING = new AtomicBoolean(true);
+
   private static final Logger LOGGER = LogManager.logger(TickLoop.class);
 
-  private final Node node;
+  private final EventManager eventManager;
+  private final ServiceTaskProvider taskProvider;
+  private final CloudServiceManager serviceManager;
+  private final NodeServerProvider nodeServerProvider;
+
   private final AtomicInteger tickPauseRequests = new AtomicInteger();
 
   private final CloudNetTickEvent tickEvent = new CloudNetTickEvent(this);
@@ -48,8 +63,17 @@ public final class TickLoop {
   private final AtomicLong currentTick = new AtomicLong();
   private final Queue<ScheduledTask<?>> processQueue = new ConcurrentLinkedQueue<>();
 
-  public TickLoop(@NonNull Node node) {
-    this.node = node;
+  @Inject
+  public TickLoop(
+    @NonNull EventManager eventManager,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull NodeServerProvider nodeServerProvider
+  ) {
+    this.eventManager = eventManager;
+    this.taskProvider = taskProvider;
+    this.serviceManager = serviceManager;
+    this.nodeServerProvider = nodeServerProvider;
   }
 
   public @NonNull Task<Void> runTask(@NonNull Runnable runnable) {
@@ -113,7 +137,7 @@ public final class TickLoop {
     long lastTickLength;
     var lastTick = System.currentTimeMillis();
 
-    while (this.node.running()) {
+    while (RUNNING.get()) {
       try {
         // update the current tick we are in
         tick = this.currentTick.incrementAndGet();
@@ -141,27 +165,27 @@ public final class TickLoop {
           }
 
           // check if the node is marked for draining
-          if (this.node.nodeServerProvider().localNode().draining()) {
+          if (this.nodeServerProvider.localNode().draining()) {
             // check if there are no services on the node
-            if (this.node.cloudServiceProvider().localCloudServices().isEmpty()) {
+            if (this.serviceManager.localCloudServices().isEmpty()) {
               // stop the node as it's marked for draining
-              this.node.stop();
+              System.exit(0);
               return;
             }
           }
 
           // check if we should start a service now
-          if (this.node.nodeServerProvider().localNode().head() && tick % TPS == 0) {
+          if (this.nodeServerProvider.localNode().head() && tick % TPS == 0) {
             // ensure that there are no idling node servers before we start any service to prevent duplicates
-            var idlingNode = this.node.nodeServerProvider().nodeServers().stream()
+            var idlingNode = this.nodeServerProvider.nodeServers().stream()
               .noneMatch(server -> server.state() == NodeServerState.DISCONNECTED);
             if (idlingNode) {
               this.startService();
-              this.node.eventManager().callEvent(this.serviceTickStartEvent);
+              this.eventManager.callEvent(this.serviceTickStartEvent);
             }
           }
 
-          this.node.eventManager().callEvent(this.tickEvent);
+          this.eventManager.callEvent(this.tickEvent);
         }
       } catch (Exception exception) {
         LOGGER.severe("Exception while ticking", exception);
@@ -170,16 +194,16 @@ public final class TickLoop {
   }
 
   private void startService() {
-    for (var task : this.node.serviceTaskProvider().serviceTasks()) {
+    for (var task : this.taskProvider.serviceTasks()) {
       if (!task.maintenance()) {
         // get the count of running services
-        var runningServiceCount = this.node.cloudServiceProvider().servicesByTask(task.name())
+        var runningServiceCount = this.serviceManager.servicesByTask(task.name())
           .stream()
           .filter(taskService -> taskService.lifeCycle() == ServiceLifeCycle.RUNNING)
           .count();
         // check if we need to start a service
         if (task.minServiceCount() > runningServiceCount) {
-          this.node.cloudServiceProvider().selectOrCreateService(task).start();
+          this.serviceManager.selectOrCreateService(task).start();
         }
       }
     }

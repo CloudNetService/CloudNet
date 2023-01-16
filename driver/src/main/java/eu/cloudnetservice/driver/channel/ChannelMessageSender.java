@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.driver.channel;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.DriverEnvironment;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
@@ -39,10 +40,6 @@ import lombok.NonNull;
  */
 public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironment type) {
 
-  private static final ChannelMessageSender SELF = of(
-    CloudNetDriver.instance().componentName(),
-    CloudNetDriver.instance().environment());
-
   /**
    * Creates a new channel message sender with the given name and environment. If you want the sender representation of
    * the current network component consider using {@link #self()} instead.
@@ -62,7 +59,8 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    * @return a sender representation of this network component.
    */
   public static @NonNull ChannelMessageSender self() {
-    return SELF;
+    var componentInfo = InjectionLayer.boot().instance(ComponentInfo.class);
+    return new ChannelMessageSender(componentInfo.componentName(), componentInfo.environment());
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,15 @@
 package eu.cloudnetservice.modules.bridge;
 
 import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.provider.CloudServiceFactory;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
@@ -32,32 +35,60 @@ import org.jetbrains.annotations.Nullable;
  * The bridge service helper is designed to facilitate working with individual states of services. In addition, these
  * properties are stored here:
  * <ul>
- *   <li>{@link #MOTD}</li>
- *   <li>{@link #EXTRA}</li>
- *   <li>{@link #STATE}</li>
- *   <li>{@link #MAX_PLAYERS}</li>
+ *   <li>{@link #motd()}</li>
+ *   <li>{@link #extra()}</li>
+ *   <li>{@link #state()}</li>
+ *   <li>{@link #maxPlayers()}</li>
  * </ul>
  *
  * @since 4.0
  */
+@Singleton
 public final class BridgeServiceHelper {
 
-  public static final AtomicInteger MAX_PLAYERS = new AtomicInteger();
+  private final AtomicInteger maxPlayers = new AtomicInteger();
 
-  public static final AtomicReference<String> MOTD = new AtomicReference<>("");
-  public static final AtomicReference<String> EXTRA = new AtomicReference<>("");
-  public static final AtomicReference<String> STATE = new AtomicReference<>("LOBBY");
+  private final AtomicReference<String> motd = new AtomicReference<>("");
+  private final AtomicReference<String> extra = new AtomicReference<>("");
+  private final AtomicReference<String> state = new AtomicReference<>("LOBBY");
 
-  private BridgeServiceHelper() {
-    throw new UnsupportedOperationException();
+  private final ServiceTaskProvider taskProvider;
+  private final CloudServiceFactory serviceFactory;
+  private final WrapperConfiguration wrapperConfiguration;
+
+  @Inject
+  public BridgeServiceHelper(
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull CloudServiceFactory serviceFactory,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    this.taskProvider = taskProvider;
+    this.serviceFactory = serviceFactory;
+    this.wrapperConfiguration = wrapperConfiguration;
   }
 
   /**
    * Sets the state of the service this bridge instance is running on to {@code ingame} and starts a new service of the
    * task. The method is equivalent to calling {@code BridgeServiceHelper.changeToIngame(true)}.
    */
-  public static void changeToIngame() {
-    changeToIngame(true);
+  public void changeToIngame() {
+    this.changeToIngame(true);
+  }
+
+  public @NonNull AtomicInteger maxPlayers() {
+    return this.maxPlayers;
+  }
+
+  public @NonNull AtomicReference<String> motd() {
+    return this.motd;
+  }
+
+  public @NonNull AtomicReference<String> extra() {
+    return this.extra;
+  }
+
+  public @NonNull AtomicReference<String> state() {
+    return this.state;
   }
 
   /**
@@ -68,14 +99,14 @@ public final class BridgeServiceHelper {
    *
    * @param autoStartService whether a new service should be started or not.
    */
-  public static void changeToIngame(boolean autoStartService) {
-    if (!STATE.getAndSet("INGAME").equalsIgnoreCase("ingame") && autoStartService) {
+  public void changeToIngame(boolean autoStartService) {
+    if (!this.state.getAndSet("INGAME").equalsIgnoreCase("ingame") && autoStartService) {
       // start a new service based on the task name
-      var taskName = Wrapper.instance().serviceId().taskName();
-      CloudNetDriver.instance().serviceTaskProvider()
+      var taskName = this.wrapperConfiguration.serviceConfiguration().serviceId().taskName();
+      this.taskProvider
         .serviceTaskAsync(taskName)
         .thenApply(task -> ServiceConfiguration.builder(task).build())
-        .thenApply(config -> CloudNetDriver.instance().cloudServiceFactory().createCloudService(config))
+        .thenApply(this.serviceFactory::createCloudService)
         .thenAccept(createResult -> {
           if (createResult.state() == ServiceCreateResult.State.CREATED) {
             createResult.serviceInfo().provider().start();

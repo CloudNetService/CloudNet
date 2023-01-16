@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package eu.cloudnetservice.driver.network.netty.client;
 
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.ComponentInfo;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.DefaultNetworkComponent;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -35,6 +37,7 @@ import io.netty5.handler.ssl.SslContext;
 import io.netty5.handler.ssl.SslContextBuilder;
 import io.netty5.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty5.handler.ssl.util.SelfSignedCertificate;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,17 +52,19 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
 public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClient {
 
   private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
   private static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
 
-  protected final Executor packetDispatcher = NettyUtil.newPacketDispatcher();
   protected final EventLoopGroup eventLoopGroup = NettyUtil.newEventLoopGroup(0);
 
   protected final Collection<NetworkChannel> channels = ConcurrentHashMap.newKeySet();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
+  protected final EventManager eventManager;
+  protected final Executor packetDispatcher;
   protected final SSLConfiguration sslConfiguration;
   protected final Callable<NetworkChannelHandler> handlerFactory;
 
@@ -68,26 +73,38 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
   /**
    * Constructs a new netty network client instance. Equivalent to {@code new NettyNetworkClient(handlerFactory, null)}
    *
+   * @param eventManager   the event manager of the current component.
+   * @param componentInfo  the component info of the current component the client is created for.
    * @param handlerFactory the factory for new handlers to be created with.
-   * @throws NullPointerException if the given factory is null.
+   * @throws NullPointerException if the given event manager, component info or factory is null.
    */
-  public NettyNetworkClient(@NonNull Callable<NetworkChannelHandler> handlerFactory) {
-    this(handlerFactory, null);
+  public NettyNetworkClient(
+    @NonNull EventManager eventManager,
+    @NonNull ComponentInfo componentInfo,
+    @NonNull Callable<NetworkChannelHandler> handlerFactory
+  ) {
+    this(eventManager, componentInfo, handlerFactory, null);
   }
 
   /**
    * Constructs a new netty network client instance.
    *
+   * @param eventManager     the event manager of the current component.
+   * @param componentInfo    the component info of the current component the client is created for.
    * @param handlerFactory   the factory for new handler to be created with.
    * @param sslConfiguration the ssl configuration applying to this client, or null for no ssl configuration.
-   * @throws NullPointerException if the given handler factory is null.
+   * @throws NullPointerException if the given event manager, component info or factory is null.
    */
   public NettyNetworkClient(
+    @NonNull EventManager eventManager,
+    @NonNull ComponentInfo componentInfo,
     @NonNull Callable<NetworkChannelHandler> handlerFactory,
     @Nullable SSLConfiguration sslConfiguration
   ) {
+    this.eventManager = eventManager;
     this.handlerFactory = handlerFactory;
     this.sslConfiguration = sslConfiguration;
+    this.packetDispatcher = NettyUtil.newPacketDispatcher(componentInfo.environment());
 
     try {
       this.init();
@@ -113,7 +130,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
     new Bootstrap()
       .group(this.eventLoopGroup)
       .channelFactory(NettyUtil.clientChannelFactory())
-      .handler(new NettyNetworkClientInitializer(hostAndPort, this))
+      .handler(new NettyNetworkClientInitializer(hostAndPort, this.eventManager, this))
 
       .option(ChannelOption.IP_TOS, 0x18)
       .option(ChannelOption.AUTO_READ, true)

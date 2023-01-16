@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,29 +27,36 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.cluster.NetworkClusterNodeInfoUpdateEvent;
 import eu.cloudnetservice.node.provider.NodeClusterNodeProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class NodeChannelMessageListener {
 
   private static final Logger LOGGER = LogManager.logger(NodeChannelMessageListener.class);
 
   private final EventManager eventManager;
+  private final Configuration configuration;
   private final DataSyncRegistry dataSyncRegistry;
   private final NodeClusterNodeProvider nodeInfoProvider;
   private final NodeServerProvider nodeServerProvider;
 
+  @Inject
   public NodeChannelMessageListener(
     @NonNull EventManager eventManager,
+    @NonNull Configuration configuration,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull NodeClusterNodeProvider nodeInfoProvider,
     @NonNull NodeServerProvider nodeServerProvider
   ) {
     this.eventManager = eventManager;
+    this.configuration = configuration;
     this.dataSyncRegistry = dataSyncRegistry;
     this.nodeInfoProvider = nodeInfoProvider;
     this.nodeServerProvider = nodeServerProvider;
@@ -110,14 +117,14 @@ public final class NodeChannelMessageListener {
         }
 
         // handles the shutdown of a cluster node
-        case "cluster_node_shutdown" -> Node.instance().stop();
+        case "cluster_node_shutdown" -> System.exit(0);
 
         // request of the full cluster data set
         case "request_initial_cluster_data" -> {
           var server = this.nodeServerProvider.node(event.networkChannel());
           if (server != null) {
             // do not force the sync - the user can decide which changes should be used
-            server.syncClusterData(Node.instance().config().forceInitialClusterDataSync());
+            server.syncClusterData(this.configuration.forceInitialClusterDataSync());
           }
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.http;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,24 +26,23 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultHttpSession implements HttpSession {
 
-  protected final String uniqueId;
   protected final UUID userId;
+  protected final String uniqueId;
+
   protected final V2HttpAuthentication issuer;
   protected final Map<String, Object> properties;
 
-  protected long expireTime;
+  protected final PermissionManagement permissionManagement;
 
-  public DefaultHttpSession(long expireTime, @NonNull UUID userId, @NonNull V2HttpAuthentication issuer) {
-    this(expireTime, UUID.randomUUID().toString(), userId, issuer);
-  }
+  protected long expireTime;
 
   public DefaultHttpSession(
     long expireTime,
-    @NonNull String uniqueId,
     @NonNull UUID userId,
-    @NonNull V2HttpAuthentication issuer
+    @NonNull V2HttpAuthentication issuer,
+    @NonNull PermissionManagement permissionManagement
   ) {
-    this(expireTime, uniqueId, userId, issuer, new HashMap<>());
+    this(expireTime, UUID.randomUUID().toString(), userId, issuer, permissionManagement);
   }
 
   public DefaultHttpSession(
@@ -51,13 +50,25 @@ public class DefaultHttpSession implements HttpSession {
     @NonNull String uniqueId,
     @NonNull UUID userId,
     @NonNull V2HttpAuthentication issuer,
-    @NonNull Map<String, Object> properties
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    this(expireTime, uniqueId, userId, issuer, new HashMap<>(), permissionManagement);
+  }
+
+  public DefaultHttpSession(
+    long expireTime,
+    @NonNull String uniqueId,
+    @NonNull UUID userId,
+    @NonNull V2HttpAuthentication issuer,
+    @NonNull Map<String, Object> properties,
+    @NonNull PermissionManagement permissionManagement
   ) {
     this.expireTime = expireTime;
     this.uniqueId = uniqueId;
     this.userId = userId;
     this.issuer = issuer;
     this.properties = properties;
+    this.permissionManagement = permissionManagement;
   }
 
   @Override
@@ -82,7 +93,7 @@ public class DefaultHttpSession implements HttpSession {
 
   @Override
   public PermissionUser user() {
-    return CloudNetDriver.instance().permissionManagement().user(this.userId);
+    return this.permissionManagement.user(this.userId);
   }
 
   @Override

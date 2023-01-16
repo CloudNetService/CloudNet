@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package eu.cloudnetservice.driver.module;
 
+import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.util.ModuleDependencyUtil;
 import java.io.IOException;
-import java.lang.reflect.InaccessibleObjectException;
+import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -63,6 +65,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
   private final URLClassLoader classLoader;
   private final Set<ModuleDependency> dependingModules;
   private final ModuleConfiguration moduleConfiguration;
+  private final InjectionLayer<SpecifiedInjector> moduleInjectionLayer;
 
   private final Lock moduleLifecycleUpdateLock = new ReentrantLock();
   private final Map<ModuleLifeCycle, List<ModuleTaskEntry>> tasks = new EnumMap<>(ModuleLifeCycle.class);
@@ -71,16 +74,16 @@ public class DefaultModuleWrapper implements ModuleWrapper {
   /**
    * Creates a new instance of a default module wrapper.
    *
-   * @param source              the module file from which this module was loaded initially.
-   * @param module              the instance of the module main class constructed by the provider.
-   * @param dataDirectory       the data directory of this module relative to the module provider directory.
-   * @param provider            the provider which loaded this module.
-   * @param classLoader         the class loader which was used to load the main class from the file.
-   * @param dependingModules    the modules this module depends on and which need to get loaded first.
-   * @param moduleConfiguration the parsed module configuration located in the module file.
+   * @param source               the module file from which this module was loaded initially.
+   * @param module               the instance of the module main class constructed by the provider.
+   * @param dataDirectory        the data directory of this module relative to the module provider directory.
+   * @param provider             the provider which loaded this module.
+   * @param classLoader          the class loader which was used to load the main class from the file.
+   * @param dependingModules     the modules this module depends on and which need to get loaded first.
+   * @param moduleConfiguration  the parsed module configuration located in the module file.
+   * @param moduleInjectionLayer the injection layer of the module.
    * @throws URISyntaxException   if the given module source is not formatted strictly according to RFC2396.
-   * @throws NullPointerException source, module, dataDirectory, provider, classLoader dependingModules or
-   *                              moduleConfiguration is null.
+   * @throws NullPointerException if one of the given arguments is null.
    */
   public DefaultModuleWrapper(
     @NonNull URL source,
@@ -89,7 +92,8 @@ public class DefaultModuleWrapper implements ModuleWrapper {
     @NonNull ModuleProvider provider,
     @NonNull URLClassLoader classLoader,
     @NonNull Set<ModuleDependency> dependingModules,
-    @NonNull ModuleConfiguration moduleConfiguration
+    @NonNull ModuleConfiguration moduleConfiguration,
+    @NonNull InjectionLayer<SpecifiedInjector> moduleInjectionLayer
   ) throws URISyntaxException {
     this.source = source;
     this.module = module;
@@ -98,6 +102,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
     this.classLoader = classLoader;
     this.dependingModules = dependingModules;
     this.moduleConfiguration = moduleConfiguration;
+    this.moduleInjectionLayer = moduleInjectionLayer;
     // initialize the uri of the module now as it's always required in order for the default provider to work
     this.sourceUri = source.toURI();
     // resolve all tasks the module must execute now as we need them later anyway
@@ -273,6 +278,14 @@ public class DefaultModuleWrapper implements ModuleWrapper {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull InjectionLayer<SpecifiedInjector> injectionLayer() {
+    return this.moduleInjectionLayer;
+  }
+
+  /**
    * Resolves all module tasks in the main class of a module. Declared methods are working as well. The returned map
    * should only contain the tasks sorted as there will be no later step to sort them. Not all module lifecycle states
    * must be in the returned map, if a lifecycle is missing it will be assumed that there is no tasks for that
@@ -287,19 +300,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
     for (var method : module.getClass().getDeclaredMethods()) {
       // check if this method is a method we need to register
       var moduleTask = method.getAnnotation(ModuleTask.class);
-      if (moduleTask != null && method.getParameterCount() == 0) {
-        try {
-          // ensure that we can access the method before we register it, this will never fail on public methods as
-          // long as there is no module denying the access
-          method.setAccessible(true);
-        } catch (InaccessibleObjectException exception) {
-          // If this happens we only print a warning and continue our search (this might cause further module issues
-          // as one task will not get fired at all but this is not our mistake, so we can safely ignore it)
-          LOGGER.warning(String.format("Unable to module task declared by method %s@%s() accessible, ignoring.",
-            method.getDeclaringClass().getCanonicalName(), method.getName()));
-          continue;
-        }
-        // now try to register the method
+      if (moduleTask != null && !Modifier.isStatic(method.getModifiers())) {
         try {
           var entries = result.computeIfAbsent(moduleTask.event(), $ -> new ArrayList<>());
           entries.add(new DefaultModuleTaskEntry(this, moduleTask, method));

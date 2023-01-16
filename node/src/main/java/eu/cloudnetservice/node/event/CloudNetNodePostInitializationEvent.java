@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,8 @@
 
 package eu.cloudnetservice.node.event;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
-import eu.cloudnetservice.node.Node;
-import lombok.NonNull;
+import eu.cloudnetservice.driver.event.Event;
 
-public final class CloudNetNodePostInitializationEvent extends DriverEvent {
+public final class CloudNetNodePostInitializationEvent extends Event {
 
-  private final Node nodeInstance;
-
-  public CloudNetNodePostInitializationEvent(@NonNull Node nodeInstance) {
-    this.nodeInstance = nodeInstance;
-  }
-
-  public @NonNull Node node() {
-    return this.nodeInstance;
-  }
 }

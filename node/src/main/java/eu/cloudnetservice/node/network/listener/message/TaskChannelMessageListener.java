@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,17 @@ import eu.cloudnetservice.driver.event.events.task.ServiceTaskRemoveEvent;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.node.provider.NodeServiceTaskProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class TaskChannelMessageListener {
 
   private final EventManager eventManager;
   private final NodeServiceTaskProvider taskProvider;
 
+  @Inject
   public TaskChannelMessageListener(
     @NonNull EventManager eventManager,
     @NonNull NodeServiceTaskProvider taskProvider

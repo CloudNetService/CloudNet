@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,34 @@
 
 package eu.cloudnetservice.node.template;
 
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
-import eu.cloudnetservice.node.Node;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@Provides(TemplateStorageProvider.class)
 public class NodeTemplateStorageProvider implements TemplateStorageProvider {
 
-  private final Node node;
+  private final ServiceRegistry serviceRegistry;
 
-  public NodeTemplateStorageProvider(@NonNull Node node) {
-    this.node = node;
-    this.node.rpcFactory()
-      .newHandler(TemplateStorageProvider.class, this)
-      .registerToDefaultRegistry();
+  @Inject
+  public NodeTemplateStorageProvider(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull RPCHandlerRegistry handlerRegistry
+  ) {
+    this.serviceRegistry = serviceRegistry;
+    rpcFactory.newHandler(TemplateStorageProvider.class, this).registerTo(handlerRegistry);
   }
 
   @Override
@@ -48,11 +58,11 @@ public class NodeTemplateStorageProvider implements TemplateStorageProvider {
 
   @Override
   public @Nullable TemplateStorage templateStorage(@NonNull String storage) {
-    return this.node.serviceRegistry().provider(TemplateStorage.class, storage);
+    return this.serviceRegistry.provider(TemplateStorage.class, storage);
   }
 
   @Override
   public @NonNull Collection<String> availableTemplateStorages() {
-    return this.node.serviceRegistry().providers(TemplateStorage.class).stream().map(Nameable::name).toList();
+    return this.serviceRegistry.providers(TemplateStorage.class).stream().map(Nameable::name).toList();
   }
 }

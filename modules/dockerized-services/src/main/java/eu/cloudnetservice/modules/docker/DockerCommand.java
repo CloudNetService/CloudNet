@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,22 +25,24 @@ import cloud.commandframework.annotations.specifier.Quoted;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.InternetProtocol;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Singleton;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandPermission("cloudnet.command.docker")
 @Description("module-docker-command-description")
-public record DockerCommand(@NonNull DockerizedServicesModule module) {
+public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull ServiceTaskProvider taskProvider) {
 
   @CommandMethod("docker task <task> image <repository> [tag]")
   public void setImage(
@@ -308,7 +310,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module) {
     var task = ServiceTask.builder(serviceTask)
       .properties(serviceTask.properties().append("dockerConfig", property.build()))
       .build();
-    Node.instance().serviceTaskProvider().addServiceTask(task);
+    this.taskProvider.addServiceTask(task);
   }
 
   private void updateDockerConfig(

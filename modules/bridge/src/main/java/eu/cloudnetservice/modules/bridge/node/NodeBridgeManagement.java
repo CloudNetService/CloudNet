@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,54 +16,70 @@
 
 package eu.cloudnetservice.modules.bridge.node;
 
+import dev.derklaro.aerogel.PostConstruct;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.bridge.node.listener.NodeSetupListener;
 import eu.cloudnetservice.modules.bridge.node.network.NodeBridgeChannelMessageListener;
-import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
-import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import lombok.NonNull;
 
+@Singleton
+@Provides(BridgeManagement.class)
 public class NodeBridgeManagement implements BridgeManagement {
 
   private final EventManager eventManager;
   private final PlayerManager playerManager;
+  private final ServiceTaskProvider taskProvider;
   private final CloudNetBridgeModule bridgeModule;
 
   private BridgeConfiguration configuration;
 
+  @Inject
   public NodeBridgeManagement(
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull EventManager eventManager,
+    @NonNull RPCFactory providerFactory,
+    @NonNull PlayerManager playerManager,
+    @NonNull ServiceTaskProvider taskProvider,
     @NonNull CloudNetBridgeModule bridgeModule,
     @NonNull BridgeConfiguration configuration,
-    @NonNull EventManager eventManager,
-    @NonNull DataSyncRegistry registry,
-    @NonNull RPCFactory providerFactory
+    @NonNull RPCHandlerRegistry rpcHandlerRegistry
   ) {
     this.eventManager = eventManager;
     this.bridgeModule = bridgeModule;
     this.configuration = configuration;
-    // init the player manager
-    this.playerManager = new NodePlayerManager(BRIDGE_PLAYER_DB_NAME, eventManager, registry, providerFactory, this);
-    // register the listeners
-    eventManager.registerListener(new NodeSetupListener(this));
-    eventManager.registerListener(new NodeBridgeChannelMessageListener(this, eventManager));
+    this.playerManager = playerManager;
+    this.taskProvider = taskProvider;
+    // register the plugin include listener
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-bridge",
       NodeBridgeManagement.class,
+      moduleHelper,
       service -> Collections.disjoint(this.configuration.excludedGroups(), service.serviceConfiguration().groups())));
     // register the rpc handler
-    providerFactory.newHandler(BridgeManagement.class, this).registerToDefaultRegistry();
+    providerFactory.newHandler(BridgeManagement.class, this).registerTo(rpcHandlerRegistry);
+  }
+
+  @PostConstruct
+  private void registerListener() {
+    this.eventManager.registerListener(NodeBridgeChannelMessageListener.class);
+    this.eventManager.registerListener(NodeSetupListener.class);
   }
 
   @Override
@@ -88,11 +104,6 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public @NonNull PlayerManager playerManager() {
-    return this.playerManager;
-  }
-
-  @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(BridgeManagement.class, "NodeBridgeManagement", this);
     registry.registerProvider(PlayerManager.class, "NodePlayerManager", this.playerManager);
@@ -100,11 +111,11 @@ public class NodeBridgeManagement implements BridgeManagement {
 
   @Override
   public void postInit() {
-    for (var task : Node.instance().serviceTaskProvider().serviceTasks()) {
+    for (var task : this.taskProvider.serviceTasks()) {
       // check if the required permission is set
       if (!task.properties().contains("requiredPermission")) {
         task.properties().appendNull("requiredPermission");
-        Node.instance().serviceTaskProvider().addServiceTask(task);
+        this.taskProvider.addServiceTask(task);
       }
     }
   }

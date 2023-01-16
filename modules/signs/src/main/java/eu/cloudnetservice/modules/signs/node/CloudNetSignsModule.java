@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,15 @@ package eu.cloudnetservice.modules.signs.node;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.Sign;
@@ -31,10 +35,15 @@ import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs._deprecated.SignConstants;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.NodeSignsConfigurationHelper;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.util.Collection;
+import lombok.NonNull;
 
+@Singleton
 public class CloudNetSignsModule extends DriverModule {
 
   protected static final String DATABASE_NAME = "cloudnet_signs";
@@ -44,26 +53,45 @@ public class CloudNetSignsModule extends DriverModule {
   protected Database database;
   protected SignsConfiguration configuration;
 
+  @Inject
+  public CloudNetSignsModule(@NonNull @Named("module") InjectionLayer<?> layer) {
+    layer.installAutoConfigureBindings(this.getClass().getClassLoader(), "signs");
+  }
+
   @ModuleTask(order = 50)
-  public void initialize() {
-    this.database = Node.instance().databaseProvider().database(DATABASE_NAME);
+  public void initialize(@NonNull DatabaseProvider databaseProvider) {
+    this.database = databaseProvider.database(DATABASE_NAME);
   }
 
   @ModuleTask(order = 40)
   public void loadConfiguration() {
+    // TODO: remove
     this.configuration = NodeSignsConfigurationHelper.read(this.configPath());
   }
 
   @ModuleTask(order = 30)
-  public void handleInitialization() {
-    var management = new NodeSignManagement(this.configuration, this.configPath(), this.database);
-    management.registerToServiceRegistry();
+  public void handleInitialization(
+    @NonNull @Named("module") InjectionLayer<?> layer,
+    @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull CommandProvider commandProvider
+  ) {
+    var management = layer.instance(
+      NodeSignManagement.class,
+      builder -> builder
+        .override(SignsConfiguration.class, this.configuration)
+        .override(Database.class, this.database));
+    management.registerToServiceRegistry(serviceRegistry);
 
-    Node.instance().commandProvider().register(new SignCommand(management));
-    this.registerListener(new SharedChannelMessageListener(management), new NodeSignsListener(management));
-    this.registerListener(new PluginIncludeListener(
+    commandProvider.register(SignCommand.class);
+
+    eventManager.registerListener(SharedChannelMessageListener.class);
+    eventManager.registerListener(NodeSignsListener.class);
+    eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-signs",
       CloudNetSignsModule.class,
+      moduleHelper,
       service -> ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
         && management.signsConfiguration().entries().stream()
         .anyMatch(entry -> service.serviceConfiguration().groups().contains(entry.targetGroup()))));
@@ -71,8 +99,8 @@ public class CloudNetSignsModule extends DriverModule {
 
   @Deprecated
   @ModuleTask(order = 20)
-  public void handleDatabaseConvert() {
-    this.convertDatabaseIfNecessary();
+  public void handleDatabaseConvert(@NonNull DatabaseProvider databaseProvider) {
+    this.convertDatabaseIfNecessary(databaseProvider);
   }
 
   @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)
@@ -89,11 +117,11 @@ public class CloudNetSignsModule extends DriverModule {
   }
 
   @Deprecated
-  private void convertDatabaseIfNecessary() {
+  private void convertDatabaseIfNecessary(@NonNull DatabaseProvider databaseProvider) {
     // convert the old database (old h2 databases convert the name to lower case - we need to check both names)
-    var db = Node.instance().databaseProvider().database("cloudNet_module_configuration");
+    var db = databaseProvider.database("cloudNet_module_configuration");
     if (db.documentCount() == 0) {
-      db = Node.instance().databaseProvider().database("cloudnet_module_configuration");
+      db = databaseProvider.database("cloudnet_module_configuration");
     }
 
     // get the npc_store field of the database entry

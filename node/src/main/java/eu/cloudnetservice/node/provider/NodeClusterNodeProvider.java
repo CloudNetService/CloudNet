@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,45 +16,65 @@
 
 package eu.cloudnetservice.node.provider;
 
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.command.CommandInfo;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.DriverCommandSource;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.listener.message.NodeChannelMessageListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@Provides(ClusterNodeProvider.class)
 public class NodeClusterNodeProvider implements ClusterNodeProvider {
 
-  private final Node nodeInstance;
+  private final Configuration configuration;
+  private final CommandProvider commandProvider;
   private final NodeServerProvider clusterNodeServerProvider;
 
-  public NodeClusterNodeProvider(@NonNull Node nodeInstance) {
-    this.nodeInstance = nodeInstance;
-    this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
+  @Inject
+  public NodeClusterNodeProvider(
+    @NonNull Configuration configuration,
+    @NonNull CommandProvider commandProvider,
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull RPCHandlerRegistry handlerRegistry
+  ) {
+    this.configuration = configuration;
+    this.commandProvider = commandProvider;
+    this.clusterNodeServerProvider = nodeServerProvider;
 
-    // init
-    nodeInstance.eventManager().registerListener(new NodeChannelMessageListener(
-      nodeInstance.eventManager(),
-      nodeInstance.dataSyncRegistry(),
-      this,
-      nodeInstance.nodeServerProvider()));
-    nodeInstance.rpcFactory().newHandler(ClusterNodeProvider.class, this).registerToDefaultRegistry();
+    // add the rpc handler
+    rpcFactory.newHandler(ClusterNodeProvider.class, this).registerTo(handlerRegistry);
+  }
+
+  @Inject
+  private void registerChannelMessageListener(@NonNull EventManager eventManager) {
+    // we do this in post as the listener needs the instance of this class, doing it here prevents
+    // the construction of a runtime proxy while creating the instance
+    eventManager.registerListener(NodeChannelMessageListener.class);
   }
 
   @Override
   public @NonNull Collection<CommandInfo> consoleCommands() {
-    return Node.instance().commandProvider().commands();
+    return this.commandProvider.commands();
   }
 
   @Override
@@ -133,27 +153,26 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var driverCommandSource = new DriverCommandSource();
-    Node.instance().commandProvider().execute(driverCommandSource, commandLine).getOrNull();
+    this.commandProvider.execute(driverCommandSource, commandLine).getOrNull();
     return driverCommandSource.messages();
   }
 
   @Override
   public @Nullable CommandInfo consoleCommand(@NonNull String commandLine) {
-    return Node.instance().commandProvider().command(commandLine);
+    return this.commandProvider.command(commandLine);
   }
 
   @Override
   public @NonNull Collection<String> consoleTabCompleteResults(@NonNull String commandLine) {
-    return Node.instance().commandProvider().suggest(CommandSource.console(), commandLine);
+    return this.commandProvider.suggest(CommandSource.console(), commandLine);
   }
 
   public void addNodeSilently(@NonNull NetworkClusterNode node) {
     // register the node
-    var config = this.nodeInstance.config();
-    config.clusterConfig().nodes().add(node);
+    this.configuration.clusterConfig().nodes().add(node);
     // register all hosts
-    node.listeners().forEach(hostAndPort -> config.ipWhitelist().add(hostAndPort.host()));
-    config.save();
+    node.listeners().forEach(hostAndPort -> this.configuration.ipWhitelist().add(hostAndPort.host()));
+    this.configuration.save();
 
     // register the node to the provider
     this.clusterNodeServerProvider.registerNode(node);
@@ -161,11 +180,10 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
 
   public void removeNodeSilently(@NonNull NetworkClusterNode node) {
     // unregister the node
-    var config = this.nodeInstance.config();
-    config.clusterConfig().nodes().remove(node);
+    this.configuration.clusterConfig().nodes().remove(node);
     // unregister all hosts
-    node.listeners().forEach(hostAndPort -> config.ipWhitelist().remove(hostAndPort.host()));
-    config.save();
+    node.listeners().forEach(hostAndPort -> this.configuration.ipWhitelist().remove(hostAndPort.host()));
+    this.configuration.save();
 
     // unregister the node from the provider
     this.clusterNodeServerProvider.unregisterNode(node.uniqueId());

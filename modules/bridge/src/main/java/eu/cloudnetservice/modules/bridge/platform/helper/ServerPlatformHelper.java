@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,30 @@
 
 package eu.cloudnetservice.modules.bridge.platform.helper;
 
-import static eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper.toCurrentNode;
-
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.UUID;
 import lombok.NonNull;
 
+@Singleton
 public final class ServerPlatformHelper {
 
-  private ServerPlatformHelper() {
-    throw new UnsupportedOperationException();
+  private final ProxyPlatformHelper proxyPlatformHelper;
+
+  @Inject
+  public ServerPlatformHelper(@NonNull ProxyPlatformHelper proxyPlatformHelper) {
+    this.proxyPlatformHelper = proxyPlatformHelper;
   }
 
-  public static void sendChannelMessageLoginSuccess(
+  public void sendChannelMessageLoginSuccess(
     @NonNull UUID playerUniqueId,
     @NonNull NetworkPlayerServerInfo info
   ) {
-    toCurrentNode()
+    this.proxyPlatformHelper.toCurrentNode()
       .message("server_player_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
       .buffer(DataBuf.empty().writeUniqueId(playerUniqueId).writeObject(info))
@@ -43,8 +47,8 @@ public final class ServerPlatformHelper {
       .send();
   }
 
-  public static void sendChannelMessageDisconnected(@NonNull UUID playerUniqueId, @NonNull NetworkServiceInfo info) {
-    toCurrentNode()
+  public void sendChannelMessageDisconnected(@NonNull UUID playerUniqueId, @NonNull NetworkServiceInfo info) {
+    this.proxyPlatformHelper.toCurrentNode()
       .message("server_player_disconnect")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
       .buffer(DataBuf.empty().writeUniqueId(playerUniqueId).writeObject(info))

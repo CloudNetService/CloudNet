@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ final class MethodHttpHandlerInvoker extends HttpHandler {
     @NonNull Collection<String> supportedMethods
   ) throws IllegalAccessException {
     this.instance = handlerInstance;
-    this.handlerMethod = genericHandleForMethod(handlerMethod);
+    this.handlerMethod = genericHandleForMethod(handlerMethod); // TODO: reflexion (we can remove setAccessible then)
     this.handlerParameterTypes = handlerMethod.getParameterTypes();
     this.supportedMethods = supportedMethods;
   }

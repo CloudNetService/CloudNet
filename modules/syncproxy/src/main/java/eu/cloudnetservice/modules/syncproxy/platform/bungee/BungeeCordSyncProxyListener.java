@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.PendingConnectionProxiedPlayer;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,15 +34,29 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.event.EventHandler;
 
+@Singleton
 public final class BungeeCordSyncProxyListener implements Listener {
 
   private static final PlayerInfo[] EMPTY_PLAYER_INFO = new PlayerInfo[0];
 
+  private final PluginManager pluginManager;
+  private final BungeeCordHelper bungeeCordHelper;
+  private final ServiceInfoHolder serviceInfoHolder;
   private final BungeeCordSyncProxyManagement syncProxyManagement;
 
-  public BungeeCordSyncProxyListener(@NonNull BungeeCordSyncProxyManagement syncProxyManagement) {
+  @Inject
+  public BungeeCordSyncProxyListener(
+    @NonNull PluginManager pluginManager,
+    @NonNull BungeeCordHelper bungeeCordHelper,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull BungeeCordSyncProxyManagement syncProxyManagement
+  ) {
+    this.pluginManager = pluginManager;
+    this.bungeeCordHelper = bungeeCordHelper;
+    this.serviceInfoHolder = serviceInfoHolder;
     this.syncProxyManagement = syncProxyManagement;
   }
 
@@ -65,7 +82,13 @@ public final class BungeeCordSyncProxyListener implements Listener {
       }
 
       var response = event.getResponse();
-      var protocolText = SyncProxyConfiguration.fillCommonPlaceholders(motd.protocolText(), onlinePlayers, maxPlayers);
+
+      var serviceInfo = this.serviceInfoHolder.serviceInfo();
+      var protocolText = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
+        motd.protocolText(),
+        onlinePlayers,
+        maxPlayers);
       // check if there is a protocol text in the config
       if (protocolText != null) {
         response.setVersion(new Protocol(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(protocolText), 1));
@@ -76,7 +99,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
         // convert the player info into individual player samples
         playerSamples = Arrays.stream(motd.playerInfo())
           .filter(Objects::nonNull)
-          .map(info -> SyncProxyConfiguration.fillCommonPlaceholders(info, onlinePlayers, maxPlayers))
+          .map(info -> SyncProxyConfiguration.fillCommonPlaceholders(serviceInfo, info, onlinePlayers, maxPlayers))
           .map(ComponentFormats.ADVENTURE_TO_BUNGEE::convertText)
           .map(info -> new PlayerInfo(info, UUID.randomUUID()))
           .toArray(PlayerInfo[]::new);
@@ -86,11 +109,13 @@ public final class BungeeCordSyncProxyListener implements Listener {
       response.setPlayers(players);
 
       var description = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
         motd.firstLine() + "\n" + motd.secondLine(),
         onlinePlayers,
         maxPlayers);
+
       // thanks bungeecord - convert the component array into a single component
-      response.setDescriptionComponent(new TextComponent(BungeeCordHelper.translateToComponent(description)));
+      response.setDescriptionComponent(new TextComponent(this.bungeeCordHelper.translateToComponent(description)));
 
       event.setResponse(response);
     }
@@ -103,12 +128,12 @@ public final class BungeeCordSyncProxyListener implements Listener {
       return;
     }
 
-    var player = new PendingConnectionProxiedPlayer(event.getConnection());
+    var player = new PendingConnectionProxiedPlayer(this.pluginManager, event.getConnection());
 
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
-        event.setCancelReason(BungeeCordHelper.translateToComponent(
+        event.setCancelReason(this.bungeeCordHelper.translateToComponent(
           this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null)));
         event.setCancelled(true);
       }
@@ -116,7 +141,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
       // check if the proxy is full and if the player is allowed to join or not
       if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
         && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-        event.setCancelReason(BungeeCordHelper.translateToComponent(
+        event.setCancelReason(this.bungeeCordHelper.translateToComponent(
           this.syncProxyManagement.configuration().message("player-login-full-server", null)));
         event.setCancelled(true);
       }

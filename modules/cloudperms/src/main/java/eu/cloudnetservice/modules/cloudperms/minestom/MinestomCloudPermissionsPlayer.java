@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.cloudperms.minestom;
 
 import eu.cloudnetservice.driver.permission.Permission;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.UUID;
 import lombok.NonNull;
 import net.minestom.server.entity.Player;
@@ -27,12 +27,16 @@ import org.jetbrains.annotations.Nullable;
 
 public class MinestomCloudPermissionsPlayer extends Player {
 
+  protected final PermissionManagement permissionManagement;
+
   public MinestomCloudPermissionsPlayer(
     @NonNull UUID uuid,
     @NonNull String username,
-    @NonNull PlayerConnection playerConnection
+    @NonNull PlayerConnection playerConnection,
+    @NonNull PermissionManagement permissionManagement
   ) {
     super(uuid, username, playerConnection);
+    this.permissionManagement = permissionManagement;
   }
 
   @Override
@@ -42,9 +46,8 @@ public class MinestomCloudPermissionsPlayer extends Player {
 
   @Override
   public boolean hasPermission(@NonNull String permissionName) {
-    var management = Wrapper.instance().permissionManagement();
-    var user = management.user(this.uuid);
-    return user != null && management.hasPermission(user, Permission.of(permissionName));
+    var user = this.permissionManagement.user(this.uuid);
+    return user != null && this.permissionManagement.hasPermission(user, Permission.of(permissionName));
   }
 
   @Override

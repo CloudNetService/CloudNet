@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@ package eu.cloudnetservice.node.version.execute.defaults;
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,13 +44,20 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
+@Singleton
 public class BuildStepExecutor implements InstallStepExecutor {
 
   private static final Logger LOGGER = LogManager.logger(BuildStepExecutor.class);
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
   private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
 
+  private final Configuration configuration;
   private final Collection<Process> runningBuildProcesses = new ConcurrentLinkedQueue<>();
+
+  @Inject
+  public BuildStepExecutor(@NonNull Configuration configuration) {
+    this.configuration = configuration;
+  }
 
   @Override
   public @NonNull Set<Path> execute(
@@ -66,7 +75,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
       arguments.add(Objects.requireNonNullElse(
         installer.installerExecutable(),
-        Node.instance().config().javaCommand()));
+        this.configuration.javaCommand()));
       if (jvmOptions != null) {
         arguments.addAll(jvmOptions);
       }

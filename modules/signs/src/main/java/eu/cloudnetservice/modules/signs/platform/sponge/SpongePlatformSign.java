@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,38 @@ import eu.cloudnetservice.modules.signs.platform.sponge.event.SpongeCloudSignInt
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.ResourceKey;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.event.EventContext;
 import org.spongepowered.api.event.EventContextKeys;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.WorldManager;
 
 final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
+
+  private final Game game;
+  private final EventManager eventManager;
+  private final WorldManager worldManager;
 
   // lazy initialized once available
   private ServerLocation signLocation;
 
-  public SpongePlatformSign(@NonNull Sign base) {
+  public SpongePlatformSign(
+    @NonNull Sign base,
+    @NonNull Game game,
+    @NonNull EventManager eventManager,
+    @NonNull WorldManager worldManager
+  ) {
     super(base, ComponentFormats.BUNGEE_TO_ADVENTURE::convert);
+
+    this.game = game;
+    this.eventManager = eventManager;
+    this.worldManager = worldManager;
   }
 
   @Override
@@ -86,7 +101,7 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
       this.changeSignLines(layout, sign.lines()::set);
 
       // change the block behind the sign
-      var type = Sponge.game()
+      var type = this.game
         .registry(RegistryTypes.BLOCK_TYPE)
         .findValue(ResourceKey.resolve(layout.blockMaterial()))
         .orElse(null);
@@ -105,7 +120,7 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
         player),
       player,
       this);
-    return Sponge.eventManager().post(event) ? null : event.target();
+    return this.eventManager.post(event) ? null : event.target();
   }
 
   public @Nullable ServerLocation signLocation() {
@@ -116,7 +131,7 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
 
     // check if the world associated with the sign is available
     var loc = this.base.location();
-    var world = Sponge.server().worldManager().world(ResourceKey.resolve(loc.world())).orElse(null);
+    var world = this.worldManager.world(ResourceKey.resolve(loc.world())).orElse(null);
     if (world == null) {
       return null;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,15 @@ package eu.cloudnetservice.node.command.defaults;
 import cloud.commandframework.captions.Caption;
 import cloud.commandframework.captions.CaptionVariableReplacementHandler;
 import eu.cloudnetservice.common.language.I18n;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 final class DefaultCaptionVariableReplacementHandler implements CaptionVariableReplacementHandler {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String replaceVariables(@NonNull Caption caption, @NonNull Object... variables) {
     return I18n.trans(caption.getKey().replace('.', '-'), variables);

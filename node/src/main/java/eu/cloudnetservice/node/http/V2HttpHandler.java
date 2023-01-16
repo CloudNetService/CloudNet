@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
 import eu.cloudnetservice.driver.network.http.HttpResponse;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
-import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.config.RestConfiguration;
 import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
@@ -30,10 +28,6 @@ import lombok.NonNull;
 public abstract class V2HttpHandler {
 
   protected final RestConfiguration restConfiguration;
-
-  public V2HttpHandler() {
-    this(Node.instance().config().restConfiguration());
-  }
 
   public V2HttpHandler(@NonNull RestConfiguration restConfiguration) {
     this.restConfiguration = restConfiguration;
@@ -84,13 +78,5 @@ public abstract class V2HttpHandler {
 
   protected @NonNull JsonDocument failure() {
     return JsonDocument.newDocument("success", false);
-  }
-
-  protected @NonNull Node node() {
-    return Node.instance();
-  }
-
-  protected @NonNull Configuration nodeConfig() {
-    return this.node().config();
   }
 }

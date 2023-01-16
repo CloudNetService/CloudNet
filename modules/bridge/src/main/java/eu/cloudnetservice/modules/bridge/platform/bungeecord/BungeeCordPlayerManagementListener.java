@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -39,19 +41,41 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
+@Singleton
 public final class BungeeCordPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
+  private final ProxyServer proxyServer;
+  private final TaskScheduler scheduler;
+  private final PluginManager pluginManager;
+  private final BungeeCordHelper bungeeHelper;
+  private final ServiceInfoHolder serviceInfoHolder;
+  private final ProxyPlatformHelper proxyPlatformHelper;
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 
+  @Inject
   public BungeeCordPlayerManagementListener(
     @NonNull Plugin plugin,
+    @NonNull ProxyServer proxyServer,
+    @NonNull TaskScheduler scheduler,
+    @NonNull PluginManager pluginManager,
+    @NonNull BungeeCordHelper bungeeHelper,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ProxyPlatformHelper proxyPlatformHelper,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
   ) {
     this.plugin = plugin;
+    this.proxyServer = proxyServer;
+    this.scheduler = scheduler;
+    this.pluginManager = pluginManager;
+    this.bungeeHelper = bungeeHelper;
+    this.serviceInfoHolder = serviceInfoHolder;
+    this.proxyPlatformHelper = proxyPlatformHelper;
     this.management = management;
   }
 
@@ -61,14 +85,14 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     // check if the current task is present
     if (task != null) {
       // we need to wrap the proxied player to allow permission checks
-      ProxiedPlayer player = new PendingConnectionProxiedPlayer(event.getConnection());
+      var player = new PendingConnectionProxiedPlayer(this.pluginManager, event.getConnection());
       // check if maintenance is activated
       if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance",
-          BungeeCordHelper::translateToComponent,
+          this.bungeeHelper::translateToComponent,
           event::setCancelReason);
         return;
       }
@@ -79,13 +103,13 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission",
-          BungeeCordHelper::translateToComponent,
+          this.bungeeHelper::translateToComponent,
           event::setCancelReason);
         return;
       }
     }
     // check if the player is allowed to log in
-    var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(new NetworkPlayerProxyInfo(
+    var loginResult = this.proxyPlatformHelper.sendChannelMessagePreLogin(new NetworkPlayerProxyInfo(
       event.getConnection().getUniqueId(),
       event.getConnection().getName(),
       null,
@@ -105,7 +129,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     // initial connect reasons, LOBBY_FALLBACK will be used if the initial fallback is not present
     if (event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK) {
       var target = this.management.fallback(event.getPlayer())
-        .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+        .map(service -> this.proxyServer.getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present
       if (target != null) {
@@ -121,7 +145,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   public void handle(@NonNull ServerKickEvent event) {
     if (event.getPlayer().isConnected()) {
       var target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
-        .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+        .map(service -> this.proxyServer.getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present
       if (target != null) {
@@ -143,7 +167,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "error-connecting-to-server",
-          message -> BungeeCordHelper.translateToComponent(message
+          message -> this.bungeeHelper.translateToComponent(message
             .replace("%server%", event.getKickedFrom().getName())
             .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()))),
           event.getPlayer()::sendMessage);
@@ -156,7 +180,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "proxy-join-disconnect-because-no-hub",
-          BungeeCordHelper::translateToComponent,
+          this.bungeeHelper::translateToComponent,
           event::setKickReasonComponent);
       }
     }
@@ -170,14 +194,14 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       .orElse(null);
     // check if the player connection was initial
     if (event.getPlayer().getServer() == null) {
-      ProxyPlatformHelper.sendChannelMessageLoginSuccess(
+      this.proxyPlatformHelper.sendChannelMessageLoginSuccess(
         this.management.createPlayerInformation(event.getPlayer()),
         joinedServiceInfo);
       // update the service info
-      Wrapper.instance().publishServiceInfoUpdate();
+      this.serviceInfoHolder.publishServiceInfoUpdate();
     } else if (joinedServiceInfo != null) {
       // the player switched the service
-      ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
+      this.proxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
     }
     // publish the player connection to the handler
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
@@ -187,13 +211,9 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   public void handle(@NonNull PlayerDisconnectEvent event) {
     // check if the player was connected to a server before
     if (event.getPlayer().getServer() != null) {
-      ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
+      this.proxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
-      ProxyServer.getInstance().getScheduler().schedule(
-        this.plugin,
-        Wrapper.instance()::publishServiceInfoUpdate,
-        50,
-        TimeUnit.MILLISECONDS);
+      this.scheduler.schedule(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate, 50, TimeUnit.MILLISECONDS);
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());

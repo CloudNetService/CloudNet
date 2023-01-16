@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,11 @@ import com.google.common.primitives.Longs;
 import eu.cloudnetservice.common.function.ThrowableConsumer;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedInputStream;
 import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedIterator;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -31,6 +32,7 @@ import java.util.Iterator;
 import kong.unirest.Unirest;
 import lombok.NonNull;
 
+@Singleton
 public final class ConsoleProgressWrappers {
 
   private static final Logger LOGGER = LogManager.logger(ConsoleProgressWrappers.class);
@@ -38,19 +40,22 @@ public final class ConsoleProgressWrappers {
   private static final double LOG_10_FILE_SIZE_BASE = 3.010299956639812;
   private static final String[] FILE_SIZE_UNIT_NAMES = new String[]{"B", "KB", "MB", "GB", "TB", "PB", "EB"};
 
-  private ConsoleProgressWrappers() {
-    throw new UnsupportedOperationException();
+  private final Console console;
+
+  @Inject
+  public ConsoleProgressWrappers(@NonNull Console console) {
+    this.console = console;
   }
 
-  public static @NonNull <T> Iterator<T> wrapIterator(
+  public @NonNull <T> Iterator<T> wrapIterator(
     @NonNull Collection<T> collection,
     @NonNull String task,
     @NonNull String unitName
   ) {
-    return wrapIterator(collection, Node.instance().console(), task, unitName);
+    return this.wrapIterator(collection, this.console, task, unitName);
   }
 
-  public static @NonNull <T> Iterator<T> wrapIterator(
+  public @NonNull <T> Iterator<T> wrapIterator(
     @NonNull Collection<T> collection,
     @NonNull Console console,
     @NonNull String task,
@@ -62,13 +67,8 @@ public final class ConsoleProgressWrappers {
       ConsoleProgressAnimation.createDefault(task, unitName, 1, collection.size()));
   }
 
-  public static void wrapDownload(@NonNull String url, @NonNull ThrowableConsumer<InputStream, IOException> handler) {
-    wrapDownload(url, Node.instance().console(), handler);
-  }
-
-  public static void wrapDownload(
+  public void wrapDownload(
     @NonNull String url,
-    @NonNull Console console,
     @NonNull ThrowableConsumer<InputStream, IOException> streamHandler
   ) {
     Unirest
@@ -84,9 +84,9 @@ public final class ConsoleProgressWrappers {
             var contentSize = contentLength == null ? stream.available() : contentLength;
             var unitMultiplier = (int) (Math.log10(contentSize) / LOG_10_FILE_SIZE_BASE);
 
-            streamHandler.accept(console.animationRunning() ? stream : new WrappedInputStream(
+            streamHandler.accept(this.console.animationRunning() ? stream : new WrappedInputStream(
               stream,
-              console,
+              this.console,
               ConsoleProgressAnimation.createDefault(
                 "Downloading",
                 FILE_SIZE_UNIT_NAMES[unitMultiplier],

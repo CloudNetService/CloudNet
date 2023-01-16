@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.plugins.simplenametags;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.plugins.simplenametags.event.PrePlayerPrefixSetEvent;
 import java.util.Collection;
 import java.util.UUID;
@@ -29,9 +30,18 @@ public abstract class SimpleNameTagsManager<P> {
 
   protected static final String TEAM_NAME_FORMAT = "%s%s";
 
-  public SimpleNameTagsManager(@NonNull Executor syncTaskExecutor) {
-    CloudNetDriver.instance().eventManager().registerListener(
-      new CloudSimpleNameTagsListener<>(syncTaskExecutor, this));
+  protected final EventManager eventManager;
+  protected final PermissionManagement permissionManagement;
+
+  public SimpleNameTagsManager(
+    @NonNull Executor syncTaskExecutor,
+    @NonNull EventManager eventManager,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    this.eventManager = eventManager;
+    this.permissionManagement = permissionManagement;
+
+    eventManager.registerListener(new CloudSimpleNameTagsListener<>(syncTaskExecutor, this, permissionManagement));
   }
 
   public void updateNameTagsFor(@NonNull P player, @NonNull UUID playerUniqueId, @NonNull String playerName) {
@@ -39,7 +49,7 @@ public abstract class SimpleNameTagsManager<P> {
     var group = this.getPermissionGroup(playerUniqueId, player);
     if (group != null) {
       // find the highest sort id length of any known group on this instance
-      var maxSortIdLength = CloudNetDriver.instance().permissionManagement().groups().stream()
+      var maxSortIdLength = this.permissionManagement.groups().stream()
         .map(PermissionGroup::sortId)
         .mapToInt(i -> (int) Math.log10(i) + 1)
         .max()
@@ -111,25 +121,23 @@ public abstract class SimpleNameTagsManager<P> {
 
   protected @Nullable PermissionGroup getPermissionGroup(@NonNull UUID playerUniqueId, @NonNull P platformPlayer) {
     // select the best permission group for the player
-    var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
+    var user = this.permissionManagement.user(playerUniqueId);
     // no user -> no group
     if (user == null) {
       return null;
     }
     // get the highest group of the player
-    var group = CloudNetDriver.instance().permissionManagement().highestPermissionGroup(user);
+    var group = this.permissionManagement.highestPermissionGroup(user);
     // no group -> try the default group
     if (group == null) {
-      group = CloudNetDriver.instance().permissionManagement().defaultPermissionGroup();
+      group = this.permissionManagement.defaultPermissionGroup();
       // no default group -> skip
       if (group == null) {
         return null;
       }
     }
     // post the choose event to let the user modify the permission group of the player (for example to nick a player)
-    return CloudNetDriver.instance().eventManager()
-      .callEvent(new PrePlayerPrefixSetEvent<>(platformPlayer, group))
-      .group();
+    return this.eventManager.callEvent(new PrePlayerPrefixSetEvent<>(platformPlayer, group)).group();
   }
 
   protected @NonNull String selectTeamName(@NonNull PermissionGroup group, int highestSortIdLength) {

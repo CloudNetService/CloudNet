@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.network;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -29,30 +29,52 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.def.PacketClientAuthorization;
 import eu.cloudnetservice.driver.network.protocol.Packet;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.listener.PacketServerAuthorizationResponseListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 
+@Singleton
 public final class DefaultNetworkClientChannelHandler implements NetworkChannelHandler {
 
   private static final AtomicLong CONNECTION_COUNTER = new AtomicLong();
   private static final Logger LOGGER = LogManager.logger(DefaultNetworkClientChannelHandler.class);
 
+  private final EventManager eventManager;
+  private final NodeNetworkUtil networkUtil;
+  private final Configuration configuration;
+  private final NodeServerProvider nodeServerProvider;
+
+  @Inject
+  public DefaultNetworkClientChannelHandler(
+    @NonNull EventManager eventManager,
+    @NonNull NodeNetworkUtil networkUtil,
+    @NonNull Configuration configuration,
+    @NonNull NodeServerProvider nodeServerProvider
+  ) {
+    this.eventManager = eventManager;
+    this.networkUtil = networkUtil;
+    this.configuration = configuration;
+    this.nodeServerProvider = nodeServerProvider;
+  }
+
   @Override
   public void handleChannelInitialize(@NonNull NetworkChannel channel) {
-    if (NodeNetworkUtil.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
+    if (this.networkUtil.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
       // add the result handler for the auth
       channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
-        new PacketServerAuthorizationResponseListener());
+        PacketServerAuthorizationResponseListener.class);
       // send the authentication request
       channel.sendPacket(new PacketClientAuthorization(
         PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
         DataBuf.empty()
-          .writeUniqueId(Node.instance().config().clusterConfig().clusterId())
-          .writeObject(Node.instance().config().identity())));
+          .writeUniqueId(this.configuration.clusterConfig().clusterId())
+          .writeObject(this.configuration.identity())));
 
       LOGGER.fine(I18n.trans("client-network-channel-init",
         channel.serverAddress(),
@@ -64,21 +86,19 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
   @Override
   public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    return !CloudNetDriver.instance().eventManager().callEvent(
-      new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
+    return !this.eventManager.callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
   public void handleChannelClose(@NonNull NetworkChannel channel) {
-    CloudNetDriver.instance().eventManager().callEvent(
-      new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();
+    this.eventManager.callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
 
     LOGGER.fine(I18n.trans("client-network-channel-close",
       channel.serverAddress(),
       channel.clientAddress()));
 
-    var clusterNodeServer = Node.instance().nodeServerProvider().node(channel);
+    var clusterNodeServer = this.nodeServerProvider.node(channel);
     if (clusterNodeServer != null && clusterNodeServer.state() != NodeServerState.DISCONNECTED) {
       clusterNodeServer.close();
     }

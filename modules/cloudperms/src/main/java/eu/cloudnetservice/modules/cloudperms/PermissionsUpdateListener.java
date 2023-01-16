@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.modules.cloudperms;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.permission.PermissionUpdateGroupEvent;
 import eu.cloudnetservice.driver.event.events.permission.PermissionUpdateUserEvent;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -34,6 +34,7 @@ public final class PermissionsUpdateListener<P> {
   private final Consumer<P> commandTreeUpdater;
   private final Function<P, UUID> uniqueIdLookup;
   private final Function<UUID, P> onlinePlayerLookup;
+  private final PermissionManagement permissionManagement;
   private final Supplier<Collection<? extends P>> onlinePlayerSupplier;
 
   public PermissionsUpdateListener(
@@ -41,12 +42,14 @@ public final class PermissionsUpdateListener<P> {
     @NonNull Consumer<P> commandTreeUpdater,
     @NonNull Function<P, UUID> uniqueIdLookup,
     @NonNull Function<UUID, P> onlinePlayerLookup,
+    @NonNull PermissionManagement permissionManagement,
     @NonNull Supplier<Collection<? extends P>> onlinePlayerSupplier
   ) {
     this.syncTaskExecutor = syncTaskExecutor;
     this.commandTreeUpdater = commandTreeUpdater;
     this.uniqueIdLookup = uniqueIdLookup;
     this.onlinePlayerLookup = onlinePlayerLookup;
+    this.permissionManagement = permissionManagement;
     this.onlinePlayerSupplier = onlinePlayerSupplier;
   }
 
@@ -69,7 +72,7 @@ public final class PermissionsUpdateListener<P> {
       for (P player : this.onlinePlayerSupplier.get()) {
         var playerUniqueId = this.uniqueIdLookup.apply(player);
         // get the associated user
-        var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
+        var user = this.permissionManagement.user(playerUniqueId);
         if (user != null && user.inGroup(event.permissionGroup().name())) {
           // update the command tree of the player
           this.commandTreeUpdater.accept(player);

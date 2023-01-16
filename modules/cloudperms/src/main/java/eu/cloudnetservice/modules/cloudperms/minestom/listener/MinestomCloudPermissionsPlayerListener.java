@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,31 @@
 
 package eu.cloudnetservice.modules.cloudperms.minestom.listener;
 
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
-import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
+import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerPreLoginEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.extras.MojangAuth;
 
 public final class MinestomCloudPermissionsPlayerListener {
 
-  public MinestomCloudPermissionsPlayerListener() {
+  private final PermissionManagement permissionManagement;
+
+  public MinestomCloudPermissionsPlayerListener(
+    @NonNull GlobalEventHandler eventHandler,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    this.permissionManagement = permissionManagement;
+
+    // register this listener
     var node = EventNode.type("cloudnet-cloudperms", EventFilter.PLAYER);
-    MinecraftServer.getGlobalEventHandler().addChild(node
+    eventHandler.addChild(node
       .addListener(AsyncPlayerPreLoginEvent.class, this::handleAsyncPreLogin)
       .addListener(PlayerDisconnectEvent.class, this::handleDisconnect));
   }
@@ -47,7 +55,7 @@ public final class MinestomCloudPermissionsPlayerListener {
     if (player.isOnline()) {
       // setup the permission user if the player wasn't kicked during the login process
       CloudPermissionsHelper.initPermissionUser(
-        Wrapper.instance().permissionManagement(),
+        this.permissionManagement,
         player.getUuid(),
         player.getUsername(),
         message -> player.kick(LegacyComponentSerializer.legacySection().deserialize(message)),
@@ -62,6 +70,6 @@ public final class MinestomCloudPermissionsPlayerListener {
     }
 
     // remove the player from the cache
-    CloudPermissionsHelper.handlePlayerQuit(Wrapper.instance().permissionManagement(), event.getPlayer().getUuid());
+    CloudPermissionsHelper.handlePlayerQuit(this.permissionManagement, event.getPlayer().getUuid());
   }
 }

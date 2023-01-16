@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.http.annotation;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpContextPreprocessor;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
@@ -28,9 +27,12 @@ import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationPa
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessor;
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessorUtil;
 import eu.cloudnetservice.driver.permission.Permission;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -38,19 +40,23 @@ import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class SecurityAnnotationExtension {
 
-  private SecurityAnnotationExtension() {
-    throw new UnsupportedOperationException();
+  private final PermissionManagement permissionManagement;
+
+  @Inject
+  public SecurityAnnotationExtension(@NonNull PermissionManagement permissionManagement) {
+    this.permissionManagement = permissionManagement;
   }
 
-  public static void install(@NonNull HttpAnnotationParser<?> annotationParser, @NonNull V2HttpAuthentication auth) {
+  public void install(@NonNull HttpAnnotationParser<?> annotationParser, @NonNull V2HttpAuthentication auth) {
     annotationParser
       .registerAnnotationProcessor(new BasicAuthProcessor(auth))
       .registerAnnotationProcessor(new BearerAuthProcessor(auth));
   }
 
-  private static @Nullable <T> HttpContext handleAuthResult(
+  private @Nullable <T> HttpContext handleAuthResult(
     @NonNull HttpContext context,
     @NonNull V2HttpAuthentication.LoginResult<T> result,
     @NonNull Function<T, PermissionUser> userExtractor,
@@ -59,14 +65,14 @@ public final class SecurityAnnotationExtension {
     // if the auth succeeded check if the user has the required permission
     if (result.succeeded()) {
       var user = userExtractor.apply(result.result());
-      if (!validatePermission(user, permission)) {
+      if (!this.validatePermission(user, permission)) {
         // the user has no permission for the handler
         context
           .cancelNext(true)
           .closeAfter(true)
           .response()
           .status(HttpResponseCode.UNAUTHORIZED)
-          .body(buildErrorResponse("Required permission is not set"));
+          .body(this.buildErrorResponse("Required permission is not set"));
         return null;
       }
 
@@ -80,32 +86,37 @@ public final class SecurityAnnotationExtension {
       .closeAfter(true)
       .response()
       .status(HttpResponseCode.UNAUTHORIZED)
-      .body(buildErrorResponse(result.errorMessage()));
+      .body(this.buildErrorResponse(result.errorMessage()));
     return null;
   }
 
-  private static boolean validatePermission(@NonNull PermissionUser user, @Nullable HandlerPermission permission) {
-    var permissionManagement = CloudNetDriver.instance().permissionManagement();
-    return permission == null || permissionManagement.hasPermission(user, Permission.of(permission.value()));
+  private boolean validatePermission(@NonNull PermissionUser user, @Nullable HandlerPermission permission) {
+    return permission == null || this.permissionManagement.hasPermission(user, Permission.of(permission.value()));
   }
 
-  private static @Nullable HandlerPermission resolvePermissionAnnotation(@NonNull Method method) {
+  private @Nullable HandlerPermission resolvePermissionAnnotation(@NonNull Method method) {
     var permission = method.getAnnotation(HandlerPermission.class);
     return permission == null ? method.getDeclaringClass().getAnnotation(HandlerPermission.class) : permission;
   }
 
-  private static byte[] buildErrorResponse(@Nullable String reason) {
+  private byte[] buildErrorResponse(@Nullable String reason) {
     return JsonDocument.newDocument("success", false)
       .append("reason", Objects.requireNonNullElse(reason, "undefined"))
       .toString()
       .getBytes(StandardCharsets.UTF_8);
   }
 
-  private record BasicAuthProcessor(@NonNull V2HttpAuthentication authentication) implements HttpAnnotationProcessor {
+  private final class BasicAuthProcessor implements HttpAnnotationProcessor {
+
+    private final @NonNull V2HttpAuthentication authentication;
+
+    private BasicAuthProcessor(@NonNull V2HttpAuthentication authentication) {
+      this.authentication = authentication;
+    }
 
     @Override
     public @Nullable HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {
-      var permission = resolvePermissionAnnotation(method);
+      var permission = SecurityAnnotationExtension.this.resolvePermissionAnnotation(method);
       var hints = HttpAnnotationProcessorUtil.mapParameters(
         method,
         BasicAuth.class,
@@ -117,11 +128,11 @@ public final class SecurityAnnotationExtension {
               path,
               "Unable to authenticate user: " + authResult.errorMessage(),
               HttpResponseCode.UNAUTHORIZED,
-              buildErrorResponse("Unable to authenticate user"));
+              SecurityAnnotationExtension.this.buildErrorResponse("Unable to authenticate user"));
           }
 
           // put the user into the context if he has the required permission
-          if (validatePermission(authResult.result(), permission)) {
+          if (SecurityAnnotationExtension.this.validatePermission(authResult.result(), permission)) {
             return authResult.result();
           }
 
@@ -129,7 +140,7 @@ public final class SecurityAnnotationExtension {
             path,
             "User has not the required permission to send a request",
             HttpResponseCode.FORBIDDEN,
-            buildErrorResponse("Missing required permission"));
+            SecurityAnnotationExtension.this.buildErrorResponse("Missing required permission"));
         });
       // check if we got any hints
       if (!hints.isEmpty()) {
@@ -141,7 +152,7 @@ public final class SecurityAnnotationExtension {
         return (path, ctx) -> {
           // drop the request if the authentication failed
           var authResult = this.authentication.handleBasicLoginRequest(ctx.request());
-          return handleAuthResult(ctx, authResult, Function.identity(), permission);
+          return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, Function.identity(), permission);
         };
       }
 
@@ -150,11 +161,17 @@ public final class SecurityAnnotationExtension {
     }
   }
 
-  private record BearerAuthProcessor(@NonNull V2HttpAuthentication authentication) implements HttpAnnotationProcessor {
+  private final class BearerAuthProcessor implements HttpAnnotationProcessor {
+
+    private final @NonNull V2HttpAuthentication authentication;
+
+    private BearerAuthProcessor(@NonNull V2HttpAuthentication authentication) {
+      this.authentication = authentication;
+    }
 
     @Override
     public @Nullable HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {
-      var permission = resolvePermissionAnnotation(method);
+      var permission = SecurityAnnotationExtension.this.resolvePermissionAnnotation(method);
       var hints = HttpAnnotationProcessorUtil.mapParameters(
         method,
         BearerAuth.class,
@@ -166,11 +183,11 @@ public final class SecurityAnnotationExtension {
               path,
               "Unable to authenticate user: " + authResult.errorMessage(),
               HttpResponseCode.UNAUTHORIZED,
-              buildErrorResponse("Unable to authenticate user"));
+              SecurityAnnotationExtension.this.buildErrorResponse("Unable to authenticate user"));
           }
 
           // put the user into the context if he has the required permission
-          if (validatePermission(authResult.result().user(), permission)) {
+          if (SecurityAnnotationExtension.this.validatePermission(authResult.result().user(), permission)) {
             return authResult.result();
           }
 
@@ -178,7 +195,7 @@ public final class SecurityAnnotationExtension {
             path,
             "User has not the required permission to send a request",
             HttpResponseCode.FORBIDDEN,
-            buildErrorResponse("Missing required permission"));
+            SecurityAnnotationExtension.this.buildErrorResponse("Missing required permission"));
         });
       // check if we got any hints
       if (!hints.isEmpty()) {
@@ -190,7 +207,7 @@ public final class SecurityAnnotationExtension {
         return (path, ctx) -> {
           // drop the request if the authentication failed
           var authResult = this.authentication.handleBearerLoginRequest(ctx.request());
-          return handleAuthResult(ctx, authResult, HttpSession::user, permission);
+          return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, HttpSession::user, permission);
         };
       }
 

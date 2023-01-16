@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
-import static eu.cloudnetservice.modules.signs.node.util.SignEntryTaskSetup.addSetupQuestionIfNecessary;
-
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -32,18 +30,24 @@ import eu.cloudnetservice.modules.signs.node.util.SignEntryTaskSetup;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
 import eu.cloudnetservice.node.event.setup.SetupInitiateEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import lombok.NonNull;
 
+@Singleton
 public class NodeSignsListener {
 
   private static final Type STRING_COLLECTION = TypeToken.getParameterized(Collection.class, String.class).getType();
 
-  protected final SignManagement signManagement;
+  private final SignManagement signManagement;
+  private final SignEntryTaskSetup entryTaskSetup;
 
-  public NodeSignsListener(@NonNull SignManagement signManagement) {
+  @Inject
+  public NodeSignsListener(@NonNull SignManagement signManagement, @NonNull SignEntryTaskSetup entryTaskSetup) {
     this.signManagement = signManagement;
+    this.entryTaskSetup = entryTaskSetup;
   }
 
   @EventListener
@@ -51,14 +55,13 @@ public class NodeSignsListener {
     event.setup().entries().stream()
       .filter(entry -> entry.key().equals("taskEnvironment"))
       .findFirst()
-      .ifPresent(entry -> entry.answerType().thenAccept(($, environment) -> addSetupQuestionIfNecessary(
-        event.setup(),
-        (ServiceEnvironmentType) environment)));
+      .ifPresent(entry -> entry.answerType().thenAccept(($, environment) ->
+        this.entryTaskSetup.addSetupQuestionIfNecessary(event.setup(), (ServiceEnvironmentType) environment)));
   }
 
   @EventListener
   public void handleSetupComplete(@NonNull SetupCompleteEvent event) {
-    SignEntryTaskSetup.handleSetupComplete(
+    this.entryTaskSetup.handleSetupComplete(
       event.setup(),
       this.signManagement.signsConfiguration(),
       this.signManagement);
@@ -103,8 +106,9 @@ public class NodeSignsListener {
           event.binaryResponse(DataBuf.empty().writeObject(signs));
         }
         // set the sign configuration without a re-publish to the cluster
-        case NodeSignManagement.NODE_TO_NODE_SET_SIGN_CONFIGURATION -> this.signManagement.handleInternalSignConfigUpdate(
-          event.content().readObject(SignsConfiguration.class));
+        case NodeSignManagement.NODE_TO_NODE_SET_SIGN_CONFIGURATION ->
+          this.signManagement.handleInternalSignConfigUpdate(
+            event.content().readObject(SignsConfiguration.class));
         default -> {
         }
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,45 @@ package eu.cloudnetservice.node.setup;
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
+import eu.cloudnetservice.node.template.TemplateStorageUtil;
 import eu.cloudnetservice.node.util.NetworkUtil;
 import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.information.TemplateVersionInstaller;
+import jakarta.inject.Inject;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
+
+  private final Configuration nodeConfig;
+
+  @Inject
+  public SpecificTaskSetup(
+    @NonNull Parsers parsers,
+    @NonNull Configuration nodeConfig,
+    @NonNull TemplateStorageUtil storageUtil,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull GroupConfigurationProvider groupProvider,
+    @NonNull ServiceVersionProvider serviceVersionProvider
+  ) {
+    super(parsers, storageUtil, taskProvider, groupProvider, serviceVersionProvider);
+
+    this.nodeConfig = nodeConfig;
+  }
 
   @Override
   public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
@@ -45,15 +66,15 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .key("taskName")
         .translatedQuestion("command-tasks-setup-question-name")
         .answerType(QuestionAnswerType.<String>builder()
-          .parser(Parsers.allOf(
-            Parsers.nonExistingTask(),
-            Parsers.regex(ServiceTask.NAMING_PATTERN))))
+          .parser(this.parsers.allOf(
+            this.parsers.nonExistingTask(),
+            this.parsers.regex(ServiceTask.NAMING_PATTERN))))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskMemory")
         .translatedQuestion("command-tasks-setup-question-memory")
         .answerType(QuestionAnswerType.<Integer>builder()
-          .parser(Parsers.ranged(128, Integer.MAX_VALUE))
+          .parser(this.parsers.ranged(128, Integer.MAX_VALUE))
           .recommendation(512))
         .build(),
       QuestionListEntry.<Boolean>builder()
@@ -62,33 +83,33 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .answerType(QuestionAnswerType.<Boolean>builder()
           .recommendation("no")
           .possibleResults("yes", "no")
-          .parser(Parsers.bool()))
+          .parser(this.parsers.bool()))
         .build(),
       QuestionListEntry.<Boolean>builder()
         .key("taskStaticServices")
         .translatedQuestion("command-tasks-setup-question-static")
         .answerType(QuestionAnswerType.<Boolean>builder()
           .possibleResults("yes", "no")
-          .parser(Parsers.bool()))
+          .parser(this.parsers.bool()))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskMinServices")
         .translatedQuestion("command-tasks-setup-question-minservices")
         .answerType(QuestionAnswerType.<Integer>builder()
-          .parser(Parsers.ranged(0, Integer.MAX_VALUE)))
+          .parser(this.parsers.ranged(0, Integer.MAX_VALUE)))
         .build(),
       QuestionListEntry.<ServiceEnvironmentType>builder()
         .key("taskEnvironment")
         .translatedQuestion("command-tasks-setup-question-environment")
         .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
-          .parser(Parsers.serviceEnvironmentType())
-          .possibleResults(Node.instance().serviceVersionProvider().knownEnvironments().keySet()))
+          .parser(this.parsers.serviceEnvironmentType())
+          .possibleResults(this.serviceVersionProvider.knownEnvironments().keySet()))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskStartPort")
         .translatedQuestion("command-tasks-setup-question-startport")
         .answerType(QuestionAnswerType.<Integer>builder()
-          .parser(Parsers.ranged(0, 0xFFFF))
+          .parser(this.parsers.ranged(0, 0xFFFF))
           .possibleResults("[0, 65535]")
           .recommendation(44955))
         .build(),
@@ -96,12 +117,12 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .key("taskHostAddress")
         .translatedQuestion("command-tasks-setup-question-host-address")
         .answerType(QuestionAnswerType.<String>builder()
-          .recommendation(Node.instance().config().hostAddress())
-          .parser(Parsers.assignableHostAndPortOrAlias())
+          .recommendation(this.nodeConfig.hostAddress())
+          .parser(this.parsers.assignableHostAndPortOrAlias())
           .possibleResults(() -> NetworkUtil.availableIPAddresses()
             .stream()
             .collect(Collectors.collectingAndThen(Collectors.toSet(), ips -> {
-              ips.addAll(Node.instance().config().ipAliases().keySet());
+              ips.addAll(this.nodeConfig.ipAliases().keySet());
               return ips;
             }))))
         .build(),
@@ -111,7 +132,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .answerType(QuestionAnswerType.<Pair<String, JavaVersion>>builder()
           .recommendation("java")
           .possibleResults("java")
-          .parser(Parsers.javaVersion()))
+          .parser(this.parsers.javaVersion()))
         .build(),
       QuestionListEntry.<Pair<ServiceVersionType, ServiceVersion>>builder()
         .key("taskServiceVersion")
@@ -120,14 +141,14 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
           .possibleResults(() -> this.completableServiceVersions(
             animation.result("taskEnvironment"),
             animation.result("taskJavaCommand")))
-          .parser(Parsers.serviceVersion()))
+          .parser(this.parsers.serviceVersion()))
         .build(),
       QuestionListEntry.<String>builder()
         .key("taskNameSplitter")
         .translatedQuestion("command-tasks-setup-question-name-splitter")
         .answerType(QuestionAnswerType.<String>builder()
           .recommendation("-")
-          .parser(Parsers.regex(ServiceTask.NAMING_PATTERN)))
+          .parser(this.parsers.regex(ServiceTask.NAMING_PATTERN)))
         .build()
     );
   }
@@ -160,7 +181,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     // check if the user chose to install a version
     if (version != null) {
       // install the chosen version
-      Node.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
+      this.serviceVersionProvider.installServiceVersion(TemplateVersionInstaller.builder()
         .serviceVersionType(version.first())
         .serviceVersion(version.second())
         .toTemplate(defaultTemplate)
@@ -168,10 +189,10 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .build(), false);
     }
     // add the task after the template is created
-    Node.instance().serviceTaskProvider().addServiceTask(task);
+    this.taskProvider.addServiceTask(task);
     // create a group with the same name
     var groupConfiguration = GroupConfiguration.builder().name(name).build();
-    Node.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration);
+    this.groupProvider.addGroupConfiguration(groupConfiguration);
     LOGGER.info(I18n.trans("command-tasks-setup-create-success", task.name()));
   }
 }

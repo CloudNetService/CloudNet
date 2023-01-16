@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,60 +16,89 @@
 
 package eu.cloudnetservice.modules.cloudperms.sponge;
 
-import com.google.inject.Inject;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ConstructionListener;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
-import eu.cloudnetservice.modules.cloudperms.sponge.service.CloudPermsPermissionService;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.manager.CommandManager;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
-import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
-import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.plugin.PluginContainer;
-import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-@Plugin("cloudnet_cloudperms")
-public final class SpongeCloudPermissionsPlugin {
+@Singleton
+@PlatformPlugin(
+  platform = "sponge",
+  name = "CloudNet-CloudPerms",
+  authors = "CloudNetService",
+  version = "{project.build.version}",
+  homepage = "https://cloudnetservice.eu",
+  description = "Sponge extension which implement the permission management system from CloudNet into Sponge",
+  dependencies = @Dependency(name = "spongeapi", version = "8.0.0")
+)
+@ConstructionListener(SpongePermissionsServiceListener.class)
+public final class SpongeCloudPermissionsPlugin implements PlatformEntrypoint {
 
+  private final ModuleHelper moduleHelper;
+  private final PermissionManagement permissionManagement;
+  private final eu.cloudnetservice.driver.event.EventManager cloudEventManager;
+
+  private final Server server;
   private final PluginContainer plugin;
-  private final PermissionService service;
+  private final Scheduler syncScheduler;
+  private final EventManager eventManager;
+  private final CommandManager commandManager;
+  private final SpongeCloudPermissionsListener playerListener;
 
   @Inject
-  public SpongeCloudPermissionsPlugin(@NonNull PluginContainer pluginContainer) {
-    this.plugin = pluginContainer;
-    this.service = new CloudPermsPermissionService(CloudNetDriver.instance().permissionManagement());
+  public SpongeCloudPermissionsPlugin(
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull PermissionManagement permissionManagement,
+    @NonNull eu.cloudnetservice.driver.event.EventManager cloudEventManager,
+    @NonNull Server server,
+    @NonNull PluginContainer plugin,
+    @NonNull @Named("sync") Scheduler syncScheduler,
+    @NonNull EventManager eventManager,
+    @NonNull CommandManager commandManager,
+    @NonNull SpongeCloudPermissionsListener playerListener
+  ) {
+    this.moduleHelper = moduleHelper;
+    this.permissionManagement = permissionManagement;
+    this.cloudEventManager = cloudEventManager;
+    this.server = server;
+    this.plugin = plugin;
+    this.syncScheduler = syncScheduler;
+    this.eventManager = eventManager;
+    this.commandManager = commandManager;
+    this.playerListener = playerListener;
   }
 
-  @Listener
-  public void handle(@NonNull ConstructPluginEvent event) {
-    Sponge.eventManager().registerListeners(
-      this.plugin,
-      new SpongeCloudPermissionsListener(CloudNetDriver.instance().permissionManagement()));
-  }
+  @Override
+  public void onLoad() {
+    // sponge listeners
+    this.eventManager.registerListeners(this.plugin, this.playerListener);
 
-  @Listener
-  public void handle(@NonNull StartingEngineEvent<Server> event) {
-    CloudNetDriver.instance().eventManager().registerListener(new PermissionsUpdateListener<>(
-      event.engine().scheduler().executor(this.plugin),
-      player -> Sponge.server().commandManager().updateCommandTreeForPlayer(player),
+    // internal listeners
+    this.cloudEventManager.registerListener(new PermissionsUpdateListener<>(
+      this.syncScheduler.executor(this.plugin),
+      this.commandManager::updateCommandTreeForPlayer,
       ServerPlayer::uniqueId,
-      uuid -> Sponge.server().player(uuid).orElse(null),
+      uuid -> this.server.player(uuid).orElse(null),
+      this.permissionManagement,
       Sponge.server()::onlinePlayers));
   }
 
-  @Listener
-  public void handle(@NonNull StoppingEngineEvent<Server> event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
-  }
-
-  @Listener
-  public void handlePermissionServiceProvide(@NonNull ProvideServiceEvent.EngineScoped<PermissionService> event) {
-    event.suggest(() -> this.service);
+  @Override
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

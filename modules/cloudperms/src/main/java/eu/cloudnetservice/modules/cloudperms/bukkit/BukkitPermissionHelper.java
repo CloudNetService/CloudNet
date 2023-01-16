@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import static dev.derklaro.reflexion.matcher.FieldMatcher.newMatcher;
 import dev.derklaro.reflexion.FieldAccessor;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.NoSuchElementException;
@@ -69,10 +70,14 @@ public final class BukkitPermissionHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static void injectPlayer(@NonNull Player player) {
+  public static void injectPlayer(
+    @NonNull Player player,
+    @NonNull WrapperConfiguration wrapperConfiguration,
+    @NonNull PermissionManagement permissionManagement
+  ) {
     PERMISSIBLE_ACCESSOR.setValue(
       player,
-      new BukkitCloudPermissionsPermissible(player, CloudNetDriver.instance().permissionManagement()));
+      new BukkitCloudPermissionsPermissible(player, permissionManagement, wrapperConfiguration));
   }
 
   public static void resendCommandTree(@NonNull Player player) {

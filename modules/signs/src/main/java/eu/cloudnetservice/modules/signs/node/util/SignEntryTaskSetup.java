@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,37 +24,41 @@ import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
+@Singleton
 @ApiStatus.Internal
 public final class SignEntryTaskSetup {
 
-  private static final QuestionListEntry<Boolean> CREATE_ENTRY_QUESTION_LIST = QuestionListEntry.<Boolean>builder()
-    .key("generateDefaultSignConfigurationEntry")
-    .translatedQuestion("module-sign-tasks-setup-generate-default-config")
-    .answerType(QuestionAnswerType.<Boolean>builder()
-      .parser(Parsers.bool())
-      .recommendation("no")
-      .possibleResults("yes", "no")
-      .build())
-    .build();
+  private final QuestionListEntry<Boolean> createEntryQuestionList;
 
-  private SignEntryTaskSetup() {
-    throw new UnsupportedOperationException();
+  @Inject
+  public SignEntryTaskSetup(@NonNull Parsers parsers) {
+    this.createEntryQuestionList = QuestionListEntry.<Boolean>builder()
+      .key("generateDefaultSignConfigurationEntry")
+      .translatedQuestion("module-sign-tasks-setup-generate-default-config")
+      .answerType(QuestionAnswerType.<Boolean>builder()
+        .parser(parsers.bool())
+        .recommendation("no")
+        .possibleResults("yes", "no")
+        .build())
+      .build();
   }
 
-  public static void addSetupQuestionIfNecessary(
+  public void addSetupQuestionIfNecessary(
     @NonNull ConsoleSetupAnimation animation,
     @NonNull ServiceEnvironmentType type
   ) {
     if (!animation.hasResult("generateDefaultSignConfigurationEntry")
       && ServiceEnvironmentType.minecraftServer(type)) {
-      animation.addEntries(CREATE_ENTRY_QUESTION_LIST);
+      animation.addEntries(this.createEntryQuestionList);
     }
   }
 
-  public static void handleSetupComplete(
+  public void handleSetupComplete(
     @NonNull ConsoleSetupAnimation animation,
     @NonNull SignsConfiguration configuration,
     @NonNull SignManagement signManagement

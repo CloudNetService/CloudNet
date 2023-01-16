@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.network.listener;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -24,31 +23,50 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.NodeNetworkUtil;
 import eu.cloudnetservice.node.network.packet.PacketServerServiceSyncAckPacket;
-import java.lang.reflect.Type;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Objects;
-import java.util.Set;
 import lombok.NonNull;
 
+@Singleton
 public final class PacketServerAuthorizationResponseListener implements PacketListener {
 
   private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
-  private static final Type SET_SERVICES = TypeToken.getParameterized(Set.class, ServiceInfoSnapshot.class).getType();
+
+  private final Configuration configuration;
+  private final NodeNetworkUtil networkUtil;
+  private final DataSyncRegistry dataSyncRegistry;
+  private final NodeServerProvider nodeServerProvider;
+
+  @Inject
+  public PacketServerAuthorizationResponseListener(
+    @NonNull Configuration configuration,
+    @NonNull NodeNetworkUtil networkUtil,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull NodeServerProvider nodeServerProvider
+  ) {
+    this.configuration = configuration;
+    this.networkUtil = networkUtil;
+    this.dataSyncRegistry = dataSyncRegistry;
+    this.nodeServerProvider = nodeServerProvider;
+  }
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     // check if the auth was successful
     if (packet.content().readBoolean()) {
       // search for the node to which the auth succeeded
-      var server = Node.instance().config().clusterConfig().nodes().stream()
+      var server = this.configuration.clusterConfig().nodes().stream()
         .filter(node -> node.listeners().stream().anyMatch(host -> channel.serverAddress().equals(host)))
-        .map(node -> Node.instance().nodeServerProvider().node(node.uniqueId()))
+        .map(node -> this.nodeServerProvider.node(node.uniqueId()))
         .filter(Objects::nonNull)
         .findFirst()
         .orElse(null);
@@ -57,7 +75,7 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
         if (packet.content().readBoolean()) {
           // handle the data sync
           var syncData = packet.content().readDataBuf();
-          Node.instance().dataSyncRegistry().handle(syncData, syncData.readBoolean());
+          this.dataSyncRegistry.handle(syncData, syncData.readBoolean());
 
           // check if there are pending packets for the node
           if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
@@ -65,11 +83,11 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
           }
 
           // update the current local snapshot
-          var local = Node.instance().nodeServerProvider().localNode();
+          var local = this.nodeServerProvider.localNode();
           local.updateLocalSnapshot();
 
           // acknowledge the packet
-          var data = Node.instance().dataSyncRegistry().prepareClusterData(
+          var data = this.dataSyncRegistry.prepareClusterData(
             true,
             DataSyncHandler::alwaysForceApply);
           channel.sendPacketSync(new PacketServerServiceSyncAckPacket(local.nodeInfoSnapshot(), data));
@@ -84,7 +102,7 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
         server.state(NodeServerState.READY);
         // add the packet listeners
         channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-        NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), Node.instance());
+        this.networkUtil.addDefaultPacketListeners(channel.packetRegistry());
         // we are good to go :)
         return;
       }

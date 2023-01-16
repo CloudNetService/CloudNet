@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,61 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
-import eu.cloudnetservice.driver.util.ModuleUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 
-public final class BukkitBridgePlugin extends JavaPlugin {
+@Singleton
+@PlatformPlugin(
+  platform = "bukkit",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService"
+)
+public final class BukkitBridgePlugin implements PlatformEntrypoint {
+
+  private final Plugin plugin;
+  private final ModuleHelper moduleHelper;
+  private final PluginManager pluginManager;
+  private final ServiceRegistry serviceRegistry;
+  private final BukkitBridgeManagement bridgeManagement;
+  private final BukkitPlayerManagementListener playerListener;
+
+  @Inject
+  public BukkitBridgePlugin(
+    @NonNull Plugin plugin,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull PluginManager pluginManager,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull BukkitBridgeManagement bridgeManagement,
+    @NonNull BukkitPlayerManagementListener playerListener
+  ) {
+    this.plugin = plugin;
+    this.moduleHelper = moduleHelper;
+    this.pluginManager = pluginManager;
+    this.serviceRegistry = serviceRegistry;
+    this.bridgeManagement = bridgeManagement;
+    this.playerListener = playerListener;
+  }
 
   @Override
-  public void onEnable() {
+  public void onLoad() {
     // init the bridge management
-    var management = new BukkitBridgeManagement(this);
-    management.registerServices(Wrapper.instance().serviceRegistry());
-    management.postInit();
+    this.bridgeManagement.registerServices(this.serviceRegistry);
+    this.bridgeManagement.postInit();
     // register the bukkit listener
-    Bukkit.getPluginManager().registerEvents(new BukkitPlayerManagementListener(this, management), this);
+    this.pluginManager.registerEvents(this.playerListener, this.plugin);
   }
 
   @Override
   public void onDisable() {
-    Bukkit.getScheduler().cancelTasks(this);
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

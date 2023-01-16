@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,77 @@
 
 package eu.cloudnetservice.modules.signs.platform.nukkit;
 
-import cn.nukkit.Server;
 import cn.nukkit.command.PluginCommand;
 import cn.nukkit.plugin.PluginBase;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
-import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
-import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
+import cn.nukkit.plugin.PluginManager;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Command;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.SignInteractListener;
 import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.SignsCommand;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
-public class NukkitSignsPlugin extends PluginBase {
+@Singleton
+@PlatformPlugin(
+  platform = "nukkit",
+  name = "CloudNet-Signs",
+  version = "{project.build.version}",
+  description = "Nukkit extension for the CloudNet runtime which adds sign connector support",
+  authors = "CloudNetService",
+  dependencies = @Dependency(name = "CloudNet-Bridge"),
+  commands = @Command(
+    name = "cloudsign",
+    permission = "cloudnet.command.cloudsign",
+    aliases = {"cs", "signs", "cloudsigns"}))
+public class NukkitSignsPlugin implements PlatformEntrypoint {
+
+  private final PluginBase plugin;
+  private final ModuleHelper moduleHelper;
+  private final SignsCommand signsCommand;
+  private final PluginManager pluginManager;
+  private final ServiceRegistry serviceRegistry;
+  private final NukkitSignManagement signManagement;
+  private final SignInteractListener interactListener;
+
+  @Inject
+  public NukkitSignsPlugin(
+    @NonNull PluginBase plugin,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull SignsCommand signsCommand,
+    @NonNull PluginManager pluginManager,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull NukkitSignManagement signManagement,
+    @NonNull SignInteractListener interactListener
+  ) {
+    this.plugin = plugin;
+    this.moduleHelper = moduleHelper;
+    this.signsCommand = signsCommand;
+    this.pluginManager = pluginManager;
+    this.serviceRegistry = serviceRegistry;
+    this.signManagement = signManagement;
+    this.interactListener = interactListener;
+  }
 
   @Override
-  public void onEnable() {
-    var signManagement = new NukkitSignManagement(this);
-    signManagement.initialize();
-    signManagement.registerToServiceRegistry();
+  public void onLoad() {
+    this.signManagement.initialize();
+    this.signManagement.registerToServiceRegistry(this.serviceRegistry);
     // command
-    var pluginCommand = (PluginCommand<?>) this.getCommand("cloudsign");
+    var pluginCommand = (PluginCommand<?>) this.plugin.getCommand("cloudsign");
     if (pluginCommand != null) {
-      pluginCommand.setExecutor(new SignsCommand(signManagement));
+      pluginCommand.setExecutor(this.signsCommand);
     }
     // nukkit listeners
-    Server.getInstance().getPluginManager().registerEvents(new SignInteractListener(signManagement), this);
-    // cloudnet listener
-    CloudNetDriver.instance().eventManager().registerListeners(
-      new SharedChannelMessageListener(signManagement),
-      new SignsPlatformListener(signManagement));
+    this.pluginManager.registerEvents(this.interactListener, this.plugin);
   }
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class MySQLDatabase extends SQLDatabase {
 
-  public MySQLDatabase(@NonNull SQLDatabaseProvider provider, @NonNull String name, @NonNull ExecutorService executor) {
-    super(provider, name, executor);
+  public MySQLDatabase(@NonNull SQLDatabaseProvider provider, @NonNull String name) {
+    super(provider, name);
 
     // create the table
     provider.executeUpdate(String.format(
@@ -53,10 +52,9 @@ public final class MySQLDatabase extends SQLDatabase {
 
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
-    this.databaseProvider.databaseHandler().handleInsert(this, key, document);
     return this.databaseProvider.executeUpdate(
       String.format(
-        "INSERT INTO `%s`(%s, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = ?;",
+        "INSERT INTO `%s` (%s, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = ?;",
         this.name,
         TABLE_COLUMN_KEY,
         TABLE_COLUMN_VAL,
@@ -75,7 +73,6 @@ public final class MySQLDatabase extends SQLDatabase {
 
   @Override
   public boolean delete(@NonNull String key) {
-    this.databaseProvider.databaseHandler().handleDelete(this, key);
     return this.databaseProvider.executeUpdate(
       String.format("DELETE FROM %s WHERE `%s` = ?;", this.name, TABLE_COLUMN_KEY),
       key) > 0;
@@ -102,7 +99,7 @@ public final class MySQLDatabase extends SQLDatabase {
         TABLE_COLUMN_VAL,
         this.name,
         TABLE_COLUMN_VAL,
-        Objects.toString(fieldValue).replaceAll("([_%])", "\\$1"),
+        Objects.toString(fieldValue).replaceAll("([_%])", "\\\\$1"),
         fieldName),
       resultSet -> {
         List<JsonDocument> results = new ArrayList<>();
@@ -131,7 +128,7 @@ public final class MySQLDatabase extends SQLDatabase {
           .append("JSON_SEARCH(")
           .append(TABLE_COLUMN_VAL)
           .append(", 'one', '")
-          .append(entry.getValue().replaceAll("([_%])", "\\$1"))
+          .append(entry.getValue().replaceAll("([_%])", "\\\\$1"))
           .append("', NULL, '$.")
           .append(entry.getKey())
           .append("') IS NOT NULL")
@@ -191,7 +188,6 @@ public final class MySQLDatabase extends SQLDatabase {
 
   @Override
   public void clear() {
-    this.databaseProvider.databaseHandler().handleClear(this);
     this.databaseProvider.executeUpdate(String.format("TRUNCATE TABLE `%s`;", this.name));
   }
 

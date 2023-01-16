@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,23 +28,33 @@ import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.EventDispatcher;
+import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.InstanceManager;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 
 public class MinestomPlatformSign extends PlatformSign<Player, String> {
 
+  private final GlobalEventHandler eventHandler;
+  private final InstanceManager instanceManager;
+
   private Pair<Pos, Instance> signLocation;
 
-  public MinestomPlatformSign(@NonNull Sign base) {
+  public MinestomPlatformSign(
+    @NonNull Sign base,
+    @NonNull GlobalEventHandler eventHandler,
+    @NonNull InstanceManager instanceManager
+  ) {
     super(base, input -> {
       var coloredComponent = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(input);
       return GsonComponentSerializer.gson().serialize(coloredComponent);
     });
+
+    this.eventHandler = eventHandler;
+    this.instanceManager = instanceManager;
   }
 
   @Override
@@ -100,7 +110,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
   @Override
   public @Nullable ServiceInfoSnapshot callSignInteractEvent(@NonNull Player player) {
     var event = new MinestomCloudSignInteractEvent(player, this);
-    EventDispatcher.call(event);
+    this.eventHandler.call(event);
 
     return event.isCancelled() ? null : event.target();
   }
@@ -111,7 +121,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
       return this.signLocation;
     }
 
-    var instance = MinecraftServer.getInstanceManager().getInstance(UUID.fromString(this.base.location().world()));
+    var instance = this.instanceManager.getInstance(UUID.fromString(this.base.location().world()));
     // check if the instance of the sign is available
     if (instance == null) {
       return null;

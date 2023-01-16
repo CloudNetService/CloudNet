@@ -1,8 +1,0 @@
-name: CloudNet-SimpleNameTags
-author: CloudNetService
-version: "{project.build.version}"
-api-version: "1.13"
-description: Adds prefix, suffix and display name support to all server platforms
-main: eu.cloudnetservice.plugins.simplenametags.bukkit.BukkitSimpleNameTagsPlugin
-
-depend: [ CloudNet-CloudPerms ]

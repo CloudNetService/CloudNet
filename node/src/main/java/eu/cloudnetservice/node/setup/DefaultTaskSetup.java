@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,12 @@ import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
@@ -39,6 +40,8 @@ import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.information.TemplateVersionInstaller;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +50,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
+@Singleton
 public class DefaultTaskSetup implements DefaultSetup {
 
   // see https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/
@@ -82,6 +86,27 @@ public class DefaultTaskSetup implements DefaultSetup {
   protected static final String GLOBAL_PROXY_GROUP_NAME = "Global-Proxy";
   protected static final String GLOBAL_SERVER_GROUP_NAME = "Global-Server";
 
+  protected final Parsers parsers;
+  protected final TemplateStorageUtil storageUtil;
+  protected final ServiceTaskProvider taskProvider;
+  protected final GroupConfigurationProvider groupProvider;
+  protected final ServiceVersionProvider serviceVersionProvider;
+
+  @Inject
+  public DefaultTaskSetup(
+    @NonNull Parsers parsers,
+    @NonNull TemplateStorageUtil storageUtil,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull GroupConfigurationProvider groupProvider,
+    @NonNull ServiceVersionProvider serviceVersionProvider
+  ) {
+    this.parsers = parsers;
+    this.storageUtil = storageUtil;
+    this.groupProvider = groupProvider;
+    this.taskProvider = taskProvider;
+    this.serviceVersionProvider = serviceVersionProvider;
+  }
+
   @Override
   public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
@@ -92,7 +117,7 @@ public class DefaultTaskSetup implements DefaultSetup {
         .answerType(QuestionAnswerType.<Boolean>builder()
           .recommendation("yes")
           .possibleResults("yes", "no")
-          .parser(Parsers.bool())
+          .parser(this.parsers.bool())
           .addResultListener(($, result) -> {
             if (result) {
               animation.addEntriesFirst(
@@ -101,8 +126,8 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .key("proxyEnvironment")
                   .translatedQuestion("cloudnet-init-setup-tasks-proxy-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
-                    .parser(Parsers.serviceEnvironmentType())
-                    .possibleResults(this.versionProvider().knownEnvironments().values().stream()
+                    .parser(this.parsers.serviceEnvironmentType())
+                    .possibleResults(this.serviceVersionProvider.knownEnvironments().values().stream()
                       .filter(type -> {
                         var properties = type.properties();
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
@@ -117,7 +142,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .answerType(QuestionAnswerType.<Pair<String, JavaVersion>>builder()
                     .recommendation("java")
                     .possibleResults("java")
-                    .parser(Parsers.javaVersion()))
+                    .parser(this.parsers.javaVersion()))
                   .build(),
                 // proxy service version
                 QuestionListEntry.<Pair<ServiceVersionType, ServiceVersion>>builder()
@@ -127,7 +152,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .possibleResults(() -> this.completableServiceVersions(
                       animation.result("proxyEnvironment"),
                       animation.result("proxyJavaCommand")))
-                    .parser(Parsers.serviceVersion()))
+                    .parser(this.parsers.serviceVersion()))
                   .build());
             }
           }))
@@ -139,7 +164,7 @@ public class DefaultTaskSetup implements DefaultSetup {
         .answerType(QuestionAnswerType.<Boolean>builder()
           .recommendation("yes")
           .possibleResults("yes", "no")
-          .parser(Parsers.bool())
+          .parser(this.parsers.bool())
           .addResultListener(($, result) -> {
             if (result) {
               animation.addEntriesFirst(
@@ -148,8 +173,8 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .key("serverEnvironment")
                   .translatedQuestion("cloudnet-init-setup-tasks-server-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
-                    .parser(Parsers.serviceEnvironmentType())
-                    .possibleResults(this.versionProvider().knownEnvironments().values().stream()
+                    .parser(this.parsers.serviceEnvironmentType())
+                    .possibleResults(this.serviceVersionProvider.knownEnvironments().values().stream()
                       .filter(type -> {
                         var properties = type.properties();
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
@@ -164,7 +189,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .answerType(QuestionAnswerType.<Pair<String, JavaVersion>>builder()
                     .recommendation("java")
                     .possibleResults("java")
-                    .parser(Parsers.javaVersion()))
+                    .parser(this.parsers.javaVersion()))
                   .build(),
                 // server service version
                 QuestionListEntry.<Pair<ServiceVersionType, ServiceVersion>>builder()
@@ -174,7 +199,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .possibleResults(() -> this.completableServiceVersions(
                       animation.result("serverEnvironment"),
                       animation.result("serverJavaCommand")))
-                    .parser(Parsers.serviceVersion()))
+                    .parser(this.parsers.serviceVersion()))
                   .build());
             }
           }))
@@ -206,7 +231,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     Pair<ServiceVersionType, ServiceVersion> version = animation.result(resultPrefix + "Version");
     // create the task
     var template = ServiceTemplate.builder().prefix(taskName).name("default").build();
-    Node.instance().serviceTaskProvider().addServiceTask(ServiceTask.builder()
+    this.taskProvider.addServiceTask(ServiceTask.builder()
       .name(taskName)
       .minServiceCount(1)
       .autoDeleteOnStop(true)
@@ -233,9 +258,9 @@ public class DefaultTaskSetup implements DefaultSetup {
       groupConfiguration.jvmOptions(AIKAR_FLAGS);
     }
     // register the group
-    Node.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration.build());
+    this.groupProvider.addGroupConfiguration(groupConfiguration.build());
     // create a group specifically for the task
-    Node.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    this.groupProvider.addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
       .templates(Set.of(template))
       .build());
@@ -244,7 +269,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     this.initializeTemplate(template, environment, true);
     // check if the user chose to install a version
     if (version != null) {
-      Node.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
+      this.serviceVersionProvider.installServiceVersion(TemplateVersionInstaller.builder()
         .serviceVersion(version.second())
         .serviceVersionType(version.first())
         .toTemplate(template)
@@ -260,7 +285,7 @@ public class DefaultTaskSetup implements DefaultSetup {
   ) {
     // install the template
     try {
-      TemplateStorageUtil.createAndPrepareTemplate(template, template.storage(), environment, installDefaultFiles);
+      this.storageUtil.createAndPrepareTemplate(template, template.storage(), environment, installDefaultFiles);
     } catch (IOException exception) {
       LOGGER.severe("Exception while initializing local template %s with environment %s",
         exception,
@@ -273,7 +298,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     @NonNull ServiceEnvironmentType type,
     @NonNull Pair<String, JavaVersion> javaVersion
   ) {
-    return this.versionProvider().serviceVersionTypes().values().stream()
+    return this.serviceVersionProvider.serviceVersionTypes().values().stream()
       .filter(versionType -> versionType.environmentType().equals(type.name()))
       .flatMap(serviceVersionType -> serviceVersionType.versions()
         .stream()
@@ -283,9 +308,5 @@ public class DefaultTaskSetup implements DefaultSetup {
         result.add("none");
         return result;
       }));
-  }
-
-  protected @NonNull ServiceVersionProvider versionProvider() {
-    return Node.instance().serviceVersionProvider();
   }
 }
