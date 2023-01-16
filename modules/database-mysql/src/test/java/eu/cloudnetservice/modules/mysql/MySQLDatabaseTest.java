@@ -90,16 +90,19 @@ class MySQLDatabaseTest {
 
     Assertions.assertTrue(database.insert("1234", JsonDocument.newDocument("hello", "world")));
     Assertions.assertTrue(database.insert("12234", JsonDocument.newDocument("hello", "world2")));
+    Assertions.assertTrue(database.insert("122234", JsonDocument.newDocument("hello", "world_123")));
 
     Assertions.assertTrue(database.contains("1234"));
     Assertions.assertTrue(database.contains("12234"));
+    Assertions.assertTrue(database.contains("122234"));
 
-    Assertions.assertEquals(2, database.documentCount());
+    Assertions.assertEquals(3, database.documentCount());
 
     var keys = database.keys();
-    Assertions.assertEquals(2, keys.size());
+    Assertions.assertEquals(3, keys.size());
     Assertions.assertTrue(keys.contains("1234"));
     Assertions.assertTrue(keys.contains("12234"));
+    Assertions.assertTrue(keys.contains("122234"));
 
     var entry = database.get("1234");
     Assertions.assertNotNull(entry);
@@ -120,16 +123,20 @@ class MySQLDatabaseTest {
     Assertions.assertEquals(1, entry5.size());
     Assertions.assertEquals("world2", entry5.iterator().next().getString("hello"));
 
+    var entry6 = database.find("hello", "world_123");
+    Assertions.assertEquals(1, entry6.size());
+    Assertions.assertEquals("world_123", entry6.iterator().next().getString("hello"));
+
     var entries = database.entries();
-    Assertions.assertEquals(2, entries.size());
+    Assertions.assertEquals(3, entries.size());
     Assertions.assertEquals("world", entries.get("1234").getString("hello"));
     Assertions.assertEquals("world2", entries.get("12234").getString("hello"));
 
     var documents = database.documents();
-    Assertions.assertEquals(2, documents.size());
+    Assertions.assertEquals(3, documents.size());
 
     Assertions.assertTrue(database.delete("12234"));
-    Assertions.assertEquals(1, database.documentCount());
+    Assertions.assertEquals(2, database.documentCount());
 
     database.clear();
     Assertions.assertEquals(0, database.documentCount());
