@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package eu.cloudnetservice.node.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
@@ -223,14 +222,14 @@ public final class PermissionsCommand {
       permissionUser.name()));
   }
 
-  @CommandMethod("permissions|perms user <user> add permission <permission> [potency]")
+  @CommandMethod("permissions|perms user <user> add permission <permission> [potency] [targetGroup] [duration]")
   public void addUserPermission(
     @NonNull CommandSource source,
     @NonNull @Argument("user") PermissionUser permissionUser,
     @NonNull @Argument("permission") String rawPermission,
     @Nullable @Argument("potency") Integer potency,
-    @Nullable @Flag("duration") Duration timeOut,
-    @Nullable @Flag("targetGroup") GroupConfiguration targetGroup
+    @Nullable @Argument(value = "duration") Duration timeOut,
+    @Nullable @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionUser, rawPermission, potency, timeOut, targetGroup);
     source.sendMessage(I18n.trans("command-permissions-user-add-permission-successful",
@@ -366,14 +365,14 @@ public final class PermissionsCommand {
       targetGroup.name()));
   }
 
-  @CommandMethod("permissions|perms group <group> add permission <permission> [potency]")
+  @CommandMethod("permissions|perms group <group> add permission <permission> [potency] [targetGroup] [duration]")
   public void addGroupPermission(
     @NonNull CommandSource source,
     @NonNull @Argument("group") PermissionGroup permissionGroup,
     @NonNull @Argument("permission") String rawPermission,
     @Nullable @Argument("potency") Integer potency,
-    @Nullable @Flag("duration") Duration timeOut,
-    @Nullable @Flag("targetGroup") GroupConfiguration targetGroup
+    @Nullable @Argument(value = "duration") Duration timeOut,
+    @Nullable @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionGroup, rawPermission, potency, timeOut, targetGroup);
     source.sendMessage(I18n.trans("command-permissions-group-add-permission-successful",
