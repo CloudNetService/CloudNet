@@ -141,7 +141,11 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
       .childOption(ChannelOption.AUTO_READ, true)
       .childOption(ChannelOption.TCP_NODELAY, true)
       .childOption(ChannelOption.SO_REUSEADDR, true)
+      .childOption(ChannelOption.SO_KEEPALIVE, true)
       .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+
+      .option(ChannelOption.TCP_FASTOPEN, 3)
+      .option(ChannelOption.SO_REUSEADDR, true)
 
       .bind(hostAndPort.host(), hostAndPort.port())
       .addListener(future -> {

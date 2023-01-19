@@ -113,10 +113,11 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
       .channelFactory(NettyUtil.serverChannelFactory())
       .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
 
-      .childOption(ChannelOption.IP_TOS, 24)
       .childOption(ChannelOption.AUTO_READ, true)
       .childOption(ChannelOption.TCP_NODELAY, true)
       .childOption(ChannelOption.SO_REUSEADDR, true)
+
+      .option(ChannelOption.SO_REUSEADDR, true)
 
       .bind(hostAndPort.host(), hostAndPort.port())
       .addListener(future -> {
