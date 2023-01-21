@@ -24,7 +24,7 @@ javapoet = "1.13.0"
 
 # console
 jansi = "2.4.0"
-jline = "3.21.0"
+jline = "3.22.0"
 cloud = "1.8.0-cn1"
 
 # databases
