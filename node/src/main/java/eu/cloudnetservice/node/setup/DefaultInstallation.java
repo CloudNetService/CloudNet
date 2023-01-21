@@ -25,13 +25,14 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.LockSupport;
 import lombok.NonNull;
 
 @Singleton
 public final class DefaultInstallation {
 
-  private final Queue<Class<? extends DefaultSetup>> setups = new LinkedList<>();
+  private final Queue<Class<? extends DefaultSetup>> setups = new ConcurrentLinkedQueue<>();
 
   private final Console console;
   private final EventManager eventManager;
