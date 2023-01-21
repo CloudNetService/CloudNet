@@ -73,7 +73,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -441,7 +440,31 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   }
 
   @Override
-  public void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @UnknownNullability NetworkChannel source) {
+  public @Nullable SpecificCloudServiceProvider registerService(
+    @NonNull ServiceInfoSnapshot snapshot,
+    @NonNull NetworkChannel source
+  ) {
+    // check if the service provider is already registered, return null to indicate that we didn't register the service
+    var serviceUniqueId = snapshot.serviceId().uniqueId();
+    if (this.knownServices.containsKey(serviceUniqueId)) {
+      return null;
+    }
+
+    // build the service provider for the newly added service
+    var serviceProvider = this.sender.factory().generateRPCChainBasedApi(
+      this.sender,
+      "serviceProvider",
+      SpecificCloudServiceProvider.class,
+      GenerationContext.forClass(RemoteNodeCloudServiceProvider.class).channelSupplier(() -> source).build()
+    ).newInstance(new Object[]{snapshot}, new Object[]{snapshot.serviceId().uniqueId()});
+
+    // register the service and return the new provider, unless some other thread registered the service
+    var knownProvider = this.knownServices.putIfAbsent(serviceUniqueId, serviceProvider);
+    return knownProvider == null ? serviceProvider : null;
+  }
+
+  @Override
+  public void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @Nullable NetworkChannel source) {
     // deleted services were removed on the other node - remove it here too
     if (snapshot.lifeCycle() == ServiceLifeCycle.DELETED) {
       this.knownServices.remove(snapshot.serviceId().uniqueId());
@@ -450,14 +473,9 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       // register the service if the provider is available
       var provider = this.knownServices.get(snapshot.serviceId().uniqueId());
       if (provider == null) {
-        this.knownServices.putIfAbsent(
-          snapshot.serviceId().uniqueId(),
-          this.sender.factory().generateRPCChainBasedApi(
-            this.sender,
-            "serviceProvider",
-            SpecificCloudServiceProvider.class,
-            GenerationContext.forClass(RemoteNodeCloudServiceProvider.class).channelSupplier(() -> source).build()
-          ).newInstance(new Object[]{snapshot}, new Object[]{snapshot.serviceId().uniqueId()}));
+        // this is the only point where the channel has to be present
+        Objects.requireNonNull(source, "Node Network Channel has to be present to register service");
+        this.registerService(snapshot, source);
         LOGGER.fine("Registered remote service %s", null, snapshot.serviceId());
       } else if (provider instanceof RemoteNodeCloudServiceProvider remoteProvider) {
         // update the provider if possible - we need only to handle remote node providers as local providers will update

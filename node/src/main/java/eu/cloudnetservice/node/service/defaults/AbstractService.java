@@ -153,10 +153,10 @@ public abstract class AbstractService implements CloudService {
       -1,
       ServiceLifeCycle.PREPARED,
       configuration.properties().clone());
-    this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
+    this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED, false);
 
+    // register the service locally for now
     manager.registerLocalService(this);
-    eventManager.callEvent(new CloudServiceCreateEvent(this));
   }
 
   protected static @NonNull Path resolveServicePath(
@@ -529,6 +529,15 @@ public abstract class AbstractService implements CloudService {
       .buffer(DataBuf.empty().writeObject(this.currentServiceInfo))
       .build()
       .send();
+  }
+
+  @Override
+  public void handleServiceRegister() {
+    // publish the initial service info to the cluster
+    this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
+
+    // notify the local listeners that this service was created
+    this.eventManager.callEvent(new CloudServiceCreateEvent(this));
   }
 
   @Override
