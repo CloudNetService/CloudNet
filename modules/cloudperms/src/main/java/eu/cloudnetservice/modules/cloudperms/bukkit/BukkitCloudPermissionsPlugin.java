@@ -20,7 +20,6 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
-import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.bukkit.listener.BukkitCloudPermissionsPlayerListener;
@@ -39,11 +38,7 @@ import org.bukkit.plugin.java.JavaPlugin;
   name = "CloudNet-CloudPerms",
   authors = "CloudNetService",
   version = "{project.build.version}",
-  description = "Bukkit extension which implement the permission management system from CloudNet into Bukkit",
-  dependencies = {
-    @Dependency(name = "Vault", optional = true),
-    @Dependency(name = "VaultAPI", optional = true)
-  }
+  description = "Bukkit extension which implement the permission management system from CloudNet into Bukkit"
 )
 public final class BukkitCloudPermissionsPlugin implements PlatformEntrypoint {
 
