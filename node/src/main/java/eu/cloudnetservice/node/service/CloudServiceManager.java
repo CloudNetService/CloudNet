@@ -94,6 +94,12 @@ public interface CloudServiceManager extends CloudServiceProvider {
   void unregisterLocalService(@NonNull CloudService service);
 
   @ApiStatus.Internal
+  void registerUnacceptedService(@NonNull CloudService service);
+
+  @ApiStatus.Internal
+  @Nullable CloudService takeUnacceptedService(@NonNull UUID serviceUniqueId);
+
+  @ApiStatus.Internal
   @Nullable SpecificCloudServiceProvider registerService(
     @NonNull ServiceInfoSnapshot snapshot,
     @NonNull NetworkChannel source);

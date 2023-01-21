@@ -156,7 +156,7 @@ public abstract class AbstractService implements CloudService {
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED, false);
 
     // register the service locally for now
-    manager.registerLocalService(this);
+    manager.registerUnacceptedService(this);
   }
 
   protected static @NonNull Path resolveServicePath(
@@ -533,6 +533,10 @@ public abstract class AbstractService implements CloudService {
 
   @Override
   public void handleServiceRegister() {
+    // just ensure that this service is removed from the cache & moved to a "real" registered local service
+    this.cloudServiceManager.registerLocalService(this);
+    this.cloudServiceManager.takeUnacceptedService(this.serviceId().uniqueId());
+
     // publish the initial service info to the cluster
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
 

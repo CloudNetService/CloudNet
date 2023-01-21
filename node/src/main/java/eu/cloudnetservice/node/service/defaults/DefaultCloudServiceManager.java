@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.node.service.defaults;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.ComparisonChain;
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
@@ -61,6 +63,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -95,6 +98,10 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   protected final CloudServiceFactory cloudServiceFactory;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
+  protected final Cache<UUID, CloudService> localUnacceptedServices = Caffeine.newBuilder()
+    .expireAfterWrite(Duration.ofMinutes(1))
+    .build();
+
   protected final Map<String, LocalCloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
@@ -437,6 +444,18 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   @Override
   public void unregisterLocalService(@NonNull CloudService service) {
     this.knownServices.remove(service.serviceId().uniqueId());
+  }
+
+  @Override
+  public void registerUnacceptedService(@NonNull CloudService service) {
+    this.localUnacceptedServices.put(service.serviceId().uniqueId(), service);
+  }
+
+  @Override
+  public @Nullable CloudService takeUnacceptedService(@NonNull UUID serviceUniqueId) {
+    // this is the correct way to invalidate & get the value associated with the id in the cache
+    // see https://stackoverflow.com/a/67994912/13008679
+    return this.localUnacceptedServices.asMap().remove(serviceUniqueId);
   }
 
   @Override

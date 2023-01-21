@@ -187,18 +187,18 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     var serviceUniqueId = result.serviceInfo().serviceId().uniqueId();
     var serviceProvider = this.serviceManager.registerService(result.serviceInfo(), nodeChannel);
     if (serviceProvider != null) {
-      // service registered successfully, publish the associated service info
-      this.sendServiceRegisterResult(
-        "head_node_to_node_finish_service_registration",
-        associatedNode.info().uniqueId(),
-        serviceUniqueId);
+      // service registered successfully, finish the registration of the service on the other node
+      ChannelMessage.builder()
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .message("head_node_to_node_finish_service_registration")
+        .buffer(DataBuf.empty().writeUniqueId(serviceUniqueId))
+        .target(ChannelMessageTarget.Type.NODE, associatedNode.info().uniqueId())
+        .build()
+        .send();
       return result;
     } else {
-      // force the service unregister on the node
-      this.sendServiceRegisterResult(
-        "head_node_to_node_force_remove_service",
-        associatedNode.info().uniqueId(),
-        serviceUniqueId);
+      // a service with the id already exists, just let the unaccepted service
+      // time out on the other node... ¯\_(ツ)_/¯
       return ServiceCreateResult.FAILED;
     }
   }
@@ -222,16 +222,6 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // node should queue start requests)
     var createResult = result == null ? null : result.content().readObject(ServiceCreateResult.class);
     return Objects.requireNonNullElse(createResult, ServiceCreateResult.FAILED);
-  }
-
-  protected void sendServiceRegisterResult(@NonNull String message, @NonNull String node, @NonNull UUID serviceId) {
-    ChannelMessage.builder()
-      .target(ChannelMessageTarget.Type.NODE, node)
-      .message(message)
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeUniqueId(serviceId))
-      .build()
-      .send();
   }
 
   protected @NonNull ServiceCreateResult scheduleCreateRetryIfEnabled(

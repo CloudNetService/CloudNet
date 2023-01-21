@@ -83,25 +83,11 @@ public final class ServiceChannelMessageListener {
         // publish the service info of a created service to the cluster
         case "head_node_to_node_finish_service_registration" -> {
           var serviceUniqueId = event.content().readUniqueId();
-          var service = this.serviceManager.localCloudService(serviceUniqueId);
+          var service = this.serviceManager.takeUnacceptedService(serviceUniqueId);
 
           // should not happen, ignore silently
           if (service != null) {
             service.handleServiceRegister();
-          }
-        }
-
-        // force remove the service associated with the supplied service id
-        case "head_node_to_node_force_remove_service" -> {
-          var serviceUniqueId = event.content().readUniqueId();
-          var service = this.serviceManager.localCloudService(serviceUniqueId);
-
-          // at this point the service just gets removed - there is nothing we need to worry about as this
-          // message is only send internally. In case someone is abusing this message to create invalid
-          // results, that is no longer on our risk to do (for example to send this message when the service
-          // is running, there is no way after this call to stop the service anymore)
-          if (service != null) {
-            this.serviceManager.unregisterLocalService(service);
           }
         }
 
