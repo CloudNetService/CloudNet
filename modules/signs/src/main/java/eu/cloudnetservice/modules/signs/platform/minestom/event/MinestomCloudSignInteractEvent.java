@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ public class MinestomCloudSignInteractEvent implements CancellableEvent {
   public MinestomCloudSignInteractEvent(@NonNull Player player, @NonNull PlatformSign<Player, String> sign) {
     this.player = player;
     this.sign = sign;
+    this.target = sign.currentTarget();
   }
 
   public @NonNull Player player() {

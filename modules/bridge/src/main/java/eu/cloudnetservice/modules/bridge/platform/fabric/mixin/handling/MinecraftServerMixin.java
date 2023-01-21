@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.handling;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
+import eu.cloudnetservice.modules.bridge.platform.fabric.util.FabricInjectionHolder;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;
@@ -43,6 +44,8 @@ public abstract class MinecraftServerMixin implements BridgedServer {
 
   @Unique
   private PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management;
+  @Unique
+  private FabricInjectionHolder injectionHolder;
 
   @Shadow
   public abstract PlayerList getPlayerList();
@@ -60,8 +63,19 @@ public abstract class MinecraftServerMixin implements BridgedServer {
   )
   public void beforeTickLoopStart(CallbackInfo callbackInfo) {
     // the server now booted completely
-    this.management = new FabricBridgeManagement(this);
-    this.management.registerServices(Wrapper.instance().serviceRegistry());
+    this.injectionHolder = InjectionLayer.ext().instance(FabricInjectionHolder.class);
+    // we have to create the management ourselves as we can't inject the server
+    this.management = new FabricBridgeManagement(
+      this,
+      this.injectionHolder.rpcFactory(),
+      this.injectionHolder.eventManager(),
+      this.injectionHolder.networkClient(),
+      this.injectionHolder.taskProvider(),
+      this.injectionHolder.serviceHelper(),
+      this.injectionHolder.serviceInfoHolder(),
+      this.injectionHolder.serviceProvider(),
+      this.injectionHolder.wrapperConfiguration());
+    this.management.registerServices(this.injectionHolder.serviceRegistry());
     this.management.postInit();
   }
 
@@ -93,5 +107,10 @@ public abstract class MinecraftServerMixin implements BridgedServer {
   @Override
   public @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management() {
     return this.management;
+  }
+
+  @Override
+  public @NonNull FabricInjectionHolder injectionHolder() {
+    return this.injectionHolder;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.node.event;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.UnknownNullability;
  *
  * @since 4.0
  */
-public final class LocalPlayerPreLoginEvent extends DriverEvent {
+public final class LocalPlayerPreLoginEvent extends Event {
 
   private final NetworkPlayerProxyInfo playerInfo;
   private Result result = Result.allowed();

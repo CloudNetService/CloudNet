@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,42 @@
 package eu.cloudnetservice.modules.bridge.platform.nukkit;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.plugin.Plugin;
+import cn.nukkit.scheduler.ServerScheduler;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class NukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
+  private final ServerScheduler scheduler;
+  private final ServiceInfoHolder serviceInfoHolder;
+  private final ServerPlatformHelper serverPlatformHelper;
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
+  @Inject
   public NukkitPlayerManagementListener(
     @NonNull Plugin plugin,
+    @NonNull ServerScheduler scheduler,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ServerPlatformHelper serverPlatformHelper,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
   ) {
     this.plugin = plugin;
+    this.scheduler = scheduler;
+    this.serviceInfoHolder = serviceInfoHolder;
+    this.serverPlatformHelper = serverPlatformHelper;
     this.management = management;
   }
 
@@ -51,37 +64,39 @@ public final class NukkitPlayerManagementListener implements Listener {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setKickMessage(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
-          "server-join-cancel-because-maintenance"));
+          "server-join-cancel-because-maintenance",
+          event::setKickMessage);
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
-        event.setKickMessage(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
-          "server-join-cancel-because-permission"));
+          "server-join-cancel-because-permission",
+          event::setKickMessage);
       }
     }
   }
 
   @EventHandler
   public void handle(@NonNull PlayerJoinEvent event) {
-    ServerPlatformHelper.sendChannelMessageLoginSuccess(
+    this.serverPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
       this.management.createPlayerInformation(event.getPlayer()));
     // update the service info in the next tick
-    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.instance()::publishServiceInfoUpdate);
+    this.scheduler.scheduleTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 
   @EventHandler
   public void handle(@NonNull PlayerQuitEvent event) {
-    ServerPlatformHelper.sendChannelMessageDisconnected(
+    this.serverPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
-    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.instance()::publishServiceInfoUpdate);
+    this.scheduler.scheduleTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 }

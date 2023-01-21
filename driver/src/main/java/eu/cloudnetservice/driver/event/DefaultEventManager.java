@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package eu.cloudnetservice.driver.event;
 
-import eu.cloudnetservice.driver.event.invoker.ListenerInvokerGenerator;
+import dev.derklaro.aerogel.auto.Provides;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import jakarta.inject.Singleton;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,11 +31,21 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import lombok.NonNull;
 
+/**
+ * The default implementation of an event manager.
+ *
+ * @since 4.0
+ */
+@Singleton
+@Provides(EventManager.class)
 public class DefaultEventManager implements EventManager {
 
   protected final Lock bakeLock = new ReentrantLock(true);
   protected final Map<Class<?>, List<RegisteredEventListener>> listeners = new HashMap<>();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull EventManager unregisterListeners(@NonNull ClassLoader classLoader) {
     this.safeRemove(value -> value.instance().getClass().getClassLoader().equals(classLoader));
@@ -40,6 +53,9 @@ public class DefaultEventManager implements EventManager {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull EventManager unregisterListener(Object @NonNull ... listeners) {
     var listenerList = Arrays.asList(listeners);
@@ -48,6 +64,9 @@ public class DefaultEventManager implements EventManager {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T extends Event> @NonNull T callEvent(@NonNull String channel, @NonNull T event) {
     // get all registered listeners of the event
@@ -74,13 +93,46 @@ public class DefaultEventManager implements EventManager {
     return event;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull EventManager registerListener(@NonNull Class<?> listenerClass) {
+    var injectionLayer = InjectionLayer.findLayerOf(listenerClass);
+    return this.registerListener(injectionLayer, injectionLayer.instance(listenerClass));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull EventManager registerListener(@NonNull Object listener) {
+    var injectionLayer = InjectionLayer.findLayerOf(listener);
+    return this.registerListener(injectionLayer, listener);
+  }
+
+  /**
+   * Registers all methods in the given listener class which are annotated with {@link EventListener} and are taking
+   * only one argument with a subtype of {@link Event}.
+   * <p>
+   * This method accepts public, protected, default (package) access, and private methods but will not include inherited
+   * methods at all.
+   * <p>
+   * All methods which are not annotated with {@link EventListener}, are static and are not taking one or more arguments
+   * are silently ignored.
+   *
+   * @param layer    the injection layer to use to get instances needed for event listeners.
+   * @param listener the instance of the listener to register the methods in.
+   * @return the same event manager as used to call the method, for chaining.
+   * @throws NullPointerException     if the given listener or injection layer is null.
+   * @throws IllegalArgumentException if an event listener target doesn't take an event as it's first argument.
+   */
+  protected @NonNull EventManager registerListener(@NonNull InjectionLayer<?> layer, @NonNull Object listener) {
     // get all methods of the listener
     for (var method : listener.getClass().getDeclaredMethods()) {
       // check if the method can be used
       var annotation = method.getAnnotation(EventListener.class);
-      if (annotation != null && method.getParameterCount() == 1) {
+      if (annotation != null && !Modifier.isStatic(method.getModifiers()) && method.getParameterCount() >= 1) {
         // check the parameter type
         var eventClass = method.getParameterTypes()[0];
         if (!Event.class.isAssignableFrom(eventClass)) {
@@ -90,13 +142,9 @@ public class DefaultEventManager implements EventManager {
             method.getName(),
             listener.getClass().getName()));
         }
+
         // bring the information together
-        var eventListener = new DefaultRegisteredEventListener(
-          listener,
-          method.getName(),
-          eventClass,
-          annotation,
-          ListenerInvokerGenerator.generate(listener, method, eventClass));
+        var eventListener = new DefaultRegisteredEventListener(listener, method, annotation, layer);
 
         this.bakeLock.lock();
         try {
@@ -114,6 +162,12 @@ public class DefaultEventManager implements EventManager {
     return this;
   }
 
+  /**
+   * Safely removes the all registered event listeners which are matching the given predicate.
+   *
+   * @param predicate the predicate all listeners to remove must match.
+   * @throws NullPointerException if the given predicate is null.
+   */
   protected void safeRemove(@NonNull Predicate<RegisteredEventListener> predicate) {
     this.bakeLock.lock();
     try {

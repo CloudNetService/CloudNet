@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.netty.client;
 
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.netty.codec.NettyPacketDecoder;
 import eu.cloudnetservice.driver.network.netty.codec.NettyPacketEncoder;
@@ -33,17 +34,24 @@ import lombok.NonNull;
 public class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
 
   protected final HostAndPort hostAndPort;
+  protected final EventManager eventManager;
   protected final NettyNetworkClient nettyNetworkClient;
 
   /**
    * Constructs a new network client initializer instance.
    *
    * @param targetHost    the target host to which the network client connected.
+   * @param eventManager  the event manager of the current component.
    * @param networkClient the network client which connected to a server.
-   * @throws NullPointerException if either the target host or client is null.
+   * @throws NullPointerException if either the event manager, target host or client is null.
    */
-  public NettyNetworkClientInitializer(@NonNull HostAndPort targetHost, @NonNull NettyNetworkClient networkClient) {
+  public NettyNetworkClientInitializer(
+    @NonNull HostAndPort targetHost,
+    @NonNull EventManager eventManager,
+    @NonNull NettyNetworkClient networkClient
+  ) {
     this.hostAndPort = targetHost;
+    this.eventManager = eventManager;
     this.nettyNetworkClient = networkClient;
   }
 
@@ -64,6 +72,7 @@ public class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
       .addLast("packet-decoder", new NettyPacketDecoder())
       .addLast("packet-length-serializer", VarInt32FramePrepender.INSTANCE)
       .addLast("packet-encoder", NettyPacketEncoder.INSTANCE)
-      .addLast("network-client-handler", new NettyNetworkClientHandler(this.nettyNetworkClient, this.hostAndPort));
+      .addLast("network-client-handler",
+        new NettyNetworkClientHandler(this.eventManager, this.nettyNetworkClient, this.hostAndPort));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,18 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.TickLoop;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
-import eu.cloudnetservice.node.cluster.defaults.DefaultNodeServerProvider;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-public record LocalNodeUpdateTask(@NonNull DefaultNodeServerProvider provider) implements Runnable {
+@Singleton
+public record LocalNodeUpdateTask(
+  @NonNull NodeServerProvider provider,
+  @NonNull Provider<TickLoop> mainThreadProvider
+) implements Runnable {
 
   private static final Logger LOGGER = LogManager.logger(LocalNodeUpdateTask.class);
 
@@ -56,7 +62,7 @@ public record LocalNodeUpdateTask(@NonNull DefaultNodeServerProvider provider) i
             .message("update_node_info_snapshot")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
             .buffer(DataBuf.empty().writeObject(localNode.nodeInfoSnapshot()))
-            .prioritized(Node.instance().mainThread().currentTick() % 10 == 0);
+            .prioritized(this.mainThreadProvider.get().currentTick() % 10 == 0);
           // add all targets
           targetNodes.forEach(message::targetNode);
           // send the update to all active nodes

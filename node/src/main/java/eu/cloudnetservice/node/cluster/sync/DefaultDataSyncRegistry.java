@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,16 @@
 package eu.cloudnetservice.node.cluster.sync;
 
 import com.google.common.primitives.Ints;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.prettyprint.GulfHelper;
 import eu.cloudnetservice.node.cluster.sync.prettyprint.GulfPrettyPrint;
 import eu.cloudnetservice.node.console.Console;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -33,11 +35,19 @@ import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@Provides(DataSyncRegistry.class)
 public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
   private static final Logger LOGGER = LogManager.logger(DefaultDataSyncRegistry.class);
 
+  private final Console console;
   private final Map<String, DataSyncHandler<?>> handlers = new ConcurrentHashMap<>();
+
+  @Inject
+  public DefaultDataSyncRegistry(@NonNull Console console) {
+    this.console = console;
+  }
 
   @Override
   public void registerHandler(@NonNull DataSyncHandler<?> handler) {
@@ -144,7 +154,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
             // print out the possibilities the user has now
             LOGGER.warning(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
-            switch (this.waitForCorrectMergeInput(Node.instance().console())) {
+            switch (this.waitForCorrectMergeInput(this.console)) {
               case 1 -> {
                 // accept theirs - write the change
                 handler.write(data);

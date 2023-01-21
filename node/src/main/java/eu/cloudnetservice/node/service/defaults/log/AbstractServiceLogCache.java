@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.service.defaults.log;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
@@ -44,10 +44,10 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
   protected volatile int logCacheSize;
   protected volatile boolean alwaysPrintErrorStreamToConsole;
 
-  public AbstractServiceLogCache(@NonNull Node node, @NonNull CloudService service) {
+  public AbstractServiceLogCache(@NonNull Configuration configuration, @NonNull CloudService service) {
     this.service = service;
-    this.logCacheSize = node.config().maxServiceConsoleLogCacheSize();
-    this.alwaysPrintErrorStreamToConsole = node.config().printErrorStreamLinesFromServices();
+    this.logCacheSize = configuration.maxServiceConsoleLogCacheSize();
+    this.alwaysPrintErrorStreamToConsole = configuration.printErrorStreamLinesFromServices();
   }
 
   @Override

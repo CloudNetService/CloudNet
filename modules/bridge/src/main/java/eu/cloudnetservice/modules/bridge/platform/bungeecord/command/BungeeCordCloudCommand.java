@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,33 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord.command;
 
-import static eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper.translateToComponent;
-
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
+@Singleton
 public final class BungeeCordCloudCommand extends Command implements TabExecutor {
 
+  private final BungeeCordHelper bungeeHelper;
+  private final ClusterNodeProvider clusterNodeProvider;
   private final PlatformBridgeManagement<?, ?> management;
 
-  public BungeeCordCloudCommand(@NonNull PlatformBridgeManagement<?, ?> management) {
+  @Inject
+  public BungeeCordCloudCommand(
+    @NonNull BungeeCordHelper bungeeHelper,
+    @NonNull ClusterNodeProvider clusterNodeProvider,
+    @NonNull PlatformBridgeManagement<?, ?> management
+  ) {
     super("cloudnet", "cloudnet.command.cloudnet", "cloud");
+    this.bungeeHelper = bungeeHelper;
+    this.clusterNodeProvider = clusterNodeProvider;
     this.management = management;
   }
 
@@ -40,7 +51,8 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
-      sender.sendMessage(translateToComponent(this.management.configuration().prefix() + "/cloudnet <command>"));
+      sender.sendMessage(
+        this.bungeeHelper.translateToComponent(this.management.configuration().prefix() + "/cloudnet <command>"));
       return;
     }
     // get the full command line
@@ -48,14 +60,14 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
     // skip the permission check if the source is the console
     if (sender instanceof ProxiedPlayer player) {
       // get the command info
-      CloudNetDriver.instance().clusterNodeProvider().consoleCommandAsync(args[0]).thenAcceptAsync(info -> {
+      this.clusterNodeProvider.consoleCommandAsync(args[0]).thenAcceptAsync(info -> {
         // check if the player has the required permission
         if (info == null || !sender.hasPermission(info.permission())) {
-          // no permission
-          sender.sendMessage(translateToComponent(this.management.configuration().message(
+          this.management.configuration().handleMessage(
             player.getLocale(),
-            "command-cloud-sub-command-no-permission"
-          ).replace("%command%", args[0])));
+            "command-cloud-sub-command-no-permission",
+            message -> this.bungeeHelper.translateToComponent(message.replace("%command%", args[0])),
+            sender::sendMessage);
         } else {
           // execute command
           this.executeNow(sender, commandLine);
@@ -68,13 +80,13 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
   }
 
   private void executeNow(@NonNull CommandSender sender, @NonNull String commandLine) {
-    for (var output : CloudNetDriver.instance().clusterNodeProvider().sendCommandLine(commandLine)) {
-      sender.sendMessage(translateToComponent(this.management.configuration().prefix() + output));
+    for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
+      sender.sendMessage(this.bungeeHelper.translateToComponent(this.management.configuration().prefix() + output));
     }
   }
 
   @Override
   public @NonNull Iterable<String> onTabComplete(@NonNull CommandSender sender, @NonNull String[] args) {
-    return CloudNetDriver.instance().clusterNodeProvider().consoleTabCompleteResults(String.join(" ", args));
+    return this.clusterNodeProvider.consoleTabCompleteResults(String.join(" ", args));
   }
 }

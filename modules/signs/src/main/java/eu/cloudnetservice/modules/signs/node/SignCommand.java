@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,19 +27,22 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.SignConfigurationType;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
+@Singleton
 @CommandAlias("signs")
 @CommandPermission("cloudnet.command.sign")
 @Description("module-sign-command-description")
@@ -52,9 +55,12 @@ public class SignCommand {
     .build();
 
   private final SignManagement signManagement;
+  private final GroupConfigurationProvider groupProvider;
 
-  public SignCommand(@NonNull SignManagement signManagement) {
+  @Inject
+  public SignCommand(@NonNull SignManagement signManagement, @NonNull GroupConfigurationProvider groupProvider) {
     this.signManagement = signManagement;
+    this.groupProvider = groupProvider;
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
@@ -63,7 +69,7 @@ public class SignCommand {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var configuration = Node.instance().groupConfigurationProvider().groupConfiguration(name);
+    var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
@@ -82,7 +88,7 @@ public class SignCommand {
     @NonNull CommandContext<CommandSource> $,
     @NonNull String input
   ) {
-    return Node.instance().groupConfigurationProvider().groupConfigurations().stream()
+    return this.groupProvider.groupConfigurations().stream()
       .map(Nameable::name)
       .filter(group -> this.signManagement.signsConfiguration()
         .entries()

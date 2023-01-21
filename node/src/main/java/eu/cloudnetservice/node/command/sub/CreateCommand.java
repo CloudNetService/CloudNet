@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,19 +27,22 @@ import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressAnimation;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandPermission("cloudnet.command.create")
 @Description("command-create-description")
 public final class CreateCommand {
 
   @CommandMethod("create by <task> <amount>")
   public void createByTask(
+    @NonNull Console console,
     @NonNull CommandSource source,
     @NonNull @Argument("task") ServiceTask task,
     @Argument("amount") @Range(min = "1") int amount,
@@ -69,6 +72,7 @@ public final class CreateCommand {
     if (amount >= 10) {
       // display with progress animation
       this.startServices(
+        console,
         source,
         configurationBuilder.build(),
         ConsoleProgressAnimation.createDefault("Creating", " Services", 1, amount),
@@ -76,11 +80,12 @@ public final class CreateCommand {
         startService);
     } else {
       // start without progress animation
-      this.startServices(source, configurationBuilder.build(), null, amount, startService);
+      this.startServices(console, source, configurationBuilder.build(), null, amount, startService);
     }
   }
 
   private void startServices(
+    @NonNull Console console,
     @NonNull CommandSource source,
     @NonNull ServiceConfiguration configuration,
     @Nullable ConsoleProgressAnimation animation,
@@ -89,9 +94,10 @@ public final class CreateCommand {
   ) {
     source.sendMessage(I18n.trans("command-create-by-task-starting", configuration.serviceId().taskName(), amount));
     // start the progress animation if needed
-    if (animation != null && !Node.instance().console().animationRunning()) {
-      Node.instance().console().startAnimation(animation);
+    if (animation != null && !console.animationRunning()) {
+      console.startAnimation(animation);
     }
+
     // try to start the provided amount of services based on the configuration
     for (var i = 0; i < amount; i++) {
       var createResult = configuration.createNewService();

@@ -1,8 +1,0 @@
-name: CloudNet-CloudPerms
-version: "{project.build.version}"
-author: CloudNetService
-description: Bukkit extension which implement the permission management system from CloudNet into Bukkit for players
-
-main: eu.cloudnetservice.modules.cloudperms.bukkit.BukkitCloudPermissionsPlugin
-
-softdepend: [ Vault, VaultAPI ]

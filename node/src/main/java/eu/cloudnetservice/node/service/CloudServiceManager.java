@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,17 +38,23 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface CloudServiceManager extends CloudServiceProvider {
 
   @NonNull
-  @UnmodifiableView Map<String, CloudServiceFactory> cloudServiceFactories();
+  @UnmodifiableView Map<String, LocalCloudServiceFactory> cloudServiceFactories();
 
-  @Nullable CloudServiceFactory cloudServiceFactory(@NonNull String runtime);
+  @Nullable LocalCloudServiceFactory cloudServiceFactory(@NonNull String runtime);
 
-  void addCloudServiceFactory(@NonNull String runtime, @NonNull CloudServiceFactory factory);
+  void addCloudServiceFactory(@NonNull String runtime, @NonNull LocalCloudServiceFactory factory);
+
+  void addCloudServiceFactory(@NonNull String runtime, @NonNull Class<? extends LocalCloudServiceFactory> factory);
 
   void removeCloudServiceFactory(@NonNull String runtime);
 
   @NonNull Collection<ServiceConfigurationPreparer> servicePreparers();
 
   @NonNull ServiceConfigurationPreparer servicePreparer(@NonNull ServiceEnvironmentType environmentType);
+
+  void addServicePreparer(
+    @NonNull ServiceEnvironmentType type,
+    @NonNull Class<? extends ServiceConfigurationPreparer> preparer);
 
   void addServicePreparer(@NonNull ServiceEnvironmentType type, @NonNull ServiceConfigurationPreparer preparer);
 

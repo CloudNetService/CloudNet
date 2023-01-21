@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,28 +20,39 @@ import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
+import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerPreLoginEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 
+@Singleton
 public final class MinestomPlayerManagementListener {
 
+  private final ServiceInfoHolder serviceInfoHolder;
+  private final ServerPlatformHelper serverPlatformHelper;
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
+  @Inject
   public MinestomPlayerManagementListener(
+    @NonNull GlobalEventHandler eventHandler,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ServerPlatformHelper serverPlatformHelper,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
   ) {
+    this.serviceInfoHolder = serviceInfoHolder;
+    this.serverPlatformHelper = serverPlatformHelper;
     this.management = management;
     // listen on these events and redirect them into the methods
     var node = EventNode.type("cloudnet-bridge", EventFilter.PLAYER);
-    MinecraftServer.getGlobalEventHandler().addChild(node
+    eventHandler.addChild(node
       .addListener(AsyncPlayerPreLoginEvent.class, this::handleLogin)
       .addListener(PlayerSpawnEvent.class, this::handleJoin)
       .addListener(PlayerDisconnectEvent.class, this::handleDisconnect));
@@ -59,17 +70,21 @@ public final class MinestomPlayerManagementListener {
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-        player.kick(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           player.getLocale(),
-          "server-join-cancel-because-maintenance")));
+          "server-join-cancel-because-maintenance",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          player::kick);
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
-        player.kick(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           player.getLocale(),
-          "server-join-cancel-because-permission")));
+          "server-join-cancel-because-permission",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          player::kick);
       }
     }
   }
@@ -80,11 +95,11 @@ public final class MinestomPlayerManagementListener {
       return;
     }
 
-    ServerPlatformHelper.sendChannelMessageLoginSuccess(
+    this.serverPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUuid(),
       this.management.createPlayerInformation(event.getPlayer()));
     // update the service info
-    Wrapper.instance().publishServiceInfoUpdate();
+    this.serviceInfoHolder.publishServiceInfoUpdate();
   }
 
   private void handleDisconnect(@NonNull PlayerDisconnectEvent event) {
@@ -93,10 +108,10 @@ public final class MinestomPlayerManagementListener {
       return;
     }
 
-    ServerPlatformHelper.sendChannelMessageDisconnected(
+    this.serverPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUuid(),
       this.management.ownNetworkServiceInfo());
     // update the service info
-    Wrapper.instance().publishServiceInfoUpdate();
+    this.serviceInfoHolder.publishServiceInfoUpdate();
   }
 }

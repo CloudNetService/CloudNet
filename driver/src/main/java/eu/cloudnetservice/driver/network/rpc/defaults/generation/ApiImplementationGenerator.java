@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,9 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
+import com.google.common.collect.ObjectArrays;
 import dev.derklaro.reflexion.Reflexion;
+import dev.derklaro.reflexion.matcher.ConstructorMatcher;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -46,8 +48,11 @@ import eu.cloudnetservice.driver.network.rpc.annotation.RPCIgnore;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCNoResult;
 import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.generation.InstanceFactory;
 import eu.cloudnetservice.driver.util.asm.AsmHelper;
 import eu.cloudnetservice.driver.util.define.ClassDefiners;
+import jakarta.inject.Inject;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -57,6 +62,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -84,9 +90,7 @@ public final class ApiImplementationGenerator {
     Type.getType(RPC.class),
     Type.getType(String.class),
     Type.getType(Object[].class));
-  private static final String CONSTRUCTOR_SENDER_DESC = Type.getMethodDescriptor(
-    Type.VOID_TYPE,
-    Type.getType(RPCSender.class));
+  static final String INJECT_ANNOTATION_DESC = Type.getDescriptor(Inject.class);
   // executable stuff
   static final String EXECUTABLE_NAME = Type.getInternalName(RPCExecutable.class);
   static final String EXECUTABLE_FIRE_FORGET = Type.getMethodDescriptor(Type.VOID_TYPE);
@@ -126,7 +130,7 @@ public final class ApiImplementationGenerator {
    */
   // Suppresses ConstantConditions as IJ is dumb
   @SuppressWarnings({"unchecked"})
-  public static @NonNull <T> Supplier<Object> generateApiImplementation(
+  public static @NonNull <T> InstanceFactory<T> generateApiImplementation(
     @NonNull Class<T> baseClass,
     @NonNull GenerationContext context,
     @NonNull RPCSender sender
@@ -151,30 +155,59 @@ public final class ApiImplementationGenerator {
       // add the sender field
       cw.visitField(ACC_PRIVATE | ACC_FINAL, "sender", SENDER_DESC, null, null).visitEnd();
       cw.visitField(ACC_PRIVATE | ACC_FINAL, "channelSupplier", SUPPLIER_DESC, null, null).visitEnd();
+
+      // check if the class has a constructor with a rpc sender instance, use that prioritized
+      var targetConstructorArgs = ChainedApiImplementationGenerator.findSuperConstructorTypes(context.extendingClass());
+
       // generate the constructor
       MethodVisitor mv;
-      mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(%s%s)V", SENDER_DESC, SUPPLIER_DESC), null, null);
-      // generate the constructor
-      // check if the class has a constructor with a rpc sender instance, use that prioritized
-      var useSenderConstructor = false;
-      if (context.extendingClass() != null) {
-        try {
-          context.extendingClass().getDeclaredConstructor(RPCSender.class);
-          useSenderConstructor = true;
-        } catch (NoSuchMethodException ignored) {
-          // proceed as the class has only a no-args constructor
-        }
-      }
-
+      mv = cw.visitMethod(
+        ACC_PUBLIC,
+        "<init>",
+        String.format(
+          "(%s%s%s)V",
+          SENDER_DESC,
+          SUPPLIER_DESC,
+          targetConstructorArgs.stream()
+            .map(Type::getDescriptor)
+            .filter(type -> !type.equals(SENDER_DESC) && !type.equals(SUPPLIER_DESC))
+            .collect(Collectors.joining())),
+        null,
+        null);
+      mv.visitAnnotation(INJECT_ANNOTATION_DESC, true);
       mv.visitCode();
+
       // visit super
       mv.visitVarInsn(ALOAD, 0);
-      if (useSenderConstructor) {
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", CONSTRUCTOR_SENDER_DESC, false);
-      } else {
+      if (targetConstructorArgs.isEmpty()) {
         mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", "()V", false);
+      } else {
+        // load all parameters to the stack
+        for (int i = 0; i < targetConstructorArgs.size(); i++) {
+          var argumentType = targetConstructorArgs.get(i);
+
+          if (i == 0 && argumentType.equals(RPCSender.class)) {
+            // argument is the provided sender
+            mv.visitVarInsn(ALOAD, 1);
+          } else if ((i == 0 || i == 1) && argumentType.equals(Supplier.class)) {
+            // argument is the provided channel supplier
+            mv.visitVarInsn(ALOAD, 2);
+          } else {
+            var type = Type.getType(argumentType);
+            mv.visitVarInsn(type.getOpcode(ILOAD), 2 + i); // 0 = this, 1 = sender, 2 = channel supplier
+          }
+        }
+
+        mv.visitMethodInsn(
+          INVOKESPECIAL,
+          superName,
+          "<init>",
+          targetConstructorArgs.stream()
+            .map(Type::getDescriptor)
+            .collect(Collectors.joining("", "(", ")V")),
+          false);
       }
+
       // write the sender field
       mv.visitVarInsn(ALOAD, 0);
       mv.visitVarInsn(ALOAD, 1);
@@ -205,13 +238,23 @@ public final class ApiImplementationGenerator {
       }
       // finish the class
       cw.visitEnd();
+
       // define & select the correct constructor for the class
-      var accessor = Reflexion
-        .on(ClassDefiners.current().defineClass(className, parentClass, cw.toByteArray()))
-        .findConstructor(RPCSender.class, Supplier.class)
-        .orElseThrow();
+      var definedClass = ClassDefiners.current().defineClass(className, parentClass, cw.toByteArray());
+      var constructorMatcher = ConstructorMatcher.newMatcher()
+        .exactType(Constructor::getDeclaringClass, definedClass)
+        .exactTypeAt(Constructor::getParameterTypes, RPCSender.class, 0)
+        .exactTypeAt(Constructor::getParameterTypes, Supplier.class, 1);
+
       // instantiate the new class
-      return () -> (T) accessor.invokeWithArgs(sender, context.channelSupplier()).getOrThrow();
+      var accessor = Reflexion.on(definedClass).findConstructor(constructorMatcher).orElseThrow();
+      return constructorArgs -> {
+        var arguments = ObjectArrays.concat(
+          new Object[]{sender, context.channelSupplier()},
+          constructorArgs,
+          Object.class);
+        return (T) accessor.invokeWithArgs(arguments).getOrThrow();
+      };
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Unable to generate api class implementation for class %s",

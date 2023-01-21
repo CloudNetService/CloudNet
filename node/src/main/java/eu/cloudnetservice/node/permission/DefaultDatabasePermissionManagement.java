@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,28 @@
 package eu.cloudnetservice.node.permission;
 
 import com.google.common.collect.Iterables;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.permission.DefaultPermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.network.listener.message.PermissionChannelMessageListener;
 import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
 import eu.cloudnetservice.node.permission.handler.PermissionManagementHandler;
 import eu.cloudnetservice.node.permission.handler.PermissionManagementHandlerAdapter;
+import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.setup.PermissionGroupSetup;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -43,32 +52,58 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DefaultDatabasePermissionManagement extends DefaultPermissionManagement
+@Singleton
+@Provides({NodePermissionManagement.class, PermissionManagement.class})
+public class DefaultDatabasePermissionManagement
+  extends DefaultPermissionManagement
   implements NodePermissionManagement {
 
   private static final String USER_DB_NAME = "cloudnet_permission_users";
-  private static final Path GROUPS_FILE = Path.of(
-    System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
+  private static final Path GROUPS_FILE = Path.of(System.getProperty(
+    "cloudnet.permissions.json.path",
+    "local/permissions.json"));
 
-  protected final Node nodeInstance;
+  protected final RPCFactory rpcFactory;
+  protected final EventManager eventManager;
+  protected final CommandProvider commandProvider;
+  protected final DefaultInstallation installation;
+  protected final RPCHandlerRegistry handlerRegistry;
+  protected final NodeDatabaseProvider databaseProvider;
+
   protected final Map<String, PermissionGroup> groups;
   protected final PermissionChannelMessageListener networkListener;
 
   protected volatile PermissionManagementHandler handler = PermissionManagementHandlerAdapter.NO_OP;
 
-  public DefaultDatabasePermissionManagement(@NonNull Node nodeInstance) {
-    this.nodeInstance = nodeInstance;
+  @Inject
+  public DefaultDatabasePermissionManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull CommandProvider commandProvider,
+    @NonNull DefaultInstallation installation,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull RPCHandlerRegistry handlerRegistry,
+    @NonNull NodeDatabaseProvider databaseProvider,
+    @NonNull PermissionChannelMessageListener networkListener
+  ) {
+    this.rpcFactory = rpcFactory;
+    this.eventManager = eventManager;
+    this.installation = installation;
+    this.networkListener = networkListener;
+    this.commandProvider = commandProvider;
+    this.handlerRegistry = handlerRegistry;
+    this.databaseProvider = databaseProvider;
     this.groups = new ConcurrentHashMap<>();
-    this.networkListener = new PermissionChannelMessageListener(nodeInstance.eventManager(), this);
+
     // sync permission groups into the cluster
-    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<PermissionGroup>builder()
+    dataSyncRegistry.registerHandler(DataSyncHandler.<PermissionGroup>builder()
       .alwaysForce()
       .key("perms-groups")
       .nameExtractor(PermissionGroup::name)
       .convertObject(PermissionGroup.class)
-      .dataCollector(() -> Node.instance().permissionManagement().groups())
-      .writer(group -> Node.instance().permissionManagement().addGroupSilently(group))
-      .currentGetter(group -> Node.instance().permissionManagement().group(group.name()))
+      .dataCollector(this::groups)
+      .writer(this::addGroupSilently)
+      .currentGetter(group -> this.group(group.name()))
       .build());
   }
 
@@ -80,19 +115,19 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public void init() {
     if (Files.notExists(GROUPS_FILE)) {
-      this.nodeInstance.installation().registerSetup(new PermissionGroupSetup());
+      this.installation.registerSetup(PermissionGroupSetup.class);
       this.saveGroups(); // write an empty file to the groups file location
     } else {
       this.loadGroups();
     }
 
-    this.nodeInstance.eventManager().registerListener(this.networkListener);
-    this.nodeInstance.rpcFactory().newHandler(PermissionManagement.class, this).registerToDefaultRegistry();
+    this.eventManager.registerListener(this.networkListener);
+    this.rpcFactory.newHandler(PermissionManagement.class, this).registerTo(this.handlerRegistry);
   }
 
   @Override
   public void close() {
-    this.nodeInstance.eventManager().unregisterListener(this.networkListener);
+    this.eventManager.unregisterListener(this.networkListener);
   }
 
   @Override
@@ -191,7 +226,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
       // Deserialize the user from the document
       var permissionUser = user.toInstanceOf(PermissionUser.class);
       // update the user info if necessary
-      if (this.testPermissible(permissionUser)) {
+      if (this.testPermissionUser(permissionUser)) {
         this.updateUserAsync(permissionUser);
       }
       // return the user
@@ -219,7 +254,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
         // deserialize the permission user
         var user = userData.toInstanceOf(PermissionUser.class);
         // check if we need to update the user
-        if (this.testPermissible(user)) {
+        if (this.testPermissionUser(user)) {
           this.updateUserAsync(user);
         }
         // use the user instance
@@ -235,7 +270,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
       // deserialize the permission user
       var user = data.toInstanceOf(PermissionUser.class);
       // check if we need to update the user
-      if (this.testPermissible(user)) {
+      if (this.testPermissionUser(user)) {
         this.updateUserAsync(user);
       }
       // use the user instance
@@ -253,7 +288,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
       // deserialize the permission user
       var user = data.toInstanceOf(PermissionUser.class);
       // check if we need to update the user
-      if (this.testPermissible(user)) {
+      if (this.testPermissionUser(user)) {
         this.updateUserAsync(user);
       }
       // use the user instance if in the group
@@ -303,12 +338,27 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public @Nullable PermissionGroup group(@NonNull String name) {
-    return this.groups.get(name);
+    var group = this.groups.get(name);
+    if (group == null) {
+      return null;
+    }
+
+    // test and remove any outdated permissions - update afterwards
+    if (this.testPermissible(group)) {
+      this.updateGroupAsync(group);
+    }
+
+    return group;
   }
 
   @Override
   public @NonNull Collection<PermissionGroup> groups() {
-    return Collections.unmodifiableCollection(this.groups.values());
+    return this.groups.values().stream().peek(group -> {
+      // test and remove any outdated permissions - update afterwards
+      if (this.testPermissible(group)) {
+        this.updateGroupAsync(group);
+      }
+    }).collect(Collectors.toSet());
   }
 
   @Override
@@ -324,7 +374,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull PermissionUser user, @NonNull String commandLine) {
     var source = new PermissionUserCommandSource(user, this);
-    Node.instance().commandProvider().execute(source, commandLine).getOrNull();
+    this.commandProvider.execute(source, commandLine).getOrNull();
     return source.messages();
   }
 
@@ -373,7 +423,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   protected @NonNull LocalDatabase userDatabaseTable() {
-    return this.nodeInstance.databaseProvider().database(USER_DB_NAME);
+    return this.databaseProvider.database(USER_DB_NAME);
   }
 
   protected void saveGroups() {

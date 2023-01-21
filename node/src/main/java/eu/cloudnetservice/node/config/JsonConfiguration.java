@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.config;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
@@ -26,9 +27,10 @@ import eu.cloudnetservice.driver.network.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.setup.DefaultConfigSetup;
+import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import lombok.NonNull;
 
+@Singleton
 public final class JsonConfiguration implements Configuration {
 
   public static final Path CONFIG_FILE_PATH = Path.of(
@@ -115,10 +118,19 @@ public final class JsonConfiguration implements Configuration {
     }
   }
 
-  public static @NonNull Configuration loadFromFile(@NonNull Node nodeInstance) {
+  public static @NonNull Configuration loadFromFile() {
+    if (Files.notExists(CONFIG_FILE_PATH)) {
+      return new JsonConfiguration().load();
+    } else {
+      return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
+    }
+  }
+
+  @Factory
+  private static @NonNull Configuration loadFromFile(@NonNull DefaultInstallation installation) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exist
-      nodeInstance.installation().registerSetup(new DefaultConfigSetup());
+      installation.registerSetup(DefaultConfigSetup.class);
       return new JsonConfiguration().load();
     } else {
       return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();

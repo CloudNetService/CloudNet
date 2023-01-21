@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,27 +38,21 @@ import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
+import jakarta.inject.Singleton;
 import java.util.Locale;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 
+@Singleton
 public final class NodePlayerChannelMessageListener {
 
-  private final EventManager eventManager;
-  private final NodePlayerManager playerManager;
-  private final BridgeManagement bridgeManagement;
-
-  public NodePlayerChannelMessageListener(
+  @EventListener
+  public void handle(
+    @NonNull ChannelMessageReceiveEvent event,
     @NonNull EventManager eventManager,
     @NonNull NodePlayerManager playerManager,
     @NonNull BridgeManagement bridgeManagement
   ) {
-    this.eventManager = eventManager;
-    this.playerManager = playerManager;
-    this.bridgeManagement = bridgeManagement;
-  }
-
-  @EventListener
-  public void handle(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)) {
       // a message regarding a player event
       switch (event.message()) {
@@ -69,14 +63,19 @@ public final class NodePlayerChannelMessageListener {
           // create the event
           var preLoginEvent = new LocalPlayerPreLoginEvent(info);
           // set the event cancelled by default if the player is already connected
-          if (this.playerManager.onlinePlayer(info.uniqueId()) != null) {
-            preLoginEvent.result(LocalPlayerPreLoginEvent.Result.denied(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-              this.bridgeManagement.configuration().message(
-                Locale.ENGLISH,
-                "already-connected"))));
+          if (playerManager.onlinePlayer(info.uniqueId()) != null) {
+            preLoginEvent.result(bridgeManagement.configuration().findMessage(
+              Locale.ENGLISH,
+              "already-connected",
+              message -> {
+                var component = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message);
+                return LocalPlayerPreLoginEvent.Result.denied(component);
+              },
+              LocalPlayerPreLoginEvent.Result.denied(Component.empty()),
+              true));
           }
           // publish the event
-          var result = this.eventManager.callEvent(preLoginEvent).result();
+          var result = eventManager.callEvent(preLoginEvent).result();
           event.binaryResponse(DataBuf.empty().writeObject(result));
         }
 
@@ -85,8 +84,8 @@ public final class NodePlayerChannelMessageListener {
           // read the player
           var player = event.content().readObject(CloudOfflinePlayer.class);
           // push the change
-          this.playerManager.pushOfflinePlayerCache(player.uniqueId(), player);
-          this.eventManager.callEvent(new BridgeUpdateCloudOfflinePlayerEvent(player));
+          playerManager.pushOfflinePlayerCache(player.uniqueId(), player);
+          eventManager.callEvent(new BridgeUpdateCloudOfflinePlayerEvent(player));
         }
 
         // online player update
@@ -94,8 +93,8 @@ public final class NodePlayerChannelMessageListener {
           // read the player
           var player = event.content().readObject(CloudPlayer.class);
           // push the change
-          this.playerManager.pushOnlinePlayerCache(player);
-          this.eventManager.callEvent(new BridgeUpdateCloudPlayerEvent(player));
+          playerManager.pushOnlinePlayerCache(player);
+          eventManager.callEvent(new BridgeUpdateCloudPlayerEvent(player));
         }
 
         // offline player delete
@@ -103,8 +102,8 @@ public final class NodePlayerChannelMessageListener {
           // read the player
           var player = event.content().readObject(CloudOfflinePlayer.class);
           // push the change
-          this.playerManager.pushOfflinePlayerCache(player.uniqueId(), null);
-          this.eventManager.callEvent(new BridgeDeleteCloudOfflinePlayerEvent(player));
+          playerManager.pushOfflinePlayerCache(player.uniqueId(), null);
+          eventManager.callEvent(new BridgeDeleteCloudOfflinePlayerEvent(player));
         }
 
         // player login request
@@ -112,8 +111,8 @@ public final class NodePlayerChannelMessageListener {
           // read the player
           var player = event.content().readObject(CloudPlayer.class);
           // push the change
-          this.playerManager.processLoginMessage(player);
-          this.eventManager.callEvent(new BridgeProxyPlayerLoginEvent(player));
+          playerManager.processLoginMessage(player);
+          eventManager.callEvent(new BridgeProxyPlayerLoginEvent(player));
         }
 
         // player disconnection
@@ -121,10 +120,10 @@ public final class NodePlayerChannelMessageListener {
           // read the player
           var player = event.content().readObject(CloudPlayer.class);
           // push the change
-          this.playerManager.players().remove(player.uniqueId());
-          this.playerManager.pushOfflinePlayerCache(player.uniqueId(), CloudOfflinePlayer.offlineCopy(player));
+          playerManager.players().remove(player.uniqueId());
+          playerManager.pushOfflinePlayerCache(player.uniqueId(), CloudOfflinePlayer.offlineCopy(player));
           // call the event locally
-          this.eventManager.callEvent(new BridgeProxyPlayerDisconnectEvent(player));
+          eventManager.callEvent(new BridgeProxyPlayerDisconnectEvent(player));
         }
 
         // proxy player platform login
@@ -133,7 +132,7 @@ public final class NodePlayerChannelMessageListener {
           var proxy = event.content().readObject(NetworkPlayerProxyInfo.class);
           var joinedService = event.content().readObject(NetworkServiceInfo.class);
           // process the login
-          this.playerManager.loginPlayer(proxy, joinedService);
+          playerManager.loginPlayer(proxy, joinedService);
         }
 
         // proxy player server switch
@@ -142,14 +141,14 @@ public final class NodePlayerChannelMessageListener {
           var uniqueId = event.content().readUniqueId();
           var target = event.content().readObject(NetworkServiceInfo.class);
           // get the associated player
-          var player = this.playerManager.onlinePlayer(uniqueId);
+          var player = playerManager.onlinePlayer(uniqueId);
           // check if we know the player
           if (player != null) {
             // the previous service
             var prev = player.connectedService();
             // set the current connected service and fire the event
             player.connectedService(target);
-            this.eventManager.callEvent(new BridgeProxyPlayerServerSwitchEvent(player, prev));
+            eventManager.callEvent(new BridgeProxyPlayerServerSwitchEvent(player, prev));
             // redirect to the cluster
             ChannelMessage.builder()
               .targetAll()
@@ -167,15 +166,15 @@ public final class NodePlayerChannelMessageListener {
           var player = event.content().readObject(CloudPlayer.class);
           var previous = event.content().readObject(NetworkServiceInfo.class);
           // update the cache & fire the event
-          this.playerManager.pushOnlinePlayerCache(player);
-          this.eventManager.callEvent(new BridgeProxyPlayerServerSwitchEvent(player, previous));
+          playerManager.pushOnlinePlayerCache(player);
+          eventManager.callEvent(new BridgeProxyPlayerServerSwitchEvent(player, previous));
         }
 
         // proxy player disconnect
         case "proxy_player_disconnect" -> {
           // read the information
           var uniqueId = event.content().readUniqueId();
-          this.playerManager.logoutPlayer(uniqueId, null, null);
+          playerManager.logoutPlayer(uniqueId, null, null);
         }
 
         // server player login
@@ -184,11 +183,11 @@ public final class NodePlayerChannelMessageListener {
           var playerUniqueId = event.content().readUniqueId();
           var info = event.content().readObject(NetworkPlayerServerInfo.class);
           // get the cloud player if known
-          var player = this.playerManager.onlinePlayer(playerUniqueId);
+          var player = playerManager.onlinePlayer(playerUniqueId);
           if (player != null) {
             // update the player locally & call the event
             player.networkPlayerServerInfo(info);
-            this.eventManager.callEvent(new BridgeServerPlayerLoginEvent(player, info));
+            eventManager.callEvent(new BridgeServerPlayerLoginEvent(player, info));
             // redirect to the cluster
             ChannelMessage.builder()
               .targetAll()
@@ -206,10 +205,10 @@ public final class NodePlayerChannelMessageListener {
           var playerUniqueId = event.content().readUniqueId();
           var info = event.content().readObject(NetworkServiceInfo.class);
           // get the cloud player if known
-          var player = this.playerManager.onlinePlayer(playerUniqueId);
+          var player = playerManager.onlinePlayer(playerUniqueId);
           if (player != null) {
             // call the event
-            this.eventManager.callEvent(new BridgeServerPlayerDisconnectEvent(player, info));
+            eventManager.callEvent(new BridgeServerPlayerDisconnectEvent(player, info));
             // redirect to the cluster
             ChannelMessage.builder()
               .targetAll()
@@ -227,8 +226,8 @@ public final class NodePlayerChannelMessageListener {
           var player = event.content().readObject(CloudPlayer.class);
           var serviceInfo = event.content().readObject(NetworkPlayerServerInfo.class);
           // update the local player cache & fire the event
-          this.playerManager.pushOnlinePlayerCache(player);
-          this.eventManager.callEvent(new BridgeServerPlayerLoginEvent(player, serviceInfo));
+          playerManager.pushOnlinePlayerCache(player);
+          eventManager.callEvent(new BridgeServerPlayerLoginEvent(player, serviceInfo));
         }
 
         // player server disconnect
@@ -237,7 +236,7 @@ public final class NodePlayerChannelMessageListener {
           var player = event.content().readObject(CloudPlayer.class);
           var serviceInfo = event.content().readObject(NetworkServiceInfo.class);
           // fire the event
-          this.eventManager.callEvent(new BridgeServerPlayerDisconnectEvent(player, serviceInfo));
+          eventManager.callEvent(new BridgeServerPlayerDisconnectEvent(player, serviceInfo));
         }
 
         // none of our business - just ignore that

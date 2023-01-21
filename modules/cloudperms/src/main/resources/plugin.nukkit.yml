@@ -1,7 +1,0 @@
-name: CloudNet-CloudPerms
-version: "{project.build.version}"
-api: [ "1.0.5" ]
-author: CloudNetService
-description: Nukkit extension which implement the permission management system from CloudNet into Nukkit for players
-
-main: eu.cloudnetservice.modules.cloudperms.nukkit.NukkitCloudPermissionsPlugin

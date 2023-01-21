@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,21 +29,34 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.information.TemplateVersionInstaller;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @HandlerPermission("http.v2.template")
 public final class V2HttpHandlerTemplate extends V2HttpHandler {
 
   private static final Logger LOGGER = LogManager.logger(V2HttpHandlerTemplate.class);
+
+  private final ServiceVersionProvider versionProvider;
+
+  @Inject
+  public V2HttpHandlerTemplate(@NonNull Configuration config, @NonNull ServiceVersionProvider versionProvider) {
+    super(config.restConfiguration());
+    this.versionProvider = versionProvider;
+  }
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/download")
@@ -255,7 +268,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
       var versionType = body.get("type", ServiceVersionType.class);
       if (versionType == null) {
-        versionType = this.node().serviceVersionProvider().getServiceVersionType(body.getString("typeName", ""));
+        versionType = this.versionProvider.getServiceVersionType(body.getString("typeName", ""));
         if (versionType == null) {
           this.badRequest(context)
             .body(this.failure().append("reason", "No service type or type name provided").toString())
@@ -289,7 +302,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
         .toTemplate(template)
         .build();
 
-      if (this.node().serviceVersionProvider().installServiceVersion(installer, forceInstall)) {
+      if (this.versionProvider.installServiceVersion(installer, forceInstall)) {
         this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext(true);
       } else {
         this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext(true);

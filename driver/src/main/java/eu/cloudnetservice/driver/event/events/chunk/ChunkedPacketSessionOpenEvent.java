@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.event.events.chunk;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.defaults.factory.EventChunkHandlerFactory;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
  * @see EventChunkHandlerFactory
  * @since 4.0
  */
-public final class ChunkedPacketSessionOpenEvent extends DriverEvent {
+public final class ChunkedPacketSessionOpenEvent extends Event {
 
   private final ChunkSessionInformation sessionInformation;
   private volatile ChunkedPacketHandler chunkedPacketHandler;

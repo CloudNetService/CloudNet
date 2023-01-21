@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,65 @@
 
 package eu.cloudnetservice.modules.bridge.platform.nukkit;
 
-import cn.nukkit.Server;
-import cn.nukkit.plugin.PluginBase;
-import eu.cloudnetservice.driver.util.ModuleUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import cn.nukkit.plugin.Plugin;
+import cn.nukkit.plugin.PluginManager;
+import cn.nukkit.scheduler.ServerScheduler;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
-public final class NukkitBridgePlugin extends PluginBase {
+@Singleton
+@PlatformPlugin(
+  platform = "nukkit",
+  api = "1.0.5",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService")
+public final class NukkitBridgePlugin implements PlatformEntrypoint {
+
+  private final Plugin plugin;
+  private final ServerScheduler scheduler;
+  private final ModuleHelper moduleHelper;
+  private final PluginManager pluginManager;
+  private final ServiceRegistry serviceRegistry;
+  private final NukkitBridgeManagement bridgeManagement;
+  private final NukkitPlayerManagementListener playerListener;
+
+  @Inject
+  public NukkitBridgePlugin(
+    @NonNull Plugin plugin,
+    @NonNull ServerScheduler scheduler,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull PluginManager pluginManager,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull NukkitBridgeManagement bridgeManagement,
+    @NonNull NukkitPlayerManagementListener playerListener
+  ) {
+    this.plugin = plugin;
+    this.scheduler = scheduler;
+    this.moduleHelper = moduleHelper;
+    this.pluginManager = pluginManager;
+    this.serviceRegistry = serviceRegistry;
+    this.bridgeManagement = bridgeManagement;
+    this.playerListener = playerListener;
+  }
 
   @Override
-  public void onEnable() {
-    var management = new NukkitBridgeManagement(Wrapper.instance());
-    management.registerServices(Wrapper.instance().serviceRegistry());
-    management.postInit();
+  public void onLoad() {
+    this.bridgeManagement.registerServices(this.serviceRegistry);
+    this.bridgeManagement.postInit();
     // register the listener
-    Server.getInstance().getPluginManager().registerEvents(new NukkitPlayerManagementListener(this, management), this);
+    this.pluginManager.registerEvents(this.playerListener, this.plugin);
   }
 
   @Override
   public void onDisable() {
-    Server.getInstance().getScheduler().cancelTask(this);
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.scheduler.cancelTask(this.plugin);
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

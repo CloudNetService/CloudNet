@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,19 @@ import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@ProvidesFor(platform = "velocity", types = PermissionProvider.class)
 final class VelocityCloudPermissionProvider implements PermissionProvider {
 
   private final PermissionManagement permissionsManagement;
 
+  @Inject
   public VelocityCloudPermissionProvider(@NonNull PermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }

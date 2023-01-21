@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,26 @@
 package eu.cloudnetservice.modules.signs.platform.minestom.functionality;
 
 import eu.cloudnetservice.modules.signs.platform.minestom.MinestomSignManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
+import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerBlockInteractEvent;
 
+@Singleton
 public class SignInteractListener {
 
   private final MinestomSignManagement signManagement;
 
-  public SignInteractListener(@NonNull MinestomSignManagement signManagement) {
+  @Inject
+  public SignInteractListener(
+    @NonNull GlobalEventHandler eventHandler,
+    @NonNull MinestomSignManagement signManagement
+  ) {
     this.signManagement = signManagement;
-    MinecraftServer.getGlobalEventHandler().addListener(PlayerBlockInteractEvent.class, this::handleSignInteract);
+
+    eventHandler.addListener(PlayerBlockInteractEvent.class, this::handleSignInteract);
   }
 
   private void handleSignInteract(@NonNull PlayerBlockInteractEvent event) {

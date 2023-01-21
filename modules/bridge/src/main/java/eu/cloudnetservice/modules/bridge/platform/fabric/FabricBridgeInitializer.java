@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,37 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric;
 
-import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
-@Environment(EnvType.SERVER)
-public final class FabricBridgeInitializer implements DedicatedServerModInitializer {
+@Singleton
+@PlatformPlugin(
+  platform = "fabric",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  dependencies = {
+    @Dependency(name = "fabricloader", version = ">=0.14.11"),
+    @Dependency(name = "minecraft", version = "~1.19.3"),
+    @Dependency(name = "java", version = ">=17")
+  },
+  authors = "CloudNetService"
+)
+public final class FabricBridgeInitializer implements PlatformEntrypoint {
+
+  private final ModuleHelper moduleHelper;
+
+  @Inject
+  public FabricBridgeInitializer(@NonNull ModuleHelper moduleHelper) {
+    this.moduleHelper = moduleHelper;
+  }
 
   @Override
-  public void onInitializeServer() {
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

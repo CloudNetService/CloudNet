@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,22 @@ import com.google.common.collect.Lists;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
+import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.module.ModuleEntry;
+import eu.cloudnetservice.node.module.ModulesHolder;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,6 +45,7 @@ import java.util.Set;
 import kong.unirest.Unirest;
 import lombok.NonNull;
 
+@Singleton
 public class DefaultConfigSetup extends DefaultClusterSetup {
 
   private static final Splitter SPACE_SPLITTER = Splitter.on(" ").omitEmptyStrings();
@@ -48,6 +54,21 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     .add("127.0.1.1")
     .addAll(NetworkUtil.availableIPAddresses())
     .build();
+
+  private final ModulesHolder modulesHolder;
+  private final ModuleProvider moduleProvider;
+
+  @Inject
+  public DefaultConfigSetup(
+    @NonNull Parsers parsers,
+    @NonNull ModulesHolder modulesHolder,
+    @NonNull Configuration configuration,
+    @NonNull ModuleProvider moduleProvider
+  ) {
+    super(parsers, configuration);
+    this.modulesHolder = modulesHolder;
+    this.moduleProvider = moduleProvider;
+  }
 
   @Override
   public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
@@ -95,7 +116,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .recommendation(NetworkUtil.localAddress() + ":1410")
           .possibleResults(addresses.stream().map(addr -> addr + ":1410").toList())
-          .parser(Parsers.assignableHostAndPort(true)))
+          .parser(this.parsers.assignableHostAndPort(true)))
         .build(),
       // web server host
       QuestionListEntry.<HostAndPort>builder()
@@ -104,7 +125,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .recommendation(NetworkUtil.localAddress() + ":2812")
           .possibleResults(addresses.stream().map(addr -> addr + ":2812").toList())
-          .parser(Parsers.assignableHostAndPort(true)))
+          .parser(this.parsers.assignableHostAndPort(true)))
         .build(),
       // service bind host address
       QuestionListEntry.<HostAndPort>builder()
@@ -113,14 +134,14 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .possibleResults(addresses)
           .recommendation(NetworkUtil.localAddress())
-          .parser(Parsers.nonWildcardHost(Parsers.assignableHostAndPort(false))))
+          .parser(this.parsers.nonWildcardHost(this.parsers.assignableHostAndPort(false))))
         .build(),
       // maximum memory usage
       QuestionListEntry.<Integer>builder()
         .key("memory")
         .translatedQuestion("cloudnet-init-setup-memory")
         .answerType(QuestionAnswerType.<Integer>builder()
-          .parser(Parsers.ranged(128, Integer.MAX_VALUE))
+          .parser(this.parsers.ranged(128, Integer.MAX_VALUE))
           .possibleResults("128", "512", "1024", "2048", "4096", "8192", "16384", "32768", "65536")
           .recommendation((int) ((ProcessSnapshot.OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512)))
         .build(),
@@ -138,14 +159,14 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             Set<ModuleEntry> result = new HashSet<>();
             for (var entry : entries) {
               // get the associated entry
-              var moduleEntry = Node.instance().modulesHolder()
+              var moduleEntry = this.modulesHolder
                 .findByName(entry)
                 .orElseThrow(() -> Parsers.ParserException.INSTANCE);
               // check for depending on modules
               if (!moduleEntry.dependingModules().isEmpty()) {
                 moduleEntry.dependingModules().forEach(module -> {
                   // resolve and add the depending on module
-                  var dependEntry = Node.instance().modulesHolder()
+                  var dependEntry = this.modulesHolder
                     .findByName(module)
                     .orElseThrow(() -> Parsers.ParserException.INSTANCE);
                   result.add(dependEntry);
@@ -156,7 +177,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             }
             return result;
           })
-          .possibleResults(Node.instance().modulesHolder().entries().stream()
+          .possibleResults(this.modulesHolder.entries().stream()
             .map(ModuleEntry::name)
             .toList())
           .recommendation("CloudNet-Bridge CloudNet-Signs")
@@ -170,13 +191,13 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
               Unirest.get(entry.url()).asFile(targetPath.toString(), StandardCopyOption.REPLACE_EXISTING);
               // validate the downloaded file
               var checksum = ChecksumUtil.fileShaSum(targetPath);
-              if (!checksum.equals(entry.sha3256()) && !Node.instance().dev() && !entry.official()) {
+              if (!checksum.equals(entry.sha3256()) && !Node.DEV_MODE && !entry.official()) {
                 // remove the file
                 FileUtil.delete(targetPath);
                 return;
               }
               // load the module
-              Node.instance().moduleProvider().loadModule(targetPath);
+              this.moduleProvider.loadModule(targetPath);
             });
           }))
         .build()
@@ -187,32 +208,31 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
 
   @Override
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
-    var config = Node.instance().config();
     // language
-    config.language(animation.result("language"));
+    this.configuration.language(animation.result("language"));
 
     // init the local node identity
     HostAndPort host = animation.result("internalHost");
-    config.identity(new NetworkClusterNode(
+    this.configuration.identity(new NetworkClusterNode(
       animation.hasResult("nodeId") ? animation.result("nodeId") : "Node-1",
       Lists.newArrayList(host)));
     // whitelist the host address
-    config.ipWhitelist().add(host.host());
+    this.configuration.ipWhitelist().add(host.host());
 
     // init the host address
     HostAndPort hostAddress = animation.result("hostAddress");
-    config.hostAddress(hostAddress.host());
+    this.configuration.hostAddress(hostAddress.host());
 
     // init the web host address
-    config.httpListeners().clear();
-    config.httpListeners().add(animation.result("webHost"));
+    this.configuration.httpListeners().clear();
+    this.configuration.httpListeners().add(animation.result("webHost"));
 
     // set the maximum memory
-    config.maxMemory(animation.result("memory"));
+    this.configuration.maxMemory(animation.result("memory"));
 
     // whitelist all default addresses and finish by saving the config
-    config.ipWhitelist().addAll(DEFAULT_WHITELIST);
-    config.save();
+    this.configuration.ipWhitelist().addAll(DEFAULT_WHITELIST);
+    this.configuration.save();
 
     // apply animation results of the cluster setup
     super.handleResults(animation);

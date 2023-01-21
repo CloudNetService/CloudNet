@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,55 +16,63 @@
 
 package eu.cloudnetservice.modules.labymod.platform.velocity;
 
-import com.google.inject.Inject;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
-import com.velocitypowered.api.plugin.Dependency;
-import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.plugin.PluginContainer;
+import com.velocitypowered.api.proxy.messages.ChannelRegistrar;
 import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModListener;
-import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
-import eu.cloudnetservice.wrapper.Wrapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-@Plugin(
-  id = "cloudnet_labymod",
+@Singleton
+@PlatformPlugin(
+  platform = "velocity",
   name = "CloudNet-LabyMod",
+  authors = "CloudNetService",
   version = "{project.build.version}",
   description = "Displays LabyMod DiscordRPC information when playing on cloudnet a server",
-  url = "https://cloudnetservice.eu",
-  authors = "CloudNetService",
-  dependencies = {
-    @Dependency(id = "cloudnet_bridge")
-  }
+  dependencies = @Dependency(name = "CloudNet-Bridge")
 )
-public class VelocityLabyModPlugin {
+public class VelocityLabyModPlugin implements PlatformEntrypoint {
 
-  private final ProxyServer proxy;
+  private final EventManager eventManager;
+  private final ModuleHelper moduleHelper;
 
   @Inject
-  public VelocityLabyModPlugin(@NonNull ProxyServer proxyServer) {
-    this.proxy = proxyServer;
+  public VelocityLabyModPlugin(@NonNull EventManager eventManager, @NonNull ModuleHelper moduleHelper) {
+    this.eventManager = eventManager;
+    this.moduleHelper = moduleHelper;
   }
 
-  @Subscribe
-  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
-    // init the labymod management
-    var labyModManagement = new PlatformLabyModManagement();
-    // register the plugin channel message listener
-    this.proxy.getChannelRegistrar().register(new LegacyChannelIdentifier(LabyModManagement.LABYMOD_CLIENT_CHANNEL));
-    this.proxy.getEventManager().register(this, new VelocityLabyModListener(labyModManagement));
+  @Inject
+  public void registerPlatformListener(
+    @NonNull PluginContainer plugin,
+    @NonNull VelocityLabyModListener listener,
+    @NonNull com.velocitypowered.api.event.EventManager eventManager
+  ) {
+    eventManager.register(plugin, listener);
+  }
+
+  @Inject
+  public void registerPluginChannel(@NonNull ChannelRegistrar channelRegistrar) {
+    channelRegistrar.register(new LegacyChannelIdentifier(LabyModManagement.LABYMOD_CLIENT_CHANNEL));
+  }
+
+  @Override
+  public void onLoad() {
     // register the common cloudnet listener for channel messages
-    Wrapper.instance().eventManager().registerListener(new PlatformLabyModListener(labyModManagement));
+    this.eventManager.registerListener(PlatformLabyModListener.class);
   }
 
-  @Subscribe
-  public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
+  @Override
+  public void onDisable() {
     // unregister all listeners for cloudnet events
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

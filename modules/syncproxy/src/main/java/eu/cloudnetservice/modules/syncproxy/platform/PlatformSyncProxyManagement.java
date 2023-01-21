@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,32 @@
 package eu.cloudnetservice.modules.syncproxy.platform;
 
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConfigurationUpdateEvent;
+import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyLoginConfiguration;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyMotd;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyTabList;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyTabListConfiguration;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -41,29 +51,52 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagement {
 
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
+
   protected final Map<UUID, Integer> proxyOnlineCountCache = new HashMap<>();
 
   protected final RPCSender rpcSender;
+  protected final RPCFactory rpcFactory;
   protected final EventManager eventManager;
+  protected final NetworkClient networkClient;
+  protected final WrapperConfiguration wrapperConfig;
+  protected final ServiceInfoHolder serviceInfoHolder;
+  protected final CloudServiceProvider serviceProvider;
+  protected final ScheduledExecutorService executorService;
+  protected final PermissionManagement permissionManagement;
 
   protected SyncProxyConfiguration configuration;
   protected SyncProxyLoginConfiguration currentLoginConfiguration;
   protected SyncProxyTabListConfiguration currentTabListConfiguration;
   protected ScheduledFuture<?> currentUpdateTask;
 
-  protected PlatformSyncProxyManagement() {
-    var wrapper = Wrapper.instance();
+  protected PlatformSyncProxyManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull WrapperConfiguration wrapperConfig,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull ScheduledExecutorService executorService,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    this.rpcFactory = rpcFactory;
+    this.eventManager = eventManager;
+    this.networkClient = networkClient;
+    this.wrapperConfig = wrapperConfig;
+    this.serviceInfoHolder = serviceInfoHolder;
+    this.serviceProvider = serviceProvider;
+    this.executorService = executorService;
+    this.permissionManagement = permissionManagement;
 
-    this.rpcSender = wrapper.rpcFactory()
-      .providerForClass(wrapper.networkClient(), SyncProxyManagement.class);
-    this.eventManager = wrapper.eventManager();
+    this.rpcSender = rpcFactory.providerForClass(networkClient, SyncProxyManagement.class);
   }
 
   protected void init() {
     // get the config from the node
     this.configurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
     // cache all services that are already started
-    Wrapper.instance().cloudServiceProvider().servicesAsync().thenAccept(services -> {
+    this.serviceProvider.servicesAsync().thenAccept(services -> {
       for (var service : services) {
         this.cacheServiceInfoSnapshot(service);
       }
@@ -76,14 +109,14 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
     this.currentLoginConfiguration = configuration.loginConfigurations()
       .stream()
-      .filter(loginConfiguration -> Wrapper.instance().serviceConfiguration().groups()
+      .filter(loginConfiguration -> this.wrapperConfig.serviceConfiguration().groups()
         .contains(loginConfiguration.targetGroup()))
       .findFirst()
       .orElse(null);
 
     this.currentTabListConfiguration = configuration.tabListConfigurations()
       .stream()
-      .filter(tabListConfiguration -> Wrapper.instance().serviceConfiguration().groups()
+      .filter(tabListConfiguration -> this.wrapperConfig.serviceConfiguration().groups()
         .contains(tabListConfiguration.targetGroup()))
       .findFirst()
       .orElse(null);
@@ -176,7 +209,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     }
 
     if (this.currentTabListConfiguration != null && !this.currentTabListConfiguration.entries().isEmpty()) {
-      this.currentUpdateTask = Wrapper.instance().taskExecutor().scheduleWithFixedDelay(
+      this.currentUpdateTask = this.executorService.scheduleWithFixedDelay(
         () -> {
           var tabList = this.currentTabListConfiguration.tick();
           this.updateTabList(tabList);
@@ -201,10 +234,16 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     int onlinePlayers,
     int maxPlayers
   ) {
-    var header = SyncProxyTabList.replaceTabListItem(tabList.header(), this.playerUniqueId(player),
-      onlinePlayers, maxPlayers);
-    var footer = SyncProxyTabList.replaceTabListItem(tabList.footer(), this.playerUniqueId(player),
-      onlinePlayers, maxPlayers);
+    var header = this.replaceTabListItem(
+      tabList.header(),
+      this.playerUniqueId(player),
+      onlinePlayers,
+      maxPlayers);
+    var footer = this.replaceTabListItem(
+      tabList.footer(),
+      this.playerUniqueId(player),
+      onlinePlayers,
+      maxPlayers);
 
     this.playerTabList(player, header, footer);
   }
@@ -245,4 +284,33 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   public abstract boolean checkPlayerPermission(@NonNull P player, @NonNull String permission);
 
+  private @NonNull String replaceTabListItem(
+    @NonNull String input,
+    @NonNull UUID playerUniqueId,
+    int onlinePlayers,
+    int maxPlayers
+  ) {
+    input = BridgeServiceHelper.fillCommonPlaceholders(input
+      .replace("%time%", TIME_FORMATTER.format(LocalTime.now()))
+      .replace("%online_players%", String.valueOf(onlinePlayers))
+      .replace("%max_players%", String.valueOf(maxPlayers)), null, this.serviceInfoHolder.serviceInfo());
+
+    if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
+      var permissionUser = this.permissionManagement.user(playerUniqueId);
+
+      if (permissionUser != null) {
+        var group = this.permissionManagement.highestPermissionGroup(permissionUser);
+
+        if (group != null) {
+          input = input.replace("%perms_group_prefix%", group.prefix())
+            .replace("%perms_group_suffix%", group.suffix())
+            .replace("%perms_group_display%", group.display())
+            .replace("%perms_group_color%", group.color())
+            .replace("%perms_group_name%", group.name());
+        }
+      }
+    }
+
+    return input;
+  }
 }

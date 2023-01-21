@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@
 package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 public record SyncProxyMotd(
@@ -44,16 +41,6 @@ public record SyncProxyMotd(
       .autoSlotDistance(motd.autoSlotMaxPlayersDistance())
       .playerInfo(motd.playerInfo())
       .protocolText(motd.protocolText());
-  }
-
-  @Contract("null, _, _ -> null; !null, _, _ -> !null")
-  public @Nullable String format(@Nullable String input, int onlinePlayers, int maxPlayers) {
-    if (input == null) {
-      return null;
-    }
-    return BridgeServiceHelper.fillCommonPlaceholders(input
-      .replace("%online_players%", String.valueOf(onlinePlayers))
-      .replace("%max_players%", String.valueOf(maxPlayers)), null, Wrapper.instance().currentServiceInfo());
   }
 
   public static class Builder {

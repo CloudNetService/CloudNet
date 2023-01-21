@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +69,7 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
 
   @Override
   public void kick(@NonNull Component message) {
-    Bukkit.getScheduler().runTask(
+    this.plugin.getServer().getScheduler().runTask(
       this.plugin,
       () -> this.forEach(player -> player.kickPlayer(legacySection().serialize(message))));
   }
@@ -98,6 +97,7 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
 
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
-    Bukkit.getScheduler().runTask(this.plugin, () -> this.forEach(player -> Bukkit.dispatchCommand(player, command)));
+    var server = this.plugin.getServer();
+    server.getScheduler().runTask(this.plugin, () -> this.forEach(player -> server.dispatchCommand(player, command)));
   }
 }

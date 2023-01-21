@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,11 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -26,7 +31,8 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,14 +49,32 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
   private final BridgedServer server;
   private final PlayerExecutor directGlobalExecutor;
 
-  public FabricBridgeManagement(@NonNull BridgedServer server) {
-    super(Wrapper.instance());
+  public FabricBridgeManagement(
+    @NonNull BridgedServer server,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeServiceHelper serviceHelper,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
     // field init
     this.server = server;
     this.directGlobalExecutor = new FabricDirectPlayerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID, server::players);
     // init the bridge properties
-    BridgeServiceHelper.MOTD.set(server.motd());
-    BridgeServiceHelper.MAX_PLAYERS.set(server.maxPlayers());
+    serviceHelper.motd().set(server.motd());
+    serviceHelper.maxPlayers().set(server.maxPlayers());
   }
 
   @Override

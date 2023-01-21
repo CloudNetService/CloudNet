@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,38 +18,38 @@ package eu.cloudnetservice.modules.labymod.platform;
 
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.event.BridgeProxyPlayerServerSwitchEvent;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class PlatformLabyModListener {
 
-  private final PlatformLabyModManagement labyModManagement;
-  private final PlatformBridgeManagement<?, ?> bridgeManagement;
-
-  public PlatformLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
-    this.labyModManagement = labyModManagement;
-    this.bridgeManagement = ServiceRegistry.first(PlatformBridgeManagement.class);
-  }
-
   @EventListener
-  public void handlePlayerServerSwitch(@NonNull BridgeProxyPlayerServerSwitchEvent event) {
-    this.bridgeManagement.cachedService(event.target().uniqueId()).ifPresent(service -> {
+  public void handlePlayerServerSwitch(
+    @NonNull BridgeProxyPlayerServerSwitchEvent event,
+    @NonNull PlatformLabyModManagement labyModManagement,
+    @NonNull PlatformBridgeManagement<?, ?> bridgeManagement
+  ) {
+    bridgeManagement.cachedService(event.target().uniqueId()).ifPresent(service -> {
       // let the management handle the new server
-      this.labyModManagement.handleServerUpdate(event.cloudPlayer(), service);
+      labyModManagement.handleServerUpdate(event.cloudPlayer(), service);
     });
   }
 
   @EventListener
-  public void handleConfigUpdate(@NonNull ChannelMessageReceiveEvent event) {
+  public void handleConfigUpdate(
+    @NonNull ChannelMessageReceiveEvent event,
+    @NonNull PlatformLabyModManagement labyModManagement
+  ) {
     // handle incoming channel messages on the labymod channel
     if (event.channel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)
       && LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.message())) {
       // update the configuration locally
-      this.labyModManagement.setConfigurationSilently(event.content().readObject(LabyModConfiguration.class));
+      labyModManagement.setConfigurationSilently(event.content().readObject(LabyModConfiguration.class));
     }
   }
 }

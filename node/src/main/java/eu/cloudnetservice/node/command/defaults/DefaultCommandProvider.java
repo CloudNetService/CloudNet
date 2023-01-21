@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,12 @@ import cloud.commandframework.meta.SimpleCommandMeta;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.command.CommandInfo;
-import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -55,6 +56,8 @@ import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
 import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
 import io.leangen.geantyref.TypeToken;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,8 +75,11 @@ import org.jetbrains.annotations.Nullable;
 /**
  * {@inheritDoc}
  */
-public class DefaultCommandProvider implements CommandProvider {
+@Singleton
+@Provides(CommandProvider.class)
+public final class DefaultCommandProvider implements CommandProvider {
 
+  // TODO: TypeFactory
   private static final CommandMeta.Key<Set<String>> ALIAS_KEY = CommandMeta.Key.of(new TypeToken<Set<String>>() {
   }, "cloudnet:alias");
   private static final CommandMeta.Key<String> DESCRIPTION_KEY = CommandMeta.Key.of(
@@ -83,27 +89,30 @@ public class DefaultCommandProvider implements CommandProvider {
     String.class,
     "cloudnet:documentation");
 
+  private final CommandExceptionHandler exceptionHandler;
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
   private final SetMultimap<ClassLoader, CommandInfo> registeredCommands;
-  private final CommandExceptionHandler exceptionHandler;
-  private final Console console;
 
-  /**
-   * Constructs a new default implementation of the {@link CommandProvider}.
-   *
-   * @param console the console the provider is handling.
-   * @throws NullPointerException if console is null.
-   */
-  public DefaultCommandProvider(@NonNull Console console, @NonNull EventManager eventManager) {
-    this.console = console;
-    this.commandManager = new DefaultCommandManager();
-    this.commandManager.captionVariableReplacementHandler(new DefaultCaptionVariableReplacementHandler());
+  @Inject
+  private DefaultCommandProvider(
+    @NonNull DefaultCommandManager commandManager,
+    @NonNull AerogelInjectionService injectionService,
+    @NonNull CommandExceptionHandler exceptionHandler,
+    @NonNull DefaultSuggestionProcessor suggestionProcessor,
+    @NonNull DefaultCommandPreProcessor commandPreProcessor,
+    @NonNull DefaultCommandPostProcessor commandPostProcessor,
+    @NonNull DefaultCaptionVariableReplacementHandler captionVariableReplacementHandler
+  ) {
+    // init command manager and annotation parser
+    this.commandManager = commandManager;
+    this.commandManager.captionVariableReplacementHandler(captionVariableReplacementHandler);
+    this.commandManager.parameterInjectorRegistry().registerInjectionService(injectionService);
     this.annotationParser = new AnnotationParser<>(
       this.commandManager,
       CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
-    this.registeredCommands = Multimaps.newSetMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
+
     // handle our @CommandAlias annotation and apply the found aliases
     this.annotationParser.registerBuilderModifier(
       CommandAlias.class,
@@ -127,13 +136,18 @@ public class DefaultCommandProvider implements CommandProvider {
       }
       return builder;
     });
+
     // register pre- and post-processor to call our events
-    this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
-    this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
-    this.commandManager.commandSuggestionProcessor(new DefaultSuggestionProcessor());
+    this.commandManager.commandSuggestionProcessor(suggestionProcessor);
+    this.commandManager.registerCommandPreProcessor(commandPreProcessor);
+    this.commandManager.registerCommandPostProcessor(commandPostProcessor);
+
+    // internal handling
+    this.exceptionHandler = exceptionHandler;
+    this.registeredCommands = Multimaps.newSetMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
+
     // register the command confirmation handling
     this.registerCommandConfirmation();
-    this.exceptionHandler = new CommandExceptionHandler(this, eventManager);
   }
 
   /**
@@ -154,6 +168,15 @@ public class DefaultCommandProvider implements CommandProvider {
       // ensure that the new future still holds the exception
       throw exception instanceof CompletionException cex ? cex : new CompletionException(exception);
     }));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void register(@NonNull Class<?> commandClass) {
+    var injectionLayer = InjectionLayer.findLayerOf(commandClass);
+    this.register(injectionLayer.instance(commandClass));
   }
 
   /**
@@ -247,22 +270,22 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public void registerDefaultCommands() {
-    this.register(new TemplateCommand());
-    this.register(new VersionCommand());
-    this.register(new ExitCommand());
-    this.register(new GroupsCommand());
-    this.register(new TasksCommand(this.console));
-    this.register(new CreateCommand());
-    this.register(new MeCommand());
-    this.register(new ServiceCommand());
-    this.register(new PermissionsCommand());
-    this.register(new ClearCommand());
-    this.register(new DebugCommand());
-    this.register(new MigrateCommand());
-    this.register(new ClusterCommand());
-    this.register(new ConfigCommand());
-    this.register(new ModulesCommand());
-    this.register(new HelpCommand(this));
+    this.register(TemplateCommand.class);
+    this.register(VersionCommand.class);
+    this.register(ExitCommand.class);
+    this.register(GroupsCommand.class);
+    this.register(TasksCommand.class);
+    this.register(CreateCommand.class);
+    this.register(MeCommand.class);
+    this.register(ServiceCommand.class);
+    this.register(PermissionsCommand.class);
+    this.register(ClearCommand.class);
+    this.register(DebugCommand.class);
+    this.register(MigrateCommand.class);
+    this.register(ClusterCommand.class);
+    this.register(ConfigCommand.class);
+    this.register(ModulesCommand.class);
+    this.register(HelpCommand.class);
   }
 
   /**
@@ -290,7 +313,7 @@ public class DefaultCommandProvider implements CommandProvider {
   /**
    * Registers the default confirmation handling for commands, that need a confirmation before they are executed.
    */
-  protected void registerCommandConfirmation() {
+  private void registerCommandConfirmation() {
     // create a new confirmation manager
     var confirmationManager = new CommandConfirmationManager<CommandSource>(
       30L,
@@ -319,7 +342,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * @param root the command to parse the usage for.
    * @return the formatted and sorted usages for the command root.
    */
-  protected @NonNull List<String> commandUsageOfRoot(@NonNull String root) {
+  private @NonNull List<String> commandUsageOfRoot(@NonNull String root) {
     List<String> commandUsage = new ArrayList<>();
     for (var command : this.commandManager.commands()) {
       // the first argument is the root, check if it matches

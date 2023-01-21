@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@ import com.github.juliarn.npclib.bukkit.BukkitPlatform;
 import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.driver.ComponentInfo;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
@@ -32,30 +35,51 @@ import eu.cloudnetservice.modules.npc.platform.PlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.EntityBukkitPlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.NumberConversions;
 
+@Singleton
 public class BukkitPlatformNPCManagement extends
   PlatformNPCManagement<Location, Player, ItemStack, Inventory, Scoreboard> {
 
   protected final Plugin plugin;
+  protected final Server server;
+  protected final BukkitScheduler scheduler;
+
   protected final Platform<World, Player, ItemStack, Plugin> npcPlatform;
   protected final BukkitTask knockBackTask;
 
   protected volatile BukkitTask npcEmoteTask;
 
-  public BukkitPlatformNPCManagement(@NonNull Plugin plugin) {
+  @Inject
+  public BukkitPlatformNPCManagement(
+    @NonNull Plugin plugin,
+    @NonNull Server server,
+    @NonNull BukkitScheduler scheduler,
+    @NonNull EventManager eventManager,
+    @NonNull ComponentInfo componentInfo,
+    @NonNull CloudServiceProvider cloudServiceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(eventManager, componentInfo, cloudServiceProvider, wrapperConfiguration);
+
     this.plugin = plugin;
+    this.server = server;
+    this.scheduler = scheduler;
 
     // npc pool init
     var entry = this.applicableNPCConfigurationEntry();
@@ -79,7 +103,7 @@ public class BukkitPlatformNPCManagement extends
     // start the emote player
     this.startEmoteTask(false);
     // start the knock back task
-    this.knockBackTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+    this.knockBackTask = this.scheduler.runTaskTimer(plugin, () -> {
       var configEntry = this.applicableNPCConfigurationEntry();
       if (configEntry != null) {
         // check if knock back is enabled
@@ -140,8 +164,8 @@ public class BukkitPlatformNPCManagement extends
     @NonNull NPC base
   ) {
     return base.npcType() == NPC.NPCType.ENTITY
-      ? new EntityBukkitPlatformSelectorEntity(this, this.plugin, base)
-      : new NPCBukkitPlatformSelector(this, this.plugin, base, this.npcPlatform);
+      ? new EntityBukkitPlatformSelectorEntity(base, this.plugin, this.server, this.scheduler, this)
+      : new NPCBukkitPlatformSelector(base, this.plugin, this.server, this.scheduler, this, this.npcPlatform);
   }
 
   @Override
@@ -159,7 +183,7 @@ public class BukkitPlatformNPCManagement extends
 
   @Override
   public @NonNull Location toPlatformLocation(@NonNull WorldPosition position) {
-    var world = Bukkit.getWorld(position.world());
+    var world = this.server.getWorld(position.world());
     return new Location(
       world,
       position.x(),
@@ -201,7 +225,7 @@ public class BukkitPlatformNPCManagement extends
           delay = ent.emoteConfiguration().minEmoteDelayTicks();
         }
         // run the task
-        this.npcEmoteTask = Bukkit.getScheduler().runTaskLaterAsynchronously(this.plugin, () -> {
+        this.npcEmoteTask = this.scheduler.runTaskLaterAsynchronously(this.plugin, () -> {
           // select an emote to play
           var emotes = ent.emoteConfiguration().emoteIds();
           var emoteId = this.randomEmoteId(ent.emoteConfiguration(), emotes);

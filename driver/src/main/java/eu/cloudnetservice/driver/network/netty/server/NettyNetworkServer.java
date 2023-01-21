@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package eu.cloudnetservice.driver.network.netty.server;
 
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.ComponentInfo;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.DefaultNetworkComponent;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -33,6 +35,7 @@ import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.WriteBufferWaterMark;
 import io.netty5.util.concurrent.Future;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -47,6 +50,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
 public class NettyNetworkServer extends NettySslServer implements DefaultNetworkComponent, NetworkServer {
 
   protected static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
@@ -57,34 +61,47 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
   protected final Collection<NetworkChannel> channels = ConcurrentHashMap.newKeySet();
   protected final Map<HostAndPort, Future<Void>> channelFutures = new ConcurrentHashMap<>();
 
-  protected final Executor packetDispatcher = NettyUtil.newPacketDispatcher();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
+  protected final EventManager eventManager;
+  protected final Executor packetDispatcher;
   protected final Callable<NetworkChannelHandler> handlerFactory;
 
   /**
    * Constructs a new netty network server instance. Equivalent to {@code new NettyNetworkServer(factory, null)}.
    *
+   * @param eventManager   the event manager of the current component.
+   * @param componentInfo  the component info of the current component the server is created for.
    * @param handlerFactory the handler factory to use.
-   * @throws NullPointerException if the given handler factory is null.
+   * @throws NullPointerException if the given event manager, component info or factory is null.
    */
-  public NettyNetworkServer(@NonNull Callable<NetworkChannelHandler> handlerFactory) {
-    this(handlerFactory, null);
+  public NettyNetworkServer(
+    @NonNull EventManager eventManager,
+    @NonNull ComponentInfo componentInfo,
+    @NonNull Callable<NetworkChannelHandler> handlerFactory
+  ) {
+    this(eventManager, componentInfo, handlerFactory, null);
   }
 
   /**
    * Constructs a new netty network server instance.
    *
+   * @param eventManager     the event manager of the current component.
+   * @param componentInfo    the component info of the current component the server is created for.
    * @param handlerFactory   the handler factory to use.
    * @param sslConfiguration the ssl configuration to apply, or null if ssl should be disabled.
-   * @throws NullPointerException if the given handler factory is null.
+   * @throws NullPointerException if the given event manager, component info or factory is null.
    */
   public NettyNetworkServer(
+    @NonNull EventManager eventManager,
+    @NonNull ComponentInfo componentInfo,
     @NonNull Callable<NetworkChannelHandler> handlerFactory,
     @Nullable SSLConfiguration sslConfiguration
   ) {
     super(sslConfiguration);
+    this.eventManager = eventManager;
     this.handlerFactory = handlerFactory;
+    this.packetDispatcher = NettyUtil.newPacketDispatcher(componentInfo.environment());
 
     try {
       this.init();
@@ -118,7 +135,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
     new ServerBootstrap()
       .channelFactory(NettyUtil.serverChannelFactory())
       .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
-      .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
+      .childHandler(new NettyNetworkServerInitializer(this.eventManager, this, hostAndPort))
 
       .childOption(ChannelOption.IP_TOS, 0x18)
       .childOption(ChannelOption.AUTO_READ, true)

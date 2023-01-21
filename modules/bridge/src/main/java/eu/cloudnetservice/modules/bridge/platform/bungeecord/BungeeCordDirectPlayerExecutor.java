@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,24 +32,30 @@ import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
+import net.md_5.bungee.api.plugin.PluginManager;
 import org.jetbrains.annotations.Nullable;
 
 final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ProxiedPlayer> {
 
+  private final ProxyServer proxyServer;
+  private final PluginManager pluginManager;
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
 
   public BungeeCordDirectPlayerExecutor(
+    @NonNull ProxyServer proxyServer,
     @NonNull UUID uniqueId,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
     @NonNull Supplier<Collection<? extends ProxiedPlayer>> playerSupplier
   ) {
     super(uniqueId, playerSupplier);
+    this.proxyServer = proxyServer;
+    this.pluginManager = proxyServer.getPluginManager();
     this.management = management;
   }
 
   @Override
   public void connect(@NonNull String serviceName) {
-    var serverInfo = ProxyServer.getInstance().getServerInfo(serviceName);
+    var serverInfo = this.proxyServer.getServerInfo(serviceName);
     if (serverInfo != null) {
       this.forEach(player -> player.connect(serverInfo, Reason.PLUGIN));
     }
@@ -59,7 +65,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   public void connectSelecting(@NonNull ServerSelectorType selectorType) {
     this.management.cachedServices().stream()
       .sorted(selectorType.comparator())
-      .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+      .map(service -> this.proxyServer.getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .findFirst()
       .ifPresent(server -> this.forEach(player -> player.connect(server, Reason.PLUGIN)));
@@ -71,9 +77,10 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .filter(Objects::nonNull)
       .map(player -> new Pair<>(player, this.management.fallback(player)))
       .filter(pair -> pair.second().isPresent())
-      .map(p -> new Pair<>(p.first(), ProxyServer.getInstance().getServerInfo(p.second().get().name())))
+      .map(p -> new Pair<>(p.first(), this.proxyServer.getServerInfo(p.second().get().name())))
       .filter(pair -> pair.second() != null)
-      .forEach(pair -> pair.first().connect(pair.second(), Reason.PLUGIN));
+      .findFirst()
+      .ifPresent(pair -> pair.first().connect(pair.second(), Reason.PLUGIN));
   }
 
   @Override
@@ -81,9 +88,10 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
     this.management.cachedServices().stream()
       .filter(service -> service.configuration().groups().contains(group))
       .sorted(selectorType.comparator())
-      .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+      .map(service -> this.proxyServer.getServerInfo(service.name()))
       .filter(Objects::nonNull)
-      .forEach(server -> this.forEach(player -> player.connect(server, Reason.PLUGIN)));
+      .findFirst()
+      .ifPresent(server -> this.forEach(player -> player.connect(server, Reason.PLUGIN)));
   }
 
   @Override
@@ -91,9 +99,10 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
     this.management.cachedServices().stream()
       .filter(service -> service.serviceId().taskName().equals(task))
       .sorted(selectorType.comparator())
-      .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
+      .map(service -> this.proxyServer.getServerInfo(service.name()))
       .filter(Objects::nonNull)
-      .forEach(server -> this.forEach(player -> player.connect(server, Reason.PLUGIN)));
+      .findFirst()
+      .ifPresent(server -> this.forEach(player -> player.connect(server, Reason.PLUGIN)));
   }
 
   @Override
@@ -103,7 +112,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
-    this.forEach(player -> ProxyServer.getInstance().createTitle()
+    this.forEach(player -> this.proxyServer.createTitle()
       .title(fromLegacyText(legacySection().serialize(title)))
       .subTitle(fromLegacyText(legacySection().serialize(subtitle)))
       .fadeIn(fadeIn)
@@ -129,7 +138,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     this.forEach(player -> {
-      if (!ProxyServer.getInstance().getPluginManager().dispatchCommand(player, command) && redirectToServer) {
+      if (!this.pluginManager.dispatchCommand(player, command) && redirectToServer) {
         player.chat('/' + command);
       }
     });

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,35 @@
 package eu.cloudnetservice.plugins.simplenametags.minestom;
 
 import com.google.common.util.concurrent.MoreExecutors;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
+import net.minestom.server.network.ConnectionManager;
+import net.minestom.server.scoreboard.TeamManager;
 import org.jetbrains.annotations.Nullable;
 
 final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
 
-  public MinestomSimpleNameTagsManager() {
-    super(MoreExecutors.directExecutor());
+  private final TeamManager teamManager;
+  private final ConnectionManager connectionManager;
+
+  public MinestomSimpleNameTagsManager(
+    @NonNull TeamManager teamManager,
+    @NonNull ConnectionManager connectionManager,
+    @NonNull EventManager eventManager,
+    @NonNull PermissionManagement permissionManagement
+  ) {
+    super(MoreExecutors.directExecutor(), eventManager, permissionManagement);
+    this.teamManager = teamManager;
+    this.connectionManager = connectionManager;
   }
 
   @Override
@@ -67,11 +80,11 @@ final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> 
     @NonNull PermissionGroup group
   ) {
     // get the already registered team or a new one if needed
-    var team = MinecraftServer.getTeamManager().getTeams()
+    var team = this.teamManager.getTeams()
       .stream()
       .filter(registeredTeam -> registeredTeam.getTeamName().equals(name))
       .findFirst()
-      .orElseGet(() -> MinecraftServer.getTeamManager().createBuilder(name).build());
+      .orElseGet(() -> this.teamManager.createBuilder(name).build());
     // set the default team attributes
     team.setPrefix(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(group.prefix()));
     team.setSuffix(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(group.suffix()));
@@ -88,7 +101,7 @@ final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> 
   @Override
   public @NonNull Collection<? extends Player> onlinePlayers() {
     // remove all fake players in the collection
-    return MinecraftServer.getConnectionManager().getOnlinePlayers()
+    return this.connectionManager.getOnlinePlayers()
       .stream()
       .filter(player -> !(player instanceof FakePlayer))
       .toList();
@@ -96,8 +109,8 @@ final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> 
 
   @Override
   public @Nullable Player onlinePlayer(@NonNull UUID uniqueId) {
-    var player = MinecraftServer.getConnectionManager().getPlayer(uniqueId);
     // only provide real players
+    var player = this.connectionManager.getPlayer(uniqueId);
     return player instanceof FakePlayer ? null : player;
   }
 }

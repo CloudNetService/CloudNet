@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,18 @@ package eu.cloudnetservice.modules.smart.listener;
 
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePrePrepareEvent;
 import eu.cloudnetservice.node.service.CloudService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -34,19 +37,29 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 
+@Singleton
 public final class CloudNetLocalServiceListener {
 
   private final CloudNetSmartModule module;
+  private final ServiceTaskProvider taskProvider;
+  private final CloudServiceProvider cloudServiceProvider;
 
-  public CloudNetLocalServiceListener(@NonNull CloudNetSmartModule module) {
+  @Inject
+  public CloudNetLocalServiceListener(
+    @NonNull CloudNetSmartModule module,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull CloudServiceProvider cloudServiceProvider
+  ) {
     this.module = module;
+    this.taskProvider = taskProvider;
+    this.cloudServiceProvider = cloudServiceProvider;
   }
 
   @EventListener
   public void handle(@NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.PREPARED) {
       // check if the service is associated with a task
-      var task = Node.instance().serviceTaskProvider().serviceTask(event.service().serviceId().taskName());
+      var task = this.taskProvider.serviceTask(event.service().serviceId().taskName());
       if (task == null) {
         return;
       }
@@ -72,7 +85,7 @@ public final class CloudNetLocalServiceListener {
   @EventListener
   public void handlePrePrepare(@NonNull CloudServicePrePrepareEvent event) {
     // check if the service is associated with a task
-    var task = Node.instance().serviceTaskProvider().serviceTask(event.service().serviceId().taskName());
+    var task = this.taskProvider.serviceTask(event.service().serviceId().taskName());
     if (task == null) {
       return;
     }
@@ -125,7 +138,7 @@ public final class CloudNetLocalServiceListener {
 
       // installs the templates balanced
       case INSTALL_BALANCED -> {
-        var services = Node.instance().cloudServiceProvider().servicesByTask(task.name());
+        var services = this.cloudServiceProvider.servicesByTask(task.name());
         // find the least used template add register it as a service template
         task.templates().stream()
           .min(Comparator.comparingLong(template -> services.stream()

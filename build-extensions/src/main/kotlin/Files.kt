@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ object Files {
   const val wrapper = "wrapper.jar"
   const val launcher = "launcher.jar"
   const val launcherPatcher = "launcher-patcher.jar"
+
+  const val injectSupport = "platform-inject-support.jar"
 
   const val chatPlugin = "cloudnet-chat.jar"
   const val papiExpansion = "cloudnet-papi-expansion.jar"

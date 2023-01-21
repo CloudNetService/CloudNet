@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package eu.cloudnetservice.driver.channel;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -105,8 +105,6 @@ public record ChannelMessage(
    * Sends this channel message using the current messenger of the environment. This is in fact just a shortcut method
    * for {@link CloudMessenger#sendChannelMessage(ChannelMessage)}. This method will not wait for the target component
    * to respond (it doesn't even expect a response) but for the handling component to send the message.
-   *
-   * @see CloudNetDriver#messenger()
    */
   public void send() {
     this.messenger().sendChannelMessage(this);
@@ -118,7 +116,6 @@ public record ChannelMessage(
    * completed when the target component responds or the query future times out (after 30 seconds).
    *
    * @return a future completed with all responses of all target components of this channel message.
-   * @see CloudNetDriver#messenger()
    */
   public @NonNull Task<Collection<ChannelMessage>> sendQueryAsync() {
     return this.messenger().sendChannelMessageQueryAsync(this);
@@ -132,7 +129,6 @@ public record ChannelMessage(
    * completed when one target component responds or the query future times out (after 30 seconds).
    *
    * @return a future completed with the first response of any target of this channel message.
-   * @see CloudNetDriver#messenger()
    */
   public @NonNull Task<ChannelMessage> sendSingleQueryAsync() {
     return this.messenger().sendSingleChannelMessageQueryAsync(this);
@@ -144,7 +140,6 @@ public record ChannelMessage(
    * {@link CloudMessenger#sendChannelMessageQuery(ChannelMessage)}.
    *
    * @return all responses of all components this channel message is targeting.
-   * @see CloudNetDriver#messenger()
    */
   public @NonNull Collection<ChannelMessage> sendQuery() {
     return this.messenger().sendChannelMessageQuery(this);
@@ -157,7 +152,6 @@ public record ChannelMessage(
    * for {@link CloudMessenger#sendSingleChannelMessageQueryAsync(ChannelMessage)}.
    *
    * @return the first response of any component this message is targeting.
-   * @see CloudNetDriver#messenger()
    */
   public @Nullable ChannelMessage sendSingleQuery() {
     return this.messenger().sendSingleChannelMessageQuery(this);
@@ -167,10 +161,9 @@ public record ChannelMessage(
    * Util method to get the current messenger of the environment.
    *
    * @return the current messenger of the environment.
-   * @see CloudNetDriver#messenger()
    */
   private @NonNull CloudMessenger messenger() {
-    return CloudNetDriver.instance().messenger();
+    return InjectionLayer.boot().instance(CloudMessenger.class);
   }
 
   /**

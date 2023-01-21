@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,44 +16,52 @@
 
 package eu.cloudnetservice.modules.cloudperms.velocity;
 
-import com.google.inject.Inject;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
-import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import com.velocitypowered.api.event.EventManager;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.cloudperms.velocity.listener.VelocityCloudPermissionsPlayerListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-@Plugin(
-  id = "cloudnet_cloudperms",
+@Singleton
+@PlatformPlugin(
+  platform = "velocity",
   name = "CloudNet-CloudPerms",
   version = "{project.build.version}",
   description = "Velocity extension which implement the permission management system from CloudNet into Velocity",
-  url = "https://cloudnetservice.eu",
+  homepage = "https://cloudnetservice.eu",
   authors = "CloudNetService"
 )
-public final class VelocityCloudNetCloudPermissionsPlugin {
+public final class VelocityCloudNetCloudPermissionsPlugin implements PlatformEntrypoint {
 
-  private final ProxyServer proxyServer;
+  private final Object pluginInstance;
+  private final ModuleHelper moduleHelper;
+  private final EventManager eventManager;
+  private final VelocityCloudPermissionsPlayerListener playerListener;
 
   @Inject
-  public VelocityCloudNetCloudPermissionsPlugin(@NonNull ProxyServer proxyServer) {
-    this.proxyServer = proxyServer;
+  public VelocityCloudNetCloudPermissionsPlugin(
+    @NonNull @Named("plugin") Object pluginInstance,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull EventManager eventManager,
+    @NonNull VelocityCloudPermissionsPlayerListener playerListener
+  ) {
+    this.pluginInstance = pluginInstance;
+    this.moduleHelper = moduleHelper;
+    this.eventManager = eventManager;
+    this.playerListener = playerListener;
   }
 
-  @Subscribe
-  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
-    this.proxyServer.getEventManager().register(this, new VelocityCloudPermissionsPlayerListener(
-      this.proxyServer,
-      new VelocityCloudPermissionProvider(CloudNetDriver.instance().permissionManagement()),
-      CloudNetDriver.instance().permissionManagement()));
+  @Override
+  public void onLoad() {
+    this.eventManager.register(this.pluginInstance, this.playerListener);
   }
 
-  @Subscribe
-  public void handleShutdown(@NonNull ProxyShutdownEvent event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+  @Override
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

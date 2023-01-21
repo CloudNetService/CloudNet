@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,31 @@ import dev.waterdog.waterdogpe.command.Command;
 import dev.waterdog.waterdogpe.command.CommandSender;
 import dev.waterdog.waterdogpe.command.CommandSettings;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Locale;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class WaterDogPECloudCommand extends Command {
 
+  private final ClusterNodeProvider clusterNodeProvider;
   private final PlatformBridgeManagement<?, ?> management;
 
-  public WaterDogPECloudCommand(@NonNull PlatformBridgeManagement<?, ?> management) {
+  @Inject
+  public WaterDogPECloudCommand(
+    @NonNull ClusterNodeProvider clusterNodeProvider,
+    @NonNull PlatformBridgeManagement<?, ?> management
+  ) {
     super("cloudnet", CommandSettings.builder()
       .setAliases(new String[]{"cloud", "cn"})
       .setPermission("cloudnet.command.cloudnet")
       .build());
+    this.clusterNodeProvider = clusterNodeProvider;
     this.management = management;
   }
 
@@ -53,14 +62,15 @@ public final class WaterDogPECloudCommand extends Command {
     // skip the permission check if the source is the console
     if (sender instanceof ProxiedPlayer) {
       // get the command info
-      CloudNetDriver.instance().clusterNodeProvider().consoleCommandAsync(args[0]).thenAcceptAsync(info -> {
+      this.clusterNodeProvider.consoleCommandAsync(args[0]).thenAcceptAsync(info -> {
         // check if the player has the required permission
         if (info == null || !sender.hasPermission(info.permission())) {
           // no permission
-          sender.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(this.management.configuration().message(
+          this.management.configuration().handleMessage(
             Locale.ENGLISH,
-            "command-cloud-sub-command-no-permission"
-          ).replace("%command%", args[0])));
+            "command-cloud-sub-command-no-permission",
+            message -> message.replace("%command%", args[0]),
+            sender::sendMessage);
         } else {
           // execute command
           this.executeNow(sender, commandLine);
@@ -74,7 +84,7 @@ public final class WaterDogPECloudCommand extends Command {
   }
 
   private void executeNow(@NonNull CommandSender sender, @NonNull String commandLine) {
-    for (var output : CloudNetDriver.instance().clusterNodeProvider().sendCommandLine(commandLine)) {
+    for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
       sender.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(
         this.management.configuration().prefix() + output));
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -43,6 +43,8 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -50,6 +52,7 @@ import java.util.Queue;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandAlias("paste")
 @CommandPermission("cloudnet.command.paste")
 @Description("module-report-command-description")
@@ -59,9 +62,12 @@ public final class ReportCommand {
 
   private final EmitterRegistry emitterRegistry;
   private final CloudNetReportModule reportModule;
+  private final CloudServiceProvider serviceProvider;
 
-  public ReportCommand(@NonNull CloudNetReportModule reportModule) {
+  @Inject
+  public ReportCommand(@NonNull CloudNetReportModule reportModule, @NonNull CloudServiceProvider serviceProvider) {
     this.reportModule = reportModule;
+    this.serviceProvider = serviceProvider;
     this.emitterRegistry = ServiceRegistry.first(EmitterRegistry.class);
   }
 
@@ -93,7 +99,7 @@ public final class ReportCommand {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    return CloudNetDriver.instance().cloudServiceProvider().services().stream()
+    return this.serviceProvider.services().stream()
       .filter(service -> service.name().equals(name))
       .findFirst()
       .orElseThrow(

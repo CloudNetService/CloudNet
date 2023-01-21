@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.handling;
 
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
-import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
-import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -54,19 +52,23 @@ public final class PlayerListMixin {
     method = "placeNewPlayer"
   )
   public void onJoin(@NonNull Connection con, @NonNull ServerPlayer player, @NonNull CallbackInfo info) {
-    ServerPlatformHelper.sendChannelMessageLoginSuccess(
-      player.getUUID(),
-      ((BridgedServer) this.server).management().createPlayerInformation(player));
-    // update the service info instantly as the player is registered now
-    Wrapper.instance().publishServiceInfoUpdate();
+    if (this.server instanceof BridgedServer bridgedServer) {
+      bridgedServer.injectionHolder().serverPlatformHelper().sendChannelMessageLoginSuccess(
+        player.getUUID(),
+        bridgedServer.management().createPlayerInformation(player));
+      // update the service info instantly as the player is registered now
+      bridgedServer.injectionHolder().serviceInfoHolder().publishServiceInfoUpdate();
+    }
   }
 
   @Inject(at = @At("TAIL"), method = "remove")
   public void onDisconnect(@NonNull ServerPlayer player, @NonNull CallbackInfo info) {
-    ServerPlatformHelper.sendChannelMessageDisconnected(
-      player.getUUID(),
-      ((BridgedServer) this.server).management().ownNetworkServiceInfo());
-    // update the service info instantly as the player is unregistered now
-    Wrapper.instance().publishServiceInfoUpdate();
+    if (this.server instanceof BridgedServer bridgedServer) {
+      bridgedServer.injectionHolder().serverPlatformHelper().sendChannelMessageDisconnected(
+        player.getUUID(),
+        bridgedServer.management().ownNetworkServiceInfo());
+      // update the service info instantly as the player is unregistered now
+      bridgedServer.injectionHolder().serviceInfoHolder().publishServiceInfoUpdate();
+    }
   }
 }

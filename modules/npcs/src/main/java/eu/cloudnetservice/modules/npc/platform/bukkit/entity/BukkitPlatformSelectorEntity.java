@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -49,6 +49,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -64,6 +65,8 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected final NPC npc;
   protected final Plugin plugin;
+  protected final Server server;
+  protected final BukkitScheduler scheduler;
   protected final BukkitPlatformNPCManagement npcManagement;
 
   protected final UUID uniqueId;
@@ -77,12 +80,16 @@ public abstract class BukkitPlatformSelectorEntity
   protected volatile Location npcLocation;
 
   protected BukkitPlatformSelectorEntity(
-    @NonNull BukkitPlatformNPCManagement npcManagement,
+    @NonNull NPC npc,
     @NonNull Plugin plugin,
-    @NonNull NPC npc
+    @NonNull Server server,
+    @NonNull BukkitScheduler scheduler,
+    @NonNull BukkitPlatformNPCManagement npcManagement
   ) {
     this.npc = npc;
     this.plugin = plugin;
+    this.server = server;
+    this.scheduler = scheduler;
     this.npcManagement = npcManagement;
     this.npcLocation = npcManagement.toPlatformLocation(npc.location());
     // construct the unique id randomly
@@ -92,13 +99,13 @@ public abstract class BukkitPlatformSelectorEntity
 
   @Override
   public void spawn() {
-    Bukkit.getScheduler().runTask(this.plugin, () -> {
+    this.scheduler.runTask(this.plugin, () -> {
       // create the inventory view
       this.rebuildInventory(this.npcManagement.inventoryConfiguration());
       // spawn the selector entity
       this.spawn0();
       // do the scoreboard related stuff now
-      for (var player : Bukkit.getOnlinePlayers()) {
+      for (var player : this.server.getOnlinePlayers()) {
         this.registerScoreboardTeam(player.getScoreboard());
       }
       // let the entity glow!
@@ -143,10 +150,10 @@ public abstract class BukkitPlatformSelectorEntity
   @Override
   public void remove() {
     // remove instantly when on main thread, else delay by one tick because we need to be on the main thread
-    if (Bukkit.isPrimaryThread()) {
+    if (this.server.isPrimaryThread()) {
       this.doRemove();
     } else {
-      Bukkit.getScheduler().runTask(this.plugin, this::doRemove);
+      this.scheduler.runTask(this.plugin, this::doRemove);
     }
   }
 
@@ -171,7 +178,7 @@ public abstract class BukkitPlatformSelectorEntity
     // rebuild all items - we can do that async
     this.serviceItems.values().forEach(wrapper -> this.trackService(wrapper.service()));
     // rebuild everything else sync
-    Bukkit.getScheduler().runTask(this.plugin, () -> {
+    this.scheduler.runTask(this.plugin, () -> {
       this.rebuildInventory(this.npcManagement.inventoryConfiguration());
       this.rebuildInfoLines();
     });
@@ -232,7 +239,7 @@ public abstract class BukkitPlatformSelectorEntity
 
   @Override
   public void stopTrackingService(@NonNull ServiceInfoSnapshot service) {
-    Bukkit.getScheduler().runTask(this.plugin, () -> {
+    this.scheduler.runTask(this.plugin, () -> {
       // get the old item wrapper
       var wrapper = this.serviceItems.remove(service.serviceId().uniqueId());
       if (wrapper != null) {
@@ -313,7 +320,7 @@ public abstract class BukkitPlatformSelectorEntity
     var currentLoc = this.npcLocation;
 
     // check if the world in the location object & the world given by bukkit still match
-    var world = Bukkit.getWorld(this.npc.location().world());
+    var world = this.server.getWorld(this.npc.location().world());
     if ((world != null && currentLoc.getWorld() != null) || (world == null && currentLoc.getWorld() == null)) {
       // all still the same
       return currentLoc;
@@ -402,17 +409,19 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   protected void unregisterItem(
-    @NonNull ServiceItemWrapper wrapper,
+    @Nullable ServiceItemWrapper wrapper,
     @NonNull ServiceInfoSnapshot service,
     @NonNull InventoryConfiguration configuration
   ) {
-    // reset the ItemStack in the wrapper as we currently don't have an item to display
-    wrapper.itemStack(null);
-    // update the service and rebuild the inventory & infoline
-    wrapper.service(service);
+    if (wrapper != null) {
+      // reset the ItemStack in the wrapper as we currently don't have an item to display
+      wrapper.itemStack(null);
+      // update the service and rebuild the inventory & infoline
+      wrapper.service(service);
 
-    this.rebuildInfoLines();
-    this.rebuildInventory(configuration);
+      this.rebuildInfoLines();
+      this.rebuildInventory(configuration);
+    }
   }
 
   protected void rebuildInfoLines() {
@@ -432,7 +441,7 @@ public abstract class BukkitPlatformSelectorEntity
     // create the inventory
     var inventory = this.inventory;
     if (inventory == null || inventory.getSize() != inventorySize) {
-      this.inventory = inventory = Bukkit.createInventory(
+      this.inventory = inventory = this.server.createInventory(
         null,
         inventorySize,
         Objects.requireNonNullElse(this.npc.inventoryName(), InventoryType.CHEST.getDefaultTitle()));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
@@ -29,6 +30,7 @@ import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.node.listeners.NodeChannelMessageListener;
 import eu.cloudnetservice.modules.npc.node.listeners.NodeSetupListener;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
+import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -48,9 +50,12 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     @NonNull NPCConfiguration npcConfiguration,
     @NonNull Database database,
     @NonNull Path configPath,
-    @NonNull EventManager eventManager
+    @NonNull Parsers parsers,
+    @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull ConsoleProgressWrappers progressWrappers
   ) {
-    super(npcConfiguration);
+    super(npcConfiguration, eventManager);
     this.database = database;
     this.configurationPath = configPath;
 
@@ -63,16 +68,17 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     });
 
     // download protocol lib
-    ConsoleProgressWrappers.wrapDownload(
+    progressWrappers.wrapDownload(
       "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar",
       stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH));
 
     // listener register
-    eventManager.registerListener(new NodeSetupListener(this));
+    eventManager.registerListener(new NodeSetupListener(this, parsers));
     eventManager.registerListener(new NodeChannelMessageListener(this));
     eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-npcs",
       CloudNetNPCModule.class,
+      moduleHelper,
       service -> ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
         && this.npcConfiguration
         .entries()

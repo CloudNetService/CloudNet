@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,29 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
 import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
 
+@Singleton
 public final class VelocitySyncProxyListener {
 
+  private static final ServerPing.SamplePlayer[] EMPTY_SAMPLE_PLAYER = new ServerPing.SamplePlayer[0];
+
+  private final ServiceInfoHolder serviceInfoHolder;
   private final VelocitySyncProxyManagement syncProxyManagement;
 
-  public VelocitySyncProxyListener(@NonNull VelocitySyncProxyManagement syncProxyManagement) {
+  @Inject
+  public VelocitySyncProxyListener(
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull VelocitySyncProxyManagement syncProxyManagement
+  ) {
+    this.serviceInfoHolder = serviceInfoHolder;
     this.syncProxyManagement = syncProxyManagement;
   }
 
@@ -44,38 +57,56 @@ public final class VelocitySyncProxyListener {
     }
 
     var motd = this.syncProxyManagement.randomMotd();
-    // only display a motd if there is one in the config
+    // only display the motd if its desired
     if (motd != null) {
       var onlinePlayers = this.syncProxyManagement.onlinePlayerCount();
       int maxPlayers;
 
+      // calculate the slots to display based on the autoslot configuration
       if (motd.autoSlot()) {
         maxPlayers = Math.min(loginConfiguration.maxPlayers(), onlinePlayers + motd.autoSlotMaxPlayersDistance());
       } else {
         maxPlayers = loginConfiguration.maxPlayers();
       }
 
-      var protocolText = motd.format(motd.protocolText(), onlinePlayers, maxPlayers);
+      var serviceInfo = this.serviceInfoHolder.serviceInfo();
+      var protocolText = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
+        motd.protocolText(),
+        onlinePlayers,
+        maxPlayers);
       var version = event.getPing().getVersion();
       // check if a protocol text is specified in the config
       if (protocolText != null) {
         version = new ServerPing.Version(1, ComponentFormats.BUNGEE_TO_ADVENTURE.convertText(protocolText));
       }
 
+      // convert the player info into individual player samples
+      var samplePlayers = EMPTY_SAMPLE_PLAYER;
+      if (motd.playerInfo() != null) {
+        // convert the player info into individual player samples
+        samplePlayers = Arrays.stream(motd.playerInfo())
+          .filter(Objects::nonNull)
+          .map(info -> SyncProxyConfiguration.fillCommonPlaceholders(serviceInfo, info, onlinePlayers, maxPlayers))
+          .map(ComponentFormats.ADVENTURE_TO_BUNGEE::convertText)
+          .map(info -> new ServerPing.SamplePlayer(info, UUID.randomUUID()))
+          .toArray(ServerPing.SamplePlayer[]::new);
+      }
+
+      // construct the description for the response
+      var description = SyncProxyConfiguration.fillCommonPlaceholders(
+        serviceInfo,
+        motd.firstLine() + "\n" + motd.secondLine(),
+        onlinePlayers,
+        maxPlayers);
+
+      // construct the response to the ping event
       var builder = ServerPing.builder()
         .version(version)
         .onlinePlayers(onlinePlayers)
         .maximumPlayers(maxPlayers)
-        // map the playerInfo from the config to ServerPing.SamplePlayer to display other information
-        .samplePlayers(motd.playerInfo() != null ?
-          Arrays.stream(motd.playerInfo())
-            .filter(Objects::nonNull)
-            .map(s -> new ServerPing.SamplePlayer(
-              s.replace("&", "§"),
-              UUID.randomUUID()
-            )).toArray(ServerPing.SamplePlayer[]::new) : new ServerPing.SamplePlayer[0])
-        .description(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-          motd.format(motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers)));
+        .samplePlayers(samplePlayers)
+        .description(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(description));
 
       event.getPing().getFavicon().ifPresent(builder::favicon);
       event.getPing().getModinfo().ifPresent(builder::mods);

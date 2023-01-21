@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,14 +50,23 @@ tasks.withType<ShadowJar> {
   }
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs = listOf("-AaerogelAutoFileName=autoconfigure/wrapper.aero")
+}
+
 dependencies {
   "api"(projects.driver)
   "api"(projects.ext.modlauncher)
+  "api"(projects.ext.platformInjectSupport.platformInjectLoader)
 
   // internal libraries
   "implementation"(libs.asm)
   "implementation"(libs.gson)
   "implementation"(libs.guava)
+  "implementation"(libs.geantyref)
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
 }
 
 applyJarMetadata(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public final class PermissionCacheListener {
+final class PermissionCacheListener {
 
   private final WrapperPermissionManagement permissionManagement;
 

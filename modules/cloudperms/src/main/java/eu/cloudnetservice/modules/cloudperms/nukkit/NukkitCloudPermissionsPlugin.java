@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,29 +18,72 @@ package eu.cloudnetservice.modules.cloudperms.nukkit;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.plugin.PluginBase;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import cn.nukkit.plugin.Plugin;
+import cn.nukkit.plugin.PluginManager;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.nukkit.listener.NukkitCloudPermissionsPlayerListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
-public final class NukkitCloudPermissionsPlugin extends PluginBase {
+@Singleton
+@PlatformPlugin(
+  platform = "nukkit",
+  name = "CloudNet-CloudPerms",
+  authors = "CloudNetService",
+  version = "{project.build.version}",
+  api = "1.0.5",
+  description = "Nukkit extension which implement the permission management system from CloudNet into Nukkit"
+)
+public final class NukkitCloudPermissionsPlugin implements PlatformEntrypoint {
+
+  private final ModuleHelper moduleHelper;
+  private final EventManager eventManager;
+  private final PermissionManagement permissionManagement;
+
+  private final Plugin plugin;
+  private final Server server;
+  private final PluginManager pluginManager;
+  private final NukkitCloudPermissionsPlayerListener playerListener;
+
+  @Inject
+  public NukkitCloudPermissionsPlugin(
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull EventManager eventManager,
+    @NonNull PermissionManagement permissionManagement,
+    @NonNull Plugin plugin,
+    @NonNull Server server,
+    @NonNull PluginManager pluginManager,
+    @NonNull NukkitCloudPermissionsPlayerListener playerListener
+  ) {
+    this.moduleHelper = moduleHelper;
+    this.eventManager = eventManager;
+    this.permissionManagement = permissionManagement;
+    this.plugin = plugin;
+    this.server = server;
+    this.pluginManager = pluginManager;
+    this.playerListener = playerListener;
+  }
 
   @Override
-  public void onEnable() {
-    super.getServer().getPluginManager().registerEvents(
-      new NukkitCloudPermissionsPlayerListener(CloudNetDriver.instance().permissionManagement()),
-      this);
-    CloudNetDriver.instance().eventManager().registerListener(new PermissionsUpdateListener<>(
-      runnable -> Server.getInstance().getScheduler().scheduleTask(this, runnable),
+  public void onLoad() {
+    this.pluginManager.registerEvents(this.playerListener, this.plugin);
+    this.eventManager.registerListener(new PermissionsUpdateListener<>(
+      runnable -> Server.getInstance().getScheduler().scheduleTask(this.plugin, runnable),
       Player::sendCommandData,
       Player::getUniqueId,
-      uuid -> Server.getInstance().getPlayer(uuid).orElse(null),
-      () -> Server.getInstance().getOnlinePlayers().values()));
+      uuid -> this.server.getPlayer(uuid).orElse(null),
+      this.permissionManagement,
+      () -> this.server.getOnlinePlayers().values()));
   }
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

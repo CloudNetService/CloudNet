@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,64 @@
 
 package eu.cloudnetservice.modules.signs.platform.minestom;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
-import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
-import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.signs.platform.minestom.functionality.SignInteractListener;
 import eu.cloudnetservice.modules.signs.platform.minestom.functionality.SignsCommand;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.extensions.Extension;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
+import net.minestom.server.command.CommandManager;
 
-public class MinestomSignsExtension extends Extension {
+@Singleton
+@PlatformPlugin(
+  platform = "minestom",
+  name = "CloudNet_Signs",
+  version = "{project.build.version}",
+  description = "Minestom extension for the CloudNet runtime which adds sign connector support",
+  authors = "CloudNetService",
+  dependencies = @Dependency(name = "CloudNet-Bridge"))
+public class MinestomSignsExtension implements PlatformEntrypoint {
 
-  @Override
-  public void initialize() {
-    var management = new MinestomSignManagement();
-    management.registerToServiceRegistry();
-    management.initialize();
+  private final ModuleHelper moduleHelper;
+  private final SignsCommand signsCommand;
+  private final CommandManager commandManager;
+  private final ServiceRegistry serviceRegistry;
+  private final MinestomSignManagement signManagement;
 
-    // cloudnet listener
-    CloudNetDriver.instance().eventManager().registerListeners(
-      new SharedChannelMessageListener(management),
-      new SignsPlatformListener(management));
-
-    MinecraftServer.getCommandManager().register(new SignsCommand(management));
-    new SignInteractListener(management);
+  @Inject
+  public MinestomSignsExtension(
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull SignsCommand signsCommand,
+    @NonNull CommandManager commandManager,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull MinestomSignManagement signManagement
+  ) {
+    this.moduleHelper = moduleHelper;
+    this.signsCommand = signsCommand;
+    this.commandManager = commandManager;
+    this.serviceRegistry = serviceRegistry;
+    this.signManagement = signManagement;
   }
 
   @Override
-  public void terminate() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+  public void onLoad() {
+    this.signManagement.initialize();
+    this.signManagement.registerToServiceRegistry(this.serviceRegistry);
+
+    this.commandManager.register(this.signsCommand);
+  }
+
+  @Inject
+  private void registerSignInteract(@NonNull SignInteractListener interactListener) {
+    // just need to create a new instance
+  }
+
+  @Override
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

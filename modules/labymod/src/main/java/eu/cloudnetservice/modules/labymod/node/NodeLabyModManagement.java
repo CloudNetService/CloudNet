@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,29 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class NodeLabyModManagement implements LabyModManagement {
 
   private final CloudNetLabyModModule labyModModule;
   private LabyModConfiguration configuration;
 
+  @Inject
   public NodeLabyModManagement(
     @NonNull CloudNetLabyModModule labyModModule,
     @NonNull LabyModConfiguration configuration,
-    @NonNull RPCFactory rpcFactory
+    @NonNull RPCFactory rpcFactory,
+    @NonNull RPCHandlerRegistry rpcHandlerRegistry
   ) {
     this.labyModModule = labyModModule;
     this.configuration = configuration;
-    rpcFactory.newHandler(LabyModManagement.class, this).registerToDefaultRegistry();
+    rpcFactory.newHandler(LabyModManagement.class, this).registerTo(rpcHandlerRegistry);
   }
 
   @Override

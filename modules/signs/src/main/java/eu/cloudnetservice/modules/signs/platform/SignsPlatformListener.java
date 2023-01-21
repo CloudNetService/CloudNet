@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,27 +19,23 @@ package eu.cloudnetservice.modules.signs.platform;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class SignsPlatformListener {
 
-  protected final PlatformSignManagement<?, ?, ?> signManagement;
-
-  public SignsPlatformListener(@NonNull PlatformSignManagement<?, ?, ?> signManagement) {
-    this.signManagement = signManagement;
+  @EventListener
+  public void handle(@NonNull CloudServiceUpdateEvent event, @NonNull PlatformSignManagement signManagement) {
+    signManagement.handleServiceUpdate(event.serviceInfo());
   }
 
   @EventListener
-  public void handle(@NonNull CloudServiceUpdateEvent event) {
-    this.signManagement.handleServiceUpdate(event.serviceInfo());
-  }
-
-  @EventListener
-  public void handle(@NonNull CloudServiceLifecycleChangeEvent event) {
+  public void handle(@NonNull CloudServiceLifecycleChangeEvent event, @NonNull PlatformSignManagement signManagement) {
     switch (event.newLifeCycle()) {
-      case STOPPED, DELETED -> this.signManagement.handleServiceRemove(event.serviceInfo());
-      case RUNNING -> this.signManagement.handleServiceAdd(event.serviceInfo());
-      default -> this.signManagement.handleServiceUpdate(event.serviceInfo());
+      case STOPPED, DELETED -> signManagement.handleServiceRemove(event.serviceInfo());
+      case RUNNING -> signManagement.handleServiceAdd(event.serviceInfo());
+      default -> signManagement.handleServiceUpdate(event.serviceInfo());
     }
   }
 }

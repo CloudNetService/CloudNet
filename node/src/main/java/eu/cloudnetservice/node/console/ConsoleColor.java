@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public enum ConsoleColor {
     this.ansiCode = ansiCode;
   }
 
-  public static @NonNull String toColouredString(char triggerChar, @NonNull String input) {
+  public static @NonNull String toColoredString(char triggerChar, @NonNull String input) {
     var contentBuilder = new StringBuilder(convertRGBColors(triggerChar, input));
 
     var breakIndex = contentBuilder.length() - 1;

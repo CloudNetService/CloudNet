@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.smart.listener;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -28,11 +29,12 @@ import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.modules.smart.util.SmartUtil;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -45,15 +47,31 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class CloudNetTickListener {
 
   private final CloudNetSmartModule module;
+  private final ServiceTaskProvider taskProvider;
+  private final CloudServiceManager serviceManager;
+  private final CloudServiceFactory serviceFactory;
+  private final NodeServerProvider nodeServerProvider;
 
   private final Map<String, Long> autoStartBlocks = new HashMap<>();
   private final Map<UUID, AtomicLong> autoStopTicks = new HashMap<>();
 
-  public CloudNetTickListener(@NonNull CloudNetSmartModule module) {
+  @Inject
+  public CloudNetTickListener(
+    @NonNull CloudNetSmartModule module,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull CloudServiceFactory serviceFactory,
+    @NonNull NodeServerProvider nodeServerProvider
+  ) {
     this.module = module;
+    this.taskProvider = taskProvider;
+    this.serviceManager = serviceManager;
+    this.serviceFactory = serviceFactory;
+    this.nodeServerProvider = nodeServerProvider;
   }
 
   @EventListener
@@ -62,11 +80,11 @@ public final class CloudNetTickListener {
   }
 
   private void handleSmartEntries() {
-    Node.instance().serviceTaskProvider().serviceTasks().forEach(task -> {
+    this.taskProvider.serviceTasks().forEach(task -> {
       var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
         // get all services of the task
-        var services = this.serviceManager().servicesByTask(task.name());
+        var services = this.serviceManager.servicesByTask(task.name());
         // get all prepared services
         var preparedServices = services.stream()
           .filter(service -> service.lifeCycle() == ServiceLifeCycle.PREPARED)
@@ -195,7 +213,7 @@ public final class CloudNetTickListener {
       server = this.selectNodeServer(services);
     }
     // create a new service based on the task
-    var createResult = this.serviceFactory().createCloudService(ServiceConfiguration.builder(task)
+    var createResult = this.serviceFactory.createCloudService(ServiceConfiguration.builder(task)
       .node(server == null ? null : server.info().uniqueId())
       .build());
     return createResult.state() == ServiceCreateResult.State.CREATED ? createResult.serviceInfo() : null;
@@ -203,7 +221,7 @@ public final class CloudNetTickListener {
 
   private @Nullable NodeServer selectNodeServer(@NonNull Collection<ServiceInfoSnapshot> services) {
     // find the node server with the least services on it
-    return this.nodeServerProvider().nodeServers().stream()
+    return this.nodeServerProvider.nodeServers().stream()
       .filter(nodeServer -> nodeServer.available() && !nodeServer.draining())
       .map(node -> new Pair<>(node, services.stream()
         .filter(service -> service.serviceId().nodeUniqueId().equals(node.info().uniqueId()))
@@ -211,17 +229,5 @@ public final class CloudNetTickListener {
       .min(Comparator.comparingLong(Pair::second))
       .map(Pair::first)
       .orElse(null);
-  }
-
-  private @NonNull CloudServiceManager serviceManager() {
-    return Node.instance().cloudServiceProvider();
-  }
-
-  private @NonNull NodeServerProvider nodeServerProvider() {
-    return Node.instance().nodeServerProvider();
-  }
-
-  private @NonNull CloudServiceFactory serviceFactory() {
-    return Node.instance().cloudServiceFactory();
   }
 }

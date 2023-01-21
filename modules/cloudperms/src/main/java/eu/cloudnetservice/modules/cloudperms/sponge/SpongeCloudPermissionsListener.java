@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package eu.cloudnetservice.modules.cloudperms.sponge;
 
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.Sponge;
@@ -30,10 +32,12 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.util.Tristate;
 
+@Singleton
 public final class SpongeCloudPermissionsListener {
 
   private final PermissionManagement permissionManagement;
 
+  @Inject
   public SpongeCloudPermissionsListener(@NonNull PermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }

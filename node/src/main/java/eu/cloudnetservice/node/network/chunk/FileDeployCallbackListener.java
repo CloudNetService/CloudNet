@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,23 +27,48 @@ import eu.cloudnetservice.driver.network.chunk.defaults.DefaultFileChunkedPacket
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.template.TemplateStorageProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
+@Singleton
 public final class FileDeployCallbackListener {
+
+  private final TemplateDeployCallback templateDeployCallback;
+  private final StaticServiceDeployCallback serviceDeployCallback;
+  private final TemplateFileDeployCallback templateFileDeployCallback;
+
+  private final TemplateStorageProvider templateStorageProvider;
+
+  @Inject
+  public FileDeployCallbackListener(
+    @NonNull TemplateDeployCallback templateDeployCallback,
+    @NonNull StaticServiceDeployCallback serviceDeployCallback,
+    @NonNull TemplateFileDeployCallback templateFileDeployCallback,
+    @NonNull TemplateStorageProvider templateStorageProvider
+  ) {
+    this.templateDeployCallback = templateDeployCallback;
+    this.serviceDeployCallback = serviceDeployCallback;
+    this.templateFileDeployCallback = templateFileDeployCallback;
+    this.templateStorageProvider = templateStorageProvider;
+  }
 
   @EventListener
   public void handle(@NonNull ChunkedPacketSessionOpenEvent event) {
     switch (event.session().transferChannel()) {
-      case "deploy_service_template" -> event.handler(
-        new DefaultFileChunkedPacketHandler(event.session(), TemplateDeployCallback.INSTANCE));
-      case "deploy_single_file" -> event.handler(
-        new DefaultFileChunkedPacketHandler(event.session(), TemplateFileDeployCallback.INSTANCE));
-      case "deploy_static_service" -> event.handler(
-        new DefaultFileChunkedPacketHandler(event.session(), StaticServiceDeployCallback.INSTANCE));
+      case "deploy_service_template" -> event.handler(new DefaultFileChunkedPacketHandler(
+        event.session(),
+        this.templateDeployCallback));
+      case "deploy_single_file" -> event.handler(new DefaultFileChunkedPacketHandler(
+        event.session(),
+        this.templateFileDeployCallback));
+      case "deploy_static_service" -> event.handler(new DefaultFileChunkedPacketHandler(
+        event.session(),
+        this.serviceDeployCallback));
       default -> {
       }
     }
@@ -73,13 +98,15 @@ public final class FileDeployCallbackListener {
     var storageName = event.content().readString();
     var template = event.content().readObject(ServiceTemplate.class);
     var responseId = event.content().readUniqueId();
+
     // get the storage
-    var storage = Node.instance().templateStorageProvider().templateStorage(storageName);
+    var storage = this.templateStorageProvider.templateStorage(storageName);
     if (storage == null) {
       // missing storage - no result
       event.binaryResponse(DataBuf.empty().writeBoolean(false));
       return;
     }
+
     // zip the template and return to the sender
     try (var zip = streamOpener.apply(storage, template)) {
       // check if the template exists
@@ -87,6 +114,7 @@ public final class FileDeployCallbackListener {
         event.binaryResponse(DataBuf.empty().writeBoolean(false));
         return;
       }
+
       // send the zip to the requesting component
       var status = ChunkedPacketSender.forFileTransfer()
         .source(zip)

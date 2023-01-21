@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,22 @@ import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
-import eu.cloudnetservice.node.cluster.util.NodeServerUtil;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.cluster.util.NodeDisconnectHandler;
+import jakarta.inject.Inject;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.Collection;
@@ -46,7 +50,11 @@ public class RemoteNodeServer implements NodeServer {
 
   private static final Type COLLECTION_STRING = TypeToken.getParameterized(Set.class, String.class).getType();
 
-  private final Node node;
+  private final NetworkClient networkClient;
+  private final DataSyncRegistry dataSyncRegistry;
+  private final NodeDisconnectHandler disconnectHandler;
+  private final CloudServiceProvider cloudServiceProvider;
+
   private final NetworkClusterNode info;
   private final NodeServerProvider provider;
   private final CloudServiceFactory serviceFactory;
@@ -59,17 +67,26 @@ public class RemoteNodeServer implements NodeServer {
   private volatile NodeInfoSnapshot lastSnapshot;
   private volatile Instant lastNodeInfoUpdate = Instant.now();
 
+  @Inject
   public RemoteNodeServer(
-    @NonNull Node node,
+    @NonNull RPCFactory rpcFactory,
     @NonNull NetworkClusterNode info,
-    @NonNull NodeServerProvider provider
+    @NonNull NodeServerProvider provider,
+    @NonNull NetworkClient networkClient,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull NodeDisconnectHandler disconnectHandler,
+    @NonNull CloudServiceProvider cloudServiceProvider
   ) {
-    this.node = node;
     this.info = info;
     this.provider = provider;
-    this.serviceFactory = node.rpcFactory().generateRPCBasedApi(
+    this.networkClient = networkClient;
+    this.dataSyncRegistry = dataSyncRegistry;
+    this.disconnectHandler = disconnectHandler;
+    this.cloudServiceProvider = cloudServiceProvider;
+    this.serviceFactory = rpcFactory.generateRPCBasedApi(
       CloudServiceFactory.class,
-      GenerationContext.forClass(CloudServiceFactory.class).channelSupplier(this::channel).build());
+      GenerationContext.forClass(CloudServiceFactory.class).channelSupplier(this::channel).build()
+    ).newInstance();
   }
 
   @Override
@@ -79,7 +96,7 @@ public class RemoteNodeServer implements NodeServer {
 
   @Override
   public boolean head() {
-    return this.provider.headNode() == this;
+    return this.provider.headNode().equals(this);
   }
 
   @Override
@@ -107,7 +124,7 @@ public class RemoteNodeServer implements NodeServer {
     }
     // select a random listener and try to connect to it
     var listener = listeners.get(ThreadLocalRandom.current().nextInt(0, listeners.size()));
-    return this.node.networkClient().connect(listener);
+    return this.networkClient.connect(listener);
   }
 
   @Override
@@ -132,7 +149,7 @@ public class RemoteNodeServer implements NodeServer {
       .message("sync_cluster_data")
       .targetNode(this.info.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(this.node.dataSyncRegistry().prepareClusterData(force))
+      .buffer(this.dataSyncRegistry.prepareClusterData(force))
       .build()
       .send();
   }
@@ -215,7 +232,7 @@ public class RemoteNodeServer implements NodeServer {
 
   @Override
   public @Nullable SpecificCloudServiceProvider serviceProvider(@NonNull UUID uniqueId) {
-    return this.node.cloudServiceProvider().serviceProvider(uniqueId);
+    return this.cloudServiceProvider.serviceProvider(uniqueId);
   }
 
   @Override
@@ -243,7 +260,7 @@ public class RemoteNodeServer implements NodeServer {
     this.updateNodeInfoSnapshot(null);
     this.state(NodeServerState.UNAVAILABLE);
     // notify about the service remove from that node, then trigger a head node refresh
-    NodeServerUtil.handleNodeServerClose(this);
+    this.disconnectHandler.handleNodeServerClose(this);
     this.provider.selectHeadNode();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,50 +16,54 @@
 
 package eu.cloudnetservice.node.command;
 
-
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.exceptions.NoSuchCommandException;
-import eu.cloudnetservice.driver.NodeTestUtility;
+import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.event.DefaultEventManager;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.defaults.DefaultCommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.DriverCommandSource;
-import eu.cloudnetservice.node.console.Console;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Iterables;
 
 public final class CommandProviderTest {
 
-  private static final CommandProvider COMMAND_PROVIDER = new DefaultCommandProvider(Mockito.mock(Console.class),
-    new DefaultEventManager());
+  private static CommandProvider commandProvider;
 
   @BeforeAll
-  public static void initNode() {
-    var node = NodeTestUtility.mockAndSetDriverInstance();
-    Mockito.when(node.commandProvider()).thenReturn(COMMAND_PROVIDER);
+  public static void initCommandProvider() {
+    // install the required bindings to construct the command provider
+    var layer = InjectionLayer.boot();
+    layer.install(BindingBuilder.create().bind(EventManager.class).toConstructing(DefaultEventManager.class));
+    layer.install(BindingBuilder.create().bind(CommandProvider.class).toConstructing(DefaultCommandProvider.class));
+
+    // get the command provider instance
+    commandProvider = layer.instance(CommandProvider.class);
+
     // register two test commands
-    COMMAND_PROVIDER.register(new TestCommand());
-    COMMAND_PROVIDER.register(new HelpTestCommand());
+    commandProvider.register(new TestCommand());
+    commandProvider.register(new HelpTestCommand());
   }
 
   @Test
   public void testCommandRegistration() {
-    var testCommand = COMMAND_PROVIDER.command("tests");
+    var testCommand = commandProvider.command("tests");
     Assertions.assertNotNull(testCommand);
     Assertions.assertEquals(1, testCommand.usage().size());
     Assertions.assertEquals("tests test <user>", Iterables.firstOf(testCommand.usage()));
 
-    var testCommandByAlias = COMMAND_PROVIDER.command("test1");
+    var testCommandByAlias = commandProvider.command("test1");
     Assertions.assertNotNull(testCommandByAlias);
     Assertions.assertNotEquals("test1", testCommand.name());
     Assertions.assertEquals(testCommandByAlias, testCommandByAlias);
@@ -69,11 +73,11 @@ public final class CommandProviderTest {
   public void testStaticCommandSuggestions() {
     var source = new DriverCommandSource();
 
-    var rootSuggestions = COMMAND_PROVIDER.suggest(source, "tests");
+    var rootSuggestions = commandProvider.suggest(source, "tests");
     Assertions.assertEquals(1, rootSuggestions.size());
     Assertions.assertEquals("tests", rootSuggestions.get(0));
 
-    var subSuggestions = COMMAND_PROVIDER.suggest(source, "tests ");
+    var subSuggestions = commandProvider.suggest(source, "tests ");
     Assertions.assertEquals(1, subSuggestions.size());
     Assertions.assertEquals("test", Iterables.firstOf(subSuggestions));
   }
@@ -82,7 +86,7 @@ public final class CommandProviderTest {
   public void testDynamicCommandSuggestions() {
     var source = new DriverCommandSource();
 
-    var suggestions = COMMAND_PROVIDER.suggest(source, "tests test ");
+    var suggestions = commandProvider.suggest(source, "tests test ");
     Assertions.assertEquals(3, suggestions.size());
     Assertions.assertEquals(Arrays.asList("alice", "bob", "clyde"), suggestions);
   }
@@ -92,7 +96,7 @@ public final class CommandProviderTest {
     var source = new DriverCommandSource();
 
     try {
-      COMMAND_PROVIDER.execute(source, "non existing command").getOrNull();
+      commandProvider.execute(source, "non existing command").getOrNull();
     } catch (CompletionException exception) {
       Assertions.assertEquals(NoSuchCommandException.class, exception.getCause().getClass());
     }
@@ -101,9 +105,9 @@ public final class CommandProviderTest {
   @Test
   public void testCommandUnregister() {
     // the confirmation command is always registered so there are 3 commands
-    Assertions.assertEquals(3, COMMAND_PROVIDER.commands().size());
-    COMMAND_PROVIDER.unregister(this.getClass().getClassLoader());
-    Assertions.assertEquals(0, COMMAND_PROVIDER.commands().size());
+    Assertions.assertEquals(3, commandProvider.commands().size());
+    commandProvider.unregister(this.getClass().getClassLoader());
+    Assertions.assertEquals(0, commandProvider.commands().size());
   }
 
   public static final class HelpTestCommand {

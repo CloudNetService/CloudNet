@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,28 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 
+@Singleton
 public final class VelocityCloudCommand implements SimpleCommand {
 
+  private final ClusterNodeProvider clusterNodeProvider;
   private final PlatformBridgeManagement<?, ?> management;
 
-  public VelocityCloudCommand(PlatformBridgeManagement<?, ?> management) {
+  @Inject
+  public VelocityCloudCommand(
+    @NonNull ClusterNodeProvider clusterNodeProvider,
+    @NonNull PlatformBridgeManagement<?, ?> management
+  ) {
+    this.clusterNodeProvider = clusterNodeProvider;
     this.management = management;
   }
 
@@ -54,17 +63,15 @@ public final class VelocityCloudCommand implements SimpleCommand {
       this.executeNow(invocation.source(), commandLine);
     } else {
       // get the command info
-      CloudNetDriver.instance().clusterNodeProvider().consoleCommandAsync(arguments[0]).thenAcceptAsync(info -> {
+      this.clusterNodeProvider.consoleCommandAsync(arguments[0]).thenAcceptAsync(info -> {
         // check if the sender has the required permission to execute the command
         if (info == null || !invocation.source().hasPermission(info.permission())) {
           // no permission to execute the command
-          invocation.source().sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-            this.management.configuration().message(
-              invocation.source() instanceof Player
-                ? ((Player) invocation.source()).getEffectiveLocale()
-                : Locale.ENGLISH,
-              "command-cloud-sub-command-no-permission"
-            ).replace("%command%", arguments[0])));
+          this.management.configuration().handleMessage(
+            invocation.source() instanceof Player player ? player.getEffectiveLocale() : Locale.ENGLISH,
+            "command-cloud-sub-command-no-permission",
+            message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message.replace("%command%", arguments[0])),
+            invocation.source()::sendMessage);
         } else {
           // execute the command
           this.executeNow(invocation.source(), commandLine);
@@ -74,7 +81,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
   }
 
   private void executeNow(@NonNull CommandSource source, @NonNull String commandLine) {
-    for (var output : CloudNetDriver.instance().clusterNodeProvider().sendCommandLine(commandLine)) {
+    for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
       source.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
         this.management.configuration().prefix() + output));
     }
@@ -82,8 +89,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
 
   @Override
   public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
-    return CloudNetDriver.instance()
-      .clusterNodeProvider()
+    return this.clusterNodeProvider
       .consoleTabCompleteResultsAsync(String.join(" ", invocation.arguments()))
       .thenApply(List::copyOf);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.wrapper.permission;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.permission.DefaultCachedPermissionManagement;
@@ -26,7 +25,7 @@ import eu.cloudnetservice.driver.permission.PermissionCheckResult;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.wrapper.network.listener.message.PermissionChannelMessageListener;
 import java.util.Collection;
 import java.util.UUID;
@@ -37,16 +36,22 @@ public abstract class WrapperPermissionManagement extends DefaultCachedPermissio
 
   private final RPCSender rpcSender;
   private final EventManager eventManager;
+  private final ServiceConfiguration serviceConfiguration;
 
   private final PermissionCacheListener cacheListener;
   private final PermissionChannelMessageListener channelMessageListener;
 
-  public WrapperPermissionManagement(@NonNull RPCSender sender) {
+  public WrapperPermissionManagement(
+    @NonNull RPCSender sender,
+    @NonNull EventManager eventManager,
+    @NonNull ServiceConfiguration serviceConfiguration
+  ) {
     this.rpcSender = sender;
-    this.eventManager = CloudNetDriver.instance().eventManager();
+    this.eventManager = eventManager;
+    this.serviceConfiguration = serviceConfiguration;
 
+    this.channelMessageListener = new PermissionChannelMessageListener();
     this.cacheListener = new PermissionCacheListener(this);
-    this.channelMessageListener = new PermissionChannelMessageListener(this.eventManager, this);
   }
 
   @Override
@@ -119,7 +124,7 @@ public abstract class WrapperPermissionManagement extends DefaultCachedPermissio
   ) {
     return this.groupsPermissionResult(
       permissible,
-      Wrapper.instance().currentServiceInfo().configuration().groups().toArray(new String[0]),
+      this.serviceConfiguration.groups().toArray(new String[0]),
       permission);
   }
 
@@ -186,11 +191,6 @@ public abstract class WrapperPermissionManagement extends DefaultCachedPermissio
   @Override
   public @Nullable PermissionManagement childPermissionManagement() {
     return null;
-  }
-
-  @Override
-  public boolean allowsOverride() {
-    return true;
   }
 
   @Override

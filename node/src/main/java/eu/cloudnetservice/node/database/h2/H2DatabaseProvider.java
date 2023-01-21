@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
 import org.h2.Driver;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+@Deprecated(forRemoval = true)
 public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   static {
@@ -45,11 +45,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   private Connection connection;
 
   public H2DatabaseProvider(@NonNull String h2File) {
-    this(h2File, null);
-  }
-
-  public H2DatabaseProvider(@NonNull String h2File, @Nullable ExecutorService executorService) {
-    super(executorService);
+    super(DEFAULT_REMOVAL_LISTENER);
     this.h2dbFile = Path.of(h2File);
   }
 
@@ -63,9 +59,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
-    return this.databaseCache.get(
-      name,
-      $ -> new H2Database(this, name, super.executorService));
+    return this.databaseCache.get(name, $ -> new H2Database(this, name));
   }
 
   @Override

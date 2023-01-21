@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,26 +29,24 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import lombok.NonNull;
 
 public final class ServiceChannelMessageListener {
 
-  private final EventManager eventManager;
-
-  public ServiceChannelMessageListener(@NonNull EventManager eventManager) {
-    this.eventManager = eventManager;
-  }
-
   @EventListener
-  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(
+    @NonNull ChannelMessageReceiveEvent event,
+    @NonNull EventManager eventManager,
+    @NonNull ServiceInfoHolder serviceInfoHolder
+  ) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // update of a service in the network
         case "update_service_info" -> {
           var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
-          this.eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
+          eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
         }
 
         // update of a service lifecycle in the network
@@ -56,20 +54,20 @@ public final class ServiceChannelMessageListener {
           var lifeCycle = event.content().readObject(ServiceLifeCycle.class);
           var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
-          this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
+          eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         }
 
         // force update request of the service info
         case "request_update_service_information" -> event.binaryResponse(DataBuf.empty()
-          .writeObject(Wrapper.instance().configureServiceInfoSnapshot()));
+          .writeObject(serviceInfoHolder.configureServiceInfoSnapshot()));
 
         // force update request of the service information with new properties
         case "request_update_service_information_with_new_properties" -> {
           var properties = event.content().readObject(JsonDocument.class);
-          var snapshot = Wrapper.instance().createServiceInfoSnapshot(properties);
+          var snapshot = serviceInfoHolder.createServiceInfoSnapshot(properties);
 
           // publish the new service info
-          Wrapper.instance().publishServiceInfoUpdate(snapshot);
+          serviceInfoHolder.publishServiceInfoUpdate(snapshot);
         }
 
         // call the event for a new line in the log of the service
@@ -81,7 +79,7 @@ public final class ServiceChannelMessageListener {
             ? CloudServiceLogEntryEvent.StreamType.STDERR
             : CloudServiceLogEntryEvent.StreamType.STDOUT;
 
-          this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line, type));
+          eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line, type));
         }
 
         // a deferred service start result is available, call the event
@@ -89,7 +87,7 @@ public final class ServiceChannelMessageListener {
           var creationId = event.content().readUniqueId();
           var createResult = event.content().readObject(ServiceCreateResult.class);
 
-          this.eventManager.callEvent(new CloudServiceDeferredStateEvent(creationId, createResult));
+          eventManager.callEvent(new CloudServiceDeferredStateEvent(creationId, createResult));
         }
 
         // none of our business

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,22 @@ import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPath;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.util.Objects;
 import lombok.NonNull;
 
+@Singleton
 public final class V2HttpHandlerDocumentation extends V2HttpHandler {
+
+  @Inject
+  public V2HttpHandlerDocumentation(@NonNull Configuration config) {
+    super(config.restConfiguration());
+  }
 
   @HttpRequestHandler(paths = "/api/v2/documentation")
   private void handleDocumentationRequest(@NonNull HttpContext context) {

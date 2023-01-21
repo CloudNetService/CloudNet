@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,20 @@ package eu.cloudnetservice.modules.labymod.platform.bungeecord;
 
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-public class BungeeCordLabyModListener implements Listener {
+@Singleton
+public final class BungeeCordLabyModListener implements Listener {
 
   private final PlatformLabyModManagement labyModManagement;
 
+  @Inject
   public BungeeCordLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
   }

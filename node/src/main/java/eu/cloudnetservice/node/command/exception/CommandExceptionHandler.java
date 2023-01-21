@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.event.command.CommandInvalidSyntaxEvent;
 import eu.cloudnetservice.node.event.command.CommandNotFoundEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionException;
@@ -42,13 +44,15 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
 public class CommandExceptionHandler {
 
-  protected static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
+  private static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
 
   private final CommandProvider commandProvider;
   private final EventManager eventManager;
 
+  @Inject
   public CommandExceptionHandler(@NonNull CommandProvider commandProvider, @NonNull EventManager eventManager) {
     this.commandProvider = commandProvider;
     this.eventManager = eventManager;

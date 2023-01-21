@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 /**
@@ -28,6 +29,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
+@Singleton
 public interface WrapperConfiguration {
 
   /**

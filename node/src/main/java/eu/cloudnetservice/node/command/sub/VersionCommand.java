@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,17 +32,21 @@ import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.TickLoop;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
 import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.information.FileSystemVersionInstaller;
 import eu.cloudnetservice.node.version.information.TemplateVersionInstaller;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,6 +60,7 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandAlias("v")
 @CommandPermission("cloudnet.command.version")
 @Description("command-version-description")
@@ -73,9 +78,24 @@ public final class VersionCommand {
       .column(pair -> pair.second().maxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
       .build();
 
+  private final TickLoop tickLoop;
+  private final CloudServiceManager serviceManager;
+  private final ServiceVersionProvider serviceVersionProvider;
+
+  @Inject
+  public VersionCommand(
+    @NonNull TickLoop tickLoop,
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull ServiceVersionProvider serviceVersionProvider
+  ) {
+    this.tickLoop = tickLoop;
+    this.serviceManager = serviceManager;
+    this.serviceVersionProvider = serviceVersionProvider;
+  }
+
   @Parser(suggestions = "serviceVersionType")
   public @NonNull ServiceVersionType parseVersionType(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var versionType = Node.instance().serviceVersionProvider().getServiceVersionType(input.remove());
+    var versionType = this.serviceVersionProvider.getServiceVersionType(input.remove());
     if (versionType != null) {
       return versionType;
     }
@@ -85,13 +105,13 @@ public final class VersionCommand {
 
   @Suggestions("serviceVersionType")
   public @NonNull List<String> suggestVersionType(@NonNull CommandContext<?> $, @NonNull String input) {
-    return new ArrayList<>(Node.instance().serviceVersionProvider().serviceVersionTypes().keySet());
+    return new ArrayList<>(this.serviceVersionProvider.serviceVersionTypes().keySet());
   }
 
   @Parser(name = "staticServiceDirectory", suggestions = "staticServices")
   public @NonNull Path parseStaticServiceDirectory(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var suppliedName = input.remove();
-    var baseDirectory = Node.instance().cloudServiceProvider().persistentServicesDirectory();
+    var baseDirectory = this.serviceManager.persistentServicesDirectory();
 
     // check for path traversal
     var serviceDirectory = baseDirectory.resolve(suppliedName);
@@ -110,7 +130,7 @@ public final class VersionCommand {
     @NonNull CommandContext<?> $,
     @NonNull String input
   ) {
-    var baseDirectory = Node.instance().cloudServiceProvider().persistentServicesDirectory();
+    var baseDirectory = this.serviceManager.persistentServicesDirectory();
     try {
       return Files.walk(baseDirectory, 1)
         .filter(Files::isDirectory)
@@ -130,7 +150,7 @@ public final class VersionCommand {
   ) {
     Collection<Pair<ServiceVersionType, ServiceVersion>> versions;
     if (versionType == null) {
-      versions = Node.instance().serviceVersionProvider()
+      versions = this.serviceVersionProvider
         .serviceVersionTypes()
         .values().stream()
         .flatMap(type -> type.versions().stream()
@@ -138,7 +158,7 @@ public final class VersionCommand {
           .map(version -> new Pair<>(type, version)))
         .toList();
     } else {
-      versions = Node.instance().serviceVersionProvider().serviceVersionTypes()
+      versions = this.serviceVersionProvider.serviceVersionTypes()
         .get(StringUtil.toLower(versionType.name()))
         .versions()
         .stream()
@@ -237,10 +257,10 @@ public final class VersionCommand {
   }
 
   private void executeInstallation(@NonNull CommandSource source, @NonNull VersionInstaller installer, boolean force) {
-    Node.instance().mainThread().runTask(() -> {
+    this.tickLoop.runTask(() -> {
       source.sendMessage(I18n.trans("command-version-install-try"));
 
-      if (Node.instance().serviceVersionProvider().installServiceVersion(installer, force)) {
+      if (this.serviceVersionProvider.installServiceVersion(installer, force)) {
         source.sendMessage(I18n.trans("command-version-install-success"));
       } else {
         source.sendMessage(I18n.trans("command-version-install-failed"));

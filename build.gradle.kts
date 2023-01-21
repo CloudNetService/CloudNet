@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,8 +75,8 @@ subprojects {
     // annotations
     "compileOnly"(rootProject.libs.annotations)
     // testing
+    "testImplementation"(rootProject.libs.mockito)
     "testImplementation"(rootProject.libs.bundles.junit)
-    "testImplementation"(rootProject.libs.bundles.mockito)
     "testImplementation"(rootProject.libs.bundles.testContainers)
   }
 

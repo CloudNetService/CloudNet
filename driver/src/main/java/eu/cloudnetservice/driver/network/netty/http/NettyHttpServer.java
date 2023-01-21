@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.util.concurrent.Future;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
 public class NettyHttpServer extends NettySslServer implements HttpServer {
 
   private static final Logger LOGGER = LogManager.logger(NettyHttpServer.class);

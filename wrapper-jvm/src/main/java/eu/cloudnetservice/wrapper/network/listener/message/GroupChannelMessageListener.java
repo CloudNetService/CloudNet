@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,26 +27,20 @@ import lombok.NonNull;
 
 public final class GroupChannelMessageListener {
 
-  private final EventManager eventManager;
-
-  public GroupChannelMessageListener(@NonNull EventManager eventManager) {
-    this.eventManager = eventManager;
-  }
-
   @EventListener
-  public void handle(@NonNull ChannelMessageReceiveEvent event) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event, @NonNull EventManager eventManager) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // add group
         case "add_group_configuration" -> {
           var configuration = event.content().readObject(GroupConfiguration.class);
-          this.eventManager.callEvent(new GroupConfigurationAddEvent(configuration));
+          eventManager.callEvent(new GroupConfigurationAddEvent(configuration));
         }
 
         // remove group
         case "remove_group_configuration" -> {
           var configuration = event.content().readObject(GroupConfiguration.class);
-          this.eventManager.callEvent(new GroupConfigurationRemoveEvent(configuration));
+          eventManager.callEvent(new GroupConfigurationRemoveEvent(configuration));
         }
 
         // none of our business

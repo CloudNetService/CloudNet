@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,13 @@ package eu.cloudnetservice.modules.mongodb;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
+@Singleton
 public class CloudNetMongoDatabaseModule extends DriverModule {
 
   private MongoDBConnectionConfig config;
@@ -32,15 +36,15 @@ public class CloudNetMongoDatabaseModule extends DriverModule {
   }
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
-  public void registerDatabaseProvider() {
-    this.serviceRegistry().registerProvider(
-      AbstractDatabaseProvider.class,
+  public void registerDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
+    serviceRegistry.registerProvider(
+      NodeDatabaseProvider.class,
       this.config.databaseServiceName(),
       new MongoDBDatabaseProvider(this.config));
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
-  public void unregisterDatabaseProvider() {
-    this.serviceRegistry().unregisterProvider(AbstractDatabaseProvider.class, this.config.databaseServiceName());
+  public void unregisterDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
+    serviceRegistry.unregisterProvider(NodeDatabaseProvider.class, this.config.databaseServiceName());
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,20 +30,20 @@ import lombok.NonNull;
 
 public final class NodeSetupListener {
 
-  private static final QuestionListEntry<Boolean> CREATE_ENTRY_QUESTION_LIST = QuestionListEntry.<Boolean>builder()
-    .key("generateDefaultNPCConfigurationEntry")
-    .translatedQuestion("module-npc-tasks-setup-generate-default-config")
-    .answerType(QuestionAnswerType.<Boolean>builder()
-      .parser(Parsers.bool())
-      .recommendation("no")
-      .possibleResults("yes", "no")
-      .build())
-    .build();
-
   private final NodeNPCManagement management;
+  private final QuestionListEntry<Boolean> createEntryQuestionEntry;
 
-  public NodeSetupListener(@NonNull NodeNPCManagement management) {
+  public NodeSetupListener(@NonNull NodeNPCManagement management, @NonNull Parsers parsers) {
     this.management = management;
+    this.createEntryQuestionEntry = QuestionListEntry.<Boolean>builder()
+      .key("generateDefaultNPCConfigurationEntry")
+      .translatedQuestion("module-npc-tasks-setup-generate-default-config")
+      .answerType(QuestionAnswerType.<Boolean>builder()
+        .parser(parsers.bool())
+        .recommendation("no")
+        .possibleResults("yes", "no")
+        .build())
+      .build();
   }
 
   @EventListener
@@ -54,7 +54,7 @@ public final class NodeSetupListener {
       .ifPresent(entry -> entry.answerType().thenAccept(($, environment) -> {
         if (!event.setup().hasResult("generateDefaultNPCConfigurationEntry")
           && ServiceEnvironmentType.minecraftServer((ServiceEnvironmentType) environment)) {
-          event.setup().addEntries(CREATE_ENTRY_QUESTION_LIST);
+          event.setup().addEntries(this.createEntryQuestionEntry);
         }
       }));
   }

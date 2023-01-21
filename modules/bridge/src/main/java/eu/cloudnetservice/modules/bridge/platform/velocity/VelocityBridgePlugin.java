@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,63 +16,79 @@
 
 package eu.cloudnetservice.modules.bridge.platform.velocity;
 
-import com.google.inject.Inject;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
-import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
-import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityHubCommand;
-import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.util.Arrays;
 import lombok.NonNull;
 
-@Plugin(
-  id = "cloudnet_bridge",
+@Singleton
+@PlatformPlugin(
+  platform = "velocity",
   name = "CloudNet-Bridge",
   version = "{project.build.version}",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
-  url = "https://cloudnetservice.eu",
-  authors = "CloudNetService"
-)
-public final class VelocityBridgePlugin {
+  authors = "CloudNetService")
+public final class VelocityBridgePlugin implements PlatformEntrypoint {
 
   private final ProxyServer proxy;
+  private final Object pluginInstance;
+
+  private final ModuleHelper moduleHelper;
+  private final ServiceRegistry serviceRegistry;
+  private final VelocityCloudCommand cloudCommand;
+  private final VelocityBridgeManagement bridgeManagement;
+  private final VelocityPlayerManagementListener playerListener;
 
   @Inject
-  public VelocityBridgePlugin(@NonNull ProxyServer proxyServer) {
+  public VelocityBridgePlugin(
+    @NonNull @Named("plugin") Object pluginInstance,
+    @NonNull ProxyServer proxyServer,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull VelocityCloudCommand cloudCommand,
+    @NonNull VelocityBridgeManagement bridgeManagement,
+    @NonNull VelocityPlayerManagementListener playerListener
+  ) {
+    this.pluginInstance = pluginInstance;
     this.proxy = proxyServer;
+    this.moduleHelper = moduleHelper;
+    this.serviceRegistry = serviceRegistry;
+    this.cloudCommand = cloudCommand;
+    this.bridgeManagement = bridgeManagement;
+    this.playerListener = playerListener;
   }
 
-  @Subscribe
-  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
+  @Override
+  public void onLoad() {
     // init the bridge management
-    PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management = new VelocityBridgeManagement(this.proxy);
-    management.registerServices(CloudNetDriver.instance().serviceRegistry());
-    management.postInit();
+    this.bridgeManagement.registerServices(this.serviceRegistry);
+    this.bridgeManagement.postInit();
     // register the player listeners
-    this.proxy.getEventManager().register(this, new VelocityPlayerManagementListener(this.proxy, management));
+    this.proxy.getEventManager().register(this.pluginInstance, this.playerListener);
     // register the cloud command
-    this.proxy.getCommandManager().register("cloudnet", new VelocityCloudCommand(management), "cloud");
+    this.proxy.getCommandManager().register("cloudnet", this.cloudCommand, "cloud");
     // register the hub command if requested
-    if (!management.configuration().hubCommandNames().isEmpty()) {
+    if (!this.bridgeManagement.configuration().hubCommandNames().isEmpty()) {
       // convert to an array for easier access
-      var names = management.configuration().hubCommandNames().toArray(new String[0]);
+      var names = this.bridgeManagement.configuration().hubCommandNames().toArray(new String[0]);
       // register the command
       this.proxy.getCommandManager().register(
         names[0],
-        new VelocityHubCommand(this.proxy, management),
+        new VelocityHubCommand(this.proxy, this.bridgeManagement),
         names.length > 1 ? Arrays.copyOfRange(names, 1, names.length) : new String[0]);
     }
   }
 
-  @Subscribe
-  public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+  @Override
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

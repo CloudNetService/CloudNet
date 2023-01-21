@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,15 @@
 
 package eu.cloudnetservice.modules.bridge.platform.sponge;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
+import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -25,7 +32,10 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,25 +43,62 @@ import java.util.function.BiFunction;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.api.Sponge;
+import org.spongepowered.api.Platform;
+import org.spongepowered.api.Server;
+import org.spongepowered.api.command.manager.CommandManager;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.network.channel.ChannelManager;
 import org.spongepowered.api.service.permission.Subject;
 
+@Singleton
+@ProvidesFor(platform = "sponge", types = {PlatformBridgeManagement.class, BridgeManagement.class})
 final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> {
 
   private static final BiFunction<ServerPlayer, String, Boolean> PERM_FUNCTION = Subject::hasPermission;
 
+  private final Server server;
+  private final Platform platform;
+  private final CommandManager commandManager;
+  private final ChannelManager channelManager;
   private final PlayerExecutor directGlobalExecutor;
 
-  public SpongeBridgeManagement() {
-    super(Wrapper.instance());
+  @Inject
+  public SpongeBridgeManagement(
+    @NonNull Server server,
+    @NonNull Platform platform,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull ChannelManager channelManager,
+    @NonNull CommandManager commandManager,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeServiceHelper serviceHelper,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
     // init fields
+    this.server = server;
+    this.platform = platform;
+    this.commandManager = commandManager;
+    this.channelManager = channelManager;
     this.directGlobalExecutor = new SpongeDirectPlayerExecutor(
+      channelManager,
+      commandManager,
       PlayerExecutor.GLOBAL_UNIQUE_ID,
-      () -> Sponge.server().onlinePlayers());
+      this.server::onlinePlayers);
     // init the bridge properties
-    BridgeServiceHelper.MAX_PLAYERS.set(Sponge.server().maxPlayers());
-    BridgeServiceHelper.MOTD.set(LegacyComponentSerializer.legacySection().serialize(Sponge.server().motd()));
+    serviceHelper.maxPlayers().set(this.server.maxPlayers());
+    serviceHelper.motd().set(LegacyComponentSerializer.legacySection().serialize(this.server.motd()));
   }
 
   @Override
@@ -110,18 +157,20 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
       : new SpongeDirectPlayerExecutor(
+        this.channelManager,
+        this.commandManager,
         uniqueId,
-        () -> Collections.singleton(Sponge.server().player(uniqueId).orElse(null)));
+        () -> Collections.singleton(this.server.player(uniqueId).orElse(null)));
   }
 
   @Override
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the bukkit specific information
-    snapshot.properties().append("Online-Count", Sponge.server().onlinePlayers().size());
-    snapshot.properties().append("Version", Sponge.platform().minecraftVersion().name());
+    snapshot.properties().append("Online-Count", this.server.onlinePlayers().size());
+    snapshot.properties().append("Version", this.platform.minecraftVersion().name());
     // players
-    snapshot.properties().append("Players", Sponge.server().onlinePlayers().stream()
+    snapshot.properties().append("Players", this.server.onlinePlayers().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

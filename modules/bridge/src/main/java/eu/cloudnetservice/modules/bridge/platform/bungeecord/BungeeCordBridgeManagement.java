@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,16 @@
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
 import com.google.common.collect.Iterables;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
+import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -27,7 +34,10 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,29 +49,53 @@ import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@ProvidesFor(platform = "bungeecord", types = {PlatformBridgeManagement.class, BridgeManagement.class})
 final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> {
 
   private static final BiFunction<ProxiedPlayer, String, Boolean> PERM_FUNCTION = CommandSender::hasPermission;
 
+  private final ProxyServer proxyServer;
   private final PlayerExecutor globalDirectPlayerExecutor;
 
-  public BungeeCordBridgeManagement() {
-    super(Wrapper.instance());
+  @Inject
+  public BungeeCordBridgeManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull ProxyServer proxyServer,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull BungeeCordHelper bungeeHelper,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeServiceHelper serviceHelper,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
     // init fields
+    this.proxyServer = proxyServer;
     this.globalDirectPlayerExecutor = new BungeeCordDirectPlayerExecutor(
+      proxyServer,
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       this,
-      ProxyServer.getInstance()::getPlayers);
+      proxyServer::getPlayers);
     // init the bridge properties
-    BridgeServiceHelper.MOTD.set(Iterables.get(ProxyServer.getInstance().getConfig().getListeners(), 0).getMotd());
-    BridgeServiceHelper.MAX_PLAYERS.set(ProxyServer.getInstance().getConfig().getPlayerLimit());
+    serviceHelper.motd().set(Iterables.get(this.proxyServer.getConfig().getListeners(), 0).getMotd());
+    serviceHelper.maxPlayers().set(this.proxyServer.getConfig().getPlayerLimit());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
       .and(service -> ServiceEnvironmentType.JAVA_SERVER.get(service.serviceId().environment().properties()));
     // register each service matching the service cache tester
-    this.cacheRegisterListener = BungeeCordHelper.SERVER_REGISTER_HANDLER;
+    this.cacheRegisterListener = bungeeHelper.serverRegisterHandler();
     // unregister each service matching the service cache tester
-    this.cacheUnregisterListener = BungeeCordHelper.SERVER_UNREGISTER_HANDLER;
+    this.cacheUnregisterListener = bungeeHelper.serverRegisterHandler();
   }
 
   @Override
@@ -133,19 +167,20 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalDirectPlayerExecutor
       : new BungeeCordDirectPlayerExecutor(
+        this.proxyServer,
         uniqueId,
         this,
-        () -> Collections.singleton(ProxyServer.getInstance().getPlayer(uniqueId)));
+        () -> Collections.singleton(this.proxyServer.getPlayer(uniqueId)));
   }
 
   @Override
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the velocity specific information
-    snapshot.properties().append("Online-Count", ProxyServer.getInstance().getPlayers().size());
-    snapshot.properties().append("Version", ProxyServer.getInstance().getVersion());
+    snapshot.properties().append("Online-Count", this.proxyServer.getPlayers().size());
+    snapshot.properties().append("Version", this.proxyServer.getVersion());
     // players
-    snapshot.properties().append("Players", ProxyServer.getInstance().getPlayers().stream()
+    snapshot.properties().append("Players", this.proxyServer.getPlayers().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

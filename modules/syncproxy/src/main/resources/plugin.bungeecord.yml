@@ -1,8 +1,0 @@
-name: 'CloudNet-SyncProxy'
-version: '{project.build.version}'
-author: 'CloudNetService'
-description: 'CloudNet extension which serves proxy utils with CloudNet support'
-depends: [ CloudNet-Bridge ]
-softdepends: [ CloudNet-CloudPerms ]
-
-main: 'eu.cloudnetservice.modules.syncproxy.platform.bungee.BungeeCordSyncProxyPlugin'

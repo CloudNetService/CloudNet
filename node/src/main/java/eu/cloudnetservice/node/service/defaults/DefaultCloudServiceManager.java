@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,20 @@
 package eu.cloudnetservice.node.service.defaults;
 
 import com.google.common.collect.ComparisonChain;
+import dev.derklaro.aerogel.PostConstruct;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
@@ -32,27 +39,32 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.TickLoop;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.event.service.CloudServicePreForceStopEvent;
 import eu.cloudnetservice.node.service.CloudService;
-import eu.cloudnetservice.node.service.CloudServiceFactory;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.BungeeConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.NukkitConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.VanillaServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.VelocityConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.WaterdogPEConfigurationPreparer;
-import eu.cloudnetservice.node.service.defaults.factory.JVMServiceFactory;
+import eu.cloudnetservice.node.service.defaults.factory.JVMLocalCloudServiceFactory;
 import eu.cloudnetservice.node.service.defaults.provider.EmptySpecificCloudServiceProvider;
 import eu.cloudnetservice.node.service.defaults.provider.RemoteNodeCloudServiceProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -65,13 +77,15 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
+@Singleton
+@Provides({CloudServiceManager.class, CloudServiceProvider.class})
 public class DefaultCloudServiceManager implements CloudServiceManager {
 
   protected static final Path TEMP_SERVICE_DIR = Path.of(
     System.getProperty("cloudnet.tempDir.services", "temp/services"));
   protected static final Path PERSISTENT_SERVICE_DIR = Path.of(
     System.getProperty("cloudnet.persistable.services.path", "local/services"));
-  protected static final ServiceConfigurationPreparer NO_OP_PREPARER = (nodeInstance, cloudService) -> {
+  protected static final ServiceConfigurationPreparer NO_OP_PREPARER = (cloudService) -> {
   };
 
   private static final Logger LOGGER = LogManager.logger(CloudServiceManager.class);
@@ -79,33 +93,39 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   protected final RPCSender sender;
   protected final Collection<String> defaultJvmOptions;
   protected final NodeServerProvider nodeServerProvider;
+  protected final CloudServiceFactory cloudServiceFactory;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
-  protected final Map<String, CloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
+  protected final Map<String, LocalCloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
-  public DefaultCloudServiceManager(@NonNull Node nodeInstance, @NonNull Collection<String> defaultJvmOptions) {
-    this.defaultJvmOptions = defaultJvmOptions;
-    this.nodeServerProvider = nodeInstance.nodeServerProvider();
+  @Inject
+  public DefaultCloudServiceManager(
+    @NonNull TickLoop mainThread,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull RPCHandlerRegistry handlerRegistry,
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull CloudServiceFactory cloudServiceFactory,
+    @NonNull @Named("consoleArgs") List<String> args
+  ) {
+    this.nodeServerProvider = nodeServerProvider;
+    this.cloudServiceFactory = cloudServiceFactory;
+    this.defaultJvmOptions = Arrays.asList(args.remove(0).split(";;"));
     // rpc init
-    this.sender = nodeInstance.rpcFactory().providerForClass(null, CloudServiceProvider.class);
-    nodeInstance.rpcFactory()
-      .newHandler(CloudServiceProvider.class, this)
-      .registerToDefaultRegistry();
-    nodeInstance.rpcFactory()
-      .newHandler(SpecificCloudServiceProvider.class, null)
-      .registerToDefaultRegistry();
-    // register the default factory
-    this.addCloudServiceFactory("jvm", new JVMServiceFactory(nodeInstance, nodeInstance.eventManager()));
+    this.sender = rpcFactory.providerForClass(null, CloudServiceProvider.class);
+    rpcFactory.newHandler(CloudServiceProvider.class, this).registerTo(handlerRegistry);
+    rpcFactory.newHandler(SpecificCloudServiceProvider.class, null).registerTo(handlerRegistry);
     // register the default configuration preparers
-    this.addServicePreparer(ServiceEnvironmentType.NUKKIT, new NukkitConfigurationPreparer());
-    this.addServicePreparer(ServiceEnvironmentType.VELOCITY, new VelocityConfigurationPreparer());
-    this.addServicePreparer(ServiceEnvironmentType.BUNGEECORD, new BungeeConfigurationPreparer());
-    this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, new WaterdogPEConfigurationPreparer());
-    this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
-    this.addServicePreparer(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
+    this.addServicePreparer(ServiceEnvironmentType.NUKKIT, NukkitConfigurationPreparer.class);
+    this.addServicePreparer(ServiceEnvironmentType.VELOCITY, VelocityConfigurationPreparer.class);
+    this.addServicePreparer(ServiceEnvironmentType.BUNGEECORD, BungeeConfigurationPreparer.class);
+    this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, WaterdogPEConfigurationPreparer.class);
+    this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, VanillaServiceConfigurationPreparer.class);
+    this.addServicePreparer(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER, VanillaServiceConfigurationPreparer.class);
     // cluster data sync
-    nodeInstance.dataSyncRegistry().registerHandler(
+    dataSyncRegistry.registerHandler(
       DataSyncHandler.<ServiceInfoSnapshot>builder()
         .key("services")
         .alwaysForce()
@@ -122,7 +142,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         .currentGetter(group -> this.serviceProviderByName(group.name()).serviceInfo())
         .build());
     // schedule the updating of the local service log cache
-    nodeInstance.mainThread().scheduleTask(() -> {
+    mainThread.scheduleTask(() -> {
       for (var service : this.localCloudServices()) {
         // we only need to look at running services
         if (service.lifeCycle() == ServiceLifeCycle.RUNNING) {
@@ -131,7 +151,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
             service.serviceConsoleLogCache().update();
             LOGGER.fine("Updated service log cache of %s", null, service.serviceId().name());
           } else {
-            nodeInstance.eventManager().callEvent(new CloudServicePreForceStopEvent(service));
+            eventManager.callEvent(new CloudServicePreForceStopEvent(service));
             service.stop();
             LOGGER.fine("Stopped dead service %s", null, service.serviceId().name());
           }
@@ -139,6 +159,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       }
       return null;
     }, TickLoop.TPS);
+  }
+
+  @PostConstruct
+  private void a() {
+    // register the default factory
+    this.addCloudServiceFactory("jvm", JVMLocalCloudServiceFactory.class);
   }
 
   @Override
@@ -228,18 +254,27 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
 
   @Override
   @UnmodifiableView
-  public @NonNull Map<String, CloudServiceFactory> cloudServiceFactories() {
+  public @NonNull Map<String, LocalCloudServiceFactory> cloudServiceFactories() {
     return Collections.unmodifiableMap(this.cloudServiceFactories);
   }
 
   @Override
-  public @Nullable CloudServiceFactory cloudServiceFactory(@NonNull String runtime) {
+  public @Nullable LocalCloudServiceFactory cloudServiceFactory(@NonNull String runtime) {
     return this.cloudServiceFactories.get(runtime);
   }
 
   @Override
-  public void addCloudServiceFactory(@NonNull String runtime, @NonNull CloudServiceFactory factory) {
+  public void addCloudServiceFactory(@NonNull String runtime, @NonNull LocalCloudServiceFactory factory) {
     this.cloudServiceFactories.putIfAbsent(runtime, factory);
+  }
+
+  @Override
+  public void addCloudServiceFactory(
+    @NonNull String runtime,
+    @NonNull Class<? extends LocalCloudServiceFactory> factory
+  ) {
+    var injectionLayer = InjectionLayer.findLayerOf(factory);
+    this.addCloudServiceFactory(runtime, injectionLayer.instance(factory));
   }
 
   @Override
@@ -255,6 +290,15 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   @Override
   public @NonNull ServiceConfigurationPreparer servicePreparer(@NonNull ServiceEnvironmentType type) {
     return this.preparers.getOrDefault(type, NO_OP_PREPARER);
+  }
+
+  @Override
+  public void addServicePreparer(
+    @NonNull ServiceEnvironmentType type,
+    @NonNull Class<? extends ServiceConfigurationPreparer> preparer
+  ) {
+    var injectionLayer = InjectionLayer.findLayerOf(preparer);
+    this.addServicePreparer(type, injectionLayer.instance(preparer));
   }
 
   @Override
@@ -489,9 +533,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       return prepared.first().provider();
     } else {
       // create a new service
-      var createResult = Node.instance()
-        .cloudServiceFactory()
-        .createCloudService(ServiceConfiguration.builder(task).build());
+      var createResult = this.cloudServiceFactory.createCloudService(ServiceConfiguration.builder(task).build());
       return createResult.state() != ServiceCreateResult.State.CREATED
         ? EmptySpecificCloudServiceProvider.INSTANCE
         : createResult.serviceInfo().provider();

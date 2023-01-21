@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.console.animation.setup;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
@@ -27,6 +27,7 @@ import eu.cloudnetservice.node.event.setup.SetupCancelledEvent;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
 import eu.cloudnetservice.node.event.setup.SetupInitiateEvent;
 import eu.cloudnetservice.node.event.setup.SetupResponseEvent;
+import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
@@ -40,6 +41,10 @@ import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.Nullable;
 
 public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
+
+  // injected data
+  private final EventManager eventManager;
+  private final QueuedConsoleLogHandler logHandler;
 
   // session values
   private final UUID handlerId;
@@ -66,8 +71,18 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   private boolean cancelled = false;
   private boolean cancellable = true;
 
-  public ConsoleSetupAnimation(@Nullable String header, @Nullable String footer, @Nullable String overwritePrompt) {
+  public ConsoleSetupAnimation(
+    @NonNull EventManager eventManager,
+    @NonNull QueuedConsoleLogHandler logHandler,
+    @Nullable String header,
+    @Nullable String footer,
+    @Nullable String overwritePrompt
+  ) {
     super(25);
+
+    // injected values
+    this.eventManager = eventManager;
+    this.logHandler = logHandler;
 
     // session values
     this.handlerId = UUID.randomUUID();
@@ -131,8 +146,8 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     this.previousPrompt = console.prompt();
     this.previousHistory = console.commandHistory();
     this.previousPrintingEnabled = console.printingEnabled();
+    this.previousConsoleLines = this.logHandler.formattedCachedLogLines();
     this.previousUseMatchingHistorySearch = console.usingMatchingHistoryComplete();
-    this.previousConsoleLines = Node.instance().logHandler().formattedCachedLogLines();
 
     // apply the console settings of the animation
     console.clearScreen();
@@ -157,7 +172,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
     // disable all commands of the console
     console.disableAllHandlers();
-    Node.instance().eventManager().callEvent(new SetupInitiateEvent(this));
+    this.eventManager.callEvent(new SetupInitiateEvent(this));
   }
 
   @Override
@@ -253,7 +268,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       answerType.postResult(result);
       this.results.put(entry.key(), result);
       // call the event
-      Node.instance().eventManager().callEvent(new SetupResponseEvent(this, entry, result));
+      this.eventManager.callEvent(new SetupResponseEvent(this, entry, result));
       // re-draw the question line, add the given response to it
       this.console.writeRaw(() -> this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
         .a("&r") // reset of the colors
@@ -287,14 +302,14 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   public void resetConsole() {
     if (this.cancelled) {
       super.console().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
-      Node.instance().eventManager().callEvent(new SetupCancelledEvent(this));
+      this.eventManager.callEvent(new SetupCancelledEvent(this));
     } else {
       // print the footer if supplied
       if (this.footer != null) {
         super.console().forceWriteLine("&r" + this.footer);
       }
 
-      Node.instance().eventManager().callEvent(new SetupCompleteEvent(this));
+      this.eventManager.callEvent(new SetupCompleteEvent(this));
     }
 
     try {

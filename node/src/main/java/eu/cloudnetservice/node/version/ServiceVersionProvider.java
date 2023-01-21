@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrap
 import eu.cloudnetservice.node.template.listener.TemplatePrepareListener;
 import eu.cloudnetservice.node.version.execute.InstallStep;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -52,6 +54,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
+@Singleton
 public class ServiceVersionProvider {
 
   private static final Logger LOGGER = LogManager.logger(ServiceVersionProvider.class);
@@ -67,7 +70,15 @@ public class ServiceVersionProvider {
   private final Map<String, ServiceVersionType> serviceVersionTypes = new ConcurrentHashMap<>();
   private final Map<String, ServiceEnvironmentType> serviceEnvironmentTypes = new ConcurrentHashMap<>();
 
-  public ServiceVersionProvider(@NonNull EventManager eventManager) {
+  private final ConsoleProgressWrappers consoleProgressWrappers;
+
+  @Inject
+  public ServiceVersionProvider(
+    @NonNull EventManager eventManager,
+    @NonNull ConsoleProgressWrappers consoleProgressWrappers
+  ) {
+    this.consoleProgressWrappers = consoleProgressWrappers;
+
     eventManager.registerListener(new TemplatePrepareListener());
   }
 
@@ -196,7 +207,7 @@ public class ServiceVersionProvider {
       }
 
       for (var entry : installer.serviceVersion().additionalDownloads().entrySet()) {
-        ConsoleProgressWrappers.wrapDownload(entry.getValue(), in -> installer.deployFile(in, entry.getKey()));
+        this.consoleProgressWrappers.wrapDownload(entry.getValue(), in -> installer.deployFile(in, entry.getKey()));
       }
 
       return true;

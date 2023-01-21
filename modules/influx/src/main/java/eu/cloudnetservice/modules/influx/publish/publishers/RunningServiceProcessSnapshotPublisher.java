@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,20 @@
 package eu.cloudnetservice.modules.influx.publish.publishers;
 
 import com.influxdb.client.write.Point;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.util.PointUtil;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 
-public final class RunningServiceProcessSnapshotPublisher implements Publisher {
+@Singleton
+public record RunningServiceProcessSnapshotPublisher(@NonNull CloudServiceManager serviceManager) implements Publisher {
 
   @Override
   public @NonNull Collection<Point> createPoints() {
-    return CloudNetDriver.instance().cloudServiceProvider().runningServices().stream()
+    return this.serviceManager.runningServices().stream()
       .map(service -> PointUtil.point("services")
         .addTag("Name", service.name())
         .addTag("Task", service.serviceId().taskName())

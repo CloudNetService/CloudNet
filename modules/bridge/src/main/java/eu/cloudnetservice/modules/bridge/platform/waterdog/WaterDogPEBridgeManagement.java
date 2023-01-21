@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,16 @@ import dev.waterdog.waterdogpe.WaterdogPE;
 import dev.waterdog.waterdogpe.command.CommandSender;
 import dev.waterdog.waterdogpe.network.serverinfo.BedrockServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
+import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -31,7 +38,10 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Optional;
@@ -40,34 +50,59 @@ import java.util.function.BiFunction;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@ProvidesFor(platform = "waterdog", types = {PlatformBridgeManagement.class, BridgeManagement.class})
 final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> {
 
   private static final BiFunction<ProxiedPlayer, String, Boolean> PERM_FUNCTION = CommandSender::hasPermission;
 
+  private final ProxyServer proxyServer;
   private final PlayerExecutor globalDirectPlayerExecutor;
 
-  public WaterDogPEBridgeManagement() {
-    super(Wrapper.instance());
+  @Inject
+  public WaterDogPEBridgeManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull ProxyServer proxyServer,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeServiceHelper serviceHelper,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
+
     // init fields
+    this.proxyServer = proxyServer;
     this.globalDirectPlayerExecutor = new WaterDogPEDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,
+      this.proxyServer,
       this,
-      ProxyServer.getInstance().getPlayers()::values);
+      this.proxyServer.getPlayers()::values);
     // init the bridge properties
-    BridgeServiceHelper.MOTD.set(ProxyServer.getInstance().getConfiguration().getMotd());
-    BridgeServiceHelper.MAX_PLAYERS.set(ProxyServer.getInstance().getConfiguration().getMaxPlayerCount());
+    serviceHelper.motd().set(this.proxyServer.getConfiguration().getMotd());
+    serviceHelper.maxPlayers().set(this.proxyServer.getConfiguration().getMaxPlayerCount());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
       .and(service -> ServiceEnvironmentType.PE_SERVER.get(service.serviceId().environment().properties()));
     // register each service matching the service cache tester
-    this.cacheRegisterListener = service -> ProxyServer.getInstance().getServerInfoMap().put(
+    this.cacheRegisterListener = service -> this.proxyServer.getServerInfoMap().put(
       service.name(),
       new BedrockServerInfo(
         service.name(),
         new InetSocketAddress(service.address().host(), service.address().port()),
         new InetSocketAddress(service.address().host(), service.address().port())));
     // unregister each service matching the service cache tester
-    this.cacheUnregisterListener = service -> ProxyServer.getInstance().getServerInfoMap().remove(service.name());
+    this.cacheUnregisterListener = service -> this.proxyServer.getServerInfoMap().remove(service.name());
   }
 
   @Override
@@ -89,7 +124,7 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
       player.getXuid(),
       player.getProtocol().getRaknetVersion(),
       BridgeHostAndPortUtil.fromSocketAddress(player.getAddress()),
-      BridgeHostAndPortUtil.fromSocketAddress(ProxyServer.getInstance().getConfiguration().getBindAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(this.proxyServer.getConfiguration().getBindAddress()),
       player.getLoginData().isXboxAuthed(),
       this.ownNetworkServiceInfo);
   }
@@ -140,18 +175,19 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
       ? this.globalDirectPlayerExecutor
       : new WaterDogPEDirectPlayerExecutor(
         uniqueId,
+        this.proxyServer,
         this,
-        () -> Collections.singleton(ProxyServer.getInstance().getPlayer(uniqueId)));
+        () -> Collections.singleton(this.proxyServer.getPlayer(uniqueId)));
   }
 
   @Override
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the velocity specific information
-    snapshot.properties().append("Online-Count", ProxyServer.getInstance().getPlayers().size());
+    snapshot.properties().append("Online-Count", this.proxyServer.getPlayers().size());
     snapshot.properties().append("Version", WaterdogPE.version().baseVersion());
     // players
-    snapshot.properties().append("Players", ProxyServer.getInstance().getPlayers().values().stream()
+    snapshot.properties().append("Players", this.proxyServer.getPlayers().values().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

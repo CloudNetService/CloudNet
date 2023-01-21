@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,28 @@
 package eu.cloudnetservice.modules.cloudperms.node;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.cloudperms.node.config.CloudPermissionConfig;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import lombok.NonNull;
 
+@Singleton
 public final class CloudNetCloudPermissionsModule extends DriverModule {
 
   private volatile CloudPermissionConfig permissionsConfig;
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
-  public void init() {
-    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<CloudPermissionConfig>builder()
+  public void registerDataSyncHandler(@NonNull DataSyncRegistry dataSyncRegistry) {
+    dataSyncRegistry.registerHandler(DataSyncHandler.<CloudPermissionConfig>builder()
       .key("cloudperms-config")
       .convertObject(CloudPermissionConfig.class)
       .currentGetter($ -> this.permissionsConfig)
@@ -57,10 +61,11 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
   }
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
-  public void registerListeners() {
-    this.registerListener(new PluginIncludeListener(
+  public void registerListeners(@NonNull EventManager eventManager, @NonNull ModuleHelper moduleHelper) {
+    eventManager.registerListener(new PluginIncludeListener(
       "cloudnet-cloudperms",
       CloudNetCloudPermissionsModule.class,
+      moduleHelper,
       service -> this.permissionsConfig.enabled() && Collections.disjoint(
         this.permissionsConfig.excludedGroups(),
         service.serviceConfiguration().groups())));

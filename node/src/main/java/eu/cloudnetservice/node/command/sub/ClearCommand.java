@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,18 @@ package eu.cloudnetservice.node.command.sub;
 
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
+import eu.cloudnetservice.node.console.Console;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
+@Singleton
 @CommandPermission("cloudnet.command.clear")
 @Description("command-clear-description")
 public final class ClearCommand {
 
   @CommandMethod("clear")
-  public void clearConsole() {
-    Node.instance().console().clearScreen();
+  public void clearConsole(@NonNull Console console) {
+    console.clearScreen();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,12 @@ import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.driver.permission.PermissionUserGroupInfo;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -49,12 +50,20 @@ import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandAlias("perms")
 @CommandPermission("cloudnet.command.permissions")
 @Description("command-permissions-description")
 public final class PermissionsCommand {
 
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+
+  private final PermissionManagement permissionManagement;
+
+  @Inject
+  public PermissionsCommand(@NonNull PermissionManagement permissionManagement) {
+    this.permissionManagement = permissionManagement;
+  }
 
   @Parser
   public @NonNull PermissionUser defaultPermissionUserParser(
@@ -66,9 +75,9 @@ public final class PermissionsCommand {
     PermissionUser permissionUser;
     try {
       var uniqueId = UUID.fromString(user);
-      permissionUser = this.permissionManagement().user(uniqueId);
+      permissionUser = this.permissionManagement.user(uniqueId);
     } catch (IllegalArgumentException exception) {
-      permissionUser = this.permissionManagement().firstUser(user);
+      permissionUser = this.permissionManagement.firstUser(user);
     }
 
     if (permissionUser == null) {
@@ -85,7 +94,7 @@ public final class PermissionsCommand {
   ) {
     var name = input.remove();
 
-    var group = Node.instance().permissionManagement().group(name);
+    var group = this.permissionManagement.group(name);
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-permissions-group-not-found"));
     }
@@ -95,12 +104,12 @@ public final class PermissionsCommand {
 
   @Suggestions("permissionGroup")
   public @NonNull List<String> suggestPermissionGroup(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.permissionManagement().groups().stream().map(Nameable::name).toList();
+    return this.permissionManagement.groups().stream().map(Nameable::name).toList();
   }
 
   @CommandMethod("permissions|perms reload")
   public void reloadPermissionSystem(@NonNull CommandSource source) {
-    this.permissionManagement().reload();
+    this.permissionManagement.reload();
     source.sendMessage(I18n.trans("command-permissions-reload-permissions-success"));
   }
 
@@ -111,10 +120,10 @@ public final class PermissionsCommand {
     @NonNull @Argument("password") String password,
     @Argument("potency") int potency
   ) {
-    if (this.permissionManagement().firstUser(name) != null) {
+    if (this.permissionManagement.firstUser(name) != null) {
       source.sendMessage(I18n.trans("command-permissions-create-user-already-exists"));
     } else {
-      this.permissionManagement().addPermissionUser(name, password, potency);
+      this.permissionManagement.addPermissionUser(name, password, potency);
       source.sendMessage(I18n.trans("command-permissions-create-user-successful", name));
     }
   }
@@ -125,17 +134,17 @@ public final class PermissionsCommand {
     @NonNull @Argument("name") String name,
     @Argument("potency") int potency
   ) {
-    if (this.permissionManagement().group(name) != null) {
+    if (this.permissionManagement.group(name) != null) {
       source.sendMessage(I18n.trans("command-permissions-create-group-already-exists"));
     } else {
-      this.permissionManagement().addPermissionGroup(name, potency);
+      this.permissionManagement.addPermissionGroup(name, potency);
       source.sendMessage(I18n.trans("command-permissions-create-group-successful", name));
     }
   }
 
   @CommandMethod("permissions|perms delete user <name>")
   public void deleteUser(@NonNull CommandSource source, @NonNull @Argument("name") PermissionUser user) {
-    if (this.permissionManagement().deletePermissionUser(user)) {
+    if (this.permissionManagement.deletePermissionUser(user)) {
       source.sendMessage(I18n.trans("command-permissions-delete-user-successful", user.name()));
     } else {
       source.sendMessage(I18n.trans("command-permissions-user-not-found"));
@@ -144,7 +153,7 @@ public final class PermissionsCommand {
 
   @CommandMethod("permissions|perms delete group <name>")
   public void deleteGroup(@NonNull CommandSource source, @NonNull @Argument("name") PermissionGroup group) {
-    if (this.permissionManagement().deletePermissionGroup(group)) {
+    if (this.permissionManagement.deletePermissionGroup(group)) {
       source.sendMessage(I18n.trans("command-permissions-delete-group-successful", group.name()));
     } else {
       source.sendMessage(I18n.trans("command-permissions-group-not-found"));
@@ -167,7 +176,7 @@ public final class PermissionsCommand {
     }
 
     if (user.groups().isEmpty()) {
-      var defaultGroup = this.permissionManagement().defaultPermissionGroup();
+      var defaultGroup = this.permissionManagement.defaultPermissionGroup();
       if (defaultGroup != null) {
         source.sendMessage(defaultGroup.name() + ": LIFETIME");
       }
@@ -264,7 +273,7 @@ public final class PermissionsCommand {
 
   @CommandMethod("permissions|perms group")
   public void displayGroupInformation(@NonNull CommandSource source) {
-    for (var group : this.permissionManagement().groups()) {
+    for (var group : this.permissionManagement.groups()) {
       this.displayGroup(source, group);
       source.sendMessage(" ");
     }
@@ -482,22 +491,22 @@ public final class PermissionsCommand {
   }
 
   private void updatePermissible(@NonNull Permissible permissible) {
-    if (permissible instanceof PermissionUser) {
-      this.permissionManagement().updateUser((PermissionUser) permissible);
-    } else if (permissible instanceof PermissionGroup) {
-      this.permissionManagement().updateGroup((PermissionGroup) permissible);
+    if (permissible instanceof PermissionUser user) {
+      this.permissionManagement.updateUser(user);
+    } else if (permissible instanceof PermissionGroup group) {
+      this.permissionManagement.updateGroup(group);
     }
   }
 
   private void updateGroup(@NonNull PermissionGroup group, @NonNull Consumer<PermissionGroup.Builder> groupConsumer) {
     var builder = PermissionGroup.builder(group);
     groupConsumer.accept(builder);
-    this.permissionManagement().updateGroup(builder.build());
+    this.permissionManagement.updateGroup(builder.build());
   }
 
   private void updateGroupDirect(@NonNull PermissionGroup group, @NonNull Consumer<PermissionGroup> groupConsumer) {
     groupConsumer.accept(group);
-    this.permissionManagement().updateGroup(group);
+    this.permissionManagement.updateGroup(group);
   }
 
   private void updateUser(
@@ -508,7 +517,7 @@ public final class PermissionsCommand {
     // apply the change action
     permissionUserConsumer.accept(builder);
     // update the user
-    this.permissionManagement().updateUser(builder.build());
+    this.permissionManagement.updateUser(builder.build());
   }
 
   private void updateUserDirect(
@@ -517,10 +526,6 @@ public final class PermissionsCommand {
   ) {
     permissionUserConsumer.accept(permissionUser);
     // update the user
-    this.permissionManagement().updateUser(permissionUser);
-  }
-
-  private @NonNull PermissionManagement permissionManagement() {
-    return Node.instance().permissionManagement();
+    this.permissionManagement.updateUser(permissionUser);
   }
 }

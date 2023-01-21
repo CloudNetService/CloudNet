@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,7 +144,12 @@ public class SFTPTemplateStorage implements TemplateStorage {
   @Override
   public boolean pull(@NonNull ServiceTemplate template, @NonNull Path directory) {
     return this.executeWithClient(client -> {
-      client.get(this.constructRemotePath(template), new FileSystemFile(directory.toFile()));
+      // we cannot call "get" directly as that would cause a download of the file into a directory
+      // which is called the same way the template is called
+      var target = new FileSystemFile(directory.toFile());
+      for (var fileInfo : client.ls(this.constructRemotePath(template))) {
+        client.get(fileInfo.getPath(), target);
+      }
       return true;
     }, false);
   }

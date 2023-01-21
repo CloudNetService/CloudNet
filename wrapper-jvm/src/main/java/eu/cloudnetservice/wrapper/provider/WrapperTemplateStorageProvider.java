@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.wrapper.provider;
 
+import eu.cloudnetservice.driver.ComponentInfo;
+import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
@@ -28,9 +30,17 @@ import org.jetbrains.annotations.Nullable;
 public abstract class WrapperTemplateStorageProvider implements TemplateStorageProvider {
 
   private final RPCSender rpcSender;
+  private final ComponentInfo componentInfo;
+  private final NetworkClient networkClient;
 
-  public WrapperTemplateStorageProvider(@NonNull RPCSender sender) {
+  public WrapperTemplateStorageProvider(
+    @NonNull RPCSender sender,
+    @NonNull ComponentInfo componentInfo,
+    @NonNull NetworkClient networkClient
+  ) {
     this.rpcSender = sender;
+    this.componentInfo = componentInfo;
+    this.networkClient = networkClient;
   }
 
   @Override
@@ -49,6 +59,6 @@ public abstract class WrapperTemplateStorageProvider implements TemplateStorageP
       this.rpcSender,
       TemplateStorage.class,
       GenerationContext.forClass(RemoteTemplateStorage.class).build()
-    ).newInstance(storage);
+    ).newInstance(new Object[]{storage, this.componentInfo, this.networkClient}, new Object[]{storage});
   }
 }

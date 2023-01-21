@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,28 @@ package eu.cloudnetservice.node.command.defaults;
 import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext;
 import cloud.commandframework.execution.preprocessor.CommandPreprocessor;
 import cloud.commandframework.services.types.ConsumerService;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.event.command.CommandPreProcessEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 /**
  * {@inheritDoc}
  */
+@Singleton
 final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSource> {
+
+  private final CommandProvider provider;
+  private final EventManager eventManager;
+
+  @Inject
+  private DefaultCommandPreProcessor(@NonNull CommandProvider provider, @NonNull EventManager eventManager) {
+    this.provider = provider;
+    this.eventManager = eventManager;
+  }
 
   /**
    * {@inheritDoc}
@@ -36,23 +49,23 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
   public void accept(@NonNull CommandPreprocessingContext<CommandSource> context) {
     var commandContext = context.getCommandContext();
     var source = context.getCommandContext().getSender();
+
     // we only process command executions and not the tab complete handling
     if (commandContext.isSuggestions()) {
       return;
     }
 
-    var firstArgument = commandContext.getRawInput().getFirst();
-    var commandInfo = Node.instance().commandProvider()
-      .command(firstArgument);
-    // if there is no command, the command was unregistered, ignore confirm as the command is not registered.
-    if (commandInfo == null && !firstArgument.equalsIgnoreCase("confirm")) {
-      return;
-    }
+    // get the first argument and retrieve the command info using it
+    var rawInput = commandContext.getRawInput();
+    var firstArgument = rawInput.getFirst();
+    var commandInfo = this.provider.command(firstArgument);
 
-    var preProcessEvent = Node.instance().eventManager()
-      .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), source));
-    if (preProcessEvent.cancelled()) {
-      ConsumerService.interrupt();
+    // should never happen - just make sure
+    if (commandInfo != null) {
+      var event = this.eventManager.callEvent(new CommandPreProcessEvent(rawInput, commandInfo, source, this.provider));
+      if (event.cancelled()) {
+        ConsumerService.interrupt();
+      }
     }
   }
 }

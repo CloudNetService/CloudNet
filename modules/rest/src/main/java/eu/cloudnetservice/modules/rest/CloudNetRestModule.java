@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.rest;
 
-import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerAuthorization;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerCluster;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerDatabase;
@@ -33,36 +33,40 @@ import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerSession;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTask;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTemplate;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTemplateStorage;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
 import eu.cloudnetservice.node.http.annotation.SecurityAnnotationExtension;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 
+@Singleton
 public final class CloudNetRestModule extends DriverModule {
 
-  @ModuleTask(order = 120, event = ModuleLifeCycle.STARTED)
-  public void initHttpHandlers() {
-    var authentication = new V2HttpAuthentication();
-    var annotationParser = Node.instance().httpServer().annotationParser();
+  @ModuleTask
+  public void installSecurityExtensions(
+    @NonNull HttpServer httpServer,
+    @NonNull V2HttpAuthentication authentication,
+    @NonNull SecurityAnnotationExtension securityAnnotationExtension
+  ) {
+    securityAnnotationExtension.install(httpServer.annotationParser(), authentication);
+  }
 
-    // register the security annotation processor
-    SecurityAnnotationExtension.install(annotationParser, authentication);
-
-    // register all handlers
-    annotationParser
-      .parseAndRegister(new V2HttpHandlerAuthorization(authentication))
-      .parseAndRegister(new V2HttpHandlerCluster())
-      .parseAndRegister(new V2HttpHandlerDatabase())
-      .parseAndRegister(new V2HttpHandlerDocumentation())
-      .parseAndRegister(new V2HttpHandlerGroup())
-      .parseAndRegister(new V2HttpHandlerModule())
-      .parseAndRegister(new V2HttpHandlerModule())
-      .parseAndRegister(new V2HttpHandlerNode())
-      .parseAndRegister(new V2HttpHandlerPermission())
-      .parseAndRegister(new V2HttpHandlerService())
-      .parseAndRegister(new V2HttpHandlerServiceVersionProvider())
-      .parseAndRegister(new V2HttpHandlerSession())
-      .parseAndRegister(new V2HttpHandlerTask())
-      .parseAndRegister(new V2HttpHandlerTemplate())
-      .parseAndRegister(new V2HttpHandlerTemplateStorage());
+  @ModuleTask
+  public void registerHandlers(@NonNull HttpServer httpServer) {
+    httpServer.annotationParser()
+      .parseAndRegister(V2HttpHandlerAuthorization.class)
+      .parseAndRegister(V2HttpHandlerCluster.class)
+      .parseAndRegister(V2HttpHandlerDatabase.class)
+      .parseAndRegister(V2HttpHandlerDocumentation.class)
+      .parseAndRegister(V2HttpHandlerGroup.class)
+      .parseAndRegister(V2HttpHandlerModule.class)
+      .parseAndRegister(V2HttpHandlerModule.class)
+      .parseAndRegister(V2HttpHandlerNode.class)
+      .parseAndRegister(V2HttpHandlerPermission.class)
+      .parseAndRegister(V2HttpHandlerService.class)
+      .parseAndRegister(V2HttpHandlerServiceVersionProvider.class)
+      .parseAndRegister(V2HttpHandlerSession.class)
+      .parseAndRegister(V2HttpHandlerTask.class)
+      .parseAndRegister(V2HttpHandlerTemplate.class)
+      .parseAndRegister(V2HttpHandlerTemplateStorage.class);
   }
 }

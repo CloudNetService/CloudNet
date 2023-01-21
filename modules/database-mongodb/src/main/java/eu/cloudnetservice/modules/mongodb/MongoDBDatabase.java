@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,12 @@ import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.node.database.AbstractDatabase;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.bson.Document;
@@ -47,9 +46,12 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   protected final MongoCollection<Document> collection;
 
-  protected MongoDBDatabase(String name, MongoCollection<Document> collection,
-    ExecutorService service, AbstractDatabaseProvider provider) {
-    super(name, service, provider);
+  protected MongoDBDatabase(
+    @NonNull String name,
+    @NonNull MongoCollection<Document> collection,
+    @NonNull NodeDatabaseProvider provider
+  ) {
+    super(name, provider);
 
     this.collection = collection;
     this.collection.createIndex(Indexes.ascending(KEY_NAME), UNIQUE_KEY_OPTIONS);
@@ -57,8 +59,6 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
-    this.databaseProvider.databaseHandler().handleInsert(this, key, document);
-
     return this.insertOrUpdate(key, document);
   }
 
@@ -80,12 +80,6 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   @Override
   public boolean delete(@NonNull String key) {
-    this.databaseProvider.databaseHandler().handleDelete(this, key);
-
-    return this.delete0(key);
-  }
-
-  protected boolean delete0(String key) {
     return this.collection.deleteOne(Filters.eq(KEY_NAME, key)).getDeletedCount() > 0;
   }
 
@@ -167,8 +161,6 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   @Override
   public void clear() {
-    this.databaseProvider.databaseHandler().handleClear(this);
-
     this.collection.deleteMany(new Document());
   }
 

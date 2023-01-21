@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@ package eu.cloudnetservice.modules.bridge.platform.bukkit;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,17 +30,29 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
+@Singleton
 public final class BukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
+  private final BukkitScheduler scheduler;
+  private final ServiceInfoHolder serviceInfoHolder;
+  private final ServerPlatformHelper serverPlatformHelper;
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
+  @Inject
   public BukkitPlayerManagementListener(
     @NonNull Plugin plugin,
+    @NonNull BukkitScheduler scheduler,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ServerPlatformHelper serverPlatformHelper,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
   ) {
     this.plugin = plugin;
+    this.scheduler = scheduler;
+    this.serviceInfoHolder = serviceInfoHolder;
+    this.serverPlatformHelper = serverPlatformHelper;
     this.management = management;
   }
 
@@ -51,37 +64,39 @@ public final class BukkitPlayerManagementListener implements Listener {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-        event.setKickMessage(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           BukkitUtil.playerLocale(event.getPlayer()),
-          "server-join-cancel-because-maintenance"));
+          "server-join-cancel-because-maintenance",
+          event::setKickMessage);
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-        event.setKickMessage(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           BukkitUtil.playerLocale(event.getPlayer()),
-          "server-join-cancel-because-permission"));
+          "server-join-cancel-because-permission",
+          event::setKickMessage);
       }
     }
   }
 
   @EventHandler
   public void handle(@NonNull PlayerJoinEvent event) {
-    ServerPlatformHelper.sendChannelMessageLoginSuccess(
+    this.serverPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
       this.management.createPlayerInformation(event.getPlayer()));
     // update the service info in the next tick
-    Bukkit.getScheduler().runTask(this.plugin, () -> Wrapper.instance().publishServiceInfoUpdate());
+    this.scheduler.runTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 
   @EventHandler
   public void handle(@NonNull PlayerQuitEvent event) {
-    ServerPlatformHelper.sendChannelMessageDisconnected(
+    this.serverPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
-    Bukkit.getScheduler().runTask(this.plugin, () -> Wrapper.instance().publishServiceInfoUpdate());
+    this.scheduler.runTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 }

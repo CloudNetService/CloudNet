@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,21 @@ import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.template.TemplateStorageProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import lombok.NonNull;
 
+@Singleton
 final class TemplateFileDeployCallback implements ChunkedPacketHandler.Callback {
 
-  public static final TemplateFileDeployCallback INSTANCE = new TemplateFileDeployCallback();
+  private final TemplateStorageProvider templateStorageProvider;
 
-  private TemplateFileDeployCallback() {
+  @Inject
+  public TemplateFileDeployCallback(@NonNull TemplateStorageProvider templateStorageProvider) {
+    this.templateStorageProvider = templateStorageProvider;
   }
 
   @Override
@@ -42,8 +47,9 @@ final class TemplateFileDeployCallback implements ChunkedPacketHandler.Callback 
     var template = information.transferInformation().readObject(ServiceTemplate.class);
     var path = information.transferInformation().readString();
     var append = information.transferInformation().readBoolean();
+
     // get the storage for the template
-    var storage = Node.instance().templateStorageProvider().templateStorage(storageName);
+    var storage = this.templateStorageProvider.templateStorage(storageName);
     if (storage != null) {
       // open the stream and write the data to it
       try (var out = append

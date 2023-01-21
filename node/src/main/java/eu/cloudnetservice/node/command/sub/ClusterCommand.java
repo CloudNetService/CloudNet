@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,15 +34,21 @@ import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.template.TemplateStorageProvider;
 import eu.cloudnetservice.node.cluster.NodeServer;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,6 +64,7 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandAlias("clu")
 @CommandPermission("cloudnet.command.cluster")
 @Description("command-cluster-description")
@@ -85,12 +92,33 @@ public final class ClusterCommand {
   private static final Logger LOGGER = LogManager.logger(ClusterCommand.class);
   private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
+  private final Configuration configuration;
+  private final CloudServiceManager serviceProvider;
+  private final NodeServerProvider nodeServerProvider;
+  private final ClusterNodeProvider clusterNodeProvider;
+  private final TemplateStorageProvider templateStorageProvider;
+
+  @Inject
+  public ClusterCommand(
+    @NonNull Configuration configuration,
+    @NonNull CloudServiceManager serviceProvider,
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull ClusterNodeProvider clusterNodeProvider,
+    @NonNull TemplateStorageProvider templateStorageProvider
+  ) {
+    this.configuration = configuration;
+    this.nodeServerProvider = nodeServerProvider;
+    this.clusterNodeProvider = clusterNodeProvider;
+    this.serviceProvider = serviceProvider;
+    this.templateStorageProvider = templateStorageProvider;
+  }
+
   @Parser(suggestions = "clusterNodeServer")
   public @NonNull NodeServer defaultClusterNodeServerParser(
     @NonNull CommandContext<?> $,
     @NonNull Queue<String> input
   ) {
-    var nodeServer = Node.instance().nodeServerProvider().node(input.remove());
+    var nodeServer = this.nodeServerProvider.node(input.remove());
     if (nodeServer == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -100,7 +128,7 @@ public final class ClusterCommand {
 
   @Suggestions("clusterNodeServer")
   public @NonNull List<String> suggestClusterNodeServer(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().nodeServerProvider().nodeServers()
+    return this.nodeServerProvider.nodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.info().uniqueId())
       .toList();
@@ -112,7 +140,7 @@ public final class ClusterCommand {
     @NonNull Queue<String> input
   ) {
     var nodeId = input.remove();
-    var clusterNode = Node.instance().clusterNodeProvider().node(nodeId);
+    var clusterNode = this.clusterNodeProvider.node(nodeId);
     if (clusterNode == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -122,7 +150,7 @@ public final class ClusterCommand {
 
   @Suggestions("networkClusterNode")
   public @NonNull List<String> suggestNetworkClusterNode(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().config().clusterConfig().nodes()
+    return this.configuration.clusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
       .toList();
@@ -174,7 +202,7 @@ public final class ClusterCommand {
   @Parser(name = "noNodeId", suggestions = "clusterNode")
   public @NonNull String noClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : Node.instance().config().clusterConfig().nodes()) {
+    for (var node : this.configuration.clusterConfig().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
       }
@@ -186,11 +214,10 @@ public final class ClusterCommand {
   @Parser(name = "staticService", suggestions = "staticService")
   public @NonNull String staticServiceParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
-    var manager = Node.instance().cloudServiceProvider();
-    if (manager.serviceByName(name) != null) {
+    if (this.serviceProvider.serviceByName(name) != null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-push-static-service-running"));
     }
-    if (!Files.exists(manager.persistentServicesDirectory().resolve(name))) {
+    if (!Files.exists(this.serviceProvider.persistentServicesDirectory().resolve(name))) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-push-static-service-not-found"));
     }
     return name;
@@ -203,12 +230,13 @@ public final class ClusterCommand {
 
   @CommandMethod(value = "cluster|clu shutdown", requiredSender = ConsoleCommandSource.class)
   public void shutdownCluster(@NonNull CommandSource $) {
-    for (var nodeServer : Node.instance().nodeServerProvider().nodeServers()) {
+    for (var nodeServer : this.nodeServerProvider.nodeServers()) {
       if (nodeServer.channel() != null) {
         nodeServer.shutdown();
       }
     }
-    Node.instance().stop();
+
+    System.exit(0);
   }
 
   @CommandMethod("cluster|clu add <nodeId> <host>")
@@ -217,7 +245,7 @@ public final class ClusterCommand {
     @NonNull @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
     @NonNull @Argument(value = "host", parserName = "anyHostAndPort") HostAndPort hostAndPort
   ) {
-    Node.instance().clusterNodeProvider().addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
+    this.clusterNodeProvider.addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
     source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId));
   }
 
@@ -226,13 +254,13 @@ public final class ClusterCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("nodeId") NetworkClusterNode node
   ) {
-    Node.instance().clusterNodeProvider().removeNode(node.uniqueId());
+    this.clusterNodeProvider.removeNode(node.uniqueId());
     source.sendMessage(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
   }
 
   @CommandMethod("cluster|clu nodes")
   public void listNodes(@NonNull CommandSource source) {
-    source.sendMessage(FORMATTER.format(Node.instance().nodeServerProvider().nodeServers()));
+    source.sendMessage(FORMATTER.format(this.nodeServerProvider.nodeServers()));
   }
 
   @CommandMethod("cluster|clu node <nodeId>")
@@ -254,14 +282,14 @@ public final class ClusterCommand {
   public void sync(@NonNull CommandSource source) {
     source.sendMessage(I18n.trans("command-cluster-start-sync"));
     // perform a cluster sync that takes care of tasks, groups and more
-    Node.instance().nodeServerProvider().syncDataIntoCluster();
+    this.nodeServerProvider.syncDataIntoCluster();
   }
 
   @CommandMethod("cluster|clu push templates [template]")
   public void pushTemplates(@NonNull CommandSource source, @Nullable @Argument("template") ServiceTemplate template) {
     // check if we need to push all templates or just a specific one
     if (template == null) {
-      var localStorage = Node.instance().templateStorageProvider().localTemplateStorage();
+      var localStorage = this.templateStorageProvider.localTemplateStorage();
       // resolve and push all local templates
       for (var localTemplate : localStorage.templates()) {
         this.pushTemplate(source, localTemplate);
@@ -278,7 +306,7 @@ public final class ClusterCommand {
     @Nullable @Argument(value = "service", parserName = "staticService") String service,
     @Flag("overwrite") boolean overwrite
   ) {
-    var staticServicePath = Node.instance().cloudServiceProvider().persistentServicesDirectory();
+    var staticServicePath = this.serviceProvider.persistentServicesDirectory();
     // check if we need to push all static services or just a specific one
     if (service == null) {
       // resolve all existing static services, that are not running and push them
@@ -302,7 +330,7 @@ public final class ClusterCommand {
     // notify the source about the deployment
     source.sendMessage(I18n.trans("command-cluster-push-static-service-starting"));
     // deploy the static service into the cluster
-    Node.instance().nodeServerProvider().deployStaticServiceToCluster(serviceName, stream, overwrite)
+    this.nodeServerProvider.deployStaticServiceToCluster(serviceName, stream, overwrite)
       .thenAccept(transferStatus -> {
         if (transferStatus == TransferStatus.FAILURE) {
           // the transfer failed
@@ -324,7 +352,7 @@ public final class ClusterCommand {
       // check if the template really exists in the given storage
       if (inputStream != null) {
         // deploy the template into the cluster
-        Node.instance().nodeServerProvider().deployTemplateToCluster(template, inputStream, true)
+        this.nodeServerProvider.deployTemplateToCluster(template, inputStream, true)
           .thenAccept(transferStatus -> {
             if (transferStatus == TransferStatus.FAILURE) {
               // the transfer failed
@@ -343,14 +371,13 @@ public final class ClusterCommand {
   }
 
   private @NonNull List<String> resolveAllStaticServices() {
-    var manager = Node.instance().cloudServiceProvider();
     try {
       // walk through the static service directory
-      return Files.walk(manager.persistentServicesDirectory(), 1)
+      return Files.walk(this.serviceProvider.persistentServicesDirectory(), 1)
         // remove to root path we started at
-        .filter(path -> !path.equals(manager.persistentServicesDirectory()))
+        .filter(path -> !path.equals(this.serviceProvider.persistentServicesDirectory()))
         // remove all services that are started, as we can't push them
-        .filter(path -> manager.localCloudService(path.getFileName().toString()) == null)
+        .filter(path -> this.serviceProvider.localCloudService(path.getFileName().toString()) == null)
         // map to all names of the different services
         .map(path -> path.getFileName().toString())
         .toList();

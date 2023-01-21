@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,22 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class S3TemplateStorageModule extends DriverModule {
 
   private S3TemplateStorage storage;
   private volatile S3TemplateStorageConfig config;
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
-  public void handleInit() {
+  public void handleInit(@NonNull ServiceRegistry serviceRegistry, @NonNull DataSyncRegistry dataSyncRegistry) {
     this.config = this.readConfig(
       S3TemplateStorageConfig.class,
       () -> new S3TemplateStorageConfig(
@@ -49,9 +52,9 @@ public final class S3TemplateStorageModule extends DriverModule {
         false));
     // init the storage
     this.storage = new S3TemplateStorage(this);
-    this.serviceRegistry().registerProvider(TemplateStorage.class, this.config.name(), this.storage);
+    serviceRegistry.registerProvider(TemplateStorage.class, this.config.name(), this.storage);
     // register the cluster sync handler
-    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
+    dataSyncRegistry.registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
       .key("s3-storage-config")
       .nameExtractor($ -> "S3 Template Storage Config")
       .convertObject(S3TemplateStorageConfig.class)
@@ -62,14 +65,14 @@ public final class S3TemplateStorageModule extends DriverModule {
   }
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
-  public void handleStop() {
+  public void handleStop(@NonNull ServiceRegistry serviceRegistry) {
     this.storage.close();
-    this.serviceRegistry().unregisterProvider(TemplateStorage.class, this.storage.name());
+    serviceRegistry.unregisterProvider(TemplateStorage.class, this.storage.name());
   }
 
   public void writeConfig(@NonNull S3TemplateStorageConfig config) {
     this.config = config;
-    JsonDocument.newDocument(config).write(this.configPath());
+    this.writeConfig(JsonDocument.newDocument(config));
   }
 
   public @NonNull S3TemplateStorageConfig config() {

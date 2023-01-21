@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ package eu.cloudnetservice.driver.network.protocol.defaults;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
@@ -69,31 +68,31 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
     return this.parent;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public void addListener(int channel, @NonNull PacketListener... listeners) {
+  public void addListener(int channel, @NonNull Class<? extends PacketListener> listenerClass) {
     // validate that the user is not trying to listen to a reserved channel
     Preconditions.checkArgument(channel != -1, "Tried to register listeners to forbidden channel id -1");
-    this.listeners.putAll(channel, List.of(listeners));
+    this.listeners.put(channel, InjectionLayer.findLayerOf(listenerClass).instance(listenerClass));
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void removeListener(int channel, @NonNull PacketListener... listeners) {
+  public void addListener(int channel, @NonNull PacketListener listener) {
+    // validate that the user is not trying to listen to a reserved channel
+    Preconditions.checkArgument(channel != -1, "Tried to register listeners to forbidden channel id -1");
+    this.listeners.put(channel, listener);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void removeListener(int channel, @NonNull PacketListener listener) {
     var registeredListeners = this.listeners.get(channel);
     if (!registeredListeners.isEmpty()) {
-      // remove all listeners if no specific listeners are provided
-      if (listeners.length == 0) {
-        registeredListeners.clear();
-        this.listeners.removeAll(channel);
-      } else {
-        // remove the selected listeners
-        registeredListeners.removeAll(Arrays.asList(listeners));
-      }
+      registeredListeners.remove(listener);
     }
   }
 

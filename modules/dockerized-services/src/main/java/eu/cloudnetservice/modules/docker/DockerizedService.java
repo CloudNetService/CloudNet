@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,11 +38,13 @@ import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.TickLoop;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.service.CloudServicePostProcessStartEvent;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.JVMService;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -92,20 +94,22 @@ public class DockerizedService extends JVMService {
   protected volatile ResultCallback<?> stdHolder;
 
   protected DockerizedService(
+    @NonNull TickLoop tickLoop,
+    @NonNull Configuration nodeConfig,
     @NonNull ServiceConfiguration configuration,
     @NonNull CloudServiceManager manager,
     @NonNull EventManager eventManager,
-    @NonNull Node nodeInstance,
+    @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer,
     @NonNull DockerClient dockerClient,
     @NonNull DockerConfiguration dockerConfiguration
   ) {
-    super(configuration, manager, eventManager, nodeInstance, serviceConfigurationPreparer);
+    super(tickLoop, nodeConfig, configuration, manager, eventManager, versionProvider, serviceConfigurationPreparer);
 
     this.dockerClient = dockerClient;
     this.configuration = dockerConfiguration;
 
-    super.logCache = this.logCache = new DockerizedServiceLogCache(nodeInstance, this);
+    super.logCache = this.logCache = new DockerizedServiceLogCache(nodeConfig, this);
     this.initLogHandler();
   }
 

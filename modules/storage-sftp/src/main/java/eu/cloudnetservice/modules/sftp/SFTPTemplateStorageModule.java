@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,18 @@ import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.sftp.config.SFTPTemplateStorageConfig;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
 
+@Singleton
 public final class SFTPTemplateStorageModule extends DriverModule {
 
   private SFTPTemplateStorage storage;
@@ -61,13 +64,13 @@ public final class SFTPTemplateStorageModule extends DriverModule {
   }
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
-  public void handleInit() {
+  public void handleInit(@NonNull ServiceRegistry serviceRegistry, @NonNull DataSyncRegistry dataSyncRegistry) {
     this.config = this.readConfig(SFTPTemplateStorageConfig.class, SFTPTemplateStorageConfig::new);
     // init the storage
     this.storage = new SFTPTemplateStorage(this.config);
-    this.serviceRegistry().registerProvider(TemplateStorage.class, this.storage.name(), this.storage);
+    serviceRegistry.registerProvider(TemplateStorage.class, this.storage.name(), this.storage);
     // register the cluster sync handler
-    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
+    dataSyncRegistry.registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
       .key("sftp-storage-config")
       .nameExtractor($ -> "SFTP Template Storage Config")
       .convertObject(SFTPTemplateStorageConfig.class)
@@ -78,9 +81,9 @@ public final class SFTPTemplateStorageModule extends DriverModule {
   }
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
-  public void handleStop() throws IOException {
+  public void handleStop(@NonNull ServiceRegistry serviceRegistry) throws IOException {
     this.storage.close();
-    this.serviceRegistry().unregisterProvider(TemplateStorage.class, this.storage.name());
+    serviceRegistry.unregisterProvider(TemplateStorage.class, this.storage.name());
   }
 
   public void updateConfig(@NonNull SFTPTemplateStorageConfig config) {

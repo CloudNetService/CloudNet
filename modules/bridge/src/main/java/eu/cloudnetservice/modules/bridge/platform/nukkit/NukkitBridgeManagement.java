@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,15 @@ package eu.cloudnetservice.modules.bridge.platform.nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.permission.Permissible;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
+import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -28,7 +35,10 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,21 +46,45 @@ import java.util.function.BiFunction;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@ProvidesFor(platform = "nukkit", types = {PlatformBridgeManagement.class, BridgeManagement.class})
 final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
 
   private static final BiFunction<Player, String, Boolean> PERM_FUNCTION = Permissible::hasPermission;
 
+  private final Server server;
   private final PlayerExecutor globalPlayerExecutor;
 
-  public NukkitBridgeManagement(@NonNull Wrapper wrapper) {
-    super(wrapper);
+  @Inject
+  public NukkitBridgeManagement(
+    @NonNull Server server,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeServiceHelper serviceHelper,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
     // init fields
+    this.server = server;
     this.globalPlayerExecutor = new NukkitDirectPlayerExecutor(
+      this.server,
       PlayerExecutor.GLOBAL_UNIQUE_ID,
-      () -> Server.getInstance().getOnlinePlayers().values());
+      () -> this.server.getOnlinePlayers().values());
     // init the bridge properties
-    BridgeServiceHelper.MOTD.set(Server.getInstance().getMotd());
-    BridgeServiceHelper.MAX_PLAYERS.set(Server.getInstance().getMaxPlayers());
+    serviceHelper.motd().set(this.server.getMotd());
+    serviceHelper.maxPlayers().set(this.server.getMaxPlayers());
   }
 
   @Override
@@ -109,18 +143,19 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalPlayerExecutor
       : new NukkitDirectPlayerExecutor(
+        this.server,
         uniqueId,
-        () -> Collections.singleton(Server.getInstance().getPlayer(uniqueId).orElse(null)));
+        () -> Collections.singleton(this.server.getPlayer(uniqueId).orElse(null)));
   }
 
   @Override
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the bukkit specific information
-    snapshot.properties().append("Online-Count", Server.getInstance().getOnlinePlayers().size());
-    snapshot.properties().append("Version", Server.getInstance().getVersion());
+    snapshot.properties().append("Online-Count", this.server.getOnlinePlayers().size());
+    snapshot.properties().append("Version", this.server.getVersion());
     // players
-    snapshot.properties().append("Players", Server.getInstance().getOnlinePlayers().values().stream()
+    snapshot.properties().append("Players", this.server.getOnlinePlayers().values().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

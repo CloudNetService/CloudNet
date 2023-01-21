@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.service.defaults.log;
 
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import java.io.IOException;
@@ -34,10 +34,10 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
   public ProcessServiceLogCache(
     @NonNull Supplier<Process> processSupplier,
-    @NonNull Node node,
+    @NonNull Configuration configuration,
     @NonNull CloudService service
   ) {
-    super(node, service);
+    super(configuration, service);
     this.processSupplier = processSupplier;
   }
 

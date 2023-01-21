@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,25 @@
 
 package eu.cloudnetservice.node.service.defaults.config;
 
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.node.service.CloudService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
 import lombok.NonNull;
 
+@Singleton
 public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
+  @Inject
+  public VanillaServiceConfigurationPreparer(@NonNull ServiceTaskProvider taskProvider) {
+    super(taskProvider);
+  }
+
   @Override
-  public void configure(@NonNull Node nodeInstance, @NonNull CloudService cloudService) {
+  public void configure(@NonNull CloudService cloudService) {
     // copy the default file
     var configFile = cloudService.directory().resolve("server.properties");
     this.copyCompiledFile("files/nms/server.properties", configFile);
@@ -34,14 +42,12 @@ public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigur
     var properties = new Properties();
     try {
       // check if we need to update the server.properties
-      if (this.shouldRewriteIp(nodeInstance, cloudService)) {
+      if (this.shouldRewriteIp(cloudService)) {
         try (var stream = Files.newInputStream(configFile)) {
           properties.load(stream);
           // update the configuration
-          if (this.shouldRewriteIp(nodeInstance, cloudService)) {
-            properties.setProperty("server-ip", cloudService.serviceConfiguration().hostAddress());
-            properties.setProperty("server-port", String.valueOf(cloudService.serviceConfiguration().port()));
-          }
+          properties.setProperty("server-ip", cloudService.serviceConfiguration().hostAddress());
+          properties.setProperty("server-port", String.valueOf(cloudService.serviceConfiguration().port()));
           // store the properties
           try (var out = Files.newOutputStream(configFile)) {
             properties.store(out, "Minecraft server properties - edited by CloudNet");

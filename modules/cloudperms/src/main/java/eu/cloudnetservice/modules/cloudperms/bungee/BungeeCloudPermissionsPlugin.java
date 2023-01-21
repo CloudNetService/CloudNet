@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,50 @@
 
 package eu.cloudnetservice.modules.cloudperms.bungee;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 
-public final class BungeeCloudPermissionsPlugin extends Plugin {
+@Singleton
+@PlatformPlugin(
+  platform = "bungeecord",
+  name = "CloudNet-CloudPerms",
+  authors = "CloudNetService",
+  version = "{project.build.version}",
+  description = "BungeeCord extension which implement the permission management system from CloudNet into BungeeCord"
+)
+public final class BungeeCloudPermissionsPlugin implements PlatformEntrypoint {
+
+  private final Plugin plugin;
+  private final ModuleHelper moduleHelper;
+  private final PluginManager pluginManager;
+  private final BungeeCloudPermissionsPlayerListener playerListener;
+
+  @Inject
+  public BungeeCloudPermissionsPlugin(
+    @NonNull Plugin plugin,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull PluginManager pluginManager,
+    @NonNull BungeeCloudPermissionsPlayerListener playerListener
+  ) {
+    this.plugin = plugin;
+    this.moduleHelper = moduleHelper;
+    this.pluginManager = pluginManager;
+    this.playerListener = playerListener;
+  }
 
   @Override
-  public void onEnable() {
-    this.getProxy().getPluginManager().registerListener(
-      this,
-      new BungeeCloudPermissionsPlayerListener(CloudNetDriver.instance().permissionManagement()));
+  public void onLoad() {
+    this.pluginManager.registerListener(this.plugin, this.playerListener);
   }
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

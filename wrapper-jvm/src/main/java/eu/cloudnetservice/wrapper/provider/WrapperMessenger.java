@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,42 +17,50 @@
 package eu.cloudnetservice.wrapper.provider;
 
 import com.google.gson.reflect.TypeToken;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.network.NetworkComponent;
+import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.def.PacketServerChannelMessage;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
 import eu.cloudnetservice.driver.provider.defaults.DefaultMessenger;
-import eu.cloudnetservice.wrapper.Wrapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import lombok.NonNull;
 
+@Singleton
+@Provides(CloudMessenger.class)
 public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
 
   private static final Type MESSAGES = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
 
-  private final NetworkComponent component;
+  private final NetworkClient networkClient;
 
-  public WrapperMessenger(@NonNull Wrapper wrapper) {
-    this.component = wrapper.networkClient();
+  @Inject
+  public WrapperMessenger(@NonNull NetworkClient networkClient) {
+    this.networkClient = networkClient;
   }
 
   @Override
   public void sendChannelMessage(@NonNull ChannelMessage channelMessage) {
     if (channelMessage.sendSync()) {
-      this.component.sendPacketSync(new PacketServerChannelMessage(channelMessage, true));
+      this.networkClient.sendPacketSync(new PacketServerChannelMessage(channelMessage, true));
     } else {
-      this.component.sendPacket(new PacketServerChannelMessage(channelMessage, true));
+      this.networkClient.sendPacket(new PacketServerChannelMessage(channelMessage, true));
     }
   }
 
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return this.component.firstChannel()
+    Collection<ChannelMessage> response =  this.networkClient.firstChannel()
       .queryPacketManager()
       .sendQueryPacket(new PacketServerChannelMessage(channelMessage, true))
       .join()
       .content()
       .readObject(MESSAGES);
+    return Objects.requireNonNullElse(response, List.of());
   }
 }

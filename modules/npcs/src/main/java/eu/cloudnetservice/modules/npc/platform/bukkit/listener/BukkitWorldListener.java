@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -27,15 +28,24 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.NumberConversions;
 
+@Singleton
 public final class BukkitWorldListener implements Listener {
 
   private final Plugin plugin;
+  private final BukkitScheduler scheduler;
   private final BukkitPlatformNPCManagement management;
 
-  public BukkitWorldListener(@NonNull Plugin plugin, @NonNull BukkitPlatformNPCManagement management) {
+  @Inject
+  public BukkitWorldListener(
+    @NonNull Plugin plugin,
+    @NonNull BukkitScheduler scheduler,
+    @NonNull BukkitPlatformNPCManagement management
+  ) {
     this.plugin = plugin;
+    this.scheduler = scheduler;
     this.management = management;
   }
 
@@ -79,9 +89,6 @@ public final class BukkitWorldListener implements Listener {
     // remove all mobs
     entities.forEach(PlatformSelectorEntity::remove);
     // re-spawn all entities after 2 seconds - just hope the world save is done
-    Bukkit.getScheduler().runTaskLater(
-      this.plugin,
-      () -> entities.forEach(PlatformSelectorEntity::spawn),
-      2 * 20);
+    this.scheduler.runTaskLater(this.plugin, () -> entities.forEach(PlatformSelectorEntity::spawn), 2 * 20);
   }
 }

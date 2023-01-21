@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.console;
 
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -24,6 +25,7 @@ import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
 import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
 import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
 import eu.cloudnetservice.node.console.handler.Toggleable;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -52,6 +54,8 @@ import org.jline.utils.InfoCmp;
 import org.jline.utils.StyleResolver;
 import org.jline.utils.WCWidth;
 
+@Singleton
+@Provides(Console.class)
 public final class JLine3Console implements Console {
 
   private static final String USER = System.getProperty("user.name");
@@ -371,7 +375,7 @@ public final class JLine3Console implements Console {
   }
 
   private void updatePrompt() {
-    this.prompt = ConsoleColor.toColouredString('&', this.prompt)
+    this.prompt = ConsoleColor.toColoredString('&', this.prompt)
       .replace("%version%", VERSION)
       .replace("%user%", USER);
     this.lineReader.setPrompt(this.prompt);
@@ -402,7 +406,7 @@ public final class JLine3Console implements Console {
   }
 
   private @NonNull String formatText(@NonNull String input, @NonNull String ensureEndsWith) {
-    var content = this.ansiSupported ? ConsoleColor.toColouredString('&', input) : ConsoleColor.stripColor('&', input);
+    var content = this.ansiSupported ? ConsoleColor.toColoredString('&', input) : ConsoleColor.stripColor('&', input);
     if (!content.endsWith(ensureEndsWith)) {
       content += ensureEndsWith;
     }

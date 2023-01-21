@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.permission;
 
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.property.DocPropertyHolder;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -60,12 +60,12 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * <p>
    * After removing the permission an update is required.
    *
-   * @param group      the target group to remove the permission from.
    * @param permission the permission to remove.
+   * @param group      the target group to remove the permission from.
    * @return true if any permission was removed, false otherwise.
    * @throws NullPointerException if the given group or permission is null.
    */
-  boolean removePermission(@NonNull String group, @NonNull String permission);
+  boolean removePermission(@NonNull String permission, @NonNull String group);
 
   /**
    * Gets all global permissions of this permissible. Specific group permissions are not included.
@@ -207,7 +207,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
     @NonNull Collection<Permission> permissions,
     @NonNull Permission permission
   ) {
-    return CloudNetDriver.instance().permissionManagement().findHighestPermission(permissions, permission);
+    var permissionManagement = InjectionLayer.boot().instance(PermissionManagement.class);
+    return permissionManagement.findHighestPermission(permissions, permission);
   }
 
   /**

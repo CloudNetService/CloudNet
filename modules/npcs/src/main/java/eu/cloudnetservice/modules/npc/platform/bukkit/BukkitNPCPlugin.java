@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,85 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit;
 
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Command;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.npc.platform.bukkit.command.NPCCommand;
 import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitEntityProtectionListener;
 import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitFunctionalityListener;
 import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitWorldListener;
-import org.bukkit.Bukkit;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class BukkitNPCPlugin extends JavaPlugin {
+@Singleton
+@PlatformPlugin(
+  platform = "bukkit",
+  name = "CloudNet-NPCs",
+  authors = "CloudNetService",
+  version = "{project.build.version}",
+  homepage = "https://cloudnetservice.eu",
+  description = "CloudNet extension which adds NPCs for server selection",
+  dependencies = {
+    @Dependency(name = "CloudNet-Bridge"),
+    @Dependency(name = "ProtocolLib", optional = true)
+  },
+  commands = @Command(
+    name = "cn",
+    aliases = "cloudnpc",
+    permission = "cloudnet.command.cloudnpc",
+    description = "Root command to manage the CloudNet NPC system"
+  )
+)
+public final class BukkitNPCPlugin implements PlatformEntrypoint {
 
-  @Override
-  public void onEnable() {
-    // init the npc management
-    var management = new BukkitPlatformNPCManagement(this);
-    management.registerToServiceRegistry();
-    management.initialize();
-    // register all listeners
-    Bukkit.getPluginManager().registerEvents(new BukkitFunctionalityListener(management, this), this);
-    Bukkit.getPluginManager().registerEvents(new BukkitEntityProtectionListener(management), this);
-    Bukkit.getPluginManager().registerEvents(new BukkitWorldListener(this, management), this);
-    // register the commands
-    var command = this.getCommand("cn");
+  private final ModuleHelper moduleHelper;
+
+  @Inject
+  public BukkitNPCPlugin(@NonNull ModuleHelper moduleHelper) {
+    this.moduleHelper = moduleHelper;
+  }
+
+  @Inject
+  private void registerNPCManagement(
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull BukkitPlatformNPCManagement npcManagement
+  ) {
+    npcManagement.registerToServiceRegistry(serviceRegistry);
+    npcManagement.initialize();
+  }
+
+  @Inject
+  private void registerPlatformListener(
+    @NonNull Plugin plugin,
+    @NonNull PluginManager pluginManager,
+    @NonNull BukkitWorldListener worldListener,
+    @NonNull BukkitFunctionalityListener functionalityListener,
+    @NonNull BukkitEntityProtectionListener entityProtectionListener
+  ) {
+    pluginManager.registerEvents(worldListener, plugin);
+    pluginManager.registerEvents(functionalityListener, plugin);
+    pluginManager.registerEvents(entityProtectionListener, plugin);
+  }
+
+  @Inject
+  private void registerCommand(@NonNull JavaPlugin plugin, @NonNull NPCCommand npcCommand) {
+    // only register the command if the command is present
+    var command = plugin.getCommand("cn");
     if (command != null) {
-      var executor = new NPCCommand(this, management);
-      // set the executor
-      command.setExecutor(executor);
-      command.setTabCompleter(executor);
+      command.setExecutor(npcCommand);
+      command.setTabCompleter(npcCommand);
     }
   }
 
   @Override
   public void onDisable() {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

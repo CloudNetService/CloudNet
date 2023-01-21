@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.node.provider;
 
+import dev.derklaro.aerogel.PostConstruct;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
@@ -27,15 +29,20 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.event.task.LocalServiceTaskAddEvent;
 import eu.cloudnetservice.node.event.task.LocalServiceTaskRemoveEvent;
 import eu.cloudnetservice.node.network.listener.message.TaskChannelMessageListener;
+import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.setup.DefaultTaskSetup;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -47,6 +54,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@Provides(ServiceTaskProvider.class)
 public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   private static final Path TASKS_DIRECTORY = Path.of(
@@ -57,14 +66,20 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   private final EventManager eventManager;
   private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
 
-  public NodeServiceTaskProvider(@NonNull Node nodeInstance) {
-    this.eventManager = nodeInstance.eventManager();
-    this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager, this));
+  @Inject
+  public NodeServiceTaskProvider(
+    @NonNull EventManager eventManager,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull DataSyncRegistry syncRegistry,
+    @NonNull RPCHandlerRegistry handlerRegistry
+  ) {
+    this.eventManager = eventManager;
 
     // rpc
-    nodeInstance.rpcFactory().newHandler(ServiceTaskProvider.class, this).registerToDefaultRegistry();
+    rpcFactory.newHandler(ServiceTaskProvider.class, this).registerTo(handlerRegistry);
+
     // cluster data sync
-    nodeInstance.dataSyncRegistry().registerHandler(
+    syncRegistry.registerHandler(
       DataSyncHandler.<ServiceTask>builder()
         .key("task")
         .nameExtractor(Nameable::name)
@@ -73,13 +88,21 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         .dataCollector(this::serviceTasks)
         .currentGetter(task -> this.serviceTask(task.name()))
         .build());
+  }
 
+  @Inject
+  private void loadTasks(@NonNull DefaultInstallation installation) {
     if (Files.exists(TASKS_DIRECTORY)) {
       this.loadServiceTasks();
     } else {
       FileUtil.createDirectory(TASKS_DIRECTORY);
-      nodeInstance.installation().registerSetup(new DefaultTaskSetup());
+      installation.registerSetup(DefaultTaskSetup.class);
     }
+  }
+
+  @PostConstruct
+  private void registerTaskChannelListener() {
+    this.eventManager.registerListener(TaskChannelMessageListener.class);
   }
 
   @Override

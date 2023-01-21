@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,18 @@
 package eu.cloudnetservice.driver.module;
 
 import com.google.common.base.Preconditions;
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import jakarta.inject.Singleton;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +55,8 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Singleton
+@Provides(ModuleProvider.class)
 public class DefaultModuleProvider implements ModuleProvider {
 
   public static final Path DEFAULT_LIB_DIR = Path.of(".libs");
@@ -56,6 +64,10 @@ public class DefaultModuleProvider implements ModuleProvider {
 
   protected static final Logger LOGGER = LogManager.logger(DefaultModuleProvider.class);
   protected static final ModuleDependencyLoader DEFAULT_DEP_LOADER = new DefaultModuleDependencyLoader(DEFAULT_LIB_DIR);
+
+  private static final Element MODULE_CONFIGURATION_ELEMENT = Element.forType(ModuleConfiguration.class);
+  private static final Element DATA_DIRECTORY_ELEMENT = Element.forType(Path.class)
+    .requireAnnotation(Qualifiers.named("dataDirectory"));
 
   protected final Collection<ModuleWrapper> modules = new CopyOnWriteArrayList<>();
 
@@ -67,8 +79,8 @@ public class DefaultModuleProvider implements ModuleProvider {
    * Creates a new default module provider by calling with the default library directory and the default dependency
    * loader.
    * <p>
-   * The default library directory is {@link #DEFAULT_LIB_DIR}. The default dependency loader is {@link
-   * #DEFAULT_DEP_LOADER}
+   * The default library directory is {@link #DEFAULT_LIB_DIR}. The default dependency loader is
+   * {@link #DEFAULT_DEP_LOADER}
    */
   public DefaultModuleProvider() {
     this(DEFAULT_MODULE_DIR, DEFAULT_DEP_LOADER);
@@ -184,11 +196,26 @@ public class DefaultModuleProvider implements ModuleProvider {
           moduleConfiguration.group(), moduleConfiguration.name(), moduleConfiguration.minJavaVersionId()));
         return null;
       }
+
+      // get the data directory of the module
+      var dataDirectory = moduleConfiguration.dataFolder(this.moduleDirectory);
+
+      // create the injection layer for the module
+      var externalLayer = InjectionLayer.ext();
+      var moduleLayer = InjectionLayer.specifiedChild(externalLayer, "module", (layer, injector) -> {
+        injector.installSpecified(BindingBuilder.create()
+          .bind(DATA_DIRECTORY_ELEMENT)
+          .toInstance(dataDirectory));
+        injector.installSpecified(BindingBuilder.create()
+          .bind(MODULE_CONFIGURATION_ELEMENT)
+          .toInstance(moduleConfiguration));
+      });
+
       // initialize all dependencies of the module
       var repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
       var dependencies = this.loadDependencies(repositories, moduleConfiguration);
       // create the class loader for the module
-      var loader = new ModuleURLClassLoader(url, dependencies.first());
+      var loader = new ModuleURLClassLoader(url, dependencies.first(), moduleLayer);
       loader.registerGlobally();
       // try to load and create the main class instance
       var mainModuleClass = loader.loadClass(moduleConfiguration.main());
@@ -197,12 +224,11 @@ public class DefaultModuleProvider implements ModuleProvider {
         throw new AssertionError(String.format("Module main class %s is not assignable from %s",
           mainModuleClass.getCanonicalName(), Module.class.getCanonicalName()));
       }
-      // get the data directory of the module
-      var dataDirectory = moduleConfiguration.dataFolder(this.moduleDirectory);
+
       // create an instance of the class and the main module wrapper
-      var moduleInstance = (Module) mainModuleClass.getConstructor().newInstance();
+      var moduleInstance = (Module) moduleLayer.instance(mainModuleClass);
       var moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
-        this, loader, dependencies.second(), moduleConfiguration);
+        this, loader, dependencies.second(), moduleConfiguration, moduleLayer);
       // initialize the module instance now
       moduleInstance.init(loader, moduleWrapper, moduleConfiguration);
       // register the module, load it and return the created wrapper

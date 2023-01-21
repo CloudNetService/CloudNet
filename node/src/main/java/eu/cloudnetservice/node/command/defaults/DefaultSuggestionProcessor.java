@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import info.debatty.java.stringsimilarity.JaroWinkler;
 import info.debatty.java.stringsimilarity.interfaces.StringSimilarity;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -34,6 +35,7 @@ import lombok.NonNull;
 /**
  * {@inheritDoc}
  */
+@Singleton
 final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<CommandSource> {
 
   private static final double MINIMUM_SIMILARITY = 0.7;

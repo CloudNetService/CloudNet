@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,26 @@ package eu.cloudnetservice.node.setup;
 
 import eu.cloudnetservice.driver.permission.Permission;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public class PermissionGroupSetup implements DefaultSetup {
+
+  private final Parsers parsers;
+  private final PermissionManagement permissionManagement;
+
+  @Inject
+  public PermissionGroupSetup(@NonNull Parsers parsers, @NonNull PermissionManagement permissionManagement) {
+    this.parsers = parsers;
+    this.permissionManagement = permissionManagement;
+  }
 
   @Override
   public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
@@ -36,7 +48,7 @@ public class PermissionGroupSetup implements DefaultSetup {
         .answerType(QuestionAnswerType.<Boolean>builder()
           .recommendation("yes")
           .possibleResults("no", "yes")
-          .parser(Parsers.bool()))
+          .parser(this.parsers.bool()))
         .build());
   }
 
@@ -65,8 +77,8 @@ public class PermissionGroupSetup implements DefaultSetup {
         .sortId(99)
         .build();
 
-      Node.instance().permissionManagement().addPermissionGroup(adminGroup);
-      Node.instance().permissionManagement().addPermissionGroup(defaultGroup);
+      this.permissionManagement.addPermissionGroup(adminGroup);
+      this.permissionManagement.addPermissionGroup(defaultGroup);
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.network.rpc.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +32,8 @@ import org.jetbrains.annotations.UnmodifiableView;
  *
  * @since 4.0
  */
+@Singleton
+@Provides(RPCHandlerRegistry.class)
 public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
 
   protected final Map<String, RPCHandler> handlers = new ConcurrentHashMap<>();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.plugins.simplenametags;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.permission.PermissionUpdateGroupEvent;
 import eu.cloudnetservice.driver.event.events.permission.PermissionUpdateUserEvent;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
 
@@ -27,13 +27,16 @@ public final class CloudSimpleNameTagsListener<P> {
 
   private final Executor syncTaskExecutor;
   private final SimpleNameTagsManager<P> nameTagsManager;
+  private final PermissionManagement permissionManagement;
 
   public CloudSimpleNameTagsListener(
     @NonNull Executor syncTaskExecutor,
-    @NonNull SimpleNameTagsManager<P> nameTagsManager
+    @NonNull SimpleNameTagsManager<P> nameTagsManager,
+    @NonNull PermissionManagement permissionManagement
   ) {
     this.syncTaskExecutor = syncTaskExecutor;
     this.nameTagsManager = nameTagsManager;
+    this.permissionManagement = permissionManagement;
   }
 
   @EventListener
@@ -55,7 +58,7 @@ public final class CloudSimpleNameTagsListener<P> {
       for (P player : this.nameTagsManager.onlinePlayers()) {
         var playerUniqueId = this.nameTagsManager.playerUniqueId(player);
         // get the associated user
-        var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
+        var user = this.permissionManagement.user(playerUniqueId);
         if (user != null && user.inGroup(event.permissionGroup().name())) {
           this.nameTagsManager.updateNameTagsFor(player);
         }

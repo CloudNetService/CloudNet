@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package eu.cloudnetservice.node.database.sql;
 
+import com.github.benmanes.caffeine.cache.RemovalListener;
 import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -32,17 +32,13 @@ import org.jetbrains.annotations.UnknownNullability;
 
 @Deprecated
 @ApiStatus.ScheduledForRemoval(inVersion = "4.1")
-public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
+public abstract class SQLDatabaseProvider extends NodeDatabaseProvider {
 
   protected static final String[] TABLE_TYPE = new String[]{"TABLE"};
   protected static final Logger LOGGER = LogManager.logger(SQLDatabaseProvider.class);
 
-  protected final ExecutorService executorService;
-  protected final boolean autoShutdownExecutorService;
-
-  public SQLDatabaseProvider(@Nullable ExecutorService executorService) {
-    this.autoShutdownExecutorService = executorService == null;
-    this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;
+  protected SQLDatabaseProvider(@NonNull RemovalListener<String, LocalDatabase> removalListener) {
+    super(removalListener);
   }
 
   @Override
@@ -54,14 +50,6 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
     }
 
     return false;
-  }
-
-  @Override
-  public void close() throws Exception {
-    super.close();
-    if (this.autoShutdownExecutorService) {
-      this.executorService.shutdownNow();
-    }
   }
 
   public abstract @NonNull Connection connection();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@
 package eu.cloudnetservice.modules.signs.platform.minestom.functionality;
 
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.minestom.MinestomSignManagement;
-import eu.cloudnetservice.wrapper.Wrapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
@@ -34,23 +36,17 @@ import net.minestom.server.command.builder.exception.ArgumentSyntaxException;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
 
+@Singleton
 public class SignsCommand extends Command {
 
-  private static final ArgumentLiteral CREATE_LITERAL = new ArgumentLiteral("create");
-  private static final Argument<String> TARGET_GROUP = new ArgumentString("targetGroup") {
+  private static final ArgumentLiteral REMOVE_LITERAL = new ArgumentLiteral("remove");
+  private static final ArgumentLiteral REMOVE_ALL_LITERAL = new ArgumentLiteral("removeAll");
+  private static final ArgumentLiteral CLEANUP_LITERAL = new ArgumentLiteral("cleanup");
 
-    @Override
-    public @NonNull String parse(@NonNull String input) throws ArgumentSyntaxException {
-      return Wrapper.instance().groupConfigurationProvider().groupConfigurations()
-        .stream()
-        .filter(group -> group.name().equalsIgnoreCase(input))
-        .findFirst()
-        .orElseThrow(() -> new ArgumentSyntaxException(I18n.trans("command-general-group-does-not-exist"), input, -1))
-        .name();
-    }
-  };
+  private static final CommandCondition DEFAULT_CONDITION = (sender, $) ->
+    sender instanceof Player && !(sender instanceof FakePlayer) && sender.hasPermission("cloudnet.command.cloudsign");
 
-  private static final Argument<String> TEMPLATE = new ArgumentString("templatePath") {
+  private final Argument<String> template = new ArgumentString("templatePath") {
     @Override
     public @NonNull String parse(@NonNull String input) throws ArgumentSyntaxException {
       var template = ServiceTemplate.parse(input);
@@ -62,23 +58,40 @@ public class SignsCommand extends Command {
     }
   }.setDefaultValue(() -> null);
 
-  private static final ArgumentLiteral REMOVE_LITERAL = new ArgumentLiteral("remove");
-  private static final ArgumentLiteral REMOVE_ALL_LITERAL = new ArgumentLiteral("removeAll");
-  private static final ArgumentLiteral CLEANUP_LITERAL = new ArgumentLiteral("cleanup");
-
-  private static final CommandCondition DEFAULT_CONDITION = (sender, $) ->
-    sender instanceof Player && !(sender instanceof FakePlayer) && sender.hasPermission("cloudnet.command.cloudsign");
-
+  private final Argument<String> targetGroup;
   private final MinestomSignManagement signManagement;
 
-  public SignsCommand(@NonNull MinestomSignManagement signManagement) {
+  @Inject
+  public SignsCommand(
+    @NonNull MinestomSignManagement signManagement,
+    @NonNull GroupConfigurationProvider groupProvider
+  ) {
     super("cloudsign", "cs", "signs", "cloudsigns");
+
+    this.targetGroup = this.createTargetGroupArgument(groupProvider);
     this.signManagement = signManagement;
 
-    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCreate, CREATE_LITERAL, TARGET_GROUP, TEMPLATE);
+    var createLiteral = new ArgumentLiteral("create");
+
+    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCreate, createLiteral, this.targetGroup, this.template);
     this.addConditionalSyntax(DEFAULT_CONDITION, this::handleRemove, REMOVE_LITERAL);
     this.addConditionalSyntax(DEFAULT_CONDITION, this::handleRemoveAll, REMOVE_ALL_LITERAL);
     this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCleanup, CLEANUP_LITERAL);
+  }
+
+  private @NonNull ArgumentString createTargetGroupArgument(@NonNull GroupConfigurationProvider groupProvider) {
+    return new ArgumentString("targetGroup") {
+
+      @Override
+      public @NonNull String parse(@NonNull String input) throws ArgumentSyntaxException {
+        return groupProvider.groupConfigurations()
+          .stream()
+          .filter(group -> group.name().equalsIgnoreCase(input))
+          .findFirst()
+          .orElseThrow(() -> new ArgumentSyntaxException(I18n.trans("command-general-group-does-not-exist"), input, -1))
+          .name();
+      }
+    };
   }
 
   private void handleCreate(@NonNull CommandSender sender, @NonNull CommandContext context) {
@@ -107,13 +120,13 @@ public class SignsCommand extends Command {
         // should never be null here - just for intellij
         if (worldPosition != null) {
           this.signManagement.createSign(new Sign(
-            context.get(TARGET_GROUP),
-            context.get(TEMPLATE),
+            context.get(this.targetGroup),
+            context.get(this.template),
             worldPosition
           ));
           SignsConfiguration.sendMessage(
             "command-cloudsign-create-success",
-            player::sendMessage, m -> m.replace("%group%", context.get(TARGET_GROUP)));
+            player::sendMessage, m -> m.replace("%group%", context.get(this.targetGroup)));
         }
       } else {
         SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);

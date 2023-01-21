@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.docker;
 
 import com.github.dockerjava.api.model.Frame;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.node.service.defaults.log.AbstractServiceLogCache;
@@ -26,8 +26,8 @@ import lombok.NonNull;
 
 public class DockerizedServiceLogCache extends AbstractServiceLogCache {
 
-  public DockerizedServiceLogCache(@NonNull Node node, @NonNull CloudService service) {
-    super(node, service);
+  public DockerizedServiceLogCache(@NonNull Configuration configuration, @NonNull CloudService service) {
+    super(configuration, service);
   }
 
   @Override

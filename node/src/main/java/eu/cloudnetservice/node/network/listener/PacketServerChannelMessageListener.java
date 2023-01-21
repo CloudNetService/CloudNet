@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.network.listener;
 
+import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -23,21 +24,30 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.provider.NodeMessenger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public final class PacketServerChannelMessageListener implements PacketListener {
 
   private final NodeMessenger messenger;
   private final EventManager eventManager;
+  private final ComponentInfo componentInfo;
 
-  public PacketServerChannelMessageListener(@NonNull NodeMessenger messenger, @NonNull EventManager eventManager) {
+  @Inject
+  public PacketServerChannelMessageListener(
+    @NonNull NodeMessenger messenger,
+    @NonNull EventManager eventManager,
+    @NonNull ComponentInfo componentInfo
+  ) {
     this.messenger = messenger;
     this.eventManager = eventManager;
+    this.componentInfo = componentInfo;
   }
 
   @Override
@@ -49,7 +59,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
     // check if we should handle the message locally
     var handleLocally = message.targets().stream().anyMatch(target -> switch (target.type()) {
       case ALL -> true;
-      case NODE -> target.name() == null || target.name().equals(Node.instance().componentName());
+      case NODE -> target.name() == null || target.name().equals(this.componentInfo.componentName());
       default -> false;
     });
     if (handleLocally) {
@@ -89,7 +99,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
             // respond with the result or just the single initial response if given
             if (result == null) {
               responseContent = initialResponse == null
-                ? DataBuf.empty()
+                ? DataBuf.empty().writeBoolean(false)
                 : DataBuf.empty().writeObject(Set.of(initialResponse));
             } else {
               // add the initial response if given before writing
@@ -98,14 +108,14 @@ public final class PacketServerChannelMessageListener implements PacketListener 
               }
               // serialize the response
               if (result.isEmpty()) {
-                responseContent = DataBuf.empty();
+                responseContent = DataBuf.empty().writeBoolean(false);
               } else {
                 responseContent = DataBuf.empty().writeObject(result);
               }
             }
           } else {
             // just respond with nothing when an exception was thrown
-            responseContent = DataBuf.empty();
+            responseContent = DataBuf.empty().writeBoolean(false);
           }
           // send the results to the sender
           channel.sendPacket(packet.constructResponse(responseContent));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package eu.cloudnetservice.driver.network.netty;
 
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
 import io.netty5.channel.ChannelHandlerContext;
@@ -38,7 +39,18 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
 
   private static final Logger LOGGER = LogManager.logger(NettyNetworkHandler.class);
 
+  protected final EventManager eventManager;
   protected volatile NettyNetworkChannel channel;
+
+  /**
+   * Constructs a new netty network handler instance.
+   *
+   * @param eventManager the event manager of the current component.
+   * @throws NullPointerException if the given event manager is null.
+   */
+  protected NettyNetworkHandler(@NonNull EventManager eventManager) {
+    this.eventManager = eventManager;
+  }
 
   /**
    * {@inheritDoc}

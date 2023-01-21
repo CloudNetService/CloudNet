@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,26 @@ package eu.cloudnetservice.node.network.chunk;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.template.TemplateStorageProvider;
+import eu.cloudnetservice.node.TickLoop;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.InputStream;
 import lombok.NonNull;
 
+@Singleton
 final class TemplateDeployCallback implements ChunkedPacketHandler.Callback {
 
-  public static final TemplateDeployCallback INSTANCE = new TemplateDeployCallback();
+  private final TickLoop mainThread;
+  private final TemplateStorageProvider templateStorageProvider;
 
-  private TemplateDeployCallback() {
+  @Inject
+  public TemplateDeployCallback(
+    @NonNull TickLoop mainThread,
+    @NonNull TemplateStorageProvider templateStorageProvider
+  ) {
+    this.mainThread = mainThread;
+    this.templateStorageProvider = templateStorageProvider;
   }
 
   @Override
@@ -39,11 +50,12 @@ final class TemplateDeployCallback implements ChunkedPacketHandler.Callback {
     var storageName = information.transferInformation().readString();
     var template = information.transferInformation().readObject(ServiceTemplate.class);
     var overrideTemplate = information.transferInformation().readBoolean();
+
     // get the storage of the template if present
-    var storage = Node.instance().templateStorageProvider().templateStorage(storageName);
+    var storage = this.templateStorageProvider.templateStorage(storageName);
     if (storage != null) {
       // pause the ticking of CloudNet before writing the file into the template
-      Node.instance().mainThread().pause();
+      this.mainThread.pause();
       try {
         // delete the template if requested
         if (overrideTemplate) {
@@ -53,7 +65,7 @@ final class TemplateDeployCallback implements ChunkedPacketHandler.Callback {
         storage.deploy(template, dataInput);
       } finally {
         // resume the main thread execution
-        Node.instance().mainThread().resume();
+        this.mainThread.resume();
       }
     }
   }

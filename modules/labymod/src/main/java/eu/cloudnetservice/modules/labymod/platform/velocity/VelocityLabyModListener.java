@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,16 @@ import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-public class VelocityLabyModListener {
+@Singleton
+public final class VelocityLabyModListener {
 
   private final PlatformLabyModManagement labyModManagement;
 
+  @Inject
   public VelocityLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import net.kyori.blossom.BlossomExtension
 
 plugins {
   alias(libs.plugins.blossom) apply false
@@ -39,13 +41,15 @@ subprojects {
     "compileOnly"(rootProject.projects.node)
     "testImplementation"(rootProject.projects.node)
 
+    // generation for platform main classes
+    "compileOnly"(rootProject.projects.ext.platformInjectSupport.platformInjectApi)
+    "annotationProcessor"(rootProject.projects.ext.platformInjectSupport.platformInjectProcessor)
+
     // internal dependencies
     "implementation"(rootProject.libs.guava)
   }
 
-  tasks.named<Copy>("processResources") {
-    filter {
-      it.replace("{project.build.version}", project.version.toString())
-    }
+  configure<BlossomExtension> {
+    replaceToken("{project.build.version}", project.version)
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.AbstractHandler;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
+import eu.cloudnetservice.driver.CloudNetVersion;
+import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpHandler;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
@@ -32,13 +35,21 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketChannel;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketFrameType;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketListener;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.command.CommandProvider;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.config.JsonConfiguration;
 import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,8 +57,46 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import lombok.NonNull;
 
+@Singleton
 @HandlerPermission("http.v2.node")
 public final class V2HttpHandlerNode extends V2HttpHandler {
+
+  private final Configuration configuration;
+  private final NetworkClient networkClient;
+  private final ModuleProvider moduleProvider;
+  private final CloudNetVersion cloudNetVersion;
+  private final CommandProvider commandProvider;
+  private final NodeServerProvider nodeServerProvider;
+  private final CloudServiceManager cloudServiceManager;
+  private final ServiceTaskProvider serviceTaskProvider;
+  private final PermissionManagement permissionManagement;
+  private final GroupConfigurationProvider groupConfigurationProvider;
+
+  @Inject
+  public V2HttpHandlerNode(
+    @NonNull Configuration configuration,
+    @NonNull NetworkClient networkClient,
+    @NonNull ModuleProvider moduleProvider,
+    @NonNull CloudNetVersion cloudNetVersion,
+    @NonNull CommandProvider commandProvider,
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull CloudServiceManager cloudServiceManager,
+    @NonNull ServiceTaskProvider serviceTaskProvider,
+    @NonNull PermissionManagement permissionManagement,
+    @NonNull GroupConfigurationProvider groupConfigurationProvider
+  ) {
+    super(configuration.restConfiguration());
+    this.configuration = configuration;
+    this.networkClient = networkClient;
+    this.moduleProvider = moduleProvider;
+    this.cloudNetVersion = cloudNetVersion;
+    this.commandProvider = commandProvider;
+    this.nodeServerProvider = nodeServerProvider;
+    this.cloudServiceManager = cloudServiceManager;
+    this.serviceTaskProvider = serviceTaskProvider;
+    this.permissionManagement = permissionManagement;
+    this.groupConfigurationProvider = groupConfigurationProvider;
+  }
 
   @HttpRequestHandler(paths = "/api/v2/node", priority = HttpHandler.PRIORITY_HIGH)
   private void handleNodePing(@NonNull HttpContext context) {
@@ -57,14 +106,14 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/node")
   private void sendNodeInformation(@NonNull HttpContext context) {
-    var nodeServer = this.node().nodeServerProvider().localNode();
+    var nodeServer = this.nodeServerProvider.localNode();
 
     var information = this.success()
-      .append("version", Node.instance().version())
+      .append("version", this.cloudNetVersion)
       .append("nodeInfoSnapshot", nodeServer.nodeInfoSnapshot())
       .append("lastNodeInfoSnapshot", nodeServer.lastNodeInfoSnapshot())
-      .append("serviceCount", this.node().cloudServiceProvider().serviceCount())
-      .append("clientConnections", super.node().networkClient().channels().stream()
+      .append("serviceCount", this.cloudServiceManager.serviceCount())
+      .append("clientConnections", this.networkClient.channels().stream()
         .map(NetworkChannel::serverAddress)
         .toList());
     this.ok(context).body(information.toString()).context().closeAfter(true).cancelNext(true);
@@ -74,7 +123,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
   @HttpRequestHandler(paths = "/api/v2/node/config")
   private void handleNodeConfigRequest(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("config", this.nodeConfig()).toString())
+      .body(this.success().append("config", this.configuration).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -95,7 +144,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
 
     // a little workaround here, write the configuration to the file and load the used from there
     configuration.save();
-    this.nodeConfig().load();
+    this.configuration.load();
 
     this.ok(context)
       .body(this.success().toString())
@@ -113,7 +162,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
     switch (StringUtil.toLower(type)) {
       case "all" -> {
         this.reloadConfig();
-        this.node().moduleProvider().reloadAll();
+        this.moduleProvider.reloadAll();
       }
       case "config" -> this.reloadConfig();
       default -> {
@@ -143,10 +192,10 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
   }
 
   private void reloadConfig() {
-    this.node().reloadConfigFrom(JsonConfiguration.loadFromFile(this.node()));
-    this.node().serviceTaskProvider().reload();
-    this.node().groupConfigurationProvider().reload();
-    this.node().permissionManagement().reload();
+    this.configuration.reloadFrom(JsonConfiguration.loadFromFile());
+    this.serviceTaskProvider.reload();
+    this.groupConfigurationProvider.reload();
+    this.permissionManagement.reload();
   }
 
   protected class WebSocketLogHandler extends AbstractHandler implements WebSocketListener {
@@ -170,8 +219,8 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
       if (type == WebSocketFrameType.TEXT && user != null) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
 
-        var commandSource = new PermissionUserCommandSource(user, V2HttpHandlerNode.this.node().permissionManagement());
-        V2HttpHandlerNode.this.node().commandProvider().execute(commandSource, commandLine).getOrNull();
+        var commandSource = new PermissionUserCommandSource(user, V2HttpHandlerNode.this.permissionManagement);
+        V2HttpHandlerNode.this.commandProvider.execute(commandSource, commandLine).getOrNull();
 
         for (var message : commandSource.messages()) {
           this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);

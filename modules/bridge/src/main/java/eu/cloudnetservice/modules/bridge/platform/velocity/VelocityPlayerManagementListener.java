@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,9 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Locale;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -41,16 +43,24 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
 
+@Singleton
 public final class VelocityPlayerManagementListener {
 
   private final ProxyServer proxyServer;
+  private final ServiceInfoHolder serviceInfoHolder;
+  private final ProxyPlatformHelper proxyPlatformHelper;
   private final PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management;
 
+  @Inject
   public VelocityPlayerManagementListener(
     @NonNull ProxyServer proxyServer,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ProxyPlatformHelper proxyPlatformHelper,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management
   ) {
     this.proxyServer = proxyServer;
+    this.serviceInfoHolder = serviceInfoHolder;
+    this.proxyPlatformHelper = proxyPlatformHelper;
     this.management = management;
   }
 
@@ -61,24 +71,26 @@ public final class VelocityPlayerManagementListener {
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
-        event.setResult(ResultedEvent.ComponentResult.denied(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-          this.management.configuration().message(
-            Locale.ENGLISH,
-            "proxy-join-cancel-because-maintenance"))));
+        this.management.configuration().handleMessage(
+          Locale.ENGLISH,
+          "proxy-join-cancel-because-maintenance",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          component -> event.setResult(ResultedEvent.ComponentResult.denied(component)));
         return;
       }
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
-        event.setResult(ResultedEvent.ComponentResult.denied(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-          this.management.configuration().message(
-            Locale.ENGLISH,
-            "proxy-join-cancel-because-permission"))));
+        this.management.configuration().handleMessage(
+          Locale.ENGLISH,
+          "proxy-join-cancel-because-permission",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          component -> event.setResult(ResultedEvent.ComponentResult.denied(component)));
         return;
       }
     }
     // check if the player is allowed to log in
-    var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
+    var loginResult = this.proxyPlatformHelper.sendChannelMessagePreLogin(
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.permitLogin()) {
       event.setResult(ResultedEvent.ComponentResult.denied(loginResult.result()));
@@ -112,10 +124,12 @@ public final class VelocityPlayerManagementListener {
             return KickedFromServerEvent.RedirectPlayer.create(server, this.extractReasonComponent(event));
           }
         })
-        .orElse(KickedFromServerEvent.DisconnectPlayer.create(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-          this.management.configuration().message(
-            event.getPlayer().getEffectiveLocale(),
-            "proxy-join-disconnect-because-no-hub")))));
+        .orElse(KickedFromServerEvent.DisconnectPlayer.create(this.management.configuration().findMessage(
+          event.getPlayer().getEffectiveLocale(),
+          "proxy-join-disconnect-because-no-hub",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          Component.empty(),
+          true))));
     }
   }
 
@@ -129,14 +143,14 @@ public final class VelocityPlayerManagementListener {
     // check if the connection was initial
     if (event.getPreviousServer() == null) {
       // the player logged in successfully if he is now connected to a service for the first time
-      ProxyPlatformHelper.sendChannelMessageLoginSuccess(
+      this.proxyPlatformHelper.sendChannelMessageLoginSuccess(
         this.management.createPlayerInformation(event.getPlayer()),
         joinedServiceInfo);
       // update the service info
-      Wrapper.instance().publishServiceInfoUpdate();
+      this.serviceInfoHolder.publishServiceInfoUpdate();
     } else if (joinedServiceInfo != null) {
       // the player switched the service
-      ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
+      this.proxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
     }
     // notify the management that the player successfully connected to a service
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
@@ -149,9 +163,9 @@ public final class VelocityPlayerManagementListener {
     var status = event.getLoginStatus();
     if (status == DisconnectEvent.LoginStatus.SUCCESSFUL_LOGIN
       || status == DisconnectEvent.LoginStatus.PRE_SERVER_JOIN) {
-      ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
+      this.proxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
-      Wrapper.instance().publishServiceInfoUpdate();
+      this.serviceInfoHolder.publishServiceInfoUpdate();
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());
@@ -171,20 +185,27 @@ public final class VelocityPlayerManagementListener {
         message = GlobalTranslator.render(message, playerLocale == null ? Locale.getDefault() : playerLocale);
       }
       // if the message is still not a TextComponent use the default message instead
-      if (message instanceof TextComponent) {
+      if (message instanceof TextComponent textComponent) {
         // wrap the message
-        var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
-          .replace("%server%", event.getServer().getServerInfo().getName())
-          .replace("%reason%", LegacyComponentSerializer.legacySection().serialize(message));
-        // format the message
-        return ComponentFormats.BUNGEE_TO_ADVENTURE.convert(baseMessage);
+        return this.management.configuration().findMessage(
+          playerLocale,
+          "error-connecting-to-server",
+          rawMessage -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(rawMessage
+            .replace("%server%", event.getServer().getServerInfo().getName())
+            .replace("%reason%", LegacyComponentSerializer.legacySection().serialize(textComponent))),
+          Component.empty(),
+          true);
       }
     }
-    // render the base message without a reason
-    var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
-      .replace("%server%", event.getServer().getServerInfo().getName())
-      .replace("%reason%", "§cUnknown");
-    // format the message
-    return ComponentFormats.BUNGEE_TO_ADVENTURE.convert(baseMessage);
+
+    // unknown reason
+    return this.management.configuration().findMessage(
+      playerLocale,
+      "error-connecting-to-server",
+      rawMessage -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(rawMessage
+        .replace("%server%", event.getServer().getServerInfo().getName())
+        .replace("%reason%", "§cUnknown")),
+      Component.empty(),
+      true);
   }
 }

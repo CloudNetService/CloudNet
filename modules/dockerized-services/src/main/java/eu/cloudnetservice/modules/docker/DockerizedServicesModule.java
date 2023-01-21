@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,27 @@
 
 package eu.cloudnetservice.modules.docker;
 
+import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import dev.derklaro.aerogel.Element;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.command.CommandProvider;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.time.Duration;
 import java.util.Set;
 import lombok.NonNull;
 
+@Singleton
 public class DockerizedServicesModule extends DriverModule {
 
   private DockerConfiguration configuration;
@@ -53,7 +60,10 @@ public class DockerizedServicesModule extends DriverModule {
   }
 
   @ModuleTask(order = 22)
-  public void registerServiceFactory() {
+  public void registerServiceFactory(
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull @Named("module") InjectionLayer<?> moduleInjectionLayer
+  ) {
     var clientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
       .withDockerHost(this.configuration.dockerHost())
       .withDockerCertPath(this.configuration.dockerCertPath())
@@ -69,25 +79,24 @@ public class DockerizedServicesModule extends DriverModule {
       .connectionTimeout(Duration.ofSeconds(30))
       .responseTimeout(Duration.ofSeconds(30))
       .build();
-    // create the client and instantiate the service factory based on the information
     var dockerClient = DockerClientImpl.getInstance(clientConfig, dockerHttpClient);
-    Node.instance().cloudServiceProvider().addCloudServiceFactory(
-      this.configuration.factoryName(),
-      new DockerizedServiceFactory(
-        Node.instance(),
-        this.eventManager(),
-        dockerClient,
-        this.configuration));
+
+    // construct the factory instance & register it in the service manager
+    var factory = moduleInjectionLayer.instance(DockerizedLocalCloudServiceFactory.class, builder -> {
+      builder.override(Element.forType(DockerClient.class), dockerClient);
+      builder.override(Element.forType(DockerConfiguration.class), this.configuration);
+    });
+    serviceManager.addCloudServiceFactory(this.configuration.factoryName(), factory);
   }
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
-  public void registerComponents() {
-    Node.instance().commandProvider().register(new DockerCommand(this));
+  public void registerComponents(@NonNull CommandProvider commandProvider) {
+    commandProvider.register(DockerCommand.class);
   }
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
-  public void unregisterServiceFactory() {
-    Node.instance().cloudServiceProvider().removeCloudServiceFactory(this.configuration.factoryName());
+  public void unregisterServiceFactory(@NonNull CloudServiceManager cloudServiceManager) {
+    cloudServiceManager.removeCloudServiceFactory(this.configuration.factoryName());
   }
 
   public @NonNull DockerConfiguration config() {

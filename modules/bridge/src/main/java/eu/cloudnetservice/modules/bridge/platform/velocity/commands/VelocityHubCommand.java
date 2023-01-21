@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,11 @@ public final class VelocityHubCommand implements SimpleCommand {
     if (invocation.source() instanceof Player player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
+        this.management.configuration().handleMessage(
           player.getEffectiveLocale(),
-          "command-hub-already-in-hub")));
+          "command-hub-already-in-hub",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          player::sendMessage);
       } else {
         // try to get a fallback for the player
         var hub = this.management.fallback(player)
@@ -52,15 +54,19 @@ public final class VelocityHubCommand implements SimpleCommand {
           player.createConnectionRequest(hub).connectWithIndication().whenComplete((result, ex) -> {
             // check if the connection was successful
             if (result && ex == null) {
-              player.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
+              this.management.configuration().handleMessage(
                 player.getEffectiveLocale(),
-                "command-hub-success-connect"
-              ).replace("%server%", hub.getServerInfo().getName())));
+                "command-hub-success-connect",
+                message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
+                  message.replace("%server%", hub.getServerInfo().getName())),
+                player::sendMessage);
             } else {
               // the connection was not successful
-              player.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.management.configuration().message(
+              this.management.configuration().handleMessage(
                 player.getEffectiveLocale(),
-                "command-hub-no-server-found")));
+                "command-hub-no-server-found",
+                ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+                player::sendMessage);
             }
           });
         }

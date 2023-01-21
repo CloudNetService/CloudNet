@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,9 @@ import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceConfigurationBase;
@@ -44,16 +46,20 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
+import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.setup.SpecificTaskSetup;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,21 +70,18 @@ import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandPermission("cloudnet.command.tasks")
 @Description("command-tasks-description")
 public final class TasksCommand {
 
-  // Task Setup ASCII
-  private static final ConsoleSetupAnimation TASK_SETUP = new ConsoleSetupAnimation(
-    """
-      &f _____              _       &b           _                \s
-      &f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __ \s
-      &f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\\s
-      &f / /   | (_| |\\__ \\|   <  &b \\__ \\|  __/| |_ | |_| || |_) |
-      &f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/\s
-      &f                             &b                     |_|   \s""",
-    "Task creation complete!",
-    "&r> &e");
+  private static final String TASK_SETUP_HEADER = """
+    &f _____              _       &b           _                \s
+    &f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __ \s
+    &f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\\s
+    &f / /   | (_| |\\__ \\|   <  &b \\__ \\|  __/| |_ | |_| || |_) |
+    &f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/\s
+    &f                             &b                     |_|   \s""";
   // Formatter for the table based looking
   private static final RowBasedFormatter<ServiceTask> TASK_LIST_FORMATTER = RowBasedFormatter.<ServiceTask>builder()
     .defaultFormatter(ColumnFormatter.builder()
@@ -92,9 +95,33 @@ public final class TasksCommand {
     .build();
 
   private final Console console;
+  private final Configuration configuration;
+  private final ConsoleSetupAnimation taskSetupAnimation;
+  private final ServiceTaskProvider taskProvider;
+  private final CloudServiceManager serviceManager;
+  private final ClusterNodeProvider clusterNodeProvider;
 
-  public TasksCommand(@NonNull Console console) {
+  @Inject
+  public TasksCommand(
+    @NonNull Console console,
+    @NonNull EventManager eventManager,
+    @NonNull Configuration configuration,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull QueuedConsoleLogHandler logHandler,
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull ClusterNodeProvider clusterNodeProvider
+  ) {
     this.console = console;
+    this.configuration = configuration;
+    this.taskProvider = taskProvider;
+    this.serviceManager = serviceManager;
+    this.clusterNodeProvider = clusterNodeProvider;
+    this.taskSetupAnimation = new ConsoleSetupAnimation(
+      eventManager,
+      logHandler,
+      TASK_SETUP_HEADER,
+      "Task creation complete!",
+      "&r> &e");
   }
 
   public static void applyServiceConfigurationDisplay(
@@ -151,7 +178,7 @@ public final class TasksCommand {
   @Parser(suggestions = "serviceTask")
   public @NonNull ServiceTask defaultTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
-    var task = Node.instance().serviceTaskProvider().serviceTask(name);
+    var task = this.taskProvider.serviceTask(name);
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -161,13 +188,13 @@ public final class TasksCommand {
 
   @Suggestions("serviceTask")
   public @NonNull List<String> suggestTask(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.taskProvider().serviceTasks().stream().map(Nameable::name).toList();
+    return this.taskProvider.serviceTasks().stream().map(Nameable::name).toList();
   }
 
   @Parser(suggestions = "ipAliasHostAddress", name = "ipAliasHostAddress")
   public @NonNull String hostAddressParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var address = input.remove();
-    var alias = Node.instance().config().ipAliases().get(address);
+    var alias = this.configuration.ipAliases().get(address);
     // check if we can resolve the host address using our ip alias
     if (alias != null) {
       return address;
@@ -187,7 +214,7 @@ public final class TasksCommand {
     // all network addresses
     var hostAddresses = new ArrayList<>(NetworkUtil.availableIPAddresses());
     // all ip aliases
-    hostAddresses.addAll(Node.instance().config().ipAliases().keySet());
+    hostAddresses.addAll(this.configuration.ipAliases().keySet());
     return hostAddresses;
   }
 
@@ -197,7 +224,7 @@ public final class TasksCommand {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var matchedTasks = WildcardUtil.filterWildcard(this.taskProvider().serviceTasks(), name);
+    var matchedTasks = WildcardUtil.filterWildcard(this.taskProvider.serviceTasks(), name);
     if (matchedTasks.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -226,7 +253,7 @@ public final class TasksCommand {
   @Parser(name = "nodeId", suggestions = "clusterNode")
   public @NonNull String defaultClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : Node.instance().clusterNodeProvider().nodes()) {
+    for (var node : this.clusterNodeProvider.nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         return nodeId;
       }
@@ -236,7 +263,7 @@ public final class TasksCommand {
 
   @Suggestions("clusterNode")
   public @NonNull List<String> suggestNode(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
-    return Node.instance().clusterNodeProvider().nodes()
+    return this.clusterNodeProvider.nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
       .toList();
@@ -245,7 +272,7 @@ public final class TasksCommand {
   @Parser(name = "taskRuntime", suggestions = "taskRuntime")
   public @NonNull String taskRuntimeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var runtime = input.remove();
-    if (Node.instance().cloudServiceProvider().cloudServiceFactory(runtime) == null) {
+    if (this.serviceManager.cloudServiceFactory(runtime) == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-runtime-not-found", runtime));
     }
 
@@ -254,22 +281,21 @@ public final class TasksCommand {
 
   @Suggestions("taskRuntime")
   public @NonNull List<String> taskRuntimeSuggester(@NonNull CommandContext<?> $, @NonNull String input) {
-    return List.copyOf(Node.instance().cloudServiceProvider().cloudServiceFactories().keySet());
+    return List.copyOf(this.serviceManager.cloudServiceFactories().keySet());
   }
 
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
-  public void taskSetup(@NonNull CommandSource source) {
-    var setup = new SpecificTaskSetup();
-    setup.applyQuestions(TASK_SETUP);
-
-    TASK_SETUP.addFinishHandler(() -> setup.handleResults(TASK_SETUP));
-
-    this.console.startAnimation(TASK_SETUP);
+  public void taskSetup(@NonNull CommandSource source, @NonNull SpecificTaskSetup taskSetup) {
+    // apply the questions and handle the results
+    taskSetup.applyQuestions(this.taskSetupAnimation);
+    this.taskSetupAnimation.addFinishHandler(() -> taskSetup.handleResults(this.taskSetupAnimation));
+    // start the animation
+    this.console.startAnimation(this.taskSetupAnimation);
   }
 
   @CommandMethod("tasks reload")
   public void reloadTasks(@NonNull CommandSource source) {
-    this.taskProvider().reload();
+    this.taskProvider.reload();
     source.sendMessage(I18n.trans("command-tasks-reload-success"));
   }
 
@@ -279,14 +305,14 @@ public final class TasksCommand {
     @NonNull @Argument("name") Collection<ServiceTask> tasks
   ) {
     for (var serviceTask : tasks) {
-      this.taskProvider().removeServiceTask(serviceTask);
+      this.taskProvider.removeServiceTask(serviceTask);
       source.sendMessage(I18n.trans("command-tasks-delete-task", serviceTask.name()));
     }
   }
 
   @CommandMethod("tasks list")
   public void listTasks(@NonNull CommandSource source) {
-    source.sendMessage(TASK_LIST_FORMATTER.format(this.taskProvider().serviceTasks()));
+    source.sendMessage(TASK_LIST_FORMATTER.format(this.taskProvider.serviceTasks()));
   }
 
   @CommandMethod("tasks create <name> <environment>")
@@ -295,7 +321,7 @@ public final class TasksCommand {
     @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("name") String taskName,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    if (this.taskProvider().serviceTask(taskName) != null) {
+    if (this.taskProvider.serviceTask(taskName) != null) {
       source.sendMessage(I18n.trans("command-tasks-task-already-existing", taskName));
       return;
     }
@@ -309,7 +335,7 @@ public final class TasksCommand {
       .maxHeapMemory(512)
       .startPort(environmentType.defaultStartPort())
       .build();
-    this.taskProvider().addServiceTask(serviceTask);
+    this.taskProvider.addServiceTask(serviceTask);
     source.sendMessage(I18n.trans("command-tasks-create-task"));
   }
 
@@ -349,12 +375,12 @@ public final class TasksCommand {
     @NonNull @Argument(value = "oldName") ServiceTask serviceTask,
     @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("newName") String newName
   ) {
-    if (this.taskProvider().serviceTask(newName) != null) {
+    if (this.taskProvider.serviceTask(newName) != null) {
       source.sendMessage(I18n.trans("command-tasks-task-already-existing", newName));
     } else {
       // create a copy with the new name and remove the old task
-      this.taskProvider().removeServiceTask(serviceTask);
-      this.taskProvider().addServiceTask(ServiceTask.builder(serviceTask).name(newName).build());
+      this.taskProvider.removeServiceTask(serviceTask);
+      this.taskProvider.addServiceTask(ServiceTask.builder(serviceTask).name(newName).build());
       source.sendMessage(I18n.trans("command-tasks-task-rename-success", serviceTask.name(), newName));
     }
   }
@@ -826,12 +852,8 @@ public final class TasksCommand {
   ) {
     for (var task : tasks) {
       var builder = ServiceTask.builder(task);
-      consumer.andThen((result, $) -> this.taskProvider().addServiceTask(result.build())).accept(builder, newValue);
+      consumer.andThen((result, $) -> this.taskProvider.addServiceTask(result.build())).accept(builder, newValue);
       source.sendMessage(I18n.trans(translation, property, task.name(), newValue));
     }
-  }
-
-  private @NonNull ServiceTaskProvider taskProvider() {
-    return Node.instance().serviceTaskProvider();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,15 @@ import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import jakarta.inject.Singleton;
 import java.util.List;
+import lombok.NonNull;
 
+@Singleton
 public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
   private volatile MySQLConfiguration configuration;
@@ -46,7 +50,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
   }
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
-  public void registerDatabaseProvider() {
+  public void registerDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
     this.configuration = this.readConfig(MySQLConfiguration.class, () -> new MySQLConfiguration(
       "root",
       "123456",
@@ -54,14 +58,14 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
       List.of(new MySQLConnectionEndpoint(false, "cloudnet", new HostAndPort("127.0.0.1", 3306)))
     ));
 
-    this.serviceRegistry().registerProvider(
-      AbstractDatabaseProvider.class,
+    serviceRegistry.registerProvider(
+      NodeDatabaseProvider.class,
       this.configuration.databaseServiceName(),
       new MySQLDatabaseProvider(this.configuration, null));
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
-  public void unregisterDatabaseProvider() {
-    this.serviceRegistry().unregisterProvider(AbstractDatabaseProvider.class, this.configuration.databaseServiceName());
+  public void unregisterDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
+    serviceRegistry.unregisterProvider(NodeDatabaseProvider.class, this.configuration.databaseServiceName());
   }
 }

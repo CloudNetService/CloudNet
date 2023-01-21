@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.http.HttpComponent;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpContextPreprocessor;
@@ -157,6 +158,15 @@ public final class DefaultHttpAnnotationParser<T extends HttpComponent<T>> imple
   public @NonNull HttpAnnotationParser<T> unregisterAnnotationProcessors(@NonNull ClassLoader classLoader) {
     this.processors.removeIf(entry -> entry.getClass().getClassLoader() == classLoader);
     return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull HttpAnnotationParser<T> parseAndRegister(@NonNull Class<?> handlerClass) {
+    var injectionLayer = InjectionLayer.findLayerOf(handlerClass);
+    return this.parseAndRegister(injectionLayer.instance(handlerClass));
   }
 
   /**

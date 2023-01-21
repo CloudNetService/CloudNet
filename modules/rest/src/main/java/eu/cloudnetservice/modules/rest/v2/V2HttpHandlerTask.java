@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,19 +24,31 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 @HandlerPermission("http.v2.tasks")
 public final class V2HttpHandlerTask extends V2HttpHandler {
+
+  private final ServiceTaskProvider taskProvider;
+
+  @Inject
+  public V2HttpHandlerTask(@NonNull Configuration config, @NonNull ServiceTaskProvider taskProvider) {
+    super(config.restConfiguration());
+    this.taskProvider = taskProvider;
+  }
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/task")
   private void handleTaskListRequest(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("tasks", this.taskProvider().serviceTasks()).toString())
+      .body(this.success().append("tasks", this.taskProvider.serviceTasks()).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -45,7 +57,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/task/{name}/exists")
   private void handleTaskExistsRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
-    var task = this.taskProvider().serviceTask(name);
+    var task = this.taskProvider.serviceTask(name);
     this.ok(context)
       .body(this.success().append("result", task != null).toString())
       .context()
@@ -56,7 +68,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/task/{name}")
   private void handleTaskRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
-    var serviceTask = this.taskProvider().serviceTask(name);
+    var serviceTask = this.taskProvider.serviceTask(name);
     if (serviceTask == null) {
       this.ok(context)
         .body(this.failure().append("reason", "Unknown service task").toString())
@@ -85,7 +97,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
       return;
     }
 
-    if (this.taskProvider().addServiceTask(serviceTask)) {
+    if (this.taskProvider.addServiceTask(serviceTask)) {
       this.response(context, HttpResponseCode.CREATED)
         .body(this.success().toString())
         .context()
@@ -99,9 +111,9 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/task/{name}", methods = "DELETE")
   private void handleTaskDeleteRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
-    var serviceTask = this.taskProvider().serviceTask(name);
+    var serviceTask = this.taskProvider.serviceTask(name);
     if (serviceTask != null) {
-      this.taskProvider().removeServiceTask(serviceTask);
+      this.taskProvider.removeServiceTask(serviceTask);
       this.ok(context)
         .body(this.success().toString())
         .context()
@@ -114,9 +126,5 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
         .closeAfter(true)
         .cancelNext(true);
     }
-  }
-
-  private @NonNull ServiceTaskProvider taskProvider() {
-    return this.node().serviceTaskProvider();
   }
 }

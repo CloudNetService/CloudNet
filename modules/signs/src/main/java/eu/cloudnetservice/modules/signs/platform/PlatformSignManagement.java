@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,22 @@ import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_SERVER
 
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.AbstractSignManagement;
+import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.util.LayoutUtil;
 import eu.cloudnetservice.modules.signs.util.PriorityUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,6 +46,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -64,29 +67,43 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   protected static final Logger LOGGER = LogManager.logger(PlatformSignManagement.class);
 
   protected final Executor mainThreadExecutor;
+  protected final WrapperConfiguration wrapperConfig;
+  protected final CloudServiceProvider serviceProvider;
+  protected final ScheduledExecutorService executorService;
+
   protected final Lock updatingLock = new ReentrantLock();
   protected final Map<WorldPosition, PlatformSign<P, C>> platformSigns = new ConcurrentHashMap<>();
   protected final Queue<ServiceInfoSnapshot> waitingAssignments = new ConcurrentLinkedQueue<>();
 
   protected int currentTick;
 
-  protected PlatformSignManagement(@NonNull Executor mainThreadExecutor) {
-    super(loadSignsConfiguration());
+  protected PlatformSignManagement(
+    @NonNull EventManager eventManager,
+    @NonNull Executor mainThreadExecutor,
+    @NonNull WrapperConfiguration wrapperConfig,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull ScheduledExecutorService executorService
+  ) {
+    super(loadSignsConfiguration(wrapperConfig));
     this.mainThreadExecutor = mainThreadExecutor;
+    this.wrapperConfig = wrapperConfig;
+    this.serviceProvider = serviceProvider;
+    this.executorService = executorService;
     // get the signs for the current group
-    var groups = Wrapper.instance().serviceConfiguration().groups();
+    var groups = wrapperConfig.serviceConfiguration().groups();
     for (var sign : this.signs(groups)) {
       this.signs.put(sign.location(), sign);
     }
     // register the listeners
-    CloudNetDriver.instance().eventManager().registerListener(new SignsPlatformListener(this));
+    eventManager.registerListener(SignsPlatformListener.class);
+    eventManager.registerListener(SharedChannelMessageListener.class);
   }
 
-  protected static @Nullable SignsConfiguration loadSignsConfiguration() {
+  protected static @Nullable SignsConfiguration loadSignsConfiguration(@NonNull WrapperConfiguration wrapperConfig) {
     var response = ChannelMessage.builder()
       .channel(AbstractSignManagement.SIGN_CHANNEL_NAME)
       .message(REQUEST_CONFIG)
-      .targetNode(Wrapper.instance().nodeUniqueId())
+      .targetNode(wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId())
       .build()
       .sendSingleQuery();
     return response == null ? null : response.content().readObject(SignsConfiguration.class);
@@ -140,7 +157,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   public void handleInternalSignCreate(@NonNull Sign sign) {
-    if (Wrapper.instance().serviceConfiguration().groups().contains(sign.location().group())) {
+    if (this.wrapperConfig.serviceConfiguration().groups().contains(sign.location().group())) {
       var newSign = this.createPlatformSign(sign);
       var oldSign = this.platformSigns.remove(sign.location());
 
@@ -157,7 +174,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   public void handleInternalSignRemove(@NonNull WorldPosition position) {
-    if (Wrapper.instance().serviceConfiguration().groups().contains(position.group())) {
+    if (this.wrapperConfig.serviceConfiguration().groups().contains(position.group())) {
       var sign = this.platformSigns.remove(position);
       if (sign != null && sign.currentTarget() != null) {
         this.waitingAssignments.add(sign.currentTarget());
@@ -169,7 +186,8 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
-    return super.channelMessage(message).target(ChannelMessageTarget.Type.NODE, Wrapper.instance().nodeUniqueId());
+    return super.channelMessage(message)
+      .target(ChannelMessageTarget.Type.NODE, this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId());
   }
 
   public int removeMissingSigns() {
@@ -230,7 +248,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
       }
 
       // start the needed tasks
-      CloudNetDriver.instance().taskExecutor().scheduleWithFixedDelay(() -> {
+      this.executorService.scheduleWithFixedDelay(() -> {
         try {
           this.tick(signsNeedingTicking);
         } catch (Throwable throwable) {
@@ -240,7 +258,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
       this.startKnockbackTask();
 
       // load and register all services
-      CloudNetDriver.instance().cloudServiceProvider().servicesAsync().thenAccept(services -> {
+      this.serviceProvider.servicesAsync().thenAccept(services -> {
         for (var service : services) {
           this.handleServiceAdd(service);
         }
@@ -250,7 +268,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   public @Nullable SignConfigurationEntry applicableSignConfigurationEntry() {
     for (var entry : this.signsConfiguration.entries()) {
-      if (Wrapper.instance().serviceConfiguration().groups().contains(entry.targetGroup())) {
+      if (this.wrapperConfig.serviceConfiguration().groups().contains(entry.targetGroup())) {
         return entry;
       }
     }
@@ -258,7 +276,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   }
 
   protected boolean shouldAssign(@NonNull ServiceInfoSnapshot snapshot) {
-    var currentEnv = Wrapper.instance().serviceId().environment();
+    var currentEnv = this.wrapperConfig.serviceConfiguration().serviceId().environment();
     var serviceEnv = snapshot.serviceId().environment();
 
     return (JAVA_SERVER.get(currentEnv.properties()) && JAVA_SERVER.get(serviceEnv.properties()))

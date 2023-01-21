@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,28 @@
 
 package eu.cloudnetservice.node.event.command;
 
+import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.Cancelable;
-import eu.cloudnetservice.driver.event.Event;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import java.util.Collection;
 import lombok.NonNull;
 
 /**
  * This event is called before the actual processing of the given command is done. To cancel the execution of the
  * backing command use {@link #cancelled(boolean)} and set it to true
  */
-public class CommandPreProcessEvent extends Event implements Cancelable {
+public final class CommandPreProcessEvent extends CommandProcessEvent implements Cancelable {
 
-  private final String commandLine;
-  private final CommandSource commandSource;
-  private boolean cancelled = false;
+  private boolean cancelled;
 
-  public CommandPreProcessEvent(@NonNull String commandLine, @NonNull CommandSource commandSource) {
-    this.commandLine = commandLine;
-    this.commandSource = commandSource;
-  }
-
-  /**
-   * @return the command line that will be executed
-   */
-  public @NonNull String commandLine() {
-    return this.commandLine;
-  }
-
-  /**
-   * @return the source that executes the command
-   */
-  public @NonNull CommandSource commandSource() {
-    return this.commandSource;
+  public CommandPreProcessEvent(
+    @NonNull Collection<String> tokenizedCommandInput,
+    @NonNull CommandInfo command,
+    @NonNull CommandSource commandSource,
+    @NonNull CommandProvider commandProvider
+  ) {
+    super(tokenizedCommandInput, command, commandSource, commandProvider);
   }
 
   /**

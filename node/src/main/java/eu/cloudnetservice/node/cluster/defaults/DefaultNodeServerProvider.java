@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package eu.cloudnetservice.node.cluster.defaults;
 
+import dev.derklaro.aerogel.PostConstruct;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
@@ -27,12 +30,14 @@ import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.cluster.task.LocalNodeUpdateTask;
 import eu.cloudnetservice.node.cluster.task.NodeDisconnectTrackerTask;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,11 +50,17 @@ import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@Provides(NodeServerProvider.class)
 public class DefaultNodeServerProvider implements NodeServerProvider {
 
-  private final Node node;
+  private final DataSyncRegistry dataSyncRegistry;
+
   private final LocalNodeServer localNode;
   private final Collection<NodeServer> nodeServers;
+
+  private final LocalNodeUpdateTask localNodeUpdateTask;
+  private final NodeDisconnectTrackerTask disconnectTrackerTask;
 
   // this executor handles everything which is needed for the cluster to work properly
   // as we normally scheduled 2 tasks (1 to send a local node update regularly, 1 to keep track of node disconnects), the
@@ -58,16 +69,30 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
 
   private volatile NodeServer headNode;
 
-  public DefaultNodeServerProvider(@NonNull Node node) {
-    this.node = node;
-    this.nodeServers = new HashSet<>();
+  @Inject
+  public DefaultNodeServerProvider(
+    @NonNull LocalNodeServer localNode,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull LocalNodeUpdateTask localNodeUpdateTask,
+    @NonNull NodeDisconnectTrackerTask disconnectTrackerTask
+  ) {
+    this.dataSyncRegistry = dataSyncRegistry;
+    this.localNodeUpdateTask = localNodeUpdateTask;
+    this.disconnectTrackerTask = disconnectTrackerTask;
+
     // create and register the local node server
-    this.localNode = new DefaultLocalNodeServer(node, this);
+    this.localNode = localNode;
+    this.nodeServers = new HashSet<>();
+  }
+
+  @PostConstruct
+  private void finishConstruction() {
+    // register the local node server
     this.nodeServers.add(this.localNode);
 
     // start all update tasks
-    this.executor.scheduleAtFixedRate(new LocalNodeUpdateTask(this), 1, 1, TimeUnit.SECONDS);
-    this.executor.scheduleAtFixedRate(new NodeDisconnectTrackerTask(this), 5, 5, TimeUnit.SECONDS);
+    this.executor.scheduleAtFixedRate(this.localNodeUpdateTask, 1, 1, TimeUnit.SECONDS);
+    this.executor.scheduleAtFixedRate(this.disconnectTrackerTask, 5, 5, TimeUnit.SECONDS);
   }
 
   @Override
@@ -114,7 +139,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
       .targetNodes()
       .message("sync_cluster_data")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(this.node.dataSyncRegistry().prepareClusterData(true))
+      .buffer(this.dataSyncRegistry.prepareClusterData(true))
       .build()
       .send();
   }
@@ -128,7 +153,10 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
 
   @Override
   public void registerNode(@NonNull NetworkClusterNode clusterNode) {
-    this.nodeServers.add(new RemoteNodeServer(this.node, clusterNode, this));
+    var server = InjectionLayer.boot().instance(
+      RemoteNodeServer.class,
+      builder -> builder.override(NetworkClusterNode.class, clusterNode));
+    this.nodeServers.add(server);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 object Versions {
 
   // internal versions
-  const val cloudNet = "4.0.0-RC5-SNAPSHOT"
+  const val cloudNet = "4.0.0-RC7-SNAPSHOT"
   const val cloudNetCodeName = "Blizzard"
 
   // external tools

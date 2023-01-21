@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,30 @@
 
 package eu.cloudnetservice.modules.report.emitter.defaults;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.emitter.SpecificReportDataEmitter;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 
+@Singleton
 public final class LocalModuleDataEmitter extends SpecificReportDataEmitter<ModuleWrapper> {
 
-  public LocalModuleDataEmitter() {
+  private final ModuleProvider moduleProvider;
+
+  @Inject
+  public LocalModuleDataEmitter(@NonNull ModuleProvider moduleProvider) {
     super((writer, modules) -> writer.appendString("Local Modules (").appendInt(modules.size()).appendString("):"));
+    this.moduleProvider = moduleProvider;
   }
 
   @Override
   public @NonNull Collection<ModuleWrapper> collectData() {
-    return CloudNetDriver.instance().moduleProvider().modules();
+    return this.moduleProvider.modules();
   }
 
   @Override

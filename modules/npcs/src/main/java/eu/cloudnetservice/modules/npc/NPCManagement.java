@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.npc;
 
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
@@ -48,10 +49,10 @@ public interface NPCManagement {
   // Internal methods
 
   @ApiStatus.Internal
-  void registerToServiceRegistry();
+  void registerToServiceRegistry(@NonNull ServiceRegistry serviceRegistry);
 
   @ApiStatus.Internal
-  void unregisterFromServiceRegistry();
+  void unregisterFromServiceRegistry(@NonNull ServiceRegistry serviceRegistry);
 
   @ApiStatus.Internal
   void handleInternalNPCCreate(@NonNull NPC npc);

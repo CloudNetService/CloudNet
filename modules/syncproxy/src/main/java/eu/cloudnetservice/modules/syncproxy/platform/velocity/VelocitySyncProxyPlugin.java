@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,54 +16,64 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 
-import com.google.inject.Inject;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
-import com.velocitypowered.api.plugin.Dependency;
-import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.driver.util.ModuleUtil;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
-import eu.cloudnetservice.wrapper.Wrapper;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import lombok.NonNull;
 
-@Plugin(
-  id = "cloudnet_syncproxy",
+@PlatformPlugin(
+  platform = "velocity",
   name = "CloudNet-SyncProxy",
   version = "{project.build.version}",
   description = "CloudNet extension which serves proxy utils with CloudNet support",
-  url = "https://cloudnetservice.eu",
   authors = "CloudNetService",
-  dependencies = {
-    @Dependency(id = "cloudnet_bridge"),
-    @Dependency(id = "cloudnet_cloudperms", optional = true)
-  }
+  dependencies = {@Dependency(name = "CloudNet-Bridge"), @Dependency(name = "CloudNet-CloudPerms", optional = true)}
 )
-public final class VelocitySyncProxyPlugin {
+public final class VelocitySyncProxyPlugin implements PlatformEntrypoint {
 
-  private final ProxyServer proxyServer;
+  private final EventManager eventManager;
+  private final ModuleHelper moduleHelper;
+  private final ServiceRegistry serviceRegistry;
+  private final VelocitySyncProxyManagement syncProxyManagement;
 
   @Inject
-  public VelocitySyncProxyPlugin(@NonNull ProxyServer proxyServer) {
-    this.proxyServer = proxyServer;
+  public VelocitySyncProxyPlugin(
+    @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull VelocitySyncProxyManagement syncProxyManagement
+  ) {
+    this.eventManager = eventManager;
+    this.moduleHelper = moduleHelper;
+    this.serviceRegistry = serviceRegistry;
+    this.syncProxyManagement = syncProxyManagement;
   }
 
-  @Subscribe
-  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
-    var management = new VelocitySyncProxyManagement(this.proxyServer);
+  @Override
+  public void onLoad() {
     // register the SyncProxyManagement in our service registry
-    management.registerService(Wrapper.instance().serviceRegistry());
+    this.syncProxyManagement.registerService(this.serviceRegistry);
     // register the event listener to handle service updates
-    Wrapper.instance().eventManager().registerListener(new SyncProxyCloudListener<>(management));
-    // register the velocity ping & join listener
-    this.proxyServer.getEventManager().register(this, new VelocitySyncProxyListener(management));
+    this.eventManager.registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
   }
 
-  @Subscribe
-  public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
-    // unregister all listeners for cloudnet events
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+  @Inject
+  private void registerListener(
+    @NonNull @Named("plugin") Object pluginInstance,
+    @NonNull com.velocitypowered.api.event.EventManager eventManager,
+    @NonNull VelocitySyncProxyListener listener
+  ) {
+    eventManager.register(pluginInstance, listener);
   }
 
+  @Override
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
+  }
 }

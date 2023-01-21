@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,36 +19,30 @@ package eu.cloudnetservice.wrapper.network.listener;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.LockSupport;
 import lombok.NonNull;
 
 public final class PacketAuthorizationResponseListener implements PacketListener {
 
-  private final Lock lock;
-  private final Condition condition;
+  private final Thread blockedThread;
+  private final AtomicBoolean result;
 
-  private volatile boolean result;
-
-  public PacketAuthorizationResponseListener(@NonNull Lock lock, @NonNull Condition condition) {
-    this.lock = lock;
-    this.condition = condition;
+  public PacketAuthorizationResponseListener(@NonNull Thread blockedThread) {
+    this.blockedThread = blockedThread;
+    this.result = new AtomicBoolean(false);
   }
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     // read the auth result
-    this.result = packet.content().readBoolean();
+    this.result.setRelease(packet.content().readBoolean());
+
     // signal all listeners waiting for the auth
-    try {
-      this.lock.lock();
-      this.condition.signalAll();
-    } finally {
-      this.lock.unlock();
-    }
+    LockSupport.unpark(this.blockedThread);
   }
 
   public boolean wasAuthSuccessful() {
-    return this.result;
+    return this.result.getAcquire();
   }
 }

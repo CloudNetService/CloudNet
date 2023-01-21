@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public final class SmartUtil {
     // get the min service count
     var minServiceCount = Math.max(task.minServiceCount(), config.smartMinServiceCount());
     // check if stopping the service would instantly cause a new service to start - beware
-    return (runningServices - 1) > minServiceCount;
+    return (runningServices - 1) >= minServiceCount;
   }
 
   public static double playerPercentage(@NonNull ServiceInfoSnapshot snapshot) {

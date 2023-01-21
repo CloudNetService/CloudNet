@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,18 +37,21 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -64,6 +67,7 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 @CommandAlias("ser")
 @CommandPermission("cloudnet.command.service")
 @Description("command-service-description")
@@ -88,8 +92,12 @@ public final class ServiceCommand {
     .column(service -> service.connected() ? "Connected" : "Not connected")
     .build();
 
-  public ServiceCommand() {
-    Node.instance().eventManager().registerListener(this);
+  private final CloudServiceProvider cloudServiceProvider;
+
+  @Inject
+  public ServiceCommand(@NonNull EventManager eventManager, @NonNull CloudServiceProvider cloudServiceProvider) {
+    this.cloudServiceProvider = cloudServiceProvider;
+    eventManager.registerListener(this);
   }
 
   public static @NonNull Collection<Pattern> parseDeploymentPatterns(@Nullable String input, boolean caseSensitive) {
@@ -101,7 +109,7 @@ public final class ServiceCommand {
 
   @Suggestions("service")
   public @NonNull List<String> suggestService(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().cloudServiceProvider().services()
+    return this.cloudServiceProvider.services()
       .stream()
       .map(Nameable::name)
       .toList();
@@ -113,7 +121,7 @@ public final class ServiceCommand {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var knownServices = Node.instance().cloudServiceProvider().services();
+    var knownServices = this.cloudServiceProvider.services();
     var matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
@@ -130,7 +138,7 @@ public final class ServiceCommand {
     @Nullable @Flag("group") String groupName,
     @Flag("names") boolean useNamesOnly
   ) {
-    Collection<ServiceInfoSnapshot> services = Node.instance().cloudServiceProvider().services()
+    Collection<ServiceInfoSnapshot> services = this.cloudServiceProvider.services()
       .stream()
       .filter(service -> id == null || service.serviceId().taskServiceId() == id)
       .filter(service -> taskName == null || service.serviceId().taskName().equalsIgnoreCase(taskName))

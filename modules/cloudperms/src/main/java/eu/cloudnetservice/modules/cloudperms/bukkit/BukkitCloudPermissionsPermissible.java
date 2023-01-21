@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.modules.cloudperms.bukkit;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.permission.PermissionCheckResult;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -35,13 +35,19 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
   private final Player player;
-  private final PermissionManagement permissionsManagement;
+  private final Collection<String> assignedServiceGroups;
+  private final PermissionManagement permissionManagement;
 
-  public BukkitCloudPermissionsPermissible(Player player, PermissionManagement permissionsManagement) {
+  public BukkitCloudPermissionsPermissible(
+    @NonNull Player player,
+    @NonNull PermissionManagement permissionsManagement,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
     super(player);
 
     this.player = player;
-    this.permissionsManagement = permissionsManagement;
+    this.permissionManagement = permissionsManagement;
+    this.assignedServiceGroups = wrapperConfiguration.serviceConfiguration().groups();
   }
 
   private @NonNull Set<Permission> defaultPermissions() {
@@ -52,11 +58,10 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
   public @NonNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
     Set<PermissionAttachmentInfo> infos = new HashSet<>();
 
-    var user = CloudNetDriver.instance().permissionManagement().user(this.player.getUniqueId());
+    var user = this.permissionManagement.user(this.player.getUniqueId());
     if (user != null) {
-      for (var group : Wrapper.instance().serviceConfiguration().groups()) {
-        CloudNetDriver.instance()
-          .permissionManagement()
+      for (var group : this.assignedServiceGroups) {
+        this.permissionManagement
           .allGroupPermissions(user, group)
           .forEach(permission -> {
             var bukkit = this.player.getServer().getPluginManager().getPermission(permission.name());
@@ -98,7 +103,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
   @Override
   public boolean hasPermission(@NonNull String inName) {
     try {
-      var user = CloudNetDriver.instance().permissionManagement().user(this.player.getUniqueId());
+      var user = this.permissionManagement.user(this.player.getUniqueId());
       if (user == null) {
         return false;
       }
@@ -106,14 +111,14 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
       for (var permission : this.defaultPermissions()) {
         if (permission.getName().equalsIgnoreCase(inName)) {
           // default permissions are always active if not explicitly forbidden
-          var result = this.permissionsManagement.permissionResult(
+          var result = this.permissionManagement.permissionResult(
             user,
             eu.cloudnetservice.driver.permission.Permission.of(inName));
           return result == PermissionCheckResult.DENIED || result.asBoolean();
         }
       }
 
-      var result = this.permissionsManagement.permissionResult(
+      var result = this.permissionManagement.permissionResult(
         user,
         eu.cloudnetservice.driver.permission.Permission.of(inName));
       if (result != PermissionCheckResult.DENIED) {
@@ -122,7 +127,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
       return this.testParents(
         inName,
-        perm -> this.permissionsManagement.permissionResult(
+        perm -> this.permissionManagement.permissionResult(
           user,
           eu.cloudnetservice.driver.permission.Permission.of(perm.getName())));
     } catch (Exception ex) {

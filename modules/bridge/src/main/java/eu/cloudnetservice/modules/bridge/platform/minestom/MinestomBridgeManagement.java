@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,15 @@ package eu.cloudnetservice.modules.bridge.platform.minestom;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
+import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -27,38 +34,72 @@ import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.server.ServerListPingEvent;
+import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.ping.ServerListPingType;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
+@ProvidesFor(platform = "minestom", types = {PlatformBridgeManagement.class, BridgeManagement.class})
 public final class MinestomBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
 
   private static final BiFunction<Player, String, Boolean> PERM_FUNCTION = Player::hasPermission;
 
+  private final CommandManager commandManager;
+  private final ConnectionManager connectionManager;
   private final PlayerExecutor directGlobalExecutor;
 
-  public MinestomBridgeManagement() {
-    super(Wrapper.instance());
+  @Inject
+  public MinestomBridgeManagement(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull NetworkClient networkClient,
+    @NonNull CommandManager commandManager,
+    @NonNull GlobalEventHandler eventHandler,
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull BridgeServiceHelper serviceHelper,
+    @NonNull ConnectionManager connectionManager,
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull WrapperConfiguration wrapperConfiguration
+  ) {
+    super(
+      rpcFactory,
+      eventManager,
+      networkClient,
+      taskProvider,
+      serviceHelper,
+      serviceInfoHolder,
+      serviceProvider,
+      wrapperConfiguration);
     // init fields
+    this.commandManager = commandManager;
+    this.connectionManager = connectionManager;
     this.directGlobalExecutor = new MinestomDirectPlayerExecutor(
+      commandManager,
       PlayerExecutor.GLOBAL_UNIQUE_ID,
-      MinecraftServer.getConnectionManager()::getOnlinePlayers);
+      connectionManager::getOnlinePlayers);
 
     // send a ping event to gather the max players and the motd of the server
     var pingEvent = new ServerListPingEvent(ServerListPingType.MODERN_FULL_RGB);
-    MinecraftServer.getGlobalEventHandler().call(pingEvent);
+    eventHandler.call(pingEvent);
 
     // init the bridge properties
-    BridgeServiceHelper.MOTD.set(legacySection().serialize(pingEvent.getResponseData().getDescription()));
-    BridgeServiceHelper.MAX_PLAYERS.set(pingEvent.getResponseData().getMaxPlayer());
+    serviceHelper.motd().set(legacySection().serialize(pingEvent.getResponseData().getDescription()));
+    serviceHelper.maxPlayers().set(pingEvent.getResponseData().getMaxPlayer());
   }
 
   @Override
@@ -117,15 +158,16 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
       : new MinestomDirectPlayerExecutor(
+        this.commandManager,
         uniqueId,
-        () -> Collections.singleton(MinecraftServer.getConnectionManager().getPlayer(uniqueId)));
+        () -> Collections.singleton(this.connectionManager.getPlayer(uniqueId)));
   }
 
   @Override
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the minestom specific information
-    var onlinePlayers = MinecraftServer.getConnectionManager().getOnlinePlayers();
+    var onlinePlayers = this.connectionManager.getOnlinePlayers();
     snapshot.properties().append("Online-Count", onlinePlayers.size());
     snapshot.properties().append("Version", MinecraftServer.VERSION_NAME);
     // players

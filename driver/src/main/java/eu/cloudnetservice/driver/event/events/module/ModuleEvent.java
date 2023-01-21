@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.event.events.module;
 
-import eu.cloudnetservice.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import lombok.NonNull;
@@ -29,7 +29,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public abstract class ModuleEvent extends DriverEvent {
+public abstract class ModuleEvent extends Event {
 
   private final ModuleWrapper module;
   private final ModuleProvider moduleProvider;

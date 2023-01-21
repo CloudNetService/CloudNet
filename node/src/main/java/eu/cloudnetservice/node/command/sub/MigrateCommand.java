@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,16 +28,20 @@ import eu.cloudnetservice.common.function.ThrowableConsumer;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
-import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
+@Singleton
 @CommandPermission("cloudnet.command.migrate")
 @Description("command-migrate-description")
 public final class MigrateCommand {
@@ -45,13 +49,21 @@ public final class MigrateCommand {
   private static final int DEFAULT_CHUNK_SIZE = 100;
   private static final Logger LOGGER = LogManager.logger(MigrateCommand.class);
 
+  private final ServiceRegistry serviceRegistry;
+  private final DatabaseProvider databaseProvider;
+
+  @Inject
+  public MigrateCommand(@NonNull ServiceRegistry serviceRegistry, @NonNull DatabaseProvider databaseProvider) {
+    this.serviceRegistry = serviceRegistry;
+    this.databaseProvider = databaseProvider;
+  }
+
   @Parser(suggestions = "databaseProvider")
-  public @NonNull AbstractDatabaseProvider defaultDatabaseProviderParser(
+  public @NonNull NodeDatabaseProvider defaultDatabaseProviderParser(
     @NonNull CommandContext<?> $,
     @NonNull Queue<String> input
   ) {
-    var abstractDatabaseProvider = Node.instance().serviceRegistry()
-      .provider(AbstractDatabaseProvider.class, input.remove());
+    var abstractDatabaseProvider = this.serviceRegistry.provider(NodeDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
@@ -61,7 +73,7 @@ public final class MigrateCommand {
 
   @Suggestions("databaseProvider")
   public @NonNull List<String> suggestDatabaseProvider(@NonNull CommandContext<?> $, @NonNull String input) {
-    return Node.instance().serviceRegistry().providers(AbstractDatabaseProvider.class)
+    return this.serviceRegistry.providers(NodeDatabaseProvider.class)
       .stream()
       .map(Nameable::name)
       .toList();
@@ -70,8 +82,8 @@ public final class MigrateCommand {
   @CommandMethod(value = "migrate database|db <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
   public void migrateDatabase(
     @NonNull CommandSource source,
-    @NonNull @Argument("database-from") AbstractDatabaseProvider sourceDatabaseProvider,
-    @NonNull @Argument("database-to") AbstractDatabaseProvider targetDatabaseProvider,
+    @NonNull @Argument("database-from") NodeDatabaseProvider sourceDatabaseProvider,
+    @NonNull @Argument("database-to") NodeDatabaseProvider targetDatabaseProvider,
     @Flag("chunk-size") Integer chunkSize
   ) {
     if (sourceDatabaseProvider.equals(targetDatabaseProvider)) {
@@ -83,8 +95,8 @@ public final class MigrateCommand {
       chunkSize = DEFAULT_CHUNK_SIZE;
     }
 
-    if (!this.executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::init)
-      || !this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::init)) {
+    if (!this.executeIfNotCurrentProvider(sourceDatabaseProvider, NodeDatabaseProvider::init)
+      || !this.executeIfNotCurrentProvider(targetDatabaseProvider, NodeDatabaseProvider::init)) {
       return;
     }
 
@@ -103,8 +115,8 @@ public final class MigrateCommand {
       return;
     }
 
-    this.executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::close);
-    this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(sourceDatabaseProvider, NodeDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(targetDatabaseProvider, NodeDatabaseProvider::close);
 
     source.sendMessage(I18n.trans("command-migrate-success",
       sourceDatabaseProvider.name(),
@@ -112,10 +124,10 @@ public final class MigrateCommand {
   }
 
   private boolean executeIfNotCurrentProvider(
-    @NonNull AbstractDatabaseProvider sourceProvider,
-    @NonNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler
+    @NonNull NodeDatabaseProvider sourceProvider,
+    @NonNull ThrowableConsumer<NodeDatabaseProvider, ?> handler
   ) {
-    if (!Node.instance().databaseProvider().equals(sourceProvider)) {
+    if (!this.databaseProvider.equals(sourceProvider)) {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {

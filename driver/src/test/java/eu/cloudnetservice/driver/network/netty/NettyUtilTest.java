@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +17,22 @@
 package eu.cloudnetservice.driver.network.netty;
 
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.DriverTestUtil;
 import io.netty5.buffer.DefaultBufferAllocators;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 public class NettyUtilTest {
 
   @Test
   void testWrapperThreadAmount() {
-    Mockito
-      .when(DriverTestUtil.mockAndSetDriverInstance().environment())
-      .thenReturn(DriverEnvironment.WRAPPER);
-
-    Assertions.assertEquals(4, NettyUtil.threadAmount());
+    Assertions.assertEquals(4, NettyUtil.threadAmount(DriverEnvironment.WRAPPER));
   }
 
   @Test
   void testNodeThreadAmount() {
-    Mockito
-      .when(DriverTestUtil.mockAndSetDriverInstance().environment())
-      .thenReturn(DriverEnvironment.NODE);
-
-    Assertions.assertTrue(NettyUtil.threadAmount() >= 8);
+    Assertions.assertTrue(NettyUtil.threadAmount(DriverEnvironment.NODE) >= 8);
   }
 
   @RepeatedTest(30)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.report.emitter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.NonNull;
@@ -79,10 +80,41 @@ public class EmitterRegistry {
    * @throws NullPointerException     if the given emitter is null.
    * @throws IllegalArgumentException if the given emitter can report specific data.
    */
+  public @NonNull EmitterRegistry registerEmitter(@NonNull Class<? extends ReportDataEmitter> emitter) {
+    var injectionLayer = InjectionLayer.findLayerOf(emitter);
+    return this.registerEmitter(injectionLayer.instance(emitter));
+  }
+
+  /**
+   * Registers the given emitter. This method does not accept registration of emitters for specific report data, use the
+   * method {@link #registerSpecificEmitter(Class, SpecificReportDataEmitter)} for that purpose instead.
+   *
+   * @param emitter the emitters to register.
+   * @return the same instance as used to call the method, for chaining.
+   * @throws NullPointerException     if the given emitter is null.
+   * @throws IllegalArgumentException if the given emitter can report specific data.
+   */
   public @NonNull EmitterRegistry registerEmitter(@NonNull ReportDataEmitter emitter) {
     Preconditions.checkArgument(!(emitter instanceof SpecificReportDataEmitter<?>));
     this.emitters.put(Object.class, emitter);
     return this;
+  }
+
+  /**
+   * Registers the given specific data emitter for the given type.
+   *
+   * @param type    the raw type of data emitted by the given emitter.
+   * @param emitter the emitter to register.
+   * @param <T>     the type of data emitted by the given emitter.
+   * @return the same instance as used to call the method, for chaining.
+   * @throws NullPointerException if the given type or emitter is null.
+   */
+  public @NonNull <T> EmitterRegistry registerSpecificEmitter(
+    @NonNull Class<T> type,
+    @NonNull Class<? extends SpecificReportDataEmitter<T>> emitter
+  ) {
+    var injectionLayer = InjectionLayer.findLayerOf(emitter);
+    return this.registerSpecificEmitter(type, injectionLayer.instance(emitter));
   }
 
   /**

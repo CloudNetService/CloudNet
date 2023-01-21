@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.modules.npc;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
@@ -38,9 +39,9 @@ public abstract class AbstractNPCManagement implements NPCManagement {
   protected final Map<WorldPosition, NPC> npcs = new ConcurrentHashMap<>();
   protected NPCConfiguration npcConfiguration;
 
-  public AbstractNPCManagement(@Nullable NPCConfiguration npcConfiguration) {
+  public AbstractNPCManagement(@Nullable NPCConfiguration npcConfiguration, @NonNull EventManager eventManager) {
     this.npcConfiguration = npcConfiguration;
-    CloudNetDriver.instance().eventManager().registerListener(new SharedChannelMessageListener(this));
+    eventManager.registerListener(new SharedChannelMessageListener(this));
   }
 
   @Override
@@ -69,13 +70,13 @@ public abstract class AbstractNPCManagement implements NPCManagement {
   }
 
   @Override
-  public void registerToServiceRegistry() {
-    CloudNetDriver.instance().serviceRegistry().registerProvider(NPCManagement.class, "NPCManagement", this);
+  public void registerToServiceRegistry(@NonNull ServiceRegistry serviceRegistry) {
+    serviceRegistry.registerProvider(NPCManagement.class, "NPCManagement", this);
   }
 
   @Override
-  public void unregisterFromServiceRegistry() {
-    CloudNetDriver.instance().serviceRegistry().unregisterProvider(NPCManagement.class, "NPCManagement");
+  public void unregisterFromServiceRegistry(@NonNull ServiceRegistry serviceRegistry) {
+    serviceRegistry.unregisterProvider(NPCManagement.class, "NPCManagement");
   }
 
   @Override

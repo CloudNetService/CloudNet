@@ -1,7 +1,0 @@
-name: CloudNet-Bridge
-version: "{project.build.version}"
-api: [ "1.0.5" ]
-author: CloudNetService
-website: https://cloudnetservice.eu
-description: Bridges service software support between all supported versions for easy CloudNet plugin development
-main: eu.cloudnetservice.modules.bridge.platform.nukkit.NukkitBridgePlugin

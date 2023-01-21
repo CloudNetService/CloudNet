@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,20 @@
 package eu.cloudnetservice.driver.module.driver;
 
 import com.google.gson.JsonSyntaxException;
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.InjectionContext;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.CloudNetDriver;
-import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.DefaultModule;
 import eu.cloudnetservice.driver.module.Module;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.NonNull;
-import org.jetbrains.annotations.Contract;
 
 /**
  * Represents a cloudnet driver specific implementation for the module. Usually this should be used as entry point of a
@@ -42,6 +42,9 @@ import org.jetbrains.annotations.Contract;
  * @since 4.0
  */
 public class DriverModule extends DefaultModule {
+
+  protected static final Element CONFIG_PATH_ELEMENT = Element.forType(Path.class)
+    .requireAnnotation(Qualifiers.named("configPath"));
 
   /**
    * Reads the configuration file of this module from the default or overridden configuration path (via module.json)
@@ -97,6 +100,86 @@ public class DriverModule extends DefaultModule {
   }
 
   /**
+   * Reads the module configuration file and converts the type of the configuration to the given model type, creating
+   * the configuration if necessary. Any exceptions thrown when reading the configuration are forwarded to the caller.
+   * <p>
+   * Afterwards the given class type is instantiated with the loaded config and config path being known while creating
+   * the class instance. Bindings are respected by this method.
+   * <p>
+   * If further customization of the injection context which is taking over the injection process is needed, the method
+   * {@link #readConfigAndInstantiate(InjectionLayer, Class, Supplier, Class, Consumer)} is able to allow for further
+   * customization of the class injection context (for example needed if other non-constructable types are required to
+   * instantiate the binding of the given type).
+   *
+   * @param injectionLayer       the injection layer to use when instantiating the given type to instantiate.
+   * @param configModelType      the modeling class of the configuration.
+   * @param defaultConfigFactory a factory constructing a default config instance if needed.
+   * @param classToInstantiate   the class to instantiate after successfully loading the configuration.
+   * @param <C>                  the type of the configuration model.
+   * @param <T>                  the type modeling the class which should be instantiated.
+   * @return the constructed instance of the given type, constructed with the configuration known to the context.
+   * @throws NullPointerException                  if one of the given parameters is null.
+   * @throws ModuleConfigurationInvalidException   if the reader is unable to read the configuration from the file.
+   * @throws dev.derklaro.aerogel.AerogelException if no binding for T is present and no JIT binding can be created.
+   */
+  public @NonNull <C, T> T readConfigAndInstantiate(
+    @NonNull InjectionLayer<?> injectionLayer,
+    @NonNull Class<C> configModelType,
+    @NonNull Supplier<C> defaultConfigFactory,
+    @NonNull Class<T> classToInstantiate
+  ) {
+    return this.readConfigAndInstantiate(
+      injectionLayer,
+      configModelType,
+      defaultConfigFactory,
+      classToInstantiate,
+      $ -> {
+      });
+  }
+
+  /**
+   * Reads the module configuration file and converts the type of the configuration to the given model type, creating
+   * the configuration if necessary. Any exceptions thrown when reading the configuration are forwarded to the caller.
+   * <p>
+   * Afterwards the given class type is instantiated with the loaded config and config path being known while creating
+   * the class instance. Bindings are respected by this method.
+   * <p>
+   * If further customization of the injection context which is taking over the injection process is needed, the builder
+   * consumer passed to this method will be called <strong>after</strong> the overrides for the config type and config
+   * path were installed to it. This means that the decorator is able to override the previously installed overrides in
+   * the given builder.
+   *
+   * @param injectionLayer       the injection layer to use when instantiating the given type to instantiate.
+   * @param configModelType      the modeling class of the configuration.
+   * @param defaultConfigFactory a factory constructing a default config instance if needed.
+   * @param classToInstantiate   the class to instantiate after successfully loading the configuration.
+   * @param builderDecorator     the decorator to apply to the injection context builder, for further customization.
+   * @param <C>                  the type of the configuration model.
+   * @param <T>                  the type modeling the class which should be instantiated.
+   * @return the constructed instance of the given type, constructed with the configuration known to the context.
+   * @throws NullPointerException                  if one of the given parameters is null.
+   * @throws ModuleConfigurationInvalidException   if the reader is unable to read the configuration from the file.
+   * @throws dev.derklaro.aerogel.AerogelException if no binding for T is present and no JIT binding can be created.
+   */
+  public @NonNull <C, T> T readConfigAndInstantiate(
+    @NonNull InjectionLayer<?> injectionLayer,
+    @NonNull Class<C> configModelType,
+    @NonNull Supplier<C> defaultConfigFactory,
+    @NonNull Class<T> classToInstantiate,
+    @NonNull Consumer<InjectionContext.Builder> builderDecorator
+  ) {
+    // read the config
+    var config = this.readConfig(configModelType, defaultConfigFactory);
+    return injectionLayer.instance(classToInstantiate, builder -> {
+      // write the default elements to the builder
+      builder.override(configModelType, config);
+      builder.override(CONFIG_PATH_ELEMENT, this.configPath());
+      // apply the custom modifier
+      builderDecorator.accept(builder);
+    });
+  }
+
+  /**
    * The default configuration path located in the directory for this module. By default, this is
    * "Module-Name/config.json".
    *
@@ -105,57 +188,5 @@ public class DriverModule extends DefaultModule {
    */
   protected @NonNull Path configPath() {
     return this.moduleWrapper().dataDirectory().resolve("config.json");
-  }
-
-  /**
-   * Registers the given listener to the {@link EventManager}. Down calls to {@link CloudNetDriver#eventManager()} and
-   * {@link EventManager#registerListeners(Object...)}.
-   *
-   * @param listener the listeners to register
-   * @return the EventManager that was used to register the listeners.
-   */
-  public final @NonNull EventManager registerListener(Object @NonNull ... listener) {
-    return this.eventManager().registerListeners(listener);
-  }
-
-  /**
-   * Gets the {@link ServiceRegistry} of the driver.
-   *
-   * @return the ServiceRegistry.
-   * @see CloudNetDriver#serviceRegistry()
-   */
-  public final @NonNull ServiceRegistry serviceRegistry() {
-    return this.driver().serviceRegistry();
-  }
-
-  /**
-   * Gets the {@link EventManager} of the driver.
-   *
-   * @return the EventManager.
-   * @see CloudNetDriver#eventManager()
-   */
-  public final @NonNull EventManager eventManager() {
-    return this.driver().eventManager();
-  }
-
-  /**
-   * Gets the {@link RPCFactory} of the driver.
-   *
-   * @return the RPCProviderFactory.
-   * @see CloudNetDriver#rpcFactory()
-   */
-  public final @NonNull RPCFactory rpcFactory() {
-    return this.driver().rpcFactory();
-  }
-
-  /**
-   * Gets the {@link CloudNetDriver} instance.
-   *
-   * @return the CloudNetDriver instance.
-   * @see CloudNetDriver#instance()
-   */
-  @Contract(pure = true)
-  public final @NonNull CloudNetDriver driver() {
-    return CloudNetDriver.instance();
   }
 }

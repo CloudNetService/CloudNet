@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,45 +16,65 @@
 
 package eu.cloudnetservice.node.setup;
 
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.LockSupport;
 import lombok.NonNull;
 
-public class DefaultInstallation {
+@Singleton
+public final class DefaultInstallation {
 
-  private final Queue<DefaultSetup> setups = new LinkedList<>();
-  private final ConsoleSetupAnimation animation = createAnimation();
+  private final Queue<Class<? extends DefaultSetup>> setups = new ConcurrentLinkedQueue<>();
 
-  private static @NonNull ConsoleSetupAnimation createAnimation() {
-    return new ConsoleSetupAnimation(
-      """
-        &f   ___  _                    _ &b     __    __  _____  &3  _____              _           _  _\s
-        &f  / __\\| |  ___   _   _   __| |&b  /\\ \\ \\  /__\\/__   \\ &3  \\_   \\ _ __   ___ | |_   __ _ | || |
-        &f / /   | | / _ \\ | | | | / _` |&b /  \\/ / /_\\    / /\\/ &3   / /\\/| '_ \\ / __|| __| / _` || || |
-        &f/ /___ | || (_) || |_| || (_| |&b/ /\\  / //__   / /    &3/\\/ /_  | | | |\\__ \\| |_ | (_| || || |
-        &f\\____/ |_| \\___/  \\__,_| \\__,_|&b\\_\\ \\/  \\__/   \\/     &3\\____/  |_| |_||___/ \\__| \\__,_||_||_|
-        &f                               &b                      &3                                     \s""",
-      null,
-      "&r> &e");
+  private final Console console;
+  private final EventManager eventManager;
+  private final QueuedConsoleLogHandler logHandler;
+
+  @Inject
+  public DefaultInstallation(
+    @NonNull Console console,
+    @NonNull EventManager eventManager,
+    @NonNull QueuedConsoleLogHandler logHandler
+  ) {
+    this.console = console;
+    this.eventManager = eventManager;
+    this.logHandler = logHandler;
   }
 
-  public void executeFirstStartSetup(@NonNull Console console) {
+  public void executeFirstStartSetup() {
     if (!Boolean.getBoolean("cloudnet.installation.skip") && !this.setups.isEmpty()) {
+      var animation = this.createAnimation();
       var runningThread = Thread.currentThread();
-      // apply all questions of all setups to the animation
-      this.setups.forEach(setup -> setup.applyQuestions(this.animation));
-      // start the animation
-      this.animation.cancellable(false);
-      console.startAnimation(this.animation);
 
-      this.animation.addFinishHandler(() -> {
+      // construct all setups & apply the questions
+      Queue<DefaultSetup> setups = new LinkedList<>();
+      for (var setupClass : this.setups) {
+        // construct
+        var injectionLayer = InjectionLayer.findLayerOf(setupClass);
+        var setupInstance = injectionLayer.instance(setupClass);
+
+        // apply questions & register
+        setups.add(setupInstance);
+        setupInstance.applyQuestions(animation);
+      }
+
+      // start the animation
+      animation.cancellable(false);
+      this.console.startAnimation(animation);
+
+      animation.addFinishHandler(() -> {
         // post the finish handling to the installations
         DefaultSetup setup;
-        while ((setup = this.setups.poll()) != null) {
-          setup.handleResults(this.animation);
+        while ((setup = setups.poll()) != null) {
+          setup.handleResults(animation);
         }
         // notify the monitor about the success
         LockSupport.unpark(runningThread);
@@ -65,7 +85,22 @@ public class DefaultInstallation {
     }
   }
 
-  public void registerSetup(@NonNull DefaultSetup setup) {
+  public void registerSetup(@NonNull Class<? extends DefaultSetup> setup) {
     this.setups.add(setup);
+  }
+
+  private @NonNull ConsoleSetupAnimation createAnimation() {
+    return new ConsoleSetupAnimation(
+      this.eventManager,
+      this.logHandler,
+      """
+        &f   ___  _                    _ &b     __    __  _____  &3  _____              _           _  _\s
+        &f  / __\\| |  ___   _   _   __| |&b  /\\ \\ \\  /__\\/__   \\ &3  \\_   \\ _ __   ___ | |_   __ _ | || |
+        &f / /   | | / _ \\ | | | | / _` |&b /  \\/ / /_\\    / /\\/ &3   / /\\/| '_ \\ / __|| __| / _` || || |
+        &f/ /___ | || (_) || |_| || (_| |&b/ /\\  / //__   / /    &3/\\/ /_  | | | |\\__ \\| |_ | (_| || || |
+        &f\\____/ |_| \\___/  \\__,_| \\__,_|&b\\_\\ \\/  \\__/   \\/     &3\\____/  |_| |_||___/ \\__| \\__,_||_||_|
+        &f                               &b                      &3                                     \s""",
+      null,
+      "&r> &e");
   }
 }

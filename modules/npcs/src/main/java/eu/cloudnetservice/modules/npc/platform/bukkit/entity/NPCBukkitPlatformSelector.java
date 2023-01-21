@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.bukkit.Location;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.Scoreboard;
 
 public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
@@ -46,12 +48,14 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
   protected volatile Npc<World, Player, ItemStack, Plugin> handleNpc;
 
   public NPCBukkitPlatformSelector(
-    @NonNull BukkitPlatformNPCManagement npcManagement,
-    @NonNull Plugin plugin,
     @NonNull NPC npc,
+    @NonNull Plugin plugin,
+    @NonNull Server server,
+    @NonNull BukkitScheduler scheduler,
+    @NonNull BukkitPlatformNPCManagement npcManagement,
     @NonNull Platform<World, Player, ItemStack, Plugin> platform
   ) {
-    super(npcManagement, plugin, npc);
+    super(npc, plugin, server, scheduler, npcManagement);
     this.platform = platform;
   }
 
@@ -90,7 +94,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
         this.npc.profileProperties().stream()
           .map(prop -> ProfileProperty.property(prop.name(), prop.value(), prop.signature()))
           .collect(Collectors.toSet())))
-      .position(BukkitPlatformUtil.positionFromBukkit(this.npcLocation))
+      .position(BukkitPlatformUtil.positionFromBukkitLegacy(this.npcLocation))
       .buildAndTrack();
   }
 

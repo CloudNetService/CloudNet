@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.template.TemplateStorage;
+import eu.cloudnetservice.driver.template.TemplateStorageProvider;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -221,7 +222,8 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
    * @return the template storage in which this template is stored, null if the template doesn't exist.
    */
   public @Nullable TemplateStorage findStorage() {
-    return CloudNetDriver.instance().templateStorageProvider().templateStorage(this.storage);
+    var storageProvider = InjectionLayer.boot().instance(TemplateStorageProvider.class);
+    return storageProvider.templateStorage(this.storage);
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,29 @@
 
 package eu.cloudnetservice.modules.report.emitter.defaults;
 
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.emitter.SpecificReportDataEmitter;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 
+@Singleton
 public final class ServiceTasksDataEmitter extends SpecificReportDataEmitter<ServiceTask> {
 
-  public ServiceTasksDataEmitter() {
+  private final ServiceTaskProvider serviceTaskProvider;
+
+  @Inject
+  public ServiceTasksDataEmitter(@NonNull ServiceTaskProvider serviceTaskProvider) {
     super((writer, tasks) -> writer.appendString("Tasks (").appendInt(tasks.size()).appendString("):"));
+    this.serviceTaskProvider = serviceTaskProvider;
   }
 
   @Override
   public @NonNull Collection<ServiceTask> collectData() {
-    return CloudNetDriver.instance().serviceTaskProvider().serviceTasks();
+    return this.serviceTaskProvider.serviceTasks();
   }
 
   @Override

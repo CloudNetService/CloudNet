@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,45 +18,29 @@ package eu.cloudnetservice.modules.bridge.node.listener;
 
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
 import eu.cloudnetservice.node.event.setup.SetupInitiateEvent;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
+@Singleton
 public final class NodeSetupListener {
 
-  private static final QuestionListEntry<String> CREATE_BRIDGE_FALLBACK = QuestionListEntry.<String>builder()
-    .key("generateBridgeFallback")
-    .translatedQuestion("module-bridge-tasks-setup-default-fallback")
-    .answerType(QuestionAnswerType.<String>builder()
-      .parser(input -> {
-        // we allow an empty input or an existing task
-        if (!input.isEmpty() && Node.instance().serviceTaskProvider().serviceTask(input) == null) {
-          throw Parsers.ParserException.INSTANCE;
-        }
-        return input;
-      })
-      .possibleResults(Node.instance().serviceTaskProvider().serviceTasks().stream().filter(
-          task -> {
-            var env = Node.instance().serviceVersionProvider()
-              .getEnvironmentType(task.processConfiguration().environment());
-            // only minecraft servers are allowed to be a fallback
-            return env != null && ServiceEnvironmentType.minecraftServer(env);
-          })
-        .map(Nameable::name)
-        .toList()))
-    .build();
+  private final QuestionListEntry<String> bridgeFallbackQuestionEntry;
 
-  private final BridgeManagement bridgeManagement;
-
-  public NodeSetupListener(@NonNull BridgeManagement bridgeManagement) {
-    this.bridgeManagement = bridgeManagement;
+  @Inject
+  public NodeSetupListener(@NonNull ServiceTaskProvider taskProvider, @NonNull ServiceVersionProvider versionProvider) {
+    // create the bridge fallback question entry
+    this.bridgeFallbackQuestionEntry = this.createBridgeFallbackEntry(taskProvider, versionProvider);
   }
 
   @EventListener
@@ -68,23 +52,49 @@ public final class NodeSetupListener {
         // only add an entry for minecraft proxies
         if (!event.setup().hasResult("generateBridgeFallback")
           && ServiceEnvironmentType.minecraftProxy((ServiceEnvironmentType) env)) {
-          event.setup().addEntries(CREATE_BRIDGE_FALLBACK);
+          event.setup().addEntries(this.bridgeFallbackQuestionEntry);
         }
       }));
   }
 
   @EventListener
-  public void handleSetupComplete(@NonNull SetupCompleteEvent event) {
+  public void handleSetupComplete(@NonNull SetupCompleteEvent event, @NonNull BridgeManagement bridgeManagement) {
     String fallbackName = event.setup().result("generateBridgeFallback");
     // check if we want to add a fallback
     if (fallbackName != null && !fallbackName.isEmpty()) {
-      var config = this.bridgeManagement.configuration();
+      var config = bridgeManagement.configuration();
       config.fallbackConfigurations().add(ProxyFallbackConfiguration.builder()
         .targetGroup(event.setup().result("taskName"))
         .defaultFallbackTask(fallbackName)
         .build());
-      this.bridgeManagement.configuration(config);
+      bridgeManagement.configuration(config);
     }
+  }
+
+  private @NonNull QuestionListEntry<String> createBridgeFallbackEntry(
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull ServiceVersionProvider versionProvider
+  ) {
+    return QuestionListEntry.<String>builder()
+      .key("generateBridgeFallback")
+      .translatedQuestion("module-bridge-tasks-setup-default-fallback")
+      .answerType(QuestionAnswerType.<String>builder()
+        .parser(input -> {
+          // we allow an empty input or an existing task
+          if (!input.isEmpty() && taskProvider.serviceTask(input) == null) {
+            throw Parsers.ParserException.INSTANCE;
+          }
+          return input;
+        })
+        .possibleResults(taskProvider.serviceTasks().stream().filter(
+            task -> {
+              var env = versionProvider.getEnvironmentType(task.processConfiguration().environment());
+              // only minecraft servers are allowed to be a fallback
+              return env != null && ServiceEnvironmentType.minecraftServer(env);
+            })
+          .map(Nameable::name)
+          .toList()))
+      .build();
   }
 
 }

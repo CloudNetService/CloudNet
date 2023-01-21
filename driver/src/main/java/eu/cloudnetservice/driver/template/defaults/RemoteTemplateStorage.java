@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ package eu.cloudnetservice.driver.template.defaults;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.io.ZipUtil;
 import eu.cloudnetservice.common.stream.ListeningOutputStream;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
@@ -47,15 +48,25 @@ import org.jetbrains.annotations.Nullable;
 public abstract class RemoteTemplateStorage implements TemplateStorage {
 
   private final String name;
+  private final ComponentInfo componentInfo;
+  private final NetworkClient networkClient;
 
   /**
    * Constructs a new remote template storage instance.
    *
-   * @param name the name of the storage which was created.
-   * @throws NullPointerException if the given name is null.
+   * @param name          the name of the storage which was created.
+   * @param componentInfo the information about the current component.
+   * @param networkClient the network client of the current component.
+   * @throws NullPointerException if the given name, component info or network client is null.
    */
-  public RemoteTemplateStorage(@NonNull String name) {
+  public RemoteTemplateStorage(
+    @NonNull String name,
+    @NonNull ComponentInfo componentInfo,
+    @NonNull NetworkClient networkClient
+  ) {
     this.name = name;
+    this.componentInfo = componentInfo;
+    this.networkClient = networkClient;
   }
 
   /**
@@ -91,7 +102,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
       .source(inputStream)
       .transferChannel("deploy_service_template")
       .withExtraData(DataBuf.empty().writeString(this.name).writeObject(target).writeBoolean(true))
-      .toChannels(CloudNetDriver.instance().networkClient().firstChannel())
+      .toChannels(this.networkClient.firstChannel())
       .build()
       .transferChunkedData()
       .get(5, TimeUnit.MINUTES, TransferStatus.FAILURE) == TransferStatus.SUCCESS;
@@ -107,7 +118,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     var response = ChannelMessage.builder()
       .message("remote_templates_zip_template")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .targetNode(CloudNetDriver.instance().nodeUniqueId())
+      .targetNode(this.componentInfo.nodeUniqueId())
       .buffer(DataBuf.empty().writeString(this.name).writeObject(template).writeUniqueId(responseId))
       .build()
       .sendSingleQuery();
@@ -164,7 +175,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
       $ -> ChunkedPacketSender.forFileTransfer()
         .forFile(localPath)
         .transferChannel("deploy_single_file")
-        .toChannels(CloudNetDriver.instance().networkClient().firstChannel())
+        .toChannels(this.networkClient.firstChannel())
         .withExtraData(
           DataBuf.empty().writeString(this.name).writeObject(template).writeString(path).writeBoolean(append))
         .build()
@@ -185,7 +196,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     var response = ChannelMessage.builder()
       .message("remote_templates_template_file")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .targetNode(CloudNetDriver.instance().nodeUniqueId())
+      .targetNode(this.componentInfo.nodeUniqueId())
       .buffer(DataBuf.empty().writeString(path).writeString(this.name).writeObject(template).writeUniqueId(responseId))
       .build()
       .sendSingleQuery();

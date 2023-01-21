@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import cn.nukkit.Player;
 import dev.derklaro.reflexion.FieldAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import lombok.NonNull;
 
 public final class NukkitPermissionInjectionHelper {
@@ -30,7 +31,13 @@ public final class NukkitPermissionInjectionHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static void injectPermissible(@NonNull Player player, PermissionManagement management) {
-    PERM_FIELD_ACCESSOR.setValue(player, new NukkitCloudPermissionsPermissible(player, management));
+  public static void injectPermissible(
+    @NonNull Player player,
+    @NonNull WrapperConfiguration wrapperConfiguration,
+    @NonNull PermissionManagement management
+  ) {
+    PERM_FIELD_ACCESSOR.setValue(
+      player,
+      new NukkitCloudPermissionsPermissible(player, wrapperConfiguration, management));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -103,11 +105,43 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
     return this.excludedGroups;
   }
 
-  public @NonNull String message(@Nullable Locale locale, @NonNull String key) {
-    return this.message(locale, key, true);
+  public void handleMessage(
+    @Nullable Locale locale,
+    @NonNull String key,
+    @NonNull Consumer<String> sender
+  ) {
+    this.handleMessage(locale, key, Function.identity(), sender, true);
   }
 
-  public @NonNull String message(@Nullable Locale locale, @NonNull String key, boolean withPrefix) {
+  public <C> void handleMessage(
+    @Nullable Locale locale,
+    @NonNull String key,
+    @NonNull Function<String, C> toComponentConverter,
+    @NonNull Consumer<C> sender
+  ) {
+    this.handleMessage(locale, key, toComponentConverter, sender, true);
+  }
+
+  public <C> void handleMessage(
+    @Nullable Locale locale,
+    @NonNull String key,
+    @NonNull Function<String, C> toComponentConverter,
+    @NonNull Consumer<C> sender,
+    boolean withPrefix
+  ) {
+    C component = this.findMessage(locale, key, toComponentConverter, null, withPrefix);
+    if (component != null) {
+      sender.accept(component);
+    }
+  }
+
+  public @UnknownNullability <C> C findMessage(
+    @Nullable Locale locale,
+    @NonNull String key,
+    @NonNull Function<String, C> toComponentConverter,
+    @Nullable C defaultValue,
+    boolean withPrefix
+  ) {
     String message = null;
     // don't bother resolving if no locale is present
     if (locale != null) {
@@ -119,15 +153,20 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
       }
     }
 
-    // validate that there are registered messages for the locale, fall back to the default messages if not
+    // check if the message is available for the "default" locale
     if (message == null) {
-      message = Objects.requireNonNullElseGet(
-        this.resolveMessage(this.localizedMessages.get("default"), key),
-        () -> this.resolveMessage(DEFAULT_MESSAGES.get("default"), key));
+      message = this.resolveMessage(this.localizedMessages.get("default"), key);
+      if (message == null) {
+        return defaultValue;
+      }
     }
 
     // format the final message
-    return String.format("%s%s", withPrefix ? this.prefix : "", message);
+    var formattedMessage = String.format("%s%s", withPrefix ? this.prefix : "", message);
+    C component = toComponentConverter.apply(formattedMessage);
+
+    // check if the converter was able to convert the message
+    return component != null ? component : defaultValue;
   }
 
   private @Nullable String resolveMessage(@Nullable Map<String, String> messages, @NonNull String key) {

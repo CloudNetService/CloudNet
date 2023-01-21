@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,27 @@
 
 package eu.cloudnetservice.node.service.defaults;
 
+import dev.derklaro.aerogel.PostConstruct;
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
+import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceCreateRetryConfiguration;
-import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.event.service.CloudServiceNodeSelectEvent;
 import eu.cloudnetservice.node.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -41,25 +47,38 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
+@Singleton
+@Provides(CloudServiceFactory.class)
 public class NodeCloudServiceFactory implements CloudServiceFactory {
 
   private final EventManager eventManager;
   private final CloudServiceManager serviceManager;
   private final NodeServerProvider nodeServerProvider;
+  private final GroupConfigurationProvider groupProvider;
 
   private final Lock serviceCreationLock = new ReentrantLock(true);
   private final ScheduledExecutorService createRetryExecutor = Executors.newSingleThreadScheduledExecutor();
 
-  public NodeCloudServiceFactory(@NonNull Node nodeInstance) {
-    this.eventManager = nodeInstance.eventManager();
-    this.serviceManager = nodeInstance.cloudServiceProvider();
-    this.nodeServerProvider = nodeInstance.nodeServerProvider();
+  @Inject
+  public NodeCloudServiceFactory(
+    @NonNull RPCFactory rpcFactory,
+    @NonNull EventManager eventManager,
+    @NonNull RPCHandlerRegistry handlerRegistry,
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull GroupConfigurationProvider groupProvider
+  ) {
+    this.eventManager = eventManager;
+    this.serviceManager = serviceManager;
+    this.nodeServerProvider = nodeServerProvider;
+    this.groupProvider = groupProvider;
 
-    this.eventManager.registerListener(new ServiceChannelMessageListener(
-      this.eventManager,
-      this.serviceManager,
-      this));
-    nodeInstance.rpcFactory().newHandler(CloudServiceFactory.class, this).registerToDefaultRegistry();
+    rpcFactory.newHandler(CloudServiceFactory.class, this).registerTo(handlerRegistry);
+  }
+
+  @PostConstruct
+  private void registerServiceChannelListener() {
+    this.eventManager.registerListener(ServiceChannelMessageListener.class);
   }
 
   @Override
@@ -188,7 +207,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     @NonNull ServiceConfiguration.Builder output
   ) {
     // include all groups which are matching the service configuration
-    var groups = Node.instance().groupConfigurationProvider().groupConfigurations().stream()
+    var groups = this.groupProvider.groupConfigurations().stream()
       .filter(group -> group.targetEnvironments().contains(input.serviceId().environmentName()))
       .map(GroupConfiguration::name)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), set -> {
@@ -200,7 +219,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // include each group component in the service configuration
     for (var group : groups) {
       // get the group
-      var config = Node.instance().groupConfigurationProvider().groupConfiguration(group);
+      var config = this.groupProvider.groupConfiguration(group);
       // check if the config is available - add all components if so
       if (config != null) {
         output

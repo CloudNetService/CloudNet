@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.module;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.module.ModulePostInstallDependencyEvent;
@@ -34,6 +33,9 @@ import eu.cloudnetservice.driver.event.events.module.ModulePreReloadEvent;
 import eu.cloudnetservice.driver.event.events.module.ModulePreStartEvent;
 import eu.cloudnetservice.driver.event.events.module.ModulePreStopEvent;
 import eu.cloudnetservice.driver.event.events.module.ModulePreUnloadEvent;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 /**
@@ -42,16 +44,32 @@ import lombok.NonNull;
  * @see ModuleProviderHandler
  * @since 4.0
  */
+@Singleton
 public class DefaultModuleProviderHandler implements ModuleProviderHandler {
 
   private static final Logger LOGGER = LogManager.logger(DefaultModuleProviderHandler.class);
+
+  protected final EventManager eventManager;
+  protected final ModuleProvider moduleProvider;
+  protected final ServiceRegistry serviceRegistry;
+
+  @Inject
+  protected DefaultModuleProviderHandler(
+    @NonNull EventManager eventManager,
+    @NonNull ModuleProvider moduleProvider,
+    @NonNull ServiceRegistry serviceRegistry
+  ) {
+    this.eventManager = eventManager;
+    this.moduleProvider = moduleProvider;
+    this.serviceRegistry = serviceRegistry;
+  }
 
   /**
    * {@inheritDoc}
    */
   @Override
   public boolean handlePreModuleLoad(@NonNull ModuleWrapper moduleWrapper) {
-    return !this.callEvent(new ModulePreLoadEvent(this.moduleProvider(), moduleWrapper)).cancelled();
+    return !this.callEvent(new ModulePreLoadEvent(this.moduleProvider, moduleWrapper)).cancelled();
   }
 
   /**
@@ -59,7 +77,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public void handlePostModuleLoad(@NonNull ModuleWrapper moduleWrapper) {
-    this.callEvent(new ModulePostLoadEvent(this.moduleProvider(), moduleWrapper));
+    this.callEvent(new ModulePostLoadEvent(this.moduleProvider, moduleWrapper));
     LOGGER.info(I18n.trans("cloudnet-post-load-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
@@ -68,9 +86,9 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public boolean handlePreModuleStart(@NonNull ModuleWrapper moduleWrapper) {
-    var cancelled = this.callEvent(new ModulePreStartEvent(this.moduleProvider(), moduleWrapper)).cancelled();
+    var cancelled = this.callEvent(new ModulePreStartEvent(this.moduleProvider, moduleWrapper)).cancelled();
     if (!cancelled) {
-      CloudNetDriver.instance().eventManager().registerListener(moduleWrapper.module());
+      this.eventManager.registerListener(moduleWrapper.module());
     }
     return !cancelled;
   }
@@ -80,7 +98,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public void handlePostModuleStart(@NonNull ModuleWrapper moduleWrapper) {
-    this.callEvent(new ModulePostStartEvent(this.moduleProvider(), moduleWrapper));
+    this.callEvent(new ModulePostStartEvent(this.moduleProvider, moduleWrapper));
     LOGGER.info(I18n.trans("cloudnet-post-start-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
@@ -89,7 +107,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public boolean handlePreModuleReload(@NonNull ModuleWrapper moduleWrapper) {
-    return !this.callEvent(new ModulePreReloadEvent(this.moduleProvider(), moduleWrapper)).cancelled();
+    return !this.callEvent(new ModulePreReloadEvent(this.moduleProvider, moduleWrapper)).cancelled();
   }
 
   /**
@@ -97,7 +115,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public void handlePostModuleReload(@NonNull ModuleWrapper moduleWrapper) {
-    this.callEvent(new ModulePostReloadEvent(this.moduleProvider(), moduleWrapper));
+    this.callEvent(new ModulePostReloadEvent(this.moduleProvider, moduleWrapper));
     LOGGER.info(I18n.trans("cloudnet-post-reload-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
@@ -106,7 +124,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public boolean handlePreModuleStop(@NonNull ModuleWrapper moduleWrapper) {
-    return !this.callEvent(new ModulePreStopEvent(this.moduleProvider(), moduleWrapper)).cancelled();
+    return !this.callEvent(new ModulePreStopEvent(this.moduleProvider, moduleWrapper)).cancelled();
   }
 
   /**
@@ -114,10 +132,10 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public void handlePostModuleStop(@NonNull ModuleWrapper moduleWrapper) {
-    CloudNetDriver.instance().serviceRegistry().unregisterAll(moduleWrapper.classLoader());
-    CloudNetDriver.instance().eventManager().unregisterListeners(moduleWrapper.classLoader());
+    this.serviceRegistry.unregisterAll(moduleWrapper.classLoader());
+    this.eventManager.unregisterListeners(moduleWrapper.classLoader());
 
-    this.callEvent(new ModulePostStopEvent(this.moduleProvider(), moduleWrapper));
+    this.callEvent(new ModulePostStopEvent(this.moduleProvider, moduleWrapper));
     LOGGER.info(I18n.trans("cloudnet-post-stop-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
@@ -126,7 +144,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public void handlePreModuleUnload(@NonNull ModuleWrapper moduleWrapper) {
-    this.callEvent(new ModulePreUnloadEvent(this.moduleProvider(), moduleWrapper));
+    this.callEvent(new ModulePreUnloadEvent(this.moduleProvider, moduleWrapper));
   }
 
   /**
@@ -134,7 +152,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public void handlePostModuleUnload(@NonNull ModuleWrapper moduleWrapper) {
-    this.callEvent(new ModulePostUnloadEvent(this.moduleProvider(), moduleWrapper));
+    this.callEvent(new ModulePostUnloadEvent(this.moduleProvider, moduleWrapper));
     LOGGER.info(I18n.trans("cloudnet-post-unload-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
@@ -146,7 +164,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
     @NonNull ModuleConfiguration configuration,
     @NonNull ModuleDependency dependency
   ) {
-    this.callEvent(new ModulePreInstallDependencyEvent(this.moduleProvider(), configuration, dependency));
+    this.callEvent(new ModulePreInstallDependencyEvent(this.moduleProvider, configuration, dependency));
   }
 
   /**
@@ -157,21 +175,12 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
     @NonNull ModuleConfiguration configuration,
     @NonNull ModuleDependency dependency
   ) {
-    this.callEvent(new ModulePostInstallDependencyEvent(this.moduleProvider(), configuration, dependency));
+    this.callEvent(new ModulePostInstallDependencyEvent(this.moduleProvider, configuration, dependency));
     LOGGER.fine(I18n.trans("cloudnet-post-install-dependency-module",
       this.moduleArguments(configuration),
       dependency.group(),
       dependency.name(),
       dependency.version()));
-  }
-
-  /**
-   * Shortcut for {@link CloudNetDriver#moduleProvider()}.
-   *
-   * @return the module provider of the driver.
-   */
-  protected @NonNull ModuleProvider moduleProvider() {
-    return CloudNetDriver.instance().moduleProvider();
   }
 
   /**
@@ -183,7 +192,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    * @throws NullPointerException if event is null.
    */
   protected @NonNull <T extends Event> T callEvent(@NonNull T event) {
-    return CloudNetDriver.instance().eventManager().callEvent(event);
+    return this.eventManager.callEvent(event);
   }
 
   /**

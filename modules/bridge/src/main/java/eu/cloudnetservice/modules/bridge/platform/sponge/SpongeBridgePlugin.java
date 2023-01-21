@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,62 @@
 
 package eu.cloudnetservice.modules.bridge.platform.sponge;
 
-import com.google.inject.Inject;
-import eu.cloudnetservice.driver.util.ModuleUtil;
-import eu.cloudnetservice.wrapper.Wrapper;
+import com.google.inject.Singleton;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
+import jakarta.inject.Inject;
 import lombok.NonNull;
-import org.spongepowered.api.Server;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
-import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.plugin.PluginContainer;
-import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-@Plugin("cloudnet_bridge")
-public final class SpongeBridgePlugin {
+@Singleton
+@PlatformPlugin(
+  platform = "sponge",
+  name = "CloudNet-Bridge",
+  version = "{project.build.version}",
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
+  authors = "CloudNetService",
+  dependencies = @Dependency(name = "spongeapi", version = "8.0.0")
+)
+public final class SpongeBridgePlugin implements PlatformEntrypoint {
 
   private final PluginContainer plugin;
+  private final EventManager eventManager;
+  private final ModuleHelper moduleHelper;
+  private final ServiceRegistry serviceRegistry;
+  private final SpongeBridgeManagement bridgeManagement;
+  private final SpongePlayerManagementListener playerListener;
 
   @Inject
-  public SpongeBridgePlugin(@NonNull PluginContainer plugin) {
+  public SpongeBridgePlugin(
+    @NonNull PluginContainer plugin,
+    @NonNull EventManager eventManager,
+    @NonNull ModuleHelper moduleHelper,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull SpongeBridgeManagement bridgeManagement,
+    @NonNull SpongePlayerManagementListener playerListener
+  ) {
     this.plugin = plugin;
+    this.eventManager = eventManager;
+    this.moduleHelper = moduleHelper;
+    this.serviceRegistry = serviceRegistry;
+    this.bridgeManagement = bridgeManagement;
+    this.playerListener = playerListener;
   }
 
-  @Listener
-  public void handle(@NonNull StartedEngineEvent<Server> event) {
-    var management = new SpongeBridgeManagement();
-    management.registerServices(Wrapper.instance().serviceRegistry());
-    management.postInit();
+  @Override
+  public void onLoad() {
+    this.bridgeManagement.registerServices(this.serviceRegistry);
+    this.bridgeManagement.postInit();
     // register the listener
-    Sponge.eventManager().registerListeners(this.plugin, new SpongePlayerManagementListener(this.plugin, management));
+    this.eventManager.registerListeners(this.plugin, this.playerListener);
   }
 
-  @Listener
-  public void handle(@NonNull StoppingEngineEvent<Server> event) {
-    ModuleUtil.unregisterAll(this.getClass().getClassLoader());
+  @Override
+  public void onDisable() {
+    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }
