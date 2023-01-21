@@ -59,7 +59,7 @@ final class JLine3CompletionMatcher implements CompletionMatcher {
 
     // check if there is a 100% match
     var givenWord = parsedLine.word();
-    for (Candidate candidate : candidates) {
+    for (var candidate : candidates) {
       if (candidate.complete() && givenWord.equalsIgnoreCase(candidate.value())) {
         return candidate;
       }
@@ -75,7 +75,7 @@ final class JLine3CompletionMatcher implements CompletionMatcher {
     var candidates = Objects.requireNonNull(this.candidates);
 
     String commonPrefix = null;
-    for (Candidate candidate : candidates) {
+    for (var candidate : candidates) {
       if (candidate.complete()) {
         if (commonPrefix == null) {
           // no common prefix yet
