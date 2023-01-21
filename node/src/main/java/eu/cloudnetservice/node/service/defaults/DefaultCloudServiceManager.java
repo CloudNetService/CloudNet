@@ -459,6 +459,11 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   }
 
   @Override
+  public void forceRemoveRegisteredService(@NonNull UUID uniqueId) {
+    this.knownServices.remove(uniqueId);
+  }
+
+  @Override
   public @Nullable SpecificCloudServiceProvider registerService(
     @NonNull ServiceInfoSnapshot snapshot,
     @NonNull NetworkChannel source
