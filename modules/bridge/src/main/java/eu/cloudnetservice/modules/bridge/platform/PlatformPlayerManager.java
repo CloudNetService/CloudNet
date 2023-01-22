@@ -49,8 +49,8 @@ abstract class PlatformPlayerManager implements PlayerManager {
 
   @Override
   public @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task) {
-    return sender.factory().generateRPCChainBasedApi(
-      sender,
+    return this.sender.factory().generateRPCChainBasedApi(
+      this.sender,
       PlayerProvider.class,
       GenerationContext.forClass(PlayerProvider.class).build()
     ).newRPCOnlyInstance(task);
@@ -58,8 +58,8 @@ abstract class PlatformPlayerManager implements PlayerManager {
 
   @Override
   public @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group) {
-    return sender.factory().generateRPCChainBasedApi(
-      sender,
+    return this.sender.factory().generateRPCChainBasedApi(
+      this.sender,
       PlayerProvider.class,
       GenerationContext.forClass(PlayerProvider.class).build()
     ).newRPCOnlyInstance(group);
