@@ -44,7 +44,7 @@ import lombok.NonNull;
 @Singleton
 public class CloudNetLabyModModule extends DriverModule {
 
-  @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     if (Files.exists(this.configPath())) {
       var config = this.readConfig().getDocument("config");
@@ -76,7 +76,7 @@ public class CloudNetLabyModModule extends DriverModule {
     }
   }
 
-  @ModuleTask(event = ModuleLifeCycle.LOADED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.LOADED)
   public void initManagement(
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull @Named("module") InjectionLayer<?> layer
@@ -100,12 +100,12 @@ public class CloudNetLabyModModule extends DriverModule {
         .build());
   }
 
-  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
   public void handleReload(@NonNull NodeLabyModManagement management) {
     management.configuration(this.loadConfiguration());
   }
 
-  @ModuleTask(order = 16, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 16, lifecycle = ModuleLifeCycle.LOADED)
   public void initListeners(
     @NonNull ModuleHelper moduleHelper,
     @NonNull EventManager eventManager,

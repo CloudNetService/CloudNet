@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 @Singleton
 public class CloudNetSmartModule extends DriverModule {
 
-  @ModuleTask(event = ModuleLifeCycle.STARTED, order = Byte.MAX_VALUE)
+  @ModuleTask(lifecycle = ModuleLifeCycle.STARTED, order = Byte.MAX_VALUE)
   public void rewriteOldSmartTaskEntries(@NonNull ServiceTaskProvider taskProvider) {
     for (var task : taskProvider.serviceTasks()) {
       // check if the task had a smart config entry previously
@@ -68,7 +68,7 @@ public class CloudNetSmartModule extends DriverModule {
     }
   }
 
-  @ModuleTask(event = ModuleLifeCycle.STARTED, order = 64)
+  @ModuleTask(lifecycle = ModuleLifeCycle.STARTED, order = 64)
   public void addMissingSmartConfigurationEntries(@NonNull ServiceTaskProvider taskProvider) {
     for (var task : taskProvider.serviceTasks()) {
       // check if the service task needs a smart entry
@@ -80,7 +80,7 @@ public class CloudNetSmartModule extends DriverModule {
     }
   }
 
-  @ModuleTask(event = ModuleLifeCycle.STARTED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)
   public void start(@NonNull EventManager eventManager, @NonNull CommandProvider commandProvider) {
     eventManager
       .registerListener(CloudNetTickListener.class)

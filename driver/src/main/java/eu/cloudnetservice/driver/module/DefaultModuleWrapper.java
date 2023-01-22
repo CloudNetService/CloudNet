@@ -302,7 +302,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
       var moduleTask = method.getAnnotation(ModuleTask.class);
       if (moduleTask != null && !Modifier.isStatic(method.getModifiers())) {
         try {
-          var entries = result.computeIfAbsent(moduleTask.event(), $ -> new ArrayList<>());
+          var entries = result.computeIfAbsent(moduleTask.lifecycle(), $ -> new ArrayList<>());
           entries.add(new DefaultModuleTaskEntry(this, moduleTask, method));
           // re-sort the list now as we don't want to re-iterate later
           entries.sort(TASK_COMPARATOR);
