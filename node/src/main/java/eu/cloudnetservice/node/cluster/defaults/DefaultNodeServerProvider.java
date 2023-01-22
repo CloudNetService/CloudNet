@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.cluster.defaults;
 
-import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -36,6 +36,7 @@ import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.cluster.task.LocalNodeUpdateTask;
 import eu.cloudnetservice.node.cluster.task.NodeDisconnectTrackerTask;
+import eu.cloudnetservice.node.network.listener.message.NodeChannelMessageListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.InputStream;
@@ -85,10 +86,13 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
     this.nodeServers = new HashSet<>();
   }
 
-  @PostConstruct
-  private void finishConstruction() {
+  @Inject
+  private void finishConstruction(@NonNull EventManager eventManager) {
     // register the local node server
     this.nodeServers.add(this.localNode);
+
+    // register the listener for node channel messages
+    eventManager.registerListener(NodeChannelMessageListener.class);
 
     // start all update tasks
     this.executor.scheduleAtFixedRate(this.localNodeUpdateTask, 1, 1, TimeUnit.SECONDS);

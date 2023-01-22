@@ -18,7 +18,6 @@ package eu.cloudnetservice.node;
 
 import dev.derklaro.aerogel.Order;
 import dev.derklaro.aerogel.binding.BindingBuilder;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -74,12 +73,11 @@ import java.io.File;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.Phaser;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 import lombok.NonNull;
 
 @Singleton
@@ -348,7 +346,7 @@ public final class Node {
   private void establishNodeConnections(@NonNull NodeServerProvider nodeServerProvider) {
     // network client init
     var nodeConnections = new Phaser(1);
-    Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
+    Collection<BooleanSupplier> waitingNodeAvailableSuppliers = new LinkedList<>();
     for (var node : nodeServerProvider.nodeServers()) {
       // skip all node servers which are already available (normally only the local node)
       if (node.available()) {
@@ -366,14 +364,7 @@ public final class Node {
           LOGGER.warning(I18n.trans("start-node-connection-failure", node.info().uniqueId(), exception.getMessage()));
         } else {
           // wait for the node connection to become available
-          futures.add(Task.supply(() -> {
-            // wait for the connection to establish, max 7 seconds
-            for (var i = 0; i < 140 && !node.available(); i++) {
-              //noinspection BusyWait
-              Thread.sleep(50);
-            }
-            return null;
-          }));
+          waitingNodeAvailableSuppliers.add(node::available);
         }
 
         // count down by one arrival
@@ -385,12 +376,29 @@ public final class Node {
     nodeConnections.arriveAndAwaitAdvance();
 
     // now we can wait for all nodes to become available (if needed)
-    if (!futures.isEmpty()) {
-      try {
-        LOGGER.info(I18n.trans("start-node-connection-waiting", futures.size()));
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get(7, TimeUnit.SECONDS);
-      } catch (Exception ignored) {
-        // auth failed to a node in the cluster - ignore
+    if (!waitingNodeAvailableSuppliers.isEmpty()) {
+      // notify the user that we're waiting
+      LOGGER.info(I18n.trans("start-node-connection-waiting", waitingNodeAvailableSuppliers.size()));
+
+      var waitStartInstant = Instant.now();
+      while (!waitingNodeAvailableSuppliers.isEmpty()) {
+        // remove all boolean suppliers that were notified that the node is available
+        waitingNodeAvailableSuppliers.removeIf(BooleanSupplier::getAsBoolean);
+
+        // time-out this loop if we waited for more than 7 seconds
+        var waitDuration = Duration.between(waitStartInstant, Instant.now());
+        if (waitDuration.getSeconds() >= 7) {
+          break;
+        }
+
+        try {
+          // wait for a tiny bit before checking again
+          //noinspection BusyWait
+          Thread.sleep(50L);
+        } catch (InterruptedException exception) {
+          Thread.currentThread().interrupt(); // reset the interrupted state of the thread
+          throw new IllegalThreadStateException();
+        }
       }
     }
   }
