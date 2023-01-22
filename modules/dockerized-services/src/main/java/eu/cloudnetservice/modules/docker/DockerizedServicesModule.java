@@ -89,12 +89,12 @@ public class DockerizedServicesModule extends DriverModule {
     serviceManager.addCloudServiceFactory(this.configuration.factoryName(), factory);
   }
 
-  @ModuleTask(event = ModuleLifeCycle.STARTED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)
   public void registerComponents(@NonNull CommandProvider commandProvider) {
     commandProvider.register(DockerCommand.class);
   }
 
-  @ModuleTask(event = ModuleLifeCycle.STOPPED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.STOPPED)
   public void unregisterServiceFactory(@NonNull CloudServiceManager cloudServiceManager) {
     cloudServiceManager.removeCloudServiceFactory(this.configuration.factoryName());
   }

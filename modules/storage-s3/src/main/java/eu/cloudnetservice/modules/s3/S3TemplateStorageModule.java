@@ -34,7 +34,7 @@ public final class S3TemplateStorageModule extends DriverModule {
   private S3TemplateStorage storage;
   private volatile S3TemplateStorageConfig config;
 
-  @ModuleTask(event = ModuleLifeCycle.LOADED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.LOADED)
   public void handleInit(@NonNull ServiceRegistry serviceRegistry, @NonNull DataSyncRegistry dataSyncRegistry) {
     this.config = this.readConfig(
       S3TemplateStorageConfig.class,
@@ -64,7 +64,7 @@ public final class S3TemplateStorageModule extends DriverModule {
       .build());
   }
 
-  @ModuleTask(event = ModuleLifeCycle.STOPPED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.STOPPED)
   public void handleStop(@NonNull ServiceRegistry serviceRegistry) {
     this.storage.close();
     serviceRegistry.unregisterProvider(TemplateStorage.class, this.storage.name());

@@ -63,14 +63,14 @@ public final class CloudNetBridgeModule extends DriverModule {
     layer.installAutoConfigureBindings(CloudNetBridgeModule.class.getClassLoader(), "bridge");
   }
 
-  @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 50, lifecycle = ModuleLifeCycle.LOADED)
   public void initNetworkHelpers() {
     DefaultObjectMapper.DEFAULT_MAPPER
       .registerBinding(Title.class, new TitleObjectSerializer(), false)
       .registerBinding(Component.class, new ComponentObjectSerializer(), false);
   }
 
-  @ModuleTask(event = ModuleLifeCycle.STARTED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)
   public void convertOldDatabaseEntries(
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull NodeDatabaseProvider databaseProvider
@@ -136,7 +136,7 @@ public final class CloudNetBridgeModule extends DriverModule {
     }
   }
 
-  @ModuleTask(order = 40, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 40, lifecycle = ModuleLifeCycle.LOADED)
   public void convertOldConfiguration() {
     // read the file
     var config = JsonDocument.newDocument(this.configPath()).getDocument("config");
@@ -169,7 +169,7 @@ public final class CloudNetBridgeModule extends DriverModule {
     }
   }
 
-  @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
+  @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STARTED)
   public void initModule(
     @NonNull HttpServer httpServer,
     @NonNull ServiceRegistry serviceRegistry,
@@ -198,13 +198,13 @@ public final class CloudNetBridgeModule extends DriverModule {
     httpServer.annotationParser().parseAndRegister(V2HttpHandlerBridge.class);
   }
 
-  @ModuleTask(event = ModuleLifeCycle.STARTED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)
   public void registerCommand(@NonNull CommandProvider commandProvider) {
     // register the bridge command
     commandProvider.register(BridgeCommand.class);
   }
 
-  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
   public void handleReload(@Nullable BridgeManagement management) {
     if (management != null) {
       management.configuration(this.loadConfiguration());
