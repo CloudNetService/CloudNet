@@ -45,6 +45,8 @@ import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.cluster.task.LocalNodeUpdateTask;
+import eu.cloudnetservice.node.cluster.task.NodeDisconnectTrackerTask;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
@@ -75,7 +77,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import lombok.NonNull;
@@ -428,6 +432,28 @@ public final class Node {
   }
 
   @Inject
+  @Order(750)
+  private void startModules(@NonNull ModuleProvider moduleProvider) {
+    moduleProvider.startAll();
+  }
+
+  @Inject
+  @Order(800)
+  private void scheduleNodeUpdateTasks(
+    @NonNull LocalNodeUpdateTask localNodeUpdateTask,
+    @NonNull NodeDisconnectTrackerTask disconnectTrackerTask
+  ) {
+    // create a scheduled executor that we use to schedule the task, ensure that we shut it down when
+    // the process terminates to ensure that no threads are preventing the shutdown process to complete
+    var updateTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+    Runtime.getRuntime().addShutdownHook(new Thread(updateTaskExecutor::shutdownNow));
+
+    // schedule both update tasks
+    updateTaskExecutor.scheduleAtFixedRate(localNodeUpdateTask, 1, 1, TimeUnit.SECONDS);
+    updateTaskExecutor.scheduleAtFixedRate(disconnectTrackerTask, 5, 5, TimeUnit.SECONDS);
+  }
+
+  @Inject
   @Order(10_000)
   private void installShutdownHook(@NonNull Provider<ShutdownHandler> shutdownHandlerProvider) {
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -442,13 +468,9 @@ public final class Node {
   private void finishStartup(
     @NonNull TickLoop tickLoop,
     @NonNull EventManager eventManager,
-    @NonNull ModuleProvider moduleProvider,
     @NonNull FileDeployCallbackListener callbackListener,
     @NonNull @Named("startInstant") Instant startInstant
   ) {
-    // start all modules
-    moduleProvider.startAll();
-
     // register listeners & post node startup finish
     eventManager.registerListener(callbackListener);
     eventManager.callEvent(new CloudNetNodePostInitializationEvent());
