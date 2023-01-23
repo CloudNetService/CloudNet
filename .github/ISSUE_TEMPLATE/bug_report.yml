@@ -16,7 +16,7 @@ body:
       label: Stacktrace
       description: |
         Attach your stack trace here (if any). Ensure that the stack trace is related to CloudNet
-        and do not cut off any parts of it. Please put your stacktrace either directly into the text 
+        and do not cut off any parts of it. Please put your stacktrace either directly into the text
         field or use https://gist.new for stack traces. Some providers are deleting pastes after some
         time, so please stick to raw logs or gists. DO NOT use attachments for posting logs or exceptions.
       value: |
