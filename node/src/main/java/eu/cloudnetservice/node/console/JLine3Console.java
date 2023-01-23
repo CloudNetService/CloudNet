@@ -94,8 +94,9 @@ public final class JLine3Console implements Console {
     this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
     this.lineReader = new InternalLineReader(this.terminal);
 
-    this.lineReader.setAutosuggestion(LineReader.SuggestionType.COMPLETER);
     this.lineReader.setCompleter(new JLine3Completer(this));
+    this.lineReader.setCompletionMatcher(new JLine3CompletionMatcher());
+    this.lineReader.setAutosuggestion(LineReader.SuggestionType.COMPLETER);
 
     this.lineReader.option(LineReader.Option.AUTO_GROUP, false);
     this.lineReader.option(LineReader.Option.AUTO_MENU_LIST, true);

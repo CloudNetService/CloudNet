@@ -18,14 +18,17 @@ package eu.cloudnetservice.node.command.defaults;
 
 import cloud.commandframework.execution.CommandSuggestionProcessor;
 import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext;
-import eu.cloudnetservice.common.Nameable;
+import com.google.common.base.Strings;
 import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
-import jakarta.inject.Inject;
+import info.debatty.java.stringsimilarity.JaroWinkler;
+import info.debatty.java.stringsimilarity.interfaces.StringSimilarity;
 import jakarta.inject.Singleton;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
@@ -35,18 +38,12 @@ import lombok.NonNull;
 @Singleton
 final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<CommandSource> {
 
-  private final CommandProvider provider;
+  private static final double MINIMUM_SIMILARITY = 0.7;
+  private static final double MAXIMUM_SIMILARITY = 1.0;
 
-  /**
-   * Constructs our own suggestion processor as we need to overwrite the default {@link CommandSuggestionProcessor} to
-   * support command unregister.
-   *
-   * @param provider the command provider to access the registered commands with.
-   */
-  @Inject
-  private DefaultSuggestionProcessor(@NonNull CommandProvider provider) {
-    this.provider = provider;
-  }
+  private static final StringSimilarity SIMILARITY_ALGORITHM = new JaroWinkler();
+  private static final Comparator<Map.Entry<String, Double>> SIMILARITY_COMPARATOR = Collections.reverseOrder(
+    Comparator.comparingDouble(Map.Entry::getValue));
 
   /**
    * {@inheritDoc}
@@ -54,39 +51,36 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
   @Override
   public @NonNull List<String> apply(
     @NonNull CommandPreprocessingContext<CommandSource> context,
-    @NonNull List<String> strings
+    @NonNull List<String> allSuggestions
   ) {
-    // check if the user tries to complete all command roots
-    if (!context.getCommandContext().getRawInputJoined().contains(" ")) {
-      return this.provider.commands().stream().map(Nameable::name).collect(Collectors.toList());
-    }
-    // is the queue is empty just use a blank string.
-    String input;
-    if (context.getInputQueue().isEmpty()) {
-      input = "";
-    } else {
-      input = context.getInputQueue().peek();
+    // íf there is no input yet, just return all suggestions
+    var input = context.getInputQueue().peek();
+    if (Strings.isNullOrEmpty(input)) {
+      return allSuggestions;
     }
 
-    List<String> suggestions = new LinkedList<>();
-    for (var suggestion : strings) {
-      // check if clouds suggestion matches the input
-      if (StringUtil.startsWithIgnoreCase(suggestion, input)) {
-        // validate that the command is registered
-        var rawInput = context.getCommandContext().getRawInput();
-        if (rawInput.size() > 1) {
-          // there are already arguments - validate that the command root is registered before suggesting further arguments
-          if (this.provider.command(rawInput.get(0)) != null) {
-            suggestions.add(suggestion);
-          }
-        } else {
-          // if there are no arguments yet, just validate that the suggestion is registered as a command
-          if (this.provider.command(suggestion) != null) {
-            suggestions.add(suggestion);
-          }
-        }
-      }
+    // filter out the suggestions which are the closest to what the user provided
+    var lowerCasedInput = StringUtil.toLower(input);
+    var matches = allSuggestions.stream()
+      .map(suggestion -> {
+        var distance = SIMILARITY_ALGORITHM.similarity(StringUtil.toLower(suggestion), lowerCasedInput);
+        return Map.entry(suggestion, distance);
+      })
+      .filter(entry -> entry.getValue() >= MINIMUM_SIMILARITY)
+      .sorted(SIMILARITY_COMPARATOR)
+      .collect(Collectors.toCollection(LinkedList::new));
+
+    // check if we got at least one match
+    var bestMatch = matches.peek();
+    if (bestMatch == null) {
+      return List.of();
     }
-    return suggestions;
+
+    // check if the topmost match is a match of 100% - in that case only return that match
+    if (bestMatch.getValue() == MAXIMUM_SIMILARITY) {
+      return List.of(bestMatch.getKey());
+    } else {
+      return matches.stream().map(Map.Entry::getKey).toList();
+    }
   }
 }

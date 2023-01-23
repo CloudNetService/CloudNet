@@ -25,7 +25,8 @@ javapoet = "1.13.0"
 # console
 jansi = "2.4.0"
 jline = "3.22.0"
-cloud = "1.8.0-cn1"
+cloud = "1.9.0-cn1"
+stringSimilarity = "2.0.0"
 
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
@@ -87,6 +88,7 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 # console
 jline = { group = "org.jline", name = "jline", version.ref = "jline" }
 jansi = { group = "org.fusesource.jansi", name = "jansi", version.ref = "jansi" }
+stringSimilarity = { group = "info.debatty", name = "java-string-similarity", version.ref = "stringSimilarity" }
 
 # night config
 nightConfigToml = { group = "com.electronwill.night-config", name = "toml", version.ref = "nightConfig" }

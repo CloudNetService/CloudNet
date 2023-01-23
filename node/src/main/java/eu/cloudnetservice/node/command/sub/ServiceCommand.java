@@ -322,9 +322,17 @@ public final class ServiceCommand {
   public void addDeployment(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @NonNull @Argument("deployment") ServiceTemplate template
+    @NonNull @Argument("deployment") ServiceTemplate template,
+    @Nullable @Flag("excludes") @Quoted String excludes,
+    @Nullable @Flag("includes") @Quoted String includes,
+    @Flag("case-sensitive") boolean caseSensitive
   ) {
-    var deployment = ServiceDeployment.builder().template(template).build();
+    var deployment = ServiceDeployment.builder()
+      .template(template)
+      .excludes(ServiceCommand.parseDeploymentPatterns(excludes, caseSensitive))
+      .includes(ServiceCommand.parseDeploymentPatterns(includes, caseSensitive))
+      .withDefaultExclusions()
+      .build();
     for (var matchedService : matchedServices) {
       matchedService.provider().addServiceDeployment(deployment);
     }

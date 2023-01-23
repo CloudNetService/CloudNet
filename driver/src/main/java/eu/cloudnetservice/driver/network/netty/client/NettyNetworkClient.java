@@ -135,6 +135,8 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
       .option(ChannelOption.IP_TOS, 0x18)
       .option(ChannelOption.AUTO_READ, true)
       .option(ChannelOption.TCP_NODELAY, true)
+      .option(ChannelOption.SO_REUSEADDR, true)
+      .option(ChannelOption.TCP_FASTOPEN_CONNECT, true)
       .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
       .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
 

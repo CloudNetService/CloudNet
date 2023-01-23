@@ -103,12 +103,12 @@ public class CloudNetSignsModule extends DriverModule {
     this.convertDatabaseIfNecessary(databaseProvider);
   }
 
-  @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)
+  @ModuleTask(order = 40, lifecycle = ModuleLifeCycle.STOPPED)
   public void handleStopping() throws Exception {
     this.database.close();
   }
 
-  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
   public void handleReload() {
     var management = ServiceRegistry.first(SignManagement.class);
     if (management != null) {

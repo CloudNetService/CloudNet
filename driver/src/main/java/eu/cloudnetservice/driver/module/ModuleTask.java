@@ -57,5 +57,5 @@ public @interface ModuleTask {
    *
    * @return the module lifecycle in which this task should be fired.
    */
-  ModuleLifeCycle event() default ModuleLifeCycle.STARTED;
+  ModuleLifeCycle lifecycle() default ModuleLifeCycle.STARTED;
 }
