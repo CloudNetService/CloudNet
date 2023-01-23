@@ -162,7 +162,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   }
 
   @PostConstruct
-  private void a() {
+  private void registerDefaultServiceFactory() {
     // register the default factory
     this.addCloudServiceFactory("jvm", JVMLocalCloudServiceFactory.class);
   }
