@@ -409,6 +409,21 @@ public final class Node {
 
   @Inject
   @Order(650)
+  private void registerDefaultCommands(@NonNull CommandProvider commandProvider, @NonNull Console console) {
+    // register the default commands
+    LOGGER.info(I18n.trans("start-commands"));
+    commandProvider.registerDefaultCommands();
+    commandProvider.registerConsoleHandler(console);
+  }
+
+  @Inject
+  @Order(700)
+  private void startModules(@NonNull ModuleProvider moduleProvider) {
+    moduleProvider.startAll();
+  }
+
+  @Inject
+  @Order(750)
   private void requestClusterDataIfNeeded(@NonNull NodeServerProvider nodeServerProvider) {
     // we are now connected to all nodes - request the full cluster data set if the head node is not the current one
     if (!nodeServerProvider.localNode().head()) {
@@ -420,21 +435,6 @@ public final class Node {
         .build()
         .send();
     }
-  }
-
-  @Inject
-  @Order(700)
-  private void registerDefaultCommands(@NonNull CommandProvider commandProvider, @NonNull Console console) {
-    // register the default commands
-    LOGGER.info(I18n.trans("start-commands"));
-    commandProvider.registerDefaultCommands();
-    commandProvider.registerConsoleHandler(console);
-  }
-
-  @Inject
-  @Order(750)
-  private void startModules(@NonNull ModuleProvider moduleProvider) {
-    moduleProvider.startAll();
   }
 
   @Inject
