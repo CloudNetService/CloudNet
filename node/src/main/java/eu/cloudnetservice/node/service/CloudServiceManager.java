@@ -31,7 +31,6 @@ import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -95,7 +94,21 @@ public interface CloudServiceManager extends CloudServiceProvider {
   void unregisterLocalService(@NonNull CloudService service);
 
   @ApiStatus.Internal
-  void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @UnknownNullability NetworkChannel source);
+  void registerUnacceptedService(@NonNull CloudService service);
+
+  @ApiStatus.Internal
+  @Nullable CloudService takeUnacceptedService(@NonNull UUID serviceUniqueId);
+
+  @ApiStatus.Internal
+  void forceRemoveRegisteredService(@NonNull UUID uniqueId);
+
+  @ApiStatus.Internal
+  @Nullable SpecificCloudServiceProvider registerService(
+    @NonNull ServiceInfoSnapshot snapshot,
+    @NonNull NetworkChannel source);
+
+  @ApiStatus.Internal
+  void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @Nullable NetworkChannel source);
 
   @ApiStatus.Internal
   @NonNull CloudService createLocalCloudService(@NonNull ServiceConfiguration serviceConfiguration);
