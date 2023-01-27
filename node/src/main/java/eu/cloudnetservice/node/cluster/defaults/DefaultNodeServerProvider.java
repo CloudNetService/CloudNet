@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.cluster.defaults;
 
-import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -34,8 +34,7 @@ import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
-import eu.cloudnetservice.node.cluster.task.LocalNodeUpdateTask;
-import eu.cloudnetservice.node.cluster.task.NodeDisconnectTrackerTask;
+import eu.cloudnetservice.node.network.listener.message.NodeChannelMessageListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.InputStream;
@@ -44,9 +43,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,40 +55,22 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
   private final LocalNodeServer localNode;
   private final Collection<NodeServer> nodeServers;
 
-  private final LocalNodeUpdateTask localNodeUpdateTask;
-  private final NodeDisconnectTrackerTask disconnectTrackerTask;
-
-  // this executor handles everything which is needed for the cluster to work properly
-  // as we normally scheduled 2 tasks (1 to send a local node update regularly, 1 to keep track of node disconnects), the
-  // core pool size is set to 2
-  private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
-
   private volatile NodeServer headNode;
 
   @Inject
-  public DefaultNodeServerProvider(
-    @NonNull LocalNodeServer localNode,
-    @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull LocalNodeUpdateTask localNodeUpdateTask,
-    @NonNull NodeDisconnectTrackerTask disconnectTrackerTask
-  ) {
+  public DefaultNodeServerProvider(@NonNull LocalNodeServer localNode, @NonNull DataSyncRegistry dataSyncRegistry) {
     this.dataSyncRegistry = dataSyncRegistry;
-    this.localNodeUpdateTask = localNodeUpdateTask;
-    this.disconnectTrackerTask = disconnectTrackerTask;
-
-    // create and register the local node server
     this.localNode = localNode;
     this.nodeServers = new HashSet<>();
   }
 
-  @PostConstruct
-  private void finishConstruction() {
+  @Inject
+  private void finishConstruction(@NonNull EventManager eventManager) {
     // register the local node server
     this.nodeServers.add(this.localNode);
 
-    // start all update tasks
-    this.executor.scheduleAtFixedRate(this.localNodeUpdateTask, 1, 1, TimeUnit.SECONDS);
-    this.executor.scheduleAtFixedRate(this.disconnectTrackerTask, 5, 5, TimeUnit.SECONDS);
+    // register the listener for node channel messages
+    eventManager.registerListener(NodeChannelMessageListener.class);
   }
 
   @Override
@@ -254,6 +232,5 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
     });
     // re-select the head node in case some api stored an instance of this class
     this.selectHeadNode();
-    this.executor.shutdownNow();
   }
 }
