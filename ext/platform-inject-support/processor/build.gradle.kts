@@ -15,7 +15,7 @@
  */
 
 dependencies {
-  "api"(libs.javapoet)
-  "api"(libs.bundles.nightConfig)
-  "api"(projects.ext.platformInjectSupport.platformInjectApi)
+  "implementation"(libs.javapoet)
+  "implementation"(libs.bundles.nightConfig)
+  "implementation"(projects.ext.platformInjectSupport.platformInjectApi)
 }
