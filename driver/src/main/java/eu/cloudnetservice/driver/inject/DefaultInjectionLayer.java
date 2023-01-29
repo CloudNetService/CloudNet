@@ -76,8 +76,9 @@ record DefaultInjectionLayer<I extends Injector>(
     @NonNull Consumer<InjectionContext.Builder> builder
   ) {
     // get the binding associated with the given type & construct a context builder
-    var binding = this.injector.binding(type);
-    var contextBuilder = InjectionContext.builder(type, binding.provider());
+    var element = Element.forType(type);
+    var binding = this.injector.binding(element);
+    var contextBuilder = InjectionContext.builder(type, binding.provider(element));
 
     // apply the builder decorator to the builder
     builder.accept(contextBuilder);

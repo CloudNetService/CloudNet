@@ -19,6 +19,7 @@ package eu.cloudnetservice.ext.platforminject.processor;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
+import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.spi.PlatformDataGeneratorProvider;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ConstructionListener;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
@@ -49,6 +50,8 @@ import lombok.NonNull;
 
 public final class PlatformPluginProcessor extends AbstractProcessor {
 
+  private static final String PLATFORM_ENTRYPOINT_CLASS_NAME = PlatformEntrypoint.class.getName();
+
   private final Map<String, PlatformDataGeneratorProvider> dataGeneratorProviders = new HashMap<>();
 
   private ProcessingEnvironment environment;
@@ -77,6 +80,14 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(@NonNull Set<? extends TypeElement> annotations, @NonNull RoundEnvironment roundEnv) {
+    // get a type mirror for the platform entrypoint class here, once
+    // as this depends on the element utils which are only available via
+    // the environment we cannot initialize that field statically
+    var platformEntryPointClass = this.environment
+      .getElementUtils()
+      .getTypeElement(PLATFORM_ENTRYPOINT_CLASS_NAME)
+      .asType();
+
     // find all platform plugin classes
     List<ScanPackageEntry> scanEntries = new LinkedList<>();
     for (var element : roundEnv.getElementsAnnotatedWith(PlatformPlugin.class)) {
@@ -85,6 +96,15 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
         this.environment.getMessager().printMessage(
           Diagnostic.Kind.ERROR,
           "Only classes can be annotated with @PlatformPlugin");
+        continue;
+      }
+
+      // ensure that the class implements PlatformEntrypoint
+      var typeElement = (TypeElement) element;
+      if (!this.environment.getTypeUtils().isAssignable(typeElement.asType(), platformEntryPointClass)) {
+        this.environment.getMessager().printMessage(
+          Diagnostic.Kind.ERROR,
+          "Classes annotated as @PlatformPlugin must implement PlatformEntrypoint");
         continue;
       }
 
@@ -139,12 +159,11 @@ public final class PlatformPluginProcessor extends AbstractProcessor {
         dataGenerator.infoGenerator().generatePluginInfo(pluginData, fullMainName, this.environment.getFiler());
 
         // generate the main class
-        var type = (TypeElement) element;
         dataGenerator.mainClassGenerator().generatePluginMainClass(
           this.environment.getFiler(),
           packageName,
           pluginData,
-          type,
+          typeElement,
           platformMainClass);
       } catch (IOException exception) {
         throw new IllegalStateException("Exception generating plugin info or main class", exception);
