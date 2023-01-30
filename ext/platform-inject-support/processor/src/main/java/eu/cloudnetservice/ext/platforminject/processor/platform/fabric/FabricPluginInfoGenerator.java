@@ -31,14 +31,19 @@ import lombok.NonNull;
 
 final class FabricPluginInfoGenerator extends NightConfigInfoGenerator {
 
-  // https://fabricmc.net/wiki/documentation:fabric_mod_json#mandatory_fields
+  // [a-z][a-z0-9-_]{1,63}
   private static final PluginIdGenerator MOD_ID_GENERATOR = PluginIdGenerator.withBoundedLength(1, 63)
     .registerRange(
       0,
+      1,
+      'a',
+      CharRange.range('a', 'z'))
+    .registerRange(
+      1,
       '_',
       CharRange.range('_'),
+      CharRange.range('-'),
       CharRange.range('a', 'z'),
-      CharRange.range('A', 'Z'),
       CharRange.range('0', '9'));
 
   public FabricPluginInfoGenerator() {
