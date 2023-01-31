@@ -19,7 +19,6 @@ package eu.cloudnetservice.node.provider;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.command.CommandInfo;
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
@@ -33,7 +32,6 @@ import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.DriverCommandSource;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.network.listener.message.NodeChannelMessageListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
@@ -63,13 +61,6 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
 
     // add the rpc handler
     rpcFactory.newHandler(ClusterNodeProvider.class, this).registerTo(handlerRegistry);
-  }
-
-  @Inject
-  private void registerChannelMessageListener(@NonNull EventManager eventManager) {
-    // we do this in post as the listener needs the instance of this class, doing it here prevents
-    // the construction of a runtime proxy while creating the instance
-    eventManager.registerListener(NodeChannelMessageListener.class);
   }
 
   @Override
