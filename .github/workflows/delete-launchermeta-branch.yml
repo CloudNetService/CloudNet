@@ -1,0 +1,28 @@
+name: Remove deleted branch from launchermeta
+on:
+  delete:
+
+jobs:
+  print_deleted:
+    runs-on: ubuntu-latest
+    name: Remove deleted branch
+    if: github.event.ref_type == 'branch'
+
+    steps:
+      - name: Setup ssh agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Delete branch from launchermeta
+        run: |
+          # init git configuration
+          git config --global user.name "CloudNetAutomation";
+          git config --global user.email "CloudNetAutomation@users.noreply.github.com";
+
+          # clone the repo from the remote, without objects (partial clone)
+          git clone --filter=blob:none --no-checkout git@github.com:CloudNetService/launchermeta.git del_temp;
+
+          # navigate into the cloned repo and remove the delete branch (while ignoring all errors)
+          cd del_temp;
+          git push origin --delete "${{ github.event.ref }}" || true;
