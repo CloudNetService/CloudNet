@@ -37,7 +37,8 @@ public enum JavaVersion {
   JAVA_17(17, 61D, "Java 17"),
   JAVA_18(18, 62D, "Java 18"),
   JAVA_19(19, 63D, "Java 19"),
-  JAVA_20(20, 64D, "Java 20");
+  JAVA_20(20, 64D, "Java 20"),
+  JAVA_21(21, 65D, "Java 21");
 
   private static final JavaVersion[] JAVA_VERSIONS = resolveActualJavaVersions();
   private static final JavaVersion LATEST_VERSION = JAVA_VERSIONS[JAVA_VERSIONS.length - 1];
