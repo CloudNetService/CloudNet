@@ -19,7 +19,7 @@ tyrusClient = "2.1.2"
 testcontainers = "1.17.6"
 
 # compile time processing
-lombok = "1.18.24"
+lombok = "1.18.26"
 javapoet = "1.13.0"
 
 # console
