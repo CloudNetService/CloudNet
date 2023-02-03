@@ -18,12 +18,12 @@ package eu.cloudnetservice.driver.network.netty.server;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.network.netty.NettyOptionSettingChannelInitializer;
 import eu.cloudnetservice.driver.network.netty.codec.NettyPacketDecoder;
 import eu.cloudnetservice.driver.network.netty.codec.NettyPacketEncoder;
 import eu.cloudnetservice.driver.network.netty.codec.VarInt32FrameDecoder;
 import eu.cloudnetservice.driver.network.netty.codec.VarInt32FramePrepender;
 import io.netty5.channel.Channel;
-import io.netty5.channel.ChannelInitializer;
 import lombok.NonNull;
 
 /**
@@ -31,7 +31,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
+public class NettyNetworkServerInitializer extends NettyOptionSettingChannelInitializer {
 
   private final EventManager eventManager;
   private final HostAndPort serverLocalAddress;
@@ -59,7 +59,7 @@ public class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
    * {@inheritDoc}
    */
   @Override
-  protected void initChannel(@NonNull Channel ch) {
+  protected void doInitChannel(@NonNull Channel ch) {
     if (this.networkServer.sslContext != null) {
       ch.pipeline().addLast("ssl-handler", this.networkServer.sslContext.newHandler(ch.bufferAllocator()));
     }

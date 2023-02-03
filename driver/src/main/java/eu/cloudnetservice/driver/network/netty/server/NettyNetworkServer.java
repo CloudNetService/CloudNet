@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.NetworkServer;
+import eu.cloudnetservice.driver.network.netty.NettyOptionSettingChannelInitializer;
 import eu.cloudnetservice.driver.network.netty.NettySslServer;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.protocol.Packet;
@@ -34,6 +35,7 @@ import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.WriteBufferWaterMark;
+import io.netty5.channel.unix.UnixChannelOption;
 import io.netty5.util.concurrent.Future;
 import jakarta.inject.Singleton;
 import java.util.Collection;
@@ -135,17 +137,18 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
     new ServerBootstrap()
       .channelFactory(NettyUtil.serverChannelFactory())
       .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
-      .childHandler(new NettyNetworkServerInitializer(this.eventManager, this, hostAndPort))
 
-      .childOption(ChannelOption.IP_TOS, 0x18)
-      .childOption(ChannelOption.AUTO_READ, true)
-      .childOption(ChannelOption.TCP_NODELAY, true)
-      .childOption(ChannelOption.SO_REUSEADDR, true)
-      .childOption(ChannelOption.SO_KEEPALIVE, true)
-      .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
-
-      .option(ChannelOption.TCP_FASTOPEN, 3)
-      .option(ChannelOption.SO_REUSEADDR, true)
+      .handler(new NettyOptionSettingChannelInitializer()
+        .option(ChannelOption.TCP_FASTOPEN, 3)
+        .option(ChannelOption.SO_REUSEADDR, true)
+        .option(UnixChannelOption.SO_REUSEPORT, true))
+      .childHandler(new NettyNetworkServerInitializer(this.eventManager, this, hostAndPort)
+        .option(ChannelOption.IP_TOS, 0x18)
+        .option(ChannelOption.AUTO_READ, true)
+        .option(ChannelOption.TCP_NODELAY, true)
+        .option(ChannelOption.SO_REUSEADDR, true)
+        .option(ChannelOption.SO_KEEPALIVE, true)
+        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK))
 
       .bind(hostAndPort.host(), hostAndPort.port())
       .addListener(future -> {
