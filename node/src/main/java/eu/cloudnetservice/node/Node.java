@@ -239,7 +239,9 @@ public final class Node {
   private void initializeDatabaseProvider(
     @NonNull Configuration configuration,
     @NonNull ServiceRegistry serviceRegistry,
-    @NonNull InjectionLayer<?> bootLayer
+    @NonNull InjectionLayer<?> bootLayer,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull RPCHandlerRegistry rpcHandlerRegistry
   ) throws Exception {
     // initialize the default database provider
     var configuredProvider = configuration.properties().getString("database_provider", "xodus");
@@ -259,6 +261,9 @@ public final class Node {
       .bindAll(DatabaseProvider.class, NodeDatabaseProvider.class)
       .toInstance(provider);
     bootLayer.install(binding);
+
+    // register the rpc handler for the database provider
+    rpcFactory.newHandler(DatabaseProvider.class, provider).registerTo(rpcHandlerRegistry);
 
     // notify the user about the selected database
     LOGGER.info(I18n.trans("start-connect-database", provider.name()));

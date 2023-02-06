@@ -224,7 +224,7 @@ public final class MySQLDatabase extends SQLDatabase {
   @Override
   public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
     return this.databaseProvider.executeQuery(
-      String.format("SELECT * FROM `%s` ORDER BY ? LIMIT ? OFFSET ?;", this.name),
+      String.format("SELECT * FROM `%s` ORDER BY `%s` LIMIT ? OFFSET ?;", this.name, TABLE_COLUMN_KEY),
       resultSet -> {
         Map<String, JsonDocument> result = new HashMap<>();
         while (resultSet.next()) {
@@ -234,7 +234,7 @@ public final class MySQLDatabase extends SQLDatabase {
         }
 
         return result.isEmpty() ? null : result;
-      }, null, TABLE_COLUMN_KEY, chunkSize, beginIndex);
+      }, null, chunkSize, beginIndex);
   }
 
   @Override
