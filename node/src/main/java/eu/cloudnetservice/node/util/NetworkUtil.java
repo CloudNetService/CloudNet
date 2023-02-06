@@ -69,6 +69,19 @@ public final class NetworkUtil {
     return InetAddresses.forString(hostAndPort.host()).isAnyLocalAddress();
   }
 
+  public static @NonNull String removeAddressScope(@NonNull String inputAddress) {
+    // check if the host address contains '%' which separates the address
+    // from the associated network interface or scope id
+    var scopeSeparatorIndex = inputAddress.indexOf('%');
+    if (scopeSeparatorIndex != -1) {
+      // network if or scope set
+      return inputAddress.substring(0, scopeSeparatorIndex);
+    } else {
+      // raw address
+      return inputAddress;
+    }
+  }
+
   public static boolean checkAssignable(@NonNull HostAndPort hostAndPort) {
     try (var socket = new ServerSocket()) {
       // try to bind on the given address
@@ -159,14 +172,7 @@ public final class NetworkUtil {
     if (address instanceof Inet6Address) {
       // get the host address of the inet address
       var hostAddress = address.getHostAddress();
-      // check if the host address contains '%' which separates the address from the source adapter name
-      var percentile = hostAddress.indexOf('%');
-      if (percentile != -1) {
-        // strip the host address from the "full" address
-        hostAddress = hostAddress.substring(0, percentile);
-      }
-      // the "better" host address
-      return hostAddress;
+      return removeAddressScope(hostAddress);
     } else {
       // just add the address
       return address.getHostAddress();

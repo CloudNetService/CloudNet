@@ -33,6 +33,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.listener.PacketClientAuthorizationListener;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.util.NetworkUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -130,6 +131,18 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
   }
 
   private boolean shouldDenyConnection(@NonNull NetworkChannel channel) {
-    return this.configuration.ipWhitelist().stream().noneMatch(channel.clientAddress().host()::equals);
+    var ipWhitelist = this.configuration.ipWhitelist();
+    var sourceClientAddress = NetworkUtil.removeAddressScope(channel.clientAddress().host());
+
+    // check if any address added to the ip whitelist matches the source client address
+    for (var allowedIpAddress : ipWhitelist) {
+      var allowedAddressWithoutScope = NetworkUtil.removeAddressScope(allowedIpAddress);
+      if (allowedAddressWithoutScope.equals(sourceClientAddress)) {
+        return false;
+      }
+    }
+
+    // no allowed ip found that matches the given client address
+    return true;
   }
 }
