@@ -132,7 +132,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
 
   private boolean shouldDenyConnection(@NonNull NetworkChannel channel) {
     var ipWhitelist = this.configuration.ipWhitelist();
-    var sourceClientAddress = channel.clientAddress().host();
+    var sourceClientAddress = NetworkUtil.removeAddressScope(channel.clientAddress().host());
 
     // check if any address added to the ip whitelist matches the source client address
     for (var allowedIpAddress : ipWhitelist) {
