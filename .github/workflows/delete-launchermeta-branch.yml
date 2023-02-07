@@ -3,7 +3,7 @@ on:
   delete:
 
 jobs:
-  print_deleted:
+  remove_deleted_branch:
     runs-on: ubuntu-latest
     name: Remove deleted branch
     if: github.event.ref_type == 'branch'
