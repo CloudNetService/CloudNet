@@ -30,19 +30,17 @@ import lombok.NonNull;
 public enum ServerSelectorType {
 
   /**
-   * The service with the highest player count is preferred.
-   */
-  HIGHEST_PLAYERS(Comparator.comparingInt(o -> o.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0))),
-  /**
    * The service with the lowest player count is preferred.
    */
-  LOWEST_PLAYERS((o1, o2) -> Integer.compare(
-    o2.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0),
-    o1.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0))),
+  LOWEST_PLAYERS(Comparator.comparingInt(ser -> ser.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0))),
+  /**
+   * The service with the highest player count is preferred.
+   */
+  HIGHEST_PLAYERS(LOWEST_PLAYERS.comparator.reversed()),
   /**
    * A random service is chosen.
    */
-  RANDOM(Comparator.comparingInt(value -> ThreadLocalRandom.current().nextInt(2) - 1));
+  RANDOM(Comparator.comparingInt(value -> ThreadLocalRandom.current().nextInt(-1, 2)));
 
   private final Comparator<ServiceInfoSnapshot> comparator;
 
