@@ -35,6 +35,7 @@ import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceCreateRetryConfiguration;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.event.service.CloudServiceConfigurationPrePrepareEvent;
 import eu.cloudnetservice.node.event.service.CloudServiceNodeSelectEvent;
 import eu.cloudnetservice.node.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.node.service.CloudServiceManager;
@@ -96,10 +97,16 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         // copy the configuration into a builder to prevent setting values on multiple objects which are then shared
         // over services which will eventually break the system
         var configurationBuilder = ServiceConfiguration.builder(maybeServiceConfiguration);
+        this.eventManager.callEvent(new CloudServiceConfigurationPrePrepareEvent(
+          this.serviceManager,
+          maybeServiceConfiguration,
+          configurationBuilder));
+
         // prepare the service configuration
         this.replaceServiceId(maybeServiceConfiguration, configurationBuilder);
         this.replaceServiceUniqueId(maybeServiceConfiguration, configurationBuilder);
         this.includeGroupComponents(maybeServiceConfiguration, configurationBuilder);
+
         // disable retries on the new configuration, we only schedule them based on the original one
         configurationBuilder.retryConfiguration(ServiceCreateRetryConfiguration.NO_RETRY);
 

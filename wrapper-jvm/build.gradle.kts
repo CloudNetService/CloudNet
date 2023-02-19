@@ -28,7 +28,7 @@ tasks.withType<ShadowJar> {
   val ignoredGroupIds = arrayOf("com.google.guava", "com.google.code.gson")
   dependencies {
     exclude {
-      it.moduleGroup != project.group && !ignoredGroupIds.contains(it.moduleGroup)
+      it.moduleGroup != rootProject.group && !ignoredGroupIds.contains(it.moduleGroup)
     }
   }
 
