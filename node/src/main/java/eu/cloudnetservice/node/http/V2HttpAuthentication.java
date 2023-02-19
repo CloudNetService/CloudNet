@@ -102,7 +102,7 @@ public class V2HttpAuthentication {
 
     var matcher = BASIC_LOGIN_PATTERN.matcher(authenticationHeader);
     if (matcher.matches()) {
-      var auth = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8).split(":");
+      var auth = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8).split(":", 2);
       if (auth.length == 2) {
         var users = this.permissionManagement.usersByName(auth[0]);
         for (var user : users) {
