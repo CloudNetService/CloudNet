@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -30,6 +29,7 @@ import eu.cloudnetservice.modules.signs.node.util.SignEntryTaskSetup;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
 import eu.cloudnetservice.node.event.setup.SetupInitiateEvent;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
@@ -39,7 +39,7 @@ import lombok.NonNull;
 @Singleton
 public class NodeSignsListener {
 
-  private static final Type STRING_COLLECTION = TypeToken.getParameterized(Collection.class, String.class).getType();
+  private static final Type STRING_COLLECTION = TypeFactory.parameterizedClass(Collection.class, String.class);
 
   private final SignManagement signManagement;
   private final SignEntryTaskSetup entryTaskSetup;

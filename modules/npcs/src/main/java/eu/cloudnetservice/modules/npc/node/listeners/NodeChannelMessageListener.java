@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.npc.node.listeners;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -25,13 +24,14 @@ import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.platform.PlatformNPCManagement;
+import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
 
-  private static final Type STRING_COLLECTION = TypeToken.getParameterized(Collection.class, String.class).getType();
+  private static final Type STRING_COLLECTION = TypeFactory.parameterizedClass(Collection.class, String.class);
 
   private final AbstractNPCManagement management;
 

@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.provider;
 
 import com.google.common.collect.Iterables;
-import com.google.gson.reflect.TypeToken;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.CountingTask;
 import eu.cloudnetservice.common.concurrent.Task;
@@ -31,6 +30,7 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
@@ -47,7 +47,7 @@ import lombok.NonNull;
 @Provides(CloudMessenger.class)
 public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
-  protected static final Type COL_MSG = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
+  protected static final Type COL_MSG = TypeFactory.parameterizedClass(Collection.class, ChannelMessage.class);
 
   protected final NodeServerProvider nodeServerProvider;
   protected final CloudServiceManager cloudServiceManager;

@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.bridge;
 import static eu.cloudnetservice.driver.service.property.JsonServiceProperty.createFromClass;
 import static eu.cloudnetservice.driver.service.property.JsonServiceProperty.createFromType;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -28,6 +27,7 @@ import eu.cloudnetservice.driver.service.property.FunctionalServiceProperty;
 import eu.cloudnetservice.driver.service.property.ServiceProperty;
 import eu.cloudnetservice.driver.service.property.TransformingServiceProperty;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
+import io.leangen.geantyref.TypeFactory;
 import java.util.Collection;
 import lombok.NonNull;
 
@@ -161,8 +161,7 @@ public final class BridgeServiceProperties {
    */
   public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = TransformingServiceProperty
     .<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(
-      createFromType("Players", new TypeToken<Collection<JsonDocument>>() {
-      }.getType()))
+      createFromType("Players", TypeFactory.parameterizedClass(Collection.class, JsonDocument.class)))
     .modifyGet(($, documents) -> documents.stream().map(ServicePlayer::new).toList());
 
   private BridgeServiceProperties() {

@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.BufferedReader;
@@ -49,7 +49,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
   private static final Logger LOGGER = LogManager.logger(BuildStepExecutor.class);
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
-  private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
+  private static final Type STRING_LIST_TYPE = TypeFactory.parameterizedClass(List.class, String.class);
 
   private final Configuration configuration;
   private final Collection<Process> runningBuildProcesses = new ConcurrentLinkedQueue<>();
