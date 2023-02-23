@@ -34,12 +34,12 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
-import com.google.common.reflect.TypeToken;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
 import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
 import eu.cloudnetservice.driver.util.asm.AsmHelper;
 import eu.cloudnetservice.driver.util.define.ClassDefiners;
+import io.leangen.geantyref.GenericTypeReflector;
 import lombok.NonNull;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -113,7 +113,7 @@ public class MethodInvokerGenerator {
         // visit each argument of the method
         var arguments = new Type[methodInfo.arguments().length];
         for (var i = 0; i < methodInfo.arguments().length; i++) {
-          var rawType = TypeToken.of(methodInfo.arguments()[i]).getRawType();
+          var rawType = GenericTypeReflector.erase(methodInfo.arguments()[i]);
           // load the argument supplied for the index
           mv.visitVarInsn(ALOAD, 1);
           AsmHelper.pushInt(mv, i);

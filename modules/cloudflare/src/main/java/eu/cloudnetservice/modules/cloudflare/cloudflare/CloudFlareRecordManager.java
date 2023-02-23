@@ -18,12 +18,12 @@ package eu.cloudnetservice.modules.cloudflare.cloudflare;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -45,7 +45,7 @@ public class CloudFlareRecordManager {
   protected static final String ZONE_RECORDS_ENDPOINT = CLOUDFLARE_ENDPOINT + "zones/%s/dns_records";
   protected static final String ZONE_RECORDS_MANAGEMENT_ENDPOINT = ZONE_RECORDS_ENDPOINT + "/%s";
 
-  protected static final Type LIST_DNS_RECORD_TYPE = TypeToken.getParameterized(List.class, DnsRecord.class).getType();
+  protected static final Type LIST_DNS_RECORD_TYPE = TypeFactory.parameterizedClass(List.class, DnsRecord.class);
 
   protected static final Logger LOGGER = LogManager.logger(CloudFlareRecordManager.class);
 

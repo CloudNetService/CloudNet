@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.signs;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
+import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
@@ -32,8 +32,7 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Sign {
 
-  public static final Type COLLECTION_TYPE = new TypeToken<Collection<Sign>>() {
-  }.getType();
+  public static final Type COLLECTION_TYPE = TypeFactory.parameterizedClass(Collection.class, Sign.class);
 
   protected final String targetGroup;
   protected final String templatePath;

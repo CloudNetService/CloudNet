@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.provider;
 
-import com.google.gson.reflect.TypeToken;
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.Nameable;
@@ -35,6 +34,7 @@ import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.event.group.LocalGroupConfigurationAddEvent;
 import eu.cloudnetservice.node.event.group.LocalGroupConfigurationRemoveEvent;
 import eu.cloudnetservice.node.network.listener.message.GroupChannelMessageListener;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
@@ -59,7 +59,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   private static final Path GROUP_DIRECTORY_PATH = Path.of(
     System.getProperty("cloudnet.config.groups.directory.path", "local/groups"));
 
-  private static final Type TYPE = TypeToken.getParameterized(Collection.class, GroupConfiguration.class).getType();
+  private static final Type TYPE = TypeFactory.parameterizedClass(Collection.class, GroupConfiguration.class);
 
   private final EventManager eventManager;
   private final Map<String, GroupConfiguration> groupConfigurations = new ConcurrentHashMap<>();

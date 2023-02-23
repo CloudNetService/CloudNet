@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.network.rpc.object;
 
 import com.google.common.collect.Maps;
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -30,6 +29,7 @@ import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ThreadSnapshot;
+import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
@@ -85,7 +85,7 @@ public class DefaultObjectMapperTest {
       Arguments.of(Arrays.asList(1234, 5678, 9012, 3456, 7890), Integer.class),
       Arguments.of(
         Arrays.asList(Collections.singleton("test"), Collections.singleton("test2"), Arrays.asList("test3", "test4")),
-        parameterized(List.class, String.class)));
+        TypeFactory.parameterizedClass(List.class, String.class)));
   }
 
   static Stream<Arguments> mapDataProvider() {
@@ -94,20 +94,25 @@ public class DefaultObjectMapperTest {
       Arguments.of(Map.of("test", 123, "test2", 456), String.class, Integer.class),
       Arguments.of(
         Map.of("test", Arrays.asList(123, 456), "test2", Arrays.asList(678, 456)),
-        String.class, parameterized(List.class, Integer.class)),
+        String.class, TypeFactory.parameterizedClass(List.class, Integer.class)),
       Arguments.of(
         Map.of("test", Map.of("test2", Arrays.asList(1234, 3456))),
-        String.class, parameterized(Map.class, String.class, parameterized(List.class, Integer.class))));
+        String.class, TypeFactory.parameterizedClass(
+          Map.class,
+          String.class,
+          TypeFactory.parameterizedClass(List.class, Integer.class))));
   }
 
   static Stream<Arguments> optionalDataProvider() {
     return Stream.of(
       Arguments.of(Optional.of("test"), String.class),
       Arguments.of(Optional.of(1234), Integer.class),
-      Arguments.of(Optional.of(Arrays.asList("test", "test1")), parameterized(List.class, String.class)),
+      Arguments.of(
+        Optional.of(Arrays.asList("test", "test1")),
+        TypeFactory.parameterizedClass(List.class, String.class)),
       Arguments.of(
         Optional.of(Map.of("test", "test1", "test2", "test3")),
-        parameterized(Map.class, String.class, String.class)));
+        TypeFactory.parameterizedClass(Map.class, String.class, String.class)));
   }
 
   static Stream<Arguments> dataClassProvider() {
@@ -135,10 +140,6 @@ public class DefaultObjectMapperTest {
         ServiceLifeCycle.STOPPED,
         JsonDocument.newDocument("test", 1234)))
     );
-  }
-
-  private static Type parameterized(Type rawType, Type... typeArguments) {
-    return TypeToken.getParameterized(rawType, typeArguments).getType();
   }
 
   @Order(0)
@@ -182,7 +183,7 @@ public class DefaultObjectMapperTest {
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, list);
-    List<T> result = mapper.readObject(buf, parameterized(List.class, parameterType));
+    List<T> result = mapper.readObject(buf, TypeFactory.parameterizedClass(List.class, parameterType));
 
     Assertions.assertNotNull(result);
     Assertions.assertIterableEquals(list, result);
@@ -196,7 +197,7 @@ public class DefaultObjectMapperTest {
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, map);
-    Map<K, V> result = mapper.readObject(buf, parameterized(Map.class, keyType, valueType));
+    Map<K, V> result = mapper.readObject(buf, TypeFactory.parameterizedClass(Map.class, keyType, valueType));
 
     Assertions.assertNotNull(result);
     Assertions.assertTrue(Maps.difference(map, result).areEqual());
@@ -211,7 +212,7 @@ public class DefaultObjectMapperTest {
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, o);
-    Optional<T> result = mapper.readObject(buf, parameterized(Optional.class, parameterType));
+    Optional<T> result = mapper.readObject(buf, TypeFactory.parameterizedClass(Optional.class, parameterType));
 
     Assertions.assertNotNull(result);
     Assertions.assertEquals(o.isPresent(), result.isPresent());

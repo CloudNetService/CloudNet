@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
+import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -33,7 +33,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
   private static final String VERSION_LIST_URL = "https://api.papermc.io/v2/projects/%s/versions/%s";
   private static final String DOWNLOAD_URL = "https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s-%s-%d.jar";
-  private static final Type INT_SET_TYPE = TypeToken.getParameterized(Set.class, Integer.class).getType();
+  private static final Type INT_SET_TYPE = TypeFactory.parameterizedClass(Set.class, Integer.class);
 
   @Override
   public @NonNull Set<Path> execute(
