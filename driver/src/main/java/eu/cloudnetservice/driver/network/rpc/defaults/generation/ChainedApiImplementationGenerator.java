@@ -28,7 +28,6 @@ import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
@@ -46,6 +45,7 @@ import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
 import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.util.asm.StackIndexHelper;
 import eu.cloudnetservice.driver.util.define.ClassDefiners;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -140,13 +140,13 @@ public final class ChainedApiImplementationGenerator {
         mv.visitVarInsn(ALOAD, 3);
         mv.visitFieldInsn(PUTFIELD, className, "channelSupplier", SUPPLIER_DESC);
 
-        // call the super "<init>" method
+        // load the arguments for the super constructor to the stack
         mv.visitVarInsn(ALOAD, 0);
-        for (var i = 0; i < types.size(); i++) {
-          // loads and passes the correct arguments to the super constructor
-          var type = Type.getType(types.get(i));
-          mv.visitVarInsn(type.getOpcode(ILOAD), 4 + i);
+        var stackHelper = StackIndexHelper.create(4); // 0 = this, 1-3 are taken by required parameters
+        for (var type : types) {
+          stackHelper.load(mv, type);
         }
+        // visit the super constructor call
         mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", '(' + superDesc + ")V", false);
 
         // finish
