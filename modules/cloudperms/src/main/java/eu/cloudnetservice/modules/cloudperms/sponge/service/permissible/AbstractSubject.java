@@ -105,7 +105,7 @@ public abstract class AbstractSubject<T extends Permissible> implements Subject 
   }
 
   protected @NonNull Optional<String> findOption(@NonNull String key) {
-    return Optional.ofNullable(this.data.properties().getString(key));
+    return Optional.ofNullable(this.data.propertyHolder().getString(key));
   }
 
   protected @NonNull Tristate getPermissionValue(@NonNull Permission permission) {

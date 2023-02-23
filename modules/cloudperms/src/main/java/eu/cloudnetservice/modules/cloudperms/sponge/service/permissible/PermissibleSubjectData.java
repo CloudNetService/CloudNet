@@ -162,9 +162,9 @@ public abstract class PermissibleSubjectData<T extends Permissible> implements S
 
   @Override
   public Map<Set<Context>, Map<String, String>> allOptions() {
-    return Map.of(Collections.emptySet(), this.permissible.properties().stream()
-      .filter(key -> this.permissible.properties().getString(key) != null)
-      .collect(Collectors.toMap(Function.identity(), this.permissible.properties()::getString)));
+    return Map.of(Collections.emptySet(), this.permissible.propertyHolder().stream()
+      .filter(key -> this.permissible.propertyHolder().getString(key) != null)
+      .collect(Collectors.toMap(Function.identity(), this.permissible.propertyHolder()::getString)));
   }
 
   @Override
@@ -175,7 +175,7 @@ public abstract class PermissibleSubjectData<T extends Permissible> implements S
   @Override
   public CompletableFuture<Boolean> setOption(Set<Context> contexts, String key, @Nullable String value) {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.properties().append(key, value);
+      this.permissible.propertyHolder().append(key, value);
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -184,7 +184,7 @@ public abstract class PermissibleSubjectData<T extends Permissible> implements S
   @Override
   public CompletableFuture<Boolean> setOptions(Set<Context> $, Map<String, String> options, TransferMethod $1) {
     return CompletableFuture.supplyAsync(() -> {
-      options.forEach(this.permissible.properties()::append);
+      options.forEach(this.permissible.propertyHolder()::append);
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -193,7 +193,7 @@ public abstract class PermissibleSubjectData<T extends Permissible> implements S
   @Override
   public CompletableFuture<Boolean> clearOptions() {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.properties().clear();
+      this.permissible.propertyHolder().clear();
       this.updateIfEnabled(this.permissible);
       return true;
     });

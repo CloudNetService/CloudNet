@@ -38,7 +38,6 @@ import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 import lombok.NonNull;
 
 @Singleton
@@ -119,10 +118,7 @@ public class CloudNetLabyModModule extends DriverModule {
       moduleHelper,
       service -> {
         if (management.configuration().enabled()) {
-          // todo: replace
-          return Objects.requireNonNullElse(
-            service.serviceId().environment().property(ServiceEnvironmentType.JAVA_PROXY),
-            false);
+          return service.serviceId().environment().readProperty(ServiceEnvironmentType.JAVA_PROXY);
         }
         return false;
       }));

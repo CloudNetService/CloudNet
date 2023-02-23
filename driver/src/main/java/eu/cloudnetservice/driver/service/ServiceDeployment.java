@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,8 +36,8 @@ import lombok.ToString;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneable {
+@EqualsAndHashCode
+public class ServiceDeployment implements DefaultedDocPropertyHolder<JsonDocument, ServiceDeployment>, Cloneable {
 
   public static final Set<Pattern> DEFAULT_EXCLUSIONS = Set.of(
     Pattern.compile("wrapper\\.jar"),
@@ -46,6 +46,8 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
   protected final ServiceTemplate template;
   protected final Collection<Pattern> excludes;
   protected final Collection<Pattern> includes;
+
+  protected final JsonDocument properties;
 
   /**
    * Constructs a new service deployment instance.
@@ -61,10 +63,10 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
     @NonNull Collection<Pattern> includes,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
     this.template = template;
     this.excludes = excludes;
     this.includes = includes;
+    this.properties = properties;
   }
 
   /**
@@ -92,7 +94,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
       .template(deployment.template())
       .excludes(deployment.excludes())
       .includes(deployment.includes())
-      .properties(deployment.properties());
+      .properties(deployment.propertyHolder());
   }
 
   /**
@@ -134,6 +136,14 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
     } catch (CloneNotSupportedException exception) {
       throw new IllegalStateException(); // cannot happen - just explode
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 
   /**

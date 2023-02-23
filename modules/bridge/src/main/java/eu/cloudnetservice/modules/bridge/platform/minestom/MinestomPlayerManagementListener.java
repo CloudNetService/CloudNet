@@ -78,7 +78,7 @@ public final class MinestomPlayerManagementListener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.properties().getString("requiredPermission");
+      var permission = task.propertyHolder().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
         this.management.configuration().handleMessage(
           player.getLocale(),

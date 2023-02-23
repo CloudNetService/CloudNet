@@ -152,10 +152,10 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the bukkit specific information
-    snapshot.properties().append("Online-Count", this.server.getOnlinePlayers().size());
-    snapshot.properties().append("Version", this.server.getVersion());
+    snapshot.propertyHolder().append("Online-Count", this.server.getOnlinePlayers().size());
+    snapshot.propertyHolder().append("Version", this.server.getVersion());
     // players
-    snapshot.properties().append("Players", this.server.getOnlinePlayers().values().stream()
+    snapshot.propertyHolder().append("Players", this.server.getOnlinePlayers().values().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

@@ -446,7 +446,7 @@ public final class ServiceCommand {
 
     if (showCustomProperties) {
       list.add("Properties:");
-      list.addAll(Arrays.asList(service.properties().toPrettyJson().split("\n")));
+      list.addAll(Arrays.asList(service.propertyHolder().toPrettyJson().split("\n")));
       list.add(" ");
     }
 

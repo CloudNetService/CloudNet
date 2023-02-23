@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class CloudPlayer extends CloudOfflinePlayer {
 
   protected NetworkServiceInfo loginService;

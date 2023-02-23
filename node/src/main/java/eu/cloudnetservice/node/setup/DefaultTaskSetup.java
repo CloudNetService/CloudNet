@@ -16,11 +16,6 @@
 
 package eu.cloudnetservice.node.setup;
 
-import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.JAVA_PROXY;
-import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.JAVA_SERVER;
-import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_PROXY;
-import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_SERVER;
-
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.log.LogManager;
@@ -128,10 +123,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
                     .parser(this.parsers.serviceEnvironmentType())
                     .possibleResults(this.serviceVersionProvider.knownEnvironments().values().stream()
-                      .filter(type -> {
-                        var properties = type.properties();
-                        return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
-                      })
+                      .filter(ServiceEnvironmentType::minecraftProxy)
                       .map(ServiceEnvironmentType::name)
                       .toList()))
                   .build(),
@@ -175,10 +167,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
                     .parser(this.parsers.serviceEnvironmentType())
                     .possibleResults(this.serviceVersionProvider.knownEnvironments().values().stream()
-                      .filter(type -> {
-                        var properties = type.properties();
-                        return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
-                      })
+                      .filter(ServiceEnvironmentType::minecraftServer)
                       .map(ServiceEnvironmentType::name)
                       .toList()))
                   .build(),

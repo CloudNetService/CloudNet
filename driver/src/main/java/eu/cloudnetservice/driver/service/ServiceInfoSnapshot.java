@@ -19,18 +19,15 @@ package eu.cloudnetservice.driver.service;
 import com.google.common.collect.ComparisonChain;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
-import eu.cloudnetservice.driver.service.property.ServiceProperty;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * Represents the state of a service at the snapshot creation time. A service snapshot (once created) will never change
@@ -40,9 +37,10 @@ import org.jetbrains.annotations.UnknownNullability;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends JsonDocPropertyHolder
-  implements Nameable, Cloneable, Comparable<ServiceInfoSnapshot> {
+@EqualsAndHashCode
+public class ServiceInfoSnapshot
+  implements Nameable, DefaultedDocPropertyHolder<JsonDocument, ServiceInfoSnapshot>,
+  Cloneable, Comparable<ServiceInfoSnapshot> {
 
   protected final long creationTime;
 
@@ -53,6 +51,8 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
 
   protected final long connectedTime;
   protected final ServiceLifeCycle lifeCycle;
+
+  protected final JsonDocument properties;
 
   /**
    * Constructs a new service info snapshot. This constructor is for internal use only, there should be no reason
@@ -77,13 +77,13 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
     @NonNull ServiceLifeCycle lifeCycle,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
     this.creationTime = creationTime;
     this.connectedTime = connectedTime;
     this.address = address;
     this.lifeCycle = lifeCycle;
     this.processSnapshot = processSnapshot;
     this.configuration = configuration;
+    this.properties = properties;
   }
 
   /**
@@ -173,49 +173,19 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
   }
 
   /**
-   * Tries to read the given service property from the properties set in this snapshot.
-   *
-   * @param property the property to read.
-   * @param <T>      the type which gets read by the given property.
-   * @return the value of the property assigned to this snapshot, null if no value is associated.
-   * @throws NullPointerException if the given property is null.
+   * {@inheritDoc}
    */
-  public <T> @Nullable T property(@NonNull ServiceProperty<T> property) {
-    return property.read(this);
-  }
-
-  /**
-   * Tries to read the given service property from the properties set in this snapshot.
-   *
-   * @param property the property to read.
-   * @param <T>      the type which gets read by the given property.
-   * @param def      the value to return if the given property is not set in this snapshot.
-   * @return the value of the property assigned to this snapshot, the given default value if no value is associated.
-   * @throws NullPointerException if the given property is null.
-   */
-  public <T> @UnknownNullability T propertyOr(@NonNull ServiceProperty<T> property, @Nullable T def) {
-    return property.readOr(this, def);
-  }
-
-  /**
-   * Writes the given property into the properties set in the properties of this snapshot. An update of the snapshot is
-   * required in order to allow all services to see the change made to the snapshot.
-   *
-   * @param property the property to write.
-   * @param value    the value of the property to write.
-   * @param <T>      the type which gets written by the given property.
-   * @throws NullPointerException if the given property is null.
-   */
-  public <T> void property(@NonNull ServiceProperty<T> property, @Nullable T value) {
-    property.write(this, value);
+  @Override
+  public @NonNull String name() {
+    return this.serviceId().name();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull String name() {
-    return this.serviceId().name();
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 
   /**

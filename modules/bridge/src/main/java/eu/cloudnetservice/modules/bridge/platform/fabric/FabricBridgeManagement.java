@@ -142,10 +142,10 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the fabric specific information
-    snapshot.properties().append("Online-Count", this.server.playerCount());
-    snapshot.properties().append("Version", SharedConstants.getCurrentVersion().getName());
+    snapshot.propertyHolder().append("Online-Count", this.server.playerCount());
+    snapshot.propertyHolder().append("Version", SharedConstants.getCurrentVersion().getName());
     // players
-    snapshot.properties().append("Players", this.server.players().stream()
+    snapshot.propertyHolder().append("Players", this.server.players().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

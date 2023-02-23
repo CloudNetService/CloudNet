@@ -20,9 +20,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.common.document.property.DocProperty;
-import eu.cloudnetservice.common.document.property.FunctionalDocProperty;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -40,46 +39,37 @@ import lombok.ToString;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nameable, Cloneable {
+@EqualsAndHashCode
+public final class ServiceEnvironmentType
+  implements DefaultedDocPropertyHolder<JsonDocument, ServiceEnvironmentType>, Nameable, Cloneable {
 
   /**
    * A property set on all service environment types which are a Minecraft java edition proxy.
    */
-  public static final DocProperty<Boolean> JAVA_PROXY = FunctionalDocProperty.<Boolean>forNamedProperty("isJavaProxy")
-    .reader(document -> document.getBoolean("isJavaProxy"))
-    .writer((bool, document) -> document.append("isJavaProxy", bool))
-    .build();
+  public static final DocProperty<Boolean> JAVA_PROXY = DocProperty.property("isJavaProxy", Boolean.class)
+    .withDefault(false);
   /**
    * A property set on all service environment types which are a Minecraft pocket edition proxy.
    */
-  public static final DocProperty<Boolean> PE_PROXY = FunctionalDocProperty.<Boolean>forNamedProperty("isPeProxy")
-    .reader(document -> document.getBoolean("isPeProxy"))
-    .writer((bool, document) -> document.append("isPeProxy", bool))
-    .build();
+  public static final DocProperty<Boolean> PE_PROXY = DocProperty.property("isPeProxy", Boolean.class)
+    .withDefault(false);
   /**
    * A property set on all service environment types which are a Minecraft java edition server.
    */
-  public static final DocProperty<Boolean> JAVA_SERVER = FunctionalDocProperty.<Boolean>forNamedProperty("isJavaServer")
-    .reader(document -> document.getBoolean("isJavaServer"))
-    .writer((bool, document) -> document.append("isJavaServer", bool))
-    .build();
+  public static final DocProperty<Boolean> JAVA_SERVER = DocProperty.property("isJavaServer", Boolean.class)
+    .withDefault(false);
   /**
    * A property set on all service environment types which are a Minecraft pocket edition server.
    */
-  public static final DocProperty<Boolean> PE_SERVER = FunctionalDocProperty.<Boolean>forNamedProperty("isPeServer")
-    .reader(document -> document.getBoolean("isPeServer"))
-    .writer((bool, document) -> document.append("isPeServer", bool))
-    .build();
+  public static final DocProperty<Boolean> PE_SERVER = DocProperty.property("isPeServer", Boolean.class)
+    .withDefault(false);
 
   /**
    * A property which defines the plugin directory of a service environment. For example for a modded server this would
    * return "mods" rather than "plugins" (which is the default value).
    */
-  public static final DocProperty<String> PLUGIN_DIR = FunctionalDocProperty.<String>forNamedProperty("pluginDir")
-    .reader(document -> document.getString("pluginDir", "plugins"))
-    .writer((dir, document) -> document.append("pluginDir", dir))
-    .build();
+  public static final DocProperty<String> PLUGIN_DIR = DocProperty.property("pluginDir", String.class)
+    .withDefault("plugins");
 
   /**
    * The default nukkit service environment type (Pocket Edition server).
@@ -87,7 +77,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
   public static final ServiceEnvironmentType NUKKIT = ServiceEnvironmentType.builder()
     .name("NUKKIT")
     .defaultProcessArguments(Set.of("disable-ansi"))
-    .properties(JsonDocument.newDocument().property(PE_SERVER, true))
+    .properties(JsonDocument.newDocument().writeProperty(PE_SERVER, true))
     .build();
   /**
    * The default minecraft server service environment type. This applies to all services which don't need special
@@ -96,7 +86,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
   public static final ServiceEnvironmentType MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MINECRAFT_SERVER")
     .defaultProcessArguments(Set.of("nogui"))
-    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))
+    .properties(JsonDocument.newDocument().writeProperty(JAVA_SERVER, true))
     .build();
   /**
    * The default modded server service environment type. This applies to all services which are wrapping a minecraft
@@ -105,7 +95,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
   public static final ServiceEnvironmentType MODDED_MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MODDED_MINECRAFT_SERVER")
     .defaultProcessArguments(Set.of("nogui"))
-    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true).property(PLUGIN_DIR, "mods"))
+    .properties(JsonDocument.newDocument().writeProperty(JAVA_SERVER, true).writeProperty(PLUGIN_DIR, "mods"))
     .build();
   /**
    * The minestom service environment type. This applies to all services which are a server minestom instance allowing
@@ -113,7 +103,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    */
   public static final ServiceEnvironmentType MINESTOM = ServiceEnvironmentType.builder()
     .name("MINESTOM")
-    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true).property(PLUGIN_DIR, "extensions"))
+    .properties(JsonDocument.newDocument().writeProperty(JAVA_SERVER, true).writeProperty(PLUGIN_DIR, "extensions"))
     .build();
   /**
    * The bungeecord service environment type, can also be any fork of bungeecord (Java Edition proxy).
@@ -121,7 +111,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
   public static final ServiceEnvironmentType BUNGEECORD = ServiceEnvironmentType.builder()
     .name("BUNGEECORD")
     .defaultServiceStartPort(25565)
-    .properties(JsonDocument.newDocument().property(JAVA_PROXY, true))
+    .properties(JsonDocument.newDocument().writeProperty(JAVA_PROXY, true))
     .build();
   /**
    * The velocity service environment type (Java Edition proxy).
@@ -129,7 +119,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
   public static final ServiceEnvironmentType VELOCITY = ServiceEnvironmentType.builder()
     .name("VELOCITY")
     .defaultServiceStartPort(25565)
-    .properties(JsonDocument.newDocument().property(JAVA_PROXY, true))
+    .properties(JsonDocument.newDocument().writeProperty(JAVA_PROXY, true))
     .build();
   /**
    * The waterdog PE service environment type (PE proxy).
@@ -137,12 +127,14 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
   public static final ServiceEnvironmentType WATERDOG_PE = ServiceEnvironmentType.builder()
     .name("WATERDOG_PE")
     .defaultServiceStartPort(19132)
-    .properties(JsonDocument.newDocument().property(PE_PROXY, true))
+    .properties(JsonDocument.newDocument().writeProperty(PE_PROXY, true))
     .build();
 
   private final String name;
   private final int defaultServiceStartPort;
   private final Set<String> defaultProcessArguments;
+
+  private final JsonDocument properties;
 
   /**
    * Constructs a new service environment type instance.
@@ -153,16 +145,16 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    * @param properties              the properties which contain further information about the environment.
    * @throws NullPointerException if one of the given parameters is null.
    */
-  protected ServiceEnvironmentType(
+  private ServiceEnvironmentType(
     @NonNull String name,
     int defaultServiceStartPort,
     @NonNull Set<String> defaultProcessArguments,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
     this.name = name;
     this.defaultServiceStartPort = defaultServiceStartPort;
     this.defaultProcessArguments = defaultProcessArguments;
+    this.properties = properties;
   }
 
   /**
@@ -188,7 +180,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
   public static @NonNull Builder builder(@NonNull ServiceEnvironmentType type) {
     return builder()
       .name(type.name())
-      .properties(type.properties().clone())
+      .properties(type.propertyHolder().clone())
       .defaultServiceStartPort(type.defaultStartPort())
       .defaultProcessArguments(type.defaultProcessArguments());
   }
@@ -201,7 +193,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    * @throws NullPointerException if the given service environment type is null.
    */
   public static boolean minecraftProxy(@NonNull ServiceEnvironmentType type) {
-    return JAVA_PROXY.get(type.properties()) || PE_PROXY.get(type.properties());
+    return type.readProperty(JAVA_PROXY) || type.readProperty(PE_PROXY);
   }
 
   /**
@@ -212,7 +204,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    * @throws NullPointerException if the given service environment type is null.
    */
   public static boolean minecraftServer(@NonNull ServiceEnvironmentType type) {
-    return JAVA_SERVER.get(type.properties()) || PE_SERVER.get(type.properties());
+    return type.readProperty(JAVA_SERVER) || type.readProperty(PE_SERVER);
   }
 
   /**
@@ -252,6 +244,14 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     } catch (CloneNotSupportedException exception) {
       throw new IllegalStateException(); // cannot happen - just explode
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 
   /**

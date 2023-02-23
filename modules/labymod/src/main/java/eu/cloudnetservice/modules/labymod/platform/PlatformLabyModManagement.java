@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.labymod.platform;
 
-import static eu.cloudnetservice.modules.bridge.BridgeServiceProperties.IS_IN_GAME;
-
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.NetworkClient;
@@ -28,6 +26,7 @@ import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
@@ -232,7 +231,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     // used to determine if we need to send the join secret
     var sendJoinSecret = false;
     // check if joining the match is enabled
-    if (joinMatch.enabled() && joinMatch.enabled(snapshot) && !IS_IN_GAME.readOr(snapshot, false)) {
+    if (joinMatch.enabled() && joinMatch.enabled(snapshot) && !BridgeServiceHelper.inGameService(snapshot)) {
       // create a new join secret
       playerOptionsBuilder.joinSecret(UUID.randomUUID());
       sendJoinSecret = true;
@@ -245,7 +244,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     // used to determine if we need to send the spectate secret
     var sendSpectateSecret = false;
     // check if spectating a match is allowed
-    if (spectateMatch.enabled() && spectateMatch.enabled(snapshot) && IS_IN_GAME.readOr(snapshot, false)) {
+    if (spectateMatch.enabled() && spectateMatch.enabled(snapshot) && BridgeServiceHelper.inGameService(snapshot)) {
       // create a new spectate secret
       playerOptionsBuilder.spectateSecret(UUID.randomUUID());
       sendSpectateSecret = true;

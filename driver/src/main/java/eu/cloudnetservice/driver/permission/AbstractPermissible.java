@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.permission;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,8 +32,9 @@ import lombok.ToString;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public abstract class AbstractPermissible extends JsonDocPropertyHolder implements Permissible {
+@EqualsAndHashCode
+public abstract class AbstractPermissible
+  implements DefaultedDocPropertyHolder<JsonDocument, Permissible>, Permissible {
 
   protected final String name;
   protected final int potency;
@@ -41,6 +42,8 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
 
   protected final Set<Permission> permissions;
   protected final Map<String, Set<Permission>> groupPermissions;
+
+  protected final JsonDocument properties;
 
   /**
    * Constructs a new abstract permissible instance.
@@ -61,12 +64,12 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     @NonNull Map<String, Set<Permission>> groupPermissions,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
     this.name = name;
     this.potency = potency;
     this.createdTime = createdTime;
     this.permissions = permissions;
     this.groupPermissions = groupPermissions;
+    this.properties = properties;
   }
 
   /**
@@ -168,5 +171,13 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   @Override
   public @NonNull Map<String, Set<Permission>> groupPermissions() {
     return this.groupPermissions;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 }

@@ -143,7 +143,7 @@ public abstract class AbstractService implements CloudService {
     this.connectionKey = StringUtil.generateRandomString(64);
     this.serviceDirectory = resolveServicePath(configuration.serviceId(), manager, configuration.staticService());
     this.pluginDirectory = this.serviceDirectory
-      .resolve(configuration.serviceId().environment().property(ServiceEnvironmentType.PLUGIN_DIR));
+      .resolve(configuration.serviceId().environment().readProperty(ServiceEnvironmentType.PLUGIN_DIR));
 
     this.currentServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
@@ -152,7 +152,7 @@ public abstract class AbstractService implements CloudService {
       configuration,
       -1,
       ServiceLifeCycle.PREPARED,
-      configuration.properties().clone());
+      configuration.propertyHolder().clone());
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED, false);
 
     // register the service locally for now
@@ -359,7 +359,7 @@ public abstract class AbstractService implements CloudService {
       // prepare the connection from which we load the inclusion
       var req = Unirest.get(inclusion.url());
       // put the given http headers
-      var headers = inclusion.property(ServiceRemoteInclusion.HEADERS);
+      var headers = inclusion.readProperty(ServiceRemoteInclusion.HEADERS);
       for (var key : headers.keys()) {
         req.header(key, Objects.toString(headers.get(key)));
       }
@@ -637,7 +637,7 @@ public abstract class AbstractService implements CloudService {
       this.lastServiceInfo.configuration(),
       this.connectionTimestamp,
       lifeCycle,
-      Objects.requireNonNullElse(properties, this.lastServiceInfo.properties()));
+      Objects.requireNonNullElse(properties, this.lastServiceInfo.propertyHolder()));
     // remove the service in the local manager if the service was deleted
     if (lifeCycle == ServiceLifeCycle.DELETED) {
       this.cloudServiceManager.unregisterLocalService(this);

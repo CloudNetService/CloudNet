@@ -206,7 +206,7 @@ public abstract class BukkitPlatformSelectorEntity
       }
       case ONLINE -> layout = layouts.onlineLayout();
       case STOPPED -> {
-        if (service.propertyOr(BridgeServiceProperties.IS_IN_GAME, false) && this.npc.showIngameServices()) {
+        if (BridgeServiceHelper.inGameService(service) && this.npc.showIngameServices()) {
           layout = layouts.ingameLayout();
         } else {
           this.unregisterItem(wrapper, service, configuration);
@@ -370,12 +370,12 @@ public abstract class BukkitPlatformSelectorEntity
       case DIRECT_CONNECT_LOWEST_PLAYERS -> this.serviceItems.values().stream()
         .filter(ServiceItemWrapper::canConnectTo)
         .map(ServiceItemWrapper::service)
-        .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
+        .min(Comparator.comparingInt(service -> service.readProperty(BridgeServiceProperties.ONLINE_COUNT)))
         .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       case DIRECT_CONNECT_HIGHEST_PLAYERS -> this.serviceItems.values().stream()
         .filter(ServiceItemWrapper::canConnectTo)
         .map(ServiceItemWrapper::service)
-        .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
+        .max(Comparator.comparingInt(service -> service.readProperty(BridgeServiceProperties.ONLINE_COUNT)))
         .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       default -> {
       }
@@ -531,11 +531,11 @@ public abstract class BukkitPlatformSelectorEntity
       // general info
       var onlinePlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::service)
-        .mapToInt(snapshot -> BridgeServiceProperties.ONLINE_COUNT.readOr(snapshot, 0))
+        .mapToInt(snapshot -> snapshot.readProperty(BridgeServiceProperties.ONLINE_COUNT))
         .sum());
       var maxPlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::service)
-        .mapToInt(snapshot -> BridgeServiceProperties.MAX_PLAYERS.readOr(snapshot, 0))
+        .mapToInt(snapshot -> snapshot.readProperty(BridgeServiceProperties.MAX_PLAYERS))
         .sum());
       var onlineServers = Integer.toString(tracked.size());
       // rebuild the info line

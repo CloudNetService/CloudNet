@@ -101,7 +101,7 @@ public class PermissionUser extends AbstractPermissible {
       .hashedPassword(user.hashedPassword())
 
       .potency(user.potency())
-      .properties(user.properties())
+      .properties(user.propertyHolder())
 
       .permissions(user.permissions())
       .groups(user.groups())

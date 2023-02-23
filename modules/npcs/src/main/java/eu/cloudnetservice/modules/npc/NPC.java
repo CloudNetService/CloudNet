@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.npc;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NPC extends JsonDocPropertyHolder {
+public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
 
   public static final Type COLLECTION_NPC = new TypeToken<Collection<NPC>>() {
   }.getType();
@@ -55,7 +55,7 @@ public class NPC extends JsonDocPropertyHolder {
 
   private final boolean glowing;
   private final String glowingColor;
-  
+
   private final boolean flyingWithElytra;
   private final boolean burning;
 
@@ -65,6 +65,7 @@ public class NPC extends JsonDocPropertyHolder {
   private final ClickAction rightClickAction;
 
   private final Map<Integer, String> items;
+  private final JsonDocument properties;
 
   protected NPC(
     @NonNull NPCType npcType,
@@ -87,7 +88,6 @@ public class NPC extends JsonDocPropertyHolder {
     @NonNull Map<Integer, String> items,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
     this.npcType = npcType;
     this.targetGroup = targetGroup;
     this.inventoryName = inventoryName;
@@ -106,6 +106,7 @@ public class NPC extends JsonDocPropertyHolder {
     this.leftClickAction = leftClickAction;
     this.rightClickAction = rightClickAction;
     this.items = items;
+    this.properties = properties;
   }
 
   public static @NonNull Builder builder() {
@@ -222,6 +223,11 @@ public class NPC extends JsonDocPropertyHolder {
     return this.items;
   }
 
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
+  }
+
   public enum NPCType {
 
     PLAYER,
@@ -258,7 +264,7 @@ public class NPC extends JsonDocPropertyHolder {
 
     private boolean glowing = false;
     private String glowingColor = "§f";
-    
+
     private boolean flyingWithElytra = false;
     private boolean burning = false;
 

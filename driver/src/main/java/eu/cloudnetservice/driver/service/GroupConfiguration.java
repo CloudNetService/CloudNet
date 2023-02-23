@@ -36,8 +36,8 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * @since 4.0
  */
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = false)
+@ToString
+@EqualsAndHashCode(callSuper = true)
 public class GroupConfiguration extends ServiceConfigurationBase implements Cloneable, Nameable {
 
   protected final String name;

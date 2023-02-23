@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.common.document.gson;
 
-import eu.cloudnetservice.common.document.property.FunctionalDocProperty;
+import eu.cloudnetservice.common.document.property.DocProperty;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
@@ -67,19 +67,20 @@ public class JsonDocumentTest {
 
   @Test
   void testJsonDocPropertyAppend() {
-    Assertions.assertEquals(4, this.dummyDocument().property(this.jsonDocProperty(), "test124").size());
+    Assertions.assertEquals(4, this.dummyDocument().writeProperty(this.jsonDocProperty(), "test124").size());
   }
 
   @Test
   void testJsonDocPropertyRead() {
-    var document = this.dummyDocument().property(this.jsonDocProperty(), "test124");
-    Assertions.assertEquals("test124", document.property(this.jsonDocProperty()));
+    var document = this.dummyDocument().writeProperty(this.jsonDocProperty(), "test124");
+    Assertions.assertEquals("test124", document.readProperty(this.jsonDocProperty()));
   }
 
   @Test
   void testJsonDocPropertyRemove() {
-    var document = this.dummyDocument().property(this.jsonDocProperty(), "test124");
-    Assertions.assertNull(document.removeProperty(this.jsonDocProperty()).property(this.jsonDocProperty()));
+    var document = this.dummyDocument().writeProperty(this.jsonDocProperty(), "test124");
+    Assertions.assertEquals("test124", document.removeProperty(this.jsonDocProperty()));
+    Assertions.assertTrue(document.propertyAbsent(this.jsonDocProperty()));
   }
 
   private JsonDocument dummyDocument() {
@@ -89,13 +90,8 @@ public class JsonDocumentTest {
       .append("test", new TestRecord("myData", Map.of("1", List.of(1, 2, 3, 4), "2", List.of(5, 6, 7, 8, 9))));
   }
 
-  private FunctionalDocProperty<String> jsonDocProperty() {
-    return new FunctionalDocProperty<>(
-      document -> document.getString("content"),
-      (val, doc) -> doc.append("content", val),
-      document -> document.remove("content"),
-      document -> document.contains("content")
-    );
+  private DocProperty<String> jsonDocProperty() {
+    return DocProperty.property("content", String.class);
   }
 
   private record TestRecord(String data, Map<String, List<Integer>> worldItems) {

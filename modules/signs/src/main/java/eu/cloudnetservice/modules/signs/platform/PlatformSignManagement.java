@@ -279,8 +279,8 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
     var currentEnv = this.wrapperConfig.serviceConfiguration().serviceId().environment();
     var serviceEnv = snapshot.serviceId().environment();
 
-    return (JAVA_SERVER.get(currentEnv.properties()) && JAVA_SERVER.get(serviceEnv.properties()))
-      || PE_SERVER.get(currentEnv.properties()) && PE_SERVER.get(serviceEnv.properties());
+    return (currentEnv.readProperty(JAVA_SERVER) && serviceEnv.readProperty(JAVA_SERVER)
+      || currentEnv.readProperty(PE_SERVER) && serviceEnv.readProperty(PE_SERVER));
   }
 
   protected void tryAssign(@NonNull ServiceInfoSnapshot snapshot) {

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.network.cluster;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.module.ModuleConfiguration;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
@@ -33,8 +33,8 @@ import lombok.ToString;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public class NodeInfoSnapshot extends JsonDocPropertyHolder {
+@EqualsAndHashCode
+public class NodeInfoSnapshot implements DefaultedDocPropertyHolder<JsonDocument, NodeInfoSnapshot> {
 
   protected final long creationTime;
   protected final long startupMillis;
@@ -53,6 +53,8 @@ public class NodeInfoSnapshot extends JsonDocPropertyHolder {
   protected final double maxCPUUsageToStartServices;
 
   protected final Collection<ModuleConfiguration> modules;
+
+  protected final JsonDocument properties;
 
   /**
    * Constructs a new network cluster node info snapshot instance.
@@ -88,7 +90,7 @@ public class NodeInfoSnapshot extends JsonDocPropertyHolder {
     @NonNull Collection<ModuleConfiguration> modules,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
+    this.properties = properties;
     this.creationTime = creationTime;
     this.startupMillis = startupMillis;
     this.maxMemory = maxMemory;
@@ -220,5 +222,13 @@ public class NodeInfoSnapshot extends JsonDocPropertyHolder {
    */
   public int memoryUsagePercentage() {
     return (this.reservedMemory() * 100) / this.maxMemory();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 }

@@ -236,7 +236,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
       this.moduleProvider.modules().stream()
         .map(ModuleWrapper::moduleConfiguration)
         .collect(Collectors.toSet()),
-      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.properties());
+      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.propertyHolder());
     // configure the snapshot
     snapshot = this.eventManager.callEvent(new LocalNodeSnapshotConfigureEvent(snapshot)).snapshot();
     this.updateNodeInfoSnapshot(snapshot);

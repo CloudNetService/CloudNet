@@ -113,8 +113,8 @@ public class NodeBridgeManagement implements BridgeManagement {
   public void postInit() {
     for (var task : this.taskProvider.serviceTasks()) {
       // check if the required permission is set
-      if (!task.properties().contains("requiredPermission")) {
-        task.properties().appendNull("requiredPermission");
+      if (!task.propertyHolder().contains("requiredPermission")) {
+        task.propertyHolder().appendNull("requiredPermission");
         this.taskProvider.addServiceTask(task);
       }
     }
