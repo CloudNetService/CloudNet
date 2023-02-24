@@ -25,6 +25,7 @@ subprojects {
 
   repositories {
     maven("https://repo.spongepowered.org/maven/")
+    maven("https://repo.opencollab.dev/maven-releases/")
     maven("https://repo.opencollab.dev/maven-snapshots/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
   }
