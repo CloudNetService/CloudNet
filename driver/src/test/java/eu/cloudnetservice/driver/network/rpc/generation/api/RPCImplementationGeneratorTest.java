@@ -92,4 +92,14 @@ public class RPCImplementationGeneratorTest {
     Assertions.assertInstanceOf(SenderNeedingManagement.class, management);
     Assertions.assertSame(((SenderNeedingManagement) management).sender, sender);
   }
+
+  @Test
+  void testGenerationOfMethods() {
+    var testInstance = ApiImplementationGenerator.generateApiImplementation(
+      TestRPCParameters.class,
+      GenerationContext.forClass(TestRPCParameters.class).implementAllMethods(true).build(),
+      Mockito.mock(RPCSender.class)
+    ).newInstance(1, 2L, "World", new int[0], new long[]{1L}, new String[]{"Hello"});
+    Assertions.assertNotNull(testInstance);
+  }
 }

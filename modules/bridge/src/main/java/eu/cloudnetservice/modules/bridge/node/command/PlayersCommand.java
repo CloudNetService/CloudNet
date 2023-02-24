@@ -46,6 +46,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
@@ -166,6 +167,20 @@ public class PlayersCommand {
           " | Service: " + player.connectedService().serverName());
     }
     source.sendMessage("=> Online players " + this.playerManager.onlineCount());
+  }
+
+  @CommandMethod("players|player|pl test")
+  public void abc(@NonNull CommandSource source) {
+    for (ServiceInfoSnapshot runningService : this.serviceProvider.runningServices()) {
+      var players = runningService.readProperty(BridgeServiceProperties.PLAYERS);
+      if (players == null) {
+        source.sendMessage(runningService.name() + " unable to read players");
+      } else {
+        source.sendMessage(runningService.name() + " --> " + players.stream()
+          .map(player -> player.name() + " . " + player.uniqueId())
+          .collect(Collectors.joining(", ")));
+      }
+    }
   }
 
   @CommandMethod("players|player|pl registered")

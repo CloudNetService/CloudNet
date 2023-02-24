@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.permission;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
+import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ import lombok.NonNull;
  */
 public class PermissionGroup extends AbstractPermissible {
 
-  public static final Type COL_GROUPS = TypeToken.getParameterized(Collection.class, PermissionGroup.class).getType();
+  public static final Type COL_GROUPS = TypeFactory.parameterizedClass(Collection.class, PermissionGroup.class);
 
   private final String color;
   private final String prefix;
@@ -51,8 +51,8 @@ public class PermissionGroup extends AbstractPermissible {
   private final Set<String> groups;
 
   /**
-   * Constructs a new permission group. The group is not saved or updated in any way before {@link
-   * PermissionManagement#addPermissionGroup(PermissionGroup)} is called.
+   * Constructs a new permission group. The group is not saved or updated in any way before
+   * {@link PermissionManagement#addPermissionGroup(PermissionGroup)} is called.
    *
    * @param color            the color of the group.
    * @param prefix           the prefix of the group.

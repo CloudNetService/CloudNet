@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import com.google.gson.reflect.TypeToken;
+import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import lombok.NonNull;
@@ -44,6 +44,5 @@ public record WorldPosition(
   @Nullable String group
 ) {
 
-  public static final Type COL_TYPE = new TypeToken<Collection<WorldPosition>>() {
-  }.getType();
+  public static final Type COL_TYPE = TypeFactory.parameterizedClass(Collection.class, WorldPosition.class);
 }

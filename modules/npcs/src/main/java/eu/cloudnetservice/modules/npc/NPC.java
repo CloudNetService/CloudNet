@@ -17,10 +17,10 @@
 package eu.cloudnetservice.modules.npc;
 
 import com.google.common.base.Preconditions;
-import com.google.common.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
+import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,10 +33,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
 
-  public static final Type COLLECTION_NPC = new TypeToken<Collection<NPC>>() {
-  }.getType();
-  private static final Type PROPERTIES = new TypeToken<Set<ProfileProperty>>() {
-  }.getType();
+  public static final Type COLLECTION_NPC = TypeFactory.parameterizedClass(Collection.class, NPC.class);
+  private static final Type PROPERTIES = TypeFactory.parameterizedClass(Set.class, ProfileProperty.class);
 
   private final NPCType npcType;
   private final String targetGroup;

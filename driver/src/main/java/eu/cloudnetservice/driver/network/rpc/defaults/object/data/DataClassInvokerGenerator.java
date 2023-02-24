@@ -33,7 +33,6 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
-import com.google.common.reflect.TypeToken;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCFieldGetter;
@@ -42,6 +41,7 @@ import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.util.asm.AsmHelper;
 import eu.cloudnetservice.driver.util.define.ClassDefiners;
+import io.leangen.geantyref.GenericTypeReflector;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -148,7 +148,7 @@ public final class DataClassInvokerGenerator {
         var parameters = new Type[types.length];
         for (var i = 0; i < types.length; i++) {
           // extract the raw type of the given type
-          var rawType = TypeToken.of(types[i]).getRawType();
+          var rawType = GenericTypeReflector.erase(types[i]);
           // load the mapper, the data buf and the current class to the stack
           mv.visitVarInsn(ALOAD, 2);
           mv.visitVarInsn(ALOAD, 1);
@@ -287,7 +287,7 @@ public final class DataClassInvokerGenerator {
           var getter = fieldGetters.get(field);
           if (getter != null) {
             // extract all needed information from the method
-            rawType = TypeToken.of(getter.getGenericReturnType()).getRawType();
+            rawType = GenericTypeReflector.erase(getter.getGenericReturnType());
             var declaring = Type.getInternalName(getter.getDeclaringClass());
             // cast the object argument to the declaring class of the method
             mv.visitTypeInsn(CHECKCAST, declaring);
@@ -300,7 +300,7 @@ public final class DataClassInvokerGenerator {
               getter.getDeclaringClass().isInterface());
           } else {
             // extract all needed information from the field
-            rawType = TypeToken.of(field.getGenericType()).getRawType();
+            rawType = GenericTypeReflector.erase(field.getGenericType());
             var declaring = Type.getInternalName(field.getDeclaringClass());
             // cast the object argument to the declaring class of the field
             mv.visitTypeInsn(CHECKCAST, declaring);

@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.bridge.node;
 import static eu.cloudnetservice.modules.bridge.BridgeManagement.BRIDGE_PLAYER_DB_NAME;
 
 import com.google.common.collect.Iterables;
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -42,6 +41,7 @@ import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
@@ -144,19 +144,21 @@ public final class CloudNetBridgeModule extends DriverModule {
     if (!config.empty()) {
       // extract the messages and re-map them
       Map<String, Map<String, String>> messages = new HashMap<>(BridgeConfiguration.DEFAULT_MESSAGES);
-      messages.get("default").putAll(config.get("messages", new TypeToken<Map<String, String>>() {
-      }.getType()));
+      messages.get("default").putAll(config.get(
+        "messages",
+        TypeFactory.parameterizedClass(Map.class, String.class, String.class)));
       // extract all hub commands
-      Collection<String> hubCommands = config.get("hubCommandNames", new TypeToken<Collection<String>>() {
-      }.getType());
+      Collection<String> hubCommands = config.get(
+        "hubCommandNames",
+        TypeFactory.parameterizedClass(Collection.class, String.class));
       // extract the excluded groups
-      Collection<String> excludedGroups = config.get("excludedGroups", new TypeToken<Collection<String>>() {
-      }.getType());
+      Collection<String> excludedGroups = config.get(
+        "excludedGroups",
+        TypeFactory.parameterizedClass(Collection.class, String.class));
       // extract the fallback configurations
       Collection<ProxyFallbackConfiguration> fallbacks = config.get(
         "bungeeFallbackConfigurations",
-        new TypeToken<Collection<ProxyFallbackConfiguration>>() {
-        }.getType());
+        TypeFactory.parameterizedClass(Collection.class, ProxyFallbackConfiguration.class));
       // convert to a new config file
       JsonDocument.newDocument(new BridgeConfiguration(
         config.getString("prefix"),

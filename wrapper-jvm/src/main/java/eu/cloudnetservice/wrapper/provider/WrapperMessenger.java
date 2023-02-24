@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.wrapper.provider;
 
-import com.google.gson.reflect.TypeToken;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.def.PacketServerChannelMessage;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
 import eu.cloudnetservice.driver.provider.defaults.DefaultMessenger;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
@@ -35,7 +35,7 @@ import lombok.NonNull;
 @Provides(CloudMessenger.class)
 public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
 
-  private static final Type MESSAGES = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
+  private static final Type MESSAGES = TypeFactory.parameterizedClass(Collection.class, ChannelMessage.class);
 
   private final NetworkClient networkClient;
 
@@ -55,7 +55,7 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    Collection<ChannelMessage> response =  this.networkClient.firstChannel()
+    Collection<ChannelMessage> response = this.networkClient.firstChannel()
       .queryPacketManager()
       .sendQueryPacket(new PacketServerChannelMessage(channelMessage, true))
       .join()
