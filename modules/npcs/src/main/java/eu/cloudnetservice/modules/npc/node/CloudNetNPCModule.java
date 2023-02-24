@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.npc.node;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
@@ -39,6 +38,7 @@ import eu.cloudnetservice.modules.npc.configuration.NPCPoolOptions;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -99,7 +99,7 @@ public class CloudNetNPCModule extends DriverModule {
         var config = JsonDocument.newDocument(this.configPath());
         List<JsonDocument> entries = config.get(
           "entries",
-          TypeToken.getParameterized(List.class, JsonDocument.class).getType());
+          TypeFactory.parameterizedClass(List.class, JsonDocument.class));
 
         for (var entry : entries) {
           var inventoryConfig = entry.getDocument("inventoryConfiguration").getDocument("defaultItems");

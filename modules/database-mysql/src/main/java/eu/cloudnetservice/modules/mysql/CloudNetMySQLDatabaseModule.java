@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.mysql;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
@@ -26,6 +25,7 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.util.List;
 import lombok.NonNull;
@@ -44,7 +44,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
         config.getString("username"),
         config.getString("password"),
         config.getString("database"),
-        config.get("addresses", TypeToken.getParameterized(List.class, MySQLConnectionEndpoint.class).getType())
+        config.get("addresses", TypeFactory.parameterizedClass(List.class, MySQLConnectionEndpoint.class))
       )));
     }
   }

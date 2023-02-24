@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.network.http.HttpContext;
@@ -28,6 +27,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
@@ -39,7 +39,7 @@ import lombok.NonNull;
 @HandlerPermission("http.v2.database")
 public final class V2HttpHandlerDatabase extends V2HttpHandler {
 
-  private static final Type MAP_TYPE = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
+  private static final Type MAP_TYPE = TypeFactory.parameterizedClass(Map.class, String.class, String.class);
 
   private final DatabaseProvider databaseProvider;
 

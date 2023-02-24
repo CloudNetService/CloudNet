@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults;
 
-import com.google.common.reflect.TypeToken;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCIgnore;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvoker;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
 import eu.cloudnetservice.driver.network.rpc.exception.CannotDecideException;
+import io.leangen.geantyref.GenericTypeReflector;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import lombok.NonNull;
@@ -67,7 +67,7 @@ public class MethodInformation {
     this.arguments = arguments;
     this.voidMethod = rType.equals(void.class);
     this.sourceInstance = sourceInstance;
-    this.rawReturnType = TypeToken.of(rType).getRawType();
+    this.rawReturnType = GenericTypeReflector.erase(rType);
     this.definingClass = definingClass;
     this.methodInvoker = generator == null ? null : generator.makeMethodInvoker(this);
   }
@@ -141,8 +141,8 @@ public class MethodInformation {
   }
 
   /**
-   * Get the raw return type of the underlying method. For example a method with a return type of {@code
-   * Collection&lt;String&gt;} would result in {@code Collection}.
+   * Get the raw return type of the underlying method. For example a method with a return type of
+   * {@code Collection&lt;String&gt;} would result in {@code Collection}.
    *
    * @return the raw return type of the method.
    */

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.cluster.defaults;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -35,6 +34,7 @@ import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.cluster.util.NodeDisconnectHandler;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import java.lang.reflect.Type;
 import java.time.Instant;
@@ -48,7 +48,7 @@ import org.jetbrains.annotations.UnknownNullability;
 
 public class RemoteNodeServer implements NodeServer {
 
-  private static final Type COLLECTION_STRING = TypeToken.getParameterized(Set.class, String.class).getType();
+  private static final Type COLLECTION_STRING = TypeFactory.parameterizedClass(Set.class, String.class);
 
   private final NetworkClient networkClient;
   private final DataSyncRegistry dataSyncRegistry;

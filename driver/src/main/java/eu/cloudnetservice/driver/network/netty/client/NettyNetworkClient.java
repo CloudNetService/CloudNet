@@ -130,15 +130,14 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
     new Bootstrap()
       .group(this.eventLoopGroup)
       .channelFactory(NettyUtil.clientChannelFactory())
-      .handler(new NettyNetworkClientInitializer(hostAndPort, this.eventManager, this))
-
-      .option(ChannelOption.IP_TOS, 0x18)
-      .option(ChannelOption.AUTO_READ, true)
-      .option(ChannelOption.TCP_NODELAY, true)
-      .option(ChannelOption.SO_REUSEADDR, true)
-      .option(ChannelOption.TCP_FASTOPEN_CONNECT, true)
-      .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
-      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
+      .handler(new NettyNetworkClientInitializer(hostAndPort, this.eventManager, this)
+        .option(ChannelOption.IP_TOS, 0x18)
+        .option(ChannelOption.AUTO_READ, true)
+        .option(ChannelOption.TCP_NODELAY, true)
+        .option(ChannelOption.SO_REUSEADDR, true)
+        .option(ChannelOption.TCP_FASTOPEN_CONNECT, true)
+        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS))
 
       .connect(hostAndPort.host(), hostAndPort.port())
       .addListener(future -> {

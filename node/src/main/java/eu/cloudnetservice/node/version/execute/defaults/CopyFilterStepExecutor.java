@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
+import io.leangen.geantyref.TypeFactory;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -34,7 +34,7 @@ import lombok.NonNull;
 
 public class CopyFilterStepExecutor implements InstallStepExecutor {
 
-  private static final Type STRING_MAP = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
+  private static final Type STRING_MAP = TypeFactory.parameterizedClass(Map.class, String.class, String.class);
 
   @Override
   public @NonNull Set<Path> execute(
