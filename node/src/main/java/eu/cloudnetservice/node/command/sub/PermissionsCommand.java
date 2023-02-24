@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
@@ -231,14 +232,14 @@ public final class PermissionsCommand {
       permissionUser.name()));
   }
 
-  @CommandMethod("permissions|perms user <user> add permission <permission> [potency] [targetGroup] [duration]")
+  @CommandMethod("permissions|perms user <user> add permission <permission>")
   public void addUserPermission(
     @NonNull CommandSource source,
     @NonNull @Argument("user") PermissionUser permissionUser,
     @NonNull @Argument("permission") String rawPermission,
-    @Nullable @Argument("potency") Integer potency,
-    @Nullable @Argument(value = "duration") Duration timeOut,
-    @Nullable @Argument("targetGroup") GroupConfiguration targetGroup
+    @Nullable @Flag("potency") Integer potency,
+    @Nullable @Flag("duration") Duration timeOut,
+    @Nullable @Flag("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionUser, rawPermission, potency, timeOut, targetGroup);
     source.sendMessage(I18n.trans("command-permissions-user-add-permission-successful",
@@ -374,14 +375,14 @@ public final class PermissionsCommand {
       targetGroup.name()));
   }
 
-  @CommandMethod("permissions|perms group <group> add permission <permission> [potency] [targetGroup] [duration]")
+  @CommandMethod("permissions|perms group <group> add permission <permission>")
   public void addGroupPermission(
     @NonNull CommandSource source,
     @NonNull @Argument("group") PermissionGroup permissionGroup,
     @NonNull @Argument("permission") String rawPermission,
-    @Nullable @Argument("potency") Integer potency,
-    @Nullable @Argument(value = "duration") Duration timeOut,
-    @Nullable @Argument("targetGroup") GroupConfiguration targetGroup
+    @Nullable @Flag("potency") Integer potency,
+    @Nullable @Flag("duration") Duration timeOut,
+    @Nullable @Flag("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionGroup, rawPermission, potency, timeOut, targetGroup);
     source.sendMessage(I18n.trans("command-permissions-group-add-permission-successful",
@@ -491,10 +492,10 @@ public final class PermissionsCommand {
   }
 
   private void updatePermissible(@NonNull Permissible permissible) {
-    if (permissible instanceof PermissionUser) {
-      this.permissionManagement.updateUser((PermissionUser) permissible);
-    } else if (permissible instanceof PermissionGroup) {
-      this.permissionManagement.updateGroup((PermissionGroup) permissible);
+    if (permissible instanceof PermissionUser user) {
+      this.permissionManagement.updateUser(user);
+    } else if (permissible instanceof PermissionGroup group) {
+      this.permissionManagement.updateGroup(group);
     }
   }
 

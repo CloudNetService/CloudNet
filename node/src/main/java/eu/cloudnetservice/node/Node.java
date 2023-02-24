@@ -18,7 +18,6 @@ package eu.cloudnetservice.node;
 
 import dev.derklaro.aerogel.Order;
 import dev.derklaro.aerogel.binding.BindingBuilder;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -46,6 +45,8 @@ import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.cluster.task.LocalNodeUpdateTask;
+import eu.cloudnetservice.node.cluster.task.NodeDisconnectTrackerTask;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
@@ -74,12 +75,13 @@ import java.io.File;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 import lombok.NonNull;
 
 @Singleton
@@ -237,7 +239,9 @@ public final class Node {
   private void initializeDatabaseProvider(
     @NonNull Configuration configuration,
     @NonNull ServiceRegistry serviceRegistry,
-    @NonNull InjectionLayer<?> bootLayer
+    @NonNull InjectionLayer<?> bootLayer,
+    @NonNull RPCFactory rpcFactory,
+    @NonNull RPCHandlerRegistry rpcHandlerRegistry
   ) throws Exception {
     // initialize the default database provider
     var configuredProvider = configuration.properties().getString("database_provider", "xodus");
@@ -257,6 +261,9 @@ public final class Node {
       .bindAll(DatabaseProvider.class, NodeDatabaseProvider.class)
       .toInstance(provider);
     bootLayer.install(binding);
+
+    // register the rpc handler for the database provider
+    rpcFactory.newHandler(DatabaseProvider.class, provider).registerTo(rpcHandlerRegistry);
 
     // notify the user about the selected database
     LOGGER.info(I18n.trans("start-connect-database", provider.name()));
@@ -348,7 +355,7 @@ public final class Node {
   private void establishNodeConnections(@NonNull NodeServerProvider nodeServerProvider) {
     // network client init
     var nodeConnections = new Phaser(1);
-    Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
+    Collection<BooleanSupplier> waitingNodeAvailableSuppliers = new LinkedList<>();
     for (var node : nodeServerProvider.nodeServers()) {
       // skip all node servers which are already available (normally only the local node)
       if (node.available()) {
@@ -366,14 +373,7 @@ public final class Node {
           LOGGER.warning(I18n.trans("start-node-connection-failure", node.info().uniqueId(), exception.getMessage()));
         } else {
           // wait for the node connection to become available
-          futures.add(Task.supply(() -> {
-            // wait for the connection to establish, max 7 seconds
-            for (var i = 0; i < 140 && !node.available(); i++) {
-              //noinspection BusyWait
-              Thread.sleep(50);
-            }
-            return null;
-          }));
+          waitingNodeAvailableSuppliers.add(node::available);
         }
 
         // count down by one arrival
@@ -385,18 +385,50 @@ public final class Node {
     nodeConnections.arriveAndAwaitAdvance();
 
     // now we can wait for all nodes to become available (if needed)
-    if (!futures.isEmpty()) {
-      try {
-        LOGGER.info(I18n.trans("start-node-connection-waiting", futures.size()));
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get(7, TimeUnit.SECONDS);
-      } catch (Exception ignored) {
-        // auth failed to a node in the cluster - ignore
+    if (!waitingNodeAvailableSuppliers.isEmpty()) {
+      // notify the user that we're waiting
+      LOGGER.info(I18n.trans("start-node-connection-waiting", waitingNodeAvailableSuppliers.size()));
+
+      var waitStartInstant = Instant.now();
+      while (!waitingNodeAvailableSuppliers.isEmpty()) {
+        // remove all boolean suppliers that were notified that the node is available
+        waitingNodeAvailableSuppliers.removeIf(BooleanSupplier::getAsBoolean);
+
+        // time-out this loop if we waited for more than 7 seconds
+        var waitDuration = Duration.between(waitStartInstant, Instant.now());
+        if (waitDuration.getSeconds() >= 7) {
+          break;
+        }
+
+        try {
+          // wait for a tiny bit before checking again
+          //noinspection BusyWait
+          Thread.sleep(50L);
+        } catch (InterruptedException exception) {
+          Thread.currentThread().interrupt(); // reset the interrupted state of the thread
+          throw new IllegalThreadStateException();
+        }
       }
     }
   }
 
   @Inject
   @Order(650)
+  private void registerDefaultCommands(@NonNull CommandProvider commandProvider, @NonNull Console console) {
+    // register the default commands
+    LOGGER.info(I18n.trans("start-commands"));
+    commandProvider.registerDefaultCommands();
+    commandProvider.registerConsoleHandler(console);
+  }
+
+  @Inject
+  @Order(700)
+  private void startModules(@NonNull ModuleProvider moduleProvider) {
+    moduleProvider.startAll();
+  }
+
+  @Inject
+  @Order(750)
   private void requestClusterDataIfNeeded(@NonNull NodeServerProvider nodeServerProvider) {
     // we are now connected to all nodes - request the full cluster data set if the head node is not the current one
     if (!nodeServerProvider.localNode().head()) {
@@ -411,12 +443,19 @@ public final class Node {
   }
 
   @Inject
-  @Order(700)
-  private void registerDefaultCommands(@NonNull CommandProvider commandProvider, @NonNull Console console) {
-    // register the default commands
-    LOGGER.info(I18n.trans("start-commands"));
-    commandProvider.registerDefaultCommands();
-    commandProvider.registerConsoleHandler(console);
+  @Order(800)
+  private void scheduleNodeUpdateTasks(
+    @NonNull LocalNodeUpdateTask localNodeUpdateTask,
+    @NonNull NodeDisconnectTrackerTask disconnectTrackerTask
+  ) {
+    // create a scheduled executor that we use to schedule the task, ensure that we shut it down when
+    // the process terminates to ensure that no threads are preventing the shutdown process to complete
+    var updateTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+    Runtime.getRuntime().addShutdownHook(new Thread(updateTaskExecutor::shutdownNow));
+
+    // schedule both update tasks
+    updateTaskExecutor.scheduleAtFixedRate(localNodeUpdateTask, 1, 1, TimeUnit.SECONDS);
+    updateTaskExecutor.scheduleAtFixedRate(disconnectTrackerTask, 5, 5, TimeUnit.SECONDS);
   }
 
   @Inject
@@ -434,13 +473,9 @@ public final class Node {
   private void finishStartup(
     @NonNull TickLoop tickLoop,
     @NonNull EventManager eventManager,
-    @NonNull ModuleProvider moduleProvider,
     @NonNull FileDeployCallbackListener callbackListener,
     @NonNull @Named("startInstant") Instant startInstant
   ) {
-    // start all modules
-    moduleProvider.startAll();
-
     // register listeners & post node startup finish
     eventManager.registerListener(callbackListener);
     eventManager.callEvent(new CloudNetNodePostInitializationEvent());

@@ -39,7 +39,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
   private SFTPTemplateStorage storage;
   private volatile SFTPTemplateStorageConfig config;
 
-  @ModuleTask(order = Byte.MAX_VALUE, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = Byte.MAX_VALUE, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     // the old config was located in a directory called '-ftp' rather than '-sftp'
     var oldConfigPath = this.moduleWrapper().moduleProvider().moduleDirectoryPath()
@@ -63,7 +63,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
     }
   }
 
-  @ModuleTask(event = ModuleLifeCycle.LOADED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.LOADED)
   public void handleInit(@NonNull ServiceRegistry serviceRegistry, @NonNull DataSyncRegistry dataSyncRegistry) {
     this.config = this.readConfig(SFTPTemplateStorageConfig.class, SFTPTemplateStorageConfig::new);
     // init the storage
@@ -80,7 +80,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
       .build());
   }
 
-  @ModuleTask(event = ModuleLifeCycle.STOPPED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.STOPPED)
   public void handleStop(@NonNull ServiceRegistry serviceRegistry) throws IOException {
     this.storage.close();
     serviceRegistry.unregisterProvider(TemplateStorage.class, this.storage.name());

@@ -302,11 +302,11 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
         var group = this.permissionManagement.highestPermissionGroup(permissionUser);
 
         if (group != null) {
-          input = input.replace("%prefix%", group.prefix())
-            .replace("%suffix%", group.suffix())
-            .replace("%display%", group.display())
-            .replace("%color%", group.color())
-            .replace("%group%", group.name());
+          input = input.replace("%perms_group_prefix%", group.prefix())
+            .replace("%perms_group_suffix%", group.suffix())
+            .replace("%perms_group_display%", group.display())
+            .replace("%perms_group_color%", group.color())
+            .replace("%perms_group_name%", group.name());
         }
       }
     }

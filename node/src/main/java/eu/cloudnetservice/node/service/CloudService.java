@@ -72,5 +72,8 @@ public interface CloudService extends SpecificCloudServiceProvider {
   void publishServiceInfoSnapshot();
 
   @ApiStatus.Internal
+  void handleServiceRegister();
+
+  @ApiStatus.Internal
   void updateServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

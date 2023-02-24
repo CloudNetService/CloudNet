@@ -75,7 +75,8 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .filter(pair -> pair.second().isPresent())
       .map(p -> new Pair<>(p.first(), this.proxyServer.getServerInfo(p.second().get().name())))
       .filter(pair -> pair.second() != null)
-      .forEach(pair -> pair.first().connect(pair.second()));
+      .findFirst()
+      .ifPresent(pair -> pair.first().connect(pair.second()));
   }
 
   @Override
@@ -85,7 +86,8 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .sorted(selectorType.comparator())
       .map(service -> this.proxyServer.getServerInfo(service.name()))
       .filter(Objects::nonNull)
-      .forEach(server -> this.forEach(player -> player.connect(server)));
+      .findFirst()
+      .ifPresent(server -> this.forEach(player -> player.connect(server)));
   }
 
   @Override
@@ -95,7 +97,8 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .sorted(selectorType.comparator())
       .map(service -> this.proxyServer.getServerInfo(service.name()))
       .filter(Objects::nonNull)
-      .forEach(server -> this.forEach(player -> player.connect(server)));
+      .findFirst()
+      .ifPresent(server -> this.forEach(player -> player.connect(server)));
   }
 
   @Override

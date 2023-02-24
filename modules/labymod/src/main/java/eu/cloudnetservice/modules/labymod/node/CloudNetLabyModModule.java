@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.labymod.node;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -33,6 +32,7 @@ import eu.cloudnetservice.modules.labymod.config.LabyModServiceDisplay;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
@@ -44,7 +44,7 @@ import lombok.NonNull;
 @Singleton
 public class CloudNetLabyModModule extends DriverModule {
 
-  @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     if (Files.exists(this.configPath())) {
       var config = this.readConfig().getDocument("config");
@@ -59,16 +59,18 @@ public class CloudNetLabyModModule extends DriverModule {
             .joinMatch(config.getDocument("discordJoinMatch").toInstanceOf(LabyModDiscordRPC.class))
             .spectateMatch(LabyModDiscordRPC.builder()
               .enabled(config.getBoolean("discordSpectateEnabled"))
-              .excludedGroups(config.get("excludedSpectateGroups",
-                TypeToken.getParameterized(Collection.class, String.class).getType()))
+              .excludedGroups(config.get(
+                "excludedSpectateGroups",
+                TypeFactory.parameterizedClass(Collection.class, String.class)))
               .build())
             .loginDomain(config.getString("loginDomain"))
             .banner(config.get("bannerConfig", LabyModBanner.class))
             .permissions(LabyModPermissions.builder()
               .enabled(config.getDocument("permissionConfig").getBoolean("enabled"))
               .permissions(config.getDocument("permissionConfig")
-                .get("labyModPermissions",
-                  TypeToken.getParameterized(Map.class, String.class, Boolean.class).getType()))
+                .get(
+                  "labyModPermissions",
+                  TypeFactory.parameterizedClass(Map.class, String.class, Boolean.class)))
               .build())
             .build()
         ));
@@ -76,7 +78,7 @@ public class CloudNetLabyModModule extends DriverModule {
     }
   }
 
-  @ModuleTask(event = ModuleLifeCycle.LOADED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.LOADED)
   public void initManagement(
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull @Named("module") InjectionLayer<?> layer
@@ -100,12 +102,12 @@ public class CloudNetLabyModModule extends DriverModule {
         .build());
   }
 
-  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
   public void handleReload(@NonNull NodeLabyModManagement management) {
     management.configuration(this.loadConfiguration());
   }
 
-  @ModuleTask(order = 16, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 16, lifecycle = ModuleLifeCycle.LOADED)
   public void initListeners(
     @NonNull ModuleHelper moduleHelper,
     @NonNull EventManager eventManager,

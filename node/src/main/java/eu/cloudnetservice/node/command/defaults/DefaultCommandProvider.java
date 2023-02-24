@@ -79,7 +79,6 @@ import org.jetbrains.annotations.Nullable;
 @Provides(CommandProvider.class)
 public final class DefaultCommandProvider implements CommandProvider {
 
-  // TODO: TypeFactory
   private static final CommandMeta.Key<Set<String>> ALIAS_KEY = CommandMeta.Key.of(new TypeToken<Set<String>>() {
   }, "cloudnet:alias");
   private static final CommandMeta.Key<String> DESCRIPTION_KEY = CommandMeta.Key.of(

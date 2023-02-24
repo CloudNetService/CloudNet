@@ -72,12 +72,45 @@ public final class ServiceChannelMessageListener {
               .build()));
         }
 
+        // feedback from a node that a service which should have been moved to accepted
+        // is no longer registered as unaccepted and not yet moved to registered, which
+        // means that the cache ttl on the target node exceeded
+        case "node_to_head_node_unaccepted_service_ttl_exceeded" -> {
+          var serviceUniqueId = event.content().readUniqueId();
+          this.serviceManager.forceRemoveRegisteredService(serviceUniqueId);
+        }
+
         // request to start a service on the local node
         case "head_node_to_node_start_service" -> {
           var configuration = event.content().readObject(ServiceConfiguration.class);
           var service = this.serviceManager.createLocalCloudService(configuration);
 
           event.binaryResponse(DataBuf.empty().writeObject(ServiceCreateResult.created(service.serviceInfo())));
+        }
+
+        // publish the service info of a created service to the cluster
+        case "head_node_to_node_finish_service_registration" -> {
+          var serviceUniqueId = event.content().readUniqueId();
+          var service = this.serviceManager.takeUnacceptedService(serviceUniqueId);
+
+          if (service != null) {
+            // service is still locally present, finish the registration of it
+            service.handleServiceRegister();
+          } else {
+            // service is no longer locally present as unaccepted
+            // re-check if the service was already moved to registered
+            var registeredService = this.serviceManager.localCloudService(serviceUniqueId);
+            if (registeredService == null) {
+              // send this as feedback to the head node in order to remove the registered service from there as well
+              ChannelMessage.builder()
+                .target(event.sender().toTarget())
+                .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+                .message("node_to_head_node_unaccepted_service_ttl_exceeded")
+                .buffer(DataBuf.empty().writeUniqueId(serviceUniqueId))
+                .build()
+                .send();
+            }
+          }
         }
 
         // update of a service in the network

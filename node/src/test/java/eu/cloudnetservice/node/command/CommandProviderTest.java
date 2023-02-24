@@ -74,9 +74,8 @@ public final class CommandProviderTest {
     var source = new DriverCommandSource();
 
     var rootSuggestions = commandProvider.suggest(source, "tests");
-    // confirm is registered by default
-    Assertions.assertEquals(3, rootSuggestions.size());
-    Assertions.assertEquals(Arrays.asList("help", "tests", "confirm"), rootSuggestions);
+    Assertions.assertEquals(1, rootSuggestions.size());
+    Assertions.assertEquals("tests", rootSuggestions.get(0));
 
     var subSuggestions = commandProvider.suggest(source, "tests ");
     Assertions.assertEquals(1, subSuggestions.size());

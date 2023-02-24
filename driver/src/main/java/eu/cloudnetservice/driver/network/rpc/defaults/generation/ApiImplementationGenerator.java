@@ -25,7 +25,6 @@ import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
@@ -50,6 +49,7 @@ import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.network.rpc.generation.InstanceFactory;
 import eu.cloudnetservice.driver.util.asm.AsmHelper;
+import eu.cloudnetservice.driver.util.asm.StackIndexHelper;
 import eu.cloudnetservice.driver.util.define.ClassDefiners;
 import jakarta.inject.Inject;
 import java.lang.reflect.Constructor;
@@ -183,9 +183,9 @@ public final class ApiImplementationGenerator {
         mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", "()V", false);
       } else {
         // load all parameters to the stack
+        var stackHelper = StackIndexHelper.create(3); // 0 = this, 1 = sender, 2 = channel supplier
         for (int i = 0; i < targetConstructorArgs.size(); i++) {
           var argumentType = targetConstructorArgs.get(i);
-
           if (i == 0 && argumentType.equals(RPCSender.class)) {
             // argument is the provided sender
             mv.visitVarInsn(ALOAD, 1);
@@ -193,8 +193,8 @@ public final class ApiImplementationGenerator {
             // argument is the provided channel supplier
             mv.visitVarInsn(ALOAD, 2);
           } else {
-            var type = Type.getType(argumentType);
-            mv.visitVarInsn(type.getOpcode(ILOAD), 2 + i); // 0 = this, 1 = sender, 2 = channel supplier
+            // argument is provided by the constructor
+            stackHelper.load(mv, argumentType);
           }
         }
 
@@ -280,22 +280,26 @@ public final class ApiImplementationGenerator {
     var params = method.getParameterTypes();
     AsmHelper.pushInt(mv, params.length);
     mv.visitTypeInsn(ANEWARRAY, DEFAULT_SUPER);
+
     // add each parameter to the array
+    var stackHelper = StackIndexHelper.create().skipNext(); // skip "this"
     for (var i = 0; i < params.length; i++) {
-      var type = params[i];
-      var intType = Type.getType(type);
+      var paramType = params[i];
+
       // dup the array on the stack and push the target index we want to add the object to
       mv.visitInsn(DUP);
       AsmHelper.pushInt(mv, i);
-      // load the parameter
-      mv.visitVarInsn(intType.getOpcode(ILOAD), i + 1);
-      // we need to wrap a primitive type to the wrapper type
-      if (type.isPrimitive()) {
-        AsmHelper.primitiveToWrapper(mv, type);
+
+      // load the parameter & wrap it in a boxed type if needed
+      stackHelper.load(mv, paramType);
+      if (paramType.isPrimitive()) {
+        AsmHelper.primitiveToWrapper(mv, paramType);
       }
-      // store the element
+
+      // store the element in the array
       mv.visitInsn(AASTORE);
     }
+
     // invoke the send method
     mv.visitMethodInsn(INVOKEINTERFACE, SENDER_TYPE, "invokeMethod", INVOKE_METHOD_DESC, true);
   }

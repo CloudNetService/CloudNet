@@ -46,7 +46,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
     layer.installAutoConfigureBindings(this.getClass().getClassLoader(), "syncproxy");
   }
 
-  @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     if (Files.exists(this.configPath())) {
       // the old config is located in a document with the key "config", extract the actual config
@@ -59,7 +59,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
     }
   }
 
-  @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 126, lifecycle = ModuleLifeCycle.LOADED)
   public void initManagement(
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull DataSyncRegistry dataSyncRegistry,
@@ -85,7 +85,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
         .build());
   }
 
-  @ModuleTask(order = 64, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 64, lifecycle = ModuleLifeCycle.LOADED)
   public void initListeners(
     @NonNull EventManager eventManager,
     @NonNull ModuleHelper moduleHelper,
@@ -105,13 +105,13 @@ public final class CloudNetSyncProxyModule extends DriverModule {
     ));
   }
 
-  @ModuleTask(order = 60, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 60, lifecycle = ModuleLifeCycle.LOADED)
   public void registerCommands(@NonNull CommandProvider commandProvider) {
     // register the syncproxy command to provide config management
     commandProvider.register(SyncProxyCommand.class);
   }
 
-  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
   public void handleReload(@NonNull ServiceRegistry serviceRegistry) {
     var management = serviceRegistry.firstProvider(SyncProxyManagement.class);
     if (management != null) {

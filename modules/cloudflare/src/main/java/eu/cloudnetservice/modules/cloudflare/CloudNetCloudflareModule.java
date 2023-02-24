@@ -58,7 +58,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   private CloudflareConfiguration cloudflareConfiguration;
 
-  @ModuleTask(event = ModuleLifeCycle.LOADED)
+  @ModuleTask(lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfiguration() {
     var config = this.readConfig().get("config");
     if (config != null) {
@@ -66,7 +66,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
     }
   }
 
-  @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
+  @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STARTED)
   public void loadConfiguration() {
     var config = this.readConfig(
       CloudflareConfiguration.class,
@@ -83,7 +83,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
     this.updateConfiguration(config);
   }
 
-  @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
+  @ModuleTask(order = 126, lifecycle = ModuleLifeCycle.STARTED)
   public void createNodeRecordsWhenNeeded(@NonNull CloudFlareRecordManager recordManager) {
     for (var entry : this.cloudflareConfiguration.entries()) {
       if (entry.enabled()) {
@@ -123,12 +123,12 @@ public final class CloudNetCloudflareModule extends DriverModule {
     }
   }
 
-  @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
+  @ModuleTask(order = 125, lifecycle = ModuleLifeCycle.STARTED)
   public void finishStartup(@NonNull EventManager eventManager) {
     eventManager.registerListener(CloudflareServiceStateListener.class);
   }
 
-  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
   public void handleReload(@NonNull CloudFlareRecordManager recordManager, @NonNull Configuration nodeConfig) {
     // store the old entries for later comparison
     var oldEntries = this.cloudflareConfiguration.entries();
@@ -210,7 +210,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
     this.createRecordsForEntries(nodeConfig, recordManager, addedEntries);
   }
 
-  @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
+  @ModuleTask(order = 64, lifecycle = ModuleLifeCycle.STOPPED)
   public void removeAllServiceRecords(@NonNull CloudFlareRecordManager recordManager) {
     var deletionFutures = recordManager.trackedRecords().entries().stream()
       .filter(trackedRecordEntry -> {

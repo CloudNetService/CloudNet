@@ -60,12 +60,12 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * <p>
    * After removing the permission an update is required.
    *
-   * @param group      the target group to remove the permission from.
    * @param permission the permission to remove.
+   * @param group      the target group to remove the permission from.
    * @return true if any permission was removed, false otherwise.
    * @throws NullPointerException if the given group or permission is null.
    */
-  boolean removePermission(@NonNull String group, @NonNull String permission);
+  boolean removePermission(@NonNull String permission, @NonNull String group);
 
   /**
    * Gets all global permissions of this permissible. Specific group permissions are not included.

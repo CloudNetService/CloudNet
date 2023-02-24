@@ -226,7 +226,7 @@ public class DefaultDatabasePermissionManagement
       // Deserialize the user from the document
       var permissionUser = user.toInstanceOf(PermissionUser.class);
       // update the user info if necessary
-      if (this.testPermissible(permissionUser)) {
+      if (this.testPermissionUser(permissionUser)) {
         this.updateUserAsync(permissionUser);
       }
       // return the user
@@ -254,7 +254,7 @@ public class DefaultDatabasePermissionManagement
         // deserialize the permission user
         var user = userData.toInstanceOf(PermissionUser.class);
         // check if we need to update the user
-        if (this.testPermissible(user)) {
+        if (this.testPermissionUser(user)) {
           this.updateUserAsync(user);
         }
         // use the user instance
@@ -270,7 +270,7 @@ public class DefaultDatabasePermissionManagement
       // deserialize the permission user
       var user = data.toInstanceOf(PermissionUser.class);
       // check if we need to update the user
-      if (this.testPermissible(user)) {
+      if (this.testPermissionUser(user)) {
         this.updateUserAsync(user);
       }
       // use the user instance
@@ -288,7 +288,7 @@ public class DefaultDatabasePermissionManagement
       // deserialize the permission user
       var user = data.toInstanceOf(PermissionUser.class);
       // check if we need to update the user
-      if (this.testPermissible(user)) {
+      if (this.testPermissionUser(user)) {
         this.updateUserAsync(user);
       }
       // use the user instance if in the group
@@ -338,12 +338,27 @@ public class DefaultDatabasePermissionManagement
 
   @Override
   public @Nullable PermissionGroup group(@NonNull String name) {
-    return this.groups.get(name);
+    var group = this.groups.get(name);
+    if (group == null) {
+      return null;
+    }
+
+    // test and remove any outdated permissions - update afterwards
+    if (this.testPermissible(group)) {
+      this.updateGroupAsync(group);
+    }
+
+    return group;
   }
 
   @Override
   public @NonNull Collection<PermissionGroup> groups() {
-    return Collections.unmodifiableCollection(this.groups.values());
+    return this.groups.values().stream().peek(group -> {
+      // test and remove any outdated permissions - update afterwards
+      if (this.testPermissible(group)) {
+        this.updateGroupAsync(group);
+      }
+    }).collect(Collectors.toSet());
   }
 
   @Override

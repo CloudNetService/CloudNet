@@ -18,6 +18,8 @@ package eu.cloudnetservice.node.service.defaults;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -31,7 +33,9 @@ import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceCreateRetryConfiguration;
+import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.event.service.CloudServiceConfigurationPrePrepareEvent;
 import eu.cloudnetservice.node.event.service.CloudServiceNodeSelectEvent;
 import eu.cloudnetservice.node.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.node.service.CloudServiceManager;
@@ -50,6 +54,8 @@ import lombok.NonNull;
 @Singleton
 @Provides(CloudServiceFactory.class)
 public class NodeCloudServiceFactory implements CloudServiceFactory {
+
+  private static final Logger LOGGER = LogManager.logger(NodeCloudServiceFactory.class);
 
   private final EventManager eventManager;
   private final CloudServiceManager serviceManager;
@@ -91,10 +97,16 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         // copy the configuration into a builder to prevent setting values on multiple objects which are then shared
         // over services which will eventually break the system
         var configurationBuilder = ServiceConfiguration.builder(maybeServiceConfiguration);
+        this.eventManager.callEvent(new CloudServiceConfigurationPrePrepareEvent(
+          this.serviceManager,
+          maybeServiceConfiguration,
+          configurationBuilder));
+
         // prepare the service configuration
         this.replaceServiceId(maybeServiceConfiguration, configurationBuilder);
         this.replaceServiceUniqueId(maybeServiceConfiguration, configurationBuilder);
         this.includeGroupComponents(maybeServiceConfiguration, configurationBuilder);
+
         // disable retries on the new configuration, we only schedule them based on the original one
         configurationBuilder.retryConfiguration(ServiceCreateRetryConfiguration.NO_RETRY);
 
@@ -128,10 +140,10 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
             "head_node_to_node_start_service",
             nodeServer.info().uniqueId(),
             serviceConfiguration);
+
+          // process the service creation result and return it if the creation was successful
+          createResult = this.processServiceStartResponse(createResult, nodeServer);
           if (createResult.state() == ServiceCreateResult.State.CREATED) {
-            // register the service locally in case the registration packet was not sent before a response to this
-            // packet was received
-            this.serviceManager.handleServiceUpdate(createResult.serviceInfo(), nodeServer.channel());
             return createResult;
           }
 
@@ -140,9 +152,12 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
             maybeServiceConfiguration.retryConfiguration(),
             serviceConfiguration);
         } else {
-          // start on the current node
-          var serviceInfo = this.serviceManager.createLocalCloudService(serviceConfiguration).serviceInfo();
-          return ServiceCreateResult.created(serviceInfo);
+          // start on the current node & publish the service snapshot to all components
+          var createdService = this.serviceManager.createLocalCloudService(serviceConfiguration);
+          createdService.handleServiceRegister();
+
+          // construct the create result
+          return ServiceCreateResult.created(createdService.serviceInfo());
         }
       } finally {
         this.serviceCreationLock.unlock();
@@ -153,6 +168,45 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         "node_to_head_start_service",
         this.nodeServerProvider.headNode().info().uniqueId(),
         maybeServiceConfiguration);
+    }
+  }
+
+  protected @NonNull ServiceCreateResult processServiceStartResponse(
+    @NonNull ServiceCreateResult result,
+    @NonNull NodeServer associatedNode
+  ) {
+    // if the service creation failed we don't need to check anything
+    if (result.state() != ServiceCreateResult.State.CREATED) {
+      return result;
+    }
+
+    // check if the node is still connected
+    var nodeChannel = associatedNode.channel();
+    if (nodeChannel == null || !associatedNode.available()) {
+      LOGGER.fine(
+        "Unable to register service on node %s as the node is no longer connected",
+        null,
+        associatedNode.info().uniqueId());
+      return ServiceCreateResult.FAILED;
+    }
+
+    // try to register the created service locally
+    var serviceUniqueId = result.serviceInfo().serviceId().uniqueId();
+    var serviceProvider = this.serviceManager.registerService(result.serviceInfo(), nodeChannel);
+    if (serviceProvider != null) {
+      // service registered successfully, finish the registration of the service on the other node
+      ChannelMessage.builder()
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .message("head_node_to_node_finish_service_registration")
+        .buffer(DataBuf.empty().writeUniqueId(serviceUniqueId))
+        .target(ChannelMessageTarget.Type.NODE, associatedNode.info().uniqueId())
+        .build()
+        .send();
+      return result;
+    } else {
+      // a service with the id already exists, just let the unaccepted service
+      // time out on the other node... ¯\_(ツ)_/¯
+      return ServiceCreateResult.FAILED;
     }
   }
 
@@ -169,7 +223,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .buffer(DataBuf.empty().writeObject(configuration))
       .build()
       .sendSingleQueryAsync()
-      .get(5, TimeUnit.SECONDS, null);
+      .get(20, TimeUnit.SECONDS, null);
 
     // read the result service info from the buffer, if the there was no response then we need to fail (only the head
     // node should queue start requests)

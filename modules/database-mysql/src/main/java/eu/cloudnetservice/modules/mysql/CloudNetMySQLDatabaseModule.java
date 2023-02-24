@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.mysql;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
@@ -26,6 +25,7 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.util.List;
 import lombok.NonNull;
@@ -35,7 +35,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
   private volatile MySQLConfiguration configuration;
 
-  @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     var config = this.readConfig();
     if (config.contains("addresses")) {
@@ -44,12 +44,12 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
         config.getString("username"),
         config.getString("password"),
         config.getString("database"),
-        config.get("addresses", TypeToken.getParameterized(List.class, MySQLConnectionEndpoint.class).getType())
+        config.get("addresses", TypeFactory.parameterizedClass(List.class, MySQLConnectionEndpoint.class))
       )));
     }
   }
 
-  @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(order = 125, lifecycle = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
     this.configuration = this.readConfig(MySQLConfiguration.class, () -> new MySQLConfiguration(
       "root",
@@ -64,7 +64,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
       new MySQLDatabaseProvider(this.configuration, null));
   }
 
-  @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
+  @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
     serviceRegistry.unregisterProvider(NodeDatabaseProvider.class, this.configuration.databaseServiceName());
   }
