@@ -171,11 +171,11 @@ adventureSerializerLegacy = { group = "net.kyori", name = "adventure-text-serial
 
 # platform extensions
 vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }
+modLauncher = { group = "cpw.mods", name = "modlauncher", version.ref = "modlauncher" }
+bungeecordChat = { group = "net.md-5", name = "bungeecord-chat", version.ref = "bungeecord" }
+placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApi" }
 npcLib = { group = "com.github.juliarn.NPC-Lib", name = "npc-lib-bukkit", version.ref = "npcLib" }
 npcLibLabymod = { group = "com.github.juliarn.NPC-Lib", name = "npc-lib-labymod", version.ref = "npcLib" }
-modLauncher = { group = "cpw.mods", name = "modlauncher", version.ref = "modlauncher" }
-placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApi" }
-bungeecordChat = { group = "net.md-5", name = "bungeecord-chat", version.ref = "bungeecord" }
 
 # fabric platform special dependencies
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
