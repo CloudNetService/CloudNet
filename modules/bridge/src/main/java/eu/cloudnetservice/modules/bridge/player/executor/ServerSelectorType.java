@@ -32,7 +32,7 @@ public enum ServerSelectorType {
   /**
    * The service with the lowest player count is preferred.
    */
-  LOWEST_PLAYERS(Comparator.comparingInt(ser -> ser.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0))),
+  LOWEST_PLAYERS(Comparator.comparingInt(ser -> ser.readProperty(BridgeServiceProperties.ONLINE_COUNT))),
   /**
    * The service with the highest player count is preferred.
    */

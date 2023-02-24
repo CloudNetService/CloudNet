@@ -265,7 +265,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
       .templates(configuration.templates())
       .deployments(configuration.deployments())
       .inclusions(configuration.inclusions())
-      .properties(configuration.properties())
+      .properties(configuration.propertyHolder())
       .retryConfiguration(configuration.retryConfiguration());
   }
 

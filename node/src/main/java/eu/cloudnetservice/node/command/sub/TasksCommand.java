@@ -171,7 +171,7 @@ public final class TasksCommand {
 
     messages.add("Properties: ");
 
-    messages.addAll(Arrays.asList(configurationBase.properties().toPrettyJson().split("\n")));
+    messages.addAll(Arrays.asList(configurationBase.propertyHolder().toPrettyJson().split("\n")));
     messages.add(" ");
   }
 

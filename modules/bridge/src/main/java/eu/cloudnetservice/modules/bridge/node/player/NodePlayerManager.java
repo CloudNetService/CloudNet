@@ -368,7 +368,7 @@ public class NodePlayerManager implements PlayerManager {
           cloudOfflinePlayer.firstLoginTimeMillis(),
           System.currentTimeMillis(),
           cloudOfflinePlayer.lastNetworkPlayerProxyInfo(),
-          cloudOfflinePlayer.properties());
+          cloudOfflinePlayer.propertyHolder());
         // cache the online player for later use
         this.onlinePlayers.put(cloudPlayer.uniqueId(), cloudPlayer);
       }

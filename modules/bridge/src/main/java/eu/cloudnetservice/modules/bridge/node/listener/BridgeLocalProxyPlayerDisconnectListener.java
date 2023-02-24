@@ -47,11 +47,12 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
     if (info.serviceId().nodeUniqueId().equals(componentInfo.componentName())
       && ServiceEnvironmentType.minecraftProxy(info.serviceId().environment())) {
       // get all the players which are connected to the proxy
-      var players = info.property(BridgeServiceProperties.PLAYERS);
+      var players = info.readProperty(BridgeServiceProperties.PLAYERS);
       if (players == null) {
         // no player property there yet, skip the check
         return;
       }
+
       // test if any player has the login service but is not connected to it
       for (var value : this.playerManager.players().values()) {
         if (value.loginService().serviceId().uniqueId().equals(info.serviceId().uniqueId())) {

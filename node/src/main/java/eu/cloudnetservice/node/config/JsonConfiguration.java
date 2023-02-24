@@ -331,7 +331,7 @@ public final class JsonConfiguration implements Configuration {
   @Override
   public void reloadFrom(@NonNull Configuration configuration) {
     // supported identity changes
-    this.identity.properties().append(configuration.identity().properties());
+    this.identity.propertyHolder().append(configuration.identity().propertyHolder());
 
     // collection configurations
     this.identity.listeners().clear();

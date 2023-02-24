@@ -168,9 +168,9 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     super.appendServiceInformation(snapshot);
     // append the minestom specific information
     var onlinePlayers = this.connectionManager.getOnlinePlayers();
-    snapshot.properties().append("Online-Count", onlinePlayers.size());
-    snapshot.properties().append("Version", MinecraftServer.VERSION_NAME);
+    snapshot.propertyHolder().append("Online-Count", onlinePlayers.size());
+    snapshot.propertyHolder().append("Version", MinecraftServer.VERSION_NAME);
     // players
-    snapshot.properties().append("Players", onlinePlayers.stream().map(this::createPlayerInformation).toList());
+    snapshot.propertyHolder().append("Players", onlinePlayers.stream().map(this::createPlayerInformation).toList());
   }
 }

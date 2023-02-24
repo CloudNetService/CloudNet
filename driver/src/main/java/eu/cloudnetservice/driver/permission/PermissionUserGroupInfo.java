@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.permission;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
@@ -33,11 +33,13 @@ import lombok.ToString;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
+@EqualsAndHashCode
+public class PermissionUserGroupInfo implements DefaultedDocPropertyHolder<JsonDocument, PermissionUserGroupInfo> {
 
   private final String group;
   private final long timeOutMillis;
+
+  private final JsonDocument properties;
 
   /**
    * Creates a new permission user group info, that creates a relation between a permission user and a permission
@@ -48,9 +50,9 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
    * @param properties    extra properties for the group info.
    */
   protected PermissionUserGroupInfo(@NonNull String group, long timeOutMillis, @NonNull JsonDocument properties) {
-    super(properties);
     this.group = group;
     this.timeOutMillis = timeOutMillis;
+    this.properties = properties;
   }
 
   /**
@@ -70,7 +72,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
    * @throws NullPointerException if the given info is null.
    */
   public static @NonNull Builder builder(@NonNull PermissionUserGroupInfo info) {
-    return builder().group(info.group()).timeOutMillis(info.timeOutMillis()).properties(info.properties());
+    return builder().group(info.group()).timeOutMillis(info.timeOutMillis()).properties(info.propertyHolder());
   }
 
   /**
@@ -92,6 +94,14 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
    */
   public long timeOutMillis() {
     return this.timeOutMillis;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 
   /**
@@ -142,8 +152,8 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
     }
 
     /**
-     * Sets the time-out for this group info. The time-out is added to the current time millis {@link
-     * System#currentTimeMillis()}.
+     * Sets the time-out for this group info. The time-out is added to the current time millis
+     * {@link System#currentTimeMillis()}.
      *
      * @param duration the duration the group lasts for.
      * @return the same instance as used to call the method, for chaining.

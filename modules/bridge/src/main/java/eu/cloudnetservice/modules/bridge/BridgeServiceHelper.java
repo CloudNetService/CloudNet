@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge;
 
+import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -68,6 +69,202 @@ public final class BridgeServiceHelper {
   }
 
   /**
+   * Tries to guess the {@link ServiceInfoState} from the lifecycle and {@link BridgeServiceProperties} of the given
+   * service.
+   * <ol>
+   *   <li>If the service is not running or not in-game {@link ServiceInfoState#STOPPED} is guessed.</li>
+   *   <li>If the service is empty {@link ServiceInfoState#EMPTY_ONLINE} is guessed.</li>
+   *   <li>If the service is full {@link ServiceInfoState#FULL_ONLINE} is guessed.</li>
+   *   <li>If the service is starting {@link ServiceInfoState#STARTING} is guessed.</li>
+   *   <li>If the service is just connected {@link ServiceInfoState#ONLINE} is guessed.</li>
+   *   <li>If none of the above apply {@link ServiceInfoState#STOPPED} is used as fallback.</li>
+   * </ol>
+   *
+   * @param service the service to guess the state of.
+   * @return the guessed service info state.
+   * @throws NullPointerException if the given service is null.
+   * @see BridgeServiceProperties
+   */
+  public static @NonNull ServiceInfoState guessStateFromServiceInfoSnapshot(@NonNull ServiceInfoSnapshot service) {
+    // convert not running or ingame services to STOPPED
+    if (service.lifeCycle() != ServiceLifeCycle.RUNNING || inGameService(service)) {
+      return ServiceInfoState.STOPPED;
+    }
+
+    // check if the service is empty
+    if (emptyService(service)) {
+      return ServiceInfoState.EMPTY_ONLINE;
+    }
+
+    // check if the service is full
+    if (fullService(service)) {
+      return ServiceInfoState.FULL_ONLINE;
+    }
+
+    // check if the service is starting
+    if (startingService(service)) {
+      return ServiceInfoState.STARTING;
+    }
+
+    // check if the service is connected
+    if (service.connected()) {
+      return ServiceInfoState.ONLINE;
+    }
+
+    return ServiceInfoState.STOPPED;
+  }
+
+  /**
+   * Replaces commonly used placeholders in the given input string using the given service as the information source. If
+   * no service is given only the group property is replaced.
+   *
+   * @param value   the string to replace the placeholders in.
+   * @param group   the group to replace {@literal %group%} with.
+   * @param service the service to use as source for the placeholder values.
+   * @return the String with the placeholders replaced.
+   * @throws NullPointerException if the given input string is null.
+   */
+  public static @NonNull String fillCommonPlaceholders(
+    @NonNull String value,
+    @Nullable String group,
+    @Nullable ServiceInfoSnapshot service
+  ) {
+    value = value.replace("%group%", group == null ? "" : group);
+
+    // stop replacing if no service is given
+    if (service == null) {
+      return value;
+    }
+
+    // replace all service id placeholders
+    value = value.replace("%name%", service.serviceId().name());
+    value = value.replace("%task%", service.serviceId().taskName());
+    value = value.replace("%node%", service.serviceId().nodeUniqueId());
+    value = value.replace("%unique_id%", service.serviceId().uniqueId().toString());
+    value = value.replace("%environment%", service.serviceId().environment().name());
+    value = value.replace("%task_id%", Integer.toString(service.serviceId().taskServiceId()));
+    value = value.replace("%uid%", service.serviceId().uniqueId().toString().split("-")[0]);
+    // general service information
+    value = value.replace("%life_cycle%", service.lifeCycle().name());
+    value = value.replace("%runtime%", service.configuration().runtime());
+    value = value.replace("%port%", Integer.toString(service.configuration().port()));
+    // process information
+    value = value.replace("%pid%", Long.toString(service.processSnapshot().pid()));
+    value = value.replace("%threads%", Integer.toString(service.processSnapshot().threads().size()));
+    value = value.replace("%heap_usage%", Long.toString(service.processSnapshot().heapUsageMemory()));
+    value = value.replace("%max_heap_usage%", Long.toString(service.processSnapshot().maxHeapMemory()));
+    value = value.replace("%cpu_usage%", CPUUsageResolver.defaultFormat().format(service.processSnapshot().cpuUsage()));
+    // bridge information
+    value = value.replace("%online%", service.readProperty(BridgeServiceProperties.IS_ONLINE) ? "Online" : "Offline");
+    value = value.replace(
+      "%online_players%",
+      Integer.toString(service.readProperty(BridgeServiceProperties.ONLINE_COUNT)));
+    value = value.replace(
+      "%max_players%",
+      Integer.toString(service.readProperty(BridgeServiceProperties.MAX_PLAYERS)));
+    value = value.replace("%motd%", service.readProperty(BridgeServiceProperties.MOTD));
+    value = value.replace("%extra%", service.readProperty(BridgeServiceProperties.EXTRA));
+    value = value.replace("%state%", service.readProperty(BridgeServiceProperties.STATE));
+    value = value.replace("%version%", service.readProperty(BridgeServiceProperties.VERSION));
+    // done
+    return value;
+  }
+
+  /**
+   * Checks if the given service is empty. This is only the case if all following conditions apply:
+   * <ul>
+   *   <li>the lifecycle is running</li>
+   *   <li>the service is connected</li>
+   *   <li>the service is marked as online {@link BridgeServiceProperties#IS_ONLINE}</li>
+   *   <li>the service has a present online count as it is 0</li>
+   * </ul>
+   *
+   * @param service the service to check.
+   * @return true if the service is empty, false otherwise.
+   * @throws NullPointerException if the given service is null.
+   */
+  public static boolean emptyService(@NonNull ServiceInfoSnapshot service) {
+    return service.connected()
+      && service.readProperty(BridgeServiceProperties.IS_ONLINE)
+      && service.readProperty(BridgeServiceProperties.ONLINE_COUNT) == 0;
+  }
+
+  /**
+   * Checks if the given service is full. This is only the case if all following conditions apply:
+   * <ul>
+   *   <li>the lifecycle is running</li>
+   *   <li>the service is connected</li>
+   *   <li>the service is marked as online {@link BridgeServiceProperties#IS_ONLINE}</li>
+   *   <li>the service has both an online and max player count</li>
+   *   <li>the online count is equal or higher than the max player count</li>
+   * </ul>
+   *
+   * @param service the service to check.
+   * @return true if the service is full, false otherwise.
+   * @throws NullPointerException if the given service is null.
+   */
+  public static boolean fullService(@NonNull ServiceInfoSnapshot service) {
+    return service.connected()
+      && service.readProperty(BridgeServiceProperties.IS_ONLINE)
+      && service.readProperty(BridgeServiceProperties.ONLINE_COUNT)
+      >= service.readProperty(BridgeServiceProperties.MAX_PLAYERS);
+  }
+
+  /**
+   * Checks if the given service is starting. This is only the case if all following conditions apply:
+   * <ul>
+   *  <li>the lifecycle is running</li>
+   *  <li>the service is <strong>NOT</strong> marked as online {@link BridgeServiceProperties#IS_ONLINE}</li>
+   * </ul>
+   *
+   * @param service the service to check.
+   * @return true if the service is starting, false otherwise.
+   * @throws NullPointerException if the given service is null.
+   */
+  public static boolean startingService(@NonNull ServiceInfoSnapshot service) {
+    return service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.readProperty(BridgeServiceProperties.IS_ONLINE);
+  }
+
+  /**
+   * Checks if the given service is in-game. This is only the case if all following conditions apply:
+   *  <ul>
+   *    <li>the lifecycle is running</li>
+   *    <li>the service is connected</li>
+   *    <li>the service is marked as online {@link BridgeServiceProperties#IS_ONLINE}</li>
+   *    <li>the motd, the state or the extra matches any value representing the in-game state {@link #matchesInGameString(String)}</li>
+   * </ul>
+   *
+   * @param service the service to check.
+   * @return true if the service is in-game, false otherwise.
+   * @throws NullPointerException if the given service is null.
+   */
+  public static boolean inGameService(@NonNull ServiceInfoSnapshot service) {
+    return service.lifeCycle() == ServiceLifeCycle.RUNNING
+      && service.connected()
+      && service.readProperty(BridgeServiceProperties.IS_ONLINE)
+      && (matchesInGameString(service.readProperty(BridgeServiceProperties.MOTD))
+      || matchesInGameString(service.readProperty(BridgeServiceProperties.EXTRA))
+      || matchesInGameString(service.readProperty(BridgeServiceProperties.STATE)));
+  }
+
+  /**
+   * Checks if the given value matches either {@code ingame}, {@code running} or {@code playing}.
+   *
+   * @param value the value to check against.
+   * @return true if the value contains an in-game indicator, false otherwise.
+   */
+  private static boolean matchesInGameString(@Nullable String value) {
+    if (value == null) {
+      // value is not present
+      return false;
+    } else {
+      // value is present, check if the string contains one of the ingame string values
+      var loweredValue = StringUtil.toLower(value);
+      return loweredValue.contains("ingame") || loweredValue.contains("running") || loweredValue.contains("playing");
+    }
+  }
+
+  /**
    * Sets the state of the service this bridge instance is running on to {@code ingame} and starts a new service of the
    * task. The method is equivalent to calling {@code BridgeServiceHelper.changeToIngame(true)}.
    */
@@ -113,100 +310,6 @@ public final class BridgeServiceHelper {
           }
         });
     }
-  }
-
-  /**
-   * Tries to guess the {@link ServiceInfoState} from the lifecycle and {@link BridgeServiceProperties} of the given
-   * service.
-   * <ol>
-   *   <li>If the service is not running or not in-game {@link ServiceInfoState#STOPPED} is guessed.</li>
-   *   <li>If the service is empty {@link ServiceInfoState#EMPTY_ONLINE} is guessed.</li>
-   *   <li>If the service is full {@link ServiceInfoState#FULL_ONLINE} is guessed.</li>
-   *   <li>If the service is starting {@link ServiceInfoState#STARTING} is guessed.</li>
-   *   <li>If the service is just connected {@link ServiceInfoState#ONLINE} is guessed.</li>
-   *   <li>If none of the above apply {@link ServiceInfoState#STOPPED} is used as fallback.</li>
-   * </ol>
-   *
-   * @param service the service to guess the state of.
-   * @return the guessed service info state.
-   * @throws NullPointerException if the given service is null.
-   * @see BridgeServiceProperties
-   */
-  public static @NonNull ServiceInfoState guessStateFromServiceInfoSnapshot(@NonNull ServiceInfoSnapshot service) {
-    // convert not running or ingame services to STOPPED
-    if (service.lifeCycle() != ServiceLifeCycle.RUNNING
-      || service.propertyOr(BridgeServiceProperties.IS_IN_GAME, false)) {
-      return ServiceInfoState.STOPPED;
-    }
-    // check if the service is empty
-    if (service.propertyOr(BridgeServiceProperties.IS_EMPTY, false)) {
-      return ServiceInfoState.EMPTY_ONLINE;
-    }
-    // check if the service is full
-    if (service.propertyOr(BridgeServiceProperties.IS_FULL, false)) {
-      return ServiceInfoState.FULL_ONLINE;
-    }
-    // check if the service is starting
-    if (service.propertyOr(BridgeServiceProperties.IS_STARTING, false)) {
-      return ServiceInfoState.STARTING;
-    }
-    // check if the service is connected
-    if (service.connected()) {
-      return ServiceInfoState.ONLINE;
-    }
-    return ServiceInfoState.STOPPED;
-  }
-
-  /**
-   * Replaces commonly used placeholders in the given input string using the given service as the information source. If
-   * no service is given only the group property is replaced.
-   *
-   * @param value   the string to replace the placeholders in.
-   * @param group   the group to replace {@literal %group%} with.
-   * @param service the service to use as source for the placeholder values.
-   * @return the String with the placeholders replaced.
-   * @throws NullPointerException if the given input string is null.
-   */
-  public static @NonNull String fillCommonPlaceholders(
-    @NonNull String value,
-    @Nullable String group,
-    @Nullable ServiceInfoSnapshot service
-  ) {
-    value = value.replace("%group%", group == null ? "" : group);
-    // stop replacing if no service is given
-    if (service == null) {
-      return value;
-    }
-    // replace all service id placeholders
-    value = value.replace("%name%", service.serviceId().name());
-    value = value.replace("%task%", service.serviceId().taskName());
-    value = value.replace("%node%", service.serviceId().nodeUniqueId());
-    value = value.replace("%unique_id%", service.serviceId().uniqueId().toString());
-    value = value.replace("%environment%", service.serviceId().environment().name());
-    value = value.replace("%task_id%", Integer.toString(service.serviceId().taskServiceId()));
-    value = value.replace("%uid%", service.serviceId().uniqueId().toString().split("-")[0]);
-    // general service information
-    value = value.replace("%life_cycle%", service.lifeCycle().name());
-    value = value.replace("%runtime%", service.configuration().runtime());
-    value = value.replace("%port%", Integer.toString(service.configuration().port()));
-    // process information
-    value = value.replace("%pid%", Long.toString(service.processSnapshot().pid()));
-    value = value.replace("%threads%", Integer.toString(service.processSnapshot().threads().size()));
-    value = value.replace("%heap_usage%", Long.toString(service.processSnapshot().heapUsageMemory()));
-    value = value.replace("%max_heap_usage%", Long.toString(service.processSnapshot().maxHeapMemory()));
-    value = value.replace("%cpu_usage%", CPUUsageResolver.defaultFormat().format(service.processSnapshot().cpuUsage()));
-    // bridge information
-    value = value.replace("%online%", BridgeServiceProperties.IS_ONLINE.readOr(service, false) ? "Online" : "Offline");
-    value = value.replace("%online_players%",
-      Integer.toString(BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)));
-    value = value.replace("%max_players%",
-      Integer.toString(BridgeServiceProperties.MAX_PLAYERS.readOr(service, 0)));
-    value = value.replace("%motd%", BridgeServiceProperties.MOTD.readOr(service, ""));
-    value = value.replace("%extra%", BridgeServiceProperties.EXTRA.readOr(service, ""));
-    value = value.replace("%state%", BridgeServiceProperties.STATE.readOr(service, ""));
-    value = value.replace("%version%", BridgeServiceProperties.VERSION.readOr(service, ""));
-    // done
-    return value;
   }
 
   /**

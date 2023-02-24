@@ -97,7 +97,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.properties().getString("requiredPermission");
+      var permission = task.propertyHolder().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
         event.setCancelled(true);
         this.management.configuration().handleMessage(

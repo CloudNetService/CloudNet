@@ -25,6 +25,7 @@ import com.google.gson.JsonSyntaxException;
 import eu.cloudnetservice.common.document.Document;
 import eu.cloudnetservice.common.document.Persistable;
 import eu.cloudnetservice.common.document.Readable;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
@@ -44,7 +45,8 @@ import org.jetbrains.annotations.UnknownNullability;
  * The Gson implementation of IDocument class. It includes simple append and remove operations, file reading and writing
  * to create simple configuration files
  */
-public class JsonDocument implements Document<JsonDocument> {
+public final class JsonDocument
+  implements DefaultedDocPropertyHolder<JsonDocument, JsonDocument>, Document<JsonDocument> {
 
   @ApiStatus.Internal
   public static final Gson GSON = new GsonBuilder()
@@ -59,11 +61,11 @@ public class JsonDocument implements Document<JsonDocument> {
 
   /* package */ final JsonObject object;
 
-  protected JsonDocument() {
+  JsonDocument() {
     this(new JsonObject());
   }
 
-  protected JsonDocument(@NonNull JsonObject object) {
+  JsonDocument(@NonNull JsonObject object) {
     this.object = object;
   }
 
@@ -325,7 +327,7 @@ public class JsonDocument implements Document<JsonDocument> {
   }
 
   @Override
-  public @NonNull JsonDocument properties() {
+  public @NonNull JsonDocument propertyHolder() {
     return this;
   }
 

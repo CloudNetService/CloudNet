@@ -112,7 +112,7 @@ public class BridgeCommand {
   ) {
     for (var task : serviceTasks) {
       this.taskProvider.addServiceTask(ServiceTask.builder(task)
-        .properties(task.properties().append("requiredPermission", permission))
+        .properties(task.propertyHolder().append("requiredPermission", permission))
         .build());
       source.sendMessage(I18n.trans("command-tasks-set-property-success",
         "requiredPermission",

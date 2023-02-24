@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.npc;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
@@ -31,7 +31,7 @@ import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NPC extends JsonDocPropertyHolder {
+public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
 
   public static final Type COLLECTION_NPC = TypeFactory.parameterizedClass(Collection.class, NPC.class);
   private static final Type PROPERTIES = TypeFactory.parameterizedClass(Set.class, ProfileProperty.class);
@@ -63,6 +63,7 @@ public class NPC extends JsonDocPropertyHolder {
   private final ClickAction rightClickAction;
 
   private final Map<Integer, String> items;
+  private final JsonDocument properties;
 
   protected NPC(
     @NonNull NPCType npcType,
@@ -85,7 +86,6 @@ public class NPC extends JsonDocPropertyHolder {
     @NonNull Map<Integer, String> items,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
     this.npcType = npcType;
     this.targetGroup = targetGroup;
     this.inventoryName = inventoryName;
@@ -104,6 +104,7 @@ public class NPC extends JsonDocPropertyHolder {
     this.leftClickAction = leftClickAction;
     this.rightClickAction = rightClickAction;
     this.items = items;
+    this.properties = properties;
   }
 
   public static @NonNull Builder builder() {
@@ -218,6 +219,11 @@ public class NPC extends JsonDocPropertyHolder {
 
   public @NonNull Map<Integer, String> items() {
     return this.items;
+  }
+
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 
   public enum NPCType {

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.network.cluster;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -31,11 +31,13 @@ import lombok.ToString;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNode extends JsonDocPropertyHolder {
+@EqualsAndHashCode
+public class NetworkClusterNode implements DefaultedDocPropertyHolder<JsonDocument, NetworkClusterNode> {
 
   private final String uniqueId;
   private final List<HostAndPort> listeners;
+
+  private final JsonDocument properties;
 
   /**
    * Creates a new instance of a network cluster node.
@@ -61,9 +63,9 @@ public class NetworkClusterNode extends JsonDocPropertyHolder {
     @NonNull List<HostAndPort> listeners,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
     this.uniqueId = uniqueId;
     this.listeners = listeners;
+    this.properties = properties;
   }
 
   /**
@@ -82,5 +84,13 @@ public class NetworkClusterNode extends JsonDocPropertyHolder {
    */
   public @NonNull List<HostAndPort> listeners() {
     return this.listeners;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 }

@@ -91,7 +91,7 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
     serviceHelper.maxPlayers().set(this.proxyServer.getConfig().getPlayerLimit());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
-      .and(service -> ServiceEnvironmentType.JAVA_SERVER.get(service.serviceId().environment().properties()));
+      .and(service -> service.serviceId().environment().readProperty(ServiceEnvironmentType.JAVA_SERVER));
     // register each service matching the service cache tester
     this.cacheRegisterListener = bungeeHelper.serverRegisterHandler();
     // unregister each service matching the service cache tester
@@ -177,10 +177,10 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
   public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the velocity specific information
-    snapshot.properties().append("Online-Count", this.proxyServer.getPlayers().size());
-    snapshot.properties().append("Version", this.proxyServer.getVersion());
+    snapshot.propertyHolder().append("Online-Count", this.proxyServer.getPlayers().size());
+    snapshot.propertyHolder().append("Version", this.proxyServer.getVersion());
     // players
-    snapshot.properties().append("Players", this.proxyServer.getPlayers().stream()
+    snapshot.propertyHolder().append("Players", this.proxyServer.getPlayers().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

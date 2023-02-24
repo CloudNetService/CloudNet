@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * @since 4.0
  */
-@ToString(callSuper = true)
+@ToString
 @EqualsAndHashCode(callSuper = true)
 public class ServiceTask extends ServiceConfigurationBase implements Cloneable, Nameable {
 
@@ -181,7 +181,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
       .startPort(serviceTask.startPort())
       .minServiceCount(serviceTask.minServiceCount())
 
-      .properties(serviceTask.properties().clone())
+      .properties(serviceTask.propertyHolder())
       .processConfiguration(ProcessConfiguration.builder(serviceTask.processConfiguration()));
   }
 

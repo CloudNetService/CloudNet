@@ -72,7 +72,7 @@ public final class NodeDisconnectHandler {
           snapshot.configuration(),
           -1,
           ServiceLifeCycle.DELETED,
-          snapshot.properties());
+          snapshot.propertyHolder());
 
         // publish the update to the local service manager & call the local change event
         this.serviceManager.handleServiceUpdate(newSnapshot, null);

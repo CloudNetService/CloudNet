@@ -95,7 +95,7 @@ public final class WrapperServiceInfoHolder implements ServiceInfoHolder {
       suppliedServiceSnapshot.configuration(),
       System.currentTimeMillis(),
       ServiceLifeCycle.RUNNING,
-      suppliedServiceSnapshot.properties());
+      suppliedServiceSnapshot.propertyHolder());
   }
 
   /**
@@ -119,7 +119,7 @@ public final class WrapperServiceInfoHolder implements ServiceInfoHolder {
    */
   @Override
   public @NonNull ServiceInfoSnapshot createServiceInfoSnapshot() {
-    return this.createServiceInfoSnapshot(this.serviceInfo().properties());
+    return this.createServiceInfoSnapshot(this.serviceInfo().propertyHolder());
   }
 
   /**

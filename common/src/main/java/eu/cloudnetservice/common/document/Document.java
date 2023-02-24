@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.common.document;
 
-import eu.cloudnetservice.common.document.property.DocProperty;
 import eu.cloudnetservice.common.document.property.DocPropertyHolder;
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -32,7 +31,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * of this interface.
  */
 public interface Document<R extends Document<R>>
-  extends Serializable, DocPropertyHolder, Persistable, Readable, Iterable<String>, Cloneable {
+  extends Serializable, DocPropertyHolder<R, R>, Persistable, Readable, Iterable<String>, Cloneable {
 
   @NonNull Collection<String> keys();
 
@@ -146,29 +145,5 @@ public interface Document<R extends Document<R>>
 
   default @NonNull Stream<String> stream() {
     return StreamSupport.stream(this.spliterator(), false);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  default @NonNull <E> R property(@NonNull DocProperty<E> docProperty, @Nullable E val) {
-    docProperty.append(this, val);
-    return (R) this;
-  }
-
-  @Override
-  default <E> @UnknownNullability E property(@NonNull DocProperty<E> docProperty) {
-    return docProperty.get(this);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  default @NonNull <E> R removeProperty(@NonNull DocProperty<E> docProperty) {
-    docProperty.remove(this);
-    return (R) this;
-  }
-
-  @Override
-  default <E> boolean hasProperty(@NonNull DocProperty<E> docProperty) {
-    return docProperty.isAppendedTo(this);
   }
 }

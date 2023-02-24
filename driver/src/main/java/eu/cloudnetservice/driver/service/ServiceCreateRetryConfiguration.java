@@ -41,7 +41,7 @@ import org.jetbrains.annotations.Unmodifiable;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 public class ServiceCreateRetryConfiguration implements Cloneable {
 
   /**

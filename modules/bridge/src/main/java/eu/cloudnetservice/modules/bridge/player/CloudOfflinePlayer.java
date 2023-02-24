@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.bridge.player;
 
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -34,14 +34,17 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneable, Nameable {
+@EqualsAndHashCode
+public class CloudOfflinePlayer
+  implements DefaultedDocPropertyHolder<JsonDocument, CloudOfflinePlayer>, Cloneable, Nameable {
 
   protected final String name;
 
   protected long firstLoginTimeMillis;
   protected long lastLoginTimeMillis;
+
   protected NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo;
+  protected JsonDocument properties;
 
   /**
    * Constructs a new cloud offline player.
@@ -60,10 +63,10 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
     @NonNull NetworkPlayerProxyInfo proxyInfo,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
     this.name = name;
     this.firstLoginTimeMillis = firstLoginTimeMillis;
     this.lastLoginTimeMillis = lastLoginTimeMillis;
+    this.properties = properties;
     this.lastNetworkPlayerProxyInfo = proxyInfo;
   }
 
@@ -80,7 +83,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
       onlineVariant.firstLoginTimeMillis(),
       onlineVariant.lastLoginTimeMillis(),
       onlineVariant.networkPlayerProxyInfo().clone(),
-      onlineVariant.properties().clone());
+      onlineVariant.propertyHolder().clone());
   }
 
   /**
@@ -146,6 +149,14 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
    */
   public void lastNetworkPlayerProxyInfo(@NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo) {
     this.lastNetworkPlayerProxyInfo = lastNetworkPlayerProxyInfo;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 
   /**

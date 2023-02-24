@@ -37,8 +37,8 @@ public class CloudNetSmartModule extends DriverModule {
   public void rewriteOldSmartTaskEntries(@NonNull ServiceTaskProvider taskProvider) {
     for (var task : taskProvider.serviceTasks()) {
       // check if the task had a smart config entry previously
-      if (task.properties().contains("smartConfig")) {
-        var smartEntry = task.properties().getDocument("smartConfig");
+      if (task.propertyHolder().contains("smartConfig")) {
+        var smartEntry = task.propertyHolder().getDocument("smartConfig");
         // check if the task still uses the old format
         if (smartEntry.contains("dynamicMemoryAllocationRange")) {
           // rewrite the old config
@@ -61,7 +61,7 @@ public class CloudNetSmartModule extends DriverModule {
 
             .build();
           // append the new smart entry and update the service
-          task.properties().append("smartConfig", config);
+          task.propertyHolder().append("smartConfig", config);
           taskProvider.addServiceTask(task);
         }
       }
@@ -72,8 +72,8 @@ public class CloudNetSmartModule extends DriverModule {
   public void addMissingSmartConfigurationEntries(@NonNull ServiceTaskProvider taskProvider) {
     for (var task : taskProvider.serviceTasks()) {
       // check if the service task needs a smart entry
-      if (!task.properties().contains("smartConfig")) {
-        task.properties().append("smartConfig", SmartServiceTaskConfig.builder().build());
+      if (!task.propertyHolder().contains("smartConfig")) {
+        task.propertyHolder().append("smartConfig", SmartServiceTaskConfig.builder().build());
         // update the task
         taskProvider.addServiceTask(task);
       }
@@ -92,6 +92,6 @@ public class CloudNetSmartModule extends DriverModule {
 
   public @Nullable SmartServiceTaskConfig smartConfig(@NonNull ServiceTask task) {
     // try to get the smart config entry
-    return task.properties().get("smartConfig", SmartServiceTaskConfig.class);
+    return task.propertyHolder().get("smartConfig", SmartServiceTaskConfig.class);
   }
 }

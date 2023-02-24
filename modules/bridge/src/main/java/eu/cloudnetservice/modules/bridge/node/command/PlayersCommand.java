@@ -195,7 +195,7 @@ public class PlayersCommand {
       }
     }
     // print the offline properties of the player per line
-    for (var line : offlinePlayer.properties().toPrettyJson().split("\n")) {
+    for (var line : offlinePlayer.propertyHolder().toPrettyJson().split("\n")) {
       source.sendMessage(line);
     }
   }
@@ -250,7 +250,7 @@ public class PlayersCommand {
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Argument("server") ServiceInfoSnapshot server
   ) {
-    if (BridgeServiceProperties.IS_ONLINE.readOr(server, false)) {
+    if (server.readProperty(BridgeServiceProperties.IS_ONLINE)) {
       player.playerExecutor().connect(server.name());
 
       source.sendMessage(

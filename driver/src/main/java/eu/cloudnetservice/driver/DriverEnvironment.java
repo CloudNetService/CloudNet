@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver;
 
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -33,8 +33,8 @@ import lombok.ToString;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = true)
-public final class DriverEnvironment extends JsonDocPropertyHolder implements Nameable {
+@EqualsAndHashCode
+public final class DriverEnvironment implements DefaultedDocPropertyHolder<JsonDocument, DriverEnvironment>, Nameable {
 
   /**
    * The jvm-static representation of the node environment.
@@ -46,6 +46,7 @@ public final class DriverEnvironment extends JsonDocPropertyHolder implements Na
   public static final DriverEnvironment WRAPPER = new DriverEnvironment("wrapper", JsonDocument.newDocument());
 
   private final String name;
+  private final JsonDocument properties;
 
   /**
    * Constructs a new driver environment instance.
@@ -55,8 +56,8 @@ public final class DriverEnvironment extends JsonDocPropertyHolder implements Na
    * @throws NullPointerException if the given name or properties are null.
    */
   public DriverEnvironment(@NonNull String name, @NonNull JsonDocument properties) {
-    super(properties);
     this.name = name;
+    this.properties = properties;
   }
 
   /**
@@ -65,5 +66,13 @@ public final class DriverEnvironment extends JsonDocPropertyHolder implements Na
   @Override
   public @NonNull String name() {
     return this.name;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 }

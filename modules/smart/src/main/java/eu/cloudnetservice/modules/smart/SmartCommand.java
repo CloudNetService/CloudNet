@@ -56,7 +56,7 @@ public class SmartCommand {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
     // only allow tasks with the smart config
-    if (!task.properties().contains("smartConfig")) {
+    if (!task.propertyHolder().contains("smartConfig")) {
       throw new ArgumentNotAvailableException(I18n.trans("module-smart-command-task-no-entry", task.name()));
     }
     return task;
@@ -66,7 +66,7 @@ public class SmartCommand {
   public @NonNull List<String> suggestSmartTasks(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.taskProvider.serviceTasks()
       .stream()
-      .filter(serviceTask -> serviceTask.properties().contains("smartConfig"))
+      .filter(serviceTask -> serviceTask.propertyHolder().contains("smartConfig"))
       .map(Nameable::name)
       .toList();
   }
@@ -246,11 +246,11 @@ public class SmartCommand {
     @NonNull Function<SmartServiceTaskConfig.Builder, SmartServiceTaskConfig.Builder> modifier
   ) {
     // read the smart config from the task
-    var property = serviceTask.properties().get("smartConfig", SmartServiceTaskConfig.class);
+    var property = serviceTask.propertyHolder().get("smartConfig", SmartServiceTaskConfig.class);
     // rewrite the config and update it in the cluster
     var task = ServiceTask
       .builder(serviceTask)
-      .properties(serviceTask.properties()
+      .properties(serviceTask.propertyHolder()
         .append("smartConfig", modifier.apply(SmartServiceTaskConfig.builder(property)).build()))
       .build();
     this.taskProvider.addServiceTask(task);

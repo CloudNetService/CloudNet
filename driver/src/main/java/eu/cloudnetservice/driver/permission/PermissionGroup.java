@@ -126,7 +126,7 @@ public class PermissionGroup extends AbstractPermissible {
       .groups(group.groupNames())
       .permissions(group.permissions())
 
-      .properties(group.properties())
+      .properties(group.propertyHolder())
       .groupPermissions(group.groupPermissions());
   }
 

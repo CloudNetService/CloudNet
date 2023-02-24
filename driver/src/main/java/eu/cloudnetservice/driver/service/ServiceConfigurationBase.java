@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,12 +37,15 @@ import org.jetbrains.annotations.Unmodifiable;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
+@EqualsAndHashCode
+public abstract class ServiceConfigurationBase
+  implements DefaultedDocPropertyHolder<JsonDocument, ServiceConfigurationBase> {
 
   protected final Set<ServiceTemplate> templates;
   protected final Set<ServiceDeployment> deployments;
   protected final Set<ServiceRemoteInclusion> includes;
+
+  protected final JsonDocument properties;
 
   /**
    * Constructs a new service configuration base instance.
@@ -59,7 +62,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     @NonNull Set<ServiceRemoteInclusion> includes,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
+    this.properties = properties;
     this.templates = templates;
     this.deployments = deployments;
     this.includes = includes;
@@ -128,6 +131,14 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
   @Unmodifiable
   public @NonNull Collection<ServiceDeployment> deployments() {
     return this.deployments;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull JsonDocument propertyHolder() {
+    return this.properties;
   }
 
   /**

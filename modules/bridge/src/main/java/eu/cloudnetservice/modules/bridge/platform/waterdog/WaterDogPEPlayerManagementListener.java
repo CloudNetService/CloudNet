@@ -75,7 +75,7 @@ public final class WaterDogPEPlayerManagementListener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.properties().getString("requiredPermission");
+      var permission = task.propertyHolder().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
         this.management.configuration().handleMessage(
