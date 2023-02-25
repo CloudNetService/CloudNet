@@ -46,7 +46,7 @@ public final class BungeeCordPlatformPluginManager extends BasePlatformPluginMan
       layer.install(createFixedBinding(platformData.getProxy().getPluginManager(), PluginManager.class));
 
       // install the bindings which are specific to the plugin
-      layer.install(fixedBindingWithBound(platformData, Plugin.class));
+      injector.installSpecified(fixedBindingWithBound(platformData, Plugin.class));
     });
   }
 }
