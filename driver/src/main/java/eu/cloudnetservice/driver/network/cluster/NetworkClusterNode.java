@@ -21,6 +21,7 @@ import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import java.util.List;
 import lombok.NonNull;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@ToString
 public final class NetworkClusterNode implements DefaultedDocPropertyHolder<JsonDocument, NetworkClusterNode> {
 
   private final String uniqueId;
@@ -111,13 +113,5 @@ public final class NetworkClusterNode implements DefaultedDocPropertyHolder<Json
   @Override
   public int hashCode() {
     return this.uniqueId.hashCode();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull String toString() {
-    return "NetworkClusterNode(uniqueId=" + this.uniqueId + ")";
   }
 }
