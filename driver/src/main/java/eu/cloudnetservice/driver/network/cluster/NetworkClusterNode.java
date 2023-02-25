@@ -20,9 +20,9 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import java.util.List;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a general information holder about a node running in a cluster. Every node knows this information about
@@ -31,8 +31,7 @@ import lombok.ToString;
  * @since 4.0
  */
 @ToString
-@EqualsAndHashCode
-public class NetworkClusterNode implements DefaultedDocPropertyHolder<JsonDocument, NetworkClusterNode> {
+public final class NetworkClusterNode implements DefaultedDocPropertyHolder<JsonDocument, NetworkClusterNode> {
 
   private final String uniqueId;
   private final List<HostAndPort> listeners;
@@ -92,5 +91,27 @@ public class NetworkClusterNode implements DefaultedDocPropertyHolder<JsonDocume
   @Override
   public @NonNull JsonDocument propertyHolder() {
     return this.properties;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (obj == this) {
+      return true;
+    } else if (obj instanceof NetworkClusterNode other) {
+      return other.uniqueId().equals(this.uniqueId);
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int hashCode() {
+    return this.uniqueId.hashCode();
   }
 }
