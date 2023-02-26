@@ -109,16 +109,23 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
       if (uuid != null) {
         var task = this.channel.queryPacketManager().waitingHandler(uuid);
         if (task != null) {
+          // complete the waiting task
           task.complete(packet);
+
           // don't post a query response packet to another handler at all
+          // the packet might be inbound - we might be expected to respond
           return;
         }
       }
 
-      // check if we're allowed to handle the packet
-      if (this.channel.handler().handlePacketReceive(this.channel, packet)) {
-        this.channel.packetRegistry().handlePacket(this.channel, packet);
+      // check if any handler can handle the incoming packet
+      if (this.channel.handler().handlePacketReceive(this.channel, packet)
+        && this.channel.packetRegistry().handlePacket(this.channel, packet)) {
+        return;
       }
+
+      // release the packet content now, there are no handlers that are accepting the message
+      packet.content().forceRelease();
     } catch (Exception exception) {
       LOGGER.severe("Exception whilst handling packet %s", exception, packet);
     }

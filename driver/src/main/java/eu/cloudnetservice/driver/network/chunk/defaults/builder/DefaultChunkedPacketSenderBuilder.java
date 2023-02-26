@@ -115,7 +115,10 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
    */
   @Override
   public @NonNull ChunkedPacketSender.Builder withExtraData(@NonNull DataBuf extraData) {
-    this.transferInformation = extraData.disableReleasing();
+    // make sure that the old transfer information buffer is released
+    this.transferInformation.release();
+
+    this.transferInformation = extraData;
     return this;
   }
 

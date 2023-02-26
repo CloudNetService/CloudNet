@@ -160,23 +160,29 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
    * {@inheritDoc}
    */
   @Override
-  public void handlePacket(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    if (this.parent != null) {
-      this.parent.handlePacket(channel, packet);
+  public boolean handlePacket(@NonNull NetworkChannel channel, @NonNull Packet packet) {
+    // check if the parent handler registry is present and can handle the packet
+    var parentDidHandle = this.parent != null && this.parent.handlePacket(channel, packet);
+
+    // get the listeners that are registered in this packet registry for the packet channel
+    var registeredListeners = this.listeners.get(packet.channel());
+    if (registeredListeners.isEmpty()) {
+      return parentDidHandle;
     }
 
-    var registeredListeners = this.listeners.get(packet.channel());
-    if (!registeredListeners.isEmpty()) {
-      for (var listener : registeredListeners) {
-        try {
-          listener.handle(channel, packet);
-        } catch (Exception exception) {
-          throw new IllegalStateException(String.format(
-            "Exception posting packet from channel %d to handler %s",
-            packet.channel(), listener.getClass().getCanonicalName()
-          ), exception);
-        }
+    // post the packet to each listener that handles the packet
+    for (var listener : registeredListeners) {
+      try {
+        listener.handle(channel, packet);
+      } catch (Exception exception) {
+        throw new IllegalStateException(String.format(
+          "Exception posting packet from channel %d to handler %s",
+          packet.channel(), listener.getClass().getCanonicalName()
+        ), exception);
       }
     }
+
+    // at least one listener handled the packet
+    return true;
   }
 }

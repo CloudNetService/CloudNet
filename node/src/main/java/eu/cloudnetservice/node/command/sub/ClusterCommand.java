@@ -361,6 +361,9 @@ public final class ClusterCommand {
               // the transfer was successful
               source.sendMessage(I18n.trans("command-cluster-push-template-success", templateName));
             }
+          }).exceptionally(th -> {
+            LOGGER.severe("TEMPLATE PUSH", th);
+            return null;
           });
       } else {
         source.sendMessage(I18n.trans("command-template-not-found", templateName));

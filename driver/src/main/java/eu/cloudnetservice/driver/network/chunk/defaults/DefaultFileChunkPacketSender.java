@@ -88,8 +88,12 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
       while (true) {
         var bytesRead = this.source.read(backingArray);
         if (bytesRead != -1 && bytesRead == backingArray.length) {
-          this.packetSplitter.accept(
-            ChunkedPacket.createChunk(this.chunkSessionInformation, readCalls++, backingArray));
+          // acquire the transfer information once before writing the data of the chunk
+          this.chunkSessionInformation.transferInformation().acquire();
+          this.packetSplitter.accept(ChunkedPacket.createChunk(
+            this.chunkSessionInformation,
+            readCalls++,
+            backingArray));
         } else {
           this.packetSplitter.accept(ChunkedPacket.createChunk(
             this.chunkSessionInformation,
@@ -97,10 +101,11 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
             readCalls,
             bytesRead == -1 ? 0 : bytesRead,
             bytesRead == -1 ? EMPTY_BYTE_ARRAY : backingArray));
-          // close the stream after reading the final chunk
+
+          // close the stream after reading the final chunk & release the extra content now
           this.source.close();
-          // release the extra content now
-          this.chunkSessionInformation.transferInformation().enableReleasing().release();
+          this.chunkSessionInformation.transferInformation().release();
+
           // successful transfer
           return TransferStatus.SUCCESS;
         }

@@ -138,7 +138,8 @@ public interface PacketListenerRegistry {
    *
    * @param channel the channel from which the packet came.
    * @param packet  the packet which was received.
+   * @return true if a listener handled the packet, false otherwise.
    * @throws NullPointerException if either the given channel or packet is null.
    */
-  void handlePacket(@NonNull NetworkChannel channel, @NonNull Packet packet);
+  boolean handlePacket(@NonNull NetworkChannel channel, @NonNull Packet packet);
 }

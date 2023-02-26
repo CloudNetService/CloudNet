@@ -37,18 +37,19 @@ public record NetworkChannelsPacketSplitter(@NonNull Collection<NetworkChannel> 
    */
   @Override
   public void accept(@NonNull Packet packet) {
-    // disable releasing of the content as we need to content multiple times
-    packet.content().disableReleasing();
     // write to all channels
     for (var channel : this.channels) {
-      // mark the current indexes of the packet
-      packet.content().startTransaction();
-      // write the packet to the channel
-      channel.sendPacketSync(packet);
-      // redo the transaction to allow further writes
-      packet.content().redoTransaction();
+      try {
+        // acquire the packet content and start a transaction, then send the data
+        packet.content().acquire().startTransaction();
+        channel.sendPacketSync(packet);
+      } finally {
+        // redo the transaction to allow further writes
+        packet.content().redoTransaction();
+      }
     }
-    // enable the releasing and free the memory
-    packet.content().enableReleasing().release();
+
+    // release the packet content
+    packet.content().release();
   }
 }
