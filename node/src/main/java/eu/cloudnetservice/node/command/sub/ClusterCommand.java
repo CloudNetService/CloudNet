@@ -352,19 +352,20 @@ public final class ClusterCommand {
       // check if the template really exists in the given storage
       if (inputStream != null) {
         // deploy the template into the cluster
-        this.nodeServerProvider.deployTemplateToCluster(template, inputStream, true)
-          .thenAccept(transferStatus -> {
-            if (transferStatus == TransferStatus.FAILURE) {
-              // the transfer failed
-              source.sendMessage(I18n.trans("command-cluster-push-template-failed", templateName));
-            } else {
-              // the transfer was successful
-              source.sendMessage(I18n.trans("command-cluster-push-template-success", templateName));
+        this.nodeServerProvider.deployTemplateToCluster(template, inputStream, true).whenComplete((status, ex) -> {
+          if (ex != null || status == TransferStatus.FAILURE) {
+            // the transfer failed
+            source.sendMessage(I18n.trans("command-cluster-push-template-failed", templateName));
+
+            // print the detailed exception, if available
+            if (ex != null) {
+              LOGGER.severe("Unable to push template %s to cluster", ex, template);
             }
-          }).exceptionally(th -> {
-            LOGGER.severe("TEMPLATE PUSH", th);
-            return null;
-          });
+          } else {
+            // the transfer was successful
+            source.sendMessage(I18n.trans("command-cluster-push-template-success", templateName));
+          }
+        });
       } else {
         source.sendMessage(I18n.trans("command-template-not-found", templateName));
       }
