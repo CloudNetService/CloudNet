@@ -63,16 +63,20 @@ final class InjectionLayerProvider {
    *
    * @return the boot injection layer.
    */
-  @SuppressWarnings("unchecked")
   public static @NonNull InjectionLayer<Injector> boot() {
     // check if the boot layer is already initialized
     if (boot != null) {
       return boot;
     }
 
-    // get the first provided service or set the default instance
-    var installedProvider = ServiceLoader.load(InjectionLayer.class).findFirst();
-    InjectionLayerProvider.boot = installedProvider.orElseGet(() -> fresh("boot")).asUncloseable();
+    // construct the boot injection layer
+    InjectionLayerProvider.boot = fresh("boot").asUncloseable();
+
+    // apply all boot layers configurators
+    var serviceLoader = ServiceLoader.load(BootLayerConfigurator.class);
+    for (var configurator : serviceLoader) {
+      configurator.configureBootLayer(boot);
+    }
 
     // configure the ext layer from the boot layer
     InjectionLayerProvider.ext = child(boot, "ext").asUncloseable();
