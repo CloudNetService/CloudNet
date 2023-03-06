@@ -2,7 +2,7 @@ files:
   - source: /node/src/main/resources/lang/en_US.properties
     translation: /node/src/main/resources/lang/%locale_with_underscore%.properties
 commit_message: "[ci skip]"
-pull_request_labels: 
+pull_request_labels:
   - "t: translation"
   - "s: accepted"
 pull_request_title: "chore: pull latest crowdin translation changes"
