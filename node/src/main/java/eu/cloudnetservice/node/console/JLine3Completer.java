@@ -16,9 +16,7 @@
 
 package eu.cloudnetservice.node.console;
 
-import eu.cloudnetservice.node.console.handler.Toggleable;
 import java.util.List;
-import java.util.Objects;
 import lombok.NonNull;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
@@ -35,11 +33,18 @@ final class JLine3Completer implements Completer {
 
   @Override
   public void complete(@NonNull LineReader reader, @NonNull ParsedLine line, @NonNull List<Candidate> candidates) {
-    this.console.tabCompleteHandlers().values().stream()
-      .filter(Toggleable::enabled)
-      .flatMap(handler -> handler.completeInput(line.line()).stream())
-      .filter(Objects::nonNull)
-      .map(Candidate::new)
-      .forEach(candidates::add);
+    // iterate over all enabled tab complete handlers and record their completions
+    // make sure to pass a sort to the candidate in order to keep the order the same way as given
+    var currentCandidateSort = 1;
+    for (var completeHandler : this.console.tabCompleteHandlers().values()) {
+      if (completeHandler.enabled()) {
+        // compute the completions of the handler and add the candidates
+        var completions = completeHandler.completeInput(line.line());
+        for (var completion : completions) {
+          var candidate = new Candidate(completion, completion, null, null, null, null, true, currentCandidateSort++);
+          candidates.add(candidate);
+        }
+      }
+    }
   }
 }
