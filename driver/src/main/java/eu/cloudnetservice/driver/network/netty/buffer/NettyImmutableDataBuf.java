@@ -36,11 +36,13 @@ import org.jetbrains.annotations.Nullable;
 public class NettyImmutableDataBuf implements DataBuf {
 
   protected final Buffer buffer;
-  protected boolean releasable;
+
+  // the amount of times this buffer was acquired
+  protected int acquires = 1;
 
   // transaction offset data
-  protected volatile int readOffset;
-  protected volatile int writeOffset;
+  protected int readOffset;
+  protected int writeOffset;
 
   /**
    * Constructs a new netty immutable data buf instance.
@@ -50,7 +52,6 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   public NettyImmutableDataBuf(@NonNull Buffer buffer) {
     this.buffer = buffer;
-    this.enableReleasing();
   }
 
   /**
@@ -205,10 +206,8 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public <T> T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull) {
-    return this.hotRead(buf -> {
-      var isNonNull = buf.readBoolean();
-      return isNonNull ? readerWhenNonNull.apply(this) : valueWhenNull;
-    });
+    var isNonNull = this.readBoolean();
+    return isNonNull ? readerWhenNonNull.apply(this) : valueWhenNull;
   }
 
   /**
@@ -265,17 +264,16 @@ public class NettyImmutableDataBuf implements DataBuf {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull DataBuf disableReleasing() {
-    this.releasable = false;
-    return this;
+  public int acquires() {
+    return this.acquires;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull DataBuf enableReleasing() {
-    this.releasable = true;
+  public @NonNull DataBuf acquire() {
+    this.acquires++;
     return this;
   }
 
@@ -284,7 +282,25 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public void release() {
-    if (this.releasable && this.buffer.isAccessible()) {
+    // release one acquire
+    this.acquires--;
+
+    // check if the buffer is no longer acquired somewhere
+    if (this.acquires <= 0 && this.buffer.isAccessible()) {
+      this.buffer.close();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void forceRelease() {
+    // set acquires to 0 to indicate that the buffer was released
+    this.acquires = 0;
+
+    // actually release the buffer if needed
+    if (this.buffer.isAccessible()) {
       this.buffer.close();
     }
   }

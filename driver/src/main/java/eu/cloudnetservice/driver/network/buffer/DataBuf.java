@@ -231,8 +231,8 @@ public interface DataBuf extends AutoCloseable {
   <T> T readObject(@NonNull Type type);
 
   /**
-   * Reads the next requested data from the buffer. This method call is equivalent to {@code
-   * readNullable(readerWhenNonNull, null)}.
+   * Reads the next requested data from the buffer. This method call is equivalent to
+   * {@code readNullable(readerWhenNonNull, null)}.
    *
    * @param readerWhenNonNull the reader to read the data from the buffer when the next value is non-null.
    * @param <T>               the generic type of the data to read.
@@ -300,26 +300,31 @@ public interface DataBuf extends AutoCloseable {
   boolean accessible();
 
   /**
-   * Disables that the underlying buffer can be released when the reader index of this buffer reaches the tail or an
-   * explicit call to {@code release()} or {@code close()} is made.
+   * Get the amount of acquires that this data buf has. Initially a data buf is acquired once.
    *
-   * @return the same instance as used to call the method, for chaining.
+   * @return the amount of acquires. A value smaller or equal to zero means that the buffer was released.
    */
-  @NonNull DataBuf disableReleasing();
+  int acquires();
 
   /**
-   * Enables that the underlying buffer can be released when the reader index of this buffer reaches the tail or an
-   * explicit call to {@code release()} or {@code close()} is made.
+   * Acquires this buffer once. If a buffer gets acquired, further calls to {@link #release()} will decrease the count,
+   * but only release the buffer if there were more release than acquire calls.
    *
    * @return the same instance as used to call the method, for chaining.
    */
-  @NonNull DataBuf enableReleasing();
+  @NonNull DataBuf acquire();
+
+  /**
+   * Explicitly releases all data associated with this buffer making it unavailable for further reads. This method only
+   * decreases the acquire count of the buffer in case it was acquired at least once.
+   */
+  void release();
 
   /**
    * Explicitly releases all data associated with this buffer making it unavailable for further reads. This method does
-   * nothing if releasing was disables before calling this method.
+   * not check if anyone acquired the buffer, it will be released in any case.
    */
-  void release();
+  void forceRelease();
 
   /**
    * Explicitly releases all data associated with this buffer making it unavailable for further reads. This method does
