@@ -43,7 +43,7 @@ dependencies {
   "annotationProcessor"(libs.aerogelAuto)
 
   "minecraft"(libs.minecraft)
-  "modImplementation"(libs.fabricLoader)
+  "modCompileOnly"(libs.fabricLoader)
   "mappings"(loom.officialMojangMappings())
 }
 
