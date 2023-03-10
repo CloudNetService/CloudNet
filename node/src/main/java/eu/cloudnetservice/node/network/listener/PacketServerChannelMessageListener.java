@@ -54,29 +54,31 @@ public final class PacketServerChannelMessageListener implements PacketListener 
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     var comesFromWrapper = packet.content().readBoolean();
     var message = packet.content().readObject(ChannelMessage.class);
-    // disable releasing of the message content
-    message.content().disableReleasing();
+
     // check if we should handle the message locally
     var handleLocally = message.targets().stream().anyMatch(target -> switch (target.type()) {
       case ALL -> true;
       case NODE -> target.name() == null || target.name().equals(this.componentInfo.componentName());
       default -> false;
     });
+
     if (handleLocally) {
-      // mark the index of the data buf
-      message.content().startTransaction();
+      // mark the index of the data buf & call the receive event
+      message.content().acquire().startTransaction();
       // call the receive event
       var responseTask = this.eventManager
         .callEvent(new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null))
         .queryResponse();
       // reset the index
       message.content().redoTransaction();
+
       // wait for the response to become available if given before resuming
       if (responseTask != null) {
         responseTask.thenAccept(response -> this.resumeHandling(packet, channel, message, response, comesFromWrapper));
         return;
       }
     }
+
     // resume instantly
     this.resumeHandling(packet, channel, message, null, comesFromWrapper);
   }
@@ -93,8 +95,8 @@ public final class PacketServerChannelMessageListener implements PacketListener 
       this.messenger.sendChannelMessageQueryAsync(message, comesFromWrapper)
         .orTimeout(20, TimeUnit.SECONDS)
         .whenComplete((result, exception) -> {
-          DataBuf responseContent;
           // check if the handling was successful
+          DataBuf responseContent;
           if (exception == null) {
             // respond with the result or just the single initial response if given
             if (result == null) {
@@ -106,6 +108,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
               if (initialResponse != null) {
                 result.add(initialResponse);
               }
+
               // serialize the response
               if (result.isEmpty()) {
                 responseContent = DataBuf.empty().writeBoolean(false);
@@ -117,13 +120,27 @@ public final class PacketServerChannelMessageListener implements PacketListener 
             // just respond with nothing when an exception was thrown
             responseContent = DataBuf.empty().writeBoolean(false);
           }
+
           // send the results to the sender
           channel.sendPacket(packet.constructResponse(responseContent));
         });
     } else {
       this.messenger.sendChannelMessage(message, comesFromWrapper);
     }
-    // force release the message
-    message.content().enableReleasing().release();
+
+    // release the initial response content in case it was not send to any channel
+    if (initialResponse != null) {
+      initialResponse.content().release();
+    }
+
+    // force release of the current message
+    // this is an edge case that should not happen, but basically the handlers did not read
+    // all the content from the buffer, or the buffer simply had no content
+    // checking if the buffer was acquired only once ensures that no-one acquired the buffer
+    // during the read process and wants to use the buffer later on
+    var messageContent = message.content();
+    if (messageContent.acquires() == 1) {
+      messageContent.release();
+    }
   }
 }

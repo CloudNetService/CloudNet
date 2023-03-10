@@ -188,8 +188,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
       // no handler for the result
       LOGGER.fine("No handler for key %s to sync data", null, key);
     }
-    // try to release the input buf
-    input.release();
+
     // return the created result
     return result;
   }
