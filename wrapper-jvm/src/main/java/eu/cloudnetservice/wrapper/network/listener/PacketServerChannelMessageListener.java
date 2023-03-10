@@ -24,9 +24,11 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.Set;
 import lombok.NonNull;
 
+@Singleton
 public final class PacketServerChannelMessageListener implements PacketListener {
 
   private final EventManager eventManager;
@@ -38,14 +40,16 @@ public final class PacketServerChannelMessageListener implements PacketListener 
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    // skip the first boolean in the buffer as we don't need it
+    // skip the first boolean (comes from wrapper) in the buffer as we don't need it
     packet.content().readBoolean();
     // read the channel message from the buffer
     var message = packet.content().readObject(ChannelMessage.class);
+
     // get the query response if available
     var response = this.eventManager
       .callEvent(new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null))
       .queryResponse();
+
     // check if we need to respond to the channel message
     if (packet.uniqueId() != null) {
       // wait for the future if a response was supplied
@@ -58,11 +62,27 @@ public final class PacketServerChannelMessageListener implements PacketListener 
             // serialize the single response
             channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(Set.of(queryResponse))));
           }
+
+          // release the message content (do it here so that the async processing still has access to it)
+          message.content().release();
         });
       } else {
-        // respond with an empty buffer to indicate the node that there was no result
+        // respond with an empty buffer to indicate the node that there was no result & release the message content
         channel.sendPacket(packet.constructResponse(DataBuf.empty()));
+        message.content().release();
       }
+    } else if (response != null) {
+      // just release the initial response content when available
+      response.thenAccept(responseMessage -> {
+        // release both messages
+        message.content().release();
+        if (responseMessage != null) {
+          responseMessage.content().release();
+        }
+      });
+    } else {
+      // release the message content instantly
+      message.content().release();
     }
   }
 }

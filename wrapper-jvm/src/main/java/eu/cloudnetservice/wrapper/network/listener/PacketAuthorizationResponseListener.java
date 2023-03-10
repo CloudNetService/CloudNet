@@ -36,7 +36,12 @@ public final class PacketAuthorizationResponseListener implements PacketListener
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     // read the auth result
-    this.result.setRelease(packet.content().readBoolean());
+    var content = packet.content();
+    this.result.setRelease(content.readBoolean());
+
+    // skip the next two booleans from the packet
+    content.readBoolean();
+    content.readBoolean();
 
     // signal all listeners waiting for the auth
     LockSupport.unpark(this.blockedThread);

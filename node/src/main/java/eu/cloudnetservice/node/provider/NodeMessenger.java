@@ -77,38 +77,67 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   }
 
   public void sendChannelMessage(@NonNull ChannelMessage message, boolean allowClusterRedirect) {
-    for (var channel : this.findChannels(message.targets(), allowClusterRedirect)) {
+    // find the target channels to send the message to
+    var channels = this.findChannels(message.targets(), allowClusterRedirect);
+    for (var channel : channels) {
+      // acquire the message content for each channel we're sending the message to
+      // when writing the message content to the target buffer, the message is released
+      // that means when the message was written to all channels it's released unless someone acquired it before
+      message.content().acquire();
+
+      // construct and send the packet
+      var packet = new PacketServerChannelMessage(message, false);
       if (message.sendSync()) {
-        channel.sendPacketSync(new PacketServerChannelMessage(message, false));
+        channel.sendPacketSync(packet);
       } else {
-        channel.sendPacket(new PacketServerChannelMessage(message, false));
+        channel.sendPacket(packet);
       }
     }
+
+    // release the message now
+    message.content().release();
   }
 
   public @NonNull Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message,
     boolean allowClusterRedirect
   ) {
-    // filter the channels we need to send the message to
+    // find the target channels to send the message to
     var channels = this.findChannels(message.targets(), allowClusterRedirect);
-    // the result we generate
-    Set<ChannelMessage> result = new HashSet<>();
-    var task = new CountingTask<Collection<ChannelMessage>>(result, channels.size());
-    // send the packet to each channel
-    for (var channel : channels) {
-      channel.sendQueryAsync(new PacketServerChannelMessage(message, false)).whenComplete((packet, th) -> {
-        // check if we got an actual result from the request
-        if (th == null && packet.readable()) {
-          // add all resulting messages we got
-          result.addAll(packet.content().readObject(COL_MSG));
-        }
-        // count down - one channel responded
-        task.countDown();
-      });
+    if (channels.isEmpty()) {
+      // no target channels found, release the message now
+      message.content().release();
+      return Task.completedTask(new HashSet<>());
+    } else {
+      // the result we generate
+      Set<ChannelMessage> result = new HashSet<>();
+      var task = new CountingTask<Collection<ChannelMessage>>(result, channels.size());
+
+      // send the packet to each channel
+      for (var channel : channels) {
+        // acquire the message content for each channel we're sending the message to
+        // when writing the message content to the target buffer, the message is released
+        // that means when the message was written to all channels it's released unless someone acquired it before
+        message.content().acquire();
+
+        channel.sendQueryAsync(new PacketServerChannelMessage(message, false)).whenComplete((packet, th) -> {
+          // check if we got an actual result from the request
+          if (th == null && packet.readable()) {
+            // add all resulting messages we got
+            result.addAll(packet.content().readObject(COL_MSG));
+          }
+
+          // count down - one channel responded
+          task.countDown();
+        });
+      }
+
+      // release the message now
+      message.content().release();
+
+      // return the task on which the user can wait
+      return task;
     }
-    // return the task on which the user can wait
-    return task;
   }
 
   protected @NonNull Collection<NetworkChannel> findChannels(
