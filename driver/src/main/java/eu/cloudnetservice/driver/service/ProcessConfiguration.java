@@ -17,12 +17,12 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Range;
@@ -41,8 +41,8 @@ import org.jetbrains.annotations.Unmodifiable;
 public record ProcessConfiguration(
   @NonNull String environment,
   int maxHeapMemorySize,
-  @Unmodifiable @NonNull Set<String> jvmOptions,
-  @Unmodifiable @NonNull Set<String> processParameters,
+  @Unmodifiable @NonNull List<String> jvmOptions,
+  @Unmodifiable @NonNull List<String> processParameters,
   @Unmodifiable @NonNull Map<String, String> environmentVariables
 ) implements Cloneable {
 
@@ -95,8 +95,8 @@ public record ProcessConfiguration(
     protected String environment;
     protected int maxHeapMemorySize = 512;
 
-    protected Set<String> jvmOptions = new LinkedHashSet<>();
-    protected Set<String> processParameters = new LinkedHashSet<>();
+    protected List<String> jvmOptions = new LinkedList<>();
+    protected List<String> processParameters = new LinkedList<>();
     protected Map<String, String> environmentVariables = new HashMap<>();
 
     /**
@@ -154,7 +154,7 @@ public record ProcessConfiguration(
      * @throws NullPointerException if the given options collection is null.
      */
     public @NonNull Builder jvmOptions(@NonNull Collection<String> jvmOptions) {
-      this.jvmOptions = new LinkedHashSet<>(jvmOptions);
+      this.jvmOptions = new LinkedList<>(jvmOptions);
       return this;
     }
 
@@ -188,7 +188,7 @@ public record ProcessConfiguration(
      * @throws NullPointerException if the given parameters' collection is null.
      */
     public @NonNull Builder processParameters(@NonNull Collection<String> processParameters) {
-      this.processParameters = new LinkedHashSet<>(processParameters);
+      this.processParameters = new LinkedList<>(processParameters);
       return this;
     }
 
@@ -246,8 +246,8 @@ public record ProcessConfiguration(
       return new ProcessConfiguration(
         this.environment,
         this.maxHeapMemorySize,
-        ImmutableSet.copyOf(this.jvmOptions),
-        ImmutableSet.copyOf(this.processParameters),
+        ImmutableList.copyOf(this.jvmOptions),
+        ImmutableList.copyOf(this.processParameters),
         Map.copyOf(this.environmentVariables));
     }
   }
