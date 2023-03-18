@@ -220,7 +220,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HttpRequestHandler(paths = "/api/v2/service/create")
+  @HttpRequestHandler(paths = "/api/v2/service/create", methods = "POST")
   private void handleCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
     // check for a provided service configuration
     var configuration = body.get("serviceConfiguration", ServiceConfiguration.class);
