@@ -210,7 +210,7 @@ public final class Node {
       xodusProvider.close();
 
       // save the updated configuration
-      configuration.properties().append("database_provider", "xodus");
+      configuration.properties(configuration.properties().mutableCopy().append("database_provider", "xodus"));
       configuration.save();
     }
   }

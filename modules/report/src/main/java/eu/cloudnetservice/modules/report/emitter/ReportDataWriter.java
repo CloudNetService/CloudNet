@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.report.emitter;
 
 import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -128,7 +128,7 @@ public record ReportDataWriter(@NonNull StringBuilder stringBuffer, @NonNull Str
 
   public @NonNull ReportDataWriter appendAsJson(@Nullable Object obj) {
     // could technically append {} to indicate an empty object, just to make it more clear we actually emit "null"
-    return this.appendString(obj == null ? "null" : JsonDocument.newDocument(obj).toPrettyJson());
+    return this.appendString(obj == null ? "null" : DocumentFactory.json().newDocument(obj).serializeToString());
   }
 
   public @NonNull ReportDataWriter appendTimestamp(@NonNull DateTimeFormatter formatter, long timestamp) {

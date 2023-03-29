@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import java.util.UUID;
@@ -37,13 +37,13 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode(callSuper = true)
 public class CloudPlayer extends CloudOfflinePlayer {
 
+  protected final NetworkPlayerProxyInfo networkPlayerProxyInfo;
+
   protected NetworkServiceInfo loginService;
   protected NetworkServiceInfo connectedService;
-
-  protected final NetworkPlayerProxyInfo networkPlayerProxyInfo;
   protected NetworkPlayerServerInfo networkPlayerServerInfo;
 
-  protected JsonDocument onlineProperties;
+  protected Document onlineProperties;
 
   /**
    * Constructs a new online cloud player.
@@ -61,16 +61,16 @@ public class CloudPlayer extends CloudOfflinePlayer {
    *                              last proxy info or properties is null.
    */
   public CloudPlayer(
+    @NonNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
     @NonNull NetworkServiceInfo loginService,
     @NonNull NetworkServiceInfo connectedService,
-    @NonNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
     @Nullable NetworkPlayerServerInfo networkPlayerServerInfo,
-    @NonNull JsonDocument onlineProperties,
+    @NonNull Document onlineProperties,
     @NonNull String name,
     long firstLoginTimeMillis,
     long lastLoginTimeMillis,
     @NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     super(name, firstLoginTimeMillis, lastLoginTimeMillis, lastNetworkPlayerProxyInfo, properties);
 
@@ -156,8 +156,18 @@ public class CloudPlayer extends CloudOfflinePlayer {
    *
    * @return the online properties of the player.
    */
-  public @NonNull JsonDocument onlineProperties() {
+  public @NonNull Document onlineProperties() {
     return this.onlineProperties;
+  }
+
+  /**
+   * Sets the online properties of this cloud player.
+   *
+   * @param onlineProperties the properties to set.
+   * @throws NullPointerException if the given properties are null.
+   */
+  public void onlineProperties(@NonNull Document onlineProperties) {
+    this.onlineProperties = onlineProperties.immutableCopy();
   }
 
   /**

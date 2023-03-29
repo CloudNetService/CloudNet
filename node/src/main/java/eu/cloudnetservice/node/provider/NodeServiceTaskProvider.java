@@ -20,12 +20,13 @@ import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -126,8 +127,8 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   @Override
   public boolean addServiceTask(@NonNull ServiceTask serviceTask) {
     if (!this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask)).cancelled()) {
-      this.addPermanentServiceTaskSilently(serviceTask);
       // notify the cluster
+      this.addPermanentServiceTaskSilently(serviceTask);
       ChannelMessage.builder()
         .targetAll()
         .message("add_service_task")
@@ -181,12 +182,12 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   protected void writeServiceTask(@NonNull ServiceTask serviceTask) {
-    JsonDocument.newDocument(serviceTask).write(this.taskFile(serviceTask));
+    Document.newJsonDocument().appendTree(serviceTask).writeTo(this.taskFile(serviceTask));
   }
 
   protected void loadServiceTasks() {
     FileUtil.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
-      var document = JsonDocument.newDocument(file);
+      var document = DocumentFactory.json().parse(file);
 
       // TODO: remove in 4.1
       // check if the task has a name splitter
@@ -195,7 +196,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       }
 
       // check if the task has environment variables
-      var processConfiguration = document.getDocument("processConfiguration");
+      var processConfiguration = document.readMutableDocument("processConfiguration");
       if (!processConfiguration.contains("environmentVariables")) {
         processConfiguration.append("environmentVariables", new HashMap<>());
         document.append("processConfiguration", processConfiguration);

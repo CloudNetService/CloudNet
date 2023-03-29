@@ -23,10 +23,10 @@ import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import jakarta.inject.Singleton;
 import java.io.BufferedInputStream;
@@ -376,7 +376,7 @@ public class DefaultModuleProvider implements ModuleProvider {
       JarEntry entry;
       while ((entry = inputStream.getNextJarEntry()) != null) {
         if (entry.getName().equals("module.json")) {
-          var serializedModuleConfiguration = JsonDocument.newDocument(inputStream);
+          var serializedModuleConfiguration = DocumentFactory.json().parse(inputStream);
           return Optional.of(serializedModuleConfiguration.toInstanceOf(ModuleConfiguration.class));
         }
       }

@@ -184,18 +184,21 @@ public class PlayersCommand {
     source.sendMessage("CloudPlayer: " + offlinePlayer.name() + " | " + offlinePlayer.uniqueId());
     source.sendMessage("First login: " + DATE_TIME_FORMATTER.format(firstLoginTime));
     source.sendMessage("Last login: " + DATE_TIME_FORMATTER.format(lastLoginTime));
+
     // check if we have more information about the player
     if (offlinePlayer instanceof CloudPlayer onlinePlayer) {
       source.sendMessage("Proxy: " + onlinePlayer.loginService().serverName());
       source.sendMessage("Service: " + onlinePlayer.connectedService().serverName());
       source.sendMessage("Online Properties: ");
+
       // print the online properties of the player per line
-      for (var line : onlinePlayer.onlineProperties().toPrettyJson().split("\n")) {
+      for (var line : onlinePlayer.onlineProperties().serializeToString().split("\n")) {
         source.sendMessage(line);
       }
     }
+
     // print the offline properties of the player per line
-    for (var line : offlinePlayer.propertyHolder().toPrettyJson().split("\n")) {
+    for (var line : offlinePlayer.propertyHolder().serializeToString().split("\n")) {
       source.sendMessage(line);
     }
   }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudflare.dns;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -33,7 +33,7 @@ public class DnsRecord {
   private final int ttl;
   private final boolean proxied;
 
-  private final JsonDocument data;
+  private final Document data;
 
   public DnsRecord(
     @NonNull DnsType type,
@@ -41,7 +41,7 @@ public class DnsRecord {
     @NonNull String content,
     int ttl,
     boolean proxied,
-    @NonNull JsonDocument data
+    @NonNull Document data
   ) {
     this.id = null;
     this.type = type.name();
@@ -76,7 +76,7 @@ public class DnsRecord {
     return this.proxied;
   }
 
-  public @Nullable JsonDocument data() {
+  public @Nullable Document data() {
     return this.data;
   }
 }

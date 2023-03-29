@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudflare.dns;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
 import lombok.NonNull;
@@ -40,7 +40,7 @@ public final class SrvRecord extends DnsRecord {
       content,
       1,
       false,
-      JsonDocument.newDocument()
+      Document.newJsonDocument()
         .append("service", service)
         .append("proto", proto)
         .append("name", secondName)

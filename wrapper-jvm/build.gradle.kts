@@ -63,7 +63,6 @@ dependencies {
   "implementation"(libs.asm)
   "implementation"(libs.gson)
   "implementation"(libs.guava)
-  "implementation"(libs.geantyref)
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)

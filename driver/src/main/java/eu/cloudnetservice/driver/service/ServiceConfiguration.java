@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import java.util.Collection;
@@ -173,7 +173,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
     @NonNull Set<ServiceTemplate> templates,
     @NonNull Set<ServiceDeployment> deployments,
     @NonNull Set<ServiceRemoteInclusion> includes,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     super(templates, deployments, includes, properties);
 
@@ -910,7 +910,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
         Set.copyOf(this.templates),
         Set.copyOf(this.deployments),
         Set.copyOf(this.includes),
-        this.properties.clone());
+        this.properties.immutableCopy());
     }
   }
 }

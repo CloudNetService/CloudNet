@@ -17,8 +17,11 @@
 package eu.cloudnetservice.driver.network.rpc.object;
 
 import com.google.common.collect.Maps;
+import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactoryRegistry;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
@@ -40,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -138,8 +142,15 @@ public class DefaultObjectMapperTest {
           .build(),
         System.nanoTime(),
         ServiceLifeCycle.STOPPED,
-        JsonDocument.newDocument("test", 1234)))
+        Document.newJsonDocument().append("test", 1234)))
     );
+  }
+
+  @BeforeAll
+  static void setupBootInjectionLayer() throws ClassNotFoundException {
+    // todo: is there a better way to do this?
+    var clazz = Class.forName("eu.cloudnetservice.driver.document.defaults.DefaultDocumentFactoryRegistry");
+    InjectionLayer.boot().install(BindingBuilder.create().bind(DocumentFactoryRegistry.class).toConstructing(clazz));
   }
 
   @Order(0)

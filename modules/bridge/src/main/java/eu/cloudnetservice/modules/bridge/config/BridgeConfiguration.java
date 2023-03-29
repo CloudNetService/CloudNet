@@ -17,8 +17,6 @@
 package eu.cloudnetservice.modules.bridge.config;
 
 import com.google.common.collect.ImmutableMap;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,7 +34,7 @@ import org.jetbrains.annotations.UnknownNullability;
 
 @ToString
 @EqualsAndHashCode
-public final class BridgeConfiguration implements DefaultedDocPropertyHolder<JsonDocument, BridgeConfiguration> {
+public final class BridgeConfiguration {
 
   public static final Map<String, Map<String, String>> DEFAULT_MESSAGES = ImmutableMap.of(
     "default",
@@ -61,10 +59,7 @@ public final class BridgeConfiguration implements DefaultedDocPropertyHolder<Jso
   private final Collection<String> hubCommandNames;
   private final Collection<ProxyFallbackConfiguration> fallbackConfigurations;
 
-  private final JsonDocument properties;
-
   public BridgeConfiguration() {
-    this.properties = JsonDocument.newDocument();
     this.prefix = "§7Cloud §8| §b";
     this.localizedMessages = new HashMap<>(DEFAULT_MESSAGES);
     this.excludedGroups = new ArrayList<>();
@@ -80,15 +75,13 @@ public final class BridgeConfiguration implements DefaultedDocPropertyHolder<Jso
     @NonNull Map<String, Map<String, String>> localizedMessages,
     @NonNull Collection<String> excludedGroups,
     @NonNull Collection<String> hubCommandNames,
-    @NonNull Collection<ProxyFallbackConfiguration> fallbackConfigurations,
-    @NonNull JsonDocument properties
+    @NonNull Collection<ProxyFallbackConfiguration> fallbackConfigurations
   ) {
     this.prefix = prefix;
     this.localizedMessages = localizedMessages;
     this.excludedGroups = excludedGroups;
     this.hubCommandNames = hubCommandNames;
     this.fallbackConfigurations = fallbackConfigurations;
-    this.properties = properties;
   }
 
   public @NonNull String prefix() {
@@ -105,14 +98,6 @@ public final class BridgeConfiguration implements DefaultedDocPropertyHolder<Jso
 
   public @NonNull Collection<String> excludedGroups() {
     return this.excludedGroups;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull JsonDocument propertyHolder() {
-    return this.properties;
   }
 
   public void handleMessage(

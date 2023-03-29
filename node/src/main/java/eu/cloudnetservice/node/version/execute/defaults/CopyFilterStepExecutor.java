@@ -42,7 +42,7 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
     @NonNull Path workingDirectory,
     @NonNull Set<Path> inputPaths
   ) throws IOException {
-    Map<String, String> copy = installer.serviceVersion().properties().get("copy", STRING_MAP);
+    Map<String, String> copy = installer.serviceVersion().properties().readObject("copy", STRING_MAP);
     if (copy == null) {
       throw new IllegalStateException(String.format(
         "Missing copy property on service version %s!",

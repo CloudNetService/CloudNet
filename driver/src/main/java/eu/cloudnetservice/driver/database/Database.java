@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.database;
 
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.Map;
@@ -64,7 +64,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return true if the document was associated with the key successfully, false otherwise.
    * @throws NullPointerException if either key or document is null.
    */
-  boolean insert(@NonNull String key, @NonNull JsonDocument document);
+  boolean insert(@NonNull String key, @NonNull Document document);
 
   /**
    * Tests whether a document is associated with the given key.
@@ -92,7 +92,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return the document associated with the key or null if there is no document associated with the key.
    * @throws NullPointerException if key is null.
    */
-  @Nullable JsonDocument get(@NonNull String key);
+  @Nullable Document get(@NonNull String key);
 
   /**
    * Searches for all entries in the database which value contains the given field and the field value matches the given
@@ -104,7 +104,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return all documents in the database which contain the given field mapped to the given field value.
    * @throws NullPointerException if fieldName is null.
    */
-  @NonNull Collection<JsonDocument> find(@NonNull String fieldName, @Nullable String fieldValue);
+  @NonNull Collection<Document> find(@NonNull String fieldName, @Nullable String fieldValue);
 
   /**
    * Searches for all entries in the database which contain each entry of the provided map. Null as a field value is
@@ -115,7 +115,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return all documents in the database which contain all key-value mappings of the filter document.
    * @throws NullPointerException if filters is null.
    */
-  @NonNull Collection<JsonDocument> find(@NonNull Map<String, String> filters);
+  @NonNull Collection<Document> find(@NonNull Map<String, String> filters);
 
   /**
    * Get all keys which are currently stored and mapped to a document in the database. This operation might be heavy
@@ -131,7 +131,7 @@ public interface Database extends Nameable, AutoCloseable {
    *
    * @return all documents stored in the database.
    */
-  @NonNull Collection<JsonDocument> documents();
+  @NonNull Collection<Document> documents();
 
   /**
    * Get all key-value pairs which are currently stored in the database. This operation might be heavy when querying a
@@ -139,7 +139,7 @@ public interface Database extends Nameable, AutoCloseable {
    *
    * @return all key-value pairs stored in the database.
    */
-  @NonNull Map<String, JsonDocument> entries();
+  @NonNull Map<String, Document> entries();
 
   /**
    * Removes all key-value pairs which are currently stored in the database. This operation will not remove the
@@ -175,7 +175,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return a future completed with the write operation status.
    * @throws NullPointerException if either key or document is null.
    */
-  default @NonNull Task<Boolean> insertAsync(@NonNull String key, @NonNull JsonDocument document) {
+  default @NonNull Task<Boolean> insertAsync(@NonNull String key, @NonNull Document document) {
     return Task.supply(() -> this.insert(key, document));
   }
 
@@ -221,7 +221,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return a future completed with the document associated with the given key.
    * @throws NullPointerException if key is null.
    */
-  default @NonNull Task<JsonDocument> getAsync(@NonNull String key) {
+  default @NonNull Task<Document> getAsync(@NonNull String key) {
     return Task.supply(() -> this.get(key));
   }
 
@@ -239,7 +239,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return a future completed with all documents matching the given field key/value.
    * @throws NullPointerException if fieldName is null.
    */
-  default @NonNull Task<Collection<JsonDocument>> findAsync(@NonNull String fieldName, @Nullable String fieldValue) {
+  default @NonNull Task<Collection<Document>> findAsync(@NonNull String fieldName, @Nullable String fieldValue) {
     return Task.supply(() -> this.find(fieldName, fieldValue));
   }
 
@@ -256,7 +256,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return a future completed with all documents matching the given filters.
    * @throws NullPointerException if filters is null.
    */
-  default @NonNull Task<Collection<JsonDocument>> findAsync(@NonNull Map<String, String> filters) {
+  default @NonNull Task<Collection<Document>> findAsync(@NonNull Map<String, String> filters) {
     return Task.supply(() -> this.find(filters));
   }
 
@@ -282,7 +282,7 @@ public interface Database extends Nameable, AutoCloseable {
    *
    * @return a future completed with all documents which are currently stored in the database.
    */
-  default @NonNull Task<Collection<JsonDocument>> documentsAsync() {
+  default @NonNull Task<Collection<Document>> documentsAsync() {
     return Task.supply(this::documents);
   }
 
@@ -295,7 +295,7 @@ public interface Database extends Nameable, AutoCloseable {
    *
    * @return a future completed with all key-value pairs currently stored in the database.
    */
-  default @NonNull Task<Map<String, JsonDocument>> entriesAsync() {
+  default @NonNull Task<Map<String, Document>> entriesAsync() {
     return Task.supply(this::entries);
   }
 

@@ -18,8 +18,8 @@ package eu.cloudnetservice.driver.module;
 
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.driver.document.Document;
 import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,7 +72,7 @@ public record ModuleConfiguration(
   @Nullable ModuleRepository[] repositories,
   @Nullable ModuleDependency[] dependencies,
   int minJavaVersionId,
-  @Nullable JsonDocument properties
+  @Nullable Document properties
 ) implements Nameable {
 
   /**

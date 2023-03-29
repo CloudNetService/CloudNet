@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import eu.cloudnetservice.common.document.property.DocProperty;
+import eu.cloudnetservice.driver.document.property.DocProperty;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import io.leangen.geantyref.TypeFactory;
@@ -29,8 +29,21 @@ import java.util.Collection;
  *
  * @since 4.0
  */
+// TODO: rename this?
+// the required permission is applied to a task, not to services
+// Something like BridgeProperties would fit the use better, aside from the fact that the name is not really giving
+// a direct idea how the class should be used. Subject for discussion.
 public final class BridgeServiceProperties {
 
+  /**
+   * This property holds the required permission that a player must have to join a specific service. If the property is
+   * not set, the player is unable to join. This property defaults to {@code null} with indicates that no permission is
+   * required to join the service.
+   * <p>
+   * Note: this property only has effect when applied to the associated service task of a service.
+   */
+  public static final DocProperty<String> REQUIRED_PERMISSION =
+    DocProperty.property("requiredPermission", String.class);
   /**
    * This service property reads the online player count of any given {@link ServiceInfoSnapshot}. The property is only
    * updated after the service itself was updated.

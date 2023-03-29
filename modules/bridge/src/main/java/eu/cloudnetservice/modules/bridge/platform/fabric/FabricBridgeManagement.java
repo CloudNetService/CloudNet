@@ -32,6 +32,7 @@ import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import java.util.Collections;
 import java.util.Optional;
@@ -139,13 +140,14 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
   }
 
   @Override
-  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
-    super.appendServiceInformation(snapshot);
+  public void appendServiceInformation(@NonNull ServiceInfoPropertiesConfigureEvent configureEvent) {
+    super.appendServiceInformation(configureEvent);
+
     // append the fabric specific information
-    snapshot.propertyHolder().append("Online-Count", this.server.playerCount());
-    snapshot.propertyHolder().append("Version", SharedConstants.getCurrentVersion().getName());
+    configureEvent.propertyHolder().append("Online-Count", this.server.playerCount());
+    configureEvent.propertyHolder().append("Version", SharedConstants.getCurrentVersion().getName());
     // players
-    snapshot.propertyHolder().append("Players", this.server.players().stream()
+    configureEvent.propertyHolder().append("Players", this.server.players().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

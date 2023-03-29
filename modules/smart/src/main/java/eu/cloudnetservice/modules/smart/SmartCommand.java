@@ -246,12 +246,14 @@ public class SmartCommand {
     @NonNull Function<SmartServiceTaskConfig.Builder, SmartServiceTaskConfig.Builder> modifier
   ) {
     // read the smart config from the task
-    var property = serviceTask.propertyHolder().get("smartConfig", SmartServiceTaskConfig.class);
+    var property = serviceTask.propertyHolder().readObject("smartConfig", SmartServiceTaskConfig.class);
+
     // rewrite the config and update it in the cluster
-    var task = ServiceTask
-      .builder(serviceTask)
-      .properties(serviceTask.propertyHolder()
-        .append("smartConfig", modifier.apply(SmartServiceTaskConfig.builder(property)).build()))
+    var task = ServiceTask.builder(serviceTask)
+      .modifyProperties(properties -> {
+        var newSmartConfigEntry = modifier.apply(SmartServiceTaskConfig.builder(property)).build();
+        properties.append("smartConfig", newSmartConfigEntry);
+      })
       .build();
     this.taskProvider.addServiceTask(task);
   }

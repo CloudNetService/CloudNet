@@ -18,9 +18,10 @@ package eu.cloudnetservice.modules.cloudflare.cloudflare;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
 import io.leangen.geantyref.TypeFactory;
@@ -63,7 +64,7 @@ public class CloudFlareRecordManager {
     // send the request and handle the response
     return this.sendRequestAndReadResponse(request, null).thenApply(response -> {
       // check if the response is valid
-      List<DnsRecord> result = response.get("result", LIST_DNS_RECORD_TYPE, null);
+      List<DnsRecord> result = response.readObject("result", LIST_DNS_RECORD_TYPE, null);
       if (result == null || !response.getBoolean("success")) {
         LOGGER.fine("Unable to list records for config %s; response was %s", null, configuration, response);
         return List.of();
@@ -88,7 +89,7 @@ public class CloudFlareRecordManager {
     // send the request and handle the response
     return this.sendRequestAndReadResponse(request, record).thenApply(response -> {
       // check if the response is valid
-      var result = response.getDocument("result", null);
+      var result = response.readDocument("result", null);
       if (result == null || !response.getBoolean("success")) {
         LOGGER.fine("Unable to create record %s for config %s; response was %s", null, record, configuration, response);
         return null;
@@ -122,7 +123,7 @@ public class CloudFlareRecordManager {
     // send the request and handle the response
     return this.sendRequestAndReadResponse(request, record).thenApply(response -> {
       // check if the response is valid
-      var result = response.getDocument("result", null);
+      var result = response.readDocument("result", null);
       if (result == null || !response.getBoolean("success")) {
         LOGGER.fine(
           "Unable to patch record %s to %s for config %s; response was %s",
@@ -164,7 +165,7 @@ public class CloudFlareRecordManager {
     // send the request and handle the response
     return this.sendRequestAndReadResponse(request).thenApply(response -> {
       // check if the response is valid
-      var deletedRecordId = response.getDocument("result").getString("id", null);
+      var deletedRecordId = response.readDocument("result").getString("id");
       if (deletedRecordId == null) {
         LOGGER.fine("Unable to delete record %s (configuration: %s); response: %s", null, id, configuration, response);
         return false;
@@ -189,23 +190,25 @@ public class CloudFlareRecordManager {
       .contentType(ContentType.APPLICATION_JSON.getMimeType());
   }
 
-  protected @NonNull CompletableFuture<JsonDocument> sendRequestAndReadResponse(@NonNull HttpRequestWithBody request) {
+  protected @NonNull CompletableFuture<Document> sendRequestAndReadResponse(@NonNull HttpRequestWithBody request) {
     return this.sendRequestAndReadResponse(request, null);
   }
 
-  protected @NonNull CompletableFuture<JsonDocument> sendRequestAndReadResponse(
+  protected @NonNull CompletableFuture<Document> sendRequestAndReadResponse(
     @NonNull HttpRequestWithBody bodyRequest,
     @NonNull Object body
   ) {
-    return this.sendRequestAndReadResponse(bodyRequest, JsonDocument.newDocument(body).toString());
+    return this.sendRequestAndReadResponse(
+      bodyRequest,
+      Document.newJsonDocument().appendTree(body).serializeToString());
   }
 
-  protected @NonNull CompletableFuture<JsonDocument> sendRequestAndReadResponse(
+  protected @NonNull CompletableFuture<Document> sendRequestAndReadResponse(
     @NonNull HttpRequestWithBody request,
     @Nullable String body
   ) {
     var response = body == null ? request.asStringAsync() : request.body(body).asStringAsync();
-    return response.thenApply(res -> JsonDocument.fromJsonString(res.getBody()));
+    return response.thenApply(res -> DocumentFactory.json().parse(res.getBody()));
   }
 
   protected @NonNull Map<String, String> constructHeaders(@NonNull CloudflareConfigurationEntry entry) {

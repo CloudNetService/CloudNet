@@ -18,16 +18,18 @@ package eu.cloudnetservice.modules.bridge.node;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
+import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.bridge.node.listener.NodeSetupListener;
@@ -112,10 +114,12 @@ public class NodeBridgeManagement implements BridgeManagement {
   @Override
   public void postInit() {
     for (var task : this.taskProvider.serviceTasks()) {
-      // check if the required permission is set
-      if (!task.propertyHolder().contains("requiredPermission")) {
-        task.propertyHolder().appendNull("requiredPermission");
-        this.taskProvider.addServiceTask(task);
+      if (task.propertyAbsent(BridgeServiceProperties.REQUIRED_PERMISSION)) {
+        // the required permission is missing, add it to the task
+        var newTask = ServiceTask.builder(task)
+          .writeProperty(BridgeServiceProperties.REQUIRED_PERMISSION, null)
+          .build();
+        this.taskProvider.addServiceTask(newTask);
       }
     }
   }
@@ -123,6 +127,6 @@ public class NodeBridgeManagement implements BridgeManagement {
   public void configurationSilently(@NonNull BridgeConfiguration configuration) {
     // set and write the config
     this.configuration = configuration;
-    this.bridgeModule.writeConfig(JsonDocument.newDocument(configuration));
+    this.bridgeModule.writeConfig(Document.newJsonDocument().appendTree(configuration));
   }
 }

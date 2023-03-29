@@ -47,6 +47,7 @@ import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import java.time.Duration;
 import java.util.Collection;
@@ -153,12 +154,12 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .orElse(null);
   }
 
-  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
-    snapshot.propertyHolder().append("Online", Boolean.TRUE);
-    snapshot.propertyHolder().append("Motd", this.bridgeServiceHelper.motd().get());
-    snapshot.propertyHolder().append("Extra", this.bridgeServiceHelper.extra().get());
-    snapshot.propertyHolder().append("State", this.bridgeServiceHelper.state().get());
-    snapshot.propertyHolder().append("Max-Players", this.bridgeServiceHelper.maxPlayers().get());
+  public void appendServiceInformation(@NonNull ServiceInfoPropertiesConfigureEvent configureEvent) {
+    configureEvent.propertyHolder().append("Online", Boolean.TRUE);
+    configureEvent.propertyHolder().append("Motd", this.bridgeServiceHelper.motd().get());
+    configureEvent.propertyHolder().append("Extra", this.bridgeServiceHelper.extra().get());
+    configureEvent.propertyHolder().append("State", this.bridgeServiceHelper.state().get());
+    configureEvent.propertyHolder().append("Max-Players", this.bridgeServiceHelper.maxPlayers().get());
   }
 
   public @NonNull Collection<ServiceInfoSnapshot> cachedServices() {

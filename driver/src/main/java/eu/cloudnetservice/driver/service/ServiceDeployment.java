@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +37,7 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public class ServiceDeployment implements DefaultedDocPropertyHolder<JsonDocument, ServiceDeployment>, Cloneable {
+public class ServiceDeployment implements DefaultedDocPropertyHolder, Cloneable {
 
   public static final Set<Pattern> DEFAULT_EXCLUSIONS = Set.of(
     Pattern.compile("wrapper\\.jar"),
@@ -47,7 +47,7 @@ public class ServiceDeployment implements DefaultedDocPropertyHolder<JsonDocumen
   protected final Collection<Pattern> excludes;
   protected final Collection<Pattern> includes;
 
-  protected final JsonDocument properties;
+  protected final Document properties;
 
   /**
    * Constructs a new service deployment instance.
@@ -61,7 +61,7 @@ public class ServiceDeployment implements DefaultedDocPropertyHolder<JsonDocumen
     @NonNull ServiceTemplate template,
     @NonNull Collection<Pattern> excludes,
     @NonNull Collection<Pattern> includes,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     this.template = template;
     this.excludes = excludes;
@@ -142,7 +142,7 @@ public class ServiceDeployment implements DefaultedDocPropertyHolder<JsonDocumen
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 
@@ -156,7 +156,7 @@ public class ServiceDeployment implements DefaultedDocPropertyHolder<JsonDocumen
     protected ServiceTemplate template;
     protected Collection<Pattern> excludes = new HashSet<>();
     protected Collection<Pattern> includes = new HashSet<>();
-    protected JsonDocument properties = JsonDocument.newDocument();
+    protected Document properties = Document.emptyDocument();
 
     /**
      * Sets the target template of the deployment. There is no need for the template to exist, nor for the template to
@@ -264,8 +264,8 @@ public class ServiceDeployment implements DefaultedDocPropertyHolder<JsonDocumen
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given properties document is null.
      */
-    public @NonNull Builder properties(@NonNull JsonDocument properties) {
-      this.properties = properties.clone();
+    public @NonNull Builder properties(@NonNull Document properties) {
+      this.properties = properties.immutableCopy();
       return this;
     }
 

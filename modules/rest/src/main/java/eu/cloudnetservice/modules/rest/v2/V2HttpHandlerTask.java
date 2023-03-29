@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
@@ -86,7 +86,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/task", methods = "POST")
-  private void handleTaskCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+  private void handleTaskCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var serviceTask = body.toInstanceOf(ServiceTask.class);
     if (serviceTask == null) {
       this.badRequest(context)

@@ -357,7 +357,7 @@ public final class DataClassInvokerGenerator {
     var fullFilter = commonFilter(field).and(extraFilter);
     // search for the best choice
     for (var method : methods) {
-      if (fullFilter.test(method)) {
+      if (method.getDeclaringClass().equals(field.getDeclaringClass()) && fullFilter.test(method)) {
         if (choice == null) {
           // if there is no choice yet the method is the choice
           choice = method;

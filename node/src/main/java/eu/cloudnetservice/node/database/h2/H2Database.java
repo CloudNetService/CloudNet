@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.node.database.h2;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.database.sql.SQLDatabase;
 import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
 import java.sql.ResultSet;
@@ -25,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
@@ -49,25 +51,25 @@ public final class H2Database extends SQLDatabase {
   }
 
   @Override
-  public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
+  public boolean insert(@NonNull String key, @NonNull Document document) {
     return this.insertOrUpdate(key, document);
   }
 
-  private boolean insert0(@NonNull String key, @NonNull JsonDocument document) {
+  private boolean insert0(@NonNull String key, @NonNull Document document) {
     return this.databaseProvider.executeUpdate(
       "INSERT INTO `" + this.name + "` (" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VAL + ") VALUES (?, ?);",
-      key, document.toString()
+      key, this.serializeDocumentToJsonString(document)
     ) != -1;
   }
 
-  public boolean update0(String key, JsonDocument document) {
+  public boolean update0(String key, Document document) {
     return this.databaseProvider.executeUpdate(
       "UPDATE `" + this.name + "` SET " + TABLE_COLUMN_VAL + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
-      document.toString(), key
+      this.serializeDocumentToJsonString(document), key
     ) != -1;
   }
 
-  public boolean insertOrUpdate(String key, JsonDocument document) {
+  public boolean insertOrUpdate(String key, Document document) {
     return this.contains(key) ? this.update0(key, document) : this.insert0(key, document);
   }
 
@@ -93,34 +95,33 @@ public final class H2Database extends SQLDatabase {
   }
 
   @Override
-  public @Nullable JsonDocument get(@NonNull String key) {
+  public @Nullable Document get(@NonNull String key) {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VAL, this.name, TABLE_COLUMN_KEY),
-      resultSet -> resultSet.next() ? JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)) : null,
+      resultSet -> resultSet.next() ? DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL)) : null,
       null,
       key
     );
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull String fieldName, String fieldValue) {
+  public @NonNull List<Document> find(@NonNull String fieldName, String fieldValue) {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s LIKE ? ESCAPE '$'", TABLE_COLUMN_VAL, this.name, TABLE_COLUMN_VAL),
       resultSet -> {
-        List<JsonDocument> jsonDocuments = new ArrayList<>();
+        List<Document> jsonDocuments = new ArrayList<>();
         while (resultSet.next()) {
-          jsonDocuments.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
+          jsonDocuments.add(DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return jsonDocuments;
       },
       List.of(),
-      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue).replaceAll("([_%])", "\\$$1") + "%"
-    );
+      "%\"" + fieldName + "\":" + Objects.toString(fieldValue).replaceAll("([_%])", "\\$$1") + "%");
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull Map<String, String> filters) {
+  public @NonNull List<Document> find(@NonNull Map<String, String> filters) {
     var stringBuilder = new StringBuilder("SELECT ")
       .append(TABLE_COLUMN_VAL).append(" FROM `")
       .append(this.name).append('`');
@@ -146,9 +147,9 @@ public final class H2Database extends SQLDatabase {
     return this.databaseProvider.executeQuery(
       stringBuilder.append(";").toString(),
       resultSet -> {
-        List<JsonDocument> jsonDocuments = new ArrayList<>();
+        List<Document> jsonDocuments = new ArrayList<>();
         while (resultSet.next()) {
-          jsonDocuments.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
+          jsonDocuments.add(DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return jsonDocuments;
@@ -173,13 +174,13 @@ public final class H2Database extends SQLDatabase {
   }
 
   @Override
-  public @NonNull Collection<JsonDocument> documents() {
+  public @NonNull Collection<Document> documents() {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s`;", TABLE_COLUMN_VAL, this.name),
       resultSet -> {
-        Collection<JsonDocument> documents = new ArrayList<>();
+        Collection<Document> documents = new ArrayList<>();
         while (resultSet.next()) {
-          documents.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
+          documents.add(DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return documents;
@@ -187,14 +188,15 @@ public final class H2Database extends SQLDatabase {
   }
 
   @Override
-  public @NonNull Map<String, JsonDocument> entries() {
+  public @NonNull Map<String, Document> entries() {
     return this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s`;", this.name),
       resultSet -> {
-        Map<String, JsonDocument> map = new WeakHashMap<>();
+        Map<String, Document> map = new WeakHashMap<>();
         while (resultSet.next()) {
-          map.put(resultSet.getString(TABLE_COLUMN_KEY),
-            JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
+          map.put(
+            resultSet.getString(TABLE_COLUMN_KEY),
+            DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return map;
@@ -202,13 +204,13 @@ public final class H2Database extends SQLDatabase {
   }
 
   @Override
-  public void iterate(@NonNull BiConsumer<String, JsonDocument> consumer) {
+  public void iterate(@NonNull BiConsumer<String, Document> consumer) {
     this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s`;", this.name),
       resultSet -> {
         while (resultSet.next()) {
           var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL));
+          var document = DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL));
           consumer.accept(key, document);
         }
 
@@ -237,14 +239,14 @@ public final class H2Database extends SQLDatabase {
   }
 
   @Override
-  public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
+  public @Nullable Map<String, Document> readChunk(long beginIndex, int chunkSize) {
     return this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s` ORDER BY `%s` OFFSET ? LIMIT ?;", this.name, TABLE_COLUMN_KEY),
       resultSet -> {
-        Map<String, JsonDocument> result = new HashMap<>();
+        Map<String, Document> result = new HashMap<>();
         while (resultSet.next()) {
           var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL));
+          var document = DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL));
           result.put(key, document);
         }
 

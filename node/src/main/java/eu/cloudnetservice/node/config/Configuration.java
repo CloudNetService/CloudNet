@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.config;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
@@ -113,8 +113,8 @@ public interface Configuration {
 
   void forceInitialClusterDataSync(boolean forceInitialClusterDataSync);
 
-  @NonNull JsonDocument properties();
+  @NonNull Document properties();
 
-  void properties(@NonNull JsonDocument properties);
+  void properties(@NonNull Document properties);
 
 }

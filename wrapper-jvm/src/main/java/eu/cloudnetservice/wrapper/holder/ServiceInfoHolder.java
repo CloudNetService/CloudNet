@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.holder;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
 
@@ -67,7 +67,7 @@ public interface ServiceInfoHolder {
    * @return the newly created service snapshot for this service.
    * @throws NullPointerException if the given properties document is null.
    */
-  @NonNull ServiceInfoSnapshot createServiceInfoSnapshot(@NonNull JsonDocument properties);
+  @NonNull ServiceInfoSnapshot createServiceInfoSnapshot(@NonNull Document properties);
 
   /**
    * Creates a new service snapshot of this service, copying over the properties of the current service info snapshot,

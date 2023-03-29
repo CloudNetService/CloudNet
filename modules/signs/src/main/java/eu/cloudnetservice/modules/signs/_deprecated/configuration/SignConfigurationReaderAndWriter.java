@@ -18,7 +18,8 @@ package eu.cloudnetservice.modules.signs._deprecated.configuration;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.modules.signs._deprecated.configuration.entry.SignConfigurationEntryType;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -35,17 +36,17 @@ public final class SignConfigurationReaderAndWriter {
     Preconditions.checkNotNull(signConfiguration);
     Preconditions.checkNotNull(path);
 
-    JsonDocument.newDocument("config", signConfiguration).write(path);
+    Document.newJsonDocument().append("config", signConfiguration).writeTo(path);
   }
 
   public static SignConfiguration read(Path path) {
     Preconditions.checkNotNull(path);
 
-    var document = JsonDocument.newDocument(path);
+    var document = DocumentFactory.json().parse(path);
     return read(document, path);
   }
 
-  public static SignConfiguration read(JsonDocument document, Path path) {
+  public static SignConfiguration read(Document.Mutable document, Path path) {
     if (!document.contains("config")) {
       var signConfiguration = new SignConfiguration(
         new ArrayList<>(Collections.singletonList(SignConfigurationEntryType.BUKKIT.createEntry("Lobby"))),
@@ -64,7 +65,7 @@ public final class SignConfigurationReaderAndWriter {
       return signConfiguration;
     }
 
-    var signConfiguration = document.get("config", SignConfiguration.class);
+    var signConfiguration = document.readObject("config", SignConfiguration.class);
     if (!signConfiguration.getMessages().containsKey("command-cloudsign-cleanup-success")) {
       signConfiguration.getMessages()
         .put("command-cloudsign-cleanup-success", "&7Non-existing signs were removed successfully");
@@ -72,7 +73,7 @@ public final class SignConfigurationReaderAndWriter {
 
     // new properties in the configuration will be saved
     document.append("config", signConfiguration);
-    document.write(path);
+    document.writeTo(path);
 
     return signConfiguration;
   }
