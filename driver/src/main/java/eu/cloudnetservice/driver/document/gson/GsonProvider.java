@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.document.gson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.document.DocumentFactory;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
@@ -38,10 +37,5 @@ final class GsonProvider {
 
   private GsonProvider() {
     throw new UnsupportedOperationException();
-  }
-
-  static void a(Document tomlDocument) {
-    var jsonDocument = DocumentFactory.json().newDocument();
-    jsonDocument.receive(tomlDocument.send());
   }
 }

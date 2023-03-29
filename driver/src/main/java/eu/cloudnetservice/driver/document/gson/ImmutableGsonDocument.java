@@ -51,10 +51,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
-/**
- * The Gson implementation of IDocument class. It includes simple append and remove operations, file reading and writing
- * to create simple configuration files
- */
 class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
 
   @Serial

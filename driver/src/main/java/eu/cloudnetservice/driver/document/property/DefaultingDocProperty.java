@@ -99,7 +99,7 @@ record DefaultingDocProperty<E>(@NonNull DocProperty<E> downstream, @Nullable E 
    * {@inheritDoc}
    */
   @Override
-  public @NonNull DocProperty<E> writeTo(Document.@NonNull Mutable document, @Nullable E value) {
+  public @NonNull DocProperty<E> writeTo(@NonNull Document.Mutable document, @Nullable E value) {
     this.downstream.writeTo(document, value == null ? this.def : value);
     return this;
   }
