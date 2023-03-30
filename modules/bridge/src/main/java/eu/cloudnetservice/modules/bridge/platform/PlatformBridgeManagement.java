@@ -30,9 +30,9 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallback;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
@@ -71,7 +71,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   protected static final Predicate<ServiceInfoSnapshot> CONNECTED_SERVICE_TESTER = service -> service.connected()
     && service.lifeCycle() == ServiceLifeCycle.RUNNING
-    && service.readProperty(BridgeServiceProperties.IS_ONLINE);
+    && service.readProperty(BridgeDocProperties.IS_ONLINE);
 
   protected final RPCSender sender;
   protected final EventManager eventManager;
@@ -311,13 +311,13 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       // check if the player failed to connect to that fallback during the current iteration
       .filter(service -> !profile.hasTried(service.name()))
       // check if the service is marked as joinable
-      .filter(service -> service.connected() && service.readProperty(BridgeServiceProperties.IS_ONLINE))
+      .filter(service -> service.connected() && service.readProperty(BridgeDocProperties.IS_ONLINE))
       // check if the player is not currently connected to that service
       .filter(service -> currentServerName == null || !service.name().equals(currentServerName))
       // find the service with the lowest player count known to use
       .min((optionA, optionB) -> {
-        var playersOnOptionA = optionA.readProperty(BridgeServiceProperties.ONLINE_COUNT);
-        var playersOnOptionB = optionB.readProperty(BridgeServiceProperties.ONLINE_COUNT);
+        var playersOnOptionA = optionA.readProperty(BridgeDocProperties.ONLINE_COUNT);
+        var playersOnOptionB = optionB.readProperty(BridgeDocProperties.ONLINE_COUNT);
         // compare the player count
         return Integer.compare(playersOnOptionA, playersOnOptionB);
       });

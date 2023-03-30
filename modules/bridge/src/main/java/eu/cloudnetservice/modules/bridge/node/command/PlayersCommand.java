@@ -30,7 +30,7 @@ import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
@@ -253,7 +253,7 @@ public class PlayersCommand {
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Argument("server") ServiceInfoSnapshot server
   ) {
-    if (server.readProperty(BridgeServiceProperties.IS_ONLINE)) {
+    if (server.readProperty(BridgeDocProperties.IS_ONLINE)) {
       player.playerExecutor().connect(server.name());
 
       source.sendMessage(

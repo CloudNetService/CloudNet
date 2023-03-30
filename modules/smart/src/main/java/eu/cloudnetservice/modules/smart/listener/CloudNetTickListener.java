@@ -25,7 +25,7 @@ import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.modules.smart.util.SmartUtil;
@@ -95,7 +95,7 @@ public final class CloudNetTickListener {
           .collect(Collectors.toSet());
         // get all services which are marked as online by the bridge
         var onlineServices = runningServices.stream()
-          .filter(service -> service.readProperty(BridgeServiceProperties.IS_ONLINE))
+          .filter(service -> service.readProperty(BridgeDocProperties.IS_ONLINE))
           .collect(Collectors.toSet());
         // handle all smart entries
         this.handleAutoStop(task, config, runningServices, onlineServices);
@@ -175,10 +175,10 @@ public final class CloudNetTickListener {
     }
     // get the overall player counts
     var onlinePlayers = onlineServices.stream()
-      .mapToDouble(service -> service.readProperty(BridgeServiceProperties.ONLINE_COUNT))
+      .mapToDouble(service -> service.readProperty(BridgeDocProperties.ONLINE_COUNT))
       .sum();
     var maximumPlayers = onlineServices.stream()
-      .mapToDouble(service -> Math.max(0, service.readProperty(BridgeServiceProperties.MAX_PLAYERS)))
+      .mapToDouble(service -> Math.max(0, service.readProperty(BridgeDocProperties.MAX_PLAYERS)))
       .sum();
     // check if we can create a percentage count
     if (onlinePlayers == 0 || maximumPlayers == 0) {

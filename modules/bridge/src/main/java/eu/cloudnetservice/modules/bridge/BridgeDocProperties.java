@@ -29,11 +29,7 @@ import java.util.Collection;
  *
  * @since 4.0
  */
-// TODO: rename this?
-// the required permission is applied to a task, not to services
-// Something like BridgeProperties would fit the use better, aside from the fact that the name is not really giving
-// a direct idea how the class should be used. Subject for discussion.
-public final class BridgeServiceProperties {
+public final class BridgeDocProperties {
 
   /**
    * This property holds the required permission that a player must have to join a specific service. If the property is
@@ -116,7 +112,7 @@ public final class BridgeServiceProperties {
       TypeFactory.parameterizedClass(Collection.class, ServicePlayer.class))
     .asReadOnly();
 
-  private BridgeServiceProperties() {
+  private BridgeDocProperties() {
     throw new UnsupportedOperationException();
   }
 }

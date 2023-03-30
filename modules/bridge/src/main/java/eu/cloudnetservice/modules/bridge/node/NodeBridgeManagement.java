@@ -28,8 +28,8 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.bridge.node.listener.NodeSetupListener;
@@ -114,10 +114,10 @@ public class NodeBridgeManagement implements BridgeManagement {
   @Override
   public void postInit() {
     for (var task : this.taskProvider.serviceTasks()) {
-      if (task.propertyAbsent(BridgeServiceProperties.REQUIRED_PERMISSION)) {
+      if (task.propertyAbsent(BridgeDocProperties.REQUIRED_PERMISSION)) {
         // the required permission is missing, add it to the task
         var newTask = ServiceTask.builder(task)
-          .writeProperty(BridgeServiceProperties.REQUIRED_PERMISSION, null)
+          .writeProperty(BridgeDocProperties.REQUIRED_PERMISSION, null)
           .build();
         this.taskProvider.addServiceTask(newTask);
       }

@@ -323,9 +323,8 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
     var parsedDocument = JsonParser.parseString(in.readUTF());
     Preconditions.checkArgument(parsedDocument.isJsonObject(), "Input is not a json object");
 
-    // put all elements of the parsed object into the internal object - we don't need to clone the elements as they
-    // are freshly parsed and never shared anywhere.
-    // todo: re-consider this implementation, it's breaking the "immutable" style of this document implementation
+    // put all elements of the parsed object into the internal object - we don't need to
+    // clone the elements as they are freshly parsed and never shared anywhere.
     var object = parsedDocument.getAsJsonObject();
     for (var entry : object.entrySet()) {
       this.internalObject.add(entry.getKey(), entry.getValue());
