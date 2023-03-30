@@ -17,11 +17,9 @@
 package eu.cloudnetservice.driver.network.rpc.object;
 
 import com.google.common.collect.Maps;
-import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.driver.TestInjectionLayerConfigurator;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.document.DocumentFactoryRegistry;
-import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
@@ -147,10 +145,8 @@ public class DefaultObjectMapperTest {
   }
 
   @BeforeAll
-  static void setupBootInjectionLayer() throws ClassNotFoundException {
-    // todo: is there a better way to do this?
-    var clazz = Class.forName("eu.cloudnetservice.driver.document.defaults.DefaultDocumentFactoryRegistry");
-    InjectionLayer.boot().install(BindingBuilder.create().bind(DocumentFactoryRegistry.class).toConstructing(clazz));
+  static void setupBootInjectionLayer() {
+    TestInjectionLayerConfigurator.loadAutoconfigureBindings();
   }
 
   @Order(0)
