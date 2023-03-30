@@ -16,15 +16,13 @@
 
 package eu.cloudnetservice.node.event.group;
 
-import eu.cloudnetservice.driver.event.Cancelable;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import lombok.NonNull;
 
-public class LocalGroupConfigurationAddEvent extends Event implements Cancelable {
+public class LocalGroupConfigurationAddEvent extends Event {
 
-  private final GroupConfiguration group;
-  private volatile boolean cancelled;
+  private GroupConfiguration group;
 
   public LocalGroupConfigurationAddEvent(@NonNull GroupConfiguration group) {
     this.group = group;
@@ -34,11 +32,7 @@ public class LocalGroupConfigurationAddEvent extends Event implements Cancelable
     return this.group;
   }
 
-  public boolean cancelled() {
-    return this.cancelled;
-  }
-
-  public void cancelled(boolean cancelled) {
-    this.cancelled = cancelled;
+  public void group(@NonNull GroupConfiguration group) {
+    this.group = group;
   }
 }

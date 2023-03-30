@@ -127,19 +127,19 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public boolean addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
-    if (!this.eventManager.callEvent(new LocalGroupConfigurationAddEvent(groupConfiguration)).cancelled()) {
-      this.addGroupConfigurationSilently(groupConfiguration);
-      // publish the change to the cluster
-      ChannelMessage.builder()
-        .targetAll()
-        .message("add_group_configuration")
-        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeObject(groupConfiguration))
-        .build()
-        .send();
-      return true;
-    }
-    return false;
+    // register the group locally & notify all event listeners
+    var groupConfigurationEvent = this.eventManager.callEvent(new LocalGroupConfigurationAddEvent(groupConfiguration));
+    this.addGroupConfigurationSilently(groupConfigurationEvent.group());
+
+    // notify the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .message("add_group_configuration")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(groupConfigurationEvent.group()))
+      .build()
+      .send();
+    return true;
   }
 
   @Override
@@ -152,17 +152,18 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void removeGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
-    if (!this.eventManager.callEvent(new LocalGroupConfigurationRemoveEvent(groupConfiguration)).cancelled()) {
-      this.removeGroupConfigurationSilently(groupConfiguration);
-      // publish the change to the cluster
-      ChannelMessage.builder()
-        .targetAll()
-        .message("remove_group_configuration")
-        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeObject(groupConfiguration))
-        .build()
-        .send();
-    }
+    // remove the group locally
+    this.removeGroupConfigurationSilently(groupConfiguration);
+    this.eventManager.callEvent(new LocalGroupConfigurationRemoveEvent(groupConfiguration));
+
+    // notify the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .message("remove_group_configuration")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(groupConfiguration))
+      .build()
+      .send();
   }
 
   public void addGroupConfigurationSilently(@NonNull GroupConfiguration groupConfiguration) {

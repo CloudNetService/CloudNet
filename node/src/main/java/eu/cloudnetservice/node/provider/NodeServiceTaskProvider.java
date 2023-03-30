@@ -126,19 +126,19 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public boolean addServiceTask(@NonNull ServiceTask serviceTask) {
-    if (!this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask)).cancelled()) {
-      // notify the cluster
-      this.addPermanentServiceTaskSilently(serviceTask);
-      ChannelMessage.builder()
-        .targetAll()
-        .message("add_service_task")
-        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeObject(serviceTask))
-        .build()
-        .send();
-      return true;
-    }
-    return false;
+    // register the task locally and notify all event listeners
+    var serviceTaskAddEvent = this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask));
+    this.addPermanentServiceTaskSilently(serviceTaskAddEvent.task());
+
+    // notify the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .message("add_service_task")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(serviceTaskAddEvent.task()))
+      .build()
+      .send();
+    return true;
   }
 
   @Override
@@ -151,17 +151,18 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public void removeServiceTask(@NonNull ServiceTask serviceTask) {
-    if (!this.eventManager.callEvent(new LocalServiceTaskRemoveEvent(serviceTask)).cancelled()) {
-      this.removePermanentServiceTaskSilently(serviceTask);
-      // notify the whole network
-      ChannelMessage.builder()
-        .targetAll()
-        .message("remove_service_task")
-        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeObject(serviceTask))
-        .build()
-        .send();
-    }
+    // remove the task locally and notify all event listeners
+    this.removePermanentServiceTaskSilently(serviceTask);
+    this.eventManager.callEvent(new LocalServiceTaskRemoveEvent(serviceTask));
+
+    // notify the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .message("remove_service_task")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(serviceTask))
+      .build()
+      .send();
   }
 
   public void addPermanentServiceTaskSilently(@NonNull ServiceTask serviceTask) {
