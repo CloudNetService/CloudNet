@@ -262,7 +262,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.19.3/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.19.4/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -276,8 +276,8 @@
           }
         },
         {
-          "name": "1.19.3",
-          "url": "https://api.purpurmc.org/v2/purpur/1.19.3/latest/download",
+          "name": "1.19.4",
+          "url": "https://api.purpurmc.org/v2/purpur/1.19.4/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
