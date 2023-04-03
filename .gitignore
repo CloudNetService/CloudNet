@@ -25,11 +25,10 @@ build/
 .fleet/
 
 # eclipse
-*.classpath
-*.project
-*.settings
-/bin/
-/subprojects/*/bin/
+**.classpath
+**.project
+**.settings
+**/bin/
 .metadata/
 atlassian-ide-plugin.xml
 
