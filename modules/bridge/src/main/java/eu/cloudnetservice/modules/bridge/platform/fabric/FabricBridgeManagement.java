@@ -95,7 +95,7 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
       player.getUUID(),
       player.getGameProfile().getName(),
       null,
-      BridgeHostAndPortUtil.fromSocketAddress(player.connection.getConnection().getRemoteAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(player.connection.getRemoteAddress()),
       this.ownNetworkServiceInfo);
   }
 
