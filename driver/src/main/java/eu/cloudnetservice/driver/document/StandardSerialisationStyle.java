@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.driver.document;
 
-public interface SerialisationStyle {
+public enum StandardSerialisationStyle implements SerialisationStyle {
 
+  COMPACT,
+  PRETTY
 }

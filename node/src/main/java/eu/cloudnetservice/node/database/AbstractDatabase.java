@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.database;
 
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.document.SerialisationStyle;
+import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 
@@ -61,6 +61,6 @@ public abstract class AbstractDatabase implements LocalDatabase, Database {
     jsonDocument.receive(document.send());
 
     // serialize the json document
-    return jsonDocument.serializeToString(SerialisationStyle.COMPACT);
+    return jsonDocument.serializeToString(StandardSerialisationStyle.COMPACT);
   }
 }

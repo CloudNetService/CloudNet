@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.document.gson;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonNull;
@@ -27,6 +28,7 @@ import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentSerialisationException;
 import eu.cloudnetservice.driver.document.SerialisationStyle;
+import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
 import eu.cloudnetservice.driver.document.gson.send.GsonDocumentSend;
 import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.document.send.DocumentSend;
@@ -51,6 +53,11 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * Immutable version of a gson document implementing the full document functionality.
+ *
+ * @since 4.0
+ */
 class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
 
   @Serial
@@ -58,51 +65,85 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
 
   protected final JsonObject internalObject;
 
+  /**
+   * Constructs a new, empty gson document instance.
+   */
   public ImmutableGsonDocument() {
     this(new JsonObject());
   }
 
+  /**
+   * Constructs a new gson document instance using the given initial internal object. Note that the given object is not
+   * copied, it is up to the caller to ensure no races or data leaks are created when using this constructor.
+   *
+   * @param internalObject the initial internal json object to use.
+   * @throws NullPointerException if the given internal object is null.
+   */
   ImmutableGsonDocument(@NonNull JsonObject internalObject) {
     this.internalObject = internalObject;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean empty() {
     return this.internalObject.isEmpty();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int elementCount() {
     return this.internalObject.size();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean contains(@NonNull String key) {
     return this.internalObject.has(key);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DocumentSend send() {
     return GsonDocumentSend.fromJsonObject(this.internalObject);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document immutableCopy() {
     var objectCopy = this.internalObject.deepCopy();
     return new ImmutableGsonDocument(objectCopy);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable mutableCopy() {
     var objectCopy = this.internalObject.deepCopy();
     return new MutableGsonDocument(objectCopy);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Unmodifiable @NonNull Set<String> keys() {
     return Set.copyOf(this.internalObject.keySet());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Unmodifiable @NonNull Collection<? extends Element> elements() {
     // easiest way to get this is by converting this object to a Send and returning the root elements
@@ -110,38 +151,59 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
     return documentSend.rootElement().elements();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T toInstanceOf(@NonNull Type type) {
     return GsonProvider.NORMAL_GSON_INSTANCE.fromJson(this.internalObject, type);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T toInstanceOf(@NonNull Class<T> type) {
     return GsonProvider.NORMAL_GSON_INSTANCE.fromJson(this.internalObject, type);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T toInstanceOf(@NonNull TypeToken<T> type) {
     return this.toInstanceOf(type.getType());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T readObject(@NonNull String key, @NonNull Type type, @Nullable T def) {
     var objectElement = this.internalObject.get(key);
     return objectElement == null ? def : GsonProvider.NORMAL_GSON_INSTANCE.fromJson(objectElement, type);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T readObject(@NonNull String key, @NonNull Class<T> type, @Nullable T def) {
     var objectElement = this.internalObject.get(key);
     return objectElement == null ? def : GsonProvider.NORMAL_GSON_INSTANCE.fromJson(objectElement, type);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T readObject(@NonNull String key, @NonNull TypeToken<T> type, @Nullable T def) {
     return this.readObject(key, type.getType(), def);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @UnknownNullability Document readDocument(@NonNull String key, @Nullable Document def) {
     var documentElement = this.getElementSafe(key);
@@ -153,6 +215,9 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Document.@UnknownNullability Mutable readMutableDocument(@NonNull String key, @Nullable Document.Mutable def) {
     var documentElement = this.getElementSafe(key);
@@ -164,48 +229,72 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte getByte(@NonNull String key, byte def) {
     var primitiveElement = this.getPrimitiveElement(key);
     return primitiveElement != null && primitiveElement.isNumber() ? primitiveElement.getAsByte() : def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public short getShort(@NonNull String key, short def) {
     var primitiveElement = this.getPrimitiveElement(key);
     return primitiveElement != null && primitiveElement.isNumber() ? primitiveElement.getAsShort() : def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getInt(@NonNull String key, int def) {
     var primitiveElement = this.getPrimitiveElement(key);
     return primitiveElement != null && primitiveElement.isNumber() ? primitiveElement.getAsInt() : def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long getLong(@NonNull String key, long def) {
     var primitiveElement = this.getPrimitiveElement(key);
     return primitiveElement != null && primitiveElement.isNumber() ? primitiveElement.getAsLong() : def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public float getFloat(@NonNull String key, float def) {
     var primitiveElement = this.getPrimitiveElement(key);
     return primitiveElement != null && primitiveElement.isNumber() ? primitiveElement.getAsFloat() : def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getDouble(@NonNull String key, double def) {
     var primitiveElement = this.getPrimitiveElement(key);
     return primitiveElement != null && primitiveElement.isNumber() ? primitiveElement.getAsDouble() : def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean getBoolean(@NonNull String key, boolean def) {
     var primitiveElement = this.getPrimitiveElement(key);
     return primitiveElement != null && primitiveElement.isBoolean() ? primitiveElement.getAsBoolean() : def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @UnknownNullability String getString(@NonNull String key, @Nullable String def) {
     var primitiveElement = this.getPrimitiveElement(key);
@@ -240,6 +329,9 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
     return Objects.requireNonNullElse(element, JsonNull.INSTANCE);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeTo(@NonNull Path path, @NonNull SerialisationStyle style) {
     FileUtil.createDirectory(path.getParent());
@@ -250,6 +342,9 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeTo(@NonNull OutputStream stream, @NonNull SerialisationStyle style) {
     try (var writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8)) {
@@ -259,65 +354,124 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeTo(@NonNull Appendable appendable, @NonNull SerialisationStyle style) {
     try {
-      switch (style) {
-        case COMPACT -> GsonProvider.NORMAL_GSON_INSTANCE.toJson(this.internalObject, appendable);
-        case PRETTY -> GsonProvider.PRETTY_PRINTING_GSON_INSTANCE.toJson(this.internalObject, appendable);
-      }
+      var serialisationGsonInstance = this.resolveSerialisationGsonInstance(style);
+      serialisationGsonInstance.toJson(this.internalObject, appendable);
     } catch (JsonIOException exception) {
       throw new DocumentSerialisationException(exception);
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeTo(@NonNull DataBuf.Mutable dataBuf, @NonNull SerialisationStyle style) {
     var encodedJson = this.serializeToString(style);
     dataBuf.writeString("json").writeString(encodedJson);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String serializeToString(@NonNull SerialisationStyle style) {
-    return switch (style) {
-      case COMPACT -> GsonProvider.NORMAL_GSON_INSTANCE.toJson(this.internalObject);
-      case PRETTY -> GsonProvider.PRETTY_PRINTING_GSON_INSTANCE.toJson(this.internalObject);
-    };
+    try {
+      var serialisationGsonInstance = this.resolveSerialisationGsonInstance(style);
+      return serialisationGsonInstance.toJson(this.internalObject);
+    } catch (JsonIOException exception) {
+      throw new DocumentSerialisationException(exception);
+    }
   }
 
+  /**
+   * Resolves the gson instance to use to serialize this document, throwing an exception if the given serialisation
+   * style is not supported.
+   *
+   * @param style the requested serialisation style.
+   * @return the gson instance to use to serialize this document with the given style.
+   * @throws NullPointerException          if the given style is null.
+   * @throws UnsupportedOperationException if the given style is not supported.
+   */
+  private @NonNull Gson resolveSerialisationGsonInstance(@NonNull SerialisationStyle style) {
+    if (style == StandardSerialisationStyle.PRETTY) {
+      return GsonProvider.PRETTY_PRINTING_GSON_INSTANCE;
+    }
+
+    if (style == StandardSerialisationStyle.COMPACT) {
+      return GsonProvider.NORMAL_GSON_INSTANCE;
+    }
+
+    throw new UnsupportedOperationException("Unsupported serialisation style: " + style);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document propertyHolder() {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) {
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
       return true;
     }
 
-    if (o instanceof ImmutableGsonDocument document) {
+    if (other instanceof ImmutableGsonDocument document) {
       return Objects.equals(this.internalObject, document.internalObject);
     }
 
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode() {
     return Objects.hash(this.internalObject);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public String toString() {
-    return this.serializeToString(SerialisationStyle.COMPACT);
+  public @NonNull String toString() {
+    return this.serializeToString(StandardSerialisationStyle.COMPACT);
   }
 
+  /**
+   * Writes this document in a compact way to the given output stream. This method is part of the java serialisation
+   * api.
+   *
+   * @param out the target stream to write the content of this document to.
+   * @throws IOException                    if an i/o error occurs while writing the content.
+   * @throws DocumentSerialisationException if an exception occurs serialising the document.
+   */
   @Serial
   private void writeObject(@NonNull ObjectOutputStream out) throws IOException {
-    out.writeUTF(this.serializeToString(SerialisationStyle.COMPACT));
+    out.writeUTF(this.serializeToString(StandardSerialisationStyle.COMPACT));
   }
 
+  /**
+   * Reads a json object from the given stream and copies all it's members into this document. This method does not take
+   * into account whether a key of the deserialized object is already present in this document. This method is part of
+   * the java serialisation api.
+   *
+   * @param in the stream to read the json content from.
+   * @throws IOException              if an i/o error occurs while reading the document content.
+   * @throws IllegalArgumentException if the decoded json element from the stream is not a json object.
+   */
   @Serial
   private void readObject(@NonNull ObjectInputStream in) throws IOException {
     var parsedDocument = JsonParser.parseString(in.readUTF());

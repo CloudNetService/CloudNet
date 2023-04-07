@@ -243,7 +243,12 @@ public final class EmptyDocument implements Document.Mutable, DefaultedDocProper
   }
 
   @Override
-  public boolean equals(@Nullable Object obj) {
-    return obj instanceof EmptyDocument;
+  public boolean equals(@Nullable Object other) {
+    return other instanceof EmptyDocument;
+  }
+
+  @Override
+  public @NonNull String toString() {
+    return "[empty]";
   }
 }

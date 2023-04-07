@@ -21,7 +21,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.document.SerialisationStyle;
+import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
 import eu.cloudnetservice.driver.document.gson.send.GsonRootObjectVisitor;
 import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.document.send.DocumentSend;
@@ -147,7 +147,7 @@ final class MutableGsonDocument
 
   @Serial
   private void writeObject(@NonNull ObjectOutputStream out) throws IOException {
-    out.writeUTF(this.serializeToString(SerialisationStyle.COMPACT));
+    out.writeUTF(this.serializeToString(StandardSerialisationStyle.COMPACT));
   }
 
   @Serial
