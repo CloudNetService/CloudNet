@@ -30,6 +30,9 @@ final class GsonProvider {
     .registerTypeAdapter(Pattern.class, new PatternTypeAdapter())
     .registerTypeHierarchyAdapter(Path.class, new PathTypeAdapter())
     .registerTypeHierarchyAdapter(Document.class, new DocumentTypeAdapter())
+    .setFieldNamingStrategy(GsonDocumentFieldNamingStrategy.INSTANCE)
+    .addSerializationExclusionStrategy(GsonDocumentExclusionStrategy.SERIALIZE)
+    .addDeserializationExclusionStrategy(GsonDocumentExclusionStrategy.DESERIALIZE)
     .create();
   static final Gson PRETTY_PRINTING_GSON_INSTANCE = NORMAL_GSON_INSTANCE.newBuilder()
     .setPrettyPrinting()

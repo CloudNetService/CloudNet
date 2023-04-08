@@ -220,4 +220,55 @@ public class DocumentTest {
     Assertions.assertNull(document.getString("stringD"));
     Assertions.assertNull(immutableCopy.getString("stringD"));
   }
+
+  @ParameterizedTest
+  @MethodSource("documentTypeProvider")
+  void testClassMemberAnnotations(Document.Mutable document) {
+    var testClassInstance = new DocumentValueTestClass(
+      new DocumentValueTestClass.SomeInnerClass("World", "I", "don't", "care"),
+      new DocumentValueTestClass.SomeExcludedInnerClass());
+    Assertions.assertDoesNotThrow(() -> document.appendTree(testClassInstance));
+
+    Assertions.assertFalse(document.contains("excludedInnerClass"));
+
+    var innerClassDocument = document.readDocument("innerClass");
+    Assertions.assertFalse(innerClassDocument.empty());
+
+    // validate field renaming
+    Assertions.assertFalse(innerClassDocument.contains("helloWorld"));
+    Assertions.assertTrue(innerClassDocument.contains("worldHello"));
+    Assertions.assertEquals("World", innerClassDocument.getString("worldHello"));
+
+    // validate field exclusions
+    Assertions.assertFalse(innerClassDocument.contains("fullyIgnoredField"));
+    Assertions.assertFalse(innerClassDocument.contains("serializedIgnoredField"));
+    Assertions.assertTrue(innerClassDocument.contains("deserializedIgnoredField"));
+    Assertions.assertEquals("care", innerClassDocument.getString("deserializedIgnoredField"));
+
+    // deserialize the inner class from the document
+    var innerClassInstance = innerClassDocument.toInstanceOf(DocumentValueTestClass.SomeInnerClass.class);
+    Assertions.assertEquals("World", innerClassInstance.helloWorld());
+    Assertions.assertNull(innerClassInstance.fullyIgnoredField());
+    Assertions.assertNull(innerClassInstance.serializedIgnoredField());
+    Assertions.assertNull(innerClassInstance.deserializedIgnoredField());
+
+    // check manual deserialization
+    var serializedDocumentValueClass = Document.newJsonDocument()
+      .append("innerClass", Document.newJsonDocument()
+        .append("worldHello", "Test1")
+        .append("fullyIgnoredField", "YepTree")
+        .append("serializedIgnoredField", "Google")
+        .append("deserializedIgnoredField", "Bing"))
+      .append("excludedInnerClass", Document.newJsonDocument());
+
+    var valueTestClassInstance = serializedDocumentValueClass.toInstanceOf(DocumentValueTestClass.class);
+    Assertions.assertNotNull(valueTestClassInstance);
+
+    Assertions.assertEquals("Test1", valueTestClassInstance.innerClass().helloWorld());
+    Assertions.assertNull(valueTestClassInstance.innerClass().fullyIgnoredField());
+    Assertions.assertEquals("Google", valueTestClassInstance.innerClass().serializedIgnoredField());
+    Assertions.assertNull(valueTestClassInstance.innerClass().deserializedIgnoredField());
+
+    Assertions.assertNotNull(valueTestClassInstance.excludedInnerClass());
+  }
 }
