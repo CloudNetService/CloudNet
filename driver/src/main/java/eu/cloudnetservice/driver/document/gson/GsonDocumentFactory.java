@@ -36,18 +36,36 @@ import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A document factory for json documents based on gson. The format name of this factory is {@code json}.
+ *
+ * @since 4.0
+ */
 public final class GsonDocumentFactory implements DocumentFactory {
 
+  /**
+   * The singleton instance of this document factory. External api users should not depend on this field and use
+   * {@link DocumentFactory#json()} instead.
+   */
   public static final DocumentFactory INSTANCE = new GsonDocumentFactory();
 
+  /**
+   * Sealed constructor as there should only be one singleton gson document factory.
+   */
   private GsonDocumentFactory() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String formatName() {
     return "json";
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(byte[] data) {
     try (var stream = new ByteArrayInputStream(data)) {
@@ -57,6 +75,9 @@ public final class GsonDocumentFactory implements DocumentFactory {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull Path path) {
     try (var stream = Files.newInputStream(path)) {
@@ -66,6 +87,9 @@ public final class GsonDocumentFactory implements DocumentFactory {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull String data) {
     try (var reader = new StringReader(data)) {
@@ -73,6 +97,9 @@ public final class GsonDocumentFactory implements DocumentFactory {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull Reader reader) {
     try {
@@ -83,6 +110,9 @@ public final class GsonDocumentFactory implements DocumentFactory {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull InputStream stream) {
     try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
@@ -92,22 +122,34 @@ public final class GsonDocumentFactory implements DocumentFactory {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull DataBuf dataBuf) {
     return this.parse(dataBuf.readString());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable newDocument() {
     return new MutableGsonDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable newDocument(@Nullable Object wrapped) {
     var element = GsonProvider.NORMAL_GSON_INSTANCE.toJsonTree(wrapped);
     return element.isJsonObject() ? new MutableGsonDocument(element.getAsJsonObject()) : this.newDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable newDocument(@NonNull String key, @Nullable Object value) {
     // serialize the value
@@ -119,6 +161,9 @@ public final class GsonDocumentFactory implements DocumentFactory {
     return new MutableGsonDocument(object);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable receive(@NonNull DocumentSend send) {
     return this.newDocument().receive(send);

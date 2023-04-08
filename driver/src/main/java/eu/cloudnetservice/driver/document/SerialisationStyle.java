@@ -16,6 +16,12 @@
 
 package eu.cloudnetservice.driver.document;
 
+/**
+ * An object that defines how to serialize a document. The standard options how a document can be serialized are defined
+ * by {@link StandardSerialisationStyle}. All document implementations should at least support the standard styles.
+ *
+ * @since 4.0
+ */
 public interface SerialisationStyle {
 
 }

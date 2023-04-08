@@ -31,48 +31,72 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
+/**
+ * The default implementation of a document factory.
+ *
+ * @since 4.0
+ */
 @Singleton
 @Provides(DocumentFactoryRegistry.class)
 final class DefaultDocumentFactoryRegistry implements DocumentFactoryRegistry {
 
-  private final Map<String, DocumentFactory> registeredFactories = new ConcurrentHashMap<>();
+  private final Map<String, DocumentFactory> registeredFactories = new ConcurrentHashMap<>(4, 0.9f, 1);
 
-  public DefaultDocumentFactoryRegistry() {
+  /**
+   * Sealed constructor as this constructor should only get accessed from the injector. The constructor auto registers
+   * the json and empty document factory.
+   */
+  private DefaultDocumentFactoryRegistry() {
     this.registeredFactories.put("json", GsonDocumentFactory.INSTANCE);
     this.registeredFactories.put("empty", EmptyDocumentFactory.INSTANCE);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @UnmodifiableView @NonNull Collection<DocumentFactory> documentFactories() {
     return Collections.unmodifiableCollection(this.registeredFactories.values());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DocumentFactory documentFactory(@NonNull String formatName) {
     var factory = this.registeredFactories.get(formatName);
     return Objects.requireNonNull(factory, "no factory with the format name " + formatName + " registered");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable DocumentFactory findDocumentFactory(@NonNull String formatName) {
     return this.registeredFactories.get(formatName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable DocumentFactory unregisterDocumentFactory(@NonNull String formatName) {
     return this.registeredFactories.remove(formatName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void registerDocumentFactory(@NonNull String formatName, @NonNull DocumentFactory factory) {
-    this.registeredFactories.putIfAbsent(formatName, factory);
+  public void registerDocumentFactory(@NonNull DocumentFactory factory) {
+    this.registeredFactories.putIfAbsent(factory.formatName(), factory);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @Nullable DocumentFactory replaceDocumentFactory(
-    @NonNull String formatName,
-    @NonNull DocumentFactory factory
-  ) {
-    return this.registeredFactories.put(formatName, factory);
+  public @Nullable DocumentFactory replaceDocumentFactory(@NonNull DocumentFactory factory) {
+    return this.registeredFactories.put(factory.formatName(), factory);
   }
 }

@@ -26,63 +26,108 @@ import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A document factory that only returns the singleton empty document instance. The format name of this factory is
+ * {@code empty}.
+ *
+ * @since 4.0
+ */
 public final class EmptyDocumentFactory implements DocumentFactory {
 
+  /**
+   * The singleton document empty document factory instance.
+   */
   public static final DocumentFactory INSTANCE = new EmptyDocumentFactory();
 
+  /**
+   * Sealed constructor as there should only be one singleton empty document factory.
+   */
   private EmptyDocumentFactory() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String formatName() {
     return "empty";
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(byte[] data) {
     return Document.emptyDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull Path path) {
     return Document.emptyDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull String data) {
     return Document.emptyDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull Reader reader) {
     return Document.emptyDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull InputStream stream) {
     return Document.emptyDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable parse(@NonNull DataBuf dataBuf) {
     return Document.emptyDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable newDocument() {
     return Document.emptyDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable newDocument(@Nullable Object wrapped) {
     return Document.emptyDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable newDocument(@NonNull String key, @Nullable Object value) {
     return Document.emptyDocument();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable receive(@NonNull DocumentSend send) {
     return Document.emptyDocument();

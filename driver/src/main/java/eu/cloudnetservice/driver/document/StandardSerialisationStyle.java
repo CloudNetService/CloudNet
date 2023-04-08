@@ -16,8 +16,22 @@
 
 package eu.cloudnetservice.driver.document;
 
+/**
+ * Defines the standard serialisation styles. All document implementations should at least support these serialisation
+ * styles or silently convert them to a supported style. They should never throw an exception when a standard style is
+ * passed to a serialisation method.
+ *
+ * @since 4.0
+ */
 public enum StandardSerialisationStyle implements SerialisationStyle {
 
+  /**
+   * Uses the most efficient way to pack the document data. This style is preferred when the document is not subject to
+   * be read by a human (for example when transferred via the network).
+   */
   COMPACT,
+  /**
+   * Uses a human-readable style to pack the data.
+   */
   PRETTY
 }
