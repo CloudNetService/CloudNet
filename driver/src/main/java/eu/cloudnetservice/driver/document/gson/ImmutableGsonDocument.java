@@ -87,6 +87,14 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
    * {@inheritDoc}
    */
   @Override
+  public @NonNull String factoryName() {
+    return "json";
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public boolean empty() {
     return this.internalObject.isEmpty();
   }
@@ -373,7 +381,7 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
   @Override
   public void writeTo(@NonNull DataBuf.Mutable dataBuf, @NonNull SerialisationStyle style) {
     var encodedJson = this.serializeToString(style);
-    dataBuf.writeString("json").writeString(encodedJson);
+    dataBuf.writeString(encodedJson);
   }
 
   /**

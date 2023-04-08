@@ -102,7 +102,6 @@ public class DocumentSerialisationTest {
   void testDataBufSerialisation(Document input, SerialisationStyle style) {
     try (var buf = DataBuf.empty()) {
       Assertions.assertDoesNotThrow(() -> input.writeTo(buf, style));
-      Assertions.assertEquals("json", buf.readString());
 
       var deserialized = Assertions.assertDoesNotThrow(() -> DocumentFactory.json().parse(buf));
       Assertions.assertEquals(input, deserialized);

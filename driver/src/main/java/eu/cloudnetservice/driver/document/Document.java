@@ -122,6 +122,13 @@ public interface Document extends DocPropertyHolder, Serializable {
   }
 
   /**
+   * Get the name of the factory that is able to construct this document type.
+   *
+   * @return the factory name of this document type.
+   */
+  @NonNull String factoryName();
+
+  /**
    * Get if the document is empty (therefore has no key-value mappings present).
    *
    * @return true if the document is empty, false otherwise.
@@ -585,7 +592,7 @@ public interface Document extends DocPropertyHolder, Serializable {
   }
 
   /**
-   * Writes this document compact as a string to the given data buffer, prepending the name of the document factory.
+   * Writes this document compact as a string to the given data buffer.
    *
    * @param dataBuf the data buffer to write the document content to.
    * @throws NullPointerException           if the given data buf is null.
@@ -643,8 +650,8 @@ public interface Document extends DocPropertyHolder, Serializable {
   void writeTo(@NonNull Appendable appendable, @NonNull SerialisationStyle style);
 
   /**
-   * Writes this document with the given style as a string to the given data buffer, prepending the name of the document
-   * factory. Not every custom serialisation style is supported, but at least the standard styles must be supported.
+   * Writes this document with the given style as a string to the given data buffer. Not every custom serialisation
+   * style is supported, but at least the standard styles must be supported.
    *
    * @param dataBuf the data buffer to write the document content to.
    * @param style   the serialization style to use when writing the document.

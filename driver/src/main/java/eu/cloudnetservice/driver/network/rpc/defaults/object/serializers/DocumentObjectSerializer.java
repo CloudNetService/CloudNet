@@ -60,6 +60,7 @@ public class DocumentObjectSerializer implements ObjectSerializer<Document> {
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
+    dataBuf.writeString(object.factoryName());
     object.writeTo(dataBuf);
   }
 }

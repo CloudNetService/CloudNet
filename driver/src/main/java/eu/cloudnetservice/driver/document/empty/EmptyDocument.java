@@ -59,6 +59,14 @@ public final class EmptyDocument implements Document.Mutable, DefaultedDocProper
    * {@inheritDoc}
    */
   @Override
+  public @NonNull String factoryName() {
+    return "empty";
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public boolean empty() {
     return true;
   }
@@ -273,7 +281,6 @@ public final class EmptyDocument implements Document.Mutable, DefaultedDocProper
    */
   @Override
   public void writeTo(@NonNull DataBuf.Mutable dataBuf, @NonNull SerialisationStyle style) {
-    dataBuf.writeString("empty");
   }
 
   /**

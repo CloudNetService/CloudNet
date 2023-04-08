@@ -33,6 +33,20 @@ public class DocumentTest {
     return Stream.of(Arguments.of(Document.newJsonDocument()));
   }
 
+  static Stream<Arguments> documentTypeFactoryNameProvider() {
+    return Stream.of(
+      Arguments.of("json", Document.newJsonDocument()),
+      Arguments.of("empty", Document.emptyDocument()));
+  }
+
+  @ParameterizedTest
+  @MethodSource("documentTypeFactoryNameProvider")
+  void testDocumentFactoryTypeIsConsistent(String factoryName, Document document) {
+    Assertions.assertEquals(factoryName, document.factoryName());
+    Assertions.assertEquals(factoryName, document.immutableCopy().factoryName());
+    Assertions.assertEquals(factoryName, document.mutableCopy().factoryName());
+  }
+
   @ParameterizedTest
   @MethodSource("documentTypeProvider")
   void testPrimitiveElementWrite(Document.Mutable document) {
