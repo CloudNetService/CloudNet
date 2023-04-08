@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.driver.document.gson;
 
+import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.File;
@@ -26,16 +26,39 @@ import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A type adapter that can serialize and deserialize paths of any type into/from json.
+ *
+ * @since 4.0
+ */
 final class PathTypeAdapter extends TypeAdapter<Path> {
 
-  @Override
-  public void write(@NonNull JsonWriter out, @Nullable Path value) throws IOException {
-    TypeAdapters.STRING.write(out, value == null ? null : value.toString().replace(File.separatorChar, '/'));
+  private final TypeAdapter<String> stringTypeAdapter;
+
+  /**
+   * Constructs a new instance of the path type adapter.
+   *
+   * @param gsonInstance the gson instance this type adapter instance got bound to.
+   * @throws NullPointerException if the given gson instance is null.
+   */
+  public PathTypeAdapter(@NonNull Gson gsonInstance) {
+    this.stringTypeAdapter = gsonInstance.getAdapter(String.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void write(@NonNull JsonWriter out, @Nullable Path value) throws IOException {
+    this.stringTypeAdapter.write(out, value == null ? null : value.toString().replace(File.separatorChar, '/'));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Path read(@NonNull JsonReader in) throws IOException {
-    var path = TypeAdapters.STRING.read(in);
+    var path = this.stringTypeAdapter.read(in);
     return path == null ? null : Path.of(path);
   }
 }

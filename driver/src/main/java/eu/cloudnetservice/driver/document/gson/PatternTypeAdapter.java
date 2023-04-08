@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.driver.document.gson;
 
+import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -25,16 +25,39 @@ import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A type adapter that can serialize and deserialize patterns into/from json.
+ *
+ * @since 4.0
+ */
 final class PatternTypeAdapter extends TypeAdapter<Pattern> {
 
-  @Override
-  public void write(@NonNull JsonWriter out, @Nullable Pattern value) throws IOException {
-    TypeAdapters.STRING.write(out, value == null ? null : value.pattern());
+  private final TypeAdapter<String> stringTypeAdapter;
+
+  /**
+   * Constructs a new instance of the pattern type adapter.
+   *
+   * @param gsonInstance the gson instance this type adapter instance got bound to.
+   * @throws NullPointerException if the given gson instance is null.
+   */
+  public PatternTypeAdapter(@NonNull Gson gsonInstance) {
+    this.stringTypeAdapter = gsonInstance.getAdapter(String.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void write(@NonNull JsonWriter out, @Nullable Pattern value) throws IOException {
+    this.stringTypeAdapter.write(out, value == null ? null : value.pattern());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Pattern read(@NonNull JsonReader in) throws IOException {
-    var pattern = TypeAdapters.STRING.read(in);
+    var pattern = this.stringTypeAdapter.read(in);
     return pattern == null ? null : Pattern.compile(pattern);
   }
 }

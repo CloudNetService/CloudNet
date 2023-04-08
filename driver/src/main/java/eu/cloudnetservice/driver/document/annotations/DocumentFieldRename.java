@@ -23,10 +23,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import lombok.NonNull;
 
+/**
+ * Annotation to rename a field during tree serialisation or deserialization. While this annotation should be supported
+ * by all document type implementations, there is no guarantee that this is the case.
+ *
+ * @since 4.0
+ */
 @Documented
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.RECORD_COMPONENT})
 public @interface DocumentFieldRename {
 
+  /**
+   * Get the alternative field name that should be used when serialising or deserializing the annotated field.
+   *
+   * @return the alternative field name that should be used when serialising or deserializing the annotated field.
+   */
   @NonNull String value();
 }
