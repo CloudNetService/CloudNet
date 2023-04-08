@@ -21,11 +21,22 @@ import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * An element that contains multiple sub elements (of any type). Note that array entry elements always have no key given
+ * (see {@link Element#NO_KEY}).
+ *
+ * @param key     the key of this element or {@link Element#NO_KEY} if an array entry.
+ * @param entries the entries of the array element.
+ * @since 4.0
+ */
 public record ArrayElement(
   @NonNull String key,
   @NonNull @Unmodifiable Collection<? extends Element> entries
 ) implements Element {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void accept(@NonNull ElementVisitor visitor) {
     var arraySectionVisitor = visitor.visitArray(this);

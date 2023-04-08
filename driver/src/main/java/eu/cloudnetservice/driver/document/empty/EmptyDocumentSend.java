@@ -24,19 +24,41 @@ import eu.cloudnetservice.driver.document.send.element.ObjectElement;
 import java.util.Set;
 import lombok.NonNull;
 
+/**
+ * A document send implementation that contains nothing.
+ *
+ * @since 4.0
+ */
 final class EmptyDocumentSend implements DocumentSend {
 
+  /**
+   * The singleton instance of this document send implementation.
+   */
   public static final DocumentSend INSTANCE = new EmptyDocumentSend();
+
+  /**
+   * The singleton instance of the root element returned by this document send. This element has no child elements set.
+   */
   private static final ObjectElement ROOT_ELEMENT = new ObjectElement(Element.NO_KEY, Set.of());
 
+  /**
+   * Sealed constructor to prevent accidental instantiations of this class. Use the singleton instance from
+   * {@link #INSTANCE} instead.
+   */
   private EmptyDocumentSend() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ObjectElement rootElement() {
     return ROOT_ELEMENT;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable into(@NonNull DocumentFactory factory) {
     return factory.receive(this);

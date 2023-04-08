@@ -26,23 +26,41 @@ import eu.cloudnetservice.driver.document.send.element.ObjectElement;
 import eu.cloudnetservice.driver.document.send.element.PrimitiveElement;
 import lombok.NonNull;
 
+/**
+ * An element visitor specifically made to transform all given values into a gson json array.
+ *
+ * @param targetArray the target gson json array to put all visited elements into.
+ * @since 4.0
+ */
 record GsonArrayVisitor(@NonNull JsonArray targetArray) implements ElementVisitor {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visitEnd() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visitNull(@NonNull NullElement entry) {
     this.targetArray.add(JsonNull.INSTANCE);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visitPrimitive(@NonNull PrimitiveElement entry) {
     var primitive = GsonPrimitiveConverter.wrapAsPrimitive(entry.innerValue());
     this.targetArray.add(primitive);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ElementVisitor visitArray(@NonNull ArrayElement entry) {
     var array = new JsonArray();
@@ -50,6 +68,9 @@ record GsonArrayVisitor(@NonNull JsonArray targetArray) implements ElementVisito
     return new GsonArrayVisitor(array);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ElementVisitor visitObject(@NonNull ObjectElement entry) {
     var object = new JsonObject();

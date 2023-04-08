@@ -35,13 +35,34 @@ import java.util.Map;
 import java.util.Set;
 import lombok.NonNull;
 
+/**
+ * An implementation of a document send specifically made for gson.
+ *
+ * @param rootElement the root object element of the document send.
+ * @since 4.0
+ */
 public record GsonDocumentSend(@NonNull ObjectElement rootElement) implements DocumentSend {
 
+  /**
+   * Constructs a document send instance from the given gson json object.
+   *
+   * @param object the json object to construct the document send from.
+   * @return the document send constructed from the given json object.
+   * @throws NullPointerException if the given json object is null.
+   */
   public static @NonNull DocumentSend fromJsonObject(@NonNull JsonObject object) {
     var serializedObject = serializeObject(Element.NO_KEY, object);
     return new GsonDocumentSend(serializedObject);
   }
 
+  /**
+   * Serialises the given gson json object into an object element.
+   *
+   * @param key    the key of the given json object.
+   * @param object the object to serialize.
+   * @return an object element serialized from the given gson json object.
+   * @throws NullPointerException if the given key or json object is null.
+   */
   private static @NonNull ObjectElement serializeObject(@NonNull String key, @NonNull JsonObject object) {
     // construct the target element collection which preserves the initial insertion order
     // copy over the elements from the object to ensure that there are no data races
@@ -72,6 +93,14 @@ public record GsonDocumentSend(@NonNull ObjectElement rootElement) implements Do
     return new ObjectElement(key, unmodifiableElements);
   }
 
+  /**
+   * Serialises the given gson json array into an array element.
+   *
+   * @param key   the key of the given json array.
+   * @param array the array to serialize.
+   * @return an array element serialized from the given gson json array.
+   * @throws NullPointerException if the given key or json array is null.
+   */
   private static @NonNull ArrayElement serializeArray(@NonNull String key, @NonNull JsonArray array) {
     // construct the target element collection which preserves the initial insertion order
     // copy over the elements from the array to ensure that there are no data races
@@ -101,6 +130,9 @@ public record GsonDocumentSend(@NonNull ObjectElement rootElement) implements Do
     return new ArrayElement(key, unmodifiableElements);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable into(@NonNull DocumentFactory factory) {
     return factory.receive(this);

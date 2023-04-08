@@ -21,11 +21,21 @@ import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * Represents an object element. An object element contains key-value mappings (can be imagined like a tree).
+ *
+ * @param key      the key of this element or {@link Element#NO_KEY} if an array entry or the root object.
+ * @param elements the elements of this object element, each given element must have a key present.
+ * @since 4.0
+ */
 public record ObjectElement(
   @NonNull String key,
   @NonNull @Unmodifiable Collection<? extends Element> elements
 ) implements Element {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void accept(@NonNull ElementVisitor visitor) {
     var objectSectionVisitor = visitor.visitObject(this);

@@ -19,8 +19,19 @@ package eu.cloudnetservice.driver.document.send.element;
 import eu.cloudnetservice.driver.document.send.ElementVisitor;
 import lombok.NonNull;
 
+/**
+ * An element that holds a primitive type as it's inner value (one of byte, short, int, long, float, double, boolean,
+ * char). In this specific case strings are counted as primitive too.
+ *
+ * @param key        the key of this element or {@link Element#NO_KEY} if an array entry.
+ * @param innerValue the inner primitive value of this element (type must be one of the list given above).
+ * @since 4.0
+ */
 public record PrimitiveElement(@NonNull String key, @NonNull Object innerValue) implements Element {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void accept(@NonNull ElementVisitor visitor) {
     visitor.visitPrimitive(this);

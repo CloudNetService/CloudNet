@@ -24,27 +24,49 @@ import eu.cloudnetservice.driver.document.send.element.ObjectElement;
 import eu.cloudnetservice.driver.document.send.element.PrimitiveElement;
 import lombok.NonNull;
 
+/**
+ * An element visitor to visit the root object element of a document send. This visitor only accepts calls to
+ * {@link #visitObject(ObjectElement)}, all other calls with throw an {@link UnsupportedOperationException}.
+ *
+ * @param rootObject the root json object to put all child elements into.
+ * @since 4.0
+ */
 public record GsonRootObjectVisitor(@NonNull JsonObject rootObject) implements ElementVisitor {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visitEnd() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visitNull(@NonNull NullElement entry) {
     throw new UnsupportedOperationException("not supported on root visitor");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visitPrimitive(@NonNull PrimitiveElement entry) {
     throw new UnsupportedOperationException("not supported on root visitor");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ElementVisitor visitArray(@NonNull ArrayElement entry) {
     throw new UnsupportedOperationException("not supported on root visitor");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ElementVisitor visitObject(@NonNull ObjectElement entry) {
     return new GsonObjectVisitor(this.rootObject);

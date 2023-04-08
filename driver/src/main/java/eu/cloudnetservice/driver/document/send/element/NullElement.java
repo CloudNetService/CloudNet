@@ -19,8 +19,17 @@ package eu.cloudnetservice.driver.document.send.element;
 import eu.cloudnetservice.driver.document.send.ElementVisitor;
 import lombok.NonNull;
 
+/**
+ * Represents a null value, or in other words a key without a specified value.
+ *
+ * @param key the key of this element or {@link Element#NO_KEY} if an array entry.
+ * @since 4.0
+ */
 public record NullElement(@NonNull String key) implements Element {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void accept(@NonNull ElementVisitor visitor) {
     visitor.visitNull(this);

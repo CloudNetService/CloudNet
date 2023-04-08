@@ -155,7 +155,7 @@ public interface DocumentFactory {
    * send contains malformed or invalid data making it impossible to get imported.
    *
    * @param send the document send to import into this document.
-   * @return the same document instance as used to call the method, for chaining.
+   * @return a new, empty document containing all supported key-value pairs of the given document send.
    * @throws NullPointerException if the given send is null.
    */
   @NonNull Document.Mutable receive(@NonNull DocumentSend send);

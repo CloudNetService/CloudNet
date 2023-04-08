@@ -20,12 +20,25 @@ import com.google.gson.JsonPrimitive;
 import eu.cloudnetservice.driver.document.send.element.PrimitiveElement;
 import lombok.NonNull;
 
+/**
+ * A class to simple convert between gson primitive types, java primitives or primitive elements.
+ *
+ * @since 4.0
+ */
 final class GsonPrimitiveConverter {
 
   private GsonPrimitiveConverter() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Wraps the given primitive type into a gson json primitive instance.
+   *
+   * @param value the java primitive type to wrap into a gson value.
+   * @return the gson json primitive instance wrapping the given value.
+   * @throws NullPointerException     if the given value is null.
+   * @throws IllegalArgumentException if the given value type is not a json primitive.
+   */
   public static @NonNull JsonPrimitive wrapAsPrimitive(@NonNull Object value) {
     if (value instanceof String string) {
       return new JsonPrimitive(string);
@@ -47,6 +60,15 @@ final class GsonPrimitiveConverter {
       "Invalid primitive type " + value.getClass() + " must be one of: String, Number, Boolean, Character");
   }
 
+  /**
+   * Converts the given gson json primitive into a primitive element.
+   *
+   * @param key       the key to use for the primitive element.
+   * @param primitive the gson json primitive value to unwrap and re-pack into a primitive element.
+   * @return a primitive element constructed from the given key and gson json primitive.
+   * @throws NullPointerException     if the given key or gson json primitive is null.
+   * @throws IllegalArgumentException if the given gson json primitive contains an unknown json primitive type.
+   */
   public static @NonNull PrimitiveElement unwrapJsonPrimitive(@NonNull String key, @NonNull JsonPrimitive primitive) {
     if (primitive.isString()) {
       return new PrimitiveElement(key, primitive.getAsString());

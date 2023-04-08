@@ -19,11 +19,38 @@ package eu.cloudnetservice.driver.document.send.element;
 import eu.cloudnetservice.driver.document.send.ElementVisitor;
 import lombok.NonNull;
 
-public interface Element {
+/**
+ * An abstract element that can be included into any document type. Not all implemented types must be supported by a
+ * document type. The default element types are:
+ * <ol>
+ *   <li>Objects
+ *   <li>Arrays
+ *   <li>Primitives
+ *   <li>Null
+ * </ol>
+ *
+ * @since 4.0
+ */
+public sealed interface Element permits ArrayElement, NullElement, ObjectElement, PrimitiveElement {
 
+  /**
+   * Indicates that an element has no key. This key is only used for array entries at the moment.
+   */
   String NO_KEY = "";
 
+  /**
+   * Get the key of this element or an empty string ({@link #NO_KEY}) if the element has no key.
+   *
+   * @return the key of this element.
+   */
   @NonNull String key();
 
+  /**
+   * Applies the given visitor to this element. It is up to the implementation (and therefore the element type) to
+   * decide what steps should be executed on the given element visitor.
+   *
+   * @param visitor the visitor to apply to this element.
+   * @throws NullPointerException if the given visitor is null.
+   */
   void accept(@NonNull ElementVisitor visitor);
 }
