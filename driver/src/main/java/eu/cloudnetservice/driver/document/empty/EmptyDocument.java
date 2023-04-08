@@ -33,220 +33,364 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * A document implementation that just ignores all calls made to it.
+ *
+ * @since 4.0
+ */
 public final class EmptyDocument implements Document.Mutable, DefaultedDocPropertyHolder.Mutable<Document.Mutable> {
 
+  /**
+   * The jvm static instance of the empty document. There should never be a different instance of this class during the
+   * jvm lifetime.
+   * <p>
+   * Note: do not use this field directly, prefer {@link Document#emptyDocument()} instead.
+   */
   public static final Document.Mutable INSTANCE = new EmptyDocument();
 
+  /**
+   * Constructs an empty document instance. This constructor is sealed to prevent accidental instantiations. Obtain the
+   * singleton instance of this implementation via {@link Document#emptyDocument()}.
+   */
   private EmptyDocument() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean empty() {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int elementCount() {
     return 0;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean contains(@NonNull String key) {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DocumentSend send() {
     return EmptyDocumentSend.INSTANCE;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document immutableCopy() {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable mutableCopy() {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Unmodifiable @NonNull Set<String> keys() {
     return Set.of();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Unmodifiable @NonNull Collection<? extends Element> elements() {
     return Set.of();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T toInstanceOf(@NonNull Type type) {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T toInstanceOf(@NonNull Class<T> type) {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T toInstanceOf(@NonNull TypeToken<T> type) {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T readObject(@NonNull String key, @NonNull Type type, @Nullable T def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T readObject(@NonNull String key, @NonNull Class<T> type, @Nullable T def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @UnknownNullability T readObject(@NonNull String key, @NonNull TypeToken<T> type, @Nullable T def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @UnknownNullability Document readDocument(@NonNull String key, @Nullable Document def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Document.@UnknownNullability Mutable readMutableDocument(@NonNull String key, @Nullable Document.Mutable def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte getByte(@NonNull String key, byte def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public short getShort(@NonNull String key, short def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getInt(@NonNull String key, int def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long getLong(@NonNull String key, long def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public float getFloat(@NonNull String key, float def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getDouble(@NonNull String key, double def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean getBoolean(@NonNull String key, boolean def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @UnknownNullability String getString(@NonNull String key, @Nullable String def) {
     return def;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeTo(@NonNull Path path, @NonNull SerialisationStyle style) {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeTo(@NonNull OutputStream stream, @NonNull SerialisationStyle style) {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeTo(@NonNull Appendable appendable, @NonNull SerialisationStyle style) {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeTo(@NonNull DataBuf.Mutable dataBuf, @NonNull SerialisationStyle style) {
     dataBuf.writeString("empty");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String serializeToString(@NonNull SerialisationStyle style) {
     throw new UnsupportedOperationException("Not supported on empty document");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable clear() {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable remove(@NonNull String key) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable receive(@NonNull DocumentSend send) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable appendNull(@NonNull String key) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable appendTree(@Nullable Object value) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable append(@NonNull Document document) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable append(@NonNull String key, @Nullable Object value) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable append(@NonNull String key, @Nullable Number value) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable append(@NonNull String key, @Nullable Boolean value) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable append(@NonNull String key, @Nullable String value) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable append(@NonNull String key, @Nullable Document value) {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Document.Mutable propertyHolder() {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(@Nullable Object other) {
     return other instanceof EmptyDocument;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String toString() {
     return "[empty]";

@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.CheckReturnValue;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -121,7 +122,7 @@ public interface Document extends DocPropertyHolder, Serializable {
   }
 
   /**
-   * Get if the document is emppty (therefore has no key-value mappings present).
+   * Get if the document is empty (therefore has no key-value mappings present).
    *
    * @return true if the document is empty, false otherwise.
    */
@@ -147,7 +148,7 @@ public interface Document extends DocPropertyHolder, Serializable {
    * Converts this document into a version that can be cross-handled by other document implementations. The serialized
    * form of this document can be used to convert it to a different type of document. Note that the returned form is a
    * snapshot of the document at the time the method was called. Any changes made to this document after the method call
-   * are not reflected into the send.
+   * are not reflected into the document send.
    *
    * @return a serialized version of this document.
    * @see Document.Mutable#receive(DocumentSend)
@@ -686,28 +687,161 @@ public interface Document extends DocPropertyHolder, Serializable {
   @Override
   boolean equals(@Nullable Object other);
 
+  /**
+   * A mutable version of a document. This type allows to set and remove key-value pairs from the underlying
+   * implementation but still provides read access to the stored data. Note that this type of document is not required
+   * to be thread-safe and users need to be careful to not create data races on accident.
+   * <p>
+   * For more information how to use the mutable version, see the root documentation of {@link Document}.
+   *
+   * @since 4.0
+   */
   interface Mutable extends Document, DocPropertyHolder.Mutable<Document.Mutable> {
 
+    /**
+     * Removes all key-value pairs from this document. After this method call this document is empty.
+     *
+     * @return the same document instance as used to call the method, for chaining.
+     */
+    @Contract("-> this")
     @NonNull Document.Mutable clear();
 
+    /**
+     * Removes the value associated with the given key from this document. If the key is not associated with any value
+     * this method call has no effect.
+     *
+     * @param key the key to remove from this document.
+     * @return the same document instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given key is null.
+     */
+    @Contract("_ -> this")
     @NonNull Document.Mutable remove(@NonNull String key);
 
+    /**
+     * Receives the given document send into this document. All key-value pairs given in the document send will be put
+     * into this document, ignoring the fact that a key might already be associated with a value in this document. If
+     * the document send contains a data type that is not supported by this document type, the key-value pair gets
+     * simply skipped.
+     * <p>
+     * The receiving process of a document send should <strong>never</strong> throw an exception unless the given
+     * document send contains malformed or invalid data making it impossible to get imported.
+     *
+     * @param send the document send to import into this document.
+     * @return the same document instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given send is null.
+     */
+    @Contract("_ -> this")
     @NonNull Document.Mutable receive(@NonNull DocumentSend send);
 
+    /**
+     * Associates a null value with the given key. If this document type does not support null values, this call has no
+     * effect.
+     *
+     * @param key the key to associate with null.
+     * @return the same document instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given key is null.
+     */
+    @Contract("_ -> this")
     @NonNull Document.Mutable appendNull(@NonNull String key);
 
+    /**
+     * Appends the key-value pairs based on the given object into this document. Each field of the given object
+     * represents a key-value mapping that is directly appended to this document. How the field value is included into
+     * this document depends on the type of document. If a field type is not supported by this document type it gets
+     * silently ignored. If null or a non-object is passed to this method (for example a primitive) this method call
+     * does nothing.
+     * <p>
+     * Note: passing a generic type to this method will lose all the generic type information.
+     *
+     * @param value the value to serialize to a tree and append to this document.
+     * @return the same document instance as used to call the method, for chaining.
+     */
+    @Contract("_ -> this")
     @NonNull Document.Mutable appendTree(@Nullable Object value);
 
+    /**
+     * Appends all key-value pairs of the given document into this document. If a key-value pair with the same key
+     * already exists it gets overridden by this method call. If the given document contains a value type that is not
+     * supported by this document, the key-value pair is silently ignored. Changes made to this document after this
+     * method call will not reflect into the given document and vice-versa.
+     * <p>
+     * This method should <strong>never</strong> throw an exception unless the given document contains malformed data.
+     *
+     * @param document the document to import into this document.
+     * @return the same document instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given document is null.
+     */
+    @Contract("_ -> this")
     @NonNull Document.Mutable append(@NonNull Document document);
 
+    /**
+     * Appends the key-value pairs based on the given object into this document associated with the given key. Each
+     * field of the given object represents a key-value mapping. How the field value is included into this document
+     * depends on the type of document. If a field type is not supported by this document type it gets silently
+     * ignored.
+     * <p>
+     * Note: passing a generic type to this method will lose all the generic type information.
+     *
+     * @param key   the key to associate the given value with.
+     * @param value the value to serialize to a tree and append to this document associated with the given key.
+     * @return the same document instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given key is null.
+     */
+    @Contract("_, _ -> this")
     @NonNull Document.Mutable append(@NonNull String key, @Nullable Object value);
 
+    /**
+     * Appends the given number associated with the given key to this document. If the passed number instance is null,
+     * then null is appended to this document. If this document does not support numbers (or nulls) then this method
+     * call has no effect.
+     *
+     * @param key   the key to associate the given number with.
+     * @param value the number value to associate with the given key.
+     * @return the same document instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given key is null.
+     */
+    @Contract("_, _ -> this")
     @NonNull Document.Mutable append(@NonNull String key, @Nullable Number value);
 
+    /**
+     * Appends the given boolean associated with the given key to this document. If the passed boolean instance is null,
+     * then null is appended to this document. If this document does not support booleans (or nulls) then this method
+     * call has no effect.
+     *
+     * @param key   the key to associate the given boolean with.
+     * @param value the boolean value to associate with the given key.
+     * @return the same document instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given key is null.
+     */
+    @Contract("_, _ -> this")
     @NonNull Document.Mutable append(@NonNull String key, @Nullable Boolean value);
 
+    /**
+     * Appends the given string associated with the given key to this document. If the passed string instance is null,
+     * then null is appended to this document. If this document does not support strings (or nulls) then this method
+     * call has no effect.
+     *
+     * @param key   the key to associate the given string with.
+     * @param value the string value to associate with the given key.
+     * @return the same document instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given key is null.
+     */
+    @Contract("_, _ -> this")
     @NonNull Document.Mutable append(@NonNull String key, @Nullable String value);
 
+    /**
+     * Appends the given document associated with the given key to this document. If the passed document instance is
+     * null, then null is appended to this document. If the given document contains a value type that is not supported
+     * by this document then that key-value pair is ignored.
+     * <p>
+     * This method should <strong>never</strong> throw an exception unless the given document contains malformed data.
+     *
+     * @param key   the key to associate the given document with.
+     * @param value the document value to associate with the given key.
+     * @return the same document instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given key is null.
+     */
+    @Contract("_, _ -> this")
     @NonNull Document.Mutable append(@NonNull String key, @Nullable Document value);
   }
 }
