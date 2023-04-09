@@ -33,6 +33,7 @@ import io.netty5.handler.codec.http.HttpChunkedInput;
 import io.netty5.handler.codec.http.HttpHeaderNames;
 import io.netty5.handler.codec.http.HttpHeaderValues;
 import io.netty5.handler.codec.http.HttpRequest;
+import io.netty5.handler.codec.http.HttpResponseStatus;
 import io.netty5.handler.codec.http.HttpUtil;
 import io.netty5.handler.stream.ChunkedStream;
 import io.netty5.handler.timeout.ReadTimeoutException;
@@ -133,10 +134,19 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
    * @throws NullPointerException if the given channel or request is null.
    */
   private void handleMessage(@NonNull Channel channel, @NonNull HttpRequest httpRequest) {
+    // if an opaque uri is sent to the server we reject the request immediately as it does
+    // not contain the required information to properly process the request (especially due
+    // to the lack of path information which is the base of our internal handling)
     var uri = URI.create(httpRequest.uri());
-    var fullPath = uri.getPath();
+    if (uri.isOpaque()) {
+      channel
+        .writeAndFlush(new DefaultHttpResponse(httpRequest.protocolVersion(), HttpResponseStatus.BAD_REQUEST))
+        .addListener(channel, ChannelFutureListeners.CLOSE);
+      return;
+    }
 
     // make the path understandable for the handlers
+    var fullPath = uri.getPath();
     if (!fullPath.equals("/") && fullPath.endsWith("/")) {
       fullPath = fullPath.substring(0, fullPath.length() - 1);
     }
