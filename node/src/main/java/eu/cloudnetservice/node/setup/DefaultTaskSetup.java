@@ -251,7 +251,6 @@ public class DefaultTaskSetup implements DefaultSetup {
     // create a group specifically for the task
     this.groupProvider.addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
-      .templates(Set.of(template))
       .build());
 
     // install the service template
