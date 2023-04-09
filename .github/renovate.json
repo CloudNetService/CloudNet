@@ -56,8 +56,7 @@
     {
       "description": "Version is based on the latest push to a git repo and never needs updates",
       "matchPackagePrefixes": [
-        "com.github.juliarn:",
-        "com.github.dmulloy2:"
+        "com.github.juliarn:"
       ],
       "enabled": false
     }
