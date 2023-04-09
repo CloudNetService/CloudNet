@@ -68,7 +68,7 @@ vault = "1.7.1"
 adventure = "4.13.0"
 modlauncher = "8.1.3"
 npcLib = "3.0.0-beta4"
-placeholderApi = "2.11.2"
+placeholderApi = "2.11.3"
 
 # fabric platform special dependencies
 minecraft = "1.19.4"
