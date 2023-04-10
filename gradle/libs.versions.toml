@@ -31,7 +31,7 @@ stringSimilarity = "2.0.0"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "4.9.0"
+mongodb = "4.9.1"
 hikariCp = "5.0.1"
 mysqlConnector = "8.0.32"
 
