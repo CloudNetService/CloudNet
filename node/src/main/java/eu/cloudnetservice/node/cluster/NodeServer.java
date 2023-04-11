@@ -18,9 +18,9 @@ package eu.cloudnetservice.node.cluster;
 
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import java.io.Closeable;

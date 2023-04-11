@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.network.cluster;
+package eu.cloudnetservice.driver.cluster;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;

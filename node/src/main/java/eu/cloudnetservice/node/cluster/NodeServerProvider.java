@@ -17,10 +17,10 @@
 package eu.cloudnetservice.node.cluster;
 
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.cluster.NetworkCluster;
+import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
-import eu.cloudnetservice.driver.network.cluster.NetworkCluster;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.protocol.PacketSender;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import java.io.Closeable;
