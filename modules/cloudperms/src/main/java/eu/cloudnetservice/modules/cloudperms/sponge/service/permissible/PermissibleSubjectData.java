@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -162,9 +161,7 @@ public abstract class PermissibleSubjectData<T extends Permissible> implements S
 
   @Override
   public Map<Set<Context>, Map<String, String>> allOptions() {
-    return Map.of(Collections.emptySet(), this.permissible.propertyHolder().stream()
-      .filter(key -> this.permissible.propertyHolder().getString(key) != null)
-      .collect(Collectors.toMap(Function.identity(), this.permissible.propertyHolder()::getString)));
+    return Map.of();
   }
 
   @Override
@@ -174,29 +171,17 @@ public abstract class PermissibleSubjectData<T extends Permissible> implements S
 
   @Override
   public CompletableFuture<Boolean> setOption(Set<Context> contexts, String key, @Nullable String value) {
-    return CompletableFuture.supplyAsync(() -> {
-      this.permissible.propertyHolder().append(key, value);
-      this.updateIfEnabled(this.permissible);
-      return true;
-    });
+    return CompletableFuture.completedFuture(Boolean.TRUE);
   }
 
   @Override
   public CompletableFuture<Boolean> setOptions(Set<Context> $, Map<String, String> options, TransferMethod $1) {
-    return CompletableFuture.supplyAsync(() -> {
-      options.forEach(this.permissible.propertyHolder()::append);
-      this.updateIfEnabled(this.permissible);
-      return true;
-    });
+    return CompletableFuture.completedFuture(Boolean.TRUE);
   }
 
   @Override
   public CompletableFuture<Boolean> clearOptions() {
-    return CompletableFuture.supplyAsync(() -> {
-      this.permissible.propertyHolder().clear();
-      this.updateIfEnabled(this.permissible);
-      return true;
-    });
+    return CompletableFuture.completedFuture(Boolean.TRUE);
   }
 
   @Override

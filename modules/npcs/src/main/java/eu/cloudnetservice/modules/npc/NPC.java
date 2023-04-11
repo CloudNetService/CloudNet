@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.npc;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
@@ -31,7 +31,7 @@ import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
+public final class NPC implements DefaultedDocPropertyHolder {
 
   public static final Type COLLECTION_NPC = TypeFactory.parameterizedClass(Collection.class, NPC.class);
   private static final Type PROPERTIES = TypeFactory.parameterizedClass(Set.class, ProfileProperty.class);
@@ -63,9 +63,9 @@ public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
   private final ClickAction rightClickAction;
 
   private final Map<Integer, String> items;
-  private final JsonDocument properties;
+  private final Document properties;
 
-  protected NPC(
+  private NPC(
     @NonNull NPCType npcType,
     @NonNull String targetGroup,
     @Nullable String inventoryName,
@@ -84,7 +84,7 @@ public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
     @NonNull ClickAction leftClickAction,
     @NonNull ClickAction rightClickAction,
     @NonNull Map<Integer, String> items,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     this.npcType = npcType;
     this.targetGroup = targetGroup;
@@ -146,7 +146,7 @@ public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
 
   public @NonNull Set<ProfileProperty> profileProperties() {
     Preconditions.checkState(this.npcType == NPCType.PLAYER, "type must be player to get the profile properties");
-    return this.properties.get("profileProperties", PROPERTIES);
+    return this.properties.readObject("profileProperties", PROPERTIES);
   }
 
   public @NonNull NPCType npcType() {
@@ -222,7 +222,7 @@ public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
   }
 
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 
@@ -241,9 +241,9 @@ public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
     NOTHING
   }
 
-  public static final class Builder {
+  public static final class Builder implements DefaultedDocPropertyHolder.Mutable<Builder> {
 
-    private final JsonDocument properties = JsonDocument.newDocument();
+    private final Document.Mutable properties = Document.newJsonDocument();
 
     private NPCType npcType;
     private String targetGroup;
@@ -396,6 +396,11 @@ public class NPC implements DefaultedDocPropertyHolder<JsonDocument, NPC> {
         this.rightClickAction,
         this.items,
         this.properties);
+    }
+
+    @Override
+    public Document.@NonNull Mutable propertyHolder() {
+      return this.properties;
     }
   }
 

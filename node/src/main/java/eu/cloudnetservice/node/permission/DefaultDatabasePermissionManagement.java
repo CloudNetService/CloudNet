@@ -18,7 +18,8 @@ package eu.cloudnetservice.node.permission;
 
 import com.google.common.collect.Iterables;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
@@ -164,7 +165,7 @@ public class DefaultDatabasePermissionManagement
   @Override
   public @NonNull PermissionUser addPermissionUser(@NonNull PermissionUser user) {
     // insert the user into the database
-    this.userDatabaseTable().insert(user.uniqueId().toString(), JsonDocument.newDocument(user));
+    this.userDatabaseTable().insert(user.uniqueId().toString(), Document.newJsonDocument().appendTree(user));
     // notify the listener
     this.handler.handleAddUser(this, user);
     return user;
@@ -173,7 +174,7 @@ public class DefaultDatabasePermissionManagement
   @Override
   public void updateUser(@NonNull PermissionUser user) {
     // update in the database
-    this.userDatabaseTable().insert(user.uniqueId().toString(), JsonDocument.newDocument(user));
+    this.userDatabaseTable().insert(user.uniqueId().toString(), Document.newJsonDocument().appendTree(user));
     // notify the listener
     this.handler.handleUpdateUser(this, user);
   }
@@ -431,11 +432,11 @@ public class DefaultDatabasePermissionManagement
     List<PermissionGroup> groups = new ArrayList<>(this.groups.values());
     Collections.sort(groups);
     // write to the file
-    JsonDocument.newDocument("groups", groups).write(GROUPS_FILE);
+    Document.newJsonDocument().append("groups", groups).writeTo(GROUPS_FILE);
   }
 
   protected void loadGroups() {
-    Collection<PermissionGroup> groups = JsonDocument.newDocument(GROUPS_FILE).get(
+    Collection<PermissionGroup> groups = DocumentFactory.json().parse(GROUPS_FILE).readObject(
       "groups",
       PermissionGroup.COL_GROUPS);
     if (groups != null) {

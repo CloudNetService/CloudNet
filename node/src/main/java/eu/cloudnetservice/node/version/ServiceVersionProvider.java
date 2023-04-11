@@ -21,11 +21,11 @@ import static com.google.gson.reflect.TypeToken.getParameterized;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
@@ -107,15 +107,15 @@ public class ServiceVersionProvider {
       return false;
     }
 
-    var document = JsonDocument.newDocument(inputStream);
+    var document = DocumentFactory.json().parse(inputStream);
     var fileVersion = document.getInt("fileVersion", -1);
 
     if (VERSIONS_FILE_VERSION == fileVersion && document.contains("versions")) {
       // load all service environments
-      Collection<ServiceEnvironmentType> environments = document.get("environments", COL_ENV_TYPE);
+      Collection<ServiceEnvironmentType> environments = document.readObject("environments", COL_ENV_TYPE);
       environments.forEach(this::registerServiceEnvironmentType);
       // load all service versions after the environment types as they need to be present
-      Collection<ServiceVersionType> versions = document.get("versions", COL_SER_VERSION);
+      Collection<ServiceVersionType> versions = document.readObject("versions", COL_SER_VERSION);
       versions.forEach(this::registerServiceVersionType);
       // successful load
       return true;

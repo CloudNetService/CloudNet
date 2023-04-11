@@ -17,8 +17,9 @@
 package eu.cloudnetservice.driver.permission;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.hash.HashUtil;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
@@ -70,7 +71,7 @@ public class PermissionUser extends AbstractPermissible {
     long createdTime,
     @NonNull Set<Permission> permissions,
     @NonNull Map<String, Set<Permission>> groupPermissions,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     super(name, potency, createdTime, permissions, groupPermissions, properties);
     this.uniqueId = uniqueId;
@@ -254,14 +255,14 @@ public class PermissionUser extends AbstractPermissible {
    *
    * @since 4.0
    */
-  public static final class Builder {
+  public static final class Builder implements DefaultedDocPropertyHolder.Mutable.WithDirectModifier<Builder> {
 
     private String name;
     private UUID uniqueId;
     private String hashedPassword;
 
     private int potency;
-    private JsonDocument properties = JsonDocument.newDocument();
+    private Document.Mutable properties = Document.newJsonDocument();
 
     private Set<Permission> permissions = new HashSet<>();
     private Set<PermissionUserGroupInfo> groups = new HashSet<>();
@@ -395,9 +396,17 @@ public class PermissionUser extends AbstractPermissible {
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given properties are null.
      */
-    public @NonNull Builder properties(@NonNull JsonDocument properties) {
-      this.properties = properties.clone();
+    public @NonNull Builder properties(@NonNull Document properties) {
+      this.properties = properties.mutableCopy();
       return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NonNull Document.Mutable propertyHolder() {
+      return this.properties;
     }
 
     /**
@@ -419,7 +428,7 @@ public class PermissionUser extends AbstractPermissible {
         System.currentTimeMillis(),
         this.permissions,
         this.groupPermissions,
-        this.properties);
+        this.properties.immutableCopy());
     }
   }
 }

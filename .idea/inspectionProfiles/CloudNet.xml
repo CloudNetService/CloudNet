@@ -40,7 +40,7 @@
     <inspection_tool class="UnnecessaryJavaDocLink" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreInlineLinkToSuper" value="false" />
     </inspection_tool>
-    <inspection_tool class="UnstableApiUsage" enabled="true" level="WARNING" enabled_by_default="true">
+    <inspection_tool class="UnstableApiUsage" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="unstableApiAnnotations">
         <set>
           <option value="org.gradle.api.Incubating" />

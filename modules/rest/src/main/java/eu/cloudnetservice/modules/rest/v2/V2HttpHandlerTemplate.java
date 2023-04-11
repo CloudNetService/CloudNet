@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponse;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
@@ -263,10 +263,10 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     @NonNull @RequestPathParam("storage") String storageName,
     @NonNull @RequestPathParam("prefix") String prefix,
     @NonNull @RequestPathParam("name") String templateName,
-    @NonNull @RequestBody JsonDocument body
+    @NonNull @RequestBody Document body
   ) {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
-      var versionType = body.get("type", ServiceVersionType.class);
+      var versionType = body.readObject("type", ServiceVersionType.class);
       if (versionType == null) {
         versionType = this.versionProvider.getServiceVersionType(body.getString("typeName", ""));
         if (versionType == null) {
@@ -279,7 +279,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
         }
       }
 
-      var version = body.get("version", ServiceVersion.class);
+      var version = body.readObject("version", ServiceVersion.class);
       if (version == null) {
         version = versionType.version(body.getString("versionName", ""));
         if (version == null) {

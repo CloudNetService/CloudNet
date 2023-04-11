@@ -39,6 +39,7 @@ import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -181,13 +182,14 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
-    super.appendServiceInformation(snapshot);
+  public void appendServiceInformation(@NonNull ServiceInfoPropertiesConfigureEvent configureEvent) {
+    super.appendServiceInformation(configureEvent);
+
     // append the velocity specific information
-    snapshot.propertyHolder().append("Online-Count", this.proxyServer.getPlayers().size());
-    snapshot.propertyHolder().append("Version", WaterdogPE.version().baseVersion());
+    configureEvent.propertyHolder().append("Online-Count", this.proxyServer.getPlayers().size());
+    configureEvent.propertyHolder().append("Version", WaterdogPE.version().baseVersion());
     // players
-    snapshot.propertyHolder().append("Players", this.proxyServer.getPlayers().values().stream()
+    configureEvent.propertyHolder().append("Players", this.proxyServer.getPlayers().values().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

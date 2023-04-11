@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
@@ -85,7 +85,7 @@ public final class V2HttpHandlerPermission extends V2HttpHandler {
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/permission/group", methods = "POST")
-  private void handleCreatePermissionGroupRequest(@NonNull HttpContext ctx, @NonNull @RequestBody JsonDocument body) {
+  private void handleCreatePermissionGroupRequest(@NonNull HttpContext ctx, @NonNull @RequestBody Document body) {
     var permissionGroup = body.toInstanceOf(PermissionGroup.class);
     if (permissionGroup == null) {
       this.badRequest(ctx)

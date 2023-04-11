@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.modules.mysql;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -37,26 +38,28 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
-    var config = this.readConfig();
+    var config = this.readConfig(DocumentFactory.json());
     if (config.contains("addresses")) {
       // convert all entries
-      this.writeConfig(JsonDocument.newDocument(new MySQLConfiguration(
+      this.writeConfig(Document.newJsonDocument().appendTree(new MySQLConfiguration(
         config.getString("username"),
         config.getString("password"),
         config.getString("database"),
-        config.get("addresses", TypeFactory.parameterizedClass(List.class, MySQLConnectionEndpoint.class))
+        config.readObject("addresses", TypeFactory.parameterizedClass(List.class, MySQLConnectionEndpoint.class))
       )));
     }
   }
 
   @ModuleTask(order = 125, lifecycle = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
-    this.configuration = this.readConfig(MySQLConfiguration.class, () -> new MySQLConfiguration(
-      "root",
-      "123456",
-      "mysql",
-      List.of(new MySQLConnectionEndpoint(false, "cloudnet", new HostAndPort("127.0.0.1", 3306)))
-    ));
+    this.configuration = this.readConfig(
+      MySQLConfiguration.class,
+      () -> new MySQLConfiguration(
+        "root",
+        "123456",
+        "mysql",
+        List.of(new MySQLConnectionEndpoint(false, "cloudnet", new HostAndPort("127.0.0.1", 3306)))),
+      DocumentFactory.json());
 
     serviceRegistry.registerProvider(
       NodeDatabaseProvider.class,

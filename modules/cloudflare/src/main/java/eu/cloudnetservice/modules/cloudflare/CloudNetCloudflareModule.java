@@ -20,10 +20,11 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
@@ -60,9 +61,9 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfiguration() {
-    var config = this.readConfig().get("config");
-    if (config != null) {
-      this.writeConfig(JsonDocument.newDocument(config));
+    var config = this.readConfig(DocumentFactory.json()).readDocument("config");
+    if (!config.empty()) {
+      this.writeConfig(Document.newJsonDocument().appendTree(config));
     }
   }
 
@@ -79,7 +80,8 @@ public final class CloudNetCloudflareModule extends DriverModule {
         "api_token_string",
         "zoneId",
         "example.com",
-        Lists.newArrayList(new CloudflareGroupConfiguration("Proxy", "@", 1, 1))))));
+        Lists.newArrayList(new CloudflareGroupConfiguration("Proxy", "@", 1, 1))))),
+      DocumentFactory.json());
     this.updateConfiguration(config);
   }
 
@@ -110,7 +112,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
               hostInformation.second(),
               1,
               false,
-              JsonDocument.emptyDocument()));
+              Document.newJsonDocument()));
           } else {
             // mark the record as created
             LOGGER.fine("Skipping creation of record for %s because the record %s exists", null, entry, existingRecord);
@@ -242,7 +244,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   public void updateConfiguration(@NonNull CloudflareConfiguration cloudflareConfiguration) {
     this.cloudflareConfiguration = cloudflareConfiguration;
-    this.writeConfig(JsonDocument.newDocument(cloudflareConfiguration));
+    this.writeConfig(Document.newJsonDocument().appendTree(cloudflareConfiguration));
   }
 
   private void createRecordsForEntries(
@@ -285,7 +287,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
       address.second(),
       1,
       false,
-      JsonDocument.emptyDocument());
+      Document.newJsonDocument());
   }
 
   private @Nullable Pair<DnsType, String> parseAddressOfEntry(@NonNull CloudflareConfigurationEntry entry) {

@@ -33,6 +33,7 @@ import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -164,13 +165,14 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   }
 
   @Override
-  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
-    super.appendServiceInformation(snapshot);
+  public void appendServiceInformation(@NonNull ServiceInfoPropertiesConfigureEvent configureEvent) {
+    super.appendServiceInformation(configureEvent);
+
     // append the bukkit specific information
-    snapshot.propertyHolder().append("Online-Count", this.server.onlinePlayers().size());
-    snapshot.propertyHolder().append("Version", this.platform.minecraftVersion().name());
+    configureEvent.propertyHolder().append("Online-Count", this.server.onlinePlayers().size());
+    configureEvent.propertyHolder().append("Version", this.platform.minecraftVersion().name());
     // players
-    snapshot.propertyHolder().append("Players", this.server.onlinePlayers().stream()
+    configureEvent.propertyHolder().append("Players", this.server.onlinePlayers().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

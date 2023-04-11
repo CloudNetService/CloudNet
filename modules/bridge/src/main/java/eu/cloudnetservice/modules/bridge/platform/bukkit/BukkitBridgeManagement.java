@@ -33,6 +33,7 @@ import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -154,13 +155,14 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
-    super.appendServiceInformation(snapshot);
+  public void appendServiceInformation(@NonNull ServiceInfoPropertiesConfigureEvent configureEvent) {
+    super.appendServiceInformation(configureEvent);
+
     // append the bukkit specific information
-    snapshot.propertyHolder().append("Online-Count", this.server.getOnlinePlayers().size());
-    snapshot.propertyHolder().append("Version", this.server.getVersion());
+    configureEvent.propertyHolder().append("Version", this.server.getVersion());
+    configureEvent.propertyHolder().append("Online-Count", this.server.getOnlinePlayers().size());
     // players
-    snapshot.propertyHolder().append("Players", this.server.getOnlinePlayers().stream()
+    configureEvent.propertyHolder().append("Players", this.server.getOnlinePlayers().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

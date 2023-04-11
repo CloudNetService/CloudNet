@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
@@ -29,6 +28,7 @@ import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -152,7 +152,7 @@ public abstract class AbstractService implements CloudService {
       configuration,
       -1,
       ServiceLifeCycle.PREPARED,
-      configuration.propertyHolder().clone());
+      configuration.propertyHolder().immutableCopy());
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED, false);
 
     // register the service locally for now
@@ -360,8 +360,8 @@ public abstract class AbstractService implements CloudService {
       var req = Unirest.get(inclusion.url());
       // put the given http headers
       var headers = inclusion.readProperty(ServiceRemoteInclusion.HEADERS);
-      for (var key : headers.keys()) {
-        req.header(key, Objects.toString(headers.get(key)));
+      for (var entry : headers.entrySet()) {
+        req.header(entry.getKey(), entry.getValue());
       }
 
       // check if we should load the inclusion
@@ -414,7 +414,7 @@ public abstract class AbstractService implements CloudService {
   }
 
   @Override
-  public void updateProperties(@NonNull JsonDocument properties) {
+  public void updateProperties(@NonNull Document properties) {
     // check if the service is able to serve the request
     if (this.networkChannel != null) {
       ChannelMessage.builder()
@@ -624,7 +624,7 @@ public abstract class AbstractService implements CloudService {
 
   protected void pushServiceInfoSnapshotUpdate(
     @NonNull ServiceLifeCycle lifeCycle,
-    @Nullable JsonDocument properties,
+    @Nullable Document properties,
     boolean sendUpdate
   ) {
     // save the current service info
@@ -713,13 +713,13 @@ public abstract class AbstractService implements CloudService {
     this.serviceConfigurationPreparer.configure(this);
     // write the configuration file for the service
     var listener = this.selectConnectListener(this.configuration.identity().listeners());
-    JsonDocument.newDocument()
+    Document.newJsonDocument()
       .append("targetListener", listener)
       .append("connectionKey", this.connectionKey())
       .append("serviceInfoSnapshot", this.currentServiceInfo)
       .append("serviceConfiguration", this.serviceConfiguration())
       .append("sslConfiguration", sslConfiguration)
-      .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
+      .writeTo(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // finished the prepare process
     this.eventManager.callEvent(new CloudServicePostPrepareEvent(this));
   }

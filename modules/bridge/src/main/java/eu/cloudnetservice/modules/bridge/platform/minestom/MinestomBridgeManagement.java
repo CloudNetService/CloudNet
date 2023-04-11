@@ -35,6 +35,7 @@ import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -164,13 +165,16 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
   }
 
   @Override
-  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
-    super.appendServiceInformation(snapshot);
+  public void appendServiceInformation(@NonNull ServiceInfoPropertiesConfigureEvent configureEvent) {
+    super.appendServiceInformation(configureEvent);
+
     // append the minestom specific information
     var onlinePlayers = this.connectionManager.getOnlinePlayers();
-    snapshot.propertyHolder().append("Online-Count", onlinePlayers.size());
-    snapshot.propertyHolder().append("Version", MinecraftServer.VERSION_NAME);
+    configureEvent.propertyHolder().append("Online-Count", onlinePlayers.size());
+    configureEvent.propertyHolder().append("Version", MinecraftServer.VERSION_NAME);
     // players
-    snapshot.propertyHolder().append("Players", onlinePlayers.stream().map(this::createPlayerInformation).toList());
+    configureEvent.propertyHolder().append("Players", onlinePlayers.stream()
+      .map(this::createPlayerInformation)
+      .toList());
   }
 }

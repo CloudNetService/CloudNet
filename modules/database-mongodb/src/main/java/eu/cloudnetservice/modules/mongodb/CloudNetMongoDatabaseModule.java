@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.mongodb;
 
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -32,7 +33,7 @@ public class CloudNetMongoDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 126, lifecycle = ModuleLifeCycle.LOADED)
   public void loadConfig() {
-    this.config = this.readConfig(MongoDBConnectionConfig.class, MongoDBConnectionConfig::new);
+    this.config = this.readConfig(MongoDBConnectionConfig.class, MongoDBConnectionConfig::new, DocumentFactory.json());
   }
 
   @ModuleTask(order = 125, lifecycle = ModuleLifeCycle.LOADED)

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
@@ -113,7 +113,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   private void handleInsertRequest(
     @NonNull HttpContext context,
     @NonNull @RequestPathParam("name") String name,
-    @NonNull @RequestBody JsonDocument document
+    @NonNull @RequestBody Document document
   ) {
     var database = this.databaseProvider.database(name);
     this.withContextData(context, document, (key, data) -> {
@@ -153,7 +153,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   private void handleFindRequest(
     @NonNull HttpContext context,
     @NonNull @RequestPathParam("name") String name,
-    @NonNull @RequestBody JsonDocument body
+    @NonNull @RequestBody Document body
   ) {
     var database = this.databaseProvider.database(name);
 
@@ -190,11 +190,11 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
 
   private void withContextData(
     @NonNull HttpContext context,
-    @NonNull JsonDocument body,
-    @NonNull BiConsumer<String, JsonDocument> handler
+    @NonNull Document body,
+    @NonNull BiConsumer<String, Document> handler
   ) {
     var key = body.getString("key");
-    var data = body.getDocument("document");
+    var data = body.readDocument("document");
 
     if (key == null) {
       this.badRequest(context)

@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -69,7 +70,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
     this.ok(context)
       .body(this.success()
         .append("modules", this.moduleProvider.modules().stream()
-          .map(module -> JsonDocument.newDocument()
+          .map(module -> Document.newJsonDocument()
             .append("lifecycle", module.moduleLifeCycle())
             .append("configuration", module.moduleConfiguration()))
           .toList())
@@ -141,7 +142,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   private void handleModuleConfigRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("module") String name) {
     this.handleWithModuleContext(ctx, name, module -> {
       if (module.module() instanceof DriverModule driverModule) {
-        var config = driverModule.readConfig();
+        var config = driverModule.readConfig(DocumentFactory.json());
         this.ok(ctx)
           .body(this.success().append("config", config).toString())
           .context()
@@ -166,7 +167,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   ) {
     this.handleWithModuleContext(ctx, name, module -> {
       if (module.module() instanceof DriverModule driverModule) {
-        driverModule.writeConfig(JsonDocument.newDocument(body));
+        driverModule.writeConfig(Document.newJsonDocument().appendTree(body));
         this.ok(ctx)
           .body(this.success().toString())
           .context()
