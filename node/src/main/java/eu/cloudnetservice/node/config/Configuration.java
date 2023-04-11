@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.config;
 
+import eu.cloudnetservice.driver.cluster.NetworkCluster;
+import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.HostAndPort;
-import eu.cloudnetservice.driver.network.cluster.NetworkCluster;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import jakarta.inject.Singleton;
 import java.util.Collection;

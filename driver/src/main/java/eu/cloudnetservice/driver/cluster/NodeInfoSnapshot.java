@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.network.cluster;
+package eu.cloudnetservice.driver.cluster;
 
 import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.document.Document;
