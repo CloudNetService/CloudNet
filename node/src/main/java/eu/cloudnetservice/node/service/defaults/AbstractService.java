@@ -359,7 +359,7 @@ public abstract class AbstractService implements CloudService {
       // prepare the connection from which we load the inclusion
       var req = Unirest.get(inclusion.url());
       // put the given http headers
-      var headers = inclusion.readProperty(ServiceRemoteInclusion.HEADERS);
+      var headers = inclusion.readPropertyOrDefault(ServiceRemoteInclusion.HEADERS, JsonDocument.emptyDocument());
       for (var key : headers.keys()) {
         req.header(key, Objects.toString(headers.get(key)));
       }
