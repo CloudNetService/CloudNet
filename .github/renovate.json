@@ -27,7 +27,7 @@
       "excludePackageNames": [
         "gradle"
       ],
-      "groupName": "patch dependency updates"
+      "groupName": "all dependencies with patch changes"
     },
     {
       "description": "Correct Guava version handling",
@@ -43,6 +43,13 @@
       ],
       "matchPackagePrefixes": [
         "cpw.mods:"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Disabled until netty5 stable release",
+      "matchPackagePrefixes": [
+        "io.netty:"
       ],
       "enabled": false
     },
