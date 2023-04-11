@@ -18,8 +18,9 @@ package eu.cloudnetservice.modules.npc.node;
 
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
@@ -55,7 +56,7 @@ public class CloudNetNPCModule extends DriverModule {
   @ModuleTask(order = Byte.MAX_VALUE)
   public void convertConfiguration(@NonNull DatabaseProvider databaseProvider) {
     if (Files.exists(this.configPath())) {
-      var old = JsonDocument.newDocument(this.configPath()).get("config", NPCConfiguration.class);
+      var old = this.readConfig(DocumentFactory.json()).readObject("config", NPCConfiguration.class);
       if (old != null) {
         var newEntries = old.configurations().stream()
           .map(entry -> eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry.builder()
@@ -89,22 +90,22 @@ public class CloudNetNPCModule extends DriverModule {
             .build())
           .collect(Collectors.toSet());
         // write the new config
-        JsonDocument
-          .newDocument(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder()
+        Document.newJsonDocument()
+          .appendTree(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder()
             .entries(newEntries)
             .build())
-          .write(this.configPath());
+          .writeTo(this.configPath());
       } else {
         // we have to read the config manually as we have to upgrade it
-        var config = JsonDocument.newDocument(this.configPath());
-        List<JsonDocument> entries = config.get(
+        var config = this.readConfig(DocumentFactory.json());
+        List<Document> entries = config.readObject(
           "entries",
-          TypeFactory.parameterizedClass(List.class, JsonDocument.class));
+          TypeFactory.parameterizedClass(List.class, Document.class));
 
         for (var entry : entries) {
-          var inventoryConfig = entry.getDocument("inventoryConfiguration").getDocument("defaultItems");
           // check if the ingameLayout is missing - upgrade if its the case
-          if (inventoryConfig.get("ingameLayout") == null) {
+          var inventoryConfig = entry.readDocument("inventoryConfiguration").readMutableDocument("defaultItems");
+          if (!inventoryConfig.contains("ingameLayout")) {
             inventoryConfig.append("ingameLayout", ItemLayout.builder()
               .material("REDSTONE")
               .displayName("§7%name%")
@@ -128,7 +129,7 @@ public class CloudNetNPCModule extends DriverModule {
     // get the npc_store field of the database entry
     var npcStore = db.get("npc_store");
     if (npcStore != null) {
-      Collection<CloudNPC> theOldOnes = npcStore.get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
+      Collection<CloudNPC> theOldOnes = npcStore.readObject("npcs", NPCConstants.NPC_COLLECTION_TYPE);
       // remove the old entries
       db.delete("npc_store");
       if (theOldOnes != null) {
@@ -150,7 +151,9 @@ public class CloudNetNPCModule extends DriverModule {
             .rightClickAction(NPC.ClickAction.valueOf(npc.rightClickAction().name()))
             .leftClickAction(NPC.ClickAction.valueOf(npc.leftClickAction().name()))
             .build())
-          .forEach(npc -> target.insert(NodeNPCManagement.documentKey(npc.location()), JsonDocument.newDocument(npc)));
+          .forEach(npc -> target.insert(
+            NodeNPCManagement.documentKey(npc.location()),
+            Document.newJsonDocument().appendTree(npc)));
       }
     } else {
       // convert 4.0.0-RC1 npcs to RC2 npcs
@@ -170,7 +173,9 @@ public class CloudNetNPCModule extends DriverModule {
 
           return npcBuilder.build();
         })
-        .forEach(npc -> database.insert(NodeNPCManagement.documentKey(npc.location()), JsonDocument.newDocument(npc)));
+        .forEach(npc -> database.insert(
+          NodeNPCManagement.documentKey(npc.location()),
+          Document.newJsonDocument().appendTree(npc)));
     }
   }
 
@@ -211,7 +216,8 @@ public class CloudNetNPCModule extends DriverModule {
   private @NonNull eu.cloudnetservice.modules.npc.configuration.NPCConfiguration loadConfig() {
     return this.readConfig(
       eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.class,
-      () -> eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder().build());
+      () -> eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder().build(),
+      DocumentFactory.json());
   }
 
   private @NonNull ItemLayout convertItemLayout(

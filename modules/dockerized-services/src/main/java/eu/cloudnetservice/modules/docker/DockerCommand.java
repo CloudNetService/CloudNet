@@ -301,14 +301,15 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @NonNull BiFunction<TaskDockerConfig, TaskDockerConfig.Builder, TaskDockerConfig.Builder> modifier
   ) {
     // read the docker config from the task
-    var taskConfig = serviceTask.propertyHolder().get(
+    var taskConfig = serviceTask.propertyHolder().readObject(
       "dockerConfig",
       TaskDockerConfig.class,
       TaskDockerConfig.builder().build());
     var property = modifier.apply(taskConfig, TaskDockerConfig.builder(taskConfig));
+
     // rewrite the config and update it in the cluster
     var task = ServiceTask.builder(serviceTask)
-      .properties(serviceTask.propertyHolder().append("dockerConfig", property.build()))
+      .modifyProperties(properties -> properties.append("dockerConfig", property.build()))
       .build();
     this.taskProvider.addServiceTask(task);
   }

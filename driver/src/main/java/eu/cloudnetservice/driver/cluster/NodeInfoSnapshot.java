@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.driver.cluster;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.CloudNetVersion;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.module.ModuleConfiguration;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import java.util.Collection;
@@ -34,7 +34,7 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public class NodeInfoSnapshot implements DefaultedDocPropertyHolder<JsonDocument, NodeInfoSnapshot> {
+public class NodeInfoSnapshot implements DefaultedDocPropertyHolder {
 
   protected final long creationTime;
   protected final long startupMillis;
@@ -54,7 +54,7 @@ public class NodeInfoSnapshot implements DefaultedDocPropertyHolder<JsonDocument
 
   protected final Collection<ModuleConfiguration> modules;
 
-  protected final JsonDocument properties;
+  protected final Document properties;
 
   /**
    * Constructs a new network cluster node info snapshot instance.
@@ -88,7 +88,7 @@ public class NodeInfoSnapshot implements DefaultedDocPropertyHolder<JsonDocument
     @NonNull ProcessSnapshot processSnapshot,
     double maxCPUUsageToStartServices,
     @NonNull Collection<ModuleConfiguration> modules,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     this.properties = properties;
     this.creationTime = creationTime;
@@ -228,7 +228,7 @@ public class NodeInfoSnapshot implements DefaultedDocPropertyHolder<JsonDocument
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 }

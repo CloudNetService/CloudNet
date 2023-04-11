@@ -24,8 +24,8 @@ import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
@@ -185,7 +185,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     if (ServiceEnvironmentType.minecraftProxy(snapshot.serviceId().environment()) && this.checkServiceGroup(snapshot)) {
       this.proxyOnlineCountCache.put(
         snapshot.serviceId().uniqueId(),
-        snapshot.readProperty(BridgeServiceProperties.ONLINE_COUNT));
+        snapshot.readProperty(BridgeDocProperties.ONLINE_COUNT));
     }
   }
 

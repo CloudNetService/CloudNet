@@ -22,7 +22,8 @@ import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.database.AbstractDatabase;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import java.util.ArrayList;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
-import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,11 +44,11 @@ public class MongoDBDatabase extends AbstractDatabase {
   protected static final IndexOptions UNIQUE_KEY_OPTIONS = new IndexOptions().unique(true);
   protected static final UpdateOptions INSERT_OR_REPLACE_OPTIONS = new UpdateOptions().upsert(true);
 
-  protected final MongoCollection<Document> collection;
+  protected final MongoCollection<org.bson.Document> collection;
 
   protected MongoDBDatabase(
     @NonNull String name,
-    @NonNull MongoCollection<Document> collection,
+    @NonNull MongoCollection<org.bson.Document> collection,
     @NonNull NodeDatabaseProvider provider
   ) {
     super(name, provider);
@@ -58,16 +58,16 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
+  public boolean insert(@NonNull String key, @NonNull Document document) {
     return this.insertOrUpdate(key, document);
   }
 
-  protected boolean insertOrUpdate(String key, JsonDocument document) {
+  protected boolean insertOrUpdate(String key, Document document) {
     var result = this.collection.updateOne(
       Filters.eq(KEY_NAME, key),
       Updates.combine(
-        Updates.setOnInsert(new Document(KEY_NAME, key)),
-        Updates.set(VALUE_NAME, Document.parse(document.toString()))
+        Updates.setOnInsert(new org.bson.Document(KEY_NAME, key)),
+        Updates.set(VALUE_NAME, org.bson.Document.parse(this.serializeDocumentToJsonString(document)))
       ),
       INSERT_OR_REPLACE_OPTIONS);
     return result.getUpsertedId() != null || result.getMatchedCount() > 0;
@@ -84,24 +84,28 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public JsonDocument get(@NonNull String key) {
+  public @Nullable Document get(@NonNull String key) {
     var document = this.collection.find(Filters.eq(KEY_NAME, key)).first();
-    return document == null ? null : JsonDocument.fromJsonString(document.get(VALUE_NAME, Document.class).toJson());
+    return this.parseDocumentValue(document);
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull String fieldName, @Nullable String fieldValue) {
-    List<JsonDocument> documents = new ArrayList<>();
+  public @NonNull List<Document> find(@NonNull String fieldName, @Nullable String fieldValue) {
+    List<Document> documents = new ArrayList<>();
     try (var cursor = this.collection.find(this.valueEq(fieldName, fieldValue)).iterator()) {
       while (cursor.hasNext()) {
-        documents.add(JsonDocument.fromJsonString(cursor.next().get(VALUE_NAME, Document.class).toJson()));
+        var parsedDocument = this.parseDocumentValue(cursor.next());
+        if (parsedDocument != null) {
+          documents.add(parsedDocument);
+        }
       }
     }
+
     return documents;
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull Map<String, String> filters) {
+  public @NonNull List<Document> find(@NonNull Map<String, String> filters) {
     // the easiest way to prevent issues with json-to-json conversion is to use the in-build document of mongodb and
     // then reconvert the values as we need them
     Collection<Bson> bsonFilters = new ArrayList<>();
@@ -109,12 +113,16 @@ public class MongoDBDatabase extends AbstractDatabase {
       bsonFilters.add(this.valueEq(entry.getKey(), entry.getValue()));
     }
 
-    List<JsonDocument> documents = new ArrayList<>();
+    List<Document> documents = new ArrayList<>();
     try (var cursor = this.collection.find(Filters.and(bsonFilters)).iterator()) {
       while (cursor.hasNext()) {
-        documents.add(JsonDocument.fromJsonString(cursor.next().get(VALUE_NAME, Document.class).toJson()));
+        var parsedDocument = this.parseDocumentValue(cursor.next());
+        if (parsedDocument != null) {
+          documents.add(parsedDocument);
+        }
       }
     }
+
     return documents;
   }
 
@@ -130,38 +138,45 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull Collection<JsonDocument> documents() {
-    Collection<JsonDocument> documents = new ArrayList<>();
+  public @NonNull Collection<Document> documents() {
+    Collection<Document> documents = new ArrayList<>();
     try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
-        documents.add(JsonDocument.fromJsonString(cursor.next().get(VALUE_NAME, Document.class).toJson()));
+        var parsedDocument = this.parseDocumentValue(cursor.next());
+        if (parsedDocument != null) {
+          documents.add(parsedDocument);
+        }
       }
     }
+
     return documents;
   }
 
   @Override
-  public @NonNull Map<String, JsonDocument> entries() {
-    Map<String, JsonDocument> entries = new HashMap<>();
+  public @NonNull Map<String, Document> entries() {
+    Map<String, Document> entries = new HashMap<>();
     try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
         var document = cursor.next();
-        var value = JsonDocument.fromJsonString(document.get(VALUE_NAME, Document.class).toJson());
-
-        entries.put(document.getString(KEY_NAME), value);
+        var parsedDocument = this.parseDocumentValue(document);
+        if (parsedDocument != null) {
+          var entryKey = document.getString(KEY_NAME);
+          entries.put(entryKey, parsedDocument);
+        }
       }
     }
+
     return entries;
   }
 
   @Override
-  public void iterate(@NonNull BiConsumer<String, JsonDocument> consumer) {
+  public void iterate(@NonNull BiConsumer<String, Document> consumer) {
     this.entries().forEach(consumer);
   }
 
   @Override
   public void clear() {
-    this.collection.deleteMany(new Document());
+    this.collection.deleteMany(new org.bson.Document());
   }
 
   @Override
@@ -175,15 +190,16 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
-    Map<String, JsonDocument> result = new HashMap<>();
+  public @Nullable Map<String, Document> readChunk(long beginIndex, int chunkSize) {
+    Map<String, Document> result = new HashMap<>();
     try (var cursor = this.collection.find().skip((int) beginIndex).limit(chunkSize).iterator()) {
       while (cursor.hasNext()) {
         var document = cursor.next();
-        var key = document.getString(KEY_NAME);
-        var value = JsonDocument.fromJsonString(document.get(VALUE_NAME, Document.class).toJson());
-
-        result.put(key, value);
+        var parsedDocument = this.parseDocumentValue(document);
+        if (parsedDocument != null) {
+          var entryKey = document.getString(KEY_NAME);
+          result.put(entryKey, parsedDocument);
+        }
       }
     }
 
@@ -196,5 +212,15 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   protected @NonNull <T> Bson valueEq(@NonNull String fieldName, @Nullable final T value) {
     return Filters.eq(VALUE_NAME + '.' + fieldName, value);
+  }
+
+  protected @Nullable Document parseDocumentValue(@Nullable org.bson.Document in) {
+    if (in == null) {
+      return null;
+    }
+
+    // get the actual document value and parse it
+    var internalDocument = in.get(VALUE_NAME, org.bson.Document.class);
+    return internalDocument == null ? null : DocumentFactory.json().parse(internalDocument.toJson());
   }
 }

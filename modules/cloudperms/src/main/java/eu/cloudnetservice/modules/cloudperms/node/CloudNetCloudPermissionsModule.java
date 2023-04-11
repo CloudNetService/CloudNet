@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.modules.cloudperms.node;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
@@ -44,7 +45,7 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
       .currentGetter($ -> this.permissionsConfig)
       .singletonCollector(() -> this.permissionsConfig)
       .nameExtractor(cloudPermissionsConfig -> "Permission Config")
-      .writer(config -> this.writeConfig(JsonDocument.newDocument(config)))
+      .writer(config -> this.writeConfig(Document.newJsonDocument().appendTree(config)))
       .build());
   }
 
@@ -52,7 +53,8 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
   public void initConfig() {
     this.permissionsConfig = this.readConfig(
       CloudPermissionConfig.class,
-      () -> new CloudPermissionConfig(true, List.of()));
+      () -> new CloudPermissionConfig(true, List.of()),
+      DocumentFactory.json());
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)

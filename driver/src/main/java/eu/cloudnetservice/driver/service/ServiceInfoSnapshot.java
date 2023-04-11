@@ -18,8 +18,8 @@ package eu.cloudnetservice.driver.service;
 
 import com.google.common.collect.ComparisonChain;
 import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
@@ -39,8 +39,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ToString
 @EqualsAndHashCode
 public class ServiceInfoSnapshot
-  implements Nameable, DefaultedDocPropertyHolder<JsonDocument, ServiceInfoSnapshot>,
-  Cloneable, Comparable<ServiceInfoSnapshot> {
+  implements Nameable, DefaultedDocPropertyHolder, Cloneable, Comparable<ServiceInfoSnapshot> {
 
   protected final long creationTime;
 
@@ -52,7 +51,7 @@ public class ServiceInfoSnapshot
   protected final long connectedTime;
   protected final ServiceLifeCycle lifeCycle;
 
-  protected final JsonDocument properties;
+  protected final Document properties;
 
   /**
    * Constructs a new service info snapshot. This constructor is for internal use only, there should be no reason
@@ -75,7 +74,7 @@ public class ServiceInfoSnapshot
     @NonNull ServiceConfiguration configuration,
     long connectedTime,
     @NonNull ServiceLifeCycle lifeCycle,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     this.creationTime = creationTime;
     this.connectedTime = connectedTime;
@@ -184,7 +183,7 @@ public class ServiceInfoSnapshot
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 

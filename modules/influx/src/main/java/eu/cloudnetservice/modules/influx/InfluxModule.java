@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.influx;
 
 import com.influxdb.client.InfluxDBClientFactory;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -35,12 +36,15 @@ public final class InfluxModule extends DriverModule {
   @ModuleTask
   public void start(@NonNull ServiceRegistry serviceRegistry, @NonNull TickLoop mainThread) {
     // read the config and connect to influx
-    var conf = this.readConfig(InfluxConfiguration.class, () -> new InfluxConfiguration(
-      new HostAndPort("http://127.0.0.1", 8086),
-      "token",
-      "org",
-      "bucket",
-      30));
+    var conf = this.readConfig(
+      InfluxConfiguration.class,
+      () -> new InfluxConfiguration(
+        new HostAndPort("http://127.0.0.1", 8086),
+        "token",
+        "org",
+        "bucket",
+        30),
+      DocumentFactory.json());
     var influxClient = InfluxDBClientFactory.create(
       conf.connectUrl(),
       conf.token().toCharArray(),

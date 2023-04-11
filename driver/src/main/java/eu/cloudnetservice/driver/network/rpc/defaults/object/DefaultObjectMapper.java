@@ -23,16 +23,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufable;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.data.DataClassSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.CollectionObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.DataBufObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.DataBufableObjectSerializer;
+import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.DocumentObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.EnumObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.FunctionalObjectSerializer;
-import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.JsonDocumentObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.MapObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.OptionalObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.PathObjectSerializer;
@@ -136,7 +136,7 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(Path.class, new PathObjectSerializer())
     .put(DataBuf.class, new DataBufObjectSerializer())
     .put(DataBufable.class, new DataBufableObjectSerializer())
-    .put(JsonDocument.class, new JsonDocumentObjectSerializer())
+    .put(Document.class, new DocumentObjectSerializer())
     .put(Enum.class, new EnumObjectSerializer())
     .put(Object.class, new DataClassSerializer())
     .build();

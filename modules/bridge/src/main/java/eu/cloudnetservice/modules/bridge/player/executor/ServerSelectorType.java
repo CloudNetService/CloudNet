@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.bridge.player.executor;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
@@ -32,7 +32,7 @@ public enum ServerSelectorType {
   /**
    * The service with the lowest player count is preferred.
    */
-  LOWEST_PLAYERS(Comparator.comparingInt(ser -> ser.readProperty(BridgeServiceProperties.ONLINE_COUNT))),
+  LOWEST_PLAYERS(Comparator.comparingInt(ser -> ser.readProperty(BridgeDocProperties.ONLINE_COUNT))),
   /**
    * The service with the highest player count is preferred.
    */

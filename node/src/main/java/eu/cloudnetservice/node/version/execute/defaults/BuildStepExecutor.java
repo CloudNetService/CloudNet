@@ -67,8 +67,8 @@ public class BuildStepExecutor implements InstallStepExecutor {
   ) throws IOException {
     var version = installer.serviceVersion();
 
-    Collection<String> jvmOptions = version.properties().get("jvmOptions", STRING_LIST_TYPE);
-    List<String> parameters = version.properties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
+    Collection<String> jvmOptions = version.properties().readObject("jvmOptions", STRING_LIST_TYPE);
+    List<String> parameters = version.properties().readObject("parameters", STRING_LIST_TYPE, new ArrayList<>());
 
     for (var path : paths) {
       List<String> arguments = new ArrayList<>();

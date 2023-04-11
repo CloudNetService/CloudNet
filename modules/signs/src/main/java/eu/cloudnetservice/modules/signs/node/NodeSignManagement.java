@@ -17,9 +17,9 @@
 package eu.cloudnetservice.modules.signs.node;
 
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.AbstractSignManagement;
@@ -69,7 +69,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
 
   @Override
   public void createSign(@NonNull Sign sign) {
-    this.database.insert(this.documentKey(sign.location()), JsonDocument.newDocument(sign));
+    this.database.insert(this.documentKey(sign.location()), Document.newJsonDocument().appendTree(sign));
     this.signs.put(sign.location(), sign);
 
     this.channelMessage(SIGN_CREATED)

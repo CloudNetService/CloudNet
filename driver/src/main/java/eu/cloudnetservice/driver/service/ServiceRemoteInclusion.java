@@ -17,9 +17,11 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
-import eu.cloudnetservice.common.document.property.DocProperty;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.property.DocProperty;
+import io.leangen.geantyref.TypeFactory;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
@@ -30,18 +32,19 @@ import lombok.NonNull;
  * @since 4.0
  */
 @EqualsAndHashCode
-public final class ServiceRemoteInclusion
-  implements DefaultedDocPropertyHolder<JsonDocument, ServiceRemoteInclusion>, Cloneable {
+public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder, Cloneable {
 
   /**
    * A property which can be added to a service inclusion to set the http headers to send when making the download http
    * request. All key-value pairs of the given document will be set as headers in the request.
    */
-  public static final DocProperty<JsonDocument> HEADERS = DocProperty.property("headers", JsonDocument.class);
+  public static final DocProperty<Map<String, String>> HEADERS = DocProperty.genericProperty(
+    "headers",
+    TypeFactory.parameterizedClass(Map.class, String.class, String.class));
 
   private final String url;
   private final String destination;
-  private final JsonDocument properties;
+  private final Document properties;
 
   /**
    * Constructs a new service remote inclusion instance.
@@ -51,7 +54,7 @@ public final class ServiceRemoteInclusion
    * @param properties  the properties of the remote inclusion, these can for example contain the http headers to send.
    * @throws NullPointerException if one of the given parameters is null.
    */
-  private ServiceRemoteInclusion(@NonNull String url, @NonNull String destination, @NonNull JsonDocument properties) {
+  private ServiceRemoteInclusion(@NonNull String url, @NonNull String destination, @NonNull Document properties) {
     this.url = url;
     this.destination = destination;
     this.properties = properties;
@@ -107,7 +110,7 @@ public final class ServiceRemoteInclusion
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 
@@ -140,7 +143,7 @@ public final class ServiceRemoteInclusion
 
     protected String url;
     protected String destination;
-    protected JsonDocument properties = JsonDocument.newDocument();
+    protected Document properties = Document.emptyDocument();
 
     /**
      * Sets the download url of the inclusion. The url scheme should be http/https (the only supported ones by default)
@@ -177,8 +180,8 @@ public final class ServiceRemoteInclusion
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given properties document is null.
      */
-    public @NonNull Builder properties(@NonNull JsonDocument properties) {
-      this.properties = properties.clone();
+    public @NonNull Builder properties(@NonNull Document properties) {
+      this.properties = properties.immutableCopy();
       return this;
     }
 

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.labymod.node;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
@@ -65,6 +65,6 @@ public class NodeLabyModManagement implements LabyModManagement {
 
   public void configurationSilently(@NonNull LabyModConfiguration configuration) {
     this.configuration = configuration;
-    this.labyModModule.writeConfig(JsonDocument.newDocument(configuration));
+    this.labyModModule.writeConfig(Document.newJsonDocument().appendTree(configuration));
   }
 }

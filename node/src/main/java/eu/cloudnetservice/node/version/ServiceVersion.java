@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.version;
 
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -35,7 +35,7 @@ public class ServiceVersion implements Nameable {
   private boolean deprecated;
   private boolean cacheFiles = true;
 
-  private JsonDocument properties = JsonDocument.emptyDocument();
+  private Document properties = Document.newJsonDocument();
   private Map<String, String> additionalDownloads = Collections.emptyMap();
 
   public ServiceVersion(
@@ -45,7 +45,7 @@ public class ServiceVersion implements Nameable {
     int maxJavaVersion,
     boolean deprecated,
     boolean cacheFiles,
-    @NonNull JsonDocument properties,
+    @NonNull Document properties,
     @NonNull Map<String, String> additionalDownloads
   ) {
     this.name = name;
@@ -98,7 +98,7 @@ public class ServiceVersion implements Nameable {
     return JavaVersion.fromMajor(this.maxJavaVersion);
   }
 
-  public @NonNull JsonDocument properties() {
+  public @NonNull Document properties() {
     return this.properties;
   }
 

@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.node.database;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 
@@ -37,7 +38,7 @@ public abstract class AbstractDatabase implements LocalDatabase, Database {
   }
 
   @Override
-  public void iterate(@NonNull BiConsumer<String, JsonDocument> consumer, int chunkSize) {
+  public void iterate(@NonNull BiConsumer<String, Document> consumer, int chunkSize) {
     var documentCount = this.documentCount();
     if (documentCount != 0) {
       long currentIndex = 0;
@@ -52,5 +53,14 @@ public abstract class AbstractDatabase implements LocalDatabase, Database {
         break;
       }
     }
+  }
+
+  protected @NonNull String serializeDocumentToJsonString(@NonNull Document document) {
+    // send the given document into a new json document
+    var jsonDocument = Document.newJsonDocument();
+    jsonDocument.receive(document.send());
+
+    // serialize the json document
+    return jsonDocument.serializeToString(StandardSerialisationStyle.COMPACT);
   }
 }

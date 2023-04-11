@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.driver.cluster;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import java.util.List;
 import lombok.NonNull;
@@ -31,12 +31,12 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 @ToString
-public final class NetworkClusterNode implements DefaultedDocPropertyHolder<JsonDocument, NetworkClusterNode> {
+public final class NetworkClusterNode implements DefaultedDocPropertyHolder {
 
   private final String uniqueId;
   private final List<HostAndPort> listeners;
 
-  private final JsonDocument properties;
+  private final Document properties;
 
   /**
    * Creates a new instance of a network cluster node.
@@ -46,7 +46,7 @@ public final class NetworkClusterNode implements DefaultedDocPropertyHolder<Json
    * @throws NullPointerException if either the id or listener array is null.
    */
   public NetworkClusterNode(@NonNull String uniqueId, @NonNull List<HostAndPort> listeners) {
-    this(uniqueId, listeners, JsonDocument.newDocument());
+    this(uniqueId, listeners, Document.emptyDocument());
   }
 
   /**
@@ -60,7 +60,7 @@ public final class NetworkClusterNode implements DefaultedDocPropertyHolder<Json
   public NetworkClusterNode(
     @NonNull String uniqueId,
     @NonNull List<HostAndPort> listeners,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     this.uniqueId = uniqueId;
     this.listeners = listeners;
@@ -89,7 +89,7 @@ public final class NetworkClusterNode implements DefaultedDocPropertyHolder<Json
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 

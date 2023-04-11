@@ -19,9 +19,10 @@ package eu.cloudnetservice.modules.bridge.node;
 import static eu.cloudnetservice.modules.bridge.BridgeManagement.BRIDGE_PLAYER_DB_NAME;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
@@ -75,61 +76,64 @@ public final class CloudNetBridgeModule extends DriverModule {
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull NodeDatabaseProvider databaseProvider
   ) {
-    var playerDb = databaseProvider.database(BRIDGE_PLAYER_DB_NAME);
     // read the first player from the database - if the first player is valid we don't need to take a look at the other
     // players in the database as they were already converted
+    var playerDb = databaseProvider.database(BRIDGE_PLAYER_DB_NAME);
     var first = playerDb.readChunk(0, 1);
     if (first != null && !first.isEmpty()) {
-      var document = Iterables.getOnlyElement(first.values());
       // validate the offline player
-      var lastNetworkPlayerProxyInfo = document.getDocument("lastNetworkPlayerProxyInfo");
+      var document = Iterables.getOnlyElement(first.values());
+      var lastNetworkPlayerProxyInfo = document.readDocument("lastNetworkPlayerProxyInfo");
+
       // check if the document is empty, if so it indicates an old database format
       if (lastNetworkPlayerProxyInfo.empty()) {
-        LOGGER.warning("Converting the offline player database, this may take a few seconds...");
+        LOGGER.warning("Converting the offline player database, this may take a bit! DO NOT STOP CLOUDNET!");
 
-        var convertedPlayers = 0;
         // invalid player data - convert the database
-        Map<String, JsonDocument> chunkData;
+        var convertedPlayers = 0;
+        Map<String, Document> chunkData;
         while ((chunkData = playerDb.readChunk(convertedPlayers, 100)) != null) {
           for (var entry : chunkData.entrySet()) {
             // get all the required path
-            var lastProxyInfo = entry.getValue().getDocument("lastNetworkConnectionInfo");
-            var networkService = lastProxyInfo.getDocument("networkService");
+            var valueCopy = entry.getValue().mutableCopy();
+            var lastProxyInfo = valueCopy.readMutableDocument("lastNetworkConnectionInfo");
+            var networkService = lastProxyInfo.readMutableDocument("networkService");
 
             // rewrite the name of the environment
-            var serviceId = networkService.getDocument("serviceId");
+            var serviceId = networkService.readMutableDocument("serviceId");
             var environment = serviceId.getString("environment", "");
             serviceId.append("environmentName", environment);
+
             // try to set the new environment
             var env = versionProvider.getEnvironmentType(environment);
             serviceId.append("environment", env);
-            // rewrite the name splitter of the task
             serviceId.append("nameSplitter", "-");
 
             // rewrite smaller changes
             lastProxyInfo.remove("legacy");
-            lastProxyInfo.append("xBoxId", entry.getValue().getString("xBoxId"));
+            lastProxyInfo.append("xBoxId", valueCopy.getString("xBoxId"));
 
             // rewrite all paths of the document
             networkService.append("serviceId", serviceId);
             lastProxyInfo.append("networkService", networkService);
-            entry.getValue().append("lastNetworkPlayerProxyInfo", lastProxyInfo);
+            valueCopy.append("lastNetworkPlayerProxyInfo", lastProxyInfo);
 
             // remove the outdated info
-            entry.getValue().remove("xBoxId");
-            entry.getValue().remove("uniqueId");
-            entry.getValue().remove("lastNetworkConnectionInfo");
+            valueCopy.remove("xBoxId");
+            valueCopy.remove("uniqueId");
+            valueCopy.remove("lastNetworkConnectionInfo");
 
             // update the entry
-            playerDb.insert(entry.getKey(), entry.getValue());
+            playerDb.insert(entry.getKey(), valueCopy);
           }
-          // count the converted players up
-          convertedPlayers += chunkData.size();
+
           // check if the chunk size was exactly 100 players - if not we just completed the last chunk
+          convertedPlayers += chunkData.size();
           if (chunkData.size() != 100) {
             break;
           }
         }
+
         // notify about the completion
         LOGGER.info("Successfully converted %d entries", null, convertedPlayers);
       }
@@ -138,36 +142,35 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(order = 40, lifecycle = ModuleLifeCycle.LOADED)
   public void convertOldConfiguration() {
-    // read the file
-    var config = JsonDocument.newDocument(this.configPath()).getDocument("config");
-    // check if the old file exists
+    // read the file & check if it is the old config version
+    var config = DocumentFactory.json().parse(this.configPath()).readDocument("config");
     if (!config.empty()) {
       // extract the messages and re-map them
       Map<String, Map<String, String>> messages = new HashMap<>(BridgeConfiguration.DEFAULT_MESSAGES);
-      messages.get("default").putAll(config.get(
+      messages.get("default").putAll(config.readObject(
         "messages",
         TypeFactory.parameterizedClass(Map.class, String.class, String.class)));
       // extract all hub commands
-      Collection<String> hubCommands = config.get(
+      Collection<String> hubCommands = config.readObject(
         "hubCommandNames",
         TypeFactory.parameterizedClass(Collection.class, String.class));
       // extract the excluded groups
-      Collection<String> excludedGroups = config.get(
+      Collection<String> excludedGroups = config.readObject(
         "excludedGroups",
         TypeFactory.parameterizedClass(Collection.class, String.class));
       // extract the fallback configurations
-      Collection<ProxyFallbackConfiguration> fallbacks = config.get(
+      Collection<ProxyFallbackConfiguration> fallbacks = config.readObject(
         "bungeeFallbackConfigurations",
         TypeFactory.parameterizedClass(Collection.class, ProxyFallbackConfiguration.class));
+
       // convert to a new config file
-      JsonDocument.newDocument(new BridgeConfiguration(
+      Document.newJsonDocument().appendTree(new BridgeConfiguration(
         config.getString("prefix"),
         messages,
         excludedGroups,
         hubCommands,
-        fallbacks,
-        config.getDocument("properties")
-      )).write(this.configPath());
+        fallbacks
+      )).writeTo(this.configPath());
     }
   }
 
@@ -183,7 +186,8 @@ public final class CloudNetBridgeModule extends DriverModule {
       injectionLayer,
       BridgeConfiguration.class,
       BridgeConfiguration::new,
-      BridgeManagement.class);
+      BridgeManagement.class,
+      DocumentFactory.json());
     management.registerServices(serviceRegistry);
     management.postInit();
 
@@ -214,6 +218,6 @@ public final class CloudNetBridgeModule extends DriverModule {
   }
 
   private @NonNull BridgeConfiguration loadConfiguration() {
-    return this.readConfig(BridgeConfiguration.class, BridgeConfiguration::new);
+    return this.readConfig(BridgeConfiguration.class, BridgeConfiguration::new, DocumentFactory.json());
   }
 }

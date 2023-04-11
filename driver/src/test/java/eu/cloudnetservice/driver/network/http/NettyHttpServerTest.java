@@ -17,8 +17,9 @@
 package eu.cloudnetservice.driver.network.http;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.function.ThrowableConsumer;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.network.NetworkTestCase;
 import eu.cloudnetservice.driver.network.http.websocket.WebSocketFrameType;
 import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
@@ -252,13 +253,13 @@ public class NettyHttpServerTest extends NetworkTestCase {
         public void handle(String path, HttpContext context) {
           Assertions.assertEquals("derklaro_was_here", context.request().header("derklaro_status"));
           Assertions.assertEquals(
-            JsonDocument.newDocument("test", true),
-            JsonDocument.newDocument(context.request().bodyStream()));
+            Document.newJsonDocument().append("test", true),
+            DocumentFactory.json().parse(context.request().bodyStream()));
 
           context.response()
             .status(HttpResponseCode.CREATED)
             .header("derklaro_response_status", "derklaro_was_there")
-            .body(JsonDocument.newDocument("test", "passed").toString().getBytes(StandardCharsets.UTF_8))
+            .body(Document.newJsonDocument().append("test", "passed").toString())
             .context()
             .closeAfter(true)
             .cancelNext();
@@ -274,15 +275,15 @@ public class NettyHttpServerTest extends NetworkTestCase {
     });
 
     try (var stream = connection.getOutputStream()) {
-      JsonDocument.newDocument("test", true).write(stream);
+      Document.newJsonDocument().append("test", true).writeTo(stream);
     }
 
     Assertions.assertEquals(201, connection.getResponseCode());
     Assertions.assertEquals("derklaro_was_there", connection.getHeaderField("derklaro_response_status"));
 
     Assertions.assertEquals(
-      JsonDocument.newDocument("test", "passed"),
-      JsonDocument.newDocument(connection.getInputStream()));
+      Document.newJsonDocument().append("test", "passed"),
+      DocumentFactory.json().parse(connection.getInputStream()));
   }
 
   @Test

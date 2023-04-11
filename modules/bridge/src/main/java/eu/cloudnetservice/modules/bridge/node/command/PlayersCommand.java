@@ -30,7 +30,7 @@ import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
@@ -184,18 +184,21 @@ public class PlayersCommand {
     source.sendMessage("CloudPlayer: " + offlinePlayer.name() + " | " + offlinePlayer.uniqueId());
     source.sendMessage("First login: " + DATE_TIME_FORMATTER.format(firstLoginTime));
     source.sendMessage("Last login: " + DATE_TIME_FORMATTER.format(lastLoginTime));
+
     // check if we have more information about the player
     if (offlinePlayer instanceof CloudPlayer onlinePlayer) {
       source.sendMessage("Proxy: " + onlinePlayer.loginService().serverName());
       source.sendMessage("Service: " + onlinePlayer.connectedService().serverName());
       source.sendMessage("Online Properties: ");
+
       // print the online properties of the player per line
-      for (var line : onlinePlayer.onlineProperties().toPrettyJson().split("\n")) {
+      for (var line : onlinePlayer.onlineProperties().serializeToString().split("\n")) {
         source.sendMessage(line);
       }
     }
+
     // print the offline properties of the player per line
-    for (var line : offlinePlayer.propertyHolder().toPrettyJson().split("\n")) {
+    for (var line : offlinePlayer.propertyHolder().serializeToString().split("\n")) {
       source.sendMessage(line);
     }
   }
@@ -250,7 +253,7 @@ public class PlayersCommand {
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Argument("server") ServiceInfoSnapshot server
   ) {
-    if (server.readProperty(BridgeServiceProperties.IS_ONLINE)) {
+    if (server.readProperty(BridgeDocProperties.IS_ONLINE)) {
       player.playerExecutor().connect(server.name());
 
       source.sendMessage(

@@ -19,7 +19,7 @@ package eu.cloudnetservice.driver.service;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     @NonNull Set<ServiceTemplate> templates,
     @NonNull Set<ServiceDeployment> deployments,
     @NonNull Set<ServiceRemoteInclusion> includes,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     super(templates, deployments, includes, properties);
 
@@ -251,7 +251,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
         Set.copyOf(this.templates),
         Set.copyOf(this.deployments),
         Set.copyOf(this.includes),
-        this.properties.clone());
+        this.properties.immutableCopy());
     }
   }
 }

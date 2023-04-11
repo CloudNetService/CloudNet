@@ -107,8 +107,10 @@ public class VaultChatImplementation extends Chat {
   @Override
   public void setPlayerInfoInteger(String world, String player, String node, int value) {
     this.permissionUserByName(player).ifPresent(permissionUser -> {
-      permissionUser.propertyHolder().append(node, value);
-      this.permissionManagement.updateUser(permissionUser);
+      var updatedPermissionUser = PermissionUser.builder(permissionUser)
+        .modifyProperties(property -> property.append(node, value))
+        .build();
+      this.permissionManagement.updateUser(updatedPermissionUser);
     });
   }
 
@@ -122,8 +124,10 @@ public class VaultChatImplementation extends Chat {
   @Override
   public void setGroupInfoInteger(String world, String group, String node, int value) {
     this.permissionGroupByName(group).ifPresent(permissionGroup -> {
-      permissionGroup.propertyHolder().append(node, value);
-      this.permissionManagement.updateGroup(permissionGroup);
+      var updatedPermissionGroup = PermissionGroup.builder(permissionGroup)
+        .modifyProperties(property -> property.append(node, value))
+        .build();
+      this.permissionManagement.updateGroup(updatedPermissionGroup);
     });
   }
 
@@ -137,8 +141,10 @@ public class VaultChatImplementation extends Chat {
   @Override
   public void setPlayerInfoDouble(String world, String player, String node, double value) {
     this.permissionUserByName(player).ifPresent(permissionUser -> {
-      permissionUser.propertyHolder().append(node, value);
-      this.permissionManagement.updateUser(permissionUser);
+      var updatedPermissionUser = PermissionUser.builder(permissionUser)
+        .modifyProperties(property -> property.append(node, value))
+        .build();
+      this.permissionManagement.updateUser(updatedPermissionUser);
     });
   }
 
@@ -152,8 +158,10 @@ public class VaultChatImplementation extends Chat {
   @Override
   public void setGroupInfoDouble(String world, String group, String node, double value) {
     this.permissionGroupByName(group).ifPresent(permissionGroup -> {
-      permissionGroup.propertyHolder().append(node, value);
-      this.permissionManagement.updateGroup(permissionGroup);
+      var updatedPermissionGroup = PermissionGroup.builder(permissionGroup)
+        .modifyProperties(property -> property.append(node, value))
+        .build();
+      this.permissionManagement.updateGroup(updatedPermissionGroup);
     });
   }
 
@@ -167,8 +175,10 @@ public class VaultChatImplementation extends Chat {
   @Override
   public void setPlayerInfoBoolean(String world, String player, String node, boolean value) {
     this.permissionUserByName(player).ifPresent(permissionUser -> {
-      permissionUser.propertyHolder().append(node, value);
-      this.permissionManagement.updateUser(permissionUser);
+      var updatedPermissionUser = PermissionUser.builder(permissionUser)
+        .modifyProperties(property -> property.append(node, value))
+        .build();
+      this.permissionManagement.updateUser(updatedPermissionUser);
     });
   }
 
@@ -182,8 +192,10 @@ public class VaultChatImplementation extends Chat {
   @Override
   public void setGroupInfoBoolean(String world, String group, String node, boolean value) {
     this.permissionGroupByName(group).ifPresent(permissionGroup -> {
-      permissionGroup.propertyHolder().append(node, value);
-      this.permissionManagement.updateGroup(permissionGroup);
+      var updatedPermissionGroup = PermissionGroup.builder(permissionGroup)
+        .modifyProperties(property -> property.append(node, value))
+        .build();
+      this.permissionManagement.updateGroup(updatedPermissionGroup);
     });
   }
 
@@ -197,8 +209,10 @@ public class VaultChatImplementation extends Chat {
   @Override
   public void setPlayerInfoString(String world, String player, String node, String value) {
     this.permissionUserByName(player).ifPresent(permissionUser -> {
-      permissionUser.propertyHolder().append(node, value);
-      this.permissionManagement.updateUser(permissionUser);
+      var updatedPermissionUser = PermissionUser.builder(permissionUser)
+        .modifyProperties(property -> property.append(node, value))
+        .build();
+      this.permissionManagement.updateUser(updatedPermissionUser);
     });
   }
 
@@ -212,8 +226,10 @@ public class VaultChatImplementation extends Chat {
   @Override
   public void setGroupInfoString(String world, String group, String node, String value) {
     this.permissionGroupByName(group).ifPresent(permissionGroup -> {
-      permissionGroup.propertyHolder().append(node, value);
-      this.permissionManagement.updateGroup(permissionGroup);
+      var updatedPermissionGroup = PermissionGroup.builder(permissionGroup)
+        .modifyProperties(property -> property.append(node, value))
+        .build();
+      this.permissionManagement.updateGroup(updatedPermissionGroup);
     });
   }
 }

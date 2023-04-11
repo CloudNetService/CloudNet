@@ -21,7 +21,8 @@ import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
@@ -510,20 +511,21 @@ public final class NPCCommand extends BaseTabExecutor {
             .connectTimeout(10000)
             .contentType("application/json")
             .header("User-Agent", "CloudNet-NPCs")
-            .body(JsonDocument.newDocument().append("url", args[2]).toString())
+            .body(Document.newJsonDocument().append("url", args[2]).toString())
             .asStringAsync()
             .thenAccept(response -> {
               // check for success
               if (response.isSuccess()) {
                 // extract the data we need from the body
-                var textures = JsonDocument.fromJsonString(response.getBody())
-                  .getDocument("data")
-                  .getDocument("texture");
+                var textures = DocumentFactory.json().parse(response.getBody())
+                  .readDocument("data")
+                  .readDocument("texture");
                 if (textures.empty()) {
                   // no data supplied by the api?
                   sender.sendMessage("§cApi request was successful but no data was submitted in the response!");
                   return;
                 }
+
                 // update & notify
                 this.management.createNPC(NPC.builder(npc).profileProperties(Set.of(new NPC.ProfileProperty(
                   "textures",

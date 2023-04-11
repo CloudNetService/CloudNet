@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.mysql;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
@@ -88,9 +88,9 @@ class MySQLDatabaseTest {
     var database = this.databaseProvider.database("test");
     Assertions.assertNotNull(database);
 
-    Assertions.assertTrue(database.insert("1234", JsonDocument.newDocument("hello", "world")));
-    Assertions.assertTrue(database.insert("12234", JsonDocument.newDocument("hello", "world2")));
-    Assertions.assertTrue(database.insert("122234", JsonDocument.newDocument("hello", "world_123")));
+    Assertions.assertTrue(database.insert("1234", Document.newJsonDocument().append("hello", "world")));
+    Assertions.assertTrue(database.insert("12234", Document.newJsonDocument().append("hello", "world2")));
+    Assertions.assertTrue(database.insert("122234", Document.newJsonDocument().append("hello", "world_123")));
 
     Assertions.assertTrue(database.contains("1234"));
     Assertions.assertTrue(database.contains("12234"));
@@ -158,7 +158,7 @@ class MySQLDatabaseTest {
       var key = UUID.randomUUID().toString();
 
       keys.add(key);
-      database.insert(key, JsonDocument.newDocument("this_is", "a_world_test"));
+      database.insert(key, Document.newJsonDocument().append("this_is", "a_world_test"));
     }
 
     Assertions.assertEquals(entries, database.documentCount());
@@ -166,7 +166,7 @@ class MySQLDatabaseTest {
     var index = 0;
     var readsCalled = 0;
 
-    Map<String, JsonDocument> currentChunk;
+    Map<String, Document> currentChunk;
     while ((currentChunk = database.readChunk(index, 50)) != null) {
       index += 50;
       readsCalled++;

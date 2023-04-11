@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.driver.service;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,14 +38,13 @@ import org.jetbrains.annotations.Unmodifiable;
  */
 @ToString
 @EqualsAndHashCode
-public abstract class ServiceConfigurationBase
-  implements DefaultedDocPropertyHolder<JsonDocument, ServiceConfigurationBase> {
+public abstract class ServiceConfigurationBase implements DefaultedDocPropertyHolder {
 
   protected final Set<ServiceTemplate> templates;
   protected final Set<ServiceDeployment> deployments;
   protected final Set<ServiceRemoteInclusion> includes;
 
-  protected final JsonDocument properties;
+  protected final Document properties;
 
   /**
    * Constructs a new service configuration base instance.
@@ -60,12 +59,12 @@ public abstract class ServiceConfigurationBase
     @NonNull Set<ServiceTemplate> templates,
     @NonNull Set<ServiceDeployment> deployments,
     @NonNull Set<ServiceRemoteInclusion> includes,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
-    this.properties = properties;
     this.templates = templates;
     this.deployments = deployments;
     this.includes = includes;
+    this.properties = properties;
   }
 
   /**
@@ -137,7 +136,7 @@ public abstract class ServiceConfigurationBase
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 
@@ -148,9 +147,8 @@ public abstract class ServiceConfigurationBase
    * @param <B> the builder instance from the type which gets build, for proper chaining purposes.
    * @since 4.0
    */
-  public abstract static class Builder<T extends ServiceConfigurationBase, B extends Builder<T, B>> {
-
-    protected JsonDocument properties = JsonDocument.newDocument();
+  public abstract static class Builder<T extends ServiceConfigurationBase, B extends Builder<T, B>>
+    implements DefaultedDocPropertyHolder.Mutable.WithDirectModifier<B> {
 
     protected Set<String> jvmOptions = new LinkedHashSet<>();
     protected Set<String> processParameters = new LinkedHashSet<>();
@@ -160,6 +158,8 @@ public abstract class ServiceConfigurationBase
     protected Set<ServiceRemoteInclusion> includes = new HashSet<>();
 
     protected Map<String, String> environmentVariables = new HashMap<>();
+
+    protected Document.Mutable properties = Document.newJsonDocument();
 
     /**
      * The properties to apply to the underlying created configuration.
@@ -172,8 +172,8 @@ public abstract class ServiceConfigurationBase
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given properties document is null.
      */
-    public @NonNull B properties(@NonNull JsonDocument properties) {
-      this.properties = properties.clone();
+    public @NonNull B properties(@NonNull Document properties) {
+      this.properties = properties.mutableCopy();
       return this.self();
     }
 
@@ -366,6 +366,14 @@ public abstract class ServiceConfigurationBase
     public @NonNull B modifyEnvironmentVariables(@NonNull Consumer<Map<String, String>> modifier) {
       modifier.accept(this.environmentVariables);
       return this.self();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Document.@NonNull Mutable propertyHolder() {
+      return this.properties;
     }
 
     /**
