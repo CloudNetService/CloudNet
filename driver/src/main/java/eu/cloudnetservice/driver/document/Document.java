@@ -58,7 +58,7 @@ import org.jetbrains.annotations.Unmodifiable;
  *   Document jsonDocument = Document.newJsonDocument().append("json_key", "Hello World!");
  *   Document.Mutable tomlDocument = TomlDocumentSource.newDocument().append("toml_key", "CloudNet");
  *
- *   // Serializes the content of the json document into a format than
+ *   // Serializes the content of the json document into a format that
  *   // must be supported by all implementations. This action does not
  *   // affect the source document at all (all key value pairs of the
  *   // source document are still available after the method call)
