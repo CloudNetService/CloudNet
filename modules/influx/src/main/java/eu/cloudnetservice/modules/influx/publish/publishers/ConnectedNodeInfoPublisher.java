@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.influx.publish.publishers;
 
 import com.influxdb.client.write.Point;
-import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
+import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.util.PointUtil;
 import eu.cloudnetservice.node.cluster.NodeServer;
