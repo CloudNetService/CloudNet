@@ -68,6 +68,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
@@ -359,7 +360,7 @@ public abstract class AbstractService implements CloudService {
       // prepare the connection from which we load the inclusion
       var req = Unirest.get(inclusion.url());
       // put the given http headers
-      var headers = inclusion.readProperty(ServiceRemoteInclusion.HEADERS);
+      var headers = inclusion.readPropertyOrDefault(ServiceRemoteInclusion.HEADERS, Map.of());
       for (var entry : headers.entrySet()) {
         req.header(entry.getKey(), entry.getValue());
       }
