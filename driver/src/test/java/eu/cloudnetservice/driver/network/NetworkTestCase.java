@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Assertions;
 
 public abstract class NetworkTestCase {
 
-  protected int randomFreePort(int... disabledPorts) {
+  protected static int randomFreePort(int... disabledPorts) {
     Arrays.sort(disabledPorts); // needed to make the binary search later
 
     var port = 1024; // first non restricted (to root user) port
@@ -32,23 +32,27 @@ public abstract class NetworkTestCase {
       if (port > 0xFFFF) {
         Assertions.fail("No free port found in range 1024 to 65535 which causes tests to break");
       }
+
       // check if the port is ignored
       if (Arrays.binarySearch(disabledPorts, port) >= 0) {
         port++;
         continue;
       }
+
       // check if the port is in use
-      if (this.isPortInUse(port)) {
+      if (isPortInUse(port)) {
         port++;
         continue;
       }
+
       // port is free
       break;
     }
+
     return port;
   }
 
-  protected boolean isPortInUse(int port) {
+  protected static boolean isPortInUse(int port) {
     try (var ignored = new ServerSocket(port, 1, InetAddress.getLoopbackAddress())) {
       return false;
     } catch (Exception ignored) {
