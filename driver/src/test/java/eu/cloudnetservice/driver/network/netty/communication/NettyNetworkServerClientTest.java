@@ -36,7 +36,7 @@ public class NettyNetworkServerClientTest extends NetworkTestCase {
 
   @Test
   void testNetworkServerClientCommunication() throws Exception {
-    var networkPort = this.randomFreePort();
+    var networkPort = randomFreePort();
 
     var eventManager = new DefaultEventManager();
     var componentInfo = new ComponentInfo(DriverEnvironment.WRAPPER, "Testing", "Testing-Node");
