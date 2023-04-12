@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.node.http;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
 import eu.cloudnetservice.driver.network.http.HttpResponse;
@@ -68,15 +69,15 @@ public abstract class V2HttpHandler {
       .header("Access-Control-Allow-Origin", this.restConfiguration.corsPolicy());
   }
 
-  protected @NonNull JsonDocument body(@NonNull HttpRequest request) {
-    return JsonDocument.fromJsonBytes(request.body());
+  protected @NonNull Document.Mutable body(@NonNull HttpRequest request) {
+    return DocumentFactory.json().parse(request.body());
   }
 
-  protected @NonNull JsonDocument success() {
-    return JsonDocument.newDocument("success", true);
+  protected @NonNull Document.Mutable success() {
+    return Document.newJsonDocument().append("success", true);
   }
 
-  protected @NonNull JsonDocument failure() {
-    return JsonDocument.newDocument("success", false);
+  protected @NonNull Document.Mutable failure() {
+    return Document.newJsonDocument().append("success", false);
   }
 }

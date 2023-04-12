@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.smart.listener;
 
 import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.node.event.task.LocalServiceTaskAddEvent;
 import jakarta.inject.Singleton;
@@ -28,7 +29,10 @@ public final class CloudNetLocalServiceTaskListener {
   @EventListener
   public void handle(@NonNull LocalServiceTaskAddEvent event) {
     if (!event.task().propertyHolder().contains("smartConfig")) {
-      event.task().propertyHolder().append("smartConfig", SmartServiceTaskConfig.builder().build());
+      var newTask = ServiceTask.builder(event.task())
+        .modifyProperties(properties -> properties.append("smartConfig", SmartServiceTaskConfig.builder().build()))
+        .build();
+      event.task(newTask);
     }
   }
 }

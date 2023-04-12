@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.node.event.cluster;
 
+import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.event.events.network.NetworkEvent;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import lombok.NonNull;
 
 public final class NetworkClusterNodeInfoUpdateEvent extends NetworkEvent {

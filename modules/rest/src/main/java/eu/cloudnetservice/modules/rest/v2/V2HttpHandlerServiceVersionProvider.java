@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
@@ -113,7 +113,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/serviceversion/add", methods = "POST")
-  private void handleVersionAddRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+  private void handleVersionAddRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var type = body.toInstanceOf(ServiceVersionType.class);
     if (type == null) {
       this.badRequest(context)

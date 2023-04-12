@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.permission;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
@@ -34,12 +34,12 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public class PermissionUserGroupInfo implements DefaultedDocPropertyHolder<JsonDocument, PermissionUserGroupInfo> {
+public class PermissionUserGroupInfo implements DefaultedDocPropertyHolder {
 
   private final String group;
   private final long timeOutMillis;
 
-  private final JsonDocument properties;
+  private final Document properties;
 
   /**
    * Creates a new permission user group info, that creates a relation between a permission user and a permission
@@ -49,7 +49,7 @@ public class PermissionUserGroupInfo implements DefaultedDocPropertyHolder<JsonD
    * @param timeOutMillis the timestamp for the timeout of the group.
    * @param properties    extra properties for the group info.
    */
-  protected PermissionUserGroupInfo(@NonNull String group, long timeOutMillis, @NonNull JsonDocument properties) {
+  protected PermissionUserGroupInfo(@NonNull String group, long timeOutMillis, @NonNull Document properties) {
     this.group = group;
     this.timeOutMillis = timeOutMillis;
     this.properties = properties;
@@ -100,7 +100,7 @@ public class PermissionUserGroupInfo implements DefaultedDocPropertyHolder<JsonD
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 
@@ -113,7 +113,7 @@ public class PermissionUserGroupInfo implements DefaultedDocPropertyHolder<JsonD
 
     private String group;
     private long timeOutMillis = 0;
-    private JsonDocument properties = JsonDocument.newDocument();
+    private Document properties = Document.emptyDocument();
 
     /**
      * Sets the group of this group info.
@@ -170,8 +170,8 @@ public class PermissionUserGroupInfo implements DefaultedDocPropertyHolder<JsonD
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given properties are null.
      */
-    public @NonNull Builder properties(@NonNull JsonDocument properties) {
-      this.properties = properties;
+    public @NonNull Builder properties(@NonNull Document properties) {
+      this.properties = properties.immutableCopy();
       return this;
     }
 

@@ -17,7 +17,8 @@
 package eu.cloudnetservice.node.version.execute.defaults;
 
 import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
@@ -51,7 +52,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
       // check if there are any builds for the version
       if (versionInformation.contains("builds")) {
         // extract the build numbers from the response
-        Set<Integer> builds = versionInformation.get("builds", INT_SET_TYPE);
+        Set<Integer> builds = versionInformation.readObject("builds", INT_SET_TYPE);
         // find the highest build number (the newest build)
         var newestBuild = builds.stream().reduce(Math::max);
         // check if there is a build
@@ -73,15 +74,15 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     return Collections.emptySet();
   }
 
-  private @NonNull JsonDocument makeRequest(@NonNull String apiUrl) {
+  private @NonNull Document makeRequest(@NonNull String apiUrl) {
     var response = Unirest.get(apiUrl)
       .accept("application/json")
       .asString();
 
     if (response.isSuccess()) {
-      return JsonDocument.fromJsonString(response.getBody());
+      return DocumentFactory.json().parse(response.getBody());
     }
-    return JsonDocument.emptyDocument();
+    return Document.newJsonDocument();
   }
 
   @NonNull

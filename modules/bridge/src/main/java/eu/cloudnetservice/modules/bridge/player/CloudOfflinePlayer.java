@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.bridge.player;
 
 import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -35,8 +35,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @ToString
 @EqualsAndHashCode
-public class CloudOfflinePlayer
-  implements DefaultedDocPropertyHolder<JsonDocument, CloudOfflinePlayer>, Cloneable, Nameable {
+public class CloudOfflinePlayer implements DefaultedDocPropertyHolder, Cloneable, Nameable {
 
   protected final String name;
 
@@ -44,7 +43,7 @@ public class CloudOfflinePlayer
   protected long lastLoginTimeMillis;
 
   protected NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo;
-  protected JsonDocument properties;
+  protected Document properties;
 
   /**
    * Constructs a new cloud offline player.
@@ -61,7 +60,7 @@ public class CloudOfflinePlayer
     long firstLoginTimeMillis,
     long lastLoginTimeMillis,
     @NonNull NetworkPlayerProxyInfo proxyInfo,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     this.name = name;
     this.firstLoginTimeMillis = firstLoginTimeMillis;
@@ -83,7 +82,7 @@ public class CloudOfflinePlayer
       onlineVariant.firstLoginTimeMillis(),
       onlineVariant.lastLoginTimeMillis(),
       onlineVariant.networkPlayerProxyInfo().clone(),
-      onlineVariant.propertyHolder().clone());
+      onlineVariant.propertyHolder().immutableCopy());
   }
 
   /**
@@ -155,7 +154,7 @@ public class CloudOfflinePlayer
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 

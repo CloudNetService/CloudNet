@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.database;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.document.Document;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
@@ -31,7 +31,7 @@ public interface LocalDatabase extends Database {
    *
    * @param consumer the consumer to pass the entries into
    */
-  void iterate(@NonNull BiConsumer<String, JsonDocument> consumer);
+  void iterate(@NonNull BiConsumer<String, Document> consumer);
 
   /**
    * Iterates over all entries in the database, but in chunks in the given size
@@ -39,7 +39,7 @@ public interface LocalDatabase extends Database {
    * @param consumer  the consumer to pass the entries into
    * @param chunkSize the chunkSize of the entries
    */
-  void iterate(@NonNull BiConsumer<String, JsonDocument> consumer, int chunkSize);
+  void iterate(@NonNull BiConsumer<String, Document> consumer, int chunkSize);
 
-  @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize);
+  @Nullable Map<String, Document> readChunk(long beginIndex, int chunkSize);
 }

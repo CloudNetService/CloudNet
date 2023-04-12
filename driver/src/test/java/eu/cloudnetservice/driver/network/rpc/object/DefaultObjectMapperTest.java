@@ -18,7 +18,8 @@ package eu.cloudnetservice.driver.network.rpc.object;
 
 import com.google.common.collect.Maps;
 import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.TestInjectionLayerConfigurator;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
@@ -40,6 +41,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -138,8 +140,13 @@ public class DefaultObjectMapperTest {
           .build(),
         System.nanoTime(),
         ServiceLifeCycle.STOPPED,
-        JsonDocument.newDocument("test", 1234)))
+        Document.newJsonDocument().append("test", 1234)))
     );
+  }
+
+  @BeforeAll
+  static void setupBootInjectionLayer() {
+    TestInjectionLayerConfigurator.loadAutoconfigureBindings();
   }
 
   @Order(0)

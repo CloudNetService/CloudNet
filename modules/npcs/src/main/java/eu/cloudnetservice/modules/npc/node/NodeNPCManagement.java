@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.npc.node;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -102,7 +102,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
 
   @Override
   public void createNPC(@NonNull NPC npc) {
-    this.database.insert(documentKey(npc.location()), JsonDocument.newDocument(npc));
+    this.database.insert(documentKey(npc.location()), Document.newJsonDocument().appendTree(npc));
     this.npcs.put(npc.location(), npc);
 
     this.channelMessage(NPC_CREATED)
@@ -175,6 +175,6 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   @Override
   public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
     super.handleInternalNPCConfigUpdate(configuration);
-    JsonDocument.newDocument(configuration).write(this.configurationPath);
+    Document.newJsonDocument().appendTree(configuration).writeTo(this.configurationPath);
   }
 }

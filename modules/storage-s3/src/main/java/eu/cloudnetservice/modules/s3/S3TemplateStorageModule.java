@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.modules.s3;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -49,7 +50,8 @@ public final class S3TemplateStorageModule extends DriverModule {
         false,
         true,
         true,
-        false));
+        false),
+      DocumentFactory.json());
     // init the storage
     this.storage = new S3TemplateStorage(this);
     serviceRegistry.registerProvider(TemplateStorage.class, this.config.name(), this.storage);
@@ -72,7 +74,7 @@ public final class S3TemplateStorageModule extends DriverModule {
 
   public void writeConfig(@NonNull S3TemplateStorageConfig config) {
     this.config = config;
-    this.writeConfig(JsonDocument.newDocument(config));
+    this.writeConfig(Document.newJsonDocument().appendTree(config));
   }
 
   public @NonNull S3TemplateStorageConfig config() {

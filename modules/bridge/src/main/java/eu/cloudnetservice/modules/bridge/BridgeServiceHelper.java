@@ -69,7 +69,7 @@ public final class BridgeServiceHelper {
   }
 
   /**
-   * Tries to guess the {@link ServiceInfoState} from the lifecycle and {@link BridgeServiceProperties} of the given
+   * Tries to guess the {@link ServiceInfoState} from the lifecycle and {@link BridgeDocProperties} of the given
    * service.
    * <ol>
    *   <li>If the service is not running or not in-game {@link ServiceInfoState#STOPPED} is guessed.</li>
@@ -83,7 +83,7 @@ public final class BridgeServiceHelper {
    * @param service the service to guess the state of.
    * @return the guessed service info state.
    * @throws NullPointerException if the given service is null.
-   * @see BridgeServiceProperties
+   * @see BridgeDocProperties
    */
   public static @NonNull ServiceInfoState guessStateFromServiceInfoSnapshot(@NonNull ServiceInfoSnapshot service) {
     // convert not running or ingame services to STOPPED
@@ -155,17 +155,17 @@ public final class BridgeServiceHelper {
     value = value.replace("%max_heap_usage%", Long.toString(service.processSnapshot().maxHeapMemory()));
     value = value.replace("%cpu_usage%", CPUUsageResolver.defaultFormat().format(service.processSnapshot().cpuUsage()));
     // bridge information
-    value = value.replace("%online%", service.readProperty(BridgeServiceProperties.IS_ONLINE) ? "Online" : "Offline");
+    value = value.replace("%online%", service.readProperty(BridgeDocProperties.IS_ONLINE) ? "Online" : "Offline");
     value = value.replace(
       "%online_players%",
-      Integer.toString(service.readProperty(BridgeServiceProperties.ONLINE_COUNT)));
+      Integer.toString(service.readProperty(BridgeDocProperties.ONLINE_COUNT)));
     value = value.replace(
       "%max_players%",
-      Integer.toString(service.readProperty(BridgeServiceProperties.MAX_PLAYERS)));
-    value = value.replace("%motd%", service.readProperty(BridgeServiceProperties.MOTD));
-    value = value.replace("%extra%", service.readProperty(BridgeServiceProperties.EXTRA));
-    value = value.replace("%state%", service.readProperty(BridgeServiceProperties.STATE));
-    value = value.replace("%version%", service.readProperty(BridgeServiceProperties.VERSION));
+      Integer.toString(service.readProperty(BridgeDocProperties.MAX_PLAYERS)));
+    value = value.replace("%motd%", service.readProperty(BridgeDocProperties.MOTD));
+    value = value.replace("%extra%", service.readProperty(BridgeDocProperties.EXTRA));
+    value = value.replace("%state%", service.readProperty(BridgeDocProperties.STATE));
+    value = value.replace("%version%", service.readProperty(BridgeDocProperties.VERSION));
     // done
     return value;
   }
@@ -175,7 +175,7 @@ public final class BridgeServiceHelper {
    * <ul>
    *   <li>the lifecycle is running</li>
    *   <li>the service is connected</li>
-   *   <li>the service is marked as online {@link BridgeServiceProperties#IS_ONLINE}</li>
+   *   <li>the service is marked as online {@link BridgeDocProperties#IS_ONLINE}</li>
    *   <li>the service has a present online count as it is 0</li>
    * </ul>
    *
@@ -185,8 +185,8 @@ public final class BridgeServiceHelper {
    */
   public static boolean emptyService(@NonNull ServiceInfoSnapshot service) {
     return service.connected()
-      && service.readProperty(BridgeServiceProperties.IS_ONLINE)
-      && service.readProperty(BridgeServiceProperties.ONLINE_COUNT) == 0;
+      && service.readProperty(BridgeDocProperties.IS_ONLINE)
+      && service.readProperty(BridgeDocProperties.ONLINE_COUNT) == 0;
   }
 
   /**
@@ -194,7 +194,7 @@ public final class BridgeServiceHelper {
    * <ul>
    *   <li>the lifecycle is running</li>
    *   <li>the service is connected</li>
-   *   <li>the service is marked as online {@link BridgeServiceProperties#IS_ONLINE}</li>
+   *   <li>the service is marked as online {@link BridgeDocProperties#IS_ONLINE}</li>
    *   <li>the service has both an online and max player count</li>
    *   <li>the online count is equal or higher than the max player count</li>
    * </ul>
@@ -205,16 +205,16 @@ public final class BridgeServiceHelper {
    */
   public static boolean fullService(@NonNull ServiceInfoSnapshot service) {
     return service.connected()
-      && service.readProperty(BridgeServiceProperties.IS_ONLINE)
-      && service.readProperty(BridgeServiceProperties.ONLINE_COUNT)
-      >= service.readProperty(BridgeServiceProperties.MAX_PLAYERS);
+      && service.readProperty(BridgeDocProperties.IS_ONLINE)
+      && service.readProperty(BridgeDocProperties.ONLINE_COUNT)
+      >= service.readProperty(BridgeDocProperties.MAX_PLAYERS);
   }
 
   /**
    * Checks if the given service is starting. This is only the case if all following conditions apply:
    * <ul>
    *  <li>the lifecycle is running</li>
-   *  <li>the service is <strong>NOT</strong> marked as online {@link BridgeServiceProperties#IS_ONLINE}</li>
+   *  <li>the service is <strong>NOT</strong> marked as online {@link BridgeDocProperties#IS_ONLINE}</li>
    * </ul>
    *
    * @param service the service to check.
@@ -222,7 +222,7 @@ public final class BridgeServiceHelper {
    * @throws NullPointerException if the given service is null.
    */
   public static boolean startingService(@NonNull ServiceInfoSnapshot service) {
-    return service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.readProperty(BridgeServiceProperties.IS_ONLINE);
+    return service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.readProperty(BridgeDocProperties.IS_ONLINE);
   }
 
   /**
@@ -230,7 +230,7 @@ public final class BridgeServiceHelper {
    *  <ul>
    *    <li>the lifecycle is running</li>
    *    <li>the service is connected</li>
-   *    <li>the service is marked as online {@link BridgeServiceProperties#IS_ONLINE}</li>
+   *    <li>the service is marked as online {@link BridgeDocProperties#IS_ONLINE}</li>
    *    <li>the motd, the state or the extra matches any value representing the in-game state {@link #matchesInGameString(String)}</li>
    * </ul>
    *
@@ -241,10 +241,10 @@ public final class BridgeServiceHelper {
   public static boolean inGameService(@NonNull ServiceInfoSnapshot service) {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING
       && service.connected()
-      && service.readProperty(BridgeServiceProperties.IS_ONLINE)
-      && (matchesInGameString(service.readProperty(BridgeServiceProperties.MOTD))
-      || matchesInGameString(service.readProperty(BridgeServiceProperties.EXTRA))
-      || matchesInGameString(service.readProperty(BridgeServiceProperties.STATE)));
+      && service.readProperty(BridgeDocProperties.IS_ONLINE)
+      && (matchesInGameString(service.readProperty(BridgeDocProperties.MOTD))
+      || matchesInGameString(service.readProperty(BridgeDocProperties.EXTRA))
+      || matchesInGameString(service.readProperty(BridgeDocProperties.STATE)));
   }
 
   /**

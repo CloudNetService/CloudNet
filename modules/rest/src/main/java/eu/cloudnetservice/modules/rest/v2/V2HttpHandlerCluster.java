@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
@@ -86,7 +86,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
   private void handleNodeCommandRequest(
     @NonNull HttpContext context,
     @NonNull @RequestPathParam("node") String node,
-    @NonNull @RequestBody JsonDocument body
+    @NonNull @RequestBody Document body
   ) {
     var nodeServer = this.nodeServerProvider.node(node);
     var commandLine = body.getString("command");
@@ -110,7 +110,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/cluster", methods = "POST")
-  private void handleNodeCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+  private void handleNodeCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var server = body.toInstanceOf(NetworkClusterNode.class);
     if (server == null) {
       this.badRequest(context)
@@ -166,7 +166,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/cluster", methods = "PUT")
-  private void handleNodeUpdateRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+  private void handleNodeUpdateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var server = body.toInstanceOf(NetworkClusterNode.class);
     if (server == null) {
       this.badRequest(context)
@@ -203,8 +203,9 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
     }
   }
 
-  private @NonNull JsonDocument createNodeInfoDocument(@NonNull NodeServer node) {
-    return JsonDocument.newDocument("node", node.info())
+  private @NonNull Document createNodeInfoDocument(@NonNull NodeServer node) {
+    return Document.newJsonDocument()
+      .append("node", node.info())
       .append("state", node.state())
       .append("head", node.head())
       .append("local", node instanceof LocalNodeServer)

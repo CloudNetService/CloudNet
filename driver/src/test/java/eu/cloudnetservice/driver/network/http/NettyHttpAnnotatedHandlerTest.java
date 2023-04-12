@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.network.http;
 
 import static eu.cloudnetservice.driver.network.http.NettyHttpServerTest.connectTo;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.NetworkTestCase;
 import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
@@ -93,7 +93,7 @@ public class NettyHttpAnnotatedHandlerTest extends NetworkTestCase {
       con.setRequestMethod("POST");
     }));
     try (var out = connection2.getOutputStream()) {
-      out.write(JsonDocument.newDocument().append("test", "hello world!").toString().getBytes(StandardCharsets.UTF_8));
+      out.write(Document.newJsonDocument().append("test", "hello world!").toString().getBytes(StandardCharsets.UTF_8));
       out.flush();
     }
 
@@ -141,7 +141,7 @@ public class NettyHttpAnnotatedHandlerTest extends NetworkTestCase {
     }
 
     @HttpRequestHandler(paths = "/test/body", methods = "POST")
-    public void handleBody(HttpContext context, @RequestBody String body, @RequestBody JsonDocument bodyDoc) {
+    public void handleBody(HttpContext context, @RequestBody String body, @RequestBody Document bodyDoc) {
       Assertions.assertTrue(body.startsWith("{") && body.endsWith("}"));
       Assertions.assertEquals("hello world!", bodyDoc.getString("test"));
       context.response().status(HttpResponseCode.ACCEPTED);

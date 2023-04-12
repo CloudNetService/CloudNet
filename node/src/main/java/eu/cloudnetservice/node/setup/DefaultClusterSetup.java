@@ -17,9 +17,9 @@
 package eu.cloudnetservice.node.setup;
 
 import com.google.common.collect.Lists;
+import eu.cloudnetservice.driver.cluster.NetworkCluster;
+import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.HostAndPort;
-import eu.cloudnetservice.driver.network.cluster.NetworkCluster;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;

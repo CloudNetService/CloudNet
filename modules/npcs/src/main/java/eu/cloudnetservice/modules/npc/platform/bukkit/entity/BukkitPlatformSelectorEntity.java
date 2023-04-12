@@ -20,8 +20,8 @@ import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
@@ -370,12 +370,12 @@ public abstract class BukkitPlatformSelectorEntity
       case DIRECT_CONNECT_LOWEST_PLAYERS -> this.serviceItems.values().stream()
         .filter(ServiceItemWrapper::canConnectTo)
         .map(ServiceItemWrapper::service)
-        .min(Comparator.comparingInt(service -> service.readProperty(BridgeServiceProperties.ONLINE_COUNT)))
+        .min(Comparator.comparingInt(service -> service.readProperty(BridgeDocProperties.ONLINE_COUNT)))
         .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       case DIRECT_CONNECT_HIGHEST_PLAYERS -> this.serviceItems.values().stream()
         .filter(ServiceItemWrapper::canConnectTo)
         .map(ServiceItemWrapper::service)
-        .max(Comparator.comparingInt(service -> service.readProperty(BridgeServiceProperties.ONLINE_COUNT)))
+        .max(Comparator.comparingInt(service -> service.readProperty(BridgeDocProperties.ONLINE_COUNT)))
         .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       default -> {
       }
@@ -531,11 +531,11 @@ public abstract class BukkitPlatformSelectorEntity
       // general info
       var onlinePlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::service)
-        .mapToInt(snapshot -> snapshot.readProperty(BridgeServiceProperties.ONLINE_COUNT))
+        .mapToInt(snapshot -> snapshot.readProperty(BridgeDocProperties.ONLINE_COUNT))
         .sum());
       var maxPlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::service)
-        .mapToInt(snapshot -> snapshot.readProperty(BridgeServiceProperties.MAX_PLAYERS))
+        .mapToInt(snapshot -> snapshot.readProperty(BridgeDocProperties.MAX_PLAYERS))
         .sum());
       var onlineServers = Integer.toString(tracked.size());
       // rebuild the info line

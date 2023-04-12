@@ -20,7 +20,8 @@ import com.google.gson.JsonSyntaxException;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.InjectionContext;
 import dev.derklaro.aerogel.util.Qualifiers;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.DefaultModule;
 import eu.cloudnetservice.driver.module.Module;
@@ -50,22 +51,21 @@ public class DriverModule extends DefaultModule {
    * Reads the configuration file of this module from the default or overridden configuration path (via module.json)
    * into a json document, throwing an exception when the document is invalid.
    *
+   * @param factory the config factory to use when parsing the configuration.
    * @return the config at the default path.
    * @throws JsonSyntaxException if the document is invalid.
-   * @see JsonDocument#newDocument(Path)
    */
-  public @NonNull JsonDocument readConfig() {
-    return JsonDocument.newDocument(this.configPath());
+  public @NonNull Document readConfig(@NonNull DocumentFactory factory) {
+    return factory.parse(this.configPath());
   }
 
   /**
-   * Writes the given {@link JsonDocument} to the default configuration path {@link DriverModule#configPath()}.
+   * Writes the given configuration document to the default configuration path {@link DriverModule#configPath()}.
    *
    * @param config the config to write.
-   * @see JsonDocument#write(Path)
    */
-  public void writeConfig(@NonNull JsonDocument config) {
-    config.write(this.configPath());
+  public void writeConfig(@NonNull Document config) {
+    config.writeTo(this.configPath());
   }
 
   /**
@@ -77,21 +77,26 @@ public class DriverModule extends DefaultModule {
    *
    * @param configModelType      the modeling class of the configuration.
    * @param defaultConfigFactory a factory constructing a default config instance if needed.
+   * @param documentFactory      the document factory to use when reading the configuration file.
    * @param <T>                  the type of the configuration model.
    * @return a newly created default config instance or the read config instance from the config path.
    * @throws NullPointerException                if either the given config model or config factory is null.
    * @throws ModuleConfigurationInvalidException if the reader is unable to read the configuration model from the file.
    */
-  public @NonNull <T> T readConfig(@NonNull Class<T> configModelType, @NonNull Supplier<T> defaultConfigFactory) {
+  public @NonNull <T> T readConfig(
+    @NonNull Class<T> configModelType,
+    @NonNull Supplier<T> defaultConfigFactory,
+    @NonNull DocumentFactory documentFactory
+  ) {
     // check if the config already exists, create a default one if not
     if (Files.notExists(this.configPath())) {
       var config = defaultConfigFactory.get();
-      this.writeConfig(JsonDocument.newDocument(config));
+      this.writeConfig(documentFactory.newDocument().appendTree(config));
       return config;
     } else {
       // either we can read the config to the given model type, or we return null and let the module handle it
       try {
-        return this.readConfig().toInstanceOf(configModelType);
+        return documentFactory.parse(this.configPath()).toInstanceOf(configModelType);
       } catch (Exception exception) {
         // wrap and rethrow the exception
         throw new ModuleConfigurationInvalidException(this.configPath(), exception);
@@ -103,18 +108,19 @@ public class DriverModule extends DefaultModule {
    * Reads the module configuration file and converts the type of the configuration to the given model type, creating
    * the configuration if necessary. Any exceptions thrown when reading the configuration are forwarded to the caller.
    * <p>
-   * Afterwards the given class type is instantiated with the loaded config and config path being known while creating
-   * the class instance. Bindings are respected by this method.
+   * Then the given class type is instantiated with the loaded config and config path being known while creating the
+   * class instance. Bindings are respected by this method.
    * <p>
    * If further customization of the injection context which is taking over the injection process is needed, the method
-   * {@link #readConfigAndInstantiate(InjectionLayer, Class, Supplier, Class, Consumer)} is able to allow for further
-   * customization of the class injection context (for example needed if other non-constructable types are required to
-   * instantiate the binding of the given type).
+   * {@link #readConfigAndInstantiate(InjectionLayer, Class, Supplier, Class, Consumer, DocumentFactory)} is able to
+   * allow for further customization of the class injection context (for example needed if other non-constructable types
+   * are required to instantiate the binding of the given type).
    *
    * @param injectionLayer       the injection layer to use when instantiating the given type to instantiate.
    * @param configModelType      the modeling class of the configuration.
    * @param defaultConfigFactory a factory constructing a default config instance if needed.
    * @param classToInstantiate   the class to instantiate after successfully loading the configuration.
+   * @param documentFactory      the document factory to use when reading the configuration file.
    * @param <C>                  the type of the configuration model.
    * @param <T>                  the type modeling the class which should be instantiated.
    * @return the constructed instance of the given type, constructed with the configuration known to the context.
@@ -126,7 +132,8 @@ public class DriverModule extends DefaultModule {
     @NonNull InjectionLayer<?> injectionLayer,
     @NonNull Class<C> configModelType,
     @NonNull Supplier<C> defaultConfigFactory,
-    @NonNull Class<T> classToInstantiate
+    @NonNull Class<T> classToInstantiate,
+    @NonNull DocumentFactory documentFactory
   ) {
     return this.readConfigAndInstantiate(
       injectionLayer,
@@ -134,7 +141,8 @@ public class DriverModule extends DefaultModule {
       defaultConfigFactory,
       classToInstantiate,
       $ -> {
-      });
+      },
+      documentFactory);
   }
 
   /**
@@ -154,6 +162,7 @@ public class DriverModule extends DefaultModule {
    * @param defaultConfigFactory a factory constructing a default config instance if needed.
    * @param classToInstantiate   the class to instantiate after successfully loading the configuration.
    * @param builderDecorator     the decorator to apply to the injection context builder, for further customization.
+   * @param documentFactory      the document factory to use when reading the configuration file.
    * @param <C>                  the type of the configuration model.
    * @param <T>                  the type modeling the class which should be instantiated.
    * @return the constructed instance of the given type, constructed with the configuration known to the context.
@@ -166,10 +175,11 @@ public class DriverModule extends DefaultModule {
     @NonNull Class<C> configModelType,
     @NonNull Supplier<C> defaultConfigFactory,
     @NonNull Class<T> classToInstantiate,
-    @NonNull Consumer<InjectionContext.Builder> builderDecorator
+    @NonNull Consumer<InjectionContext.Builder> builderDecorator,
+    @NonNull DocumentFactory documentFactory
   ) {
     // read the config
-    var config = this.readConfig(configModelType, defaultConfigFactory);
+    var config = this.readConfig(configModelType, defaultConfigFactory, documentFactory);
     return injectionLayer.instance(classToInstantiate, builder -> {
       // write the default elements to the builder
       builder.override(configModelType, config);
@@ -186,7 +196,7 @@ public class DriverModule extends DefaultModule {
    * @return the path of the config.
    * @see ModuleWrapper#dataDirectory()
    */
-  protected @NonNull Path configPath() {
+  public @NonNull Path configPath() {
     return this.moduleWrapper().dataDirectory().resolve("config.json");
   }
 }

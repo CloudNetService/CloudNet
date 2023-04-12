@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.smart.util;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import lombok.NonNull;
 
@@ -40,8 +40,8 @@ public final class SmartUtil {
   }
 
   public static double playerPercentage(@NonNull ServiceInfoSnapshot snapshot) {
-    var onlinePlayers = snapshot.readProperty(BridgeServiceProperties.ONLINE_COUNT);
-    var maxPlayers = snapshot.readProperty(BridgeServiceProperties.MAX_PLAYERS);
+    var onlinePlayers = snapshot.readProperty(BridgeDocProperties.ONLINE_COUNT);
+    var maxPlayers = snapshot.readProperty(BridgeDocProperties.MAX_PLAYERS);
     // get the player percentage
     return percentage(onlinePlayers, maxPlayers);
   }

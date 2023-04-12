@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.modules.sftp;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -46,10 +47,10 @@ public final class SFTPTemplateStorageModule extends DriverModule {
       .resolve("CloudNet-Storage-FTP")
       .resolve("config.json");
     if (Files.exists(oldConfigPath)) {
-      var config = JsonDocument.newDocument(oldConfigPath);
       // convert to the new config format
+      var config = DocumentFactory.json().parse(oldConfigPath);
       this.updateConfig(new SFTPTemplateStorageConfig(
-        config.get("address", HostAndPort.class),
+        config.readObject("address", HostAndPort.class),
         config.getString("storage"),
         config.getString("username"),
         config.getString("password"),
@@ -65,7 +66,10 @@ public final class SFTPTemplateStorageModule extends DriverModule {
 
   @ModuleTask(lifecycle = ModuleLifeCycle.LOADED)
   public void handleInit(@NonNull ServiceRegistry serviceRegistry, @NonNull DataSyncRegistry dataSyncRegistry) {
-    this.config = this.readConfig(SFTPTemplateStorageConfig.class, SFTPTemplateStorageConfig::new);
+    this.config = this.readConfig(
+      SFTPTemplateStorageConfig.class,
+      SFTPTemplateStorageConfig::new,
+      DocumentFactory.json());
     // init the storage
     this.storage = new SFTPTemplateStorage(this.config);
     serviceRegistry.registerProvider(TemplateStorage.class, this.storage.name(), this.storage);
@@ -88,6 +92,6 @@ public final class SFTPTemplateStorageModule extends DriverModule {
 
   public void updateConfig(@NonNull SFTPTemplateStorageConfig config) {
     this.config = config;
-    this.writeConfig(JsonDocument.newDocument(config));
+    this.writeConfig(Document.newJsonDocument().appendTree(config));
   }
 }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.network.listener.message;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -63,7 +63,7 @@ public final class ServiceChannelMessageListener {
 
         // force update request of the service information with new properties
         case "request_update_service_information_with_new_properties" -> {
-          var properties = event.content().readObject(JsonDocument.class);
+          var properties = event.content().readObject(Document.class);
           var snapshot = serviceInfoHolder.createServiceInfoSnapshot(properties);
 
           // publish the new service info

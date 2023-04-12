@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.node.database.xodus;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.database.AbstractDatabase;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -48,12 +49,12 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
+  public boolean insert(@NonNull String key, @NonNull Document document) {
     return this.environment.computeInExclusiveTransaction(
       txn -> this.store().put(
         txn,
         StringBinding.stringToEntry(key),
-        new ArrayByteIterable(document.toString().getBytes(StandardCharsets.UTF_8))));
+        new ArrayByteIterable(this.serializeDocumentToJsonString(document).getBytes(StandardCharsets.UTF_8))));
   }
 
   @Override
@@ -68,15 +69,15 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @Nullable JsonDocument get(@NonNull String key) {
+  public @Nullable Document get(@NonNull String key) {
     return this.environment.computeInReadonlyTransaction(txn -> {
       var entry = this.store().get(txn, StringBinding.stringToEntry(key));
-      return entry == null ? null : JsonDocument.fromJsonBytes(entry.getBytesUnsafe());
+      return entry == null ? null : DocumentFactory.json().parse(entry.getBytesUnsafe());
     });
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull String fieldName, @Nullable String fieldValue) {
+  public @NonNull List<Document> find(@NonNull String fieldName, @Nullable String fieldValue) {
     return this.handleWithCursor(($, document) -> {
       if (Objects.equals(document.getString(fieldName), fieldValue)) {
         return document;
@@ -86,7 +87,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> find(@NonNull Map<String, String> filters) {
+  public @NonNull List<Document> find(@NonNull Map<String, String> filters) {
     var entries = filters.entrySet();
     return this.handleWithCursor(($, document) -> {
       for (var entry : entries) {
@@ -104,19 +105,19 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull Collection<JsonDocument> documents() {
+  public @NonNull Collection<Document> documents() {
     return this.handleWithCursor(($, document) -> document);
   }
 
   @Override
-  public @NonNull Map<String, JsonDocument> entries() {
-    Map<String, JsonDocument> result = new HashMap<>();
+  public @NonNull Map<String, Document> entries() {
+    Map<String, Document> result = new HashMap<>();
     this.acceptWithCursor(result::put);
     return result;
   }
 
   @Override
-  public void iterate(@NonNull BiConsumer<String, JsonDocument> consumer) {
+  public void iterate(@NonNull BiConsumer<String, Document> consumer) {
     this.acceptWithCursor(consumer);
   }
 
@@ -142,7 +143,7 @@ public class XodusDatabase extends AbstractDatabase {
   public void close() {
   }
 
-  protected @NonNull <T> List<T> handleWithCursor(@NonNull BiFunction<String, JsonDocument, T> mapper) {
+  protected @NonNull <T> List<T> handleWithCursor(@NonNull BiFunction<String, Document, T> mapper) {
     List<T> result = new ArrayList<>();
     this.acceptWithCursor((key, document) -> {
       var computed = mapper.apply(key, document);
@@ -153,20 +154,20 @@ public class XodusDatabase extends AbstractDatabase {
     return result;
   }
 
-  protected void acceptWithCursor(@NonNull BiConsumer<String, JsonDocument> handler) {
+  protected void acceptWithCursor(@NonNull BiConsumer<String, Document> handler) {
     this.environment.executeInReadonlyTransaction(txn -> {
       try (var cursor = this.store().openCursor(txn)) {
         while (cursor.getNext()) {
           handler.accept(
             StringBinding.entryToString(cursor.getKey()),
-            JsonDocument.fromJsonBytes(cursor.getValue().getBytesUnsafe()));
+            DocumentFactory.json().parse(cursor.getValue().getBytesUnsafe()));
         }
       }
     });
   }
 
   @Override
-  public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
+  public @Nullable Map<String, Document> readChunk(long beginIndex, int chunkSize) {
     return this.environment.computeInReadonlyTransaction(txn -> {
       try (var cursor = this.store().openCursor(txn)) {
         // skip to the begin index
@@ -176,13 +177,13 @@ public class XodusDatabase extends AbstractDatabase {
           }
         }
 
-        Map<String, JsonDocument> result = new HashMap<>();
+        Map<String, Document> result = new HashMap<>();
 
         long currentReadCount = 0;
         while (chunkSize > currentReadCount && cursor.getNext()) {
           result.put(
             StringBinding.entryToString(cursor.getKey()),
-            JsonDocument.fromJsonBytes(cursor.getValue().getBytesUnsafe()));
+            DocumentFactory.json().parse(cursor.getValue().getBytesUnsafe()));
           currentReadCount++;
         }
 

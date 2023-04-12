@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.modules.labymod.node;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
@@ -46,28 +47,28 @@ public class CloudNetLabyModModule extends DriverModule {
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     if (Files.exists(this.configPath())) {
-      var config = this.readConfig().getDocument("config");
       // there is a config, run the conversion
+      var config = this.readConfig(DocumentFactory.json()).readDocument("config");
       if (!config.empty()) {
         // rewrite the config with all settings from the old config, but in the new format
-        this.writeConfig(JsonDocument.newDocument(
+        this.writeConfig(Document.newJsonDocument().appendTree(
           LabyModConfiguration.builder()
             .enabled(config.getBoolean("enabled"))
-            .discordRPC(this.convertDisplayEntry(config.getDocument("discordRPC")))
-            .gameModeSwitch(this.convertDisplayEntry(config.getDocument("gameModeSwitchMessages")))
-            .joinMatch(config.getDocument("discordJoinMatch").toInstanceOf(LabyModDiscordRPC.class))
+            .discordRPC(this.convertDisplayEntry(config.readDocument("discordRPC")))
+            .gameModeSwitch(this.convertDisplayEntry(config.readDocument("gameModeSwitchMessages")))
+            .joinMatch(config.readDocument("discordJoinMatch").toInstanceOf(LabyModDiscordRPC.class))
             .spectateMatch(LabyModDiscordRPC.builder()
               .enabled(config.getBoolean("discordSpectateEnabled"))
-              .excludedGroups(config.get(
+              .excludedGroups(config.readObject(
                 "excludedSpectateGroups",
                 TypeFactory.parameterizedClass(Collection.class, String.class)))
               .build())
             .loginDomain(config.getString("loginDomain"))
-            .banner(config.get("bannerConfig", LabyModBanner.class))
+            .banner(config.readObject("bannerConfig", LabyModBanner.class))
             .permissions(LabyModPermissions.builder()
-              .enabled(config.getDocument("permissionConfig").getBoolean("enabled"))
-              .permissions(config.getDocument("permissionConfig")
-                .get(
+              .enabled(config.readDocument("permissionConfig").getBoolean("enabled"))
+              .permissions(config.readDocument("permissionConfig")
+                .readObject(
                   "labyModPermissions",
                   TypeFactory.parameterizedClass(Map.class, String.class, Boolean.class)))
               .build())
@@ -87,7 +88,8 @@ public class CloudNetLabyModModule extends DriverModule {
       layer,
       LabyModConfiguration.class,
       () -> LabyModConfiguration.builder().build(),
-      NodeLabyModManagement.class);
+      NodeLabyModManagement.class,
+      DocumentFactory.json());
 
     // sync the config of the module into the cluster
     dataSyncRegistry.registerHandler(
@@ -126,7 +128,7 @@ public class CloudNetLabyModModule extends DriverModule {
       }));
   }
 
-  private @NonNull LabyModServiceDisplay convertDisplayEntry(@NonNull JsonDocument entry) {
+  private @NonNull LabyModServiceDisplay convertDisplayEntry(@NonNull Document entry) {
     var enabled = entry.getBoolean("enabled");
     var format = entry.getString("format");
     var displayType = entry.getString("displayType");
@@ -139,6 +141,9 @@ public class CloudNetLabyModModule extends DriverModule {
   }
 
   private @NonNull LabyModConfiguration loadConfiguration() {
-    return this.readConfig(LabyModConfiguration.class, () -> LabyModConfiguration.builder().build());
+    return this.readConfig(
+      LabyModConfiguration.class,
+      () -> LabyModConfiguration.builder().build(),
+      DocumentFactory.json());
   }
 }

@@ -19,14 +19,14 @@ package eu.cloudnetservice.node.cluster.defaults;
 import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.CloudNetVersion;
+import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
@@ -236,7 +236,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
       this.moduleProvider.modules().stream()
         .map(ModuleWrapper::moduleConfiguration)
         .collect(Collectors.toSet()),
-      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.propertyHolder());
+      this.currentSnapshot == null ? Document.newJsonDocument() : this.currentSnapshot.propertyHolder());
     // configure the snapshot
     snapshot = this.eventManager.callEvent(new LocalNodeSnapshotConfigureEvent(snapshot)).snapshot();
     this.updateNodeInfoSnapshot(snapshot);

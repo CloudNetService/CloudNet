@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver;
 
 import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -34,19 +34,19 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public final class DriverEnvironment implements DefaultedDocPropertyHolder<JsonDocument, DriverEnvironment>, Nameable {
+public final class DriverEnvironment implements DefaultedDocPropertyHolder, Nameable {
 
   /**
    * The jvm-static representation of the node environment.
    */
-  public static final DriverEnvironment NODE = new DriverEnvironment("node", JsonDocument.newDocument());
+  public static final DriverEnvironment NODE = new DriverEnvironment("node", Document.emptyDocument());
   /**
    * The jvm-static representation of the wrapper environment.
    */
-  public static final DriverEnvironment WRAPPER = new DriverEnvironment("wrapper", JsonDocument.newDocument());
+  public static final DriverEnvironment WRAPPER = new DriverEnvironment("wrapper", Document.emptyDocument());
 
   private final String name;
-  private final JsonDocument properties;
+  private final Document properties;
 
   /**
    * Constructs a new driver environment instance.
@@ -55,7 +55,7 @@ public final class DriverEnvironment implements DefaultedDocPropertyHolder<JsonD
    * @param properties the properties of the environment.
    * @throws NullPointerException if the given name or properties are null.
    */
-  public DriverEnvironment(@NonNull String name, @NonNull JsonDocument properties) {
+  public DriverEnvironment(@NonNull String name, @NonNull Document properties) {
     this.name = name;
     this.properties = properties;
   }
@@ -72,7 +72,7 @@ public final class DriverEnvironment implements DefaultedDocPropertyHolder<JsonD
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 }

@@ -17,8 +17,8 @@
 package eu.cloudnetservice.node.module.util;
 
 import dev.derklaro.aerogel.auto.Factory;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.module.ModulesHolder;
 import jakarta.inject.Named;
 import java.io.IOException;
@@ -42,7 +42,7 @@ public final class ModuleUpdateUtil {
     // check if the file exists, if the file does not exist (probably when running in development mode) then we silently
     // ignore that and return an empty module holder
     if (Files.exists(jsonFile)) {
-      return JsonDocument.newDocument(jsonFile).toInstanceOf(ModulesHolder.class);
+      return DocumentFactory.json().parse(jsonFile).toInstanceOf(ModulesHolder.class);
     } else {
       return new ModulesHolder(Set.of());
     }
@@ -61,7 +61,7 @@ public final class ModuleUpdateUtil {
           var moduleJson = fs.getPath("module.json");
           if (Files.exists(moduleJson)) {
             // read the module json and check if the name matches the expected one
-            var name = JsonDocument.newDocument(moduleJson).getString("name");
+            var name = DocumentFactory.json().parse(moduleJson).getString("name");
             return name != null && name.equals(moduleName);
           }
           // not a module file

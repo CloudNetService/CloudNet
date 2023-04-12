@@ -133,7 +133,8 @@ public class CloudNetSignsModule extends DriverModule {
       // remove the old document from the database
       db.delete("signs_store");
       // check if the old sign document even contains the signs
-      Collection<eu.cloudnetservice.modules.signs._deprecated.Sign> oldSigns = document.get("signs",
+      Collection<eu.cloudnetservice.modules.signs._deprecated.Sign> oldSigns = document.readObject(
+        "signs",
         SignConstants.COLLECTION_SIGNS);
       if (oldSigns != null) {
         // convert the old sign entries
