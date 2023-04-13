@@ -51,7 +51,7 @@ public final class V2HttpHandlerTemplateStorage extends V2HttpHandler {
         .toString())
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
   @BearerAuth
@@ -64,7 +64,7 @@ public final class V2HttpHandlerTemplateStorage extends V2HttpHandler {
       .body(this.success().append("templates", templateStorage.templates()).toString())
       .context()
       .closeAfter(true)
-      .cancelNext());
+      .cancelNext(true));
   }
 
   private void handleWithStorageContext(
@@ -78,7 +78,7 @@ public final class V2HttpHandlerTemplateStorage extends V2HttpHandler {
         .body(this.failure().append("reason", "Unknown template storage").toString())
         .context()
         .closeAfter(true)
-        .cancelNext();
+        .cancelNext(true);
       return;
     }
 

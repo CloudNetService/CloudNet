@@ -70,6 +70,5 @@ dependencies {
   // hack - depend on the output of the ap output to apply the annotation process to this project too
   "annotationProcessor"(project.sourceSets()["ap"].output)
 
-  "testImplementation"(libs.tyrus)
   "testImplementation"(projects.common.dependencyProject.sourceSets()["main"].output)
 }

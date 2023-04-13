@@ -39,7 +39,7 @@ public abstract class V2HttpHandler {
       .body(this.failure().append("reason", reason).toString().getBytes(StandardCharsets.UTF_8))
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
   protected void send401(@NonNull HttpContext context, @NonNull String reason) {
@@ -47,7 +47,7 @@ public abstract class V2HttpHandler {
       .body(this.failure().append("reason", reason).toString().getBytes(StandardCharsets.UTF_8))
       .context()
       .closeAfter(true)
-      .cancelNext();
+      .cancelNext(true);
   }
 
   protected @NonNull HttpResponse ok(@NonNull HttpContext context) {
