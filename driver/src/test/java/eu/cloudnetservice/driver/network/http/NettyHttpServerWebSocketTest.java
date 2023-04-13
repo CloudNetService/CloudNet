@@ -25,11 +25,10 @@ import java.net.http.HttpResponse;
 import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.LockSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -108,11 +107,9 @@ public class NettyHttpServerWebSocketTest extends NetworkTestCase {
   }
 
   @Test
-  @Timeout(60)
+  @Timeout(20)
   void testWebSocketHandlingWorksAsExpected() {
-    var currentThread = Thread.currentThread();
-    AtomicReference<Throwable> underlyingError = new AtomicReference<>();
-
+    var targetFuture = new CompletableFuture<Void>();
     this.httpServer.registerHandler(
       "/test",
       new HttpHandler() {
@@ -160,14 +157,14 @@ public class NettyHttpServerWebSocketTest extends NetworkTestCase {
           Assertions.assertEquals(1000, statusCode);
           Assertions.assertEquals("Okay :/", reason);
 
-          LockSupport.unpark(currentThread);
+          // notify the future that the execution finished successfully
+          targetFuture.complete(null);
           return null;
         }
 
         @Override
         public void onError(WebSocket webSocket, Throwable error) {
-          underlyingError.set(error);
-          LockSupport.unpark(currentThread);
+          targetFuture.completeExceptionally(error);
         }
 
         @Override
@@ -196,13 +193,7 @@ public class NettyHttpServerWebSocketTest extends NetworkTestCase {
       })
       .join();
 
-    // wait for the test to finish or fail
-    LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(60));
-
-    // fail the test with the thrown error (if any)
-    var thrownError = underlyingError.get();
-    if (thrownError != null) {
-      Assertions.fail(thrownError);
-    }
+    // wait for the test to finish
+    targetFuture.orTimeout(20, TimeUnit.SECONDS).join();
   }
 }
