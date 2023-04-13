@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -110,6 +111,8 @@ public class NettyHttpServerWebSocketTest extends NetworkTestCase {
   @Timeout(60)
   void testWebSocketHandlingWorksAsExpected() {
     var currentThread = Thread.currentThread();
+    AtomicReference<Throwable> underlyingError = new AtomicReference<>();
+
     this.httpServer.registerHandler(
       "/test",
       new HttpHandler() {
@@ -163,7 +166,8 @@ public class NettyHttpServerWebSocketTest extends NetworkTestCase {
 
         @Override
         public void onError(WebSocket webSocket, Throwable error) {
-          Assertions.fail(error);
+          underlyingError.set(error);
+          LockSupport.unpark(currentThread);
         }
 
         @Override
@@ -192,7 +196,13 @@ public class NettyHttpServerWebSocketTest extends NetworkTestCase {
       })
       .join();
 
-    // wait for the test to finish
+    // wait for the test to finish or fail
     LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(60));
+
+    // fail the test with the thrown error (if any)
+    var thrownError = underlyingError.get();
+    if (thrownError != null) {
+      Assertions.fail(thrownError);
+    }
   }
 }
