@@ -97,7 +97,6 @@ subprojects {
     }
     // always pass down all given system properties
     systemProperties(System.getProperties().mapKeys { it.key.toString() })
-    systemProperty("jdk.internal.httpclient.websocket.debug", true)
   }
 
   tasks.withType<JavaCompile>().configureEach {
