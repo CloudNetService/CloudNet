@@ -96,9 +96,9 @@ public class NettyHttpServerHttpTest extends NetworkTestCase {
       });
     Assertions.assertEquals(1, this.httpServer.httpHandlers().size());
 
-    var client = HttpClient.newHttpClient();
     var requestUri = UriBuilder.create().port(this.serverPort).path("test").build();
     for (var supportedMethod : SUPPORTED_METHODS) {
+      var client = HttpClient.newHttpClient();
       var request = HttpRequest.newBuilder(requestUri)
         .method(supportedMethod, HttpRequest.BodyPublishers.noBody())
         .build();

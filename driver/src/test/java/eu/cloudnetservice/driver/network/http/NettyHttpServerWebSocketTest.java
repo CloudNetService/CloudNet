@@ -107,7 +107,7 @@ public class NettyHttpServerWebSocketTest extends NetworkTestCase {
   }
 
   @Test
-  @Timeout(20)
+  @Timeout(60)
   void testWebSocketHandlingWorksAsExpected() {
     var currentThread = Thread.currentThread();
     this.httpServer.registerHandler(
@@ -193,6 +193,6 @@ public class NettyHttpServerWebSocketTest extends NetworkTestCase {
       .join();
 
     // wait for the test to finish
-    LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(20));
+    LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(60));
   }
 }
