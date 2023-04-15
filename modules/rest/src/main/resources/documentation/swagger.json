@@ -4519,6 +4519,15 @@
               "type" : "string"
             },
             "example" : [ "Parameter1", "Parameter2" ]
+          },
+          "environmentVariables" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            },
+            "example" : {
+              "MYSQL_PASSWORD" : "PASSWORD"
+            }
           }
         }
       },
