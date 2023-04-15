@@ -23,8 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,6 +67,16 @@ public class DocumentSerialisationTest {
           .append("key", List.of("the", "best", "value"))
           .append("other", Document.newJsonDocument().append("hello", "world")),
         StandardSerialisationStyle.COMPACT));
+  }
+
+  @Test
+  void testFileReadReturnsNewDocumentIfMissing() {
+    var targetFile = Path.of("random_test_file_data_" + UUID.randomUUID());
+    Assertions.assertFalse(Files.exists(targetFile));
+    Assertions.assertFalse(Files.isRegularFile(targetFile));
+
+    var deserialized = Assertions.assertDoesNotThrow(() -> DocumentFactory.json().parse(targetFile));
+    Assertions.assertTrue(deserialized.empty());
   }
 
   @ParameterizedTest
