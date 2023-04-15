@@ -62,7 +62,10 @@ public interface DocumentFactory {
 
   /**
    * Parses a document of the factory supported document type from the file at the given path. The given data must be
-   * the root object of a document in order to work.
+   * the root object of a document in order to work. Note: if the file at the given does not exist or the given path is
+   * a directory, this method returns a new, empty document from this factory (as specified by {@link #newDocument()}).
+   * However, this method invocation will fail in case the current jvm does not have the appropriate privileges that
+   * would allow it open the file for reading.
    *
    * @param path the path to the file to parse.
    * @return a parsed document from the file at the given path.

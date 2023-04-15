@@ -80,11 +80,16 @@ public final class GsonDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable parse(@NonNull Path path) {
-    try (var stream = Files.newInputStream(path)) {
-      return this.parse(stream);
-    } catch (IOException exception) {
-      throw new DocumentParseException("Unable to parse document from path " + path, exception);
+    if (Files.exists(path) && Files.isRegularFile(path)) {
+      try (var stream = Files.newInputStream(path)) {
+        return this.parse(stream);
+      } catch (IOException exception) {
+        throw new DocumentParseException("Unable to parse document from path " + path, exception);
+      }
     }
+
+    // in case that the file does not exist just return an empty document
+    return this.newDocument();
   }
 
   /**
