@@ -42,6 +42,9 @@ import lombok.NonNull;
 public final class NodeNPCManagement extends AbstractNPCManagement {
 
   private static final Path PROTOCOL_LIB_CACHE_PATH = FileUtil.TEMP_DIR.resolve("caches/ProtocolLib.jar");
+  private static final String PROTOCOL_LIB_DOWNLOAD_URL = System.getProperty(
+    "cloudnet.protocollib.download",
+    "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar");
 
   private final Database database;
   private final Path configurationPath;
@@ -68,9 +71,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     });
 
     // download protocol lib
-    progressWrappers.wrapDownload(
-      "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar",
-      stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH));
+    progressWrappers.wrapDownload(PROTOCOL_LIB_DOWNLOAD_URL, stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH));
 
     // listener register
     eventManager.registerListener(new NodeSetupListener(this, parsers));
