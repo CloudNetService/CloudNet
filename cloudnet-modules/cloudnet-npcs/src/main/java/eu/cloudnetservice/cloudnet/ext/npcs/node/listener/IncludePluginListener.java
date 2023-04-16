@@ -34,7 +34,7 @@ import java.util.Arrays;
 
 public class IncludePluginListener {
 
-  private static final String PROTOCOLLIB_DOWNLOAD_URL = "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar";
+  private static final String PROTOCOLLIB_DOWNLOAD_URL = "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar";
   private static final Path PROTOCOLLIB_CACHE_PATH = Paths
     .get(System.getProperty("cloudnet.tempDir", "temp"), "caches", "ProtocolLib.jar");
 
