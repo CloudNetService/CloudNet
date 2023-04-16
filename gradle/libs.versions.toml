@@ -14,7 +14,7 @@ guava = "31.1-jre"
 
 # testing
 junit = "5.9.2"
-mockito = "5.2.0"
+mockito = "5.3.0"
 testcontainers = "1.17.6"
 
 # compile time processing
