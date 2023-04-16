@@ -6,6 +6,7 @@ on:
     tags-ignore: [ "**" ]
   pull_request:
   workflow_dispatch:
+  merge_group:
 
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
