@@ -17,6 +17,8 @@
 package eu.cloudnetservice.common.resource;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import lombok.NonNull;
 
 /**
@@ -28,7 +30,7 @@ public final class ResourceFormatter {
 
   private static final long ONE_MB_IN_BYTES = 1024L * 1024L;
   private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT_2DIGIT_PRECISION =
-    ThreadLocal.withInitial(() -> new DecimalFormat(".##"));
+    ThreadLocal.withInitial(() -> new DecimalFormat(".##", DecimalFormatSymbols.getInstance(Locale.ROOT)));
 
   private ResourceFormatter() {
     throw new UnsupportedOperationException();

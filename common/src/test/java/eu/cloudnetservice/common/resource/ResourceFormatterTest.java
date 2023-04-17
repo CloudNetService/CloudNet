@@ -23,9 +23,9 @@ public class ResourceFormatterTest {
 
   @Test
   void testTwoDigitFormat() {
-    Assertions.assertEquals("100,0", ResourceFormatter.formatTwoDigitPrecision(100));
-    Assertions.assertEquals("98,49", ResourceFormatter.formatTwoDigitPrecision(98.493));
-    Assertions.assertEquals("56,89", ResourceFormatter.formatTwoDigitPrecision(56.887));
+    Assertions.assertEquals("100.0", ResourceFormatter.formatTwoDigitPrecision(100));
+    Assertions.assertEquals("98.49", ResourceFormatter.formatTwoDigitPrecision(98.493));
+    Assertions.assertEquals("56.89", ResourceFormatter.formatTwoDigitPrecision(56.887));
   }
 
   @Test
