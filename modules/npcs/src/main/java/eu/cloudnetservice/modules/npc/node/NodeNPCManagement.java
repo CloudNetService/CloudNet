@@ -72,9 +72,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     });
 
     // download protocol lib
-    progressWrappers.wrapDownload(PROTOCOL_LIB_DOWNLOAD_URL, stream -> {
-      FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH);
-    });
+    progressWrappers.wrapDownload(PROTOCOL_LIB_DOWNLOAD_URL, stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH));
 
     // listener register
     eventManager.registerListener(new NodeSetupListener(this, parsers));
