@@ -32,6 +32,7 @@ import eu.cloudnetservice.modules.npc.node.listeners.NodeSetupListener;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -71,7 +72,9 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     });
 
     // download protocol lib
-    progressWrappers.wrapDownload(PROTOCOL_LIB_DOWNLOAD_URL, stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH));
+    progressWrappers.wrapDownload(PROTOCOL_LIB_DOWNLOAD_URL, stream -> {
+      FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH);
+    });
 
     // listener register
     eventManager.registerListener(new NodeSetupListener(this, parsers));
@@ -87,7 +90,10 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
         .anyMatch(entry -> service.serviceConfiguration().groups().contains(entry.targetGroup())),
       (service, $) -> {
         var protocolLibPath = service.pluginDirectory().resolve("ProtocolLib.jar");
-        FileUtil.copy(PROTOCOL_LIB_CACHE_PATH, protocolLibPath);
+        // make sure to only copy the cached protocollib jar if it exists
+        if (Files.exists(PROTOCOL_LIB_CACHE_PATH)) {
+          FileUtil.copy(PROTOCOL_LIB_CACHE_PATH, protocolLibPath);
+        }
       }));
   }
 
