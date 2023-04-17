@@ -28,13 +28,13 @@ import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.WildcardUtil;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.common.util.WildcardUtil;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
@@ -83,7 +83,7 @@ public final class TasksCommand {
     &f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/\s
     &f                             &b                     |_|   \s""";
   // Formatter for the table based looking
-  private static final RowBasedFormatter<ServiceTask> TASK_LIST_FORMATTER = RowBasedFormatter.<ServiceTask>builder()
+  private static final RowedFormatter<ServiceTask> TASK_LIST_FORMATTER = RowedFormatter.<ServiceTask>builder()
     .defaultFormatter(ColumnFormatter.builder()
       .columnTitles("Name", "MinServiceCount", "Maintenance", "Nodes", "StartPort")
       .build())
@@ -188,7 +188,7 @@ public final class TasksCommand {
 
   @Suggestions("serviceTask")
   public @NonNull List<String> suggestTask(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.taskProvider.serviceTasks().stream().map(Nameable::name).toList();
+    return this.taskProvider.serviceTasks().stream().map(Named::name).toList();
   }
 
   @Parser(suggestions = "ipAliasHostAddress", name = "ipAliasHostAddress")
@@ -233,7 +233,7 @@ public final class TasksCommand {
   }
 
   @Parser(name = "javaCommand")
-  public @NonNull Pair<String, JavaVersion> javaCommandParser(
+  public @NonNull Tuple2<String, JavaVersion> javaCommandParser(
     @NonNull CommandContext<?> $,
     @NonNull Queue<String> input
   ) {
@@ -247,7 +247,7 @@ public final class TasksCommand {
         I18n.trans("command-tasks-setup-question-javacommand-invalid"));
     }
 
-    return new Pair<>(command, version);
+    return new Tuple2<>(command, version);
   }
 
   @Parser(name = "nodeId", suggestions = "clusterNode")
@@ -539,7 +539,7 @@ public final class TasksCommand {
   public void setJavaCommand(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
-    @NonNull @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
+    @NonNull @Argument(value = "executable", parserName = "javaCommand") Tuple2<String, JavaVersion> executable
   ) {
     this.applyChange(
       source,

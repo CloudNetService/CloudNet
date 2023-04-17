@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.template;
 
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
@@ -63,6 +63,6 @@ public class NodeTemplateStorageProvider implements TemplateStorageProvider {
 
   @Override
   public @NonNull Collection<String> availableTemplateStorages() {
-    return this.serviceRegistry.providers(TemplateStorage.class).stream().map(Nameable::name).toList();
+    return this.serviceRegistry.providers(TemplateStorage.class).stream().map(Named::name).toList();
   }
 }

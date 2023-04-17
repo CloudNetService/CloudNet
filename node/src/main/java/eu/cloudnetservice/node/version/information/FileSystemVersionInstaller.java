@@ -17,8 +17,8 @@
 package eu.cloudnetservice.node.version.information;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import java.io.IOException;

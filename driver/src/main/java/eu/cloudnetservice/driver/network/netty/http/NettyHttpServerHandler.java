@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.driver.network.netty.http;
 
-import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpHandleException;

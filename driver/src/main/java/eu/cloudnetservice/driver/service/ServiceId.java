@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Unmodifiable;
  * @since 4.0
  */
 @EqualsAndHashCode
-public class ServiceId implements Nameable {
+public class ServiceId implements Named {
 
   protected final String taskName;
   protected final String nameSplitter;

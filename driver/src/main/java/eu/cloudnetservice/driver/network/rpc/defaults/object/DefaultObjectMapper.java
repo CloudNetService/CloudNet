@@ -22,7 +22,7 @@ import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufable;
@@ -147,14 +147,14 @@ public class DefaultObjectMapper implements ObjectMapper {
   }
 
   private final Map<Type, ObjectSerializer<?>> registeredSerializers = new ConcurrentHashMap<>();
-  private final LoadingCache<Type, Collection<Pair<Type, Type>>> typeCache = Caffeine.newBuilder()
+  private final LoadingCache<Type, Collection<Tuple2<Type, Type>>> typeCache = Caffeine.newBuilder()
     .expireAfterAccess(Duration.ofDays(1))
     .scheduler(Scheduler.systemScheduler())
     .build(key -> {
       // extract all types from the given key, map them to the actual and raw type
-      Collection<Pair<Type, Type>> types = new LinkedList<>();
+      Collection<Tuple2<Type, Type>> types = new LinkedList<>();
       for (var type : TypeToken.of(key).getTypes()) {
-        types.add(new Pair<>(type.getType(), type.getRawType()));
+        types.add(new Tuple2<>(type.getType(), type.getRawType()));
       }
       return types;
     });
@@ -295,7 +295,7 @@ public class DefaultObjectMapper implements ObjectMapper {
    * @throws NullPointerException if the given type token is null.
    */
   @SuppressWarnings("unchecked")
-  protected @Nullable <T> ObjectSerializer<T> serializerForType(@NonNull Pair<Type, Type> typePair) {
+  protected @Nullable <T> ObjectSerializer<T> serializerForType(@NonNull Tuple2<Type, Type> typePair) {
     var byType = (ObjectSerializer<T>) this.registeredSerializers.get(typePair.first());
     return byType == null ? (ObjectSerializer<T>) this.registeredSerializers.get(typePair.second()) : byType;
   }

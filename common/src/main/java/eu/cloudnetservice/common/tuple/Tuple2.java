@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.common.collection;
+package eu.cloudnetservice.common.tuple;
 
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
- * This pair wraps two values, that are allowed to have different types, into a pair allowing accessing both using
- * {@link #first()} and {@link #second()}.
+ * A pair consisting of two elements: the first and second one. Both of these elements are allowed to be null. While the
+ * tuple implementation itself is immutable, there is no restriction if a type stored in a pair is immutable or not. If
+ * mutable values are stored in a pair the pair itself effectively becomes mutable.
  *
- * @param first the first value of the pair.
- * @param second the second value of the pair.
- * @param <F> the type of the first value.
- * @param <S> the type of the second value.
+ * @param first  the first value of the tuple.
+ * @param second the second value of the tuple.
+ * @param <F>    the first element type.
+ * @param <S>    the second element type.
  * @since 4.0
  */
-public record Pair<F, S>(@UnknownNullability F first, @UnknownNullability S second) {
+public record Tuple2<F, S>(@UnknownNullability F first, @UnknownNullability S second) {
 
 }

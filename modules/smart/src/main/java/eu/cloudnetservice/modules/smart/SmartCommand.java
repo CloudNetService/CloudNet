@@ -23,7 +23,7 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -67,7 +67,7 @@ public class SmartCommand {
     return this.taskProvider.serviceTasks()
       .stream()
       .filter(serviceTask -> serviceTask.propertyHolder().contains("smartConfig"))
-      .map(Nameable::name)
+      .map(Named::name)
       .toList();
   }
 

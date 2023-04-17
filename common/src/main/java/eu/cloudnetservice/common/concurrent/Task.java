@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.common.concurrent;
 
-import eu.cloudnetservice.common.function.ThrowableSupplier;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -64,13 +64,13 @@ public class Task<V> extends CompletableFuture<V> {
    * @return the new task completing the value of the supplier.
    * @throws NullPointerException if the given supplier is null.
    */
-  public static <V> @NonNull Task<V> supply(@NonNull ThrowableSupplier<V, Throwable> supplier) {
+  public static <V> @NonNull Task<V> supply(@NonNull Callable<V> supplier) {
     var task = new Task<V>();
     SERVICE.execute(() -> {
       try {
-        task.complete(supplier.get());
-      } catch (Throwable throwable) {
-        task.completeExceptionally(throwable);
+        task.complete(supplier.call());
+      } catch (Exception exception) {
+        task.completeExceptionally(exception);
       }
     });
     return task;
@@ -121,8 +121,8 @@ public class Task<V> extends CompletableFuture<V> {
 
   /**
    * This blocks the calling thread until the result of the task is available. If any exception occurs during the
-   * execution of the task or the task is cancelled null is returned as result. This method is equivalent to {@code
-   * task.getDef(null)}.
+   * execution of the task or the task is cancelled null is returned as result. This method is equivalent to
+   * {@code task.getDef(null)}.
    *
    * @return the completed result of this task, null if any exception occurred.
    */

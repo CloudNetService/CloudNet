@@ -18,9 +18,9 @@ package eu.cloudnetservice.node.console.animation.setup.answer;
 
 import com.google.common.base.Enums;
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.jvm.JavaVersion;
+import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -86,17 +86,17 @@ public final class Parsers {
     };
   }
 
-  public @NonNull QuestionAnswerType.Parser<Pair<String, JavaVersion>> javaVersion() {
+  public @NonNull QuestionAnswerType.Parser<Tuple2<String, JavaVersion>> javaVersion() {
     return input -> {
       var version = JavaVersionResolver.resolveFromJavaExecutable(input);
       if (version == null) {
         throw ParserException.INSTANCE;
       }
-      return new Pair<>(input.trim(), version);
+      return new Tuple2<>(input.trim(), version);
     };
   }
 
-  public @NonNull QuestionAnswerType.Parser<Pair<ServiceVersionType, ServiceVersion>> serviceVersion() {
+  public @NonNull QuestionAnswerType.Parser<Tuple2<ServiceVersionType, ServiceVersion>> serviceVersion() {
     return input -> {
       // install no version
       if (input.equalsIgnoreCase("none")) {
@@ -120,7 +120,7 @@ public final class Parsers {
       }
 
       // combine the result
-      return new Pair<>(type, version);
+      return new Tuple2<>(type, version);
     };
   }
 

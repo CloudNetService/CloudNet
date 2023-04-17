@@ -24,7 +24,7 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -93,7 +93,7 @@ public class PlayersCommand {
   @Suggestions("onlinePlayers")
   public @NonNull List<String> suggestOnlinePlayers(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.playerManager.players().values().stream()
-      .map(Nameable::name)
+      .map(Named::name)
       .toList();
   }
 
@@ -115,7 +115,7 @@ public class PlayersCommand {
     return this.serviceProvider.services()
       .stream()
       .filter(snapshot -> ServiceEnvironmentType.minecraftServer(snapshot.serviceId().environment()))
-      .map(Nameable::name)
+      .map(Named::name)
       .toList();
   }
 

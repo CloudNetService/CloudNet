@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.command;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -47,7 +47,7 @@ public record CommandInfo(
   @NonNull String description,
   @Nullable String docsUrl,
   @NonNull List<String> usage
-) implements Nameable {
+) implements Named {
 
   /**
    * Joins the name of the registered command and the specified aliases into one String seperated by the separator.

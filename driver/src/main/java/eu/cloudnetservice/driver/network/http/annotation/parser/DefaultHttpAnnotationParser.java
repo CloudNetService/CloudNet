@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.network.http.annotation.parser;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;

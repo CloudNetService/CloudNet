@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.node.setup;
 
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
@@ -126,18 +126,18 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
               return ips;
             }))))
         .build(),
-      QuestionListEntry.<Pair<String, JavaVersion>>builder()
+      QuestionListEntry.<Tuple2<String, JavaVersion>>builder()
         .key("taskJavaCommand")
         .translatedQuestion("command-tasks-setup-question-javacommand")
-        .answerType(QuestionAnswerType.<Pair<String, JavaVersion>>builder()
+        .answerType(QuestionAnswerType.<Tuple2<String, JavaVersion>>builder()
           .recommendation("java")
           .possibleResults("java")
           .parser(this.parsers.javaVersion()))
         .build(),
-      QuestionListEntry.<Pair<ServiceVersionType, ServiceVersion>>builder()
+      QuestionListEntry.<Tuple2<ServiceVersionType, ServiceVersion>>builder()
         .key("taskServiceVersion")
         .translatedQuestion("command-tasks-setup-question-application")
-        .answerType(QuestionAnswerType.<Pair<ServiceVersionType, ServiceVersion>>builder()
+        .answerType(QuestionAnswerType.<Tuple2<ServiceVersionType, ServiceVersion>>builder()
           .possibleResults(() -> this.completableServiceVersions(
             animation.result("taskEnvironment"),
             animation.result("taskJavaCommand")))
@@ -157,8 +157,8 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     String name = animation.result("taskName");
     ServiceEnvironmentType environment = animation.result("taskEnvironment");
-    Pair<ServiceVersionType, ServiceVersion> version = animation.result("taskServiceVersion");
-    Pair<String, ?> javaVersion = animation.result("taskJavaCommand");
+    Tuple2<ServiceVersionType, ServiceVersion> version = animation.result("taskServiceVersion");
+    Tuple2<String, ?> javaVersion = animation.result("taskJavaCommand");
     var defaultTemplate = ServiceTemplate.builder().prefix(name).name("default").build();
     String hostAddress = animation.result("taskHostAddress");
 

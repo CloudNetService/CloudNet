@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.network.rpc.object;
 
 import com.google.common.collect.Maps;
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.TestInjectionLayerConfigurator;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.HostAndPort;

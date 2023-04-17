@@ -22,9 +22,9 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
@@ -46,7 +46,7 @@ import lombok.NonNull;
 @Description("module-npc-command-description")
 public class NPCCommand {
 
-  private static final RowBasedFormatter<NPCConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<NPCConfigurationEntry>builder()
+  private static final RowedFormatter<NPCConfigurationEntry> ENTRY_LIST_FORMATTER = RowedFormatter.<NPCConfigurationEntry>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("targetGroup").build())
     .column(NPCConfigurationEntry::targetGroup)
     .build();
@@ -88,7 +88,7 @@ public class NPCCommand {
     @NonNull String input
   ) {
     return this.groupConfigurationProvider.groupConfigurations().stream()
-      .map(Nameable::name)
+      .map(Named::name)
       .filter(group -> this.npcManagement().npcConfiguration()
         .entries()
         .stream()

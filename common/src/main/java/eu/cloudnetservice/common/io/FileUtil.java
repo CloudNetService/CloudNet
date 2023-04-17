@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.common.io;
 
-import eu.cloudnetservice.common.function.ThrowableConsumer;
-import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import io.vavr.CheckedConsumer;
+import io.vavr.CheckedFunction1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -77,10 +77,10 @@ public final class FileUtil {
    * @param consumer the consumer accepting the file system.
    * @throws NullPointerException if the given zip path or consumer is null.
    */
-  public static void openZipFile(@NonNull Path zip, @NonNull ThrowableConsumer<FileSystem, Exception> consumer) {
+  public static void openZipFile(@NonNull Path zip, @NonNull CheckedConsumer<FileSystem> consumer) {
     try (var fs = JAR_FILE_SYSTEM_PROVIDER.newFileSystem(zip, ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.accept(fs);
-    } catch (Exception throwable) {
+    } catch (Throwable throwable) {
       LOGGER.severe("Exception opening zip file system on %s", throwable, zip);
     }
   }
@@ -98,12 +98,12 @@ public final class FileUtil {
    */
   public static @UnknownNullability <T> T mapZipFile(
     @NonNull Path zip,
-    @NonNull ThrowableFunction<FileSystem, T, Exception> mapper,
+    @NonNull CheckedFunction1<FileSystem, T> mapper,
     @Nullable T def
   ) {
     try (var fs = JAR_FILE_SYSTEM_PROVIDER.newFileSystem(zip, ZIP_FILE_SYSTEM_PROPERTIES)) {
       return mapper.apply(fs);
-    } catch (Exception throwable) {
+    } catch (Throwable throwable) {
       return def;
     }
   }

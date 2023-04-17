@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.node.listener;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -92,7 +92,7 @@ public final class NodeSetupListener {
               // only minecraft servers are allowed to be a fallback
               return env != null && ServiceEnvironmentType.minecraftServer(env);
             })
-          .map(Nameable::name)
+          .map(Named::name)
           .toList()))
       .build();
   }

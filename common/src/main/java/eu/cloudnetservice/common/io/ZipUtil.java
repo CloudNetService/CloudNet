@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.common.io;
 
-import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.util.StringUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

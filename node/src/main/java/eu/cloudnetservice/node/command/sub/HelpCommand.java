@@ -22,9 +22,9 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.node.command.CommandProvider;
@@ -44,7 +44,7 @@ import lombok.NonNull;
 @Description("commnad-help-description")
 public final class HelpCommand {
 
-  private static final RowBasedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowBasedFormatter.<CommandInfo>builder()
+  private static final RowedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowedFormatter.<CommandInfo>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name(s)", "Description", "Permission").build())
     .column(info -> info.joinNameToAliases(", "))
     .column(CommandInfo::description)
@@ -71,7 +71,7 @@ public final class HelpCommand {
 
   @Suggestions("commands")
   public @NonNull List<String> suggestCommands(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.commandProvider.commands().stream().map(Nameable::name).toList();
+    return this.commandProvider.commands().stream().map(Named::name).toList();
   }
 
   @CommandMethod("help|ask|?")

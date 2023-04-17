@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.common;
+package eu.cloudnetservice.common.jvm;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class JavaVersionTest {
+public class JavaVersionTest {
 
   @Test
   void testRuntimeVersion() {
     // we require java 17 to build (atm)
     var runtimeVersion = JavaVersion.runtimeVersion();
+    Assertions.assertTrue(JavaVersion.JAVA_17.atOrAbove());
     Assertions.assertTrue(runtimeVersion.isNewerOrAt(JavaVersion.JAVA_17));
   }
 
@@ -34,6 +35,17 @@ class JavaVersionTest {
     Assertions.assertTrue(JavaVersion.fromMajor(Integer.MAX_VALUE).isEmpty());
     Assertions.assertTrue(JavaVersion.fromClassFileVersion(-1D).isEmpty());
     Assertions.assertTrue(JavaVersion.fromClassFileVersion(Double.MAX_VALUE).isEmpty());
+  }
+
+  @Test
+  void testVersionRangeChecking() {
+    Assertions.assertTrue(JavaVersion.JAVA_10.isInRange(JavaVersion.JAVA_9, JavaVersion.JAVA_14));
+    Assertions.assertTrue(JavaVersion.JAVA_15.isInRange(JavaVersion.JAVA_8, JavaVersion.JAVA_16));
+    Assertions.assertTrue(JavaVersion.JAVA_11.isInRange(JavaVersion.JAVA_11, JavaVersion.JAVA_17));
+
+    Assertions.assertFalse(JavaVersion.JAVA_8.isInRange(JavaVersion.JAVA_9, JavaVersion.JAVA_14));
+    Assertions.assertFalse(JavaVersion.JAVA_17.isInRange(JavaVersion.JAVA_18, JavaVersion.JAVA_21));
+    Assertions.assertFalse(JavaVersion.JAVA_11.isInRange(JavaVersion.JAVA_17, JavaVersion.JAVA_21));
   }
 
   @Test

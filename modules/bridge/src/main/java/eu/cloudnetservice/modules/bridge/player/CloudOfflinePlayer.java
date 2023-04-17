@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import java.util.UUID;
@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @ToString
 @EqualsAndHashCode
-public class CloudOfflinePlayer implements DefaultedDocPropertyHolder, Cloneable, Nameable {
+public class CloudOfflinePlayer implements DefaultedDocPropertyHolder, Cloneable, Named {
 
   protected final String name;
 

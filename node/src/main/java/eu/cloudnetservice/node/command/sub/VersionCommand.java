@@ -24,13 +24,13 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.node.TickLoop;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
@@ -66,8 +66,8 @@ import org.jetbrains.annotations.Nullable;
 @Description("command-version-description")
 public final class VersionCommand {
 
-  private static final RowBasedFormatter<Pair<ServiceVersionType, ServiceVersion>> VERSIONS =
-    RowBasedFormatter.<Pair<ServiceVersionType, ServiceVersion>>builder()
+  private static final RowedFormatter<Tuple2<ServiceVersionType, ServiceVersion>> VERSIONS =
+    RowedFormatter.<Tuple2<ServiceVersionType, ServiceVersion>>builder()
       .defaultFormatter(ColumnFormatter.builder()
         .columnTitles("Target", "Name", "Deprecated", "Min Java", "Max Java")
         .build())
@@ -148,14 +148,14 @@ public final class VersionCommand {
     @NonNull CommandSource source,
     @Nullable @Argument("versionType") ServiceVersionType versionType
   ) {
-    Collection<Pair<ServiceVersionType, ServiceVersion>> versions;
+    Collection<Tuple2<ServiceVersionType, ServiceVersion>> versions;
     if (versionType == null) {
       versions = this.serviceVersionProvider
         .serviceVersionTypes()
         .values().stream()
         .flatMap(type -> type.versions().stream()
           .sorted(Comparator.comparing(ServiceVersion::name))
-          .map(version -> new Pair<>(type, version)))
+          .map(version -> new Tuple2<>(type, version)))
         .toList();
     } else {
       versions = this.serviceVersionProvider.serviceVersionTypes()
@@ -163,7 +163,7 @@ public final class VersionCommand {
         .versions()
         .stream()
         .sorted(Comparator.comparing(ServiceVersion::name))
-        .map(version -> new Pair<>(versionType, version))
+        .map(version -> new Tuple2<>(versionType, version))
         .toList();
     }
 

@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.database.h2;
 
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
+import io.vavr.CheckedFunction1;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -118,7 +118,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   @Override
   public @UnknownNullability <T> T executeQuery(
     @NonNull String query,
-    @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
+    @NonNull CheckedFunction1<ResultSet, T> callback,
     @Nullable T def,
     @NonNull Object... objects
   ) {

@@ -18,9 +18,9 @@ package eu.cloudnetservice.node.provider;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -83,7 +83,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     syncRegistry.registerHandler(
       DataSyncHandler.<ServiceTask>builder()
         .key("task")
-        .nameExtractor(Nameable::name)
+        .nameExtractor(Named::name)
         .convertObject(ServiceTask.class)
         .writer(this::addPermanentServiceTaskSilently)
         .dataCollector(this::serviceTasks)

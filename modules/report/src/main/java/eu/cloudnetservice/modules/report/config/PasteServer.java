@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.report.config;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +30,7 @@ public record PasteServer(
   @NonNull String requestMethod,
   @NonNull Map<String, String> headers,
   @NonNull String responsePasteIdKey
-) implements Nameable {
+) implements Named {
 
   public static final PasteServer DEFAULT_PASTER_SERVER = new PasteServer(
     "cloudnet",

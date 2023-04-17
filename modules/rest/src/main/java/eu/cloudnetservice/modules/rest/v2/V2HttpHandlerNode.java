@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.log.AbstractHandler;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.module.ModuleProvider;

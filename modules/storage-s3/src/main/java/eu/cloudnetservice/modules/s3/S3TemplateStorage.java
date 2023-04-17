@@ -16,16 +16,16 @@
 
 package eu.cloudnetservice.modules.s3;
 
-import eu.cloudnetservice.common.function.ThrowableConsumer;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.io.ListenableOutputStream;
 import eu.cloudnetservice.common.io.ZipUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.stream.ListeningOutputStream;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.FileInfo;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
+import io.vavr.CheckedConsumer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -283,7 +283,7 @@ public class S3TemplateStorage implements TemplateStorage {
     @NonNull String filePath,
     @NonNull ByteArrayOutputStream original
   ) {
-    return new ListeningOutputStream<>(original, stream -> {
+    return new ListenableOutputStream<>(original, stream -> {
       var content = stream.toByteArray();
       try (InputStream inputStream = new ByteArrayInputStream(content)) {
         var request = PutObjectRequest.builder()
@@ -440,7 +440,7 @@ public class S3TemplateStorage implements TemplateStorage {
   protected boolean listAllObjects(
     @NonNull String prefix,
     @Nullable String marker,
-    @NonNull ThrowableConsumer<S3Object, Exception> handler
+    @NonNull CheckedConsumer<S3Object> handler
   ) {
     try {
       var response = this.client.listObjectsV2(ListObjectsV2Request.builder()
@@ -453,6 +453,7 @@ public class S3TemplateStorage implements TemplateStorage {
       for (var content : response.contents()) {
         handler.accept(content);
       }
+
       // check if there is a need to continue
       if (response.isTruncated() && response.continuationToken() != null) {
         return this.listAllObjects(prefix, response.continuationToken(), handler);
@@ -460,7 +461,7 @@ public class S3TemplateStorage implements TemplateStorage {
         // no need to continue - success!
         return true;
       }
-    } catch (Exception exception) {
+    } catch (Throwable exception) {
       LOGGER.severe("Exception listing content of bucket %s with prefix %s",
         exception,
         this.config().bucket(),

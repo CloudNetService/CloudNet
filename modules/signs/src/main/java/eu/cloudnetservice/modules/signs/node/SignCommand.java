@@ -23,9 +23,9 @@ import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.modules.signs.SignManagement;
@@ -48,7 +48,7 @@ import lombok.NonNull;
 @Description("module-sign-command-description")
 public class SignCommand {
 
-  private static final RowBasedFormatter<SignConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<SignConfigurationEntry>
+  private static final RowedFormatter<SignConfigurationEntry> ENTRY_LIST_FORMATTER = RowedFormatter.<SignConfigurationEntry>
       builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("targetGroup").build())
     .column(SignConfigurationEntry::targetGroup)
@@ -89,7 +89,7 @@ public class SignCommand {
     @NonNull String input
   ) {
     return this.groupProvider.groupConfigurations().stream()
-      .map(Nameable::name)
+      .map(Named::name)
       .filter(group -> this.signManagement.signsConfiguration()
         .entries()
         .stream()

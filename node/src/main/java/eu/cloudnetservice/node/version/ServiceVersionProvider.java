@@ -19,12 +19,12 @@ package eu.cloudnetservice.node.version;
 import static com.google.gson.reflect.TypeToken.getParameterized;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;

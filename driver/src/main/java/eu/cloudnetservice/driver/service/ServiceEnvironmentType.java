@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.document.property.DocProperty;
@@ -40,7 +40,7 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public final class ServiceEnvironmentType implements DefaultedDocPropertyHolder, Nameable, Cloneable {
+public final class ServiceEnvironmentType implements DefaultedDocPropertyHolder, Named, Cloneable {
 
   /**
    * A property set on all service environment types which are a Minecraft java edition proxy.

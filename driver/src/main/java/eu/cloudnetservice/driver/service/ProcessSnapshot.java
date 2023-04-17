@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.sun.management.OperatingSystemMXBean;
-import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.common.resource.CpuUsageResolver;
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -83,8 +83,8 @@ public record ProcessSnapshot(
   public static @NonNull ProcessSnapshot self() {
     return new ProcessSnapshot(
       ownPID(),
-      CPUUsageResolver.processCPUUsage(),
-      CPUUsageResolver.systemCPUUsage(),
+      CpuUsageResolver.processCpuLoad(),
+      CpuUsageResolver.systemCpuLoad(),
       MEMORY_MX_BEAN.getHeapMemoryUsage().getMax(),
       MEMORY_MX_BEAN.getHeapMemoryUsage().getUsed(),
       MEMORY_MX_BEAN.getNonHeapMemoryUsage().getUsed(),

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.common;
+package eu.cloudnetservice.common.util;
 
 import java.security.SecureRandom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 
-class StringUtilTest {
+public class StringUtilTest {
 
   @RepeatedTest(100)
   void testGenerateRandomString() {

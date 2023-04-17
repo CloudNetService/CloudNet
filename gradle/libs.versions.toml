@@ -37,6 +37,7 @@ mysqlConnector = "8.0.32"
 # general
 asm = "9.5"
 oshi = "6.4.1"
+vavr = "0.10.4"
 sshj = "0.35.0"
 jjwt = "0.11.5"
 slf4j = "1.7.36"
@@ -131,6 +132,7 @@ nettyNativeEpoll = { group = "io.netty", name = "netty5-transport-native-epoll",
 nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue", version.ref = "netty" }
 
 # general
+vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }
 asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }

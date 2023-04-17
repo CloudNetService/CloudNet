@@ -37,7 +37,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import com.google.common.collect.ObjectArrays;
 import dev.derklaro.reflexion.Reflexion;
 import dev.derklaro.reflexion.matcher.ConstructorMatcher;
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.network.rpc.ChainableRPC;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCChain;

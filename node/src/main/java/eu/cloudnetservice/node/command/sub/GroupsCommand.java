@@ -25,7 +25,7 @@ import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
@@ -73,7 +73,7 @@ public final class GroupsCommand {
 
   @Suggestions("groupConfiguration")
   public @NonNull List<String> suggestGroups(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.groupProvider.groupConfigurations().stream().map(Nameable::name).toList();
+    return this.groupProvider.groupConfigurations().stream().map(Named::name).toList();
   }
 
   @CommandMethod("groups delete <name>")

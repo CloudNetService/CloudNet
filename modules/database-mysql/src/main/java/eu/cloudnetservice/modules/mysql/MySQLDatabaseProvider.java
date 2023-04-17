@@ -18,10 +18,10 @@ package eu.cloudnetservice.modules.mysql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
+import io.vavr.CheckedFunction1;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -148,7 +148,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   @Override
   public <T> @UnknownNullability T executeQuery(
     @NonNull String query,
-    @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
+    @NonNull CheckedFunction1<ResultSet, T> callback,
     @Nullable T def,
     @NonNull Object... objects
   ) {

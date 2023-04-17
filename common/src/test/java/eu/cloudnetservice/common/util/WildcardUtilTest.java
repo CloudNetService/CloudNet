@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.common;
+package eu.cloudnetservice.common.util;
 
+import eu.cloudnetservice.common.Named;
 import java.util.Arrays;
 import java.util.Collection;
 import org.junit.jupiter.api.Assertions;
@@ -24,26 +25,26 @@ import org.junit.jupiter.api.Test;
 public class WildcardUtilTest {
 
   private static final String VALID_PATTERN = "Lobby-56*";
-  private static final Collection<? extends Nameable> VALID_NAMEABLES = Arrays.asList(
-    new NameableThing("Lobby-1"),
-    new NameableThing("Lobby-56"),
-    new NameableThing("Lobby-567"),
-    new NameableThing("lOBBY-5636"),
-    new NameableThing("Lobby-789")
+  private static final Collection<? extends Named> VALID_NAMEABLES = Arrays.asList(
+    new NamedThing("Lobby-1"),
+    new NamedThing("Lobby-56"),
+    new NamedThing("Lobby-567"),
+    new NamedThing("lOBBY-5636"),
+    new NamedThing("Lobby-789")
   );
 
   private static final String INVALID_PATTERN = "Lobby-)5{6*([}";
-  private static final Collection<? extends Nameable> INVALID_NAMEABLES = Arrays.asList(
-    new NameableThing("Lobby-1"),
-    new NameableThing("Lobby-)56("),
-    new NameableThing("Lobby-(567"),
-    new NameableThing("Lobby-(789"),
-    new NameableThing("lOBBY-)5636("),
-    new NameableThing("Lobby-)5{6*([}"),
-    new NameableThing("Lobby-)5{6Hello([}"),
-    new NameableThing("lobby-)5{6World([}"),
-    new NameableThing("lobBY-)5{66789]([}"),
-    new NameableThing("loBBy-)5{6World([}")
+  private static final Collection<? extends Named> INVALID_NAMEABLES = Arrays.asList(
+    new NamedThing("Lobby-1"),
+    new NamedThing("Lobby-)56("),
+    new NamedThing("Lobby-(567"),
+    new NamedThing("Lobby-(789"),
+    new NamedThing("lOBBY-)5636("),
+    new NamedThing("Lobby-)5{6*([}"),
+    new NamedThing("Lobby-)5{6Hello([}"),
+    new NamedThing("lobby-)5{6World([}"),
+    new NamedThing("lobBY-)5{66789]([}"),
+    new NamedThing("loBBy-)5{6World([}")
   );
 
   @Test
@@ -68,7 +69,7 @@ public class WildcardUtilTest {
     Assertions.assertEquals(5, WildcardUtil.filterWildcard(INVALID_NAMEABLES, INVALID_PATTERN, false).size());
   }
 
-  private record NameableThing(String name) implements Nameable {
+  private record NamedThing(String name) implements Named {
 
   }
 }
