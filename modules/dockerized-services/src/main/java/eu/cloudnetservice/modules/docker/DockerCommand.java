@@ -76,7 +76,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("bind") String bind
   ) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.addBind(bind));
-    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "bind", bind, task.name()));
+    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "bind", task.name(), bind));
   }
 
   @CommandMethod("docker task <task> clear binds")
@@ -107,7 +107,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("volume") String volume
   ) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.addVolume(volume));
-    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "volume", volume, task.name()));
+    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "volume", task.name(), volume));
   }
 
   @CommandMethod("docker task <task> clear volumes")
@@ -140,7 +140,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
   ) {
     var exposedPort = new ExposedPort(port, protocol == null ? InternetProtocol.DEFAULT : protocol);
     this.updateTaskDockerConfig(task, ($, builder) -> builder.addExposedPort(exposedPort));
-    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "exposedPort", exposedPort, task.name()));
+    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "exposedPort", task.name(), exposedPort));
   }
 
   @CommandMethod("docker task <task> clear ports")
