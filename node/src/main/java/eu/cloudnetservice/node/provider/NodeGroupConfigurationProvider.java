@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.provider;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
@@ -81,7 +81,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     syncRegistry.registerHandler(
       DataSyncHandler.<GroupConfiguration>builder()
         .key("group_configuration")
-        .nameExtractor(Nameable::name)
+        .nameExtractor(Named::name)
         .convertObject(GroupConfiguration.class)
         .writer(this::addGroupConfigurationSilently)
         .dataCollector(this::groupConfigurations)

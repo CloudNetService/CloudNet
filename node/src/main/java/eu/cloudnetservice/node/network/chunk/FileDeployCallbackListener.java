@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.network.chunk;
 
-import eu.cloudnetservice.common.function.ThrowableBiFunction;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
@@ -28,9 +27,9 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
+import io.vavr.CheckedFunction2;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -92,7 +91,7 @@ public final class FileDeployCallbackListener {
 
   private void handleInputRequest(
     @NonNull ChannelMessageReceiveEvent event,
-    @NonNull ThrowableBiFunction<TemplateStorage, ServiceTemplate, InputStream, IOException> streamOpener
+    @NonNull CheckedFunction2<TemplateStorage, ServiceTemplate, InputStream> streamOpener
   ) {
     // read the information
     var storageName = event.content().readString();
@@ -125,7 +124,7 @@ public final class FileDeployCallbackListener {
         .transferChunkedData()
         .get(5, TimeUnit.MINUTES, TransferStatus.FAILURE);
       event.binaryResponse(DataBuf.empty().writeBoolean(status == TransferStatus.SUCCESS));
-    } catch (IOException exception) {
+    } catch (Throwable exception) {
       event.binaryResponse(DataBuf.empty().writeBoolean(false));
     }
   }

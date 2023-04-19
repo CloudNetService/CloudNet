@@ -23,7 +23,7 @@ import dev.derklaro.aerogel.InjectionContext;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import dev.derklaro.aerogel.binding.BindingConstructor;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.NonNull;
@@ -36,7 +36,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * @since 4.0
  */
 public sealed interface InjectionLayer<I extends Injector>
-  extends Nameable, AutoCloseable
+  extends Named, AutoCloseable
   permits DefaultInjectionLayer, UncloseableInjectionLayer {
 
   /**

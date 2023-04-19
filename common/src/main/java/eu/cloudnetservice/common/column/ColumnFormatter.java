@@ -17,15 +17,21 @@
 package eu.cloudnetservice.common.column;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.NonNull;
+import org.jetbrains.annotations.Contract;
 
-public class ColumnFormatter {
+/**
+ * A formatter that is highly customizable to build tables from columns.
+ *
+ * @since 4.0
+ */
+public final class ColumnFormatter {
 
   private static final String ENTRY_FORMAT = "%s%s%s%s%s";
 
@@ -40,7 +46,18 @@ public class ColumnFormatter {
 
   private volatile Collection<String> formattedColumnTitles;
 
-  protected ColumnFormatter(
+  /**
+   * Constructs a new column formatter instance.
+   *
+   * @param leftSpacer             the spacer to put after the left bracket.
+   * @param rightSpacer            the right spacer to put after the column text.
+   * @param columnLeftBracket      the bracket to put as the first char of a column.
+   * @param columnRightBracket     the bracket to put as the last char of a column.
+   * @param headerValuesSpacerChar the char to use in the spacer line between the header and rows.
+   * @param columnTitles           the display name of all column titles, in order.
+   * @throws NullPointerException if one of the given arguments is null.
+   */
+  private ColumnFormatter(
     @NonNull String leftSpacer,
     @NonNull String rightSpacer,
     char columnLeftBracket,
@@ -56,11 +73,24 @@ public class ColumnFormatter {
     this.columnTitles = columnTitles;
   }
 
+  /**
+   * Constructs a new builder for a colum formatter.
+   *
+   * @return a new column formatter builder.
+   */
   public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public @NonNull Collection<String> formatLines(ColumnEntry @NonNull ... entries) {
+  /**
+   * Formats the given column entries into a table based on the formatter configuration. The returned collection is
+   * ordered and can contain duplicates (this depends on the given input and how the input is converted).
+   *
+   * @param entries the entries to format.
+   * @return the given entries, formatted as a table, line by line.
+   * @throws NullPointerException if the given entries are null.
+   */
+  public @NonNull Collection<String> formatLines(@NonNull ColumnEntry... entries) {
     // no entries - no pain, just format the header
     if (entries.length == 0) {
       if (this.formattedColumnTitles == null) {
@@ -78,6 +108,7 @@ public class ColumnFormatter {
         // cache the result
         this.formattedColumnTitles = Collections.singleton(builder.toString());
       }
+
       // use the cached formatted title
       return this.formattedColumnTitles;
     } else {
@@ -88,16 +119,17 @@ public class ColumnFormatter {
       for (var i = 0; i < this.columnTitles.length; i++) {
         var title = this.columnTitles[i];
         var titleLength = title.length();
-        // get the spaces we need to append
-        String ourSpaces;
+
         // compute the cache - if the title is too short append to the title, otherwise append to the column value
+        String ourSpaces;
         if (titleLength > entries[i].columnMinLength()) {
           ourSpaces = "";
-          spaceCache[i] = " ".repeat(titleLength - entries[i].columnMinLength()).intern();
+          spaceCache[i] = " ".repeat(titleLength - entries[i].columnMinLength());
         } else {
-          ourSpaces = " ".repeat(entries[i].columnMinLength() - titleLength).intern();
+          ourSpaces = " ".repeat(entries[i].columnMinLength() - titleLength);
           spaceCache[i] = "";
         }
+
         // print the header entry
         builder
           .append(this.columnLeftBracket)
@@ -107,6 +139,7 @@ public class ColumnFormatter {
           .append(this.rightSpacer)
           .append(this.columnRightBracket);
       }
+
       // the result cache - it contains each row
       List<String> result = new LinkedList<>();
       result.add(builder.toString());
@@ -149,11 +182,24 @@ public class ColumnFormatter {
           .append(this.rightSpacer)
           .append(this.columnRightBracket);
       }
+
       // formatting completed
       return result;
     }
   }
 
+  /**
+   * A builder for a column formatter. By default the builder uses
+   * <ol>
+   *   <li>{@code |} as the left bracket
+   *   <li>a space as the right bracket
+   *   <li>a space as the left spacer
+   *   <li>an empty string as the right spacer
+   *   <li>{@code —} for the header spacing.
+   * </ol>
+   *
+   * @since 4.0
+   */
   public static final class Builder {
 
     private String leftSpacer = " ";
@@ -163,52 +209,118 @@ public class ColumnFormatter {
     private char columnRightBracket = ' ';
     private char headerValuesSpacerChar = '—';
 
-    private List<String> columnTitles = new LinkedList<>();
+    private String[] columnTitles = new String[0];
 
+    /**
+     * Sets the left spacer to apply to the column. The left spacer is printed after the left bracket. This value
+     * defaults to a space.
+     *
+     * @param leftSpacer the left spacer to use.
+     * @return the same builder instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given left spacer is null.
+     */
+    @Contract(value = "_ -> this", pure = true)
     public @NonNull Builder leftSpacer(@NonNull String leftSpacer) {
       this.leftSpacer = leftSpacer;
       return this;
     }
 
+    /**
+     * Sets the right spacer to apply to the column. The right spacer is printed after the value of entry and before the
+     * right bracket. This value defaults to an empty string.
+     *
+     * @param rightSpacer the right spacer to use.
+     * @return the same builder instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given right spacer is null.
+     */
+    @Contract(value = "_ -> this", pure = true)
     public @NonNull Builder rightSpacer(@NonNull String rightSpacer) {
       this.rightSpacer = rightSpacer;
       return this;
     }
 
+    /**
+     * Sets the left bracket to apply to the column. The left bracket is the first char printed in each line. This value
+     * defaults to {@code |}.
+     *
+     * @param columnLeftBracket the left bracket to use.
+     * @return the same builder instance as used to call the method, for chaining.
+     */
+    @Contract(value = "_ -> this", pure = true)
     public @NonNull Builder columnLeftBracket(char columnLeftBracket) {
       this.columnLeftBracket = columnLeftBracket;
       return this;
     }
 
+    /**
+     * Sets the right bracket to apply to the column. The right bracket is the last char printed in each line. This
+     * value defaults to a space.
+     *
+     * @param columnRightBracket the right bracket to use.
+     * @return the same builder instance as used to call the method, for chaining.
+     */
+    @Contract(value = "_ -> this", pure = true)
     public @NonNull Builder columnRightBracket(char columnRightBracket) {
       this.columnRightBracket = columnRightBracket;
       return this;
     }
 
+    /**
+     * Sets the spacer character to apply between the header of a table and the table values. This value defaults to
+     * {@code —}.
+     *
+     * @param headerValuesSpacerChar the spacer char to use.
+     * @return the same builder instance as used to call the method, for chaining.
+     */
+    @Contract(value = "_ -> this", pure = true)
     public @NonNull Builder headerValuesSpacerChar(char headerValuesSpacerChar) {
       this.headerValuesSpacerChar = headerValuesSpacerChar;
       return this;
     }
 
+    /**
+     * Sets the column titles to use for the table. This method copies the given list of titles into this builder,
+     * meaning that changes to the given list are not reflected into this builder.
+     *
+     * @param columnTitles the colum titles.
+     * @return the same builder instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given column titles list is null.
+     */
+    @Contract(value = "_ -> this", pure = true)
     public @NonNull Builder columnTitles(@NonNull List<String> columnTitles) {
-      this.columnTitles = new LinkedList<>(columnTitles);
+      this.columnTitles = columnTitles.toArray(new String[0]);
       return this;
     }
 
+    /**
+     * Sets the column titles to use for the table. This method copies the given array of titles into this builder,
+     * meaning that changes to the given array are not reflected into this builder.
+     *
+     * @param columnTitles the colum titles.
+     * @return the same builder instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given column titles array is null.
+     */
     public @NonNull Builder columnTitles(@NonNull String... columnTitles) {
-      this.columnTitles = Arrays.asList(columnTitles);
+      this.columnTitles = Arrays.copyOf(columnTitles, columnTitles.length);
       return this;
     }
 
+    /**
+     * Constructs a new column formatter instance from the values supplied to this builder.
+     *
+     * @return a new column formatter instance.
+     * @throws IllegalArgumentException if no column titles were given to this builder.
+     */
+    @Contract(value = "-> new", pure = true)
     public @NonNull ColumnFormatter build() {
-      Preconditions.checkArgument(!this.columnTitles.isEmpty(), "At least one title must be given");
+      Preconditions.checkArgument(this.columnTitles.length > 0, "At least one title must be given");
       return new ColumnFormatter(
         this.leftSpacer,
         this.rightSpacer,
         this.columnLeftBracket,
         this.columnRightBracket,
         this.headerValuesSpacerChar,
-        this.columnTitles.toArray(new String[0]));
+        this.columnTitles);
     }
   }
 }

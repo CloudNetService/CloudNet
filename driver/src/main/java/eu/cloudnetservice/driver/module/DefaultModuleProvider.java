@@ -21,11 +21,11 @@ import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.auto.Provides;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import jakarta.inject.Singleton;
@@ -442,7 +442,7 @@ public class DefaultModuleProvider implements ModuleProvider {
    * @throws AssertionError       if one dependency can't be loaded.
    * @throws NullPointerException if repos or configuration is null.
    */
-  protected @NonNull Pair<Set<URL>, Set<ModuleDependency>> loadDependencies(
+  protected @NonNull Tuple2<Set<URL>, Set<ModuleDependency>> loadDependencies(
     @NonNull Map<String, String> repos,
     @NonNull ModuleConfiguration configuration
   ) {
@@ -479,7 +479,7 @@ public class DefaultModuleProvider implements ModuleProvider {
       }
     }
     // combine and return the result of the load
-    return new Pair<>(loadedDependencies, pendingModuleDependencies);
+    return new Tuple2<>(loadedDependencies, pendingModuleDependencies);
   }
 
   /**

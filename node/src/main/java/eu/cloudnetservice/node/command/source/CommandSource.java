@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.command.source;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
 import java.util.Collection;
 import lombok.NonNull;
@@ -32,7 +32,7 @@ import lombok.NonNull;
  * @see PermissionUserCommandSource
  * @since 4.0
  */
-public interface CommandSource extends Nameable {
+public interface CommandSource extends Named {
 
   /**
    * @return the console command source instance

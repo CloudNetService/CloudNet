@@ -26,7 +26,7 @@ import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
@@ -66,7 +66,7 @@ public final class ModulesCommand {
 
   private static final Logger LOGGER = LogManager.logger(ModulesCommand.class);
 
-  private static final RowBasedFormatter<ModuleWrapper> MODULES_FORMATTER = RowBasedFormatter.<ModuleWrapper>builder()
+  private static final RowedFormatter<ModuleWrapper> MODULES_FORMATTER = RowedFormatter.<ModuleWrapper>builder()
     .defaultFormatter(ColumnFormatter.builder()
       .columnTitles("Name", "Version", "Author", "Lifecycle", "Description")
       .build())
@@ -82,7 +82,7 @@ public final class ModulesCommand {
       return description == null ? "No description provided" : description;
     })
     .build();
-  private static final RowBasedFormatter<ModuleEntry> MODULE_ENTRY_FORMATTER = RowBasedFormatter.<ModuleEntry>builder()
+  private static final RowedFormatter<ModuleEntry> MODULE_ENTRY_FORMATTER = RowedFormatter.<ModuleEntry>builder()
     .defaultFormatter(ColumnFormatter.builder()
       .columnTitles("Name", "Author", "Description", "Website")
       .build())

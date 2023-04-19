@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.database;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
@@ -53,7 +53,7 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 @RPCValidation
-public interface Database extends Nameable, AutoCloseable {
+public interface Database extends Named, AutoCloseable {
 
   /**
    * Associates the given key with the given document in the database. A key should be unique for later identification

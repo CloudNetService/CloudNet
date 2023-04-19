@@ -23,8 +23,7 @@ import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.function.ThrowableConsumer;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -35,6 +34,7 @@ import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import io.vavr.CheckedConsumer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.List;
@@ -75,7 +75,7 @@ public final class MigrateCommand {
   public @NonNull List<String> suggestDatabaseProvider(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.serviceRegistry.providers(NodeDatabaseProvider.class)
       .stream()
-      .map(Nameable::name)
+      .map(Named::name)
       .toList();
   }
 
@@ -125,7 +125,7 @@ public final class MigrateCommand {
 
   private boolean executeIfNotCurrentProvider(
     @NonNull NodeDatabaseProvider sourceProvider,
-    @NonNull ThrowableConsumer<NodeDatabaseProvider, ?> handler
+    @NonNull CheckedConsumer<NodeDatabaseProvider> handler
   ) {
     if (!this.databaseProvider.equals(sourceProvider)) {
       try {
@@ -135,6 +135,7 @@ public final class MigrateCommand {
         return false;
       }
     }
+
     return true;
   }
 }

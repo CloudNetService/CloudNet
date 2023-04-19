@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.inject;
 
 import dev.derklaro.aerogel.Injector;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
@@ -32,7 +32,7 @@ final class InjectionLayerRegistry {
 
   // use a linked queue here to prevent calls to hashCode on the hint - that could (depending on
   // the implementation) take a long time, which would need to be repeated for each call (when using a Map)
-  private final Collection<Pair<Object, InjectionLayer<? extends Injector>>> knownLayers = new ConcurrentLinkedQueue<>();
+  private final Collection<Tuple2<Object, InjectionLayer<? extends Injector>>> knownLayers = new ConcurrentLinkedQueue<>();
 
   /**
    * Registers to this registry and maps the given hints to the layer. During the process, there will be no calls to
@@ -48,7 +48,7 @@ final class InjectionLayerRegistry {
    */
   public void registerLayer(@NonNull InjectionLayer<? extends Injector> layer, @NonNull Object... hints) {
     for (Object hint : hints) {
-      this.knownLayers.add(new Pair<>(hint, layer));
+      this.knownLayers.add(new Tuple2<>(hint, layer));
     }
   }
 

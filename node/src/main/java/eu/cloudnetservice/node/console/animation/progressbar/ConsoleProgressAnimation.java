@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.console.animation.progressbar;
 
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
 import java.text.DecimalFormat;
 import java.time.Duration;

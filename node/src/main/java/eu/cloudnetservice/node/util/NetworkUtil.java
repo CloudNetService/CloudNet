@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.util;
 
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Ints;
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import java.io.IOException;
 import java.net.BindException;

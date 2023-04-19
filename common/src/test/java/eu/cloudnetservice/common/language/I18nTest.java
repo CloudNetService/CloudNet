@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.common.language;
 
-import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;

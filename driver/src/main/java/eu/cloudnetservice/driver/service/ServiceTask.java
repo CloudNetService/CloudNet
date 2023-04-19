@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.driver.document.Document;
 import java.util.Collection;
 import java.util.HashSet;
@@ -42,7 +42,7 @@ import org.jetbrains.annotations.Unmodifiable;
  */
 @ToString
 @EqualsAndHashCode(callSuper = true)
-public class ServiceTask extends ServiceConfigurationBase implements Cloneable, Nameable {
+public class ServiceTask extends ServiceConfigurationBase implements Cloneable, Named {
 
   /**
    * The jvm static pattern which validate that a task or service name is acceptable. It for example doesn't allow

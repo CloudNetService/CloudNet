@@ -19,15 +19,20 @@ package eu.cloudnetservice.common;
 import lombok.NonNull;
 
 /**
- * Represents a class which is identified by a name.
+ * Identifies that the object implementing this interface can be identified using the name supplied by the
+ * {@link #name()} method. There is guarantee that the given name is unique, however a nameable object must always be
+ * unique in a specific scope. This means that there might be a requirement for multiple parameters to be used in order
+ * to use the supplied name as an identifier.
+ *
+ * @since 4.0
  */
 @FunctionalInterface
-public interface Nameable {
+public interface Named {
 
   /**
-   * Get the name of this instance.
+   * Get the unique name identifier of this object in the related scope.
    *
-   * @return the name of this instance.
+   * @return the unique name identifier of this object in the related scope.
    */
   @NonNull String name();
 }

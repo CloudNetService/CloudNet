@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.report.emitter;
 
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import java.time.Instant;
 import java.time.ZoneId;

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.util;
 
 import com.google.common.primitives.Ints;
-import eu.cloudnetservice.common.JavaVersion;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import java.io.IOException;

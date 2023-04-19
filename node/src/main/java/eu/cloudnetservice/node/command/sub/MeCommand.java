@@ -19,7 +19,8 @@ package eu.cloudnetservice.node.command.sub;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
-import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.common.resource.CpuUsageResolver;
+import eu.cloudnetservice.common.resource.ResourceFormatter;
 import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.node.Node;
@@ -75,9 +76,9 @@ public final class MeCommand {
       "NodeId: " + configuration.identity().uniqueId(),
       "Head-NodeId: " + nodeServerProvider.headNode().info().uniqueId(),
       "CPU usage: (P/S) "
-        + CPUUsageResolver.defaultFormat().format(CPUUsageResolver.processCPUUsage())
+        + ResourceFormatter.formatTwoDigitPrecision(CpuUsageResolver.processCpuLoad())
         + "/"
-        + CPUUsageResolver.defaultFormat().format(CPUUsageResolver.systemCPUUsage())
+        + ResourceFormatter.formatTwoDigitPrecision(CpuUsageResolver.systemCpuLoad())
         + "/100%",
       "Node services memory allocation (U/R/M): "
         + nodeInfoSnapshot.usedMemory()

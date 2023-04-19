@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.http;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @ToString
 @EqualsAndHashCode
-public class HttpCookie implements Nameable {
+public class HttpCookie implements Named {
 
   protected final String name;
   protected final String value;

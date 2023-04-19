@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -221,13 +221,13 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // search for the best fallback
     return this.possibleFallbacks(currentServerName, virtualHost, permissionTester)
       // get all services we have cached of the task
-      .map(fallback -> new Pair<>(fallback, this.anyTaskService(fallback.task(), profile, currentServerName)))
+      .map(fallback -> new Tuple2<>(fallback, this.anyTaskService(fallback.task(), profile, currentServerName)))
       // filter out all fallbacks that have no services
       .filter(possibility -> possibility.second().isPresent())
       // get the first possibility with the highest priority
-      .min(Comparator.comparing(Pair::first))
+      .min(Comparator.comparing(Tuple2::first))
       // extract the target service
-      .map(Pair::second)
+      .map(Tuple2::second)
       // add the service to the tried ones
       .map(service -> {
         // we cannot flat-map because of the orElseGet

@@ -17,15 +17,14 @@
 package eu.cloudnetservice.node.console.animation.progressbar;
 
 import com.google.common.primitives.Longs;
-import eu.cloudnetservice.common.function.ThrowableConsumer;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedInputStream;
 import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedIterator;
+import io.vavr.CheckedConsumer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
@@ -67,10 +66,7 @@ public final class ConsoleProgressWrappers {
       ConsoleProgressAnimation.createDefault(task, unitName, 1, collection.size()));
   }
 
-  public void wrapDownload(
-    @NonNull String url,
-    @NonNull ThrowableConsumer<InputStream, IOException> streamHandler
-  ) {
+  public void wrapDownload(@NonNull String url, @NonNull CheckedConsumer<InputStream> streamHandler) {
     Unirest
       .get(url)
       .connectTimeout(5000)
@@ -92,7 +88,7 @@ public final class ConsoleProgressWrappers {
                 FILE_SIZE_UNIT_NAMES[unitMultiplier],
                 (int) Math.pow(1024, unitMultiplier),
                 contentSize)));
-          } catch (IOException exception) {
+          } catch (Throwable exception) {
             LOGGER.severe("Exception downloading file from %s", exception, url);
           }
         }

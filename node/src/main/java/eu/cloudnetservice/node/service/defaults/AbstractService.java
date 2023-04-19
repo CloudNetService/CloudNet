@@ -18,13 +18,13 @@ package eu.cloudnetservice.node.service.defaults;
 
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.common.resource.CpuUsageResolver;
+import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
@@ -106,7 +106,7 @@ public abstract class AbstractService implements CloudService {
   protected final ServiceConfigurationPreparer serviceConfigurationPreparer;
 
   protected final Lock lifecycleLock = new ReentrantLock(true);
-  protected final Set<Pair<ChannelMessageTarget, String>> logTargets = ConcurrentHashMap.newKeySet();
+  protected final Set<Tuple2<ChannelMessageTarget, String>> logTargets = ConcurrentHashMap.newKeySet();
 
   protected final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceDeployment> waitingDeployments = new ConcurrentLinkedQueue<>();
@@ -558,7 +558,7 @@ public abstract class AbstractService implements CloudService {
 
   @Override
   public boolean toggleScreenEvents(@NonNull ChannelMessageSender channelMessageSender, @NonNull String channel) {
-    var pair = new Pair<>(channelMessageSender.toTarget(), channel);
+    var pair = new Tuple2<>(channelMessageSender.toTarget(), channel);
     if (this.logTargets.remove(pair)) {
       return false;
     }
@@ -673,7 +673,7 @@ public abstract class AbstractService implements CloudService {
       return false;
     }
     // check for cpu usage
-    if (CPUUsageResolver.systemCPUUsage() >= this.configuration.maxCPUUsageToStartServices()) {
+    if (CpuUsageResolver.systemCpuLoad() >= this.configuration.maxCPUUsageToStartServices()) {
       // schedule a retry
       if (this.configuration.runBlockedServiceStartTryLaterAutomatic()) {
         this.mainThread.runTask(this::start);

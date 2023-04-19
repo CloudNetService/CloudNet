@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.report.emitter.defaults;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.modules.report.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
 import jakarta.inject.Singleton;
@@ -38,7 +38,7 @@ public final class HeapDumpDataEmitter implements ReportDataEmitter {
 
   // https://regex101.com/r/yAG1eb/1
   private static final Pattern LINE_FORMAT = Pattern.compile("^\\s*(\\d+):\\s*(\\d+)\\s*(\\d+)\\s*(\\S+).*$");
-  private static final RowBasedFormatter<HeapDumpEntry> ENTRY_FORMATTER = RowBasedFormatter.<HeapDumpEntry>builder()
+  private static final RowedFormatter<HeapDumpEntry> ENTRY_FORMATTER = RowedFormatter.<HeapDumpEntry>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Order", "Type", "Instances", "Bytes").build())
     .column(HeapDumpEntry::order)
     .column(HeapDumpEntry::type)

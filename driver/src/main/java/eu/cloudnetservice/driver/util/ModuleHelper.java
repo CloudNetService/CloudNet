@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.driver.util;
 
-import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.unsafe.ResourceResolver;
+import eu.cloudnetservice.common.resource.ResourceResolver;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
@@ -74,7 +74,7 @@ public final class ModuleHelper {
   public boolean copyJarContainingClass(@NonNull Class<?> clazz, @NonNull Path target) {
     try {
       // get the location of the class path entry associated with the given class
-      var uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
+      var uri = ResourceResolver.resolveCodeSourceOfClass(clazz);
       // copy the file
       try (var out = Files.newOutputStream(target)) {
         FileUtil.copy(uri.toURL().openStream(), out);

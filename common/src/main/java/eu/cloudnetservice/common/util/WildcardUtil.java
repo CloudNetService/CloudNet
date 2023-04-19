@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.common;
+package eu.cloudnetservice.common.util;
 
+import eu.cloudnetservice.common.Named;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Pattern;
@@ -49,7 +50,7 @@ public final class WildcardUtil {
    * @return all input values matching the given pattern.
    * @throws NullPointerException if the given input collection or regex string is null.
    */
-  public static <T extends Nameable> @NonNull @Unmodifiable Collection<T> filterWildcard(
+  public static <T extends Named> @NonNull @Unmodifiable Collection<T> filterWildcard(
     @NonNull Collection<T> inputValues,
     @NonNull String regex
   ) {
@@ -64,7 +65,7 @@ public final class WildcardUtil {
    * @return true if any of the values matches the given regex, false otherwise.
    * @throws NullPointerException if the given value collection or regex string is null.
    */
-  public static boolean anyMatch(@NonNull Collection<? extends Nameable> values, @NonNull String regex) {
+  public static boolean anyMatch(@NonNull Collection<? extends Named> values, @NonNull String regex) {
     return anyMatch(values, regex, true);
   }
 
@@ -79,7 +80,7 @@ public final class WildcardUtil {
    * @return all input values matching the given pattern.
    * @throws NullPointerException if the given input collection or regex string is null.
    */
-  public static <T extends Nameable> @NonNull @Unmodifiable Collection<T> filterWildcard(
+  public static <T extends Named> @NonNull @Unmodifiable Collection<T> filterWildcard(
     @NonNull Collection<T> inputValues,
     @NonNull String regex,
     boolean caseSensitive
@@ -103,7 +104,7 @@ public final class WildcardUtil {
    * @throws NullPointerException if the given input collection or regex string is null.
    */
   public static boolean anyMatch(
-    @NonNull Collection<? extends Nameable> values,
+    @NonNull Collection<? extends Named> values,
     @NonNull String regex,
     boolean caseSensitive
   ) {
@@ -245,7 +246,7 @@ public final class WildcardUtil {
   private static boolean matches(
     @NonNull String patternInput,
     @Nullable Pattern compiled,
-    @NonNull Nameable data,
+    @NonNull Named data,
     boolean caseSensitive
   ) {
     if (compiled == null) {

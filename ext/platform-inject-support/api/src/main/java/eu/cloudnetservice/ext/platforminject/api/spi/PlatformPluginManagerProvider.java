@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.ext.platforminject.api.spi;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.ext.platforminject.api.PlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
 import java.util.function.Supplier;
 import lombok.NonNull;
 
-public class PlatformPluginManagerProvider<I, T> implements Nameable {
+public class PlatformPluginManagerProvider<I, T> implements Named {
 
   private final String name;
   private final Supplier<PlatformPluginManager<I, T>> managerProvider;

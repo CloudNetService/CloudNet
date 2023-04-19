@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;

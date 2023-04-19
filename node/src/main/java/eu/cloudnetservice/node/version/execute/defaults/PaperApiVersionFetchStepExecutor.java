@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.version.ServiceVersionType;

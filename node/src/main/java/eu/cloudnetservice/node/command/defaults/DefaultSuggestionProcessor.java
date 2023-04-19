@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.command.defaults;
 import cloud.commandframework.execution.CommandSuggestionProcessor;
 import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext;
 import com.google.common.base.Strings;
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import info.debatty.java.stringsimilarity.JaroWinkler;
 import info.debatty.java.stringsimilarity.interfaces.StringSimilarity;

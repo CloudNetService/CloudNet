@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.collect.ComparisonChain;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -39,7 +39,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ToString
 @EqualsAndHashCode
 public class ServiceInfoSnapshot
-  implements Nameable, DefaultedDocPropertyHolder, Cloneable, Comparable<ServiceInfoSnapshot> {
+  implements Named, DefaultedDocPropertyHolder, Cloneable, Comparable<ServiceInfoSnapshot> {
 
   protected final long creationTime;
 

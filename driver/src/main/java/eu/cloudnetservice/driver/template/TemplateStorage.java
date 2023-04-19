@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.template;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
@@ -44,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 @RPCValidation("deployDirectory.*")
-public interface TemplateStorage extends AutoCloseable, Nameable {
+public interface TemplateStorage extends AutoCloseable, Named {
 
   /**
    * Deploys all files in the given directory to the associated target in this template storage for the given template.

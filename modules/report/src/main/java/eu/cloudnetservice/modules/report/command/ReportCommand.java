@@ -23,7 +23,7 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -89,7 +89,7 @@ public final class ReportCommand {
   public @NonNull List<String> suggestPasteServers(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
     return this.reportModule.configuration().pasteServers()
       .stream()
-      .map(Nameable::name)
+      .map(Named::name)
       .toList();
   }
 

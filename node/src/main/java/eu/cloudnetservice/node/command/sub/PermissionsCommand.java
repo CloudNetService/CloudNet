@@ -24,7 +24,7 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.permission.Permissible;
 import eu.cloudnetservice.driver.permission.Permission;
@@ -105,7 +105,7 @@ public final class PermissionsCommand {
 
   @Suggestions("permissionGroup")
   public @NonNull List<String> suggestPermissionGroup(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.permissionManagement.groups().stream().map(Nameable::name).toList();
+    return this.permissionManagement.groups().stream().map(Named::name).toList();
   }
 
   @CommandMethod("permissions|perms reload")

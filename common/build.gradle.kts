@@ -19,6 +19,7 @@ tasks.withType<Jar> {
 }
 
 dependencies {
+  "api"(libs.vavr)
   "implementation"(libs.gson)
   "implementation"(libs.guava)
 }

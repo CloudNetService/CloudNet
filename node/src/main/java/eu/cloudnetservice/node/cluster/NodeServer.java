@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.cluster;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
@@ -31,7 +31,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-public interface NodeServer extends Nameable, Closeable {
+public interface NodeServer extends Named, Closeable {
 
   boolean head();
 

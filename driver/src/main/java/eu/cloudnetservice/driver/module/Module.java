@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.module;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  * @see ModuleTaskEntry
  * @see ModuleTask
  */
-public interface Module extends Nameable {
+public interface Module extends Named {
 
   /**
    * Initializes the module with the necessary information. This method can only be called once.

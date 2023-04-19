@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.template.defaults;
 
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.io.ListenableOutputStream;
 import eu.cloudnetservice.common.io.ZipUtil;
-import eu.cloudnetservice.common.stream.ListeningOutputStream;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.NetworkClient;
@@ -170,7 +170,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     @NonNull Path localPath,
     boolean append
   ) throws IOException {
-    return new ListeningOutputStream<>(
+    return new ListenableOutputStream<>(
       Files.newOutputStream(localPath),
       $ -> ChunkedPacketSender.forFileTransfer()
         .forFile(localPath)

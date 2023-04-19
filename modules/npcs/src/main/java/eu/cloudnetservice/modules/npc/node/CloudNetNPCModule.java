@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.npc.node;
 
 import com.google.common.collect.ImmutableMap;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
@@ -78,8 +78,8 @@ public class CloudNetNPCModule extends DriverModule {
                 this.convertItemLayout(entry.fullItem()),
                 this.convertItemLayout(entry.fullItem())))
               .fixedItems(entry.inventoryLayout().entrySet().stream()
-                .map(mapEntry -> new Pair<>(mapEntry.getKey(), this.convertItemLayout(mapEntry.getValue())))
-                .collect(Collectors.toMap(Pair::first, Pair::second)))
+                .map(mapEntry -> new Tuple2<>(mapEntry.getKey(), this.convertItemLayout(mapEntry.getValue())))
+                .collect(Collectors.toMap(Tuple2::first, Tuple2::second)))
               .inventorySize(entry.inventorySize())
               .build())
             .npcPoolOptions(NPCPoolOptions.builder()

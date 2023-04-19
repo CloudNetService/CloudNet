@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.node.http;
 
-import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
@@ -167,11 +167,11 @@ public class V2HttpAuthentication {
     return this.sessions.remove(session.user().uniqueId().toString()) != null;
   }
 
-  public @NonNull LoginResult<Pair<HttpSession, String>> refreshJwt(@NonNull HttpRequest request, long lifetime) {
+  public @NonNull LoginResult<Tuple2<HttpSession, String>> refreshJwt(@NonNull HttpRequest request, long lifetime) {
     var session = this.handleBearerLoginRequest(request);
     if (session.succeeded()) {
       var httpSession = session.result();
-      return LoginResult.success(new Pair<>(httpSession, this.refreshJwt(httpSession, lifetime)));
+      return LoginResult.success(new Tuple2<>(httpSession, this.refreshJwt(httpSession, lifetime)));
     } else {
       return LoginResult.undefinedFailure();
     }

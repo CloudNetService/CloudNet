@@ -24,9 +24,9 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -59,7 +59,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("command-template-description")
 public final class TemplateCommand {
 
-  private static final RowBasedFormatter<ServiceTemplate> LIST_FORMATTER = RowBasedFormatter.<ServiceTemplate>builder()
+  private static final RowedFormatter<ServiceTemplate> LIST_FORMATTER = RowedFormatter.<ServiceTemplate>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Storage", "Prefix", "Name").build())
     .column(ServiceTemplate::storageName)
     .column(ServiceTemplate::prefix)
@@ -153,7 +153,7 @@ public final class TemplateCommand {
     return type.versions()
       .stream()
       .filter(ServiceVersion::canRun)
-      .map(Nameable::name)
+      .map(Named::name)
       .toList();
   }
 

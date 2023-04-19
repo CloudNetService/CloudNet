@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.common.function;
+package eu.cloudnetservice.common.resource;
 
-import org.jetbrains.annotations.UnknownNullability;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-@FunctionalInterface
-public interface ThrowableConsumer<E, T extends Throwable> {
+public class CpuUsageResolverTest {
 
-  void accept(@UnknownNullability E element) throws T;
+  @Test
+  void testCpuUsageResolve() {
+    var processCpuUsage = Assertions.assertDoesNotThrow(CpuUsageResolver::processCpuLoad);
+    Assertions.assertTrue(processCpuUsage >= -1 && processCpuUsage <= 100);
+
+    var systemCpuUsage = Assertions.assertDoesNotThrow(CpuUsageResolver::systemCpuLoad);
+    Assertions.assertTrue(systemCpuUsage >= -1 && systemCpuUsage <= 100);
+  }
 }

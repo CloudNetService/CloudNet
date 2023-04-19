@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import lombok.EqualsAndHashCode;
@@ -34,7 +34,7 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public final class DriverEnvironment implements DefaultedDocPropertyHolder, Nameable {
+public final class DriverEnvironment implements DefaultedDocPropertyHolder, Named {
 
   /**
    * The jvm-static representation of the node environment.

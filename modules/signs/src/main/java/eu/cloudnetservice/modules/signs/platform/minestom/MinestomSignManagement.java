@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.signs.platform.minestom;
 
 import com.google.common.util.concurrent.MoreExecutors;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
@@ -45,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @ProvidesFor(platform = "minestom", types = {PlatformSignManagement.class, SignManagement.class})
-public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<Point, Instance>, String> {
+public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple2<Point, Instance>, String> {
 
   private final GlobalEventHandler eventHandler;
   private final InstanceManager instanceManager;
@@ -105,7 +105,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<
   }
 
   @Override
-  public @Nullable WorldPosition convertPosition(@NonNull Pair<Point, Instance> location) {
+  public @Nullable WorldPosition convertPosition(@NonNull Tuple2<Point, Instance> location) {
     return this.convertPosition(location.first(), location.second());
   }
 

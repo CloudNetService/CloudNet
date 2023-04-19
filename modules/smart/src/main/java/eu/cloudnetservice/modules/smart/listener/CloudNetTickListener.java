@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.smart.listener;
 
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -223,11 +223,11 @@ public final class CloudNetTickListener {
     // find the node server with the least services on it
     return this.nodeServerProvider.nodeServers().stream()
       .filter(nodeServer -> nodeServer.available() && !nodeServer.draining())
-      .map(node -> new Pair<>(node, services.stream()
+      .map(node -> new Tuple2<>(node, services.stream()
         .filter(service -> service.serviceId().nodeUniqueId().equals(node.info().uniqueId()))
         .count()))
-      .min(Comparator.comparingLong(Pair::second))
-      .map(Pair::first)
+      .min(Comparator.comparingLong(Tuple2::second))
+      .map(Tuple2::first)
       .orElse(null);
   }
 }

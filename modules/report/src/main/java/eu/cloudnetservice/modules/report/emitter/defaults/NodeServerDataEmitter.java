@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.report.emitter.defaults;
 
-import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.common.resource.ResourceFormatter;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.emitter.SpecificReportDataEmitter;
@@ -86,9 +86,9 @@ public final class NodeServerDataEmitter extends SpecificReportDataEmitter<NodeS
         .appendNewline()
         // CPU: 0% process; 0.57% system
         .appendString("CPU: ")
-        .appendString(CPUUsageResolver.defaultFormat().format(snapshot.processSnapshot().cpuUsage()))
+        .appendString(ResourceFormatter.formatTwoDigitPrecision(snapshot.processSnapshot().cpuUsage()))
         .appendString("% process; ")
-        .appendString(CPUUsageResolver.defaultFormat().format(snapshot.processSnapshot().systemCpuUsage()))
+        .appendString(ResourceFormatter.formatTwoDigitPrecision(snapshot.processSnapshot().systemCpuUsage()))
         .appendString("% system")
         .appendNewline()
         // Heap-Memory: 54525952 MB used; 268435456 MB max

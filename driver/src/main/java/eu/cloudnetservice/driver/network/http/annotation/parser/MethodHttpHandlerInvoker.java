@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.http.annotation.parser;
 
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpHandler;
 import java.lang.invoke.MethodHandle;

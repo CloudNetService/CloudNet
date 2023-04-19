@@ -17,13 +17,12 @@
 package eu.cloudnetservice.node.service.defaults;
 
 import com.google.common.primitives.Ints;
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -41,6 +40,7 @@ import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.log.ProcessServiceLogCache;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import io.vavr.CheckedFunction1;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -263,7 +263,7 @@ public class JVMService extends AbstractService {
     });
   }
 
-  protected @Nullable Pair<Path, Attributes> prepareWrapperFile() {
+  protected @Nullable Tuple2<Path, Attributes> prepareWrapperFile() {
     // check if the wrapper file is there - unpack it if not
     if (Files.notExists(WRAPPER_TEMP_FILE)) {
       FileUtil.createDirectory(WRAPPER_TEMP_FILE.getParent());
@@ -284,7 +284,7 @@ public class JVMService extends AbstractService {
       file -> file.getManifest().getMainAttributes());
   }
 
-  protected @Nullable Pair<Path, ApplicationStartupInformation> prepareApplicationFile(
+  protected @Nullable Tuple2<Path, ApplicationStartupInformation> prepareApplicationFile(
     @NonNull ServiceEnvironmentType environmentType
   ) {
     // collect all names of environment names
@@ -350,14 +350,14 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected @Nullable <T> Pair<Path, T> completeJarAttributeInformation(
+  protected @Nullable <T> Tuple2<Path, T> completeJarAttributeInformation(
     @NonNull Path jarFilePath,
-    @NonNull ThrowableFunction<JarFile, T, IOException> mapper
+    @NonNull CheckedFunction1<JarFile, T> mapper
   ) {
     // open the file and lookup the main class
     try (var jarFile = new JarFile(jarFilePath.toFile())) {
-      return new Pair<>(jarFilePath, mapper.apply(jarFile));
-    } catch (IOException exception) {
+      return new Tuple2<>(jarFilePath, mapper.apply(jarFile));
+    } catch (Throwable exception) {
       LOGGER.severe("Unable to open wrapper file at %s for reading: ", exception, jarFilePath);
       return null;
     }

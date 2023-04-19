@@ -19,34 +19,21 @@ package eu.cloudnetservice.common.hash;
 import com.google.common.hash.Hashing;
 import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
- * Shortcut class to guava hashing methods.
+ * @deprecated for removal in a future version, do not use.
  */
-@ApiStatus.Internal
+@Deprecated(forRemoval = true)
 public final class HashUtil {
 
   private HashUtil() {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Hashes the given string to sha256.
-   *
-   * @param text the text to hash.
-   * @return the same input text hashed with the sha256 algorithm.
-   */
   public static byte @NonNull [] toSha256(@NonNull String text) {
     return Hashing.sha256().hashString(text, StandardCharsets.UTF_8).asBytes();
   }
 
-  /**
-   * Encrypts the following byte array to an SHA-256 hash
-   *
-   * @param bytes the following bytes which should encrypt
-   * @return the output SHA-256 hash
-   */
   public static byte @NonNull [] toSha256(byte @NonNull [] bytes) {
     return Hashing.sha256().hashBytes(bytes).asBytes();
   }

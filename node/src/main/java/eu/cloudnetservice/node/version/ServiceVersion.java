@@ -16,15 +16,15 @@
 
 package eu.cloudnetservice.node.version;
 
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.driver.document.Document;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import lombok.NonNull;
 
-public class ServiceVersion implements Nameable {
+public class ServiceVersion implements Named {
 
   private String name;
   private String url;
