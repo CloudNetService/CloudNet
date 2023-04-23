@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.cloudperms.waterdogpe;
 
 import dev.waterdog.waterdogpe.event.EventManager;
 import dev.waterdog.waterdogpe.event.EventPriority;
-import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
+import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectedEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerPermissionCheckEvent;
 import dev.waterdog.waterdogpe.utils.ConfigurationManager;
@@ -61,7 +61,7 @@ final class WaterdogPECloudPermissionsPlayerListener {
     });
 
     eventManager.subscribe(
-      PlayerDisconnectEvent.class,
+      PlayerDisconnectedEvent.class,
       event -> CloudPermissionsHelper.handlePlayerQuit(permissionManagement, event.getPlayer().getUniqueId()));
   }
 }

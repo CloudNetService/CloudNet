@@ -43,10 +43,6 @@ public class WaterdogPECloudPermissionsPlugin implements PlatformEntrypoint {
   }
 
   @Override
-  public void onLoad() {
-  }
-
-  @Override
   public void onDisable() {
     this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }

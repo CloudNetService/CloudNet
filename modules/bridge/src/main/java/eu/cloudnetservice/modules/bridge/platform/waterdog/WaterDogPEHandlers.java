@@ -17,16 +17,17 @@
 package eu.cloudnetservice.modules.bridge.platform.waterdog;
 
 import dev.waterdog.waterdogpe.ProxyServer;
+import dev.waterdog.waterdogpe.network.connection.handler.IForcedHostHandler;
+import dev.waterdog.waterdogpe.network.connection.handler.IJoinHandler;
+import dev.waterdog.waterdogpe.network.connection.handler.IReconnectHandler;
 import dev.waterdog.waterdogpe.network.serverinfo.ServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import dev.waterdog.waterdogpe.utils.types.IForcedHostHandler;
-import dev.waterdog.waterdogpe.utils.types.IReconnectHandler;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.Locale;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler {
+final class WaterDogPEHandlers implements IJoinHandler, IForcedHostHandler, IReconnectHandler {
 
   private final ProxyServer proxyServer;
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
@@ -40,14 +41,21 @@ final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler 
   }
 
   @Override
-  public ServerInfo resolveForcedHost(@Nullable String domain, @NonNull ProxiedPlayer player) {
+  public @Nullable ServerInfo determineServer(@NonNull ProxiedPlayer player) {
+    return this.management.fallback(player.getUniqueId(), null, null, player::hasPermission)
+      .map(server -> this.proxyServer.getServerInfo(server.name()))
+      .orElse(null);
+  }
+
+  @Override
+  public @Nullable ServerInfo resolveForcedHost(@Nullable String domain, @NonNull ProxiedPlayer player) {
     return this.management.fallback(player.getUniqueId(), null, domain, player::hasPermission)
       .map(server -> this.proxyServer.getServerInfo(server.name()))
       .orElse(null);
   }
 
   @Override
-  public ServerInfo getFallbackServer(
+  public @Nullable ServerInfo getFallbackServer(
     @NonNull ProxiedPlayer player,
     @NonNull ServerInfo oldServer,
     @NonNull String kickMessage
