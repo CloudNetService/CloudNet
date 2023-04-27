@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.provider;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -288,7 +288,7 @@ public interface SpecificCloudServiceProvider {
    * }
    * }
    * </pre>
-   * The difference to using the {@link #updatePropertiesAsync(JsonDocument)} method is that the update operation is
+   * The difference to using the {@link #updatePropertiesAsync(Document)} method is that the update operation is
    * executed in the same async context as the service info retrieval, rather than moving the update (without a need)
    * into a separate thread.
    * <p>
@@ -297,7 +297,7 @@ public interface SpecificCloudServiceProvider {
    * @param properties the new properties of the service to cleanly set.
    * @throws NullPointerException if the given properties document is null.
    */
-  void updateProperties(@NonNull JsonDocument properties);
+  void updateProperties(@NonNull Document properties);
 
   /**
    * Get the last reported service info snapshot of the service. This snapshot is updated on an event basis, therefore
@@ -564,7 +564,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the update request was received and processed by the node the service runs on.
    * @throws NullPointerException if the given properties document is null.
    */
-  default @NonNull Task<Void> updatePropertiesAsync(@NonNull JsonDocument properties) {
+  default @NonNull Task<Void> updatePropertiesAsync(@NonNull Document properties) {
     return Task.supply(() -> this.updateProperties(properties));
   }
 }

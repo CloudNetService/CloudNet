@@ -23,7 +23,7 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -67,7 +67,7 @@ public class SmartCommand {
     return this.taskProvider.serviceTasks()
       .stream()
       .filter(serviceTask -> serviceTask.propertyHolder().contains("smartConfig"))
-      .map(Nameable::name)
+      .map(Named::name)
       .toList();
   }
 
@@ -246,12 +246,14 @@ public class SmartCommand {
     @NonNull Function<SmartServiceTaskConfig.Builder, SmartServiceTaskConfig.Builder> modifier
   ) {
     // read the smart config from the task
-    var property = serviceTask.propertyHolder().get("smartConfig", SmartServiceTaskConfig.class);
+    var property = serviceTask.propertyHolder().readObject("smartConfig", SmartServiceTaskConfig.class);
+
     // rewrite the config and update it in the cluster
-    var task = ServiceTask
-      .builder(serviceTask)
-      .properties(serviceTask.propertyHolder()
-        .append("smartConfig", modifier.apply(SmartServiceTaskConfig.builder(property)).build()))
+    var task = ServiceTask.builder(serviceTask)
+      .modifyProperties(properties -> {
+        var newSmartConfigEntry = modifier.apply(SmartServiceTaskConfig.builder(property)).build();
+        properties.append("smartConfig", newSmartConfigEntry);
+      })
       .build();
     this.taskProvider.addServiceTask(task);
   }

@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.AbstractHandler;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.CloudNetVersion;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkClient;
@@ -131,7 +131,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/node/config", methods = "PUT")
-  private void handleNodeConfigUpdateRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+  private void handleNodeConfigUpdateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var configuration = body.toInstanceOf(JsonConfiguration.class);
     if (configuration == null) {
       this.badRequest(context)

@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.network.http.HttpHandler;
 import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.network.http.annotation.parser.DefaultHttpAnnotationParser;
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationParser;
+import eu.cloudnetservice.driver.network.netty.NettyOptionSettingChannelInitializer;
 import eu.cloudnetservice.driver.network.netty.NettySslServer;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
@@ -110,16 +111,16 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
     Task<Void> result = new Task<>();
     new ServerBootstrap()
       .group(this.bossGroup, this.workerGroup)
-      .channelFactory(NettyUtil.serverChannelFactory())
-      .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
-
+      .channelFactory(NettyUtil.serverChannelFactory(hostAndPort.getProtocolFamily()))
+      .handler(new NettyOptionSettingChannelInitializer()
+        .option(ChannelOption.SO_REUSEADDR, true))
+      .childHandler(new NettyHttpServerInitializer(this, hostAndPort)
+        .option(ChannelOption.TCP_NODELAY, true)
+        .option(ChannelOption.SO_REUSEADDR, true))
+      
       .childOption(ChannelOption.AUTO_READ, true)
-      .childOption(ChannelOption.TCP_NODELAY, true)
-      .childOption(ChannelOption.SO_REUSEADDR, true)
 
-      .option(ChannelOption.SO_REUSEADDR, true)
-
-      .bind(hostAndPort.host(), hostAndPort.port())
+      .bind(hostAndPort.toSocketAddress())
       .addListener(future -> {
         if (future.isSuccess()) {
           // ok, we bound successfully

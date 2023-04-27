@@ -78,7 +78,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
       LOGGER.fine(I18n.trans("client-network-channel-init",
         channel.serverAddress(),
-        channel.clientAddress().host()));
+        channel.clientAddress()));
     } else {
       channel.close();
     }

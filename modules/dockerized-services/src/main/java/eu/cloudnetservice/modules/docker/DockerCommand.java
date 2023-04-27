@@ -76,7 +76,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("bind") String bind
   ) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.addBind(bind));
-    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "bind", bind, task.name()));
+    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "bind", task.name(), bind));
   }
 
   @CommandMethod("docker task <task> clear binds")
@@ -107,7 +107,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("volume") String volume
   ) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.addVolume(volume));
-    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "volume", volume, task.name()));
+    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "volume", task.name(), volume));
   }
 
   @CommandMethod("docker task <task> clear volumes")
@@ -140,7 +140,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
   ) {
     var exposedPort = new ExposedPort(port, protocol == null ? InternetProtocol.DEFAULT : protocol);
     this.updateTaskDockerConfig(task, ($, builder) -> builder.addExposedPort(exposedPort));
-    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "exposedPort", exposedPort, task.name()));
+    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "exposedPort", task.name(), exposedPort));
   }
 
   @CommandMethod("docker task <task> clear ports")
@@ -301,14 +301,15 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @NonNull BiFunction<TaskDockerConfig, TaskDockerConfig.Builder, TaskDockerConfig.Builder> modifier
   ) {
     // read the docker config from the task
-    var taskConfig = serviceTask.propertyHolder().get(
+    var taskConfig = serviceTask.propertyHolder().readObject(
       "dockerConfig",
       TaskDockerConfig.class,
       TaskDockerConfig.builder().build());
     var property = modifier.apply(taskConfig, TaskDockerConfig.builder(taskConfig));
+
     // rewrite the config and update it in the cluster
     var task = ServiceTask.builder(serviceTask)
-      .properties(serviceTask.propertyHolder().append("dockerConfig", property.build()))
+      .modifyProperties(properties -> properties.append("dockerConfig", property.build()))
       .build();
     this.taskProvider.addServiceTask(task);
   }

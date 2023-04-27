@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.document.Document;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,7 +42,7 @@ import org.jetbrains.annotations.Unmodifiable;
  */
 @ToString
 @EqualsAndHashCode(callSuper = true)
-public class ServiceTask extends ServiceConfigurationBase implements Cloneable, Nameable {
+public class ServiceTask extends ServiceConfigurationBase implements Cloneable, Named {
 
   /**
    * The jvm static pattern which validate that a task or service name is acceptable. It for example doesn't allow
@@ -114,7 +114,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     @NonNull Set<ServiceTemplate> templates,
     @NonNull Set<ServiceDeployment> deployments,
     @NonNull Set<ServiceRemoteInclusion> includes,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     super(templates, deployments, includes, properties);
     this.name = name;
@@ -803,7 +803,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
         Set.copyOf(this.templates),
         Set.copyOf(this.deployments),
         Set.copyOf(this.includes),
-        this.properties.clone());
+        this.properties.immutableCopy());
     }
   }
 }

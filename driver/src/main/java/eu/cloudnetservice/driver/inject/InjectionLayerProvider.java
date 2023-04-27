@@ -23,7 +23,7 @@ import dev.derklaro.aerogel.auto.runtime.AutoAnnotationRegistry;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.binding.BindingConstructor;
 import dev.derklaro.aerogel.util.Qualifiers;
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import io.leangen.geantyref.TypeFactory;
 import java.util.ServiceLoader;
 import java.util.function.BiConsumer;

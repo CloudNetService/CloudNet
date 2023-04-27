@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.protocol;
 
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultQueryPacketManager;
 import java.time.Duration;
@@ -89,7 +89,7 @@ public class DefaultQueryPacketManagerTest {
     Assertions.assertTrue(task.isDone());
   }
 
-  private Pair<Packet, AtomicReference<UUID>> mockUniqueIdAblePacket() {
+  private Tuple2<Packet, AtomicReference<UUID>> mockUniqueIdAblePacket() {
     var reference = new AtomicReference<UUID>();
 
     var packet = Mockito.mock(Packet.class);
@@ -101,6 +101,6 @@ public class DefaultQueryPacketManagerTest {
       .when(packet)
       .uniqueId(Mockito.any());
 
-    return new Pair<>(packet, reference);
+    return new Tuple2<>(packet, reference);
   }
 }

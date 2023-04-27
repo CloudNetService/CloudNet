@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.module.updater;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.ext.updater.defaults.DefaultUpdaterRegistry;
 import eu.cloudnetservice.node.module.ModulesHolder;
@@ -41,7 +41,7 @@ public final class ModuleUpdaterRegistry extends DefaultUpdaterRegistry<ModuleUp
         var moduleJson = fs.getPath("module.json");
         if (Files.exists(moduleJson)) {
           // read the file
-          var document = JsonDocument.newDocument(moduleJson);
+          var document = DocumentFactory.json().parse(moduleJson);
           if (document.contains("name")) {
             moduleNames.put(file.toAbsolutePath(), document.getString("name"));
           }

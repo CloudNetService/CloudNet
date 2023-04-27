@@ -24,7 +24,7 @@ import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import jakarta.inject.Inject;
@@ -47,7 +47,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
     if (info.serviceId().nodeUniqueId().equals(componentInfo.componentName())
       && ServiceEnvironmentType.minecraftProxy(info.serviceId().environment())) {
       // get all the players which are connected to the proxy
-      var players = info.readProperty(BridgeServiceProperties.PLAYERS);
+      var players = info.readProperty(BridgeDocProperties.PLAYERS);
       if (players == null) {
         // no player property there yet, skip the check
         return;

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import lombok.NonNull;
 
 /**
@@ -27,7 +27,7 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public class ServiceEnvironment implements Nameable, Cloneable {
+public class ServiceEnvironment implements Named, Cloneable {
 
   private final String name;
   private final String environmentType;

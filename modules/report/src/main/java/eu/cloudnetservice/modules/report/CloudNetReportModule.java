@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.modules.report;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
@@ -75,10 +76,10 @@ public final class CloudNetReportModule extends DriverModule {
 
   @ModuleTask(order = 46)
   public void convertConfiguration() {
-    var config = this.readConfig();
+    var config = this.readConfig(DocumentFactory.json());
     if (config.contains("savingRecords")) {
       // old configuration, convert now
-      this.writeConfig(JsonDocument.newDocument(new ReportConfiguration(Set.of(new PasteServer(
+      this.writeConfig(Document.newJsonDocument().appendTree(new ReportConfiguration(Set.of(new PasteServer(
         "cloudnet",
         config.getString("pasteServerUrl"),
         "documents",
@@ -92,7 +93,8 @@ public final class CloudNetReportModule extends DriverModule {
   public void finishStartup(@NonNull CommandProvider commandProvider) {
     this.configuration = this.readConfig(
       ReportConfiguration.class,
-      () -> new ReportConfiguration(Set.of(PasteServer.DEFAULT_PASTER_SERVER)));
+      () -> new ReportConfiguration(Set.of(PasteServer.DEFAULT_PASTER_SERVER)),
+      DocumentFactory.json());
     commandProvider.register(ReportCommand.class);
   }
 
@@ -100,7 +102,8 @@ public final class CloudNetReportModule extends DriverModule {
   public void handleReload() {
     this.configuration = this.readConfig(
       ReportConfiguration.class,
-      () -> new ReportConfiguration(Set.of(PasteServer.DEFAULT_PASTER_SERVER)));
+      () -> new ReportConfiguration(Set.of(PasteServer.DEFAULT_PASTER_SERVER)),
+      DocumentFactory.json());
   }
 
   public @NonNull ReportConfiguration configuration() {

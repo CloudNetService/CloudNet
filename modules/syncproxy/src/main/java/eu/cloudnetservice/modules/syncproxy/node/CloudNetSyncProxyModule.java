@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy.node;
 
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
@@ -50,7 +51,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   public void convertConfig() {
     if (Files.exists(this.configPath())) {
       // the old config is located in a document with the key "config", extract the actual config
-      var document = this.readConfig().getDocument("config", null);
+      var document = this.readConfig(DocumentFactory.json()).readDocument("config", null);
       // check if there is an old config
       if (document != null) {
         // write the extracted part to the file
@@ -70,7 +71,8 @@ public final class CloudNetSyncProxyModule extends DriverModule {
       injectionLayer,
       SyncProxyConfiguration.class,
       () -> SyncProxyConfiguration.createDefault("Proxy"),
-      SyncProxyManagement.class);
+      SyncProxyManagement.class,
+      DocumentFactory.json());
     syncProxyManagement.registerService(serviceRegistry);
 
     // sync the config of the module into the cluster
@@ -120,6 +122,9 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   }
 
   private @NonNull SyncProxyConfiguration loadConfiguration() {
-    return this.readConfig(SyncProxyConfiguration.class, () -> SyncProxyConfiguration.createDefault("Proxy"));
+    return this.readConfig(
+      SyncProxyConfiguration.class,
+      () -> SyncProxyConfiguration.createDefault("Proxy"),
+      DocumentFactory.json());
   }
 }

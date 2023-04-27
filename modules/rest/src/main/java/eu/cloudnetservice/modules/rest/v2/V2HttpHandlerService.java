@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
@@ -125,7 +125,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   private void handleServiceCommandRequest(
     @NonNull HttpContext context,
     @NonNull @RequestPathParam("id") String id,
-    @NonNull @RequestBody JsonDocument body
+    @NonNull @RequestBody Document body
   ) {
     this.handleWithServiceContext(context, id, service -> {
       var commandLine = body.getString("command");
@@ -221,12 +221,12 @@ public final class V2HttpHandlerService extends V2HttpHandler {
 
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/service/create", methods = "POST")
-  private void handleCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody JsonDocument body) {
+  private void handleCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     // check for a provided service configuration
-    var configuration = body.get("serviceConfiguration", ServiceConfiguration.class);
+    var configuration = body.readObject("serviceConfiguration", ServiceConfiguration.class);
     if (configuration == null) {
       // check for a provided service task
-      var serviceTask = body.get("task", ServiceTask.class);
+      var serviceTask = body.readObject("task", ServiceTask.class);
       if (serviceTask != null) {
         configuration = ServiceConfiguration.builder(serviceTask).build();
       } else {
@@ -272,13 +272,13 @@ public final class V2HttpHandlerService extends V2HttpHandler {
     @NonNull @RequestPathParam("id") String id,
     @NonNull @FirstRequestQueryParam("type") String type,
     @NonNull @Optional @FirstRequestQueryParam(value = "flush", def = "false") String flush,
-    @NonNull @RequestBody JsonDocument body
+    @NonNull @RequestBody Document body
   ) {
     this.handleWithServiceContext(context, id, service -> {
       var flushAfter = Boolean.parseBoolean(flush);
       switch (StringUtil.toLower(type)) {
         case "template" -> {
-          var template = body.get("template", ServiceTemplate.class);
+          var template = body.readObject("template", ServiceTemplate.class);
           if (template == null) {
             this.badRequest(context)
               .body(this.failure().append("reason", "Missing template in body").toString())
@@ -295,7 +295,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
         }
 
         case "deployment" -> {
-          var deployment = body.get("deployment", ServiceDeployment.class);
+          var deployment = body.readObject("deployment", ServiceDeployment.class);
           if (deployment == null) {
             this.badRequest(context)
               .body(this.failure().append("reason", "Missing deployment in body").toString())
@@ -312,7 +312,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
         }
 
         case "inclusion" -> {
-          var inclusion = body.get("inclusion", ServiceRemoteInclusion.class);
+          var inclusion = body.readObject("inclusion", ServiceRemoteInclusion.class);
           if (inclusion == null) {
             this.badRequest(context)
               .body(this.failure().append("reason", "Missing inclusion in body").toString())

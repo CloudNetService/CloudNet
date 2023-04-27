@@ -21,10 +21,10 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.ComparisonChain;
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -60,7 +60,6 @@ import eu.cloudnetservice.node.service.defaults.factory.JVMLocalCloudServiceFact
 import eu.cloudnetservice.node.service.defaults.provider.EmptySpecificCloudServiceProvider;
 import eu.cloudnetservice.node.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -114,7 +113,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     @NonNull RPCHandlerRegistry handlerRegistry,
     @NonNull NodeServerProvider nodeServerProvider,
     @NonNull CloudServiceFactory cloudServiceFactory,
-    @NonNull @Named("consoleArgs") List<String> args
+    @NonNull @jakarta.inject.Named("consoleArgs") List<String> args
   ) {
     this.nodeServerProvider = nodeServerProvider;
     this.cloudServiceFactory = cloudServiceFactory;
@@ -135,7 +134,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       DataSyncHandler.<ServiceInfoSnapshot>builder()
         .key("services")
         .alwaysForce()
-        .nameExtractor(Nameable::name)
+        .nameExtractor(Named::name)
         .dataCollector(this::services)
         .convertObject(ServiceInfoSnapshot.class)
         .writer(ser -> {
@@ -550,7 +549,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       .map(service -> {
         // get the node server associated with the node, if the server is null it has not enough memory to start a service
         var nodeServer = nodes.get(service.serviceId().nodeUniqueId());
-        return nodeServer == null ? null : new Pair<>(service, nodeServer);
+        return nodeServer == null ? null : new Tuple2<>(service, nodeServer);
       })
       .filter(Objects::nonNull)
       .min((left, right) -> {

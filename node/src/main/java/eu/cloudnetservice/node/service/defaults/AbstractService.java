@@ -18,17 +18,17 @@ package eu.cloudnetservice.node.service.defaults;
 
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.common.resource.CpuUsageResolver;
+import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -61,6 +61,7 @@ import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import java.net.Inet6Address;
+import java.net.StandardProtocolFamily;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,6 +69,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
@@ -105,7 +107,7 @@ public abstract class AbstractService implements CloudService {
   protected final ServiceConfigurationPreparer serviceConfigurationPreparer;
 
   protected final Lock lifecycleLock = new ReentrantLock(true);
-  protected final Set<Pair<ChannelMessageTarget, String>> logTargets = ConcurrentHashMap.newKeySet();
+  protected final Set<Tuple2<ChannelMessageTarget, String>> logTargets = ConcurrentHashMap.newKeySet();
 
   protected final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceDeployment> waitingDeployments = new ConcurrentLinkedQueue<>();
@@ -152,7 +154,7 @@ public abstract class AbstractService implements CloudService {
       configuration,
       -1,
       ServiceLifeCycle.PREPARED,
-      configuration.propertyHolder().clone());
+      configuration.propertyHolder().immutableCopy());
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED, false);
 
     // register the service locally for now
@@ -359,9 +361,9 @@ public abstract class AbstractService implements CloudService {
       // prepare the connection from which we load the inclusion
       var req = Unirest.get(inclusion.url());
       // put the given http headers
-      var headers = inclusion.readProperty(ServiceRemoteInclusion.HEADERS);
-      for (var key : headers.keys()) {
-        req.header(key, Objects.toString(headers.get(key)));
+      var headers = inclusion.readPropertyOrDefault(ServiceRemoteInclusion.HEADERS, Map.of());
+      for (var entry : headers.entrySet()) {
+        req.header(entry.getKey(), entry.getValue());
       }
 
       // check if we should load the inclusion
@@ -414,7 +416,7 @@ public abstract class AbstractService implements CloudService {
   }
 
   @Override
-  public void updateProperties(@NonNull JsonDocument properties) {
+  public void updateProperties(@NonNull Document properties) {
     // check if the service is able to serve the request
     if (this.networkChannel != null) {
       ChannelMessage.builder()
@@ -557,7 +559,7 @@ public abstract class AbstractService implements CloudService {
 
   @Override
   public boolean toggleScreenEvents(@NonNull ChannelMessageSender channelMessageSender, @NonNull String channel) {
-    var pair = new Pair<>(channelMessageSender.toTarget(), channel);
+    var pair = new Tuple2<>(channelMessageSender.toTarget(), channel);
     if (this.logTargets.remove(pair)) {
       return false;
     }
@@ -624,7 +626,7 @@ public abstract class AbstractService implements CloudService {
 
   protected void pushServiceInfoSnapshotUpdate(
     @NonNull ServiceLifeCycle lifeCycle,
-    @Nullable JsonDocument properties,
+    @Nullable Document properties,
     boolean sendUpdate
   ) {
     // save the current service info
@@ -672,7 +674,7 @@ public abstract class AbstractService implements CloudService {
       return false;
     }
     // check for cpu usage
-    if (CPUUsageResolver.systemCPUUsage() >= this.configuration.maxCPUUsageToStartServices()) {
+    if (CpuUsageResolver.systemCpuLoad() >= this.configuration.maxCPUUsageToStartServices()) {
       // schedule a retry
       if (this.configuration.runBlockedServiceStartTryLaterAutomatic()) {
         this.mainThread.runTask(this::start);
@@ -713,13 +715,13 @@ public abstract class AbstractService implements CloudService {
     this.serviceConfigurationPreparer.configure(this);
     // write the configuration file for the service
     var listener = this.selectConnectListener(this.configuration.identity().listeners());
-    JsonDocument.newDocument()
+    Document.newJsonDocument()
       .append("targetListener", listener)
       .append("connectionKey", this.connectionKey())
       .append("serviceInfoSnapshot", this.currentServiceInfo)
       .append("serviceConfiguration", this.serviceConfiguration())
       .append("sslConfiguration", sslConfiguration)
-      .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
+      .writeTo(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // finished the prepare process
     this.eventManager.callEvent(new CloudServicePostPrepareEvent(this));
   }
@@ -729,6 +731,9 @@ public abstract class AbstractService implements CloudService {
     var listener = listeners.get(ThreadLocalRandom.current().nextInt(listeners.size()));
     // rewrite 0.0.0.0 to 127.0.0.1 (or ::0 to ::1) to prevent unexpected connection issues (wrapper to node connection)
     // if InetAddresses.forString throws an exception that is OK as the connection will fail anyway then
+    if (listener.getProtocolFamily() != StandardProtocolFamily.INET) {
+      return listener;
+    }
     var address = InetAddresses.forString(listener.host());
     if (address.isAnyLocalAddress()) {
       // rewrites ipv6 to an ipv6 local address

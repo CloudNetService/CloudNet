@@ -17,14 +17,13 @@
 package eu.cloudnetservice.node.database.sql;
 
 import com.github.benmanes.caffeine.cache.RemovalListener;
-import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import io.vavr.CheckedFunction1;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -58,7 +57,7 @@ public abstract class SQLDatabaseProvider extends NodeDatabaseProvider {
 
   public abstract <T> @UnknownNullability T executeQuery(
     @NonNull String query,
-    @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
+    @NonNull CheckedFunction1<ResultSet, T> callback,
     @Nullable T def,
     @NonNull Object... objects);
 }

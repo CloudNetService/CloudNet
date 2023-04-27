@@ -29,7 +29,7 @@ import lombok.NonNull;
 public record NettyHttpChannel(
   @NonNull Channel channel,
   @NonNull HostAndPort serverAddress,
-  @NonNull HostAndPort clientAddress
+  HostAndPort clientAddress
 ) implements HttpChannel {
 
   @Override

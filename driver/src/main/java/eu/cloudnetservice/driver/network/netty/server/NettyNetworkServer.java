@@ -135,13 +135,14 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
   public @NonNull Task<Void> addListener(@NonNull HostAndPort hostAndPort) {
     Task<Void> result = new Task<>();
     new ServerBootstrap()
-      .channelFactory(NettyUtil.serverChannelFactory())
+      .channelFactory(NettyUtil.serverChannelFactory(hostAndPort.getProtocolFamily()))
       .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
 
       .handler(new NettyOptionSettingChannelInitializer()
         .option(ChannelOption.TCP_FASTOPEN, 3)
         .option(ChannelOption.SO_REUSEADDR, true)
-        .option(UnixChannelOption.SO_REUSEPORT, true))
+        .option(UnixChannelOption.SO_REUSEPORT, true)
+       )
       .childHandler(new NettyNetworkServerInitializer(this.eventManager, this, hostAndPort)
         .option(ChannelOption.IP_TOS, 0x18)
         .option(ChannelOption.AUTO_READ, true)
@@ -150,7 +151,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
         .option(ChannelOption.SO_KEEPALIVE, true)
         .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK))
 
-      .bind(hostAndPort.host(), hostAndPort.port())
+      .bind(hostAndPort.toSocketAddress())
       .addListener(future -> {
         if (future.isSuccess()) {
           // ok, we bound successfully

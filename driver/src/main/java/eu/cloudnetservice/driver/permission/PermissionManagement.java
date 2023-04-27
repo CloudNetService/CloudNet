@@ -17,11 +17,11 @@
 package eu.cloudnetservice.driver.permission;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.common.function.ThrowableSupplier;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -724,7 +724,7 @@ public interface PermissionManagement {
    * @return a task containing all permissions groups.
    */
   default @NonNull Task<Collection<PermissionGroup>> groupsAsync() {
-    return Task.supply((ThrowableSupplier<Collection<PermissionGroup>, Throwable>) this::groups);
+    return Task.supply((Callable<Collection<PermissionGroup>>) this::groups);
   }
 
   /**

@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.setup;
 
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
@@ -128,19 +128,19 @@ public class DefaultTaskSetup implements DefaultSetup {
                       .toList()))
                   .build(),
                 // Java command
-                QuestionListEntry.<Pair<String, JavaVersion>>builder()
+                QuestionListEntry.<Tuple2<String, JavaVersion>>builder()
                   .key("proxyJavaCommand")
                   .translatedQuestion("cloudnet-init-setup-tasks-javacommand")
-                  .answerType(QuestionAnswerType.<Pair<String, JavaVersion>>builder()
+                  .answerType(QuestionAnswerType.<Tuple2<String, JavaVersion>>builder()
                     .recommendation("java")
                     .possibleResults("java")
                     .parser(this.parsers.javaVersion()))
                   .build(),
                 // proxy service version
-                QuestionListEntry.<Pair<ServiceVersionType, ServiceVersion>>builder()
+                QuestionListEntry.<Tuple2<ServiceVersionType, ServiceVersion>>builder()
                   .key("proxyVersion")
                   .translatedQuestion("cloudnet-init-setup-tasks-proxy-version")
-                  .answerType(QuestionAnswerType.<Pair<ServiceVersionType, ServiceVersion>>builder()
+                  .answerType(QuestionAnswerType.<Tuple2<ServiceVersionType, ServiceVersion>>builder()
                     .possibleResults(() -> this.completableServiceVersions(
                       animation.result("proxyEnvironment"),
                       animation.result("proxyJavaCommand")))
@@ -172,19 +172,19 @@ public class DefaultTaskSetup implements DefaultSetup {
                       .toList()))
                   .build(),
                 // Java command
-                QuestionListEntry.<Pair<String, JavaVersion>>builder()
+                QuestionListEntry.<Tuple2<String, JavaVersion>>builder()
                   .key("serverJavaCommand")
                   .translatedQuestion("cloudnet-init-setup-tasks-javacommand")
-                  .answerType(QuestionAnswerType.<Pair<String, JavaVersion>>builder()
+                  .answerType(QuestionAnswerType.<Tuple2<String, JavaVersion>>builder()
                     .recommendation("java")
                     .possibleResults("java")
                     .parser(this.parsers.javaVersion()))
                   .build(),
                 // server service version
-                QuestionListEntry.<Pair<ServiceVersionType, ServiceVersion>>builder()
+                QuestionListEntry.<Tuple2<ServiceVersionType, ServiceVersion>>builder()
                   .key("serverVersion")
                   .translatedQuestion("cloudnet-init-setup-tasks-server-version")
-                  .answerType(QuestionAnswerType.<Pair<ServiceVersionType, ServiceVersion>>builder()
+                  .answerType(QuestionAnswerType.<Tuple2<ServiceVersionType, ServiceVersion>>builder()
                     .possibleResults(() -> this.completableServiceVersions(
                       animation.result("serverEnvironment"),
                       animation.result("serverJavaCommand")))
@@ -216,8 +216,8 @@ public class DefaultTaskSetup implements DefaultSetup {
   ) {
     // read the responses
     ServiceEnvironmentType environment = animation.result(resultPrefix + "Environment");
-    Pair<String, ?> javaCommand = animation.result(resultPrefix + "JavaCommand");
-    Pair<ServiceVersionType, ServiceVersion> version = animation.result(resultPrefix + "Version");
+    Tuple2<String, ?> javaCommand = animation.result(resultPrefix + "JavaCommand");
+    Tuple2<ServiceVersionType, ServiceVersion> version = animation.result(resultPrefix + "Version");
     // create the task
     var template = ServiceTemplate.builder().prefix(taskName).name("default").build();
     this.taskProvider.addServiceTask(ServiceTask.builder()
@@ -251,7 +251,6 @@ public class DefaultTaskSetup implements DefaultSetup {
     // create a group specifically for the task
     this.groupProvider.addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
-      .templates(Set.of(template))
       .build());
 
     // install the service template
@@ -285,7 +284,7 @@ public class DefaultTaskSetup implements DefaultSetup {
 
   protected @NonNull Collection<String> completableServiceVersions(
     @NonNull ServiceEnvironmentType type,
-    @NonNull Pair<String, JavaVersion> javaVersion
+    @NonNull Tuple2<String, JavaVersion> javaVersion
   ) {
     return this.serviceVersionProvider.serviceVersionTypes().values().stream()
       .filter(versionType -> versionType.environmentType().equals(type.name()))

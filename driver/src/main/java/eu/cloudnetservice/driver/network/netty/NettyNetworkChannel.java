@@ -59,7 +59,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
     @NonNull PacketListenerRegistry packetRegistry,
     @NonNull NetworkChannelHandler handler,
     @NonNull HostAndPort serverAddress,
-    @NonNull HostAndPort clientAddress,
+    HostAndPort clientAddress,
     boolean clientProvidedChannel
   ) {
     super(packetRegistry, serverAddress, clientAddress, clientProvidedChannel, handler);

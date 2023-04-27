@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.database.xodus;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.driver.document.Document;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +75,9 @@ class XodusDatabaseTest {
     var database = this.databaseProvider.database("test");
     Assertions.assertNotNull(database);
 
-    Assertions.assertTrue(database.insert("1234", JsonDocument.newDocument("hello", "world")));
-    Assertions.assertTrue(database.insert("12234", JsonDocument.newDocument("hello", "world2")));
-    Assertions.assertTrue(database.insert("122234", JsonDocument.newDocument("hello", "world_123")));
+    Assertions.assertTrue(database.insert("1234", Document.newJsonDocument().append("hello", "world")));
+    Assertions.assertTrue(database.insert("12234", Document.newJsonDocument().append("hello", "world2")));
+    Assertions.assertTrue(database.insert("122234", Document.newJsonDocument().append("hello", "world_123")));
 
     Assertions.assertTrue(database.contains("1234"));
     Assertions.assertTrue(database.contains("12234"));
@@ -145,7 +145,7 @@ class XodusDatabaseTest {
       var key = UUID.randomUUID().toString();
 
       keys.add(key);
-      database.insert(key, JsonDocument.newDocument("this_is", "a_world_test"));
+      database.insert(key, Document.newJsonDocument().append("this_is", "a_world_test"));
     }
 
     Assertions.assertEquals(entries, database.documentCount());
@@ -153,7 +153,7 @@ class XodusDatabaseTest {
     var index = 0;
     var readsCalled = 0;
 
-    Map<String, JsonDocument> currentChunk;
+    Map<String, Document> currentChunk;
     while ((currentChunk = database.readChunk(index, 50)) != null) {
       index += 50;
       readsCalled++;

@@ -28,6 +28,7 @@ import io.netty5.channel.ServerChannelFactory;
 import io.netty5.handler.codec.DecoderException;
 import io.netty5.util.ResourceLeakDetector;
 import io.netty5.util.concurrent.Future;
+import java.net.ProtocolFamily;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
@@ -117,19 +118,21 @@ public final class NettyUtil {
   /**
    * Creates a new channel factory for network clients based on the epoll availability.
    *
+   * @param protocolFamily the protocol Family the channel should created for.
    * @return a new channel factory for network clients based on the epoll availability.
    */
-  public static @NonNull ChannelFactory<? extends Channel> clientChannelFactory() {
-    return CURR_NETTY_TRANSPORT.clientChannelFactory();
+  public static @NonNull ChannelFactory<? extends Channel> clientChannelFactory(@NonNull ProtocolFamily protocolFamily) {
+    return CURR_NETTY_TRANSPORT.clientChannelFactory(protocolFamily);
   }
 
   /**
    * Creates a new channel factory for network servers based on the epoll availability.
    *
+   * @param protocolFamily the protocol Family the channel should created for.
    * @return a new channel factory for network servers based on the epoll availability.
    */
-  public static @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory() {
-    return CURR_NETTY_TRANSPORT.serverChannelFactory();
+  public static @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory(@NonNull ProtocolFamily protocolFamily) {
+    return CURR_NETTY_TRANSPORT.serverChannelFactory(protocolFamily);
   }
 
   /**

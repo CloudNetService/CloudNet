@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.platform.minestom;
 
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
 import eu.cloudnetservice.ext.component.ComponentFormats;
@@ -41,7 +41,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
   private final GlobalEventHandler eventHandler;
   private final InstanceManager instanceManager;
 
-  private Pair<Pos, Instance> signLocation;
+  private Tuple2<Pos, Instance> signLocation;
 
   public MinestomPlatformSign(
     @NonNull Sign base,
@@ -115,7 +115,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
     return event.isCancelled() ? null : event.target();
   }
 
-  public @Nullable Pair<Pos, Instance> signLocation() {
+  public @Nullable Tuple2<Pos, Instance> signLocation() {
     // lazy init - if we have one use it
     if (this.signLocation != null) {
       return this.signLocation;
@@ -128,6 +128,6 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
     }
 
     var worldPos = this.base.location();
-    return this.signLocation = new Pair<>(new Pos(worldPos.x(), worldPos.y(), worldPos.z()), instance);
+    return this.signLocation = new Tuple2<>(new Pos(worldPos.x(), worldPos.y(), worldPos.z()), instance);
   }
 }

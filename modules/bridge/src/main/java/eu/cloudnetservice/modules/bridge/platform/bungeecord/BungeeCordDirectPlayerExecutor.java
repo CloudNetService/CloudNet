@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 import static net.md_5.bungee.api.chat.TextComponent.fromLegacyText;
 
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
@@ -75,9 +75,9 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   public void connectToFallback() {
     this.playerSupplier.get().stream()
       .filter(Objects::nonNull)
-      .map(player -> new Pair<>(player, this.management.fallback(player)))
+      .map(player -> new Tuple2<>(player, this.management.fallback(player)))
       .filter(pair -> pair.second().isPresent())
-      .map(p -> new Pair<>(p.first(), this.proxyServer.getServerInfo(p.second().get().name())))
+      .map(p -> new Tuple2<>(p.first(), this.proxyServer.getServerInfo(p.second().get().name())))
       .filter(pair -> pair.second() != null)
       .findFirst()
       .ifPresent(pair -> pair.first().connect(pair.second(), Reason.PLUGIN));

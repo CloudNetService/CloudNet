@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.http.annotation;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpContextPreprocessor;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
@@ -100,7 +100,8 @@ public final class SecurityAnnotationExtension {
   }
 
   private byte[] buildErrorResponse(@Nullable String reason) {
-    return JsonDocument.newDocument("success", false)
+    return Document.newJsonDocument()
+      .append("success", false)
       .append("reason", Objects.requireNonNullElse(reason, "undefined"))
       .toString()
       .getBytes(StandardCharsets.UTF_8);

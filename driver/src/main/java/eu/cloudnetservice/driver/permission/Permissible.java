@@ -16,9 +16,8 @@
 
 package eu.cloudnetservice.driver.permission;
 
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DocPropertyHolder;
+import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.document.property.DocPropertyHolder;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.util.Collection;
 import java.util.Map;
@@ -33,7 +32,7 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * @since 4.0
  */
-public interface Permissible extends Nameable, DocPropertyHolder<JsonDocument, Permissible>, Comparable<Permissible> {
+public interface Permissible extends Named, DocPropertyHolder, Comparable<Permissible> {
 
   /**
    * Gets the potency of this permissible. The potency is used for comparison of permissibles. A higher potency results
@@ -176,7 +175,7 @@ public interface Permissible extends Nameable, DocPropertyHolder<JsonDocument, P
    * @return all global permissions
    */
   default @Unmodifiable @NonNull Collection<String> permissionNames() {
-    return this.permissions().stream().map(Nameable::name).toList();
+    return this.permissions().stream().map(Named::name).toList();
   }
 
   /**

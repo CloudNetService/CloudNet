@@ -16,9 +16,10 @@
 
 package eu.cloudnetservice.modules.signs.node.configuration;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.modules.signs._deprecated.configuration.SignConfigurationReaderAndWriter;
 import eu.cloudnetservice.modules.signs._deprecated.configuration.entry.SignLayoutConfiguration;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
@@ -40,11 +41,11 @@ public final class NodeSignsConfigurationHelper {
   }
 
   public static void write(@NonNull SignsConfiguration configuration, @NonNull Path path) {
-    JsonDocument.newDocument(configuration).write(path);
+    Document.newJsonDocument().appendTree(configuration).writeTo(path);
   }
 
   public static SignsConfiguration read(@NonNull Path path) {
-    var configurationDocument = JsonDocument.newDocument(path);
+    var configurationDocument = DocumentFactory.json().parse(path);
     if (configurationDocument.contains("config")) {
       // write the new configuration file
       var configuration = convertOldConfiguration(configurationDocument, path);
@@ -68,7 +69,7 @@ public final class NodeSignsConfigurationHelper {
   }
 
   // convert of old configuration file
-  private static SignsConfiguration convertOldConfiguration(@NonNull JsonDocument document, @NonNull Path path) {
+  private static SignsConfiguration convertOldConfiguration(@NonNull Document.Mutable document, @NonNull Path path) {
     // read as old configuration file
     var oldConfiguration = SignConfigurationReaderAndWriter.read(document, path);
     // create new configuration from it

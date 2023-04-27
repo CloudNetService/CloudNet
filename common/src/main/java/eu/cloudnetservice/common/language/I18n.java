@@ -22,7 +22,7 @@ import com.google.common.collect.SetMultimap;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.unsafe.ResourceResolver;
+import eu.cloudnetservice.common.resource.ResourceResolver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -71,7 +71,7 @@ public final class I18n {
    * @throws NullPointerException if the given class source is null.
    */
   public static void loadFromLangPath(@NonNull Class<?> clazzSource) {
-    var resourcePath = Path.of(ResourceResolver.resolveURIFromResourceByClass(clazzSource));
+    var resourcePath = Path.of(ResourceResolver.resolveCodeSourceOfClass(clazzSource));
     FileUtil.openZipFile(resourcePath, fs -> {
       // get the language directory
       var langDir = fs.getPath("lang/");

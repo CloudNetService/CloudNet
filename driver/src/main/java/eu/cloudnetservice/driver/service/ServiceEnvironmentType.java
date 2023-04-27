@@ -18,10 +18,10 @@ package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.common.document.property.DefaultedDocPropertyHolder;
-import eu.cloudnetservice.common.document.property.DocProperty;
+import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
+import eu.cloudnetservice.driver.document.property.DocProperty;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -40,8 +40,7 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public final class ServiceEnvironmentType
-  implements DefaultedDocPropertyHolder<JsonDocument, ServiceEnvironmentType>, Nameable, Cloneable {
+public final class ServiceEnvironmentType implements DefaultedDocPropertyHolder, Named, Cloneable {
 
   /**
    * A property set on all service environment types which are a Minecraft java edition proxy.
@@ -77,7 +76,7 @@ public final class ServiceEnvironmentType
   public static final ServiceEnvironmentType NUKKIT = ServiceEnvironmentType.builder()
     .name("NUKKIT")
     .defaultProcessArguments(Set.of("disable-ansi"))
-    .properties(JsonDocument.newDocument().writeProperty(PE_SERVER, true))
+    .properties(Document.newJsonDocument().writeProperty(PE_SERVER, true))
     .build();
   /**
    * The default minecraft server service environment type. This applies to all services which don't need special
@@ -86,7 +85,7 @@ public final class ServiceEnvironmentType
   public static final ServiceEnvironmentType MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MINECRAFT_SERVER")
     .defaultProcessArguments(Set.of("nogui"))
-    .properties(JsonDocument.newDocument().writeProperty(JAVA_SERVER, true))
+    .properties(Document.newJsonDocument().writeProperty(JAVA_SERVER, true))
     .build();
   /**
    * The default modded server service environment type. This applies to all services which are wrapping a minecraft
@@ -95,7 +94,7 @@ public final class ServiceEnvironmentType
   public static final ServiceEnvironmentType MODDED_MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MODDED_MINECRAFT_SERVER")
     .defaultProcessArguments(Set.of("nogui"))
-    .properties(JsonDocument.newDocument().writeProperty(JAVA_SERVER, true).writeProperty(PLUGIN_DIR, "mods"))
+    .properties(Document.newJsonDocument().writeProperty(JAVA_SERVER, true).writeProperty(PLUGIN_DIR, "mods"))
     .build();
   /**
    * The minestom service environment type. This applies to all services which are a server minestom instance allowing
@@ -103,7 +102,7 @@ public final class ServiceEnvironmentType
    */
   public static final ServiceEnvironmentType MINESTOM = ServiceEnvironmentType.builder()
     .name("MINESTOM")
-    .properties(JsonDocument.newDocument().writeProperty(JAVA_SERVER, true).writeProperty(PLUGIN_DIR, "extensions"))
+    .properties(Document.newJsonDocument().writeProperty(JAVA_SERVER, true).writeProperty(PLUGIN_DIR, "extensions"))
     .build();
   /**
    * The bungeecord service environment type, can also be any fork of bungeecord (Java Edition proxy).
@@ -111,7 +110,7 @@ public final class ServiceEnvironmentType
   public static final ServiceEnvironmentType BUNGEECORD = ServiceEnvironmentType.builder()
     .name("BUNGEECORD")
     .defaultServiceStartPort(25565)
-    .properties(JsonDocument.newDocument().writeProperty(JAVA_PROXY, true))
+    .properties(Document.newJsonDocument().writeProperty(JAVA_PROXY, true))
     .build();
   /**
    * The velocity service environment type (Java Edition proxy).
@@ -119,7 +118,7 @@ public final class ServiceEnvironmentType
   public static final ServiceEnvironmentType VELOCITY = ServiceEnvironmentType.builder()
     .name("VELOCITY")
     .defaultServiceStartPort(25565)
-    .properties(JsonDocument.newDocument().writeProperty(JAVA_PROXY, true))
+    .properties(Document.newJsonDocument().writeProperty(JAVA_PROXY, true))
     .build();
   /**
    * The waterdog PE service environment type (PE proxy).
@@ -127,14 +126,14 @@ public final class ServiceEnvironmentType
   public static final ServiceEnvironmentType WATERDOG_PE = ServiceEnvironmentType.builder()
     .name("WATERDOG_PE")
     .defaultServiceStartPort(19132)
-    .properties(JsonDocument.newDocument().writeProperty(PE_PROXY, true))
+    .properties(Document.newJsonDocument().writeProperty(PE_PROXY, true))
     .build();
 
   private final String name;
   private final int defaultServiceStartPort;
   private final Set<String> defaultProcessArguments;
 
-  private final JsonDocument properties;
+  private final Document properties;
 
   /**
    * Constructs a new service environment type instance.
@@ -149,7 +148,7 @@ public final class ServiceEnvironmentType
     @NonNull String name,
     int defaultServiceStartPort,
     @NonNull Set<String> defaultProcessArguments,
-    @NonNull JsonDocument properties
+    @NonNull Document properties
   ) {
     this.name = name;
     this.defaultServiceStartPort = defaultServiceStartPort;
@@ -180,7 +179,7 @@ public final class ServiceEnvironmentType
   public static @NonNull Builder builder(@NonNull ServiceEnvironmentType type) {
     return builder()
       .name(type.name())
-      .properties(type.propertyHolder().clone())
+      .properties(type.propertyHolder().immutableCopy())
       .defaultServiceStartPort(type.defaultStartPort())
       .defaultProcessArguments(type.defaultProcessArguments());
   }
@@ -250,7 +249,7 @@ public final class ServiceEnvironmentType
    * {@inheritDoc}
    */
   @Override
-  public @NonNull JsonDocument propertyHolder() {
+  public @NonNull Document propertyHolder() {
     return this.properties;
   }
 
@@ -263,7 +262,7 @@ public final class ServiceEnvironmentType
 
     private String name;
     private int defaultServiceStartPort = 44955;
-    private JsonDocument properties = JsonDocument.newDocument();
+    private Document properties = Document.emptyDocument();
     private Set<String> defaultProcessArguments = new LinkedHashSet<>();
 
     /**
@@ -299,8 +298,8 @@ public final class ServiceEnvironmentType
      * @return the same instance as used to call the method for chaining.
      * @throws NullPointerException if the given properties document is null.
      */
-    public @NonNull Builder properties(@NonNull JsonDocument properties) {
-      this.properties = properties.clone();
+    public @NonNull Builder properties(@NonNull Document properties) {
+      this.properties = properties.immutableCopy();
       return this;
     }
 

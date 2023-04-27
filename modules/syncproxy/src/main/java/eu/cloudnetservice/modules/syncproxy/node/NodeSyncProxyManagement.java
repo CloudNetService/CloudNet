@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.syncproxy.node;
 
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
@@ -75,6 +75,6 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
 
   public void configurationSilently(@NonNull SyncProxyConfiguration configuration) {
     this.configuration = configuration;
-    this.syncProxyModule.writeConfig(JsonDocument.newDocument(configuration));
+    this.syncProxyModule.writeConfig(Document.newJsonDocument().appendTree(configuration));
   }
 }

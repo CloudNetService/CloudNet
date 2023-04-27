@@ -49,6 +49,7 @@ dependencies {
 
   "api"(libs.caffeine)
   "api"(libs.reflexion)
+  "api"(libs.geantyref)
   "api"(libs.bundles.unirest)
   "api"(libs.bundles.aerogel)
 
@@ -59,7 +60,6 @@ dependencies {
   "implementation"(libs.asm)
   "implementation"(libs.gson)
   "implementation"(libs.guava)
-  "implementation"(libs.geantyref)
 
   // netty
   "implementation"(libs.bundles.netty)
@@ -70,6 +70,5 @@ dependencies {
   // hack - depend on the output of the ap output to apply the annotation process to this project too
   "annotationProcessor"(project.sourceSets()["ap"].output)
 
-  "testImplementation"(libs.tyrus)
   "testImplementation"(projects.common.dependencyProject.sourceSets()["main"].output)
 }

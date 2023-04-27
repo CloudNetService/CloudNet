@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudflare.config;
 
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import java.util.Collection;
 import java.util.Objects;
 import lombok.NonNull;

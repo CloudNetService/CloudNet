@@ -18,8 +18,8 @@ package eu.cloudnetservice.wrapper.holder;
 
 import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -28,7 +28,8 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.util.VarHandleUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
-import eu.cloudnetservice.wrapper.event.ServiceInfoSnapshotConfigureEvent;
+import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
+import eu.cloudnetservice.wrapper.event.ServiceInfoSnapshotPublishEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.invoke.MethodHandles;
@@ -126,16 +127,20 @@ public final class WrapperServiceInfoHolder implements ServiceInfoHolder {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ServiceInfoSnapshot createServiceInfoSnapshot(@NonNull JsonDocument properties) {
-    var currentServiceInfo = this.serviceInfo();
+  public @NonNull ServiceInfoSnapshot createServiceInfoSnapshot(@NonNull Document properties) {
+    // call the event to configure the service properties
+    var info = this.serviceInfo();
+    var event = this.eventManager.callEvent(new ServiceInfoPropertiesConfigureEvent(properties.mutableCopy(), info));
+
+    // construct the new service snapshot based on the old info & the configured properties
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      currentServiceInfo.address(),
+      info.address(),
       ProcessSnapshot.self(),
       this.configuration.serviceConfiguration(),
-      currentServiceInfo.connectedTime(),
+      info.connectedTime(),
       ServiceLifeCycle.RUNNING,
-      properties.clone());
+      event.propertyHolder().immutableCopy());
   }
 
   /**
@@ -183,7 +188,7 @@ public final class WrapperServiceInfoHolder implements ServiceInfoHolder {
    * @throws NullPointerException if the given snapshot is null.
    */
   private void configureServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
-    this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
+    this.eventManager.callEvent(new ServiceInfoSnapshotPublishEvent(serviceInfoSnapshot));
 
     // update the current & last snapshot
     var lastSnapshot = (ServiceInfoSnapshot) CURRENT_INFO_VARHANDLE.getAndSetRelease(this, serviceInfoSnapshot);

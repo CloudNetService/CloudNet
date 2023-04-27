@@ -25,15 +25,15 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.collect.Lists;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.io.ZipUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.common.resource.ResourceFormatter;
+import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
@@ -70,7 +70,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("command-cluster-description")
 public final class ClusterCommand {
 
-  public static final RowBasedFormatter<NodeServer> FORMATTER = RowBasedFormatter.<NodeServer>builder()
+  public static final RowedFormatter<NodeServer> FORMATTER = RowedFormatter.<NodeServer>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "State", "Listeners", "Extra").build())
     .column(server -> server.info().uniqueId())
     .column(NodeServer::state)
@@ -417,9 +417,9 @@ public final class ClusterCommand {
           + node.nodeInfoSnapshot().usedMemory() + "/" + node.nodeInfoSnapshot().reservedMemory()
           + "/" + node.nodeInfoSnapshot().maxMemory() + " MB",
         " ",
-        "CPU usage process: " + CPUUsageResolver.defaultFormat().format(
+        "CPU usage process: " + ResourceFormatter.formatTwoDigitPrecision(
           node.nodeInfoSnapshot().processSnapshot().cpuUsage()) + "%",
-        "CPU usage system: " + CPUUsageResolver.defaultFormat().format(
+        "CPU usage system: " + ResourceFormatter.formatTwoDigitPrecision(
           node.nodeInfoSnapshot().processSnapshot().systemCpuUsage()) + "%",
         "Threads: " + node.nodeInfoSnapshot().processSnapshot().threads().size(),
         "Heap usage: " + (node.nodeInfoSnapshot().processSnapshot().heapUsageMemory() / (1024 * 1024)) + "/" +

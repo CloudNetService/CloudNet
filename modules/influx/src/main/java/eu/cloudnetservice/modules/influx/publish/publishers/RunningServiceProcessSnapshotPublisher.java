@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.influx.publish.publishers;
 
 import com.influxdb.client.write.Point;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.util.PointUtil;
 import eu.cloudnetservice.node.service.CloudServiceManager;
@@ -41,11 +41,11 @@ public record RunningServiceProcessSnapshotPublisher(@NonNull CloudServiceManage
         .addField("MaxMemory", service.processSnapshot().maxHeapMemory())
         .addField("UsedMemory", service.processSnapshot().heapUsageMemory())
         .addField("LoadedClassCount", service.processSnapshot().currentLoadedClassCount())
-        .addField("MaxPlayers", service.readProperty(BridgeServiceProperties.MAX_PLAYERS))
-        .addField("OnlinePlayers", service.readProperty(BridgeServiceProperties.ONLINE_COUNT))
+        .addField("MaxPlayers", service.readProperty(BridgeDocProperties.MAX_PLAYERS))
+        .addField("OnlinePlayers", service.readProperty(BridgeDocProperties.ONLINE_COUNT))
         .addField("Full", BridgeServiceHelper.fullService(service))
         .addField("Empty", BridgeServiceHelper.emptyService(service))
-        .addField("Online", service.readProperty(BridgeServiceProperties.IS_ONLINE))
+        .addField("Online", service.readProperty(BridgeDocProperties.IS_ONLINE))
         .addField("Ingame", BridgeServiceHelper.inGameService(service))
         .addField("Starting", BridgeServiceHelper.startingService(service))
       ).toList();

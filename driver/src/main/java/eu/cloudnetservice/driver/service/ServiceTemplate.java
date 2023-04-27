@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Range;
  * @since 4.0
  */
 @EqualsAndHashCode
-public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, Cloneable {
+public class ServiceTemplate implements Named, Comparable<ServiceTemplate>, Cloneable {
 
   /**
    * The name of the local template storage.

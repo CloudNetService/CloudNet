@@ -58,7 +58,7 @@ public abstract class DefaultNetworkChannel implements NetworkChannel {
   public DefaultNetworkChannel(
     @NonNull PacketListenerRegistry packetRegistry,
     @NonNull HostAndPort serverAddress,
-    @NonNull HostAndPort clientAddress,
+    HostAndPort clientAddress,
     boolean clientProvidedChannel,
     @NonNull NetworkChannelHandler handler
   ) {
@@ -122,7 +122,7 @@ public abstract class DefaultNetworkChannel implements NetworkChannel {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull HostAndPort clientAddress() {
+  public HostAndPort clientAddress() {
     return this.clientAddress;
   }
 

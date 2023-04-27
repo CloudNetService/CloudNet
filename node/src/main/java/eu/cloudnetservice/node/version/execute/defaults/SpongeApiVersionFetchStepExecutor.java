@@ -17,7 +17,8 @@
 package eu.cloudnetservice.node.version.execute.defaults;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
 import java.io.IOException;
@@ -53,14 +54,14 @@ public class SpongeApiVersionFetchStepExecutor implements InstallStepExecutor {
         .accept("application/json")
         .asObject(response -> {
           if (response.getStatus() == HttpStatus.OK) {
-            return JsonDocument.fromJsonString(response.getContentAsString());
+            return DocumentFactory.json().parse(response.getContentAsString());
           } else {
-            return JsonDocument.emptyDocument();
+            return Document.newJsonDocument();
           }
         }).getBody();
 
       // check if the document contains any artifacts
-      var artifacts = jsonResponse.getDocument("artifacts");
+      var artifacts = jsonResponse.readDocument("artifacts");
       if (!artifacts.empty()) {
         // get the first key - it is the version we need to download
         var versionKey = Iterables.getFirst(artifacts.keys(), null);

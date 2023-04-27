@@ -23,7 +23,7 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Liberal;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
@@ -106,7 +106,7 @@ public final class SyncProxyCommand {
   public List<String> suggestNewLoginConfigurations(CommandContext<CommandSource> $, String input) {
     return this.groupProvider.groupConfigurations()
       .stream()
-      .map(Nameable::name)
+      .map(Named::name)
       .toList();
   }
 

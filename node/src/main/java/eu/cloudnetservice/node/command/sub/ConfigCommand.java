@@ -23,9 +23,9 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
@@ -140,7 +140,7 @@ public final class ConfigCommand {
   @CommandMethod("config|cfg node set javaCommand <executable>")
   public void setJavaCommand(
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
+    @NonNull @Argument(value = "executable", parserName = "javaCommand") Tuple2<String, JavaVersion> executable
   ) {
     this.configuration.javaCommand(executable.first());
     this.configuration.save();

@@ -16,9 +16,7 @@
 
 package eu.cloudnetservice.driver.network.http;
 
-import static eu.cloudnetservice.driver.network.http.NettyHttpServerTest.connectTo;
-
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.NetworkTestCase;
 import eu.cloudnetservice.driver.network.http.annotation.FirstRequestQueryParam;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
@@ -29,75 +27,123 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestPath;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.network.http.annotation.RequestQueryParam;
 import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
-import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Collection;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class NettyHttpAnnotatedHandlerTest extends NetworkTestCase {
 
-  @Test
-  void testHandlerCalledCorrectlyWithOptional() throws Exception {
-    var port = this.randomFreePort();
-    var server = new NettyHttpServer();
+  private int serverPort;
+  private HttpServer httpServer;
 
-    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
-    Assertions.assertDoesNotThrow(() -> server.annotationParser().parseAndRegister(new AnnotatedHandler()));
+  @BeforeEach
+  void initHttpServer() {
+    this.serverPort = randomFreePort();
 
-    var connection = Assertions.assertDoesNotThrow(() -> connectTo(port, "test/hello/1"));
-    Assertions.assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-    Assertions.assertEquals("Handler1", connection.getHeaderField("Test"));
+    this.httpServer = new NettyHttpServer();
+    this.httpServer.addListener(this.serverPort).join();
+    this.httpServer.annotationParser().parseAndRegister(new AnnotatedHandler());
+  }
 
-    var connection2 = Assertions.assertDoesNotThrow(() -> connectTo(port, "test/hello/2?testValue=test"));
-    Assertions.assertEquals(HttpURLConnection.HTTP_OK, connection2.getResponseCode());
-    Assertions.assertEquals("Handler2", connection2.getHeaderField("Test"));
+  @AfterEach
+  void teardownHttpServer() throws Exception {
+    this.httpServer.close();
   }
 
   @Test
-  void testHandlerCalledCorrectlyWithMiscAnnotations() throws Exception {
-    var port = this.randomFreePort();
-    var server = new NettyHttpServer();
+  void testHandlerCalledCorrectlyWithOptional() throws Exception {
+    var client = HttpClient.newHttpClient();
 
-    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
-    Assertions.assertDoesNotThrow(() -> server.annotationParser().parseAndRegister(new AnnotatedHandler()));
+    var handlerRequestUri = UriBuilder.create().port(this.serverPort).path("test", "hello", "1").build();
+    var handlerRequest = HttpRequest.newBuilder(handlerRequestUri).build();
+    var response = client.send(handlerRequest, HttpResponse.BodyHandlers.discarding());
+    Assertions.assertEquals(200, response.statusCode());
 
-    var connection = Assertions.assertDoesNotThrow(() -> connectTo(port, "test/value/2"));
-    Assertions.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
+    var firstHeaderValue = response.headers().firstValue("Test").orElse(null);
+    Assertions.assertNotNull(firstHeaderValue);
+    Assertions.assertEquals("Handler1", firstHeaderValue);
+  }
 
-    var connection2 = Assertions.assertDoesNotThrow(() -> connectTo(port, "test/all/2"));
-    Assertions.assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, connection2.getResponseCode());
+  @Test
+  void testHandlerCalledCorrectlyWithoutOptional() throws Exception {
+    var client = HttpClient.newHttpClient();
 
-    var connection3 = Assertions.assertDoesNotThrow(() -> connectTo(
-      port,
-      "test/all/2?testValue=present&testValue3=present&testValue4=hello&testValue4=world",
-      con -> con.setRequestProperty("test", "present")));
-    Assertions.assertEquals(HttpURLConnection.HTTP_CREATED, connection3.getResponseCode());
-    Assertions.assertEquals("Response2", connection3.getHeaderField("Test"));
+    var handlerRequestUri = UriBuilder.create()
+      .port(this.serverPort)
+      .path("test", "hello", "2")
+      .addQueryParameter("testValue", "test")
+      .build();
+    var handlerRequest = HttpRequest.newBuilder(handlerRequestUri).build();
+    var response = client.send(handlerRequest, HttpResponse.BodyHandlers.discarding());
+    Assertions.assertEquals(200, response.statusCode());
+
+    var firstHeaderValue = response.headers().firstValue("Test").orElse(null);
+    Assertions.assertNotNull(firstHeaderValue);
+    Assertions.assertEquals("Handler2", firstHeaderValue);
+  }
+
+  @Test
+  void testRespondsWithBadRequestOnInvalidRequest() throws Exception {
+    var client = HttpClient.newHttpClient();
+
+    var handlerUri = UriBuilder.create()
+      .port(this.serverPort)
+      .path("test", "all", "2")
+      .addQueryParameter("testValue", "world")
+      .build();
+    var handlerRequest = HttpRequest.newBuilder(handlerUri).build();
+    var handlerResponse = client.send(handlerRequest, HttpResponse.BodyHandlers.discarding());
+    Assertions.assertEquals(400, handlerResponse.statusCode());
+  }
+
+  @Test
+  void testHandlerGetsCalledOnFullRequest() throws Exception {
+    var client = HttpClient.newHttpClient();
+
+    var handlerUri = UriBuilder.create()
+      .port(this.serverPort)
+      .path("test", "all", "2")
+      .addQueryParameter("testValue", "present")
+      .addQueryParameter("testValue3", "present")
+      .addQueryParameter("testValue4", "hello")
+      .addQueryParameter("testValue4", "world")
+      .build();
+    var handlerRequest = HttpRequest.newBuilder(handlerUri).header("test", "present").build();
+    var handlerResponse = client.send(handlerRequest, HttpResponse.BodyHandlers.discarding());
+    Assertions.assertEquals(201, handlerResponse.statusCode());
+
+    var firstHeaderValue = handlerResponse.headers().firstValue("Test").orElse(null);
+    Assertions.assertNotNull(firstHeaderValue);
+    Assertions.assertEquals("Response2", firstHeaderValue);
+  }
+
+  @Test
+  void testHandlerRejectRequestWithInvalidMethod() throws Exception {
+    var client = HttpClient.newHttpClient();
+
+    var handlerUri = UriBuilder.create().port(this.serverPort).path("test", "body").build();
+    var handlerRequest = HttpRequest.newBuilder(handlerUri).GET().build();
+    var handlerResponse = client.send(handlerRequest, HttpResponse.BodyHandlers.discarding());
+    Assertions.assertEquals(404, handlerResponse.statusCode());
   }
 
   @Test
   void testHandlerCalledCorrectlyWithBody() throws Exception {
-    var port = this.randomFreePort();
-    var server = new NettyHttpServer();
+    var client = HttpClient.newHttpClient();
 
-    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
-    Assertions.assertDoesNotThrow(() -> server.annotationParser().parseAndRegister(new AnnotatedHandler()));
-
-    var connection = Assertions.assertDoesNotThrow(() -> connectTo(port, "test/body"));
-    Assertions.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
-
-    var connection2 = Assertions.assertDoesNotThrow(() -> connectTo(port, "test/body", con -> {
-      con.setDoOutput(true);
-      con.setRequestMethod("POST");
-    }));
-    try (var out = connection2.getOutputStream()) {
-      out.write(JsonDocument.newDocument().append("test", "hello world!").toString().getBytes(StandardCharsets.UTF_8));
-      out.flush();
-    }
-
-    Assertions.assertEquals(HttpURLConnection.HTTP_ACCEPTED, connection2.getResponseCode());
+    var body = Document.newJsonDocument().append("test", "hello world!").serializeToString();
+    var handlerUri = UriBuilder.create().port(this.serverPort).path("test", "body").build();
+    var handlerRequest = HttpRequest.newBuilder(handlerUri)
+      .POST(HttpRequest.BodyPublishers.ofString(body))
+      .build();
+    var handlerResponse = client.send(handlerRequest, HttpResponse.BodyHandlers.discarding());
+    Assertions.assertEquals(202, handlerResponse.statusCode());
   }
 
   public static final class AnnotatedHandler {
@@ -141,7 +187,7 @@ public class NettyHttpAnnotatedHandlerTest extends NetworkTestCase {
     }
 
     @HttpRequestHandler(paths = "/test/body", methods = "POST")
-    public void handleBody(HttpContext context, @RequestBody String body, @RequestBody JsonDocument bodyDoc) {
+    public void handleBody(HttpContext context, @RequestBody String body, @RequestBody Document bodyDoc) {
       Assertions.assertTrue(body.startsWith("{") && body.endsWith("}"));
       Assertions.assertEquals("hello world!", bodyDoc.getString("test"));
       context.response().status(HttpResponseCode.ACCEPTED);

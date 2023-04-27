@@ -26,15 +26,15 @@ import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.base.Splitter;
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.WildcardUtil;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowBasedFormatter;
+import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.common.resource.ResourceFormatter;
+import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.common.util.WildcardUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -78,12 +78,12 @@ public final class ServiceCommand {
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
   // there are different ways to display the services
-  private static final RowBasedFormatter<ServiceInfoSnapshot> NAMES_ONLY = RowBasedFormatter.<ServiceInfoSnapshot>builder()
+  private static final RowedFormatter<ServiceInfoSnapshot> NAMES_ONLY = RowedFormatter.<ServiceInfoSnapshot>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "UID").build())
     .column(ServiceInfoSnapshot::name)
     .column(service -> service.serviceId().uniqueId())
     .build();
-  private static final RowBasedFormatter<ServiceInfoSnapshot> SERVICES = RowBasedFormatter.<ServiceInfoSnapshot>builder()
+  private static final RowedFormatter<ServiceInfoSnapshot> SERVICES = RowedFormatter.<ServiceInfoSnapshot>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "Lifecycle", "Address", "Node", "State").build())
     .column(ServiceInfoSnapshot::name)
     .column(ServiceInfoSnapshot::lifeCycle)
@@ -111,7 +111,7 @@ public final class ServiceCommand {
   public @NonNull List<String> suggestService(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.cloudServiceProvider.services()
       .stream()
-      .map(Nameable::name)
+      .map(Named::name)
       .toList();
   }
 
@@ -208,16 +208,16 @@ public final class ServiceCommand {
     @Flag("case-sensitive") boolean caseSensitive
   ) {
     // associate all services with a template
-    Collection<Pair<SpecificCloudServiceProvider, ServiceTemplate>> targets = services.stream()
+    Collection<Tuple2<SpecificCloudServiceProvider, ServiceTemplate>> targets = services.stream()
       .map(service -> {
         if (template != null) {
-          return new Pair<>(service.provider(), template);
+          return new Tuple2<>(service.provider(), template);
         } else {
           // find a matching template
           return service.configuration().templates().stream()
             .filter(st -> st.prefix().equalsIgnoreCase(service.serviceId().taskName()))
             .filter(st -> st.name().equalsIgnoreCase("default"))
-            .map(st -> new Pair<>(service.provider(), st))
+            .map(st -> new Tuple2<>(service.provider(), st))
             .findFirst()
             .orElse(null);
         }
@@ -437,7 +437,7 @@ public final class ServiceCommand {
 
     list.addAll(List.of(
       "PID: " + service.processSnapshot().pid(),
-      "CPU usage: " + CPUUsageResolver.defaultFormat().format(service.processSnapshot().cpuUsage()) + "%",
+      "CPU usage: " + ResourceFormatter.formatTwoDigitPrecision(service.processSnapshot().cpuUsage()) + "%",
       "Threads: " + service.processSnapshot().threads().size(),
       "Heap usage: " + (service.processSnapshot().heapUsageMemory() / 1048576) + "/" +
         (service.processSnapshot().maxHeapMemory() / 1048576) + "MB",
@@ -446,7 +446,7 @@ public final class ServiceCommand {
 
     if (showCustomProperties) {
       list.add("Properties:");
-      list.addAll(Arrays.asList(service.propertyHolder().toPrettyJson().split("\n")));
+      list.addAll(Arrays.asList(service.propertyHolder().serializeToString().split("\n")));
       list.add(" ");
     }
 

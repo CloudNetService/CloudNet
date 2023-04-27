@@ -50,7 +50,7 @@ public interface NetworkChannel extends PacketSender {
    *
    * @return the client address of the channel.
    */
-  @NonNull HostAndPort clientAddress();
+  HostAndPort clientAddress();
 
   /**
    * Get the handler of this channel listening to all kind of operations on this channel.

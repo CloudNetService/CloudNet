@@ -123,7 +123,11 @@ final class NettyHttpServerContext implements HttpContext {
         Short.MAX_VALUE,
         false
       ).newHandshaker(this.httpRequest);
+
       // no handshaker (as per the netty docs) means that the websocket version of the request is unsupported.
+      // in both cases we don't want to respond - in case there is no handshaker we're sending out a response here,
+      // in case we upgraded there is no need to send a response
+      this.cancelSendResponse = true;
       if (handshaker == null) {
         WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(this.nettyChannel);
         return Task.completedTask(new IllegalStateException("Unsupported web socket version"));
@@ -135,7 +139,6 @@ final class NettyHttpServerContext implements HttpContext {
         // cancel the next request and the response send to the client by the handler to do our processing
         this.cancelNext(true);
         this.closeAfter(false);
-        this.cancelSendResponse = true;
 
         // try to greet the client
         Task<WebSocketChannel> task = new Task<>();

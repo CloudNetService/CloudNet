@@ -38,8 +38,8 @@ public class CloudNetSmartModule extends DriverModule {
     for (var task : taskProvider.serviceTasks()) {
       // check if the task had a smart config entry previously
       if (task.propertyHolder().contains("smartConfig")) {
-        var smartEntry = task.propertyHolder().getDocument("smartConfig");
         // check if the task still uses the old format
+        var smartEntry = task.propertyHolder().readDocument("smartConfig");
         if (smartEntry.contains("dynamicMemoryAllocationRange")) {
           // rewrite the old config
           var config = SmartServiceTaskConfig.builder()
@@ -49,8 +49,9 @@ public class CloudNetSmartModule extends DriverModule {
             .maxServices(smartEntry.getInt("maxServiceCount"))
             .preparedServices(smartEntry.getInt("preparedServices"))
 
-            .templateInstaller(smartEntry.get("templateInstaller", SmartServiceTaskConfig.TemplateInstaller.class))
             .directTemplatesAndInclusionsSetup(smartEntry.getBoolean("directTemplatesAndInclusionsSetup"))
+            .templateInstaller(
+              smartEntry.readObject("templateInstaller", SmartServiceTaskConfig.TemplateInstaller.class))
 
             .autoStopTimeByUnusedServiceInSeconds(smartEntry.getInt("autoStopTimeByUnusedServiceInSeconds"))
             .percentOfPlayersToCheckShouldStop(
@@ -60,9 +61,12 @@ public class CloudNetSmartModule extends DriverModule {
             .percentOfPlayersForANewServiceByInstance(smartEntry.getInt("percentOfPlayersForANewServiceByInstance"))
 
             .build();
+
           // append the new smart entry and update the service
-          task.propertyHolder().append("smartConfig", config);
-          taskProvider.addServiceTask(task);
+          var newTask = ServiceTask.builder(task)
+            .modifyProperties(properties -> properties.append("smartConfig", config))
+            .build();
+          taskProvider.addServiceTask(newTask);
         }
       }
     }
@@ -73,9 +77,10 @@ public class CloudNetSmartModule extends DriverModule {
     for (var task : taskProvider.serviceTasks()) {
       // check if the service task needs a smart entry
       if (!task.propertyHolder().contains("smartConfig")) {
-        task.propertyHolder().append("smartConfig", SmartServiceTaskConfig.builder().build());
-        // update the task
-        taskProvider.addServiceTask(task);
+        var newTask = ServiceTask.builder(task)
+          .modifyProperties(properties -> properties.append("smartConfig", SmartServiceTaskConfig.builder().build()))
+          .build();
+        taskProvider.addServiceTask(newTask);
       }
     }
   }
@@ -92,6 +97,6 @@ public class CloudNetSmartModule extends DriverModule {
 
   public @Nullable SmartServiceTaskConfig smartConfig(@NonNull ServiceTask task) {
     // try to get the smart config entry
-    return task.propertyHolder().get("smartConfig", SmartServiceTaskConfig.class);
+    return task.propertyHolder().readObject("smartConfig", SmartServiceTaskConfig.class);
   }
 }

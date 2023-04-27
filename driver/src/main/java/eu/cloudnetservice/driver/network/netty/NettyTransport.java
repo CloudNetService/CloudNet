@@ -16,9 +16,10 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
-import com.google.common.base.Suppliers;
+import eu.cloudnetservice.common.function.TriFunction;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFactory;
+import io.netty5.channel.EventLoop;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.IoHandlerFactory;
 import io.netty5.channel.MultithreadEventLoopGroup;
@@ -35,6 +36,8 @@ import io.netty5.channel.kqueue.KQueueSocketChannel;
 import io.netty5.channel.nio.NioHandler;
 import io.netty5.channel.socket.nio.NioServerSocketChannel;
 import io.netty5.channel.socket.nio.NioSocketChannel;
+import java.net.ProtocolFamily;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import lombok.NonNull;
 
@@ -66,17 +69,17 @@ public enum NettyTransport {
     true,
     false,
     NioHandler::newFactory,
-    NioSocketChannel::new,
-    NioServerSocketChannel::new
+      (eventLoop, protocolFamily) -> new NioSocketChannel(eventLoop),
+      (eventLoop, eventLoopGroup, protocolFamily) -> new NioServerSocketChannel(eventLoop, eventLoopGroup)
   );
 
   private final String name;
   private final boolean available;
   private final boolean nativeTransport;
   private final Supplier<IoHandlerFactory> ioHandlerFactory;
-  private final ChannelFactory<? extends Channel> clientChannelFactory;
-  private final ServerChannelFactory<? extends ServerChannel> serverChannelFactory;
-
+  private final BiFunction<EventLoop, ProtocolFamily, ? extends Channel> clientChannelFactory;
+  private final TriFunction<EventLoop, EventLoopGroup, ProtocolFamily, ? extends ServerChannel> serverChannelFactory;
+  
   /**
    * Constructs a new netty transport instance.
    *
@@ -93,13 +96,13 @@ public enum NettyTransport {
     boolean available,
     boolean nativeTransport,
     @NonNull Supplier<IoHandlerFactory> ioHandlerFactory,
-    @NonNull ChannelFactory<? extends Channel> clientChannelFactory,
-    @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory
+    @NonNull BiFunction<EventLoop, ProtocolFamily, ? extends Channel> clientChannelFactory,
+    @NonNull TriFunction<EventLoop, EventLoopGroup, ProtocolFamily, ? extends ServerChannel> serverChannelFactory
   ) {
     this.name = name;
     this.available = available;
     this.nativeTransport = nativeTransport;
-    this.ioHandlerFactory = Suppliers.memoize(ioHandlerFactory::get);
+    this.ioHandlerFactory = ioHandlerFactory;
     this.clientChannelFactory = clientChannelFactory;
     this.serverChannelFactory = serverChannelFactory;
   }
@@ -160,18 +163,20 @@ public enum NettyTransport {
   /**
    * Get the factory for client channels of this transport.
    *
+   * @param protocolFamily the protocol Family the channel should created for.
    * @return the factory for client channels of this transport.
    */
-  public @NonNull ChannelFactory<? extends Channel> clientChannelFactory() {
-    return this.clientChannelFactory;
+  public @NonNull ChannelFactory<? extends Channel> clientChannelFactory(@NonNull ProtocolFamily protocolFamily) {
+    return (eventLoop) -> this.clientChannelFactory.apply(eventLoop, protocolFamily);
   }
 
   /**
    * Get the factory for server channels of this transport.
    *
+   * @param protocolFamily the protocol Family the channel should created for.
    * @return the factory for server channels of this transport.
    */
-  public @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory() {
-    return this.serverChannelFactory;
+  public @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory(@NonNull ProtocolFamily protocolFamily) {
+    return (eventLoop, eventLoopGroup) -> this.serverChannelFactory.apply(eventLoop, eventLoopGroup, protocolFamily);
   }
 }

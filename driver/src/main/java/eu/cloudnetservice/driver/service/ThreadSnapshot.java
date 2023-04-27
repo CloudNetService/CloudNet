@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.service;
 
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import java.lang.management.ThreadInfo;
 import lombok.NonNull;
 
@@ -38,7 +38,7 @@ public record ThreadSnapshot(
   boolean daemon,
   @NonNull String name,
   @NonNull Thread.State threadState
-) implements Nameable, Cloneable {
+) implements Named, Cloneable {
 
   /**
    * Creates a thread snapshot from the given thread.

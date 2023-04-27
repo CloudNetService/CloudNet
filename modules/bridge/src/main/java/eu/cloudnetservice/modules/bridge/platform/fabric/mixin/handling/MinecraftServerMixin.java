@@ -55,9 +55,8 @@ public abstract class MinecraftServerMixin implements BridgedServer {
 
   @Inject(
     at = @At(
-      ordinal = 0,
       value = "INVOKE",
-      target = "Lnet/minecraft/server/MinecraftServer;updateStatusIcon(Lnet/minecraft/network/protocol/status/ServerStatus;)V"
+      target = "Lnet/minecraft/server/MinecraftServer;buildServerStatus()Lnet/minecraft/network/protocol/status/ServerStatus;"
     ),
     method = "runServer"
   )

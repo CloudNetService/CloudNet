@@ -16,12 +16,7 @@
 
 package eu.cloudnetservice.common.column;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -45,16 +40,14 @@ public class ColumnTextFormatterTest {
       ColumnEntry.wrap("3", "0", "15")
     };
 
-    try (var reader = new BufferedReader(new InputStreamReader(
-      Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("column_test_data.txt")),
-      StandardCharsets.UTF_8
-    ))) {
-      var output = formatter.formatLines(entries);
-      Collection<String> expected = reader.lines().toList();
+    var formattedLines = formatter.formatLines(entries);
+    var expectedLines = Arrays.asList(
+      "| Name       | Rank   | World         | HP ",
+      "-------------------------------------------",
+      "| derpeepo   | Muted  | world         | 3  ",
+      "| derklaro   | Profi  | world_nether  | 0  ",
+      "| 0utplayyyy | Player | world_the_end | 15 ");
 
-      Assertions.assertLinesMatch(expected.stream(), output.stream());
-    } catch (IOException exception) {
-      Assertions.fail(exception);
-    }
+    Assertions.assertIterableEquals(expectedLines, formattedLines);
   }
 }

@@ -22,7 +22,7 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -80,7 +80,7 @@ public class BridgeCommand {
   @Suggestions("bridgeGroups")
   public List<String> suggestBridgeGroups(@NonNull CommandContext<?> $, String input) {
     return this.groupConfigurationProvider.groupConfigurations().stream()
-      .map(Nameable::name)
+      .map(Named::name)
       .filter(group -> this.bridgeManagement.configuration().fallbackConfigurations().stream()
         .noneMatch(fallback -> fallback.targetGroup().equals(group)))
       .toList();
@@ -112,7 +112,7 @@ public class BridgeCommand {
   ) {
     for (var task : serviceTasks) {
       this.taskProvider.addServiceTask(ServiceTask.builder(task)
-        .properties(task.propertyHolder().append("requiredPermission", permission))
+        .modifyProperties(properties -> properties.append("requiredPermission", permission))
         .build());
       source.sendMessage(I18n.trans("command-tasks-set-property-success",
         "requiredPermission",

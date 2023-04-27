@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.network.netty.http;
 
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.network.netty.NettyOptionSettingChannelInitializer;
 import io.netty5.channel.Channel;
-import io.netty5.channel.ChannelInitializer;
 import io.netty5.handler.codec.http.HttpContentCompressor;
 import io.netty5.handler.codec.http.HttpObjectAggregator;
 import io.netty5.handler.codec.http.HttpRequestDecoder;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @since 4.0
  */
 @ApiStatus.Internal
-final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
+final class NettyHttpServerInitializer extends NettyOptionSettingChannelInitializer {
 
   private final NettyHttpServer nettyHttpServer;
   private final HostAndPort hostAndPort;
@@ -54,7 +54,7 @@ final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
    * {@inheritDoc}
    */
   @Override
-  protected void initChannel(@NonNull Channel ch) {
+  protected void doInitChannel(@NonNull Channel ch) {
     if (this.nettyHttpServer.sslContext != null) {
       ch.pipeline().addLast("ssl-handler", this.nettyHttpServer.sslContext.newHandler(ch.bufferAllocator()));
     }

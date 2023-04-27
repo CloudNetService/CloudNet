@@ -23,6 +23,9 @@ import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.emitter.SpecificReportDataEmitter;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collection;
 import lombok.NonNull;
 
@@ -64,8 +67,13 @@ public final class LocalModuleDataEmitter extends SpecificReportDataEmitter<Modu
       // sensitive data, don't print that out
       writer.appendString("<retracted, stores sensitive data>");
     } else if (module instanceof DriverModule driverModule) {
-      // print out the whole config
-      writer.appendString(driverModule.readConfig().toPrettyJson());
+      try {
+        // print out the whole config
+        var configPath = driverModule.configPath();
+        writer.appendString(Files.readString(configPath, StandardCharsets.UTF_8));
+      } catch (IOException exception) {
+        writer.appendString("<unable to read configuration file: " + exception.getMessage() + ">");
+      }
     } else {
       // unable to read the config
       writer.appendString("<unable to read configuration>");

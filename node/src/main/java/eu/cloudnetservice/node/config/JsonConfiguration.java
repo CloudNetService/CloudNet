@@ -19,12 +19,13 @@ package eu.cloudnetservice.node.config;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import dev.derklaro.aerogel.auto.Factory;
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.driver.cluster.NetworkCluster;
+import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.network.HostAndPort;
-import eu.cloudnetservice.driver.network.cluster.NetworkCluster;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.node.setup.DefaultConfigSetup;
@@ -102,17 +103,19 @@ public final class JsonConfiguration implements Configuration {
   private SSLConfiguration serverSslConfig;
   private SSLConfiguration webSslConfig;
 
-  private JsonDocument properties;
+  private Document properties;
 
   public JsonConfiguration() {
     // TODO: remove in 4.1
     var oldRegistry = Path.of("local", "registry");
     if (Files.exists(oldRegistry)) {
-      var entries = JsonDocument.newDocument(oldRegistry).getDocument("entries");
+      var entries = DocumentFactory.json().parse(oldRegistry).readDocument("entries");
       if (!entries.empty()) {
-        this.properties = JsonDocument.newDocument();
-        this.properties.append(entries);
+        var properties = Document.newJsonDocument();
+        properties.receive(entries.send());
+        this.properties = properties;
       }
+
       // remove the old file
       FileUtil.delete(oldRegistry);
     }
@@ -122,7 +125,7 @@ public final class JsonConfiguration implements Configuration {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       return new JsonConfiguration().load();
     } else {
-      return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
+      return DocumentFactory.json().parse(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
     }
   }
 
@@ -133,7 +136,7 @@ public final class JsonConfiguration implements Configuration {
       installation.registerSetup(DefaultConfigSetup.class);
       return new JsonConfiguration().load();
     } else {
-      return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
+      return DocumentFactory.json().parse(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
     }
   }
 
@@ -315,8 +318,8 @@ public final class JsonConfiguration implements Configuration {
     if (this.properties == null) {
       this.properties = ConfigurationUtil.get(
         "cloudnet.config.properties",
-        JsonDocument.newDocument("database_provider", "xodus"),
-        JsonDocument::fromJsonString);
+        Document.newJsonDocument().append("database_provider", "xodus"),
+        DocumentFactory.json()::parse);
     }
 
     return this.save();
@@ -324,15 +327,12 @@ public final class JsonConfiguration implements Configuration {
 
   @Override
   public @NonNull Configuration save() {
-    JsonDocument.newDocument(this).write(CONFIG_FILE_PATH);
+    Document.newJsonDocument().appendTree(this).writeTo(CONFIG_FILE_PATH);
     return this;
   }
 
   @Override
   public void reloadFrom(@NonNull Configuration configuration) {
-    // supported identity changes
-    this.identity.propertyHolder().append(configuration.identity().propertyHolder());
-
     // collection configurations
     this.identity.listeners().clear();
     this.identity.listeners().addAll(configuration.identity().listeners());
@@ -553,12 +553,12 @@ public final class JsonConfiguration implements Configuration {
   }
 
   @Override
-  public @NonNull JsonDocument properties() {
+  public @NonNull Document properties() {
     return this.properties;
   }
 
   @Override
-  public void properties(@NonNull JsonDocument properties) {
-    this.properties = properties.clone();
+  public void properties(@NonNull Document properties) {
+    this.properties = properties.immutableCopy();
   }
 }

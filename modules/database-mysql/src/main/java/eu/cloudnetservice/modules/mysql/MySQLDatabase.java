@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.modules.mysql;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.database.sql.SQLDatabase;
 import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
 import java.sql.ResultSet;
@@ -51,7 +52,8 @@ public final class MySQLDatabase extends SQLDatabase {
   }
 
   @Override
-  public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
+  public boolean insert(@NonNull String key, @NonNull Document document) {
+    var serializedDocument = this.serializeDocumentToJsonString(document);
     return this.databaseProvider.executeUpdate(
       String.format(
         "INSERT INTO `%s` (%s, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = ?;",
@@ -59,7 +61,7 @@ public final class MySQLDatabase extends SQLDatabase {
         TABLE_COLUMN_KEY,
         TABLE_COLUMN_VAL,
         TABLE_COLUMN_VAL),
-      key, document, document) > 0;
+      key, serializedDocument, serializedDocument) > 0;
   }
 
   @Override
@@ -79,12 +81,12 @@ public final class MySQLDatabase extends SQLDatabase {
   }
 
   @Override
-  public @Nullable JsonDocument get(@NonNull String key) {
+  public @Nullable Document get(@NonNull String key) {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s = ?;", TABLE_COLUMN_VAL, this.name, TABLE_COLUMN_KEY),
       resultSet -> {
         if (resultSet.next()) {
-          return JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL));
+          return DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL));
         }
 
         return null;
@@ -92,7 +94,7 @@ public final class MySQLDatabase extends SQLDatabase {
   }
 
   @Override
-  public @NonNull Collection<JsonDocument> find(@NonNull String fieldName, @Nullable String fieldValue) {
+  public @NonNull Collection<Document> find(@NonNull String fieldName, @Nullable String fieldValue) {
     return this.databaseProvider.executeQuery(
       String.format(
         "SELECT %s FROM `%s` WHERE JSON_SEARCH(%s, 'one', '%s', NULL, '$.%s') IS NOT NULL;",
@@ -102,9 +104,9 @@ public final class MySQLDatabase extends SQLDatabase {
         Objects.toString(fieldValue).replaceAll("([_%])", "\\\\$1"),
         fieldName),
       resultSet -> {
-        List<JsonDocument> results = new ArrayList<>();
+        List<Document> results = new ArrayList<>();
         while (resultSet.next()) {
-          results.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
+          results.add(DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return results;
@@ -112,7 +114,7 @@ public final class MySQLDatabase extends SQLDatabase {
   }
 
   @Override
-  public @NonNull Collection<JsonDocument> find(@NonNull Map<String, String> filters) {
+  public @NonNull Collection<Document> find(@NonNull Map<String, String> filters) {
     var stringBuilder = new StringBuilder("SELECT ")
       .append(TABLE_COLUMN_VAL)
       .append(" FROM `")
@@ -137,9 +139,9 @@ public final class MySQLDatabase extends SQLDatabase {
     }
 
     return this.databaseProvider.executeQuery(stringBuilder.toString(), resultSet -> {
-      List<JsonDocument> results = new ArrayList<>();
+      List<Document> results = new ArrayList<>();
       while (resultSet.next()) {
-        results.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
+        results.add(DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL)));
       }
 
       return results;
@@ -160,12 +162,12 @@ public final class MySQLDatabase extends SQLDatabase {
   }
 
   @Override
-  public @NonNull Collection<JsonDocument> documents() {
+  public @NonNull Collection<Document> documents() {
     return this.databaseProvider.executeQuery(String.format("SELECT %s FROM `%s`;", TABLE_COLUMN_VAL, this.name),
       resultSet -> {
-        List<JsonDocument> results = new ArrayList<>();
+        List<Document> results = new ArrayList<>();
         while (resultSet.next()) {
-          results.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
+          results.add(DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return results;
@@ -173,13 +175,13 @@ public final class MySQLDatabase extends SQLDatabase {
   }
 
   @Override
-  public @NonNull Map<String, JsonDocument> entries() {
+  public @NonNull Map<String, Document> entries() {
     return this.databaseProvider.executeQuery(String.format("SELECT * FROM `%s`;", this.name), resultSet -> {
-      Map<String, JsonDocument> results = new HashMap<>();
+      Map<String, Document> results = new HashMap<>();
       while (resultSet.next()) {
         results.put(
           resultSet.getString(TABLE_COLUMN_KEY),
-          JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
+          DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL)));
       }
 
       return results;
@@ -207,13 +209,13 @@ public final class MySQLDatabase extends SQLDatabase {
   }
 
   @Override
-  public void iterate(@NonNull BiConsumer<String, JsonDocument> consumer) {
+  public void iterate(@NonNull BiConsumer<String, Document> consumer) {
     this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s`;", this.name),
       resultSet -> {
         while (resultSet.next()) {
           var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL));
+          var document = DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL));
           consumer.accept(key, document);
         }
 
@@ -222,14 +224,14 @@ public final class MySQLDatabase extends SQLDatabase {
   }
 
   @Override
-  public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
+  public @Nullable Map<String, Document> readChunk(long beginIndex, int chunkSize) {
     return this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s` ORDER BY `%s` LIMIT ? OFFSET ?;", this.name, TABLE_COLUMN_KEY),
       resultSet -> {
-        Map<String, JsonDocument> result = new HashMap<>();
+        Map<String, Document> result = new HashMap<>();
         while (resultSet.next()) {
           var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL));
+          var document = DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL));
           result.put(key, document);
         }
 

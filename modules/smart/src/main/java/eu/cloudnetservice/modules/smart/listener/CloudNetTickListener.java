@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.smart.listener;
 
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -25,7 +25,7 @@ import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.modules.smart.util.SmartUtil;
@@ -95,7 +95,7 @@ public final class CloudNetTickListener {
           .collect(Collectors.toSet());
         // get all services which are marked as online by the bridge
         var onlineServices = runningServices.stream()
-          .filter(service -> service.readProperty(BridgeServiceProperties.IS_ONLINE))
+          .filter(service -> service.readProperty(BridgeDocProperties.IS_ONLINE))
           .collect(Collectors.toSet());
         // handle all smart entries
         this.handleAutoStop(task, config, runningServices, onlineServices);
@@ -175,10 +175,10 @@ public final class CloudNetTickListener {
     }
     // get the overall player counts
     var onlinePlayers = onlineServices.stream()
-      .mapToDouble(service -> service.readProperty(BridgeServiceProperties.ONLINE_COUNT))
+      .mapToDouble(service -> service.readProperty(BridgeDocProperties.ONLINE_COUNT))
       .sum();
     var maximumPlayers = onlineServices.stream()
-      .mapToDouble(service -> Math.max(0, service.readProperty(BridgeServiceProperties.MAX_PLAYERS)))
+      .mapToDouble(service -> Math.max(0, service.readProperty(BridgeDocProperties.MAX_PLAYERS)))
       .sum();
     // check if we can create a percentage count
     if (onlinePlayers == 0 || maximumPlayers == 0) {
@@ -223,11 +223,11 @@ public final class CloudNetTickListener {
     // find the node server with the least services on it
     return this.nodeServerProvider.nodeServers().stream()
       .filter(nodeServer -> nodeServer.available() && !nodeServer.draining())
-      .map(node -> new Pair<>(node, services.stream()
+      .map(node -> new Tuple2<>(node, services.stream()
         .filter(service -> service.serviceId().nodeUniqueId().equals(node.info().uniqueId()))
         .count()))
-      .min(Comparator.comparingLong(Pair::second))
-      .map(Pair::first)
+      .min(Comparator.comparingLong(Tuple2::second))
+      .map(Tuple2::first)
       .orElse(null);
   }
 }

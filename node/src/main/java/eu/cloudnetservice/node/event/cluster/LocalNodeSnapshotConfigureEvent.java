@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.event.cluster;
 
+import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.event.Event;
-import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import lombok.NonNull;
 
 public final class LocalNodeSnapshotConfigureEvent extends Event {

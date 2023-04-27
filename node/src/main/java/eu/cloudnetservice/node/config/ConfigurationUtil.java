@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.config;
 
 import com.google.common.primitives.Ints;
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import java.util.ArrayList;
 import java.util.List;

@@ -18,12 +18,13 @@ package eu.cloudnetservice.modules.cloudflare;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
@@ -60,9 +61,9 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfiguration() {
-    var config = this.readConfig().get("config");
-    if (config != null) {
-      this.writeConfig(JsonDocument.newDocument(config));
+    var config = this.readConfig(DocumentFactory.json()).readDocument("config");
+    if (!config.empty()) {
+      this.writeConfig(Document.newJsonDocument().appendTree(config));
     }
   }
 
@@ -79,7 +80,8 @@ public final class CloudNetCloudflareModule extends DriverModule {
         "api_token_string",
         "zoneId",
         "example.com",
-        Lists.newArrayList(new CloudflareGroupConfiguration("Proxy", "@", 1, 1))))));
+        Lists.newArrayList(new CloudflareGroupConfiguration("Proxy", "@", 1, 1))))),
+      DocumentFactory.json());
     this.updateConfiguration(config);
   }
 
@@ -110,7 +112,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
               hostInformation.second(),
               1,
               false,
-              JsonDocument.emptyDocument()));
+              Document.newJsonDocument()));
           } else {
             // mark the record as created
             LOGGER.fine("Skipping creation of record for %s because the record %s exists", null, entry, existingRecord);
@@ -147,7 +149,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
       .filter(CloudflareConfigurationEntry::enabled)
       .flatMap(entry -> oldEntries.stream()
         .filter(old -> CloudflareConfigurationEntry.mightEqual(old, entry))
-        .map(oldEntry -> new Pair<>(entry, oldEntry)))
+        .map(oldEntry -> new Tuple2<>(entry, oldEntry)))
       .toList();
 
     // find all entries which are present in the old and new configuration file
@@ -165,12 +167,12 @@ public final class CloudNetCloudflareModule extends DriverModule {
           && Objects.equals(newEntry.zoneId(), oldEntry.zoneId())
           && Objects.equals(newEntry.domainName(), oldEntry.domainName());
       }))
-      .map(Pair::first)
+      .map(Tuple2::first)
       .map(newConfigEntry -> nodeRecordEntries.stream()
         .filter(entry -> CloudflareConfigurationEntry.mightEqual(entry.configurationEntry(), newConfigEntry))
         .findFirst()
-        .map(detail -> new Pair<>(newConfigEntry, detail))
-        .orElseGet(() -> new Pair<>(newConfigEntry, null)))
+        .map(detail -> new Tuple2<>(newConfigEntry, detail))
+        .orElseGet(() -> new Tuple2<>(newConfigEntry, null)))
       .forEach(pair -> {
         // try to build a dns record for the entry
         var record = this.buildRecord(pair.first());
@@ -242,7 +244,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   public void updateConfiguration(@NonNull CloudflareConfiguration cloudflareConfiguration) {
     this.cloudflareConfiguration = cloudflareConfiguration;
-    this.writeConfig(JsonDocument.newDocument(cloudflareConfiguration));
+    this.writeConfig(Document.newJsonDocument().appendTree(cloudflareConfiguration));
   }
 
   private void createRecordsForEntries(
@@ -285,17 +287,17 @@ public final class CloudNetCloudflareModule extends DriverModule {
       address.second(),
       1,
       false,
-      JsonDocument.emptyDocument());
+      Document.newJsonDocument());
   }
 
-  private @Nullable Pair<DnsType, String> parseAddressOfEntry(@NonNull CloudflareConfigurationEntry entry) {
+  private @Nullable Tuple2<DnsType, String> parseAddressOfEntry(@NonNull CloudflareConfigurationEntry entry) {
     try {
       // parse the host address and from that the dns type from the configuration
       var address = InetAddresses.forString(entry.hostAddress());
       var dnsType = address instanceof Inet6Address ? DnsType.AAAA : DnsType.A;
 
       // return the parsed values
-      return new Pair<>(dnsType, address.getHostAddress());
+      return new Tuple2<>(dnsType, address.getHostAddress());
     } catch (IllegalArgumentException exception) {
       LOGGER.severe("Host address %s is invalid", exception, entry.hostAddress());
       return null;

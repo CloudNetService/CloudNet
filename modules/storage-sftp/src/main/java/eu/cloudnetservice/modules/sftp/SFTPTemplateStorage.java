@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.sftp;
 
-import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.io.ZipUtil;
 import eu.cloudnetservice.common.log.LogManager;
@@ -27,6 +26,7 @@ import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.sftp.config.SFTPTemplateStorageConfig;
 import eu.cloudnetservice.modules.sftp.sshj.ActiveHeartbeatKeepAliveProvider;
 import eu.cloudnetservice.modules.sftp.sshj.FilteringLocalFileSource;
+import io.vavr.CheckedFunction1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -380,7 +380,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
       attributes.getSize());
   }
 
-  protected <T> T executeWithClient(@NonNull ThrowableFunction<SFTPClient, T, Exception> handler, T def) {
+  protected <T> T executeWithClient(@NonNull CheckedFunction1<SFTPClient, T> handler, T def) {
     // only take a client & execute the action if the pool is still available
     if (this.pool.stillActive()) {
       try (var client = this.pool.takeClient()) {
@@ -392,7 +392,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
             null,
             sshException.getMessage());
         }
-      } catch (Exception exception) {
+      } catch (Throwable exception) {
         LOGGER.fine("Exception executing sftp task", exception);
       }
     }

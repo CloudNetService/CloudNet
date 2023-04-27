@@ -18,10 +18,11 @@ package eu.cloudnetservice.node.provider;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -80,7 +81,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     syncRegistry.registerHandler(
       DataSyncHandler.<GroupConfiguration>builder()
         .key("group_configuration")
-        .nameExtractor(Nameable::name)
+        .nameExtractor(Named::name)
         .convertObject(GroupConfiguration.class)
         .writer(this::addGroupConfigurationSilently)
         .dataCollector(this::groupConfigurations)
@@ -126,19 +127,19 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public boolean addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
-    if (!this.eventManager.callEvent(new LocalGroupConfigurationAddEvent(groupConfiguration)).cancelled()) {
-      this.addGroupConfigurationSilently(groupConfiguration);
-      // publish the change to the cluster
-      ChannelMessage.builder()
-        .targetAll()
-        .message("add_group_configuration")
-        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeObject(groupConfiguration))
-        .build()
-        .send();
-      return true;
-    }
-    return false;
+    // register the group locally & notify all event listeners
+    var groupConfigurationEvent = this.eventManager.callEvent(new LocalGroupConfigurationAddEvent(groupConfiguration));
+    this.addGroupConfigurationSilently(groupConfigurationEvent.group());
+
+    // notify the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .message("add_group_configuration")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(groupConfigurationEvent.group()))
+      .build()
+      .send();
+    return true;
   }
 
   @Override
@@ -151,17 +152,18 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void removeGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
-    if (!this.eventManager.callEvent(new LocalGroupConfigurationRemoveEvent(groupConfiguration)).cancelled()) {
-      this.removeGroupConfigurationSilently(groupConfiguration);
-      // publish the change to the cluster
-      ChannelMessage.builder()
-        .targetAll()
-        .message("remove_group_configuration")
-        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeObject(groupConfiguration))
-        .build()
-        .send();
-    }
+    // remove the group locally
+    this.removeGroupConfigurationSilently(groupConfiguration);
+    this.eventManager.callEvent(new LocalGroupConfigurationRemoveEvent(groupConfiguration));
+
+    // notify the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .message("remove_group_configuration")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(groupConfiguration))
+      .build()
+      .send();
   }
 
   public void addGroupConfigurationSilently(@NonNull GroupConfiguration groupConfiguration) {
@@ -181,7 +183,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   private void upgrade() {
     if (Files.exists(OLD_GROUPS_FILE)) {
       // read all groups from the old file
-      Collection<GroupConfiguration> oldConfigurations = JsonDocument.newDocument(OLD_GROUPS_FILE).get("groups", TYPE);
+      Collection<GroupConfiguration> oldConfigurations = DocumentFactory.json().parse(OLD_GROUPS_FILE)
+        .readObject("groups", TYPE);
       // add all configurations to the current configurations
       oldConfigurations.forEach(config -> this.groupConfigurations.put(config.name(), config));
       // save the new configurations
@@ -196,7 +199,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   protected void writeGroupConfiguration(@NonNull GroupConfiguration configuration) {
-    JsonDocument.newDocument(configuration).write(this.groupFile(configuration));
+    Document.newJsonDocument().appendTree(configuration).writeTo(this.groupFile(configuration));
   }
 
   protected void writeAllGroupConfigurations() {
@@ -216,12 +219,11 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   protected void loadGroupConfigurations() {
     FileUtil.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
-      var document = JsonDocument.newDocument(file);
+      var document = DocumentFactory.json().parse(file);
 
       // TODO: remove in 4.1
       // check if the task has environment variables
-      var variables = document.get("environmentVariables");
-      if (variables == null) {
+      if (!document.contains("environmentVariables")) {
         document.append("environmentVariables", new HashMap<>());
       }
 

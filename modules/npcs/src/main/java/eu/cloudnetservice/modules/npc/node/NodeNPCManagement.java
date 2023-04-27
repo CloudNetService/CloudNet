@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.npc.node;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -32,6 +32,7 @@ import eu.cloudnetservice.modules.npc.node.listeners.NodeSetupListener;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -42,6 +43,9 @@ import lombok.NonNull;
 public final class NodeNPCManagement extends AbstractNPCManagement {
 
   private static final Path PROTOCOL_LIB_CACHE_PATH = FileUtil.TEMP_DIR.resolve("caches/ProtocolLib.jar");
+  private static final String PROTOCOL_LIB_DOWNLOAD_URL = System.getProperty(
+    "cloudnet.protocollib.download",
+    "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar");
 
   private final Database database;
   private final Path configurationPath;
@@ -68,9 +72,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     });
 
     // download protocol lib
-    progressWrappers.wrapDownload(
-      "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar",
-      stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH));
+    progressWrappers.wrapDownload(PROTOCOL_LIB_DOWNLOAD_URL, stream -> FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH));
 
     // listener register
     eventManager.registerListener(new NodeSetupListener(this, parsers));
@@ -86,7 +88,10 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
         .anyMatch(entry -> service.serviceConfiguration().groups().contains(entry.targetGroup())),
       (service, $) -> {
         var protocolLibPath = service.pluginDirectory().resolve("ProtocolLib.jar");
-        FileUtil.copy(PROTOCOL_LIB_CACHE_PATH, protocolLibPath);
+        // make sure to only copy the cached protocollib jar if it exists
+        if (Files.exists(PROTOCOL_LIB_CACHE_PATH)) {
+          FileUtil.copy(PROTOCOL_LIB_CACHE_PATH, protocolLibPath);
+        }
       }));
   }
 
@@ -102,7 +107,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
 
   @Override
   public void createNPC(@NonNull NPC npc) {
-    this.database.insert(documentKey(npc.location()), JsonDocument.newDocument(npc));
+    this.database.insert(documentKey(npc.location()), Document.newJsonDocument().appendTree(npc));
     this.npcs.put(npc.location(), npc);
 
     this.channelMessage(NPC_CREATED)
@@ -175,6 +180,6 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   @Override
   public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
     super.handleInternalNPCConfigUpdate(configuration);
-    JsonDocument.newDocument(configuration).write(this.configurationPath);
+    Document.newJsonDocument().appendTree(configuration).writeTo(this.configurationPath);
   }
 }

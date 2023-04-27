@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.signs.platform.bukkit;
 import com.google.common.base.Enums;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import lombok.NonNull;
 import org.bukkit.DyeColor;

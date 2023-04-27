@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
 import io.leangen.geantyref.TypeFactory;
@@ -42,7 +42,7 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
     @NonNull Path workingDirectory,
     @NonNull Set<Path> inputPaths
   ) throws IOException {
-    Map<String, String> copy = installer.serviceVersion().properties().get("copy", STRING_MAP);
+    Map<String, String> copy = installer.serviceVersion().properties().readObject("copy", STRING_MAP);
     if (copy == null) {
       throw new IllegalStateException(String.format(
         "Missing copy property on service version %s!",
@@ -50,7 +50,7 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
     }
 
     var patterns = copy.entrySet().stream()
-      .map(entry -> new Pair<>(Pattern.compile(entry.getKey()), entry.getValue()))
+      .map(entry -> new Tuple2<>(Pattern.compile(entry.getKey()), entry.getValue()))
       .toList();
 
     Set<Path> resultPaths = new HashSet<>();

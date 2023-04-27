@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.module;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ToString
 @EqualsAndHashCode
-public class ModuleRepository implements Nameable {
+public class ModuleRepository implements Named {
 
   private String name;
   private String url;

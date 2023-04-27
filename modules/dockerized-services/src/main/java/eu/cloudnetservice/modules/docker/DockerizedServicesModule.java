@@ -21,7 +21,8 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import dev.derklaro.aerogel.Element;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
@@ -43,20 +44,23 @@ public class DockerizedServicesModule extends DriverModule {
 
   @ModuleTask
   public void loadConfiguration() {
-    this.configuration = this.readConfig(DockerConfiguration.class, () -> new DockerConfiguration(
-      "docker-jvm",
-      "host",
-      DockerImage.builder().repository("azul/zulu-openjdk").tag("17-jre-headless").build(),
-      Set.of(),
-      Set.of(),
-      Set.of(),
-      "unix:///var/run/docker.sock",
-      null,
-      null,
-      null,
-      null,
-      null,
-      null));
+    this.configuration = this.readConfig(
+      DockerConfiguration.class,
+      () -> new DockerConfiguration(
+        "docker-jvm",
+        "host",
+        DockerImage.builder().repository("azul/zulu-openjdk").tag("17-jre-headless").build(),
+        Set.of(),
+        Set.of(),
+        Set.of(),
+        "unix:///var/run/docker.sock",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null),
+      DocumentFactory.json());
   }
 
   @ModuleTask(order = 22)
@@ -105,6 +109,6 @@ public class DockerizedServicesModule extends DriverModule {
 
   public void config(@NonNull DockerConfiguration configuration) {
     this.configuration = configuration;
-    this.writeConfig(JsonDocument.newDocument(configuration));
+    this.writeConfig(Document.newJsonDocument().appendTree(configuration));
   }
 }

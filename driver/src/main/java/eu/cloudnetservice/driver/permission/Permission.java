@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.permission;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.Named;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
@@ -39,7 +39,7 @@ public record Permission(
   @NonNull String name,
   int potency,
   long timeOutMillis
-) implements Nameable, Comparable<Permission> {
+) implements Named, Comparable<Permission> {
 
   /**
    * Creates a new permission with the given name. The potency and timeOutMillis default to 0.

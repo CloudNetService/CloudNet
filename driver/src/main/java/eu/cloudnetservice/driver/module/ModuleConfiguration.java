@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.driver.module;
 
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.Nameable;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.jvm.JavaVersion;
+import eu.cloudnetservice.driver.document.Document;
 import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,8 +72,8 @@ public record ModuleConfiguration(
   @Nullable ModuleRepository[] repositories,
   @Nullable ModuleDependency[] dependencies,
   int minJavaVersionId,
-  @Nullable JsonDocument properties
-) implements Nameable {
+  @Nullable Document properties
+) implements Named {
 
   /**
    * Get the data folder path of this module or a default version of it based on the module's name.

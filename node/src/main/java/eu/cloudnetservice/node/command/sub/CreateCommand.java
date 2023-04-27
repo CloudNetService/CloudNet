@@ -21,9 +21,9 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.specifier.Range;
-import eu.cloudnetservice.common.JavaVersion;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -48,7 +48,7 @@ public final class CreateCommand {
     @Argument("amount") @Range(min = "1") int amount,
     @Flag("start") boolean startService,
     @Nullable @Flag("id") Integer id,
-    @Nullable @Flag(value = "javaCommand", parserName = "javaCommand") Pair<String, JavaVersion> javaCommand,
+    @Nullable @Flag(value = "javaCommand", parserName = "javaCommand") Tuple2<String, JavaVersion> javaCommand,
     @Nullable @Flag("node") String nodeId,
     @Nullable @Flag("memory") Integer memory
   ) {

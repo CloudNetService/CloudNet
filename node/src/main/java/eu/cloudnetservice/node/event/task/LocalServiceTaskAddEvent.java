@@ -16,15 +16,13 @@
 
 package eu.cloudnetservice.node.event.task;
 
-import eu.cloudnetservice.driver.event.Cancelable;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import lombok.NonNull;
 
-public class LocalServiceTaskAddEvent extends Event implements Cancelable {
+public final class LocalServiceTaskAddEvent extends Event {
 
-  private final ServiceTask task;
-  private volatile boolean cancelled;
+  private ServiceTask task;
 
   public LocalServiceTaskAddEvent(@NonNull ServiceTask task) {
     this.task = task;
@@ -34,11 +32,7 @@ public class LocalServiceTaskAddEvent extends Event implements Cancelable {
     return this.task;
   }
 
-  public boolean cancelled() {
-    return this.cancelled;
-  }
-
-  public void cancelled(boolean cancelled) {
-    this.cancelled = cancelled;
+  public void task(@NonNull ServiceTask task) {
+    this.task = task;
   }
 }

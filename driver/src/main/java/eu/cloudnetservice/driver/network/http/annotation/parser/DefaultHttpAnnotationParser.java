@@ -18,8 +18,9 @@ package eu.cloudnetservice.driver.network.http.annotation.parser;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.http.HttpComponent;
 import eu.cloudnetservice.driver.network.http.HttpContext;
@@ -295,8 +296,8 @@ public final class DefaultHttpAnnotationParser<T extends HttpComponent<T>> imple
             return context.request().bodyStream();
           }
 
-          if (JsonDocument.class.isAssignableFrom(param.getType())) {
-            return JsonDocument.newDocument(context.request().bodyStream());
+          if (Document.class.isAssignableFrom(param.getType())) {
+            return DocumentFactory.json().parse(context.request().bodyStream());
           }
 
           // unable to handle the type

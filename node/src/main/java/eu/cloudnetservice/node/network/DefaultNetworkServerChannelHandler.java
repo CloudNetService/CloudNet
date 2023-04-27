@@ -127,10 +127,14 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       cloudService.serviceId().taskName(),
       cloudService.serviceId().name(),
       channel.serverAddress().host() + ":" + channel.serverAddress().port(),
-      channel.clientAddress().host() + ":" + channel.clientAddress().port()));
+      channel.clientAddress() == null ? null : (channel.clientAddress().host() + ":" + channel.clientAddress().port())));
   }
 
   private boolean shouldDenyConnection(@NonNull NetworkChannel channel) {
+    if (channel.clientAddress() == null) {
+      // Allow any connection through the unix domain socket
+      return false;
+    }
     var ipWhitelist = this.configuration.ipWhitelist();
     var sourceClientAddress = NetworkUtil.removeAddressScope(channel.clientAddress().host());
 

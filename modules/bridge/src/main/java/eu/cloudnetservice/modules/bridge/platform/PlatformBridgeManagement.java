@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -30,9 +30,9 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallback;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
@@ -47,6 +47,7 @@ import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import java.time.Duration;
 import java.util.Collection;
@@ -70,7 +71,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   protected static final Predicate<ServiceInfoSnapshot> CONNECTED_SERVICE_TESTER = service -> service.connected()
     && service.lifeCycle() == ServiceLifeCycle.RUNNING
-    && service.readProperty(BridgeServiceProperties.IS_ONLINE);
+    && service.readProperty(BridgeDocProperties.IS_ONLINE);
 
   protected final RPCSender sender;
   protected final EventManager eventManager;
@@ -153,12 +154,12 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .orElse(null);
   }
 
-  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
-    snapshot.propertyHolder().append("Online", Boolean.TRUE);
-    snapshot.propertyHolder().append("Motd", this.bridgeServiceHelper.motd().get());
-    snapshot.propertyHolder().append("Extra", this.bridgeServiceHelper.extra().get());
-    snapshot.propertyHolder().append("State", this.bridgeServiceHelper.state().get());
-    snapshot.propertyHolder().append("Max-Players", this.bridgeServiceHelper.maxPlayers().get());
+  public void appendServiceInformation(@NonNull ServiceInfoPropertiesConfigureEvent configureEvent) {
+    configureEvent.propertyHolder().append("Online", Boolean.TRUE);
+    configureEvent.propertyHolder().append("Motd", this.bridgeServiceHelper.motd().get());
+    configureEvent.propertyHolder().append("Extra", this.bridgeServiceHelper.extra().get());
+    configureEvent.propertyHolder().append("State", this.bridgeServiceHelper.state().get());
+    configureEvent.propertyHolder().append("Max-Players", this.bridgeServiceHelper.maxPlayers().get());
   }
 
   public @NonNull Collection<ServiceInfoSnapshot> cachedServices() {
@@ -220,13 +221,13 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // search for the best fallback
     return this.possibleFallbacks(currentServerName, virtualHost, permissionTester)
       // get all services we have cached of the task
-      .map(fallback -> new Pair<>(fallback, this.anyTaskService(fallback.task(), profile, currentServerName)))
+      .map(fallback -> new Tuple2<>(fallback, this.anyTaskService(fallback.task(), profile, currentServerName)))
       // filter out all fallbacks that have no services
       .filter(possibility -> possibility.second().isPresent())
       // get the first possibility with the highest priority
-      .min(Comparator.comparing(Pair::first))
+      .min(Comparator.comparing(Tuple2::first))
       // extract the target service
-      .map(Pair::second)
+      .map(Tuple2::second)
       // add the service to the tried ones
       .map(service -> {
         // we cannot flat-map because of the orElseGet
@@ -310,13 +311,13 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       // check if the player failed to connect to that fallback during the current iteration
       .filter(service -> !profile.hasTried(service.name()))
       // check if the service is marked as joinable
-      .filter(service -> service.connected() && service.readProperty(BridgeServiceProperties.IS_ONLINE))
+      .filter(service -> service.connected() && service.readProperty(BridgeDocProperties.IS_ONLINE))
       // check if the player is not currently connected to that service
       .filter(service -> currentServerName == null || !service.name().equals(currentServerName))
       // find the service with the lowest player count known to use
       .min((optionA, optionB) -> {
-        var playersOnOptionA = optionA.readProperty(BridgeServiceProperties.ONLINE_COUNT);
-        var playersOnOptionB = optionB.readProperty(BridgeServiceProperties.ONLINE_COUNT);
+        var playersOnOptionA = optionA.readProperty(BridgeDocProperties.ONLINE_COUNT);
+        var playersOnOptionB = optionB.readProperty(BridgeDocProperties.ONLINE_COUNT);
         // compare the player count
         return Integer.compare(playersOnOptionA, playersOnOptionB);
       });

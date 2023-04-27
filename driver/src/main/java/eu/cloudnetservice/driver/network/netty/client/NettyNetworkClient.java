@@ -129,7 +129,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
     Task<Void> result = new Task<>();
     new Bootstrap()
       .group(this.eventLoopGroup)
-      .channelFactory(NettyUtil.clientChannelFactory())
+      .channelFactory(NettyUtil.clientChannelFactory(hostAndPort.getProtocolFamily()))
       .handler(new NettyNetworkClientInitializer(hostAndPort, this.eventManager, this)
         .option(ChannelOption.IP_TOS, 0x18)
         .option(ChannelOption.AUTO_READ, true)
@@ -139,7 +139,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
         .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS))
 
-      .connect(hostAndPort.host(), hostAndPort.port())
+      .connect(hostAndPort.toSocketAddress())
       .addListener(future -> {
         if (future.isSuccess()) {
           // ok, we connected successfully

@@ -33,7 +33,7 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
-import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCFieldGetter;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCIgnore;
@@ -357,7 +357,7 @@ public final class DataClassInvokerGenerator {
     var fullFilter = commonFilter(field).and(extraFilter);
     // search for the best choice
     for (var method : methods) {
-      if (fullFilter.test(method)) {
+      if (method.getDeclaringClass().equals(field.getDeclaringClass()) && fullFilter.test(method)) {
         if (choice == null) {
           // if there is no choice yet the method is the choice
           choice = method;

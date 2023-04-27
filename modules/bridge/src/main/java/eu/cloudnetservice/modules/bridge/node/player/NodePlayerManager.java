@@ -22,8 +22,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Striped;
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -236,7 +236,7 @@ public class NodePlayerManager implements PlayerManager {
     // push the change to the cache
     this.pushOfflinePlayerCache(player.uniqueId(), player);
     // update the database
-    this.database().insert(player.uniqueId().toString(), JsonDocument.newDocument(player));
+    this.database().insert(player.uniqueId().toString(), Document.newJsonDocument().appendTree(player));
     // notify the cluster
     ChannelMessage.builder()
       .targetAll()
@@ -359,11 +359,11 @@ public class NodePlayerManager implements PlayerManager {
         var cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(connectionInfo);
         // convert the offline player to an online version using all provided information
         cloudPlayer = new CloudPlayer(
+          connectionInfo,
           connectionInfo.networkService(),
           joinedServiceInfo == null ? connectionInfo.networkService() : joinedServiceInfo,
-          connectionInfo,
           null,
-          JsonDocument.newDocument(),
+          Document.newJsonDocument(),
           connectionInfo.name(),
           cloudOfflinePlayer.firstLoginTimeMillis(),
           System.currentTimeMillis(),
@@ -383,7 +383,7 @@ public class NodePlayerManager implements PlayerManager {
     // update the database
     this.database().insert(
       cloudPlayer.uniqueId().toString(),
-      JsonDocument.newDocument(CloudOfflinePlayer.offlineCopy(cloudPlayer)));
+      Document.newJsonDocument().appendTree(CloudOfflinePlayer.offlineCopy(cloudPlayer)));
     // notify the other nodes that we received the login
     ChannelMessage.builder()
       .targetAll()
@@ -446,7 +446,7 @@ public class NodePlayerManager implements PlayerManager {
         System.currentTimeMillis(),
         System.currentTimeMillis(),
         proxyInfo,
-        JsonDocument.newDocument());
+        Document.newJsonDocument());
       this.offlinePlayerCache.put(proxyInfo.uniqueId(), Optional.of(cloudOfflinePlayer));
     }
     // the selected player
@@ -474,7 +474,7 @@ public class NodePlayerManager implements PlayerManager {
     // update the offline version of the player into the cache
     this.pushOfflinePlayerCache(cloudPlayer.uniqueId(), offlinePlayer);
     // push the change to the database
-    this.database().insert(offlinePlayer.uniqueId().toString(), JsonDocument.newDocument(offlinePlayer));
+    this.database().insert(offlinePlayer.uniqueId().toString(), Document.newJsonDocument().appendTree(offlinePlayer));
     // notify the cluster
     ChannelMessage.builder()
       .targetAll()
