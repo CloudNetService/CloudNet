@@ -21,7 +21,6 @@ jobs:
       matrix:
         java:
           - 17
-          - 20
 
     steps:
       - name: Checkout repository
