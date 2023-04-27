@@ -6,8 +6,8 @@ on:
     - cron: '00 2 * * *'
 
 concurrency:
-  group: cq-${{ github.event.pull_request.number || github.job }}
   cancel-in-progress: true
+  group: cq-${{ github.event.pull_request.number || github.job }}
 
 jobs:
   analyze:
@@ -22,10 +22,14 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
           java-version: 17
           check-latest: true
-          cache: 'gradle'
+          distribution: 'zulu'
+
+      - name: Setup gradle cache
+        uses: gradle/gradle-build-action@v2
+        with:
+          cache-read-only: true
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
