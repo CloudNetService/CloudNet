@@ -45,8 +45,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: '.gradle/loom-cache'
-          restore-keys: ${{ runner.os }}-gradle-
-          key: ${{ runner.os }}-gradle-${{ hashFiles('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-loom-
+          key: ${{ runner.os }}-gradle-loom-${{ hashFiles('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Execute build and tests
         run: ./gradlew build test shadowJar genUpdaterInformation --stacktrace
