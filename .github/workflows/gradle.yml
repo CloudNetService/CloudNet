@@ -9,8 +9,8 @@ on:
   merge_group:
 
 concurrency:
-  group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+  group: build-${{ github.event.pull_request.number || github.ref }}
 
 jobs:
   build:
@@ -21,15 +21,11 @@ jobs:
       matrix:
         java:
           - 17
-          - 19
+          - 20
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@v6
 
       - name: Validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -37,17 +33,38 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@v3
         with:
+          check-latest: true
           distribution: 'zulu'
           java-version: ${{ matrix.java }}
-          check-latest: true
-          cache: 'gradle'
 
-      - name: Run build lifecycle
-        run: ./gradlew build test shadowJar genUpdaterInformation --no-daemon --stacktrace
+      - name: Setup gradle cache
+        uses: gradle/gradle-build-action@v2
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/nightly' || matrix.java != 17 }}
+
+      - name: Setup Loom cache
+        uses: actions/cache@v3
+        with:
+          path: '.gradle/loom-cache'
+          restore-keys: ${{ runner.os }}-gradle-
+          key: ${{ runner.os }}-gradle-${{ hashFiles('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Execute build and tests
+        run: ./gradlew build test shadowJar genUpdaterInformation --stacktrace
+
+      - name: Publish test summary
+        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          junit_files: "**/build/test-results/test/TEST-*.xml"
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
 
       - name: Publish updater metadata
         uses: s0/git-publish-subdir-action@develop
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/renovate/') && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/renovate/') && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
         env:
           REPO: git@github.com:CloudNetService/launchermeta.git
           BRANCH: ${{ steps.branch-name.outputs.current_branch }}
@@ -68,14 +85,14 @@ jobs:
           fi
 
       - name: Publish snapshot to Sonatype
-        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
         run: ./gradlew publish
         env:
           SONATYPE_USER: "${{ secrets.SONATYPE_USER }}"
           SONATYPE_TOKEN: "${{ secrets.SONATYPE_TOKEN }}"
 
       - name: Prepare artifacts zip
-        if: ${{ github.event_name == 'push' && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
         run: |
           mkdir -p temp/;
           mkdir -p temp/plugins;
@@ -88,7 +105,7 @@ jobs:
 
       - name: Upload artifacts zip
         uses: actions/upload-artifact@v3
-        if: ${{ github.event_name == 'push' && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
         with:
           name: CloudNet
           path: temp/
