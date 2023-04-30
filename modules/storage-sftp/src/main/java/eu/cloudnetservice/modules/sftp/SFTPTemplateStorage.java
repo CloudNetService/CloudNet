@@ -274,6 +274,15 @@ public class SFTPTemplateStorage implements TemplateStorage {
   }
 
   @Override
+  public boolean deleteDirectory(@NonNull ServiceTemplate template, @NonNull String path) {
+    return this.executeWithClient(client -> {
+      this.deleteDir(client, this.constructRemotePath(template, path));
+      client.rmdir(this.constructRemotePath(template, path));
+      return true;
+    }, false);
+  }
+
+  @Override
   public @Nullable InputStream newInputStream(@NonNull ServiceTemplate st, @NonNull String path) throws IOException {
     var client = this.pool.takeClient();
     // open the file

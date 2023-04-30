@@ -194,6 +194,17 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
+  public boolean deleteDirectory(@NonNull ServiceTemplate template, @NonNull String path) {
+    var dirPath = this.getTemplatePath(template).resolve(path);
+    if (Files.exists(dirPath) && Files.isDirectory(dirPath)) {
+      FileUtil.delete(dirPath);
+      return true;
+    }
+
+    return false;
+  }
+
+  @Override
   public @Nullable InputStream newInputStream(
     @NonNull ServiceTemplate template,
     @NonNull String path

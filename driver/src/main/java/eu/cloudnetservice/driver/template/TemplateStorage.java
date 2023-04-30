@@ -221,6 +221,17 @@ public interface TemplateStorage extends AutoCloseable, Named {
   boolean deleteFile(@NonNull ServiceTemplate template, @NonNull String path);
 
   /**
+   * Deletes the given directory at the given path in the given template in this storage.
+   * This method recursively deletes all files and directories inside the given directory.
+   *
+   * @param template the template in which the directory to delete is located in.
+   * @param path     the path to the directory in the template to delete.
+   * @return         true if the directory at the given path was deleted successfully, false otherwise.
+   * @throws NullPointerException if the given template or path is null.
+   */
+  boolean deleteDirectory(@NonNull ServiceTemplate template, @NonNull String path);
+
+  /**
    * Opens a new input stream to read the content of the file at the given path in the given template in this storage.
    * This method returns null if either the file doesn't exist or is a directory.
    *
@@ -478,6 +489,19 @@ public interface TemplateStorage extends AutoCloseable, Named {
    */
   default @NonNull Task<Boolean> deleteFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
     return Task.supply(() -> this.deleteFile(template, path));
+  }
+
+  /**
+   * Deletes the given directory at the given path in the given template in this storage. This method recursively
+   * deletes all files and directories inside the given directory.
+   *
+   * @param template the template in which the directory to delete is located in.
+   * @param path     the path to the directory in the template to delete.
+   * @return a task completed with true if the directory at the given path was deleted successfully, false otherwise.
+   * @throws NullPointerException if the given template or path is null.
+   */
+  default @NonNull Task<Boolean> deleteDirectoryAsync(@NonNull ServiceTemplate template, @NonNull String path) {
+    return Task.supply(() -> this.deleteDirectory(template, path));
   }
 
   /**
