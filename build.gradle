@@ -96,7 +96,7 @@ allprojects {
     dependencyHikariCpVersion = '4.0.3'
     dependencyVaultVersion = '1.7.1'
     dependencyProtocolLibVersion = 'master-SNAPSHOT'
-    dependencyNpcLibVersion = 'development-SNAPSHOT'
+    dependencyNpcLibVersion = '146ffaaf6c'
     dependencyCommonsNetVersion = '3.8.0'
     dependencyJschVersion = '0.1.55'
     dependencyJavassistVersion = '3.28.0-GA'
