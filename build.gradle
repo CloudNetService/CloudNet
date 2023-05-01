@@ -57,6 +57,11 @@ allprojects {
     }
 
     maven {
+      name 'nukkitx-releases'
+      url 'https://repo.opencollab.dev/maven-releases/'
+    }
+
+    maven {
       name 'sonatype'
       url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
@@ -86,7 +91,7 @@ allprojects {
     dependencyVelocityVersion = '1.1.8'
     dependencyNukkitXVersion = '1.0-SNAPSHOT'
     dependencyGoMintVersion = '1.0.0-SNAPSHOT'
-    dependencyWaterdogPEVersion = '1.1.6-SNAPSHOT'
+    dependencyWaterdogPEVersion = '1.2.4'
     dependencyMysqlConnectorJavaVersion = '8.0.27'
     dependencyHikariCpVersion = '4.0.3'
     dependencyVaultVersion = '1.7.1'
