@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.forwarding;
 
-import com.google.gson.Gson;
 import com.mojang.authlib.properties.Property;
 import com.mojang.util.UUIDTypeAdapter;
+import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
 import java.net.InetSocketAddress;
@@ -42,7 +42,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerHandshakePacketListenerImpl.class)
 public final class ServerHandshakePacketListenerMixin {
 
-  private static final Gson GSON = new Gson();
   private static final Component IP_INFO_MISSING = Component.literal(
     "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!");
 
@@ -65,7 +64,7 @@ public final class ServerHandshakePacketListenerMixin {
           new InetSocketAddress(split[1], ((InetSocketAddress) this.connection.getRemoteAddress()).getPort()));
         // check if properties were supplied
         if (split.length == 4) {
-          bridged.forwardedProfile(GSON.fromJson(split[3], Property[].class));
+          bridged.forwardedProfile(DocumentFactory.json().parse(split[3]).toInstanceOf(Property[].class));
         }
       } else {
         // disconnect will not send the packet - it will just close the channel and set the disconnect reason

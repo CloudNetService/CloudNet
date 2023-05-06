@@ -16,15 +16,15 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Set;
+import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
+import kong.unirest.json.JSONObject;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,21 +41,24 @@ public class FabricApiVersionFetch implements InstallStepExecutor {
     // check if we need the fabric api to fetch the version
     var enabled = installer.serviceVersion().properties().getBoolean("fetchOverFabricApi");
     if (enabled) {
-      var element = this.makeRequest();
-      if (element == null) {
+      var jsonNode = this.makeRequest();
+      if (jsonNode == null) {
         // response is invalid, fail
         throw new IllegalStateException("Unable to retrieve latest installer for fabric");
       }
 
-      for (var jsonElement : element.getAsJsonArray()) {
-        var jsonObject = jsonElement.getAsJsonObject();
-        // only allow stable fabric versions
-        if (jsonObject.get("stable").getAsBoolean()) {
-          // set the fabric loader download url
-          installer.serviceVersion().url(jsonObject.get("url").getAsString());
-          // we don't have any paths
-          return Collections.emptySet();
+
+      for (var entry : jsonNode.getArray()) {
+        if (entry instanceof JSONObject jsonObject) {
+          // only allow stable fabric versions
+          if (jsonObject.getBoolean("stable")) {
+            // set the fabric loader download url
+            installer.serviceVersion().url(jsonObject.getString("url"));
+          }
         }
+
+        // we don't have any paths
+        return Collections.emptySet();
       }
       // could not find any stable fabric version
       throw new IllegalStateException("Unable to retrieve latest installer for fabric (no stable version found)");
@@ -64,12 +67,12 @@ public class FabricApiVersionFetch implements InstallStepExecutor {
     return Collections.emptySet();
   }
 
-  private @Nullable JsonElement makeRequest() {
+  private @Nullable JsonNode makeRequest() {
     var response = Unirest.get(FabricApiVersionFetch.FABRIC_INSTALLER_URL)
       .accept("application/json")
-      .asString();
+      .asJson();
     if (response.isSuccess()) {
-      return JsonParser.parseString(response.getBody());
+      return response.getBody();
     }
     return null;
   }
