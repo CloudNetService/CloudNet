@@ -116,7 +116,7 @@ subprojects {
   }
 
   extensions.configure<CheckstyleExtension> {
-    toolVersion = Versions.checkstyleTools
+    toolVersion = rootProject.libs.versions.checkstyleTools.get()
   }
 
   extensions.configure<SpotlessExtension> {

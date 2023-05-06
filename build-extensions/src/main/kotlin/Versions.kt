@@ -19,7 +19,4 @@ object Versions {
   // internal versions
   const val cloudNet = "4.0.0-RC9-SNAPSHOT"
   const val cloudNetCodeName = "Blizzard"
-
-  // external tools
-  const val checkstyleTools = "10.6.0"
 }
