@@ -155,7 +155,13 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
 
     this.create(target);
 
-    ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+    ZipInputStream zipInputStream;
+    // make sure to not wrap a zip stream into another zip stream
+    if (inputStream instanceof ZipInputStream) {
+      zipInputStream = (ZipInputStream) inputStream;
+    } else {
+      zipInputStream = new ZipInputStream(inputStream);
+    }
 
     try {
       ZipEntry zipEntry;

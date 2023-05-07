@@ -83,7 +83,14 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
 
   @Override
   public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
-    return this.ftpClient.uploadDirectory(new ZipInputStream(inputStream), this.getPath(target));
+    ZipInputStream zipInputStream;
+    // make sure to not wrap a zip stream into another zip stream
+    if (inputStream instanceof ZipInputStream) {
+      zipInputStream = (ZipInputStream) inputStream;
+    } else {
+      zipInputStream = new ZipInputStream(inputStream);
+    }
+    return this.ftpClient.uploadDirectory(zipInputStream, this.getPath(target));
   }
 
   @Override
