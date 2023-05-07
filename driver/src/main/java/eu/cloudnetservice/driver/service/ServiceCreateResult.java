@@ -38,6 +38,8 @@ import org.jetbrains.annotations.Nullable;
  */
 @ToString
 @EqualsAndHashCode
+// we need to be able to serialize this class and its fields without invoking the getters & setters to respond
+// to service creation requests coming from the REST API
 @SuppressWarnings("ClassCanBeRecord")
 public final class ServiceCreateResult {
 
@@ -54,7 +56,7 @@ public final class ServiceCreateResult {
    * @throws NullPointerException     if the given state is null.
    * @throws IllegalArgumentException if the creation id is missing or the service info depending on the given state.
    */
-  public ServiceCreateResult(
+  private ServiceCreateResult(
     @NonNull State state,
     @Nullable UUID creationId,
     @Nullable ServiceInfoSnapshot serviceInfo
