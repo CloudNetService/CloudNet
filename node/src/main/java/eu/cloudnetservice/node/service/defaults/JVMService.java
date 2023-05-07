@@ -341,7 +341,7 @@ public class JVMService extends AbstractService {
           path,
           file -> new ApplicationStartupInformation(
             file.getEntry("META-INF/versions.list") != null,
-            this.preCheckJarManifest(file.getManifest()))
+            this.validateManifest(file.getManifest()).getMainAttributes())
         )).orElse(null);
     } catch (IOException exception) {
       LOGGER.severe("Unable to find application file information in %s for environment %s",
@@ -393,13 +393,13 @@ public class JVMService extends AbstractService {
     return builder.toString();
   }
 
-  protected @NonNull Attributes preCheckJarManifest(@Nullable Manifest manifest) {
+  protected @NonNull Manifest validateManifest(@Nullable Manifest manifest) {
     // make sure that we have a manifest at all
-    Preconditions.checkNotNull(manifest, "Application jar does not contain a META-INF/MANIFEST.MF");
+    Preconditions.checkNotNull(manifest, "Application jar does not contain a META-INF/MANIFEST.MF.");
     // make sure that the manifest at least contains a main class
     Preconditions.checkNotNull(manifest.getMainAttributes().getValue("Main-Class"),
       "Application jar MANIFEST.MF does not contain a Main-Class.");
-    return manifest.getMainAttributes();
+    return manifest;
   }
 
   protected record ApplicationStartupInformation(boolean preloadJarContent, @NonNull Attributes mainAttributes) {
