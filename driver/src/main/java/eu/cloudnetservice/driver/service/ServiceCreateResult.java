@@ -18,7 +18,9 @@ package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
 import java.util.UUID;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -32,21 +34,16 @@ import org.jetbrains.annotations.Nullable;
  *   <li>FAILED: indicates that the service couldn't be created.
  * </ol>
  *
- * @param state       the creation state of the service.
- * @param creationId  the creation id of this result, if the state is not {@code FAILED}.
- * @param serviceInfo the underlying service info, if the service was created successfully.
  * @since 4.0
  */
-public record ServiceCreateResult(
-  @NonNull State state,
-  @Nullable UUID creationId,
-  @Nullable ServiceInfoSnapshot serviceInfo
-) {
+@ToString
+@EqualsAndHashCode
+@SuppressWarnings("ClassCanBeRecord")
+public final class ServiceCreateResult {
 
-  /**
-   * A static create result indicating that the service creation failed.
-   */
-  public static final ServiceCreateResult FAILED = new ServiceCreateResult(State.FAILED, null, null);
+  private final State state;
+  private final UUID creationId;
+  private final ServiceInfoSnapshot serviceInfo;
 
   /**
    * Creates a new result instance.
@@ -57,12 +54,25 @@ public record ServiceCreateResult(
    * @throws NullPointerException     if the given state is null.
    * @throws IllegalArgumentException if the creation id is missing or the service info depending on the given state.
    */
-  public ServiceCreateResult {
+  public ServiceCreateResult(
+    @NonNull State state,
+    @Nullable UUID creationId,
+    @Nullable ServiceInfoSnapshot serviceInfo
+  ) {
     // creation id must be present for deferred and created
     Preconditions.checkArgument(state == State.FAILED || creationId != null);
     // created services must have a service information present
     Preconditions.checkArgument(state != State.CREATED || serviceInfo != null);
+
+    this.state = state;
+    this.creationId = creationId;
+    this.serviceInfo = serviceInfo;
   }
+
+  /**
+   * A static create result indicating that the service creation failed.
+   */
+  public static final ServiceCreateResult FAILED = new ServiceCreateResult(State.FAILED, null, null);
 
   /**
    * Creates a new result with the state set to deferred and using the given creation id.
@@ -94,7 +104,6 @@ public record ServiceCreateResult(
    * @return the creation id of this service.
    * @throws IllegalStateException if called when the state of this result is {@code FAILED}.
    */
-  @Override
   public @NonNull UUID creationId() {
     // we could check for state != State.FAILED as well, but then IJ gives a warning that creationId might be null
     Preconditions.checkState(this.creationId != null, "Cannot retrieve creationId for State.FAILED");
@@ -108,11 +117,20 @@ public record ServiceCreateResult(
    * @return the service info of the created service.
    * @throws IllegalStateException if called when the state of this result is not {@code CREATED}.
    */
-  @Override
   public @NonNull ServiceInfoSnapshot serviceInfo() {
     // we could check for state == State.CREATED as well, but then IJ gives a warning that serviceInfo might be null
     Preconditions.checkState(this.serviceInfo != null, "Can only retrieve service info for State.CREATED");
     return this.serviceInfo;
+  }
+
+  /**
+   * Get the state of this service creation. Use this to ensure that the service creation was successful when accessing
+   * {@link #creationId()} or {@link #serviceInfo()}.
+   *
+   * @return the state of this service creation.
+   */
+  public @NonNull State state() {
+    return this.state;
   }
 
   /**
