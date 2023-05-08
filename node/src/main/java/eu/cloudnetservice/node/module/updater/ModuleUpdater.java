@@ -25,7 +25,7 @@ import eu.cloudnetservice.ext.updater.Updater;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import jakarta.inject.Singleton;
 import java.nio.file.StandardCopyOption;
-import kong.unirest.Unirest;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
 @Singleton

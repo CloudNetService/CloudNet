@@ -33,9 +33,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import kong.unirest.ContentType;
-import kong.unirest.HttpRequestWithBody;
-import kong.unirest.Unirest;
+import kong.unirest.core.ContentType;
+import kong.unirest.core.HttpRequestWithBody;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 

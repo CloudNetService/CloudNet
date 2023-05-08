@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Set;
-import kong.unirest.JsonNode;
-import kong.unirest.Unirest;
-import kong.unirest.json.JSONObject;
+import kong.unirest.core.JsonNode;
+import kong.unirest.core.Unirest;
+import kong.unirest.core.json.JSONObject;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,7 +47,7 @@ public class FabricApiVersionFetch implements InstallStepExecutor {
         throw new IllegalStateException("Unable to retrieve latest installer for fabric");
       }
 
-
+      // search for a stable fabric version
       for (var entry : jsonNode.getArray()) {
         if (entry instanceof JSONObject jsonObject) {
           // only allow stable fabric versions

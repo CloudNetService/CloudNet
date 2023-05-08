@@ -20,7 +20,7 @@ import eu.cloudnetservice.common.Named;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import kong.unirest.Unirest;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
 public record PasteServer(
