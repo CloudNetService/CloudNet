@@ -252,7 +252,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
         try {
           this.tick(signsNeedingTicking);
         } catch (Throwable throwable) {
-          LOGGER.severe("Exception ticking signs");
+          LOGGER.severe("Exception ticking signs", throwable);
         }
       }, 0, 1000 / this.tps(), TimeUnit.MILLISECONDS);
       this.startKnockbackTask();
