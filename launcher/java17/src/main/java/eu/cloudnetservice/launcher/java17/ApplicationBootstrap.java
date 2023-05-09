@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +52,8 @@ final class ApplicationBootstrap {
     @NonNull Path applicationPath,
     @NonNull Set<Path> dependencies,
     @NonNull String[] processArguments,
-    int debuggerPort
+    int debuggerPort,
+    int nodeProcessMemory
   ) throws Exception {
     // resolve the current jar, we only append the launcher jar to it in case someone needs access to it
     var currentJar = Path.of(ApplicationBootstrap.class
@@ -66,8 +68,18 @@ final class ApplicationBootstrap {
     Set<String> arguments = new LinkedHashSet<>();
     arguments.add(resolveJavaExecutable());
 
+    // remove the xms and xmx options as we want to set them later on
+    var filteredInputArguments = RUNTIME_MX_BEAN.getInputArguments().stream().filter(s -> {
+      var lowerCaseInput = s.toLowerCase(Locale.ROOT);
+      return !lowerCaseInput.startsWith("-xmx") && !lowerCaseInput.startsWith("-xms");
+    }).toList();
+
     // add the arguments supplied to the current process
-    arguments.addAll(RUNTIME_MX_BEAN.getInputArguments());
+    arguments.addAll(filteredInputArguments);
+
+    // add the memory options for the node now
+    arguments.add("-Xmx" + nodeProcessMemory + 'M');
+    arguments.add("-Xms" + nodeProcessMemory + 'M');
 
     // add our default arguments & all system properties we might have set
     arguments.addAll(DEFAULT_PROCESS_ARGUMENTS);
