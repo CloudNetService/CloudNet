@@ -395,10 +395,11 @@ public class JVMService extends AbstractService {
 
   protected @NonNull Manifest validateManifest(@Nullable Manifest manifest) {
     // make sure that we have a manifest at all
-    Preconditions.checkNotNull(manifest, "Application jar does not contain a META-INF/MANIFEST.MF.");
+    Preconditions.checkNotNull(manifest, "Application jar does not contain a manifest.");
     // make sure that the manifest at least contains a main class
-    Preconditions.checkNotNull(manifest.getMainAttributes().getValue("Main-Class"),
-      "Application jar MANIFEST.MF does not contain a Main-Class.");
+    Preconditions.checkNotNull(
+      manifest.getMainAttributes().getValue("Main-Class"),
+      "Application jar manifest does not contain a Main-Class.");
     return manifest;
   }
 
