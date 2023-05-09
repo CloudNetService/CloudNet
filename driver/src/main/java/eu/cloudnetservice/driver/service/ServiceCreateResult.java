@@ -43,6 +43,11 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("ClassCanBeRecord")
 public final class ServiceCreateResult {
 
+  /**
+   * A static create result indicating that the service creation failed.
+   */
+  public static final ServiceCreateResult FAILED = new ServiceCreateResult(State.FAILED, null, null);
+
   private final State state;
   private final UUID creationId;
   private final ServiceInfoSnapshot serviceInfo;
@@ -70,11 +75,6 @@ public final class ServiceCreateResult {
     this.creationId = creationId;
     this.serviceInfo = serviceInfo;
   }
-
-  /**
-   * A static create result indicating that the service creation failed.
-   */
-  public static final ServiceCreateResult FAILED = new ServiceCreateResult(State.FAILED, null, null);
 
   /**
    * Creates a new result with the state set to deferred and using the given creation id.
