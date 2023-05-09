@@ -54,11 +54,10 @@ public class FabricApiVersionFetch implements InstallStepExecutor {
           if (jsonObject.getBoolean("stable")) {
             // set the fabric loader download url
             installer.serviceVersion().url(jsonObject.getString("url"));
+            // we don't have any paths
+            return Collections.emptySet();
           }
         }
-
-        // we don't have any paths
-        return Collections.emptySet();
       }
       // could not find any stable fabric version
       throw new IllegalStateException("Unable to retrieve latest installer for fabric (no stable version found)");
