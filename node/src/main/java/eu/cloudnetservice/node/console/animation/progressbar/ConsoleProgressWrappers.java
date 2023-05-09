@@ -28,7 +28,7 @@ import jakarta.inject.Singleton;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
-import kong.unirest.Unirest;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
 @Singleton

@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.event.service;
 import eu.cloudnetservice.driver.event.Cancelable;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.node.service.CloudService;
-import kong.unirest.GetRequest;
+import kong.unirest.core.GetRequest;
 import lombok.NonNull;
 
 public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent implements Cancelable {

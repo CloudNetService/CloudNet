@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.version;
 
-import static com.google.gson.reflect.TypeToken.getParameterized;
+import static io.leangen.geantyref.TypeFactory.parameterizedClass;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.io.FileUtil;
@@ -49,7 +49,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import kong.unirest.Unirest;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -64,8 +64,8 @@ public class ServiceVersionProvider {
 
   private static final int VERSIONS_FILE_VERSION = 3;
 
-  private static final Type COL_SER_VERSION = getParameterized(Collection.class, ServiceVersionType.class).getType();
-  private static final Type COL_ENV_TYPE = getParameterized(Collection.class, ServiceEnvironmentType.class).getType();
+  private static final Type COL_SER_VERSION = parameterizedClass(Collection.class, ServiceVersionType.class);
+  private static final Type COL_ENV_TYPE = parameterizedClass(Collection.class, ServiceEnvironmentType.class);
 
   private final Map<String, ServiceVersionType> serviceVersionTypes = new ConcurrentHashMap<>();
   private final Map<String, ServiceEnvironmentType> serviceEnvironmentTypes = new ConcurrentHashMap<>();

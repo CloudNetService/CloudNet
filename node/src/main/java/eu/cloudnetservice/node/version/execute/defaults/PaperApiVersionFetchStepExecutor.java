@@ -27,7 +27,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Set;
-import kong.unirest.Unirest;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
@@ -78,10 +78,10 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     var response = Unirest.get(apiUrl)
       .accept("application/json")
       .asString();
-
     if (response.isSuccess()) {
       return DocumentFactory.json().parse(response.getBody());
     }
+
     return Document.newJsonDocument();
   }
 

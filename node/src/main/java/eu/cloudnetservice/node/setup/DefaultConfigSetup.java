@@ -42,7 +42,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import kong.unirest.Unirest;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
 @Singleton
