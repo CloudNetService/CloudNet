@@ -75,6 +75,9 @@ public final class SFTPTemplateStorageTest {
     Assertions.assertTrue(storage.create(TEMPLATE));
     Assertions.assertTrue(storage.createFile(TEMPLATE, "spigot.yml"));
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "spigot.yml"));
+
+    Assertions.assertTrue(storage.createFile(TEMPLATE, "deep/rummel.yml"));
+    Assertions.assertTrue(storage.hasFile(TEMPLATE, "deep/rummel.yml"));
   }
 
   @Test
@@ -181,11 +184,11 @@ public final class SFTPTemplateStorageTest {
   void testFileListingDeep() {
     var files = storage.listFiles(TEMPLATE, "", true);
     Assertions.assertNotNull(files);
-    Assertions.assertEquals(5, files.size());
+    Assertions.assertEquals(7, files.size());
 
-    // there must be two directories
+    // there must be three directories
     var dir = files.stream().filter(FileInfo::directory).count();
-    Assertions.assertEquals(2, dir);
+    Assertions.assertEquals(3, dir);
   }
 
   @Test
