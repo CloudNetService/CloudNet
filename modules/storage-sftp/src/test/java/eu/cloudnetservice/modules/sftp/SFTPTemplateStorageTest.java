@@ -101,6 +101,17 @@ public final class SFTPTemplateStorageTest {
       Assertions.assertNotNull(stream);
       Assertions.assertEquals("Hello", new String(stream.readAllBytes(), StandardCharsets.UTF_8));
     }
+
+    try (var stream = storage.newOutputStream(TEMPLATE, "test/test.txt")) {
+      Assertions.assertNotNull(stream);
+      stream.write("Hello".getBytes(StandardCharsets.UTF_8));
+    }
+
+    Assertions.assertTrue(storage.hasFile(TEMPLATE, "test/test.txt"));
+    try (var stream = storage.newInputStream(TEMPLATE, "test/test.txt")) {
+      Assertions.assertNotNull(stream);
+      Assertions.assertEquals("Hello", new String(stream.readAllBytes(), StandardCharsets.UTF_8));
+    }
   }
 
   @Test
@@ -170,12 +181,11 @@ public final class SFTPTemplateStorageTest {
   void testFileListingDeep() {
     var files = storage.listFiles(TEMPLATE, "", true);
     Assertions.assertNotNull(files);
-    Assertions.assertEquals(3, files.size());
+    Assertions.assertEquals(5, files.size());
 
-    // there must be one directory
-    var dir = files.stream().filter(FileInfo::directory).findFirst().orElse(null);
-    Assertions.assertNotNull(dir);
-    Assertions.assertEquals("hello", dir.name());
+    // there must be two directories
+    var dir = files.stream().filter(FileInfo::directory).count();
+    Assertions.assertEquals(2, dir);
   }
 
   @Test
