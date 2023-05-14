@@ -153,7 +153,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     // get all handlers which should be tested if they can accept the http request
     var entries = new ArrayList<>(this.nettyHttpServer.registeredHandlers);
-    entries.sort(Comparator.comparingInt(NettyHttpServer.HttpHandlerEntry::priority));
+    entries.sort(Comparator.comparingInt(NettyHttpServer.HttpHandlerEntry::priority).reversed());
 
     // build the context around the http request
     var pathEntries = fullPath.split("/");

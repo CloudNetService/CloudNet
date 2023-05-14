@@ -98,7 +98,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
     this.groupConfigurationProvider = groupConfigurationProvider;
   }
 
-  @HttpRequestHandler(paths = "/api/v2/node", priority = HttpHandler.PRIORITY_HIGH)
+  @HttpRequestHandler(paths = "/api/v2/node", priority = HttpHandler.PRIORITY_LOW)
   private void handleNodePing(@NonNull HttpContext context) {
     this.response(context, HttpResponseCode.NO_CONTENT).context().closeAfter(true).cancelNext(true);
   }
