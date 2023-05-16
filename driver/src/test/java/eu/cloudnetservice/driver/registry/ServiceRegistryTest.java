@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.registry;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +24,7 @@ public final class ServiceRegistryTest {
 
   @Test
   public void testDefaultRegistry() {
-    ServiceRegistry registry = new DefaultServiceRegistry();
+    var registry = new DefaultServiceRegistry(InjectionLayer.ext());
 
     registry
       .registerProvider(A.class, "b", new B())
