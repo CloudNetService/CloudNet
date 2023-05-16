@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.bridge.node.http;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.http.HttpContext;
+import eu.cloudnetservice.driver.network.http.HttpHandler;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
@@ -48,7 +49,7 @@ public final class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HttpRequestHandler(paths = "/api/v2/player/onlineCount")
+  @HttpRequestHandler(paths = "/api/v2/player/onlineCount", priority = HttpHandler.PRIORITY_HIGH)
   private void handleOnlinePlayerCountRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("onlineCount", this.playerManager.onlineCount()).toString())
@@ -58,7 +59,7 @@ public final class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HttpRequestHandler(paths = "/api/v2/player/registeredCount")
+  @HttpRequestHandler(paths = "/api/v2/player/registeredCount", priority = HttpHandler.PRIORITY_HIGH)
   private void handleRegisteredPlayerCountRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("registeredCount", this.playerManager.registeredCount()).toString())
