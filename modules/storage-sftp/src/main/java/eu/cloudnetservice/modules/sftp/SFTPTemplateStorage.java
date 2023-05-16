@@ -231,7 +231,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   ) throws IOException {
     var client = this.pool.takeClient();
     // ensure that the parent directories of the file exist
-    this.createParentDirectory(st, path, client);
+    this.createParentDirectories(st, path, client);
     // open the file
     var file = client.open(this.constructRemotePath(st, path), EnumSet.of(modes[0], modes));
     // create a new output stream which returns the client to the pool when closing
@@ -248,7 +248,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   public boolean createFile(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.executeWithClient(client -> {
       // ensure that the parent directories exist
-      this.createParentDirectory(template, path, client);
+      this.createParentDirectories(template, path, client);
       client.open(this.constructRemotePath(template, path), EnumSet.of(OpenMode.CREAT));
       return true;
     }, false);
@@ -313,7 +313,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     }, null);
   }
 
-  protected void createParentDirectory(
+  protected void createParentDirectories(
     @NonNull ServiceTemplate template,
     @NonNull String path,
     @NonNull SFTPClient client
