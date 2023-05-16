@@ -55,8 +55,8 @@ import lombok.NonNull;
  */
 @Qualifier
 @Documented
-@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.PARAMETER, ElementType.FIELD})
 public @interface Service {
 
   /**

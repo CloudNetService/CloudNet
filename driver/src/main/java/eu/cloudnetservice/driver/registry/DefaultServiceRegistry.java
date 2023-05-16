@@ -47,7 +47,7 @@ public class DefaultServiceRegistry implements ServiceRegistry {
   public DefaultServiceRegistry(@NonNull InjectionLayer<?> injectionLayer) {
     var bindingConstructor = BindingBuilder.create()
       .bindMatching(element -> {
-        // ensure that the element has special requirements
+        // ensure that the element has at least one special requirement (like the Service annotation)
         if (element.hasSpecialRequirements()) {
           return element.requiredAnnotations()
             .stream()
@@ -72,7 +72,6 @@ public class DefaultServiceRegistry implements ServiceRegistry {
             }
           }).orElse(null);
       });
-
     injectionLayer.install(bindingConstructor);
   }
 
