@@ -17,6 +17,8 @@
 package eu.cloudnetservice.driver.registry;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.registry.injection.Service;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +26,7 @@ public final class ServiceRegistryTest {
 
   @Test
   public void testDefaultRegistry() {
-    var registry = new DefaultServiceRegistry(InjectionLayer.ext());
+    var registry = new DefaultServiceRegistry(InjectionLayer.boot());
 
     registry
       .registerProvider(A.class, "b", new B())
@@ -52,6 +54,24 @@ public final class ServiceRegistryTest {
 
     Assertions.assertEquals(0, registry.providers(A.class).size());
     registry.unregisterAll();
+  }
+
+  @Test
+  public void testRegistryInjection() {
+    var registry = new DefaultServiceRegistry(InjectionLayer.boot());
+    registry.registerProvider(A.class, "b", new B());
+
+    var d = InjectionLayer.boot().instance(D.class);
+    Assertions.assertNotNull(d.a());
+    Assertions.assertNotNull(d.b());
+    Assertions.assertNull(d.c());
+  }
+
+  private record D(@Service A a, @Service(name = "b") A b, @Service(name = "non-existing") A c) {
+
+    @Inject
+    D {
+    }
   }
 
   private interface A {
