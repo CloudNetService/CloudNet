@@ -58,27 +58,28 @@ public final class ServiceRegistryTest {
   @Test
   public void testRegistryInjection() {
     var registry = new DefaultServiceRegistry(InjectionLayer.boot());
-    var b = new B();
+    var instanceB = new B();
 
-    registry.registerProvider(A.class, "b", b);
+    registry.registerProvider(A.class, "b", instanceB);
     registry.registerProvider(A.class, "c", new B());
 
-    var d = InjectionLayer.boot().instance(D.class);
-    Assertions.assertNotNull(d.a());
+    var serviceD = InjectionLayer.boot().instance(D.class);
+    Assertions.assertNotNull(serviceD.withoutSpecialName());
 
-    Assertions.assertNotNull(d.b());
-    Assertions.assertSame(b, d.b());
+    Assertions.assertNotNull(serviceD.specialNameB());
+    Assertions.assertSame(instanceB, serviceD.specialNameB());
 
-    Assertions.assertNotSame(b, d.c());
+    Assertions.assertNotSame(instanceB, serviceD.specialNameC());
 
-    Assertions.assertNull(d.nonExistent());
+    Assertions.assertNull(serviceD.nonExistent());
   }
 
   private record D(
-    @Service A a,
-    @Service(name = "b") A b,
-    @Service(name = "c") A c,
-    @Service(name = "non-existing") A nonExistent) {
+    @Service A withoutSpecialName,
+    @Service(name = "b") A specialNameB,
+    @Service(name = "c") A specialNameC,
+    @Service(name = "non-existing") A nonExistent
+  ) {
 
   }
 
