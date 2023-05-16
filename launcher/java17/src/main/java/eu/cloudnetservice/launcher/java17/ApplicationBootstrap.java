@@ -69,8 +69,8 @@ final class ApplicationBootstrap {
     arguments.add(resolveJavaExecutable());
 
     // remove the xms and xmx options as we want to set them later on
-    var filteredInputArguments = RUNTIME_MX_BEAN.getInputArguments().stream().filter(s -> {
-      var lowerCaseInput = s.toLowerCase(Locale.ROOT);
+    var filteredInputArguments = RUNTIME_MX_BEAN.getInputArguments().stream().filter(inputArgument -> {
+      var lowerCaseInput = inputArgument.toLowerCase(Locale.ROOT);
       return !lowerCaseInput.startsWith("-xmx") && !lowerCaseInput.startsWith("-xms");
     }).toList();
 
