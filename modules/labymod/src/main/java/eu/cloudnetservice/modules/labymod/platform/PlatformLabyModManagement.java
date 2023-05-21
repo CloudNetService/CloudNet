@@ -331,12 +331,13 @@ public class PlatformLabyModManagement implements LabyModManagement {
         this.sendPluginMessage(player, discordRPCData);
       }
 
-      player.playerExecutor().connect(serviceInfoSnapshot.name());
+      this.playerManager.playerExecutor(player.uniqueId()).connect(serviceInfoSnapshot.name());
     }
   }
 
   protected void sendPluginMessage(@NonNull CloudPlayer player, @NonNull DataBuf dataBuf) {
-    player.playerExecutor().sendPluginMessage(LABYMOD_CLIENT_CHANNEL, dataBuf.toByteArray());
+    this.playerManager.playerExecutor(player.uniqueId())
+      .sendPluginMessage(LABYMOD_CLIENT_CHANNEL, dataBuf.toByteArray());
   }
 
   protected @Nullable LabyModPlayerOptions parsePlayerOptions(@NonNull CloudPlayer player) {
