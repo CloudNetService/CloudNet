@@ -65,7 +65,8 @@ public class CloudNetPapiExpansion extends PlaceholderExpansion {
     // The bridge will just replace all placeholders in the string with the correct association.
     // We can just return null if the resulting string matches the input string
     var input = '%' + params + '%';
-    var out = BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
+    var out = BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo(),
+      player.getName());
 
     return out.equals(input) ? null : out;
   }
