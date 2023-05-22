@@ -218,7 +218,7 @@ public abstract class BukkitPlatformSelectorEntity
       }
     }
     // build the item stack from the layout
-    var item = this.buildItemStack(layout, service, null);
+    var item = this.buildItemStack(layout, service);
     if (item != null) {
       if (wrapper == null) {
         // store a new wrapper
@@ -382,8 +382,7 @@ public abstract class BukkitPlatformSelectorEntity
     }
   }
 
-  protected @Nullable ItemStack buildItemStack(@NonNull ItemLayout layout, @Nullable ServiceInfoSnapshot service,
-    @Nullable Player player) {
+  protected @Nullable ItemStack buildItemStack(@NonNull ItemLayout layout, @Nullable ServiceInfoSnapshot service) {
     var material = Material.matchMaterial(layout.material());
     if (material != null) {
       var item = layout.subId() == -1
@@ -391,15 +390,13 @@ public abstract class BukkitPlatformSelectorEntity
         : new ItemStack(material, 1, (byte) layout.subId());
       // apply the meta
       var meta = item.getItemMeta();
-      var playerName = player != null ? player.getName() : null;
       if (meta != null) {
         meta.setDisplayName(BridgeServiceHelper.fillCommonPlaceholders(
           layout.displayName(),
           this.npc.targetGroup(),
-          service,
-          playerName));
+          service));
         meta.setLore(layout.lore().stream()
-          .map(line -> BridgeServiceHelper.fillCommonPlaceholders(line, this.npc.targetGroup(), service, playerName))
+          .map(line -> BridgeServiceHelper.fillCommonPlaceholders(line, this.npc.targetGroup(), service))
           .collect(Collectors.toList()));
         // set the meta again
         item.setItemMeta(meta);
@@ -456,7 +453,7 @@ public abstract class BukkitPlatformSelectorEntity
       // check if the item would exceed the inventory size
       if (entry.getKey() < inventorySize) {
         // build and set the item
-        var item = this.buildItemStack(entry.getValue(), null, null);
+        var item = this.buildItemStack(entry.getValue(), null);
         if (item != null) {
           inventory.setItem(entry.getKey(), item);
         }

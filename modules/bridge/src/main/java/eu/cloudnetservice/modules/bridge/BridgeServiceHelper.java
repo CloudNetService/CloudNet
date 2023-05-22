@@ -121,15 +121,13 @@ public final class BridgeServiceHelper {
    * @param value   the string to replace the placeholders in.
    * @param group   the group to replace {@literal %group%} with.
    * @param service the service to use as source for the placeholder values.
-   * @param playerName the name of the player to replace {@literal %player_name%} with.
    * @return the String with the placeholders replaced.
    * @throws NullPointerException if the given input string is null.
    */
   public static @NonNull String fillCommonPlaceholders(
     @NonNull String value,
     @Nullable String group,
-    @Nullable ServiceInfoSnapshot service,
-    @Nullable String playerName
+    @Nullable ServiceInfoSnapshot service
   ) {
     value = value.replace("%group%", group == null ? "" : group);
 
@@ -170,10 +168,6 @@ public final class BridgeServiceHelper {
     value = value.replace("%extra%", service.readProperty(BridgeDocProperties.EXTRA));
     value = value.replace("%state%", service.readProperty(BridgeDocProperties.STATE));
     value = value.replace("%version%", service.readProperty(BridgeDocProperties.VERSION));
-
-    if (playerName != null) {
-      value = value.replace("%player_name%", playerName);
-    }
     // done
     return value;
   }

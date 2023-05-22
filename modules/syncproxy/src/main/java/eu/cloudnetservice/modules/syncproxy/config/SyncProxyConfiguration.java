@@ -61,8 +61,7 @@ public record SyncProxyConfiguration(
         .replace("%online_players%", String.valueOf(onlinePlayers))
         .replace("%max_players%", String.valueOf(maxPlayers)),
       null,
-      serviceInfoSnapshot,
-      null);
+      serviceInfoSnapshot);
   }
 
   public static @NonNull Builder builder() {

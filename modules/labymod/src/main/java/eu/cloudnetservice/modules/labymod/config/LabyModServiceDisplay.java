@@ -18,17 +18,15 @@ package eu.cloudnetservice.modules.labymod.config;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
-import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record LabyModServiceDisplay(boolean enabled, @Nullable String format) {
 
-  public @Nullable String display(@Nullable ServiceInfoSnapshot serviceInfoSnapshot, @NonNull CloudPlayer cloudPlayer) {
+  public @Nullable String display(@Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
     if (serviceInfoSnapshot == null || this.format == null || !this.enabled) {
       return null;
     } else {
-      return BridgeServiceHelper.fillCommonPlaceholders(this.format, null, serviceInfoSnapshot, cloudPlayer.name());
+      return BridgeServiceHelper.fillCommonPlaceholders(this.format, null, serviceInfoSnapshot);
     }
   }
 }

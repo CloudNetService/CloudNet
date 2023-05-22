@@ -86,7 +86,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     }
 
     var serviceDisplay = this.configuration.gameModeSwitchMessages();
-    var playingServer = serviceDisplay.display(snapshot, cloudPlayer);
+    var playingServer = serviceDisplay.display(snapshot);
 
     // if the display is null we can't send anything
     if (playingServer != null) {
@@ -230,7 +230,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     @NonNull ServiceInfoSnapshot snapshot
   ) {
     // only create a rpc information if it's enabled and configured in the config
-    var playingService = this.configuration.discordRPC().display(snapshot, cloudPlayer);
+    var playingService = this.configuration.discordRPC().display(snapshot);
     if (playingService == null) {
       return null;
     }

@@ -112,7 +112,7 @@ public final class LayoutUtil {
   ) {
     var lines = layout.lines();
     for (var i = 0; i < Math.min(4, lines.size()); i++) {
-      var converted = lineMapper.apply(fillCommonPlaceholders(lines.get(i), signTargetGroup, target, null));
+      var converted = lineMapper.apply(fillCommonPlaceholders(lines.get(i), signTargetGroup, target));
       lineSetter.accept(i, converted);
     }
   }
