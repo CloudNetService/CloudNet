@@ -108,7 +108,7 @@ public final class Parsers {
         throw ParserException.INSTANCE;
       }
       // get the type
-      var type = this.versionProvider.getServiceVersionType(result[0]);
+      var type = this.versionProvider.serviceVersionType(result[0]);
       if (type == null) {
         throw ParserException.INSTANCE;
       }
@@ -126,7 +126,7 @@ public final class Parsers {
 
   public @NonNull QuestionAnswerType.Parser<ServiceEnvironmentType> serviceEnvironmentType() {
     return input -> {
-      var type = this.versionProvider.getEnvironmentType(input);
+      var type = this.versionProvider.environmentType(input);
       if (type != null) {
         return type;
       }

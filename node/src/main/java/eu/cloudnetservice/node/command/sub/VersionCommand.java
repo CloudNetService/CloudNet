@@ -95,7 +95,7 @@ public final class VersionCommand {
 
   @Parser(suggestions = "serviceVersionType")
   public @NonNull ServiceVersionType parseVersionType(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var versionType = this.serviceVersionProvider.getServiceVersionType(input.remove());
+    var versionType = this.serviceVersionProvider.serviceVersionType(input.remove());
     if (versionType != null) {
       return versionType;
     }

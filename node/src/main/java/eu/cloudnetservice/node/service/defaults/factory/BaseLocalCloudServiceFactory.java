@@ -50,7 +50,7 @@ public abstract class BaseLocalCloudServiceFactory implements LocalCloudServiceF
     // set the environment type
     if (configuration.serviceId().environment() == null) {
       var env = Objects.requireNonNull(
-        this.versionProvider.getEnvironmentType(configuration.serviceId().environmentName()),
+        this.versionProvider.environmentType(configuration.serviceId().environmentName()),
         "Unknown environment type " + configuration.serviceId().environmentName());
       // set the environment type
       configurationBuilder.environment(env);

@@ -105,7 +105,7 @@ public final class CloudNetBridgeModule extends DriverModule {
             serviceId.append("environmentName", environment);
 
             // try to set the new environment
-            var env = versionProvider.getEnvironmentType(environment);
+            var env = versionProvider.environmentType(environment);
             serviceId.append("environment", env);
             serviceId.append("nameSplitter", "-");
 
