@@ -293,6 +293,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    *
    * @param module the module instance (better known as the module main class) to resolve the tasks of.
    * @return all sorted resolved tasks mapped to the lifecycle they will be called in.
+   * @throws NullPointerException if the given module is null.
    */
   protected @NonNull Map<ModuleLifeCycle, List<ModuleTaskEntry>> resolveModuleTasks(@NonNull Module module) {
     Map<ModuleLifeCycle, List<ModuleTaskEntry>> result = new EnumMap<>(ModuleLifeCycle.class);
@@ -320,6 +321,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    *
    * @param lifeCycle      the lifecycle to fire the tasks of.
    * @param notifyProvider if the module provider should be notified about the change or not.
+   * @throws NullPointerException if the given lifecycle is null.
    */
   protected void pushLifecycleChange(@NonNull ModuleLifeCycle lifeCycle, boolean notifyProvider) {
     var tasks = this.tasks.get(lifeCycle);
@@ -356,10 +358,11 @@ public class DefaultModuleWrapper implements ModuleWrapper {
   }
 
   /**
-   * Fires a specific module task entry.
+   * Fires a specific module task entry and notifies about the failure of the call.
    *
    * @param entry the entry to fire.
-   * @return true if the entry couldn't be fired successfully, false otherwise.
+   * @return true if firing the entry failed, false if it succeeded.
+   * @throws NullPointerException if the given task entry is null.
    */
   protected boolean fireModuleTaskEntry(@NonNull ModuleTaskEntry entry) {
     try {

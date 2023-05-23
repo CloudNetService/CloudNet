@@ -124,8 +124,8 @@ public class ModuleURLClassLoader extends URLClassLoader implements InjectionLay
    * @param name    the name of the class to load.
    * @param resolve if the class should be resolved.
    * @param global  if all loaders registered in {@link ModuleURLClassLoader#LOADERS} should be checked.
-   * @return The resulting Class object
-   * @throws ClassNotFoundException if the class could not be found
+   * @return the newly loaded class.
+   * @throws ClassNotFoundException if no class was found to load
    */
   protected @NonNull Class<?> loadClass(String name, boolean resolve, boolean global) throws ClassNotFoundException {
     try {

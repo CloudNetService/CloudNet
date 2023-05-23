@@ -51,7 +51,7 @@ public final class ModuleDependencyUtil {
   /**
    * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
    *
-   * @throws UnsupportedOperationException on invocation
+   * @throws UnsupportedOperationException on invocation.
    */
   private ModuleDependencyUtil() {
     throw new UnsupportedOperationException();

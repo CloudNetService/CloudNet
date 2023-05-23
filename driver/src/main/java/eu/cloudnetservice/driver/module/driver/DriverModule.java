@@ -49,11 +49,12 @@ public class DriverModule extends DefaultModule {
 
   /**
    * Reads the configuration file of this module from the default or overridden configuration path (via module.json)
-   * into a json document, throwing an exception when the document is invalid.
+   * into a document, throwing an exception when the document is invalid.
    *
    * @param factory the config factory to use when parsing the configuration.
    * @return the config at the default path.
    * @throws DocumentParseException if the document cannot be parsed from the given path.
+   * @throws NullPointerException   if the given document factory is null.
    */
   public @NonNull Document readConfig(@NonNull DocumentFactory factory) {
     return factory.parse(this.configPath());
@@ -63,6 +64,7 @@ public class DriverModule extends DefaultModule {
    * Writes the given configuration document to the default configuration path {@link DriverModule#configPath()}.
    *
    * @param config the config to write.
+   * @throws NullPointerException if the given document is null.
    */
   public void writeConfig(@NonNull Document config) {
     config.writeTo(this.configPath());
@@ -80,7 +82,7 @@ public class DriverModule extends DefaultModule {
    * @param documentFactory      the document factory to use when reading the configuration file.
    * @param <T>                  the type of the configuration model.
    * @return a newly created default config instance or the read config instance from the config path.
-   * @throws NullPointerException                if either the given config model or config factory is null.
+   * @throws NullPointerException                if one of the given parameters is null.
    * @throws ModuleConfigurationInvalidException if the reader is unable to read the configuration model from the file.
    */
   public @NonNull <T> T readConfig(

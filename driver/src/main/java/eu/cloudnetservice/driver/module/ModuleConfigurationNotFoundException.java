@@ -31,6 +31,7 @@ public class ModuleConfigurationNotFoundException extends RuntimeException {
    * Creates a new instance of this class.
    *
    * @param url the url of the module which didn't contain a module.json file.
+   * @throws NullPointerException if the given url is null.
    */
   public ModuleConfigurationNotFoundException(@NonNull URL url) {
     super("No module configuration found in " + url.toExternalForm());

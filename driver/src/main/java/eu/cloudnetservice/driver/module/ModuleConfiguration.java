@@ -81,6 +81,7 @@ public record ModuleConfiguration(
    * @param baseDirectory the base directory of the module provider used to resolve the data folder if no data folder is
    *                      specified explicitly.
    * @return the data folder in path form of this module.
+   * @throws NullPointerException if the given path is null.
    */
   public @NonNull Path dataFolder(@NonNull Path baseDirectory) {
     if (this.dataFolder == null) {
@@ -106,6 +107,7 @@ public record ModuleConfiguration(
    *
    * @param javaVersion the runtime version to check.
    * @return if this module can run on the specified java version.
+   * @throws NullPointerException if the given java version is null.
    */
   public boolean canRunOn(@NonNull JavaVersion javaVersion) {
     var minJavaVersion = this.minJavaVersion();
