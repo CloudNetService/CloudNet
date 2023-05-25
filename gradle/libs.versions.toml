@@ -14,12 +14,12 @@ gson = "2.10.1"
 guava = "31.1-jre"
 
 # testing
-junit = "5.9.2"
-mockito = "5.3.0"
-testcontainers = "1.18.0"
+junit = "5.9.3"
+mockito = "5.3.1"
+testcontainers = "1.18.1"
 
 # compile time processing
-lombok = "1.18.26"
+lombok = "1.18.28"
 javapoet = "1.13.0"
 
 # console
@@ -33,18 +33,18 @@ h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "4.9.1"
 hikariCp = "5.0.1"
-mysqlConnector = "8.0.32"
+mysqlConnector = "8.0.33"
 
 # general
 asm = "9.5"
-oshi = "6.4.1"
+oshi = "6.4.2"
 vavr = "0.10.4"
 sshj = "0.35.0"
 jjwt = "0.11.5"
 slf4j = "1.7.36"
 aerogel = "2.1.0"
 caffeine = "3.1.6"
-awsSdk = "2.20.47"
+awsSdk = "2.20.72"
 reflexion = "1.8.0"
 geantyref = "1.3.14"
 dockerJava = "3.3.0"
@@ -74,7 +74,7 @@ placeholderApi = "2.11.3"
 
 # fabric platform special dependencies
 minecraft = "1.19.4"
-fabricLoader = "0.14.19"
+fabricLoader = "0.14.20"
 
 
 [libraries]
