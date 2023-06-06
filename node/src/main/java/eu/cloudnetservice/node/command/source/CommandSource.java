@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.command.source;
 
 import eu.cloudnetservice.common.Named;
-import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
 import java.util.Collection;
 import lombok.NonNull;
 
@@ -29,7 +28,6 @@ import lombok.NonNull;
  * CommandSource#console()} method.
  *
  * @see DriverCommandSource
- * @see PermissionUserCommandSource
  * @since 4.0
  */
 public interface CommandSource extends Named {

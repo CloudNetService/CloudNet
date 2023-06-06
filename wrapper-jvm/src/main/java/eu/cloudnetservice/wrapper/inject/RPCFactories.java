@@ -19,20 +19,16 @@ package eu.cloudnetservice.wrapper.inject;
 import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
-import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.database.WrapperDatabaseProvider;
-import eu.cloudnetservice.wrapper.permission.WrapperPermissionManagement;
 import eu.cloudnetservice.wrapper.provider.WrapperCloudServiceProvider;
 import eu.cloudnetservice.wrapper.provider.WrapperTemplateStorageProvider;
 import jakarta.inject.Singleton;
@@ -132,21 +128,5 @@ final class RPCFactories {
     @NonNull NetworkClient networkClient
   ) {
     return provideSpecial(factory, networkClient, CloudServiceProvider.class, WrapperCloudServiceProvider.class);
-  }
-
-  @Factory
-  @Singleton
-  public static @NonNull PermissionManagement providePermissionManagement(
-    @NonNull RPCFactory factory,
-    @NonNull NetworkClient networkClient,
-    @NonNull EventManager eventManager,
-    @NonNull WrapperConfiguration configuration
-  ) {
-    return provideSpecial(
-      factory,
-      networkClient,
-      PermissionManagement.class,
-      WrapperPermissionManagement.class,
-      eventManager, configuration.serviceConfiguration());
   }
 }

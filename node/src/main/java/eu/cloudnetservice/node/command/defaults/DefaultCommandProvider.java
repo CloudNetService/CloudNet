@@ -47,7 +47,6 @@ import eu.cloudnetservice.node.command.sub.HelpCommand;
 import eu.cloudnetservice.node.command.sub.MeCommand;
 import eu.cloudnetservice.node.command.sub.MigrateCommand;
 import eu.cloudnetservice.node.command.sub.ModulesCommand;
-import eu.cloudnetservice.node.command.sub.PermissionsCommand;
 import eu.cloudnetservice.node.command.sub.ServiceCommand;
 import eu.cloudnetservice.node.command.sub.TasksCommand;
 import eu.cloudnetservice.node.command.sub.TemplateCommand;
