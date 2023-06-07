@@ -41,7 +41,7 @@ public final class V2HttpHandlerSession extends V2HttpHandler {
       session,
       TimeUnit.MINUTES.toMillis(this.restConfiguration.jwtValidTimeMinutes()));
     this.ok(context)
-      .body(this.success().append("token", jwt).append("uniqueId", session.user().uniqueId()).toString())
+      .body(this.success().append("token", jwt).append("uniqueId", session.user().id()).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);

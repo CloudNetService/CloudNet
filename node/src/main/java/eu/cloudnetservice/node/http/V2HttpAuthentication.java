@@ -21,8 +21,6 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.driver.permission.PermissionUser;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
@@ -38,7 +36,6 @@ import java.sql.Date;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -59,10 +56,10 @@ public class V2HttpAuthentication {
     "Unable to process bearer login");
   protected static final LoginResult<HttpSession> ERROR_HANDLING_BEARER_LOGIN_USER_GONE = LoginResult.failure(
     "Unable to process bearer login: user gone");
-  protected static final LoginResult<PermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
+  protected static final LoginResult<RestUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
 
-  protected final PermissionManagement permissionManagement;
+  protected final RestScopeManagement restScopeManagement;
   protected final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
 
   protected final Key signingKey;
@@ -71,10 +68,10 @@ public class V2HttpAuthentication {
 
   @Inject
   public V2HttpAuthentication(
-    @NonNull PermissionManagement permissionManagement,
+    @NonNull RestScopeManagement restScopeManagement,
     @NonNull ComponentInfo componentInfo
   ) {
-    this.permissionManagement = permissionManagement;
+    this.restScopeManagement = restScopeManagement;
     this.jwtIssuer = String.format(JWT_ISSUER_FORMAT, componentInfo.componentName());
 
     // initialize the secret & parser
@@ -83,18 +80,18 @@ public class V2HttpAuthentication {
     this.jwtParser = Jwts.parserBuilder().setSigningKey(this.signingKey).requireIssuer(this.jwtIssuer).build();
   }
 
-  public @NonNull String createJwt(@NonNull PermissionUser subject, long sessionTimeMillis) {
+  public @NonNull String createJwt(@NonNull RestUser subject, long sessionTimeMillis) {
     var session = this.sessions().computeIfAbsent(
-      subject.uniqueId().toString(),
+      subject.id(),
       userUniqueId -> new DefaultHttpSession(
         System.currentTimeMillis() + sessionTimeMillis,
-        subject.uniqueId(),
+        subject.id(),
         this,
-        this.permissionManagement));
+        this.restScopeManagement));
     return this.generateJwt(subject, session);
   }
 
-  public @NonNull LoginResult<PermissionUser> handleBasicLoginRequest(@NonNull HttpRequest request) {
+  public @NonNull LoginResult<RestUser> handleBasicLoginRequest(@NonNull HttpRequest request) {
     var authenticationHeader = request.header("Authorization");
     if (authenticationHeader == null) {
       return LoginResult.undefinedFailure();
@@ -104,9 +101,9 @@ public class V2HttpAuthentication {
     if (matcher.matches()) {
       var auth = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8).split(":", 2);
       if (auth.length == 2) {
-        var users = this.permissionManagement.usersByName(auth[0]);
+        var users = this.restScopeManagement.findRestUsers(auth[0]);
         for (var user : users) {
-          if (user.checkPassword(auth[1])) {
+          if (user.verifyPassword(auth[1])) {
             return LoginResult.success(user);
           }
         }
@@ -136,8 +133,8 @@ public class V2HttpAuthentication {
             return ERROR_HANDLING_BEARER_LOGIN_USER_GONE;
           }
           // ensure that the user is the owner of the session
-          var userUniqueId = UUID.fromString(jws.getBody().get("uniqueId", String.class));
-          if (user.uniqueId().equals(userUniqueId)) {
+          var userUniqueId = jws.getBody().get("uniqueId", String.class);
+          if (user.id().equals(userUniqueId)) {
             return LoginResult.success(session);
           }
         }
@@ -164,7 +161,7 @@ public class V2HttpAuthentication {
   }
 
   public boolean expireSession(@NonNull HttpSession session) {
-    return this.sessions.remove(session.user().uniqueId().toString()) != null;
+    return this.sessions.remove(session.user().id()) != null;
   }
 
   public @NonNull LoginResult<Tuple2<HttpSession, String>> refreshJwt(@NonNull HttpRequest request, long lifetime) {
@@ -191,14 +188,14 @@ public class V2HttpAuthentication {
     return null;
   }
 
-  protected @NonNull String generateJwt(@NonNull PermissionUser subject, @NonNull HttpSession session) {
+  protected @NonNull String generateJwt(@NonNull RestUser subject, @NonNull HttpSession session) {
     return Jwts.builder()
       .setIssuer(this.jwtIssuer)
       .signWith(this.signingKey)
       .setSubject(subject.name())
       .setId(session.uniqueId())
       .setIssuedAt(Calendar.getInstance().getTime())
-      .claim("uniqueId", subject.uniqueId())
+      .claim("uniqueId", subject.id())
       .setExpiration(new Date(session.expireTime()))
       .compact();
   }

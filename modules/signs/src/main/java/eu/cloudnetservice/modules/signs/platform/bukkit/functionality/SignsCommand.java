@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.signs.platform.bukkit.functionality;
 import com.google.common.collect.ImmutableList;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
-import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
@@ -63,11 +62,6 @@ public class SignsCommand extends BaseTabExecutor {
     }
 
     if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("create")) {
-      if (args.length == 3 && ServiceTemplate.parse(args[2]) == null) {
-        SignsConfiguration.sendMessage();
-        return true;
-      }
-
       var targetBlock = player.getTargetBlock((Set<Material>) null, 15);
       // check if the block the player is facing is a sign
       if (targetBlock.getState() instanceof org.bukkit.block.Sign) {

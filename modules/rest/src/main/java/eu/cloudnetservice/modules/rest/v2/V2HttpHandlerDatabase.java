@@ -26,7 +26,7 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
-import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import eu.cloudnetservice.node.http.annotation.HandlerScope;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -36,7 +36,6 @@ import java.util.function.BiConsumer;
 import lombok.NonNull;
 
 @Singleton
-@HandlerPermission("http.v2.database")
 public final class V2HttpHandlerDatabase extends V2HttpHandler {
 
   private static final Type MAP_TYPE = TypeFactory.parameterizedClass(Map.class, String.class, String.class);
@@ -50,6 +49,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_database_read")
   @HttpRequestHandler(paths = "/api/v2/database")
   private void handleNamesRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -60,6 +60,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_database_write")
   @HttpRequestHandler(paths = "/api/v2/database/{name}/clear")
   private void handleClearRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var database = this.databaseProvider.database(name);
@@ -72,6 +73,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_database_read")
   @HttpRequestHandler(paths = "/api/v2/database/{name}/contains")
   private void handleContainsRequest(
     @NonNull HttpContext context,
@@ -87,6 +89,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_database_read")
   @HttpRequestHandler(paths = "/api/v2/database/{name}/keys")
   private void handleKeysRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var database = this.databaseProvider.database(name);
@@ -98,6 +101,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_database_read")
   @HttpRequestHandler(paths = "/api/v2/database/{name}/count")
   private void handleCountRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var database = this.databaseProvider.database(name);
@@ -109,6 +113,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_database_write")
   @HttpRequestHandler(paths = "/api/v2/database/{name}", methods = "POST")
   private void handleInsertRequest(
     @NonNull HttpContext context,
@@ -134,6 +139,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_database_read")
   @HttpRequestHandler(paths = "/api/v2/database/{name}/get", methods = "POST")
   private void handleGetRequest(
     @NonNull HttpContext context,
@@ -149,6 +155,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_database_read")
   @HttpRequestHandler(paths = "api/v2/database/{name}/find", methods = "POST")
   private void handleFindRequest(
     @NonNull HttpContext context,
@@ -166,6 +173,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_database_write")
   @HttpRequestHandler(paths = "/api/v2/database/{name}", methods = "DELETE")
   private void handleDeleteRequest(
     @NonNull HttpContext context,

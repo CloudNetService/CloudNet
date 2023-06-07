@@ -26,7 +26,6 @@ import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerDocumentation;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerGroup;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerModule;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerNode;
-import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerPermission;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerService;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerServiceVersionProvider;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerSession;
@@ -61,7 +60,6 @@ public final class CloudNetRestModule extends DriverModule {
       .parseAndRegister(V2HttpHandlerModule.class)
       .parseAndRegister(V2HttpHandlerModule.class)
       .parseAndRegister(V2HttpHandlerNode.class)
-      .parseAndRegister(V2HttpHandlerPermission.class)
       .parseAndRegister(V2HttpHandlerService.class)
       .parseAndRegister(V2HttpHandlerServiceVersionProvider.class)
       .parseAndRegister(V2HttpHandlerSession.class)

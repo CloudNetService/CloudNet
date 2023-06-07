@@ -27,13 +27,12 @@ import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
-import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import eu.cloudnetservice.node.http.annotation.HandlerScope;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 @Singleton
-@HandlerPermission("http.v2.tasks")
 public final class V2HttpHandlerTask extends V2HttpHandler {
 
   private final ServiceTaskProvider taskProvider;
@@ -45,6 +44,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_task_read")
   @HttpRequestHandler(paths = "/api/v2/task")
   private void handleTaskListRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -55,6 +55,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_task_read")
   @HttpRequestHandler(paths = "/api/v2/task/{name}/exists")
   private void handleTaskExistsRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var task = this.taskProvider.serviceTask(name);
@@ -66,6 +67,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_task_read")
   @HttpRequestHandler(paths = "/api/v2/task/{name}")
   private void handleTaskRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var serviceTask = this.taskProvider.serviceTask(name);
@@ -85,6 +87,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_task_write")
   @HttpRequestHandler(paths = "/api/v2/task", methods = "POST")
   private void handleTaskCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var serviceTask = body.toInstanceOf(ServiceTask.class);
@@ -109,6 +112,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_task_write")
   @HttpRequestHandler(paths = "/api/v2/task/{name}", methods = "DELETE")
   private void handleTaskDeleteRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var serviceTask = this.taskProvider.serviceTask(name);

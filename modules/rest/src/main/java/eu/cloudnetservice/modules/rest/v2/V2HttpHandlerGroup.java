@@ -27,13 +27,12 @@ import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
-import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import eu.cloudnetservice.node.http.annotation.HandlerScope;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 @Singleton
-@HandlerPermission("http.v2.groups")
 public final class V2HttpHandlerGroup extends V2HttpHandler {
 
   private final GroupConfigurationProvider groupProvider;
@@ -45,6 +44,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_group_read")
   @HttpRequestHandler(paths = "/api/v2/group")
   private void handleGroupListRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -55,6 +55,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_group_read")
   @HttpRequestHandler(paths = "/api/v2/group/{name}/exists")
   private void handleGroupExistsRequest(
     @NonNull HttpContext context,
@@ -68,6 +69,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_group_read")
   @HttpRequestHandler(paths = "/api/v2/group/{name}")
   private void handleGroupRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var configuration = this.groupProvider.groupConfiguration(name);
@@ -87,6 +89,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_group_write")
   @HttpRequestHandler(paths = "/api/v2/group", methods = "POST")
   private void handleCreateGroupRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var configuration = body.toInstanceOf(GroupConfiguration.class);
@@ -108,6 +111,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_group_write")
   @HttpRequestHandler(paths = "/api/v2/group/{name}", methods = "DELETE")
   private void handleDeleteGroupRequest(
     @NonNull HttpContext context,

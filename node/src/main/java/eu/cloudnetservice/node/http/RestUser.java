@@ -16,34 +16,35 @@
 
 package eu.cloudnetservice.node.http;
 
-import java.util.Map;
+import eu.cloudnetservice.common.Named;
+import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
-public interface HttpSession {
+public interface RestUser extends Named {
 
-  long expireTime();
+  @NonNull String id();
 
-  long refreshFor(long liveMillis);
+  boolean verifyPassword(@NonNull String password);
 
-  @NonNull String uniqueId();
+  @Nullable String passwordHash();
 
-  @NonNull String userId();
+  boolean hasScope(@NonNull String scope);
 
-  @UnknownNullability RestUser user();
+  default boolean hasOneScopeOf(@NonNull String[] @NonNull scopes) {
+    for (var scope : scopes) {
+      if (this.hasScope(scope)) {
+        return true;
+      }
+    }
 
-  <T> @UnknownNullability T property(@NonNull String key);
+    return false;
+  }
 
-  <T> @UnknownNullability T property(@NonNull String key, @Nullable T def);
+  void addScope(@NonNull String scope);
 
-  @NonNull HttpSession setProperty(@NonNull String key, @NonNull Object value);
+  void removeScope(@NonNull String scope);
 
-  @NonNull HttpSession removeProperty(@NonNull String key);
+  @NonNull Set<String> scopes();
 
-  boolean hasProperty(@NonNull String key);
-
-  @NonNull Map<String, Object> properties();
-
-  @NonNull V2HttpAuthentication issuer();
 }

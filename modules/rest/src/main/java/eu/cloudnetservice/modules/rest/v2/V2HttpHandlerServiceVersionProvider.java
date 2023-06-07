@@ -26,7 +26,7 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
-import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import eu.cloudnetservice.node.http.annotation.HandlerScope;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import jakarta.inject.Inject;
@@ -36,7 +36,6 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-@HandlerPermission("http.v2.service.provider")
 public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
   private final ServiceVersionProvider versionProvider;
@@ -51,6 +50,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_version_read")
   @HttpRequestHandler(paths = "/api/v2/serviceversion")
   private void handleVersionListRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -61,6 +61,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_version_read")
   @HttpRequestHandler(paths = "/api/v2/serviceversion/{version}")
   private void handleVersionRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("version") String version) {
     var serviceVersion = this.versionProvider.getServiceVersionType(version);
@@ -81,6 +82,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_version_write")
   @HttpRequestHandler(paths = "/api/v2/serviceversion/load")
   private void handleVersionLoadRequest(
     @NonNull HttpContext context,
@@ -112,6 +114,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_version_write")
   @HttpRequestHandler(paths = "/api/v2/serviceversion/add", methods = "POST")
   private void handleVersionAddRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var type = body.toInstanceOf(ServiceVersionType.class);

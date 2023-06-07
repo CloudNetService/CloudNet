@@ -276,7 +276,6 @@ public final class DefaultCommandProvider implements CommandProvider {
     this.register(CreateCommand.class);
     this.register(MeCommand.class);
     this.register(ServiceCommand.class);
-    this.register(PermissionsCommand.class);
     this.register(ClearCommand.class);
     this.register(DebugCommand.class);
     this.register(MigrateCommand.class);

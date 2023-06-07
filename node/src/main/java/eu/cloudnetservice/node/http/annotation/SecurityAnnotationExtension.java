@@ -26,12 +26,9 @@ import eu.cloudnetservice.driver.network.http.annotation.parser.DefaultHttpAnnot
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationParser;
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessor;
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessorUtil;
-import eu.cloudnetservice.driver.permission.Permission;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.node.http.RestUser;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -43,13 +40,6 @@ import org.jetbrains.annotations.Nullable;
 @Singleton
 public final class SecurityAnnotationExtension {
 
-  private final PermissionManagement permissionManagement;
-
-  @Inject
-  public SecurityAnnotationExtension(@NonNull PermissionManagement permissionManagement) {
-    this.permissionManagement = permissionManagement;
-  }
-
   public void install(@NonNull HttpAnnotationParser<?> annotationParser, @NonNull V2HttpAuthentication auth) {
     annotationParser
       .registerAnnotationProcessor(new BasicAuthProcessor(auth))
@@ -59,8 +49,8 @@ public final class SecurityAnnotationExtension {
   private @Nullable <T> HttpContext handleAuthResult(
     @NonNull HttpContext context,
     @NonNull V2HttpAuthentication.LoginResult<T> result,
-    @NonNull Function<T, PermissionUser> userExtractor,
-    @Nullable HandlerPermission permission
+    @NonNull Function<T, RestUser> userExtractor,
+    @Nullable HandlerScope permission
   ) {
     // if the auth succeeded check if the user has the required permission
     if (result.succeeded()) {
@@ -90,13 +80,13 @@ public final class SecurityAnnotationExtension {
     return null;
   }
 
-  private boolean validatePermission(@NonNull PermissionUser user, @Nullable HandlerPermission permission) {
-    return permission == null || this.permissionManagement.hasPermission(user, Permission.of(permission.value()));
+  private boolean validatePermission(@NonNull RestUser user, @Nullable HandlerScope permission) {
+    return permission == null || user.hasOneScopeOf(permission.value());
   }
 
-  private @Nullable HandlerPermission resolvePermissionAnnotation(@NonNull Method method) {
-    var permission = method.getAnnotation(HandlerPermission.class);
-    return permission == null ? method.getDeclaringClass().getAnnotation(HandlerPermission.class) : permission;
+  private @Nullable HandlerScope resolvePermissionAnnotation(@NonNull Method method) {
+    var permission = method.getAnnotation(HandlerScope.class);
+    return permission == null ? method.getDeclaringClass().getAnnotation(HandlerScope.class) : permission;
   }
 
   private byte[] buildErrorResponse(@Nullable String reason) {

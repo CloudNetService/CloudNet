@@ -34,12 +34,8 @@ import lombok.NonNull;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface HandlerPermission {
+public @interface HandlerScope {
 
-  /**
-   * Get the permission that the user must have in order to send a request to the handler(s).
-   *
-   * @return the required permission for the http handler(s).
-   */
-  @NonNull String value();
+  // TODO
+  @NonNull String[] value();
 }

@@ -16,34 +16,20 @@
 
 package eu.cloudnetservice.node.http;
 
-import java.util.Map;
+import java.util.List;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
-public interface HttpSession {
+public interface RestScopeManagement {
 
-  long expireTime();
+  @Nullable RestUser firstRestUser(@NonNull String name);
 
-  long refreshFor(long liveMillis);
+  @NonNull List<RestUser> findRestUsers(@NonNull String name);
 
-  @NonNull String uniqueId();
+  @Nullable RestUser restUser(@NonNull String id);
 
-  @NonNull String userId();
+  void saveRestUser(@NonNull RestUser user);
 
-  @UnknownNullability RestUser user();
+  boolean deleteRestUser(@NonNull RestUser user);
 
-  <T> @UnknownNullability T property(@NonNull String key);
-
-  <T> @UnknownNullability T property(@NonNull String key, @Nullable T def);
-
-  @NonNull HttpSession setProperty(@NonNull String key, @NonNull Object value);
-
-  @NonNull HttpSession removeProperty(@NonNull String key);
-
-  boolean hasProperty(@NonNull String key);
-
-  @NonNull Map<String, Object> properties();
-
-  @NonNull V2HttpAuthentication issuer();
 }

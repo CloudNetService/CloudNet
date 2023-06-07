@@ -39,7 +39,7 @@ import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
-import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import eu.cloudnetservice.node.http.annotation.HandlerScope;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
@@ -54,7 +54,6 @@ import java.util.function.Consumer;
 import lombok.NonNull;
 
 @Singleton
-@HandlerPermission("http.v2.services")
 public final class V2HttpHandlerService extends V2HttpHandler {
 
   private final CloudServiceFactory serviceFactory;
@@ -75,6 +74,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_read")
   @HttpRequestHandler(paths = "/api/v2/service")
   private void handleListServicesRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -85,6 +85,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_read")
   @HttpRequestHandler(paths = "/api/v2/service/{id}")
   private void handleServiceRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("id") String id) {
     this.handleWithServiceContext(context, id, service -> this.ok(context)
@@ -95,6 +96,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_write")
   @HttpRequestHandler(paths = "/api/v2/service/{id}/lifecycle", methods = "PATCH")
   private void handleServiceStateUpdateRequest(
     @NonNull HttpContext context,
@@ -121,6 +123,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_write")
   @HttpRequestHandler(paths = "/api/v2/service/{id}/command", methods = "POST")
   private void handleServiceCommandRequest(
     @NonNull HttpContext context,
@@ -143,6 +146,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_write")
   @HttpRequestHandler(paths = "/api/v2/service/{id}/include")
   private void handleIncludeRequest(
     @NonNull HttpContext context,
@@ -168,6 +172,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_write")
   @HttpRequestHandler(paths = "/api/v2/service/{id}/deployResources")
   private void handleDeployResourcesRequest(
     @NonNull HttpContext context,
@@ -183,6 +188,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_read")
   @HttpRequestHandler(paths = "/api/v2/service/{id}/logLines")
   private void handleLogLinesRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("id") String id) {
     this.handleWithServiceContext(context, id, service -> this.ok(context)
@@ -193,6 +199,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_read")
   @HttpRequestHandler(paths = "/api/v2/service/{id}/liveLog")
   private void handleLiveLogRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("id") String id) {
     this.handleWithServiceContext(context, id, service -> {
@@ -220,6 +227,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_write")
   @HttpRequestHandler(paths = "/api/v2/service/create", methods = "POST")
   private void handleCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     // check for a provided service configuration
@@ -266,6 +274,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_write")
   @HttpRequestHandler(paths = "/api/v2/service/{id}/add", methods = "POST")
   private void handleAddRequest(
     @NonNull HttpContext context,
@@ -343,6 +352,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_service_write")
   @HttpRequestHandler(paths = "/api/v2/service/{id}", methods = "DELETE")
   private void handleServiceDeleteRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("id") String id) {
     this.handleWithServiceContext(context, id, service -> {

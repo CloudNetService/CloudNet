@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.node.http;
 
-import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.driver.permission.PermissionUser;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,49 +24,49 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultHttpSession implements HttpSession {
 
-  protected final UUID userId;
+  protected final String userId;
   protected final String uniqueId;
 
   protected final V2HttpAuthentication issuer;
   protected final Map<String, Object> properties;
 
-  protected final PermissionManagement permissionManagement;
+  protected final RestScopeManagement restScopeManagement;
 
   protected long expireTime;
 
   public DefaultHttpSession(
     long expireTime,
-    @NonNull UUID userId,
+    @NonNull String userId,
     @NonNull V2HttpAuthentication issuer,
-    @NonNull PermissionManagement permissionManagement
+    @NonNull RestScopeManagement restScopeManagement
   ) {
-    this(expireTime, UUID.randomUUID().toString(), userId, issuer, permissionManagement);
+    this(expireTime, UUID.randomUUID().toString(), userId, issuer, restScopeManagement);
   }
 
   public DefaultHttpSession(
     long expireTime,
     @NonNull String uniqueId,
-    @NonNull UUID userId,
+    @NonNull String userId,
     @NonNull V2HttpAuthentication issuer,
-    @NonNull PermissionManagement permissionManagement
+    @NonNull RestScopeManagement restScopeManagement
   ) {
-    this(expireTime, uniqueId, userId, issuer, new HashMap<>(), permissionManagement);
+    this(expireTime, uniqueId, userId, issuer, new HashMap<>(), restScopeManagement);
   }
 
   public DefaultHttpSession(
     long expireTime,
     @NonNull String uniqueId,
-    @NonNull UUID userId,
+    @NonNull String userId,
     @NonNull V2HttpAuthentication issuer,
     @NonNull Map<String, Object> properties,
-    @NonNull PermissionManagement permissionManagement
+    @NonNull RestScopeManagement restScopeManagement
   ) {
     this.expireTime = expireTime;
     this.uniqueId = uniqueId;
     this.userId = userId;
     this.issuer = issuer;
     this.properties = properties;
-    this.permissionManagement = permissionManagement;
+    this.restScopeManagement = restScopeManagement;
   }
 
   @Override
@@ -87,13 +85,13 @@ public class DefaultHttpSession implements HttpSession {
   }
 
   @Override
-  public @NonNull UUID userId() {
+  public @NonNull String userId() {
     return this.userId;
   }
 
   @Override
-  public PermissionUser user() {
-    return this.permissionManagement.user(this.userId);
+  public RestUser user() {
+    return this.restScopeManagement.restUser(this.userId);
   }
 
   @Override

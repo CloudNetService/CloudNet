@@ -19,9 +19,9 @@ package eu.cloudnetservice.modules.rest.v2;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
-import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.node.http.RestUser;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BasicAuth;
@@ -52,12 +52,12 @@ public final class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @HttpRequestHandler(paths = "/api/v2/auth", methods = "POST")
-  private void handleWithBasicAuth(@NonNull HttpContext ctx, @NonNull @BasicAuth PermissionUser user) {
+  private void handleWithBasicAuth(@NonNull HttpContext ctx, @NonNull @BasicAuth RestUser user) {
     var jwt = this.authentication.createJwt(
       user,
       TimeUnit.MINUTES.toMillis(this.restConfiguration.jwtValidTimeMinutes()));
     this.ok(ctx)
-      .body(this.success().append("token", jwt).append("id", user.uniqueId()).toString())
+      .body(this.success().append("token", jwt).append("id", user.id()).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -66,7 +66,7 @@ public final class V2HttpHandlerAuthorization extends V2HttpHandler {
   @HttpRequestHandler(paths = "/api/v2/auth", methods = "POST")
   private void handleWithBearerAuth(@NonNull HttpContext ctx, @NonNull @BearerAuth HttpSession session) {
     this.ok(ctx)
-      .body(this.success().append("id", session.user().uniqueId()).toString())
+      .body(this.success().append("id", session.user().id()).toString())
       .context()
       .closeAfter(true)
       .cancelNext(true);

@@ -24,14 +24,13 @@ import eu.cloudnetservice.driver.template.TemplateStorageProvider;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
-import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import eu.cloudnetservice.node.http.annotation.HandlerScope;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
 @Singleton
-@HandlerPermission("http.v2.template.storage")
 public final class V2HttpHandlerTemplateStorage extends V2HttpHandler {
 
   private final TemplateStorageProvider templateStorageProvider;
@@ -43,6 +42,7 @@ public final class V2HttpHandlerTemplateStorage extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_storage_read")
   @HttpRequestHandler(paths = "/api/v2/templateStorage")
   private void handleStorageListRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -55,6 +55,7 @@ public final class V2HttpHandlerTemplateStorage extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_storage_read")
   @HttpRequestHandler(paths = "/api/v2/templateStorage/{storage}/templates")
   private void handleTemplateListRequest(
     @NonNull HttpContext context,

@@ -32,7 +32,7 @@ import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
-import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import eu.cloudnetservice.node.http.annotation.HandlerScope;
 import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
@@ -45,7 +45,6 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-@HandlerPermission("http.v2.template")
 public final class V2HttpHandlerTemplate extends V2HttpHandler {
 
   private static final Logger LOGGER = LogManager.logger(V2HttpHandlerTemplate.class);
@@ -59,6 +58,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_read")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/download")
   private void handleDownloadRequest(
     @NonNull HttpContext context,
@@ -87,6 +87,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_read")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/download")
   private void handleFileDownloadRequest(
     @NonNull HttpContext context,
@@ -117,6 +118,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_read")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/info")
   private void handleFileInfoRequest(
     @NonNull HttpContext context,
@@ -144,6 +146,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_read")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/exists")
   private void handleFileExistsRequest(
     @NonNull HttpContext context,
@@ -163,6 +166,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_read")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/directory/list")
   private void handleFileListRequest(
     @NonNull HttpContext context,
@@ -183,6 +187,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_write")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/create", methods = "PUT")
   private void handleCreateRequest(
     @NonNull HttpContext context,
@@ -201,6 +206,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_write")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/deploy", methods = "POST")
   private void handleDeployRequest(
     @NonNull HttpContext context,
@@ -220,6 +226,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_write")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file", methods = "DELETE")
   private void handleFileDeleteRequest(
     @NonNull HttpContext context,
@@ -239,6 +246,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_write")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}", methods = "DELETE")
   private void handleTemplateDeleteRequest(
     @NonNull HttpContext context,
@@ -257,6 +265,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_write")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/install", methods = "POST")
   private void handleInstallationRequest(
     @NonNull HttpContext context,
@@ -311,6 +320,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_write")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/directory/create", methods = "POST")
   private void handleDirectoryCreateRequest(
     @NonNull HttpContext context,
@@ -330,6 +340,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_write")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/create", methods = "POST")
   private void handleFileCreateRequest(
     @NonNull HttpContext context,
@@ -343,6 +354,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HandlerScope("rest_template_write")
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/file/append", methods = "POST")
   private void handleFileAppendRequest(
     @NonNull HttpContext context,
