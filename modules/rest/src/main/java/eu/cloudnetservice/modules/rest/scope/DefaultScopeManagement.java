@@ -24,8 +24,6 @@ import eu.cloudnetservice.node.http.RestScopeManagement;
 import eu.cloudnetservice.node.http.RestUser;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,20 +38,6 @@ public class DefaultScopeManagement implements RestScopeManagement {
   @Inject
   public DefaultScopeManagement(@NonNull NodeDatabaseProvider databaseProvider) {
     this.localDatabase = databaseProvider.database(REST_USER_DB_NAME);
-  }
-
-  @Override
-  public @Nullable RestUser firstRestUser(@NonNull String name) {
-    var users = this.findRestUsers(name);
-    return users.isEmpty() ? null : users.get(0);
-  }
-
-  @Override
-  public @NonNull List<RestUser> findRestUsers(@NonNull String name) {
-    return this.localDatabase.find("name", name)
-      .stream()
-      .map(document -> document.toInstanceOf(DefaultRestUser.class))
-      .collect(Collectors.toList());
   }
 
   @Override

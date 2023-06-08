@@ -217,23 +217,14 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
     public void handle(@NonNull WebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes) {
       var user = this.httpSession.user();
       if (type == WebSocketFrameType.TEXT && user != null) {
-        var commandLine = new String(bytes, StandardCharsets.UTF_8);
-        var commandSource = new DriverCommandSource() {
+        if (user.hasScope("rest_node_send_commands")) {
+          var commandLine = new String(bytes, StandardCharsets.UTF_8);
+          var commandSource = new DriverCommandSource();
+          V2HttpHandlerNode.this.commandProvider.execute(commandSource, commandLine).getOrNull();
 
-          @Override
-          public @NonNull String name() {
-            return user.name();
+          for (var message : commandSource.messages()) {
+            this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);
           }
-
-          @Override
-          public boolean checkPermission(@NonNull String permission) {
-            return user.hasScope(permission);
-          }
-        };
-        V2HttpHandlerNode.this.commandProvider.execute(commandSource, commandLine).getOrNull();
-
-        for (var message : commandSource.messages()) {
-          this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);
         }
       }
     }

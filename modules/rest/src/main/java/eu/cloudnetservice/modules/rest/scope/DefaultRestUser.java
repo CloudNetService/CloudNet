@@ -27,7 +27,6 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record DefaultRestUser(
-  @NonNull String name,
   @NonNull String id,
   @Nullable String passwordHash,
   @NonNull Set<String> scopes
@@ -45,7 +44,7 @@ public record DefaultRestUser(
 
   @Override
   public boolean hasScope(@NonNull String scope) {
-    return this.scopes.contains(StringUtil.toLower(scope));
+    return this.scopes.contains("admin") || this.scopes.contains(StringUtil.toLower(scope));
   }
 
   @Override

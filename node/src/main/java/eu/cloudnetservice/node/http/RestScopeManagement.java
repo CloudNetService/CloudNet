@@ -16,15 +16,10 @@
 
 package eu.cloudnetservice.node.http;
 
-import java.util.List;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface RestScopeManagement {
-
-  @Nullable RestUser firstRestUser(@NonNull String name);
-
-  @NonNull List<RestUser> findRestUsers(@NonNull String name);
 
   @Nullable RestUser restUser(@NonNull String id);
 

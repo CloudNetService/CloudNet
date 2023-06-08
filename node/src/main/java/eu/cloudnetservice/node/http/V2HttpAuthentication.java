@@ -101,11 +101,9 @@ public class V2HttpAuthentication {
     if (matcher.matches()) {
       var auth = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8).split(":", 2);
       if (auth.length == 2) {
-        var users = this.restScopeManagement.findRestUsers(auth[0]);
-        for (var user : users) {
-          if (user.verifyPassword(auth[1])) {
-            return LoginResult.success(user);
-          }
+        var user = this.restScopeManagement.restUser(auth[0]);
+        if (user != null && user.verifyPassword(auth[1])) {
+          return LoginResult.success(user);
         }
       }
       return ERROR_HANDLING_BASIC_LOGIN;
@@ -192,7 +190,6 @@ public class V2HttpAuthentication {
     return Jwts.builder()
       .setIssuer(this.jwtIssuer)
       .signWith(this.signingKey)
-      .setSubject(subject.name())
       .setId(session.uniqueId())
       .setIssuedAt(Calendar.getInstance().getTime())
       .claim("uniqueId", subject.id())

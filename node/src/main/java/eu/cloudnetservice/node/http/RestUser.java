@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.node.http;
 
-import eu.cloudnetservice.common.Named;
 import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
-public interface RestUser extends Named {
+public interface RestUser {
 
   @NonNull String id();
 
@@ -31,7 +31,7 @@ public interface RestUser extends Named {
 
   boolean hasScope(@NonNull String scope);
 
-  default boolean hasOneScopeOf(@NonNull String[] @NonNull scopes) {
+  default boolean hasOneScopeOf(@NonNull String[] scopes) {
     for (var scope : scopes) {
       if (this.hasScope(scope)) {
         return true;
@@ -45,6 +45,6 @@ public interface RestUser extends Named {
 
   void removeScope(@NonNull String scope);
 
-  @NonNull Set<String> scopes();
+  @NonNull @UnmodifiableView Set<String> scopes();
 
 }
