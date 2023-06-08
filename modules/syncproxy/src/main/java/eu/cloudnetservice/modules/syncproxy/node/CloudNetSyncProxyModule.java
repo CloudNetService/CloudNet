@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
@@ -38,6 +39,7 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @Singleton
 public final class CloudNetSyncProxyModule extends DriverModule {
@@ -114,8 +116,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
-  public void handleReload(@NonNull ServiceRegistry serviceRegistry) {
-    var management = serviceRegistry.firstProvider(SyncProxyManagement.class);
+  public void handleReload(@Nullable @Service SyncProxyManagement management) {
     if (management != null) {
       management.configuration(this.loadConfiguration());
     }
