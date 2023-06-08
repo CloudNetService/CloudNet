@@ -22,6 +22,7 @@ import com.github.juliarn.npclib.api.flag.NpcFlag;
 import com.github.juliarn.npclib.api.profile.Profile;
 import com.github.juliarn.npclib.api.profile.ProfileProperty;
 import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
@@ -52,10 +53,11 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
     @NonNull Plugin plugin,
     @NonNull Server server,
     @NonNull BukkitScheduler scheduler,
+    @NonNull PlayerManager playerManager,
     @NonNull BukkitPlatformNPCManagement npcManagement,
     @NonNull Platform<World, Player, ItemStack, Plugin> platform
   ) {
-    super(npc, plugin, server, scheduler, npcManagement);
+    super(npc, plugin, server, scheduler, playerManager, npcManagement);
     this.platform = platform;
   }
 
