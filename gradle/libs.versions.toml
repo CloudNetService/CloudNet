@@ -63,7 +63,7 @@ waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
 minestom = "79ce9570ea"
 spigot = "1.8.8-R0.1-SNAPSHOT"
-bungeecord = "1.19-R0.1-SNAPSHOT"
+bungeecord = "1.20-R0.1-SNAPSHOT"
 
 # platform extensions
 vault = "1.7.1"
