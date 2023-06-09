@@ -41,6 +41,7 @@ import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
@@ -182,7 +183,7 @@ public final class Node {
   @Order(300)
   private void convertDatabase(
     @NonNull Configuration configuration,
-    @NonNull ServiceRegistry serviceRegistry
+    @NonNull @Service(name = "xodus") NodeDatabaseProvider xodusProvider
   ) throws Exception { // TODO: remove in 4.1
     var configuredDatabase = configuration.properties().getString("database_provider", "xodus");
     // check if we need to migrate the old h2 database into a new xodus database
@@ -191,7 +192,6 @@ public final class Node {
       var h2Provider = new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"));
       h2Provider.init();
       // initialize the provider for our new xodus database
-      var xodusProvider = serviceRegistry.provider(NodeDatabaseProvider.class, "xodus");
       xodusProvider.init();
       // run the migration on all tables in the h2 database
       for (var databaseName : h2Provider.databaseNames()) {

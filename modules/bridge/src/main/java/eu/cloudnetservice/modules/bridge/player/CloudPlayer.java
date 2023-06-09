@@ -17,8 +17,6 @@
 package eu.cloudnetservice.modules.bridge.player;
 
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -30,6 +28,9 @@ import org.jetbrains.annotations.Nullable;
  * node as long as he is online.
  * <p>
  * Obtain an online player using {@link PlayerManager#onlinePlayer(UUID)}.
+ * <p>
+ * If you want to interact with a player use the
+ * {@link eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor} instead.
  *
  * @since 4.0
  */
@@ -168,16 +169,5 @@ public class CloudPlayer extends CloudOfflinePlayer {
    */
   public void onlineProperties(@NonNull Document onlineProperties) {
     this.onlineProperties = onlineProperties.immutableCopy();
-  }
-
-  /**
-   * Gets a player executor for this cloud player instance by the unique id.
-   * <p>
-   * The method is equivalent to calling {@code playerManager.playerExecutor(uniqueId)}.
-   *
-   * @return the player executor for this player.
-   */
-  public @NonNull PlayerExecutor playerExecutor() {
-    return ServiceRegistry.first(PlayerManager.class).playerExecutor(this.uniqueId());
   }
 }
