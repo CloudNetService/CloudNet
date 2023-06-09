@@ -332,6 +332,12 @@ public class DockerizedService extends JVMService {
   }
 
   protected @Nullable <T> T readFromTaskConfig(@NonNull Function<TaskDockerConfig, T> reader) {
+    // it is possible to start a service with a task name that is not linked to a real task therefore we need to
+    // make sure that the task exists before proceeding
+    if (this.selfTask == null) {
+      return null;
+    }
+
     var config = this.selfTask.propertyHolder().readObject("dockerConfig", TaskDockerConfig.class);
     return config == null ? null : reader.apply(config);
   }
