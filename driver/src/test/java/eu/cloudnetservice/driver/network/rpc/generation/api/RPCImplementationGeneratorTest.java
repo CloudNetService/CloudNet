@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.network.rpc.generation.api;
 
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator;
@@ -30,7 +31,7 @@ public class RPCImplementationGeneratorTest {
 
   @Test
   void testFullGeneration() {
-    var uuid = UUID.randomUUID();
+    var key = UUID.randomUUID().toString();
 
     var immediateRpc = Mockito.mock(RPC.class);
     Mockito.when(immediateRpc.fireSync()).thenReturn(true);
@@ -41,56 +42,56 @@ public class RPCImplementationGeneratorTest {
       String method = invocation.getArgument(0);
       var arg = invocation.getArgument(1);
 
-      Assertions.assertTrue(method.startsWith("containsUser"));
+      Assertions.assertTrue(method.startsWith("contains"));
       Assertions.assertNotNull(arg);
-      Assertions.assertEquals(uuid, arg);
+      Assertions.assertEquals(key, arg);
 
       return immediateRpc;
     });
 
     // we're using direct generation for easier testing with the sender
-    /*var management = ApiImplementationGenerator.generateApiImplementation(
-      PermissionManagement.class,
-      GenerationContext.forClass(PermissionManagement.class).implementAllMethods(true).build(),
+    var wrapperDatabase = ApiImplementationGenerator.generateApiImplementation(
+      Database.class,
+      GenerationContext.forClass(Database.class).implementAllMethods(true).build(),
       sender
     ).newInstance();
 
-    var result = management.containsUser(uuid);
+    var result = wrapperDatabase.contains(key);
     Assertions.assertTrue(result);
 
-    var future = management.containsUserAsync(uuid);
+    var future = wrapperDatabase.containsAsync(key);
     Assertions.assertTrue(future.isDone());
-    Assertions.assertTrue(future.getOrNull());*/
+    Assertions.assertTrue(future.getOrNull());
   }
 
-  /*@Test
+  @Test
   void testExpectationOfExistingMethods() {
-    var management = (PermissionManagement) ApiImplementationGenerator.generateApiImplementation(
-      PermissionManagement.class,
-      GenerationContext.forClass(BasePermissionManagement.class).build(),
+    var database = ApiImplementationGenerator.generateApiImplementation(
+      Database.class,
+      GenerationContext.forClass(BaseDatabase.class).build(),
       Mockito.mock(RPCSender.class)
     ).newInstance();
 
-    var user = management.user(UUID.randomUUID());
-    Assertions.assertSame(BasePermissionManagement.VAL, user);
+    var document = database.get(UUID.randomUUID().toString());
+    Assertions.assertSame(BaseDatabase.TEST_DOCUMENT, document);
 
-    var future = management.userAsync(UUID.randomUUID());
+    var future = database.getAsync(UUID.randomUUID().toString());
     Assertions.assertTrue(future.isDone());
-    Assertions.assertSame(BasePermissionManagement.VAL, future.getOrNull());
+    Assertions.assertSame(BaseDatabase.TEST_DOCUMENT, future.getOrNull());
   }
 
   @Test
   void testDownPassingRPCSenderToExtendingClass() {
     var sender = Mockito.mock(RPCSender.class);
-    var management = ApiImplementationGenerator.generateApiImplementation(
-      PermissionManagement.class,
-      GenerationContext.forClass(SenderNeedingManagement.class).build(),
+    var database = ApiImplementationGenerator.generateApiImplementation(
+      Database.class,
+      GenerationContext.forClass(SenderNeedingDatabase.class).build(),
       sender
     ).newInstance();
 
-    Assertions.assertInstanceOf(SenderNeedingManagement.class, management);
-    Assertions.assertSame(((SenderNeedingManagement) management).sender, sender);
-  }*/
+    Assertions.assertInstanceOf(SenderNeedingDatabase.class, database);
+    Assertions.assertSame(((SenderNeedingDatabase) database).rpcSender, sender);
+  }
 
   @Test
   void testGenerationOfMethods() {

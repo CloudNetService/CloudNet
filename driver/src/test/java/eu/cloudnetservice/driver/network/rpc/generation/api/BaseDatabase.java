@@ -14,38 +14,24 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.http;
+package eu.cloudnetservice.driver.network.rpc.generation.api;
 
-import java.util.Set;
-import lombok.NonNull;
+import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.document.Document;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
-public interface RestUser {
+public abstract class BaseDatabase implements Database {
 
-  @NonNull String id();
+  public static final Document TEST_DOCUMENT = Document.newJsonDocument().append("hello", "world");
 
-  boolean verifyPassword(@NonNull String password);
-
-  @Nullable String passwordHash();
-
-  boolean hasScope(@NonNull String scope);
-
-  default boolean hasOneScopeOf(@NonNull String[] scopes) {
-    for (var scope : scopes) {
-      if (this.hasScope(scope)) {
-        return true;
-      }
-    }
-
-    return false;
+  @Override
+  public @Nullable Document get(String key) {
+    return TEST_DOCUMENT;
   }
 
-  void addScope(@NonNull String scope);
-
-  void removeScope(@NonNull String scope);
-
-  @UnmodifiableView
-  @NonNull Set<String> scopes();
-
+  @Override
+  public Task<Document> getAsync(String key) {
+    return Task.completedTask(TEST_DOCUMENT);
+  }
 }
