@@ -17,7 +17,9 @@
 package eu.cloudnetservice.modules.docker.config;
 
 import com.github.dockerjava.api.model.ExposedPort;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +28,8 @@ public record TaskDockerConfig(
   @Nullable DockerImage javaImage,
   @NonNull Set<String> volumes,
   @NonNull Set<String> binds,
-  @NonNull Set<ExposedPort> exposedPorts
+  @NonNull Set<ExposedPort> exposedPorts,
+  @NonNull Map<String, String> labels
 ) {
 
   public static @NonNull Builder builder() {
@@ -38,7 +41,8 @@ public record TaskDockerConfig(
       .javaImage(config.javaImage())
       .volumes(config.volumes())
       .binds(config.binds())
-      .exposedPorts(config.exposedPorts());
+      .exposedPorts(config.exposedPorts())
+      .labels(config.labels());
   }
 
   public static class Builder {
@@ -47,6 +51,7 @@ public record TaskDockerConfig(
     private Set<String> volumes = new HashSet<>();
     private Set<String> binds = new HashSet<>();
     private Set<ExposedPort> exposedPorts = new HashSet<>();
+    private Map<String, String> labels = new HashMap<>();
 
     public @NonNull Builder javaImage(@Nullable DockerImage javaImage) {
       this.javaImage = javaImage;
@@ -83,8 +88,23 @@ public record TaskDockerConfig(
       return this;
     }
 
+    public @NonNull Builder labels(@NonNull Map<String, String> labels) {
+      this.labels = new HashMap<>(labels);
+      return this;
+    }
+
+    public @NonNull Builder addLabel(@NonNull Map.Entry<String, String> label) {
+      this.labels.put(label.getKey(), label.getValue());
+      return this;
+    }
+
+    public @NonNull Builder removeLabel(@NonNull String label) {
+      this.labels.remove(label);
+      return this;
+    }
+
     public @NonNull TaskDockerConfig build() {
-      return new TaskDockerConfig(this.javaImage, this.volumes, this.binds, this.exposedPorts);
+      return new TaskDockerConfig(this.javaImage, this.volumes, this.binds, this.exposedPorts, this.labels);
     }
   }
 }

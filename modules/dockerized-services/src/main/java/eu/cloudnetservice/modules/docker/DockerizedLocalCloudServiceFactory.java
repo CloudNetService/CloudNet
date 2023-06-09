@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.docker;
 
 import com.github.dockerjava.api.DockerClient;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.node.TickLoop;
@@ -36,6 +37,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
   protected final TickLoop mainThread;
   protected final EventManager eventManager;
   protected final DockerClient dockerClient;
+  protected final ServiceTaskProvider taskProvider;
   protected final DockerConfiguration dockerConfiguration;
   protected final CloudServiceManager cloudServiceManager;
 
@@ -47,6 +49,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     @NonNull EventManager eventManager,
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull DockerClient dockerClient,
+    @NonNull ServiceTaskProvider taskProvider,
     @NonNull DockerConfiguration configuration
   ) {
     super(nodeConfig, versionProvider);
@@ -54,6 +57,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     this.eventManager = eventManager;
     this.cloudServiceManager = cloudServiceManager;
     this.dockerClient = dockerClient;
+    this.taskProvider = taskProvider;
     this.dockerConfiguration = configuration;
   }
 
@@ -70,6 +74,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     return new DockerizedService(
       this.mainThread,
       this.configuration,
+      this.taskProvider,
       config,
       manager,
       this.eventManager,

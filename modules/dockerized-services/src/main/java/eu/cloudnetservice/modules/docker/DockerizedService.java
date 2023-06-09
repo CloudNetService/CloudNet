@@ -34,7 +34,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
@@ -51,6 +53,7 @@ import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +86,7 @@ public class DockerizedService extends JVMService {
     Capability.NET_BIND_SERVICE
   ).toArray(Capability[]::new);
 
+  protected final ServiceTask selfTask;
   protected final DockerClient dockerClient;
   protected final DockerConfiguration configuration;
   protected final DockerizedServiceLogCache logCache;
@@ -96,6 +100,7 @@ public class DockerizedService extends JVMService {
   protected DockerizedService(
     @NonNull TickLoop tickLoop,
     @NonNull Configuration nodeConfig,
+    @NonNull ServiceTaskProvider taskProvider,
     @NonNull ServiceConfiguration configuration,
     @NonNull CloudServiceManager manager,
     @NonNull EventManager eventManager,
@@ -106,6 +111,7 @@ public class DockerizedService extends JVMService {
   ) {
     super(tickLoop, nodeConfig, configuration, manager, eventManager, versionProvider, serviceConfigurationPreparer);
 
+    this.selfTask = taskProvider.serviceTask(configuration.serviceId().taskName());
     this.dockerClient = dockerClient;
     this.configuration = dockerConfiguration;
 
@@ -197,6 +203,19 @@ public class DockerizedService extends JVMService {
       // an isolated, single java installation available which is always accessible via 'java'
       arguments.set(0, "java");
 
+      // build the default docker labels and add the configured labels later on to make sure
+      // that the user can override any default labels
+      var labels = new HashMap<>(Map.of(
+        "Service", "CloudNet",
+        "Name", this.serviceId().name(),
+        "Uid", this.serviceId().uniqueId().toString(),
+        "Id", Integer.toString(this.serviceId().taskServiceId())));
+
+      var taskLabels = this.readFromTaskConfig(TaskDockerConfig::labels);
+      if (taskLabels != null) {
+        labels.putAll(taskLabels);
+      }
+
       // create the container and store the container id
       this.containerId = this.dockerClient.createContainerCmd(image.imageName())
         .withEnv(env)
@@ -216,11 +235,7 @@ public class DockerizedService extends JVMService {
           .withRestartPolicy(RestartPolicy.noRestart())
           .withNetworkMode(this.configuration.network())
           .withLogConfig(new LogConfig(LogConfig.LoggingType.LOCAL, LOGGING_OPTIONS)))
-        .withLabels(Map.of(
-          "Service", "CloudNet",
-          "Name", this.serviceId().name(),
-          "Uid", this.serviceId().uniqueId().toString(),
-          "Id", Integer.toString(this.serviceId().taskServiceId())))
+        .withLabels(labels)
         .exec()
         .getId();
     }
@@ -317,7 +332,7 @@ public class DockerizedService extends JVMService {
   }
 
   protected @Nullable <T> T readFromTaskConfig(@NonNull Function<TaskDockerConfig, T> reader) {
-    var config = this.serviceConfiguration.propertyHolder().readObject("dockerConfig", TaskDockerConfig.class);
+    var config = this.selfTask.propertyHolder().readObject("dockerConfig", TaskDockerConfig.class);
     return config == null ? null : reader.apply(config);
   }
 
