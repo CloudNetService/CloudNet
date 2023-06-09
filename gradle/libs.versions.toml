@@ -52,7 +52,7 @@ unirestCore = "4.0.0-RC9"
 unirestMapper = "4.0.0-RC9"
 nightConfig = "3.6.6"
 annotations = "24.0.1"
-influxClient = "6.8.0"
+influxClient = "6.9.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
 
