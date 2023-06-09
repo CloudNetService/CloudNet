@@ -48,7 +48,7 @@ public final class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("bridge_player_read")
+  @HandlerScope({"bridge_player_read", "bridge_player_online_count"})
   @HttpRequestHandler(paths = "/api/v2/player/onlineCount", priority = HttpHandler.PRIORITY_HIGH)
   private void handleOnlinePlayerCountRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -59,7 +59,7 @@ public final class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("bridge_player_read")
+  @HandlerScope({"bridge_player_read", "bridge_player_registered_count"})
   @HttpRequestHandler(paths = "/api/v2/player/registeredCount", priority = HttpHandler.PRIORITY_HIGH)
   private void handleRegisteredPlayerCountRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -70,7 +70,7 @@ public final class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("bridge_player_read")
+  @HandlerScope({"bridge_player_read", "bridge_player_exists"})
   @HttpRequestHandler(paths = "/api/v2/player/{id}/exists")
   private void handleCloudPlayerExistsRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("id") String id) {
     this.handleWithCloudPlayerContext(ctx, id, true, player -> this.ok(ctx)
@@ -81,7 +81,7 @@ public final class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("bridge_player_read")
+  @HandlerScope({"bridge_player_read", "bridge_player_get"})
   @HttpRequestHandler(paths = "/api/v2/player/{id}")
   private void handleCloudPlayerRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("id") String id) {
     this.handleWithCloudPlayerContext(ctx, id, false, player -> this.ok(ctx)
@@ -92,7 +92,7 @@ public final class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("bridge_player_write")
+  @HandlerScope({"bridge_player_write", "bridge_player_create"})
   @HttpRequestHandler(paths = "/api/v2/player/{id}", methods = "POST")
   private void handleCreateCloudPlayerRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var cloudOfflinePlayer = body.toInstanceOf(CloudOfflinePlayer.class);
@@ -114,7 +114,7 @@ public final class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("bridge_player_write")
+  @HandlerScope({"bridge_player_write", "bridge_player_delete"})
   @HttpRequestHandler(paths = "/api/v2/player/{id}", methods = "DELETE")
   private void handleCloudPlayerDeleteRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("id") String id) {
     this.handleWithCloudPlayerContext(ctx, id, false, player -> {

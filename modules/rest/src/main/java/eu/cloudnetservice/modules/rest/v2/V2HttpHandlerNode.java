@@ -93,14 +93,14 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
     this.groupConfigurationProvider = groupConfigurationProvider;
   }
 
-  @HandlerScope("rest_node_read")
+  @HandlerScope({"rest_node_read", "rest_node_ping"})
   @HttpRequestHandler(paths = "/api/v2/node", priority = HttpHandler.PRIORITY_LOW)
   private void handleNodePing(@NonNull HttpContext context) {
     this.response(context, HttpResponseCode.NO_CONTENT).context().closeAfter(true).cancelNext(true);
   }
 
   @BearerAuth
-  @HandlerScope("rest_node_read")
+  @HandlerScope({"rest_node_read", "rest_node_info"})
   @HttpRequestHandler(paths = "/api/v2/node")
   private void sendNodeInformation(@NonNull HttpContext context) {
     var nodeServer = this.nodeServerProvider.localNode();
@@ -117,7 +117,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("rest_node_read")
+  @HandlerScope({"rest_node_read", "rest_node_config_get"})
   @HttpRequestHandler(paths = "/api/v2/node/config")
   private void handleNodeConfigRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -128,7 +128,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("rest_node_write")
+  @HandlerScope({"rest_node_write", "rest_node_config_update"})
   @HttpRequestHandler(paths = "/api/v2/node/config", methods = "PUT")
   private void handleNodeConfigUpdateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var configuration = body.toInstanceOf(JsonConfiguration.class);
@@ -153,7 +153,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("rest_node_write")
+  @HandlerScope({"rest_node_write", "rest_node_reload"})
   @HttpRequestHandler(paths = "/api/v2/node/reload")
   private void handleReloadRequest(
     @NonNull HttpContext context,
@@ -182,7 +182,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
       .cancelNext(true);
   }
 
-  @HandlerScope("rest_node_read")
+  @HandlerScope({"rest_node_read", "reload_node_live_console"})
   @HttpRequestHandler(paths = "/api/v2/node/liveConsole")
   private void handleLiveConsoleRequest(@NonNull HttpContext context, @NonNull @BearerAuth HttpSession session) {
     context.upgrade().thenAccept(channel -> {

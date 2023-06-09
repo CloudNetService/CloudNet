@@ -48,7 +48,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("rest_cluster_read")
+  @HandlerScope({"rest_cluster_read", "rest_cluster_node_list"})
   @HttpRequestHandler(paths = "/api/v2/cluster")
   private void handleNodeListRequest(@NonNull HttpContext context) {
     var nodes = this.nodeServerProvider.nodeServers().stream()
@@ -63,7 +63,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("rest_cluster_read")
+  @HandlerScope({"rest_cluster_read", "rest_cluster_node"})
   @HttpRequestHandler(paths = "/api/v2/cluster/{node}")
   private void handleNodeRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("node") String node) {
     var server = this.nodeServerProvider.node(node);
@@ -83,7 +83,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("rest_cluster_write")
+  @HandlerScope({"rest_cluster_write", "rest_cluster_node_command"})
   @HttpRequestHandler(paths = "/api/v2/cluster/{node}", methods = "POST")
   private void handleNodeCommandRequest(
     @NonNull HttpContext context,
@@ -111,7 +111,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("rest_cluster_write")
+  @HandlerScope({"rest_cluster_write", "rest_cluster_node_create"})
   @HttpRequestHandler(paths = "/api/v2/cluster", methods = "POST")
   private void handleNodeCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var server = body.toInstanceOf(NetworkClusterNode.class);
@@ -145,7 +145,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("rest_cluster_write")
+  @HandlerScope({"rest_cluster_write", "rest_cluster_node_delete"})
   @HttpRequestHandler(paths = "/api/v2/cluster/{node}", methods = "DELETE")
   private void handleNodeDeleteRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("node") String node) {
     var removed = this.configuration.clusterConfig().nodes()
@@ -169,7 +169,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope("rest_cluster_write")
+  @HandlerScope({"rest_cluster_write", "rest_cluster_node_update"})
   @HttpRequestHandler(paths = "/api/v2/cluster", methods = "PUT")
   private void handleNodeUpdateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var server = body.toInstanceOf(NetworkClusterNode.class);
