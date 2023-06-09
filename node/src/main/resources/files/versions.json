@@ -91,7 +91,22 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.19.4"
+            "versionGroup": "1.20"
+          }
+        },
+        {
+          "name": "1.20",
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.20"
           }
         },
         {
@@ -262,8 +277,22 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.19.4/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.20/latest/download",
           "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.20",
+          "url": "https://api.purpurmc.org/v2/purpur/1.20/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
