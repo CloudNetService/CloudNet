@@ -16,10 +16,14 @@
 
 package eu.cloudnetservice.node.http;
 
+import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface RestScopeManagement {
+
+  // https://regex101.com/r/3nG0Nu/1
+  Pattern SCOPE_PATTERN = Pattern.compile("(^[a-z][a-z0-9_]{4,39}):([a-z0-9.\\-_]+)");
 
   @Nullable RestUser restUser(@NonNull String id);
 

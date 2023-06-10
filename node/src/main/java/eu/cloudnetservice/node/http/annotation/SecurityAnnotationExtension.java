@@ -27,6 +27,7 @@ import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationPa
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessor;
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessorUtil;
 import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.node.http.RestScopeManagement;
 import eu.cloudnetservice.node.http.RestUser;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
 import jakarta.inject.Singleton;
@@ -50,19 +51,24 @@ public final class SecurityAnnotationExtension {
     @NonNull HttpContext context,
     @NonNull V2HttpAuthentication.LoginResult<T> result,
     @NonNull Function<T, RestUser> userExtractor,
-    @Nullable HandlerScope permission
+    @Nullable HandlerScope scope,
+    @NonNull String path
   ) {
-    // if the auth succeeded check if the user has the required permission
+    // if the auth succeeded check if the user has the required scope
     if (result.succeeded()) {
       var user = userExtractor.apply(result.result());
-      if (!this.validatePermission(user, permission)) {
-        // the user has no permission for the handler
+
+      // make sure that the requested scope is following the desired scope pattern
+      this.ensureScopePattern(scope, path);
+
+      if (!this.validateScope(user, scope)) {
+        // the user has no scope for the handler
         context
           .cancelNext(true)
           .closeAfter(true)
           .response()
           .status(HttpResponseCode.UNAUTHORIZED)
-          .body(this.buildErrorResponse("Required permission is not set"));
+          .body(this.buildErrorResponse("Required scope is not set"));
         return null;
       }
 
@@ -80,13 +86,30 @@ public final class SecurityAnnotationExtension {
     return null;
   }
 
-  private boolean validatePermission(@NonNull RestUser user, @Nullable HandlerScope permission) {
-    return permission == null || user.hasOneScopeOf(permission.value());
+  private boolean validateScope(@NonNull RestUser user, @Nullable HandlerScope scope) {
+    return scope == null || user.hasOneScopeOf(scope.value());
   }
 
-  private @Nullable HandlerScope resolvePermissionAnnotation(@NonNull Method method) {
+  private @Nullable HandlerScope resolveScopeAnnotation(@NonNull Method method) {
     var permission = method.getAnnotation(HandlerScope.class);
     return permission == null ? method.getDeclaringClass().getAnnotation(HandlerScope.class) : permission;
+  }
+
+  private void ensureScopePattern(@Nullable HandlerScope handlerScope, @NonNull String path) {
+    if (handlerScope == null) {
+      return;
+    }
+
+    for (var scope : handlerScope.value()) {
+      if (!RestScopeManagement.SCOPE_PATTERN.matcher(scope).matches()) {
+        throw new AnnotationHttpHandleException(
+          path,
+          String.format(
+            "Required scope %s does not match the scope pattern %s",
+            scope,
+            RestScopeManagement.SCOPE_PATTERN.pattern()));
+      }
+    }
   }
 
   private byte[] buildErrorResponse(@Nullable String reason) {
@@ -107,7 +130,7 @@ public final class SecurityAnnotationExtension {
 
     @Override
     public @Nullable HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {
-      var permission = SecurityAnnotationExtension.this.resolvePermissionAnnotation(method);
+      var scope = SecurityAnnotationExtension.this.resolveScopeAnnotation(method);
       var hints = HttpAnnotationProcessorUtil.mapParameters(
         method,
         BasicAuth.class,
@@ -122,16 +145,19 @@ public final class SecurityAnnotationExtension {
               SecurityAnnotationExtension.this.buildErrorResponse("Unable to authenticate user"));
           }
 
-          // put the user into the context if he has the required permission
-          if (SecurityAnnotationExtension.this.validatePermission(authResult.result(), permission)) {
+          // make sure that the requested scope is following the desired scope pattern
+          SecurityAnnotationExtension.this.ensureScopePattern(scope, path);
+
+          // put the user into the context if he has the required scope
+          if (SecurityAnnotationExtension.this.validateScope(authResult.result(), scope)) {
             return authResult.result();
           }
 
           throw new AnnotationHttpHandleException(
             path,
-            "User has not the required permission to send a request",
+            "User has not the required scope to send a request",
             HttpResponseCode.FORBIDDEN,
-            SecurityAnnotationExtension.this.buildErrorResponse("Missing required permission"));
+            SecurityAnnotationExtension.this.buildErrorResponse("Missing required scope"));
         });
       // check if we got any hints
       if (!hints.isEmpty()) {
@@ -143,7 +169,7 @@ public final class SecurityAnnotationExtension {
         return (path, ctx) -> {
           // drop the request if the authentication failed
           var authResult = this.authentication.handleBasicLoginRequest(ctx.request());
-          return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, Function.identity(), permission);
+          return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, Function.identity(), scope, path);
         };
       }
 
@@ -162,7 +188,7 @@ public final class SecurityAnnotationExtension {
 
     @Override
     public @Nullable HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {
-      var permission = SecurityAnnotationExtension.this.resolvePermissionAnnotation(method);
+      var scope = SecurityAnnotationExtension.this.resolveScopeAnnotation(method);
       var hints = HttpAnnotationProcessorUtil.mapParameters(
         method,
         BearerAuth.class,
@@ -177,16 +203,19 @@ public final class SecurityAnnotationExtension {
               SecurityAnnotationExtension.this.buildErrorResponse("Unable to authenticate user"));
           }
 
-          // put the user into the context if he has the required permission
-          if (SecurityAnnotationExtension.this.validatePermission(authResult.result().user(), permission)) {
+          // make sure that the requested scope is following the desired scope pattern
+          SecurityAnnotationExtension.this.ensureScopePattern(scope, path);
+
+          // put the user into the context if he has the required scope
+          if (SecurityAnnotationExtension.this.validateScope(authResult.result().user(), scope)) {
             return authResult.result();
           }
 
           throw new AnnotationHttpHandleException(
             path,
-            "User has not the required permission to send a request",
+            "User has not the required scope to send a request",
             HttpResponseCode.FORBIDDEN,
-            SecurityAnnotationExtension.this.buildErrorResponse("Missing required permission"));
+            SecurityAnnotationExtension.this.buildErrorResponse("Missing required scope"));
         });
       // check if we got any hints
       if (!hints.isEmpty()) {
@@ -198,7 +227,7 @@ public final class SecurityAnnotationExtension {
         return (path, ctx) -> {
           // drop the request if the authentication failed
           var authResult = this.authentication.handleBearerLoginRequest(ctx.request());
-          return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, HttpSession::user, permission);
+          return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, HttpSession::user, scope, path);
         };
       }
 
