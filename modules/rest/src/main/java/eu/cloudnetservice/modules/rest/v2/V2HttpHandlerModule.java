@@ -52,7 +52,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_module_write", "rest_module_reload_all"})
+  @HandlerScope({"rest:module_write", "rest:module_reload_all"})
   @HttpRequestHandler(paths = "/api/v2/module/reload")
   private void handleReloadRequest(@NonNull HttpContext context) {
     this.moduleProvider.reloadAll();
@@ -65,7 +65,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_module_read", "rest_module_list"})
+  @HandlerScope({"rest:module_read", "rest:module_list"})
   @HttpRequestHandler(paths = "/api/v2/module")
   private void handleModuleListRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -82,14 +82,14 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_module_read", "rest_module_get"})
+  @HandlerScope({"rest:module_read", "rest:module_get"})
   @HttpRequestHandler(paths = "/api/v2/module/{module}")
   private void handleModuleRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("module") String name) {
     this.handleWithModuleContext(context, name, module -> this.showModule(context, module));
   }
 
   @BearerAuth
-  @HandlerScope({"rest_module_write", "rest_module_reload"})
+  @HandlerScope({"rest:module_write", "rest:module_reload"})
   @HttpRequestHandler(paths = "/api/v2/module/{module}/reload")
   private void handleModuleReloadRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("module") String name) {
     this.handleWithModuleContext(ctx, name, module -> {
@@ -103,7 +103,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_module_write", "rest_module_unload"})
+  @HandlerScope({"rest:module_write", "rest:module_unload"})
   @HttpRequestHandler(paths = "/api/v2/module/{module}/unload")
   private void handleModuleUnloadRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("module") String name) {
     this.handleWithModuleContext(ctx, name, module -> {
@@ -117,7 +117,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_module_write", "rest_module_load"})
+  @HandlerScope({"rest:module_write", "rest:module_load"})
   @HttpRequestHandler(paths = "/api/v2/module/{module}/load", methods = "PUT")
   private void handleModuleLoadRequest(
     @NonNull HttpContext context,
@@ -143,7 +143,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_module_read", "rest_module_config_get"})
+  @HandlerScope({"rest:module_read", "rest:module_config_get"})
   @HttpRequestHandler(paths = "/api/v2/module/{module}/config")
   private void handleModuleConfigRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("module") String name) {
     this.handleWithModuleContext(ctx, name, module -> {
@@ -165,7 +165,7 @@ public final class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_module_write", "rest_module_config_update"})
+  @HandlerScope({"rest:module_write", "rest:module_config_update"})
   @HttpRequestHandler(paths = "/api/v2/module/{module}/config", methods = "POST")
   private void handleConfigUpdateRequest(
     @NonNull HttpContext ctx,

@@ -44,7 +44,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_group_read", "rest_group_list"})
+  @HandlerScope({"rest:group_read", "rest:group_list"})
   @HttpRequestHandler(paths = "/api/v2/group")
   private void handleGroupListRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -55,7 +55,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_group_read", "rest_group_exists"})
+  @HandlerScope({"rest:group_read", "rest:group_exists"})
   @HttpRequestHandler(paths = "/api/v2/group/{name}/exists")
   private void handleGroupExistsRequest(
     @NonNull HttpContext context,
@@ -69,7 +69,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_group_read", "rest_group_get"})
+  @HandlerScope({"rest:group_read", "rest:group_get"})
   @HttpRequestHandler(paths = "/api/v2/group/{name}")
   private void handleGroupRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var configuration = this.groupProvider.groupConfiguration(name);
@@ -89,7 +89,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_group_write", "rest_group_create"})
+  @HandlerScope({"rest:group_write", "rest:group_create"})
   @HttpRequestHandler(paths = "/api/v2/group", methods = "POST")
   private void handleCreateGroupRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var configuration = body.toInstanceOf(GroupConfiguration.class);
@@ -111,7 +111,7 @@ public final class V2HttpHandlerGroup extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_group_write", "rest_group_delete"})
+  @HandlerScope({"rest:group_write", "rest:group_delete"})
   @HttpRequestHandler(paths = "/api/v2/group/{name}", methods = "DELETE")
   private void handleDeleteGroupRequest(
     @NonNull HttpContext context,

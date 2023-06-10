@@ -44,13 +44,6 @@
       "description" : "More information"
     }
   }, {
-    "name" : "Permissions",
-    "description" : "Management of the cloudnet permission system",
-    "externalDocs" : {
-      "url" : "https://cloudnetservice.eu/docs/3.3/modules/cloudperms",
-      "description" : "More information"
-    }
-  }, {
     "name" : "Player",
     "description" : "Management of cloudnet players",
     "externalDocs" : {
@@ -96,7 +89,7 @@
       "get" : {
         "tags" : [ "Cluster" ],
         "summary" : "Lists all nodes",
-        "description" : "Lists all nodes which are registered in the node. This includes nodes\nwhich are currently not connected to the node. If they are not connected\navailable will be `false` and the `nodeInfoSnapshot` will be null.\n",
+        "description" : "Lists all nodes which are registered in the node. This includes nodes\nwhich are currently not connected to the node. If they are not connected\navailable will be `false` and the `nodeInfoSnapshot` will be null.\n\nOne of the following scopes is needed to execute the request:\n - `rest:cluster_read`\n \n - `rest:cluster_node_list`\n",
         "operationId" : "cluster",
         "responses" : {
           "200" : {
@@ -142,7 +135,7 @@
         },
         "tags" : [ "Cluster" ],
         "summary" : "Updates a node",
-        "description" : "Changes the configuration of a specific node in the local node's config\nfile. The updated will be pushed live to the node cluster settings. That\ndoes not mean that the node tries to connect to the other one.\n",
+        "description" : "Changes the configuration of a specific node in the local node's config\nfile. The updated will be pushed live to the node cluster settings. That\ndoes not mean that the node tries to connect to the other one.\n\nOne of the following scopes is needed to execute the request:\n - `rest:cluster_write`\n \n - `rest:cluster_node_update`\n",
         "operationId" : "clusterUpdate",
         "responses" : {
           "200" : {
@@ -176,7 +169,7 @@
         },
         "tags" : [ "Cluster" ],
         "summary" : "Creates a new node",
-        "description" : "Creates a node in the node's local configuration and updates it live to\nthe node cluster settings. That does not mean that the node tries to\nconnect to the other one.\n",
+        "description" : "Creates a node in the node's local configuration and updates it live to\nthe node cluster settings. That does not mean that the node tries to\nconnect to the other one.\n\nOne of the following scopes is needed to execute the request:\n - `rest:cluster_write`\n \n - `rest:cluster_node_create`\n",
         "operationId" : "clusterCreate",
         "responses" : {
           "201" : {
@@ -206,7 +199,7 @@
       "get" : {
         "tags" : [ "Cluster" ],
         "summary" : "Shows a unique node",
-        "description" : "Shows a specific node according to the unique id provided in the request\npath if the node exists.\n",
+        "description" : "Shows a specific node according to the unique id provided in the request\npath if the node exists.\n\nOne of the following scopes is needed to execute the request:\n - `rest:cluster_read`\n \n - `rest:cluster_node_get`\n",
         "operationId" : "clusterInfo",
         "responses" : {
           "200" : {
@@ -240,7 +233,7 @@
       "delete" : {
         "tags" : [ "Cluster" ],
         "summary" : "Deletes a node",
-        "description" : "Deletes a node from the config of the local node and pushes the changes\nlive to the local cluster settings. That does not mean that the node\ngets disconnected.\n",
+        "description" : "Deletes a node from the config of the local node and pushes the changes\nlive to the local cluster settings. That does not mean that the node\ngets disconnected.\n\nOne of the following scopes is needed to execute the request:\n - `rest:cluster_write`\n \n - `rest:cluster_node_delete`\n",
         "operationId" : "clusterDelete",
         "responses" : {
           "200" : {
@@ -291,7 +284,7 @@
         },
         "tags" : [ "Cluster" ],
         "summary" : "Sends a command to the given node",
-        "description" : "Sends a command to a specific node in the cluster.",
+        "description" : "Sends a command to a specific node in the cluster.\n\nOne of the following scopes is needed to execute the request:\n - `rest:cluster_write`\n \n - `rest:cluster_node_command`\n",
         "operationId" : "clusterCommand",
         "responses" : {
           "200" : {
@@ -335,7 +328,7 @@
         } ],
         "tags" : [ "Node" ],
         "summary" : "Node info",
-        "description" : "Information about the node the rest listener belongs to",
+        "description" : "Information about the node the rest listener belongs to.\n\nOne of the following scopes is needed to execute the request:\n - `rest:node_read`\n \n - `rest:node_ping`\n",
         "operationId" : "generalInfo",
         "responses" : {
           "200" : {
@@ -358,7 +351,7 @@
       "get" : {
         "tags" : [ "Node" ],
         "summary" : "Live console",
-        "description" : "Upgrades the connection to a web socket connection and sends all new command\nlines received to the connection.\n",
+        "description" : "Upgrades the connection to a web socket connection and sends all new command\nlines received to the connection.\n\nOne of the following scopes is needed to execute the request:\n - `rest:node_read`\n \n - `rest:node_live_console`\n",
         "responses" : {
           "401" : {
             "$ref" : "#/components/responses/Unauthorized"
@@ -384,6 +377,7 @@
       "get" : {
         "tags" : [ "Node" ],
         "summary" : "Reloads the node the request is sent to",
+        "description" : "One of the following scopes is needed to execute the request:\n - `rest:node_write`\n \n - `rest:node_reload`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -404,6 +398,7 @@
       "get" : {
         "tags" : [ "Node" ],
         "summary" : "Get the current configuration file of the node the request is sent to",
+        "description" : "One of the following scopes is needed to execute the request:\n - `rest:node_read`\n \n - `rest:node_config_get`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -440,7 +435,7 @@
         },
         "tags" : [ "Node" ],
         "summary" : "Updates the configuration file of the node the request is sent to",
-        "description" : "To add/remove a node from the configuration please use the cluster \nroutes to add/remove a node\n",
+        "description" : "To add/remove a node from the configuration please use the cluster \nroutes to add/remove a node.\n\nOne of the following scopes is needed to execute the request:\n - `rest:node_write`\n \n - `rest:node_config_update`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -461,6 +456,7 @@
       "get" : {
         "tags" : [ "Database" ],
         "summary" : "Lists all database names",
+        "description" : "One of the following scopes is needed to execute the request:\n - `rest:database_read`\n \n - `rest:database_list`\n",
         "operationId" : "listDatabase",
         "responses" : {
           "200" : {
@@ -530,6 +526,7 @@
         },
         "tags" : [ "Database" ],
         "summary" : "Creates a new document in a database",
+        "description" : "One of the following scopes is needed to execute the request:\n - `rest:database_write`\n \n - `rest:database_insert`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -557,6 +554,7 @@
         } ],
         "tags" : [ "Database" ],
         "summary" : "Deletes a document from the database",
+        "description" : "One of the following scopes is needed to execute the request:\n - `rest:database_write`\n \n - `rest:database_delete`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -585,7 +583,7 @@
           }
         } ],
         "summary" : "Clears a database",
-        "description" : "Clears the content of the given database.",
+        "description" : "Clears the content of the given database.\n\nOne of the following scopes is needed to execute the request:\n - `rest:database_write`\n \n - `rest:database_clear`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -614,7 +612,7 @@
           }
         } ],
         "summary" : "Get all keys in a database",
-        "description" : "",
+        "description" : "One of the following scopes is needed to execute the request:\n - `rest:database_read`\n \n - `rest:database_keys`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -663,7 +661,7 @@
           }
         } ],
         "summary" : "Get the document count of a database",
-        "description" : "",
+        "description" : "One of the following scopes is needed to execute the request:\n - `rest:database_read`\n \n - `rest:database_count`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -717,7 +715,7 @@
           }
         } ],
         "summary" : "Checks if the provided database contains a specific key",
-        "description" : "",
+        "description" : "One of the following scopes is needed to execute the request:\n - `rest:database_read`\n \n - `rest:database_contains`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -770,7 +768,7 @@
           }
         } ],
         "summary" : "Get a specific document from a database",
-        "description" : "Gets all documents out of the provided database by using the provided\nkey.\n",
+        "description" : "Gets all documents out of the provided database by using the provided\nkey.\n\nOne of the following scopes is needed to execute the request:\n - `rest:database_read`\n \n - `rest:database_get`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -839,7 +837,7 @@
           }
         } ],
         "summary" : "Get a specific document from a database",
-        "description" : "Gets all documents out of the provided database by using the provided search filter.\n",
+        "description" : "Gets all documents out of the provided database, by using the provided search filter.\n\nOne of the following scopes is needed to execute the request:\n  - `rest:database_read`\n \n  - `rest:database_find`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -895,6 +893,7 @@
         },
         "tags" : [ "Groups" ],
         "summary" : "Creates a group",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:group_write`\n \n  - `rest:group_create`\n",
         "responses" : {
           "201" : {
             "$ref" : "#/components/responses/Success"
@@ -913,6 +912,7 @@
       "get" : {
         "tags" : [ "Groups" ],
         "summary" : "Lists all group configurations",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:group_read`\n \n  - `rest:group_list`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -957,6 +957,7 @@
       "get" : {
         "tags" : [ "Groups" ],
         "summary" : "Get a group configuration",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:group_read`\n \n  - `rest:group_get`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -990,6 +991,7 @@
       "delete" : {
         "tags" : [ "Groups" ],
         "summary" : "Deletes a group",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:group_write`\n \n  - `rest:group_delete`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -1019,317 +1021,7 @@
       "get" : {
         "tags" : [ "Groups" ],
         "summary" : "Checks if a groups exists",
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "allOf" : [ {
-                    "$ref" : "#/components/schemas/Success"
-                  }, {
-                    "properties" : {
-                      "result" : {
-                        "type" : "boolean",
-                        "example" : true
-                      }
-                    }
-                  } ]
-                }
-              }
-            }
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
-    "/permission/group" : {
-      "post" : {
-        "requestBody" : {
-          "required" : true,
-          "description" : "The permission group to create",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/PermissionGroup"
-              }
-            }
-          }
-        },
-        "tags" : [ "Permissions" ],
-        "summary" : "Creates a group",
-        "responses" : {
-          "201" : {
-            "$ref" : "#/components/responses/Success"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      },
-      "get" : {
-        "tags" : [ "Permissions" ],
-        "summary" : "Lists all permission groups",
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "allOf" : [ {
-                    "$ref" : "#/components/schemas/Success"
-                  }, {
-                    "properties" : {
-                      "groups" : {
-                        "type" : "array",
-                        "items" : {
-                          "$ref" : "#/components/schemas/PermissionGroup"
-                        }
-                      }
-                    }
-                  } ]
-                }
-              }
-            }
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
-    "/permission/group/{name}" : {
-      "parameters" : [ {
-        "name" : "name",
-        "in" : "path",
-        "required" : true,
-        "description" : "The name of the permission group",
-        "schema" : {
-          "type" : "string"
-        }
-      } ],
-      "get" : {
-        "tags" : [ "Permissions" ],
-        "summary" : "Get a permission group",
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "allOf" : [ {
-                    "$ref" : "#/components/schemas/Success"
-                  }, {
-                    "properties" : {
-                      "group" : {
-                        "$ref" : "#/components/schemas/PermissionGroup"
-                      }
-                    }
-                  } ]
-                }
-              }
-            }
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      },
-      "delete" : {
-        "tags" : [ "Permissions" ],
-        "summary" : "Deletes a permission group",
-        "responses" : {
-          "200" : {
-            "$ref" : "#/components/responses/Success"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
-    "/permission/group/{name}/exists" : {
-      "parameters" : [ {
-        "name" : "name",
-        "in" : "path",
-        "required" : true,
-        "description" : "The name of the permission group",
-        "schema" : {
-          "type" : "string"
-        }
-      } ],
-      "get" : {
-        "tags" : [ "Permissions" ],
-        "summary" : "Checks if a permission groups exists",
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "allOf" : [ {
-                    "$ref" : "#/components/schemas/Success"
-                  }, {
-                    "properties" : {
-                      "result" : {
-                        "type" : "boolean",
-                        "example" : true
-                      }
-                    }
-                  } ]
-                }
-              }
-            }
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
-    "/permission/user" : {
-      "post" : {
-        "requestBody" : {
-          "required" : true,
-          "description" : "The permission user to create or update",
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/PermissionUser"
-              }
-            }
-          }
-        },
-        "tags" : [ "Permissions" ],
-        "summary" : "Creates or updates a permission user",
-        "responses" : {
-          "201" : {
-            "$ref" : "#/components/responses/Success"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
-    "/permission/user/{identifier}" : {
-      "parameters" : [ {
-        "name" : "identifier",
-        "in" : "path",
-        "required" : true,
-        "description" : "The name or unique id of the permission user",
-        "example" : "62b37d32-3305-475a-bf26-9abee4b0b90f",
-        "schema" : {
-          "type" : "string"
-        }
-      } ],
-      "get" : {
-        "tags" : [ "Permissions" ],
-        "summary" : "Get a permission user by his name or unique id",
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "allOf" : [ {
-                    "$ref" : "#/components/schemas/Success"
-                  }, {
-                    "properties" : {
-                      "user" : {
-                        "$ref" : "#/components/schemas/PermissionUser"
-                      }
-                    }
-                  } ]
-                }
-              }
-            }
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      },
-      "delete" : {
-        "tags" : [ "Permissions" ],
-        "summary" : "Deletes a permission user",
-        "responses" : {
-          "200" : {
-            "$ref" : "#/components/responses/Success"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/BadRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/Unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
-    "/permission/user/{identifier}/exists" : {
-      "parameters" : [ {
-        "name" : "identifier",
-        "in" : "path",
-        "required" : true,
-        "example" : "62b37d32-3305-475a-bf26-9abee4b0b90f",
-        "description" : "The name or unique id of the permission user",
-        "schema" : {
-          "type" : "string"
-        }
-      } ],
-      "get" : {
-        "tags" : [ "Permissions" ],
-        "summary" : "Check if a permission user exists",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:group_read`\n \n  - `rest:group_exists`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1377,6 +1069,7 @@
         },
         "tags" : [ "Player" ],
         "summary" : "Creates or updates an offline player",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `bridge:player_write`\n \n  - `bridge:player_create`\n",
         "responses" : {
           "201" : {
             "$ref" : "#/components/responses/Success"
@@ -1397,6 +1090,7 @@
       "get" : {
         "tags" : [ "Player" ],
         "summary" : "Get the number of online players",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `bridge:player_read`\n \n  - `bridge:player_online_count`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1433,6 +1127,7 @@
       "get" : {
         "tags" : [ "Player" ],
         "summary" : "Get the number of registered players",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `bridge:player_read`\n \n  - `bridge:player_registered_count`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1479,6 +1174,7 @@
       "get" : {
         "tags" : [ "Player" ],
         "summary" : "Get a player by his unique id or name",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `bridge:player_read`\n \n  - `bridge:player_get`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1512,6 +1208,7 @@
       "delete" : {
         "tags" : [ "Player" ],
         "summary" : "Deletes a player by his unique id or name",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `bridge:player_write`\n \n  - `bridge:player_delete`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -1542,6 +1239,7 @@
       "get" : {
         "tags" : [ "Player" ],
         "summary" : "Checks if a specific player is registered",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `bridge:player_read`\n \n  - `bridge:player_exists`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1589,6 +1287,7 @@
         },
         "tags" : [ "Tasks" ],
         "summary" : "Creates a task",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:task_write`\n \n  - `rest:task_create`\n",
         "responses" : {
           "200" : {
             "description" : "The request was ok but the task couldn't be created",
@@ -1630,6 +1329,7 @@
       "get" : {
         "tags" : [ "Tasks" ],
         "summary" : "Lists all registered tasks",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:task_read`\n \n  - `rest:task_list`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1677,6 +1377,7 @@
       "get" : {
         "tags" : [ "Tasks" ],
         "summary" : "Get a task by its name",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:task_read`\n \n  - `rest:task_get`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1710,6 +1411,7 @@
       "delete" : {
         "tags" : [ "Tasks" ],
         "summary" : "Deletes a task",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:task_write`\n \n  - `rest:task_delete`\n",
         "responses" : {
           "200" : {
             "description" : "The task was deleted successfully",
@@ -1746,6 +1448,7 @@
       "get" : {
         "tags" : [ "Tasks" ],
         "summary" : "Check if a service task by the provided name exists",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:task_read`\n \n  - `rest:task_exists`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1853,6 +1556,7 @@
       "get" : {
         "tags" : [ "Services" ],
         "summary" : "Lists all known services",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_read`\n \n  - `rest:service_list`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1897,6 +1601,7 @@
       "get" : {
         "tags" : [ "Services" ],
         "summary" : "Shows a specific service if it's exists",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_read`\n \n  - `rest:service_get`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1968,6 +1673,7 @@
       "patch" : {
         "tags" : [ "Services" ],
         "summary" : "Updates the lifecycle of a service",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_write`\n \n  - `rest:service_lifecycle`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -2006,6 +1712,7 @@
       "get" : {
         "tags" : [ "Services" ],
         "summary" : "Includes a specific type of inclusion added to a service",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_write`\n \n  - `rest:service_include`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -2044,6 +1751,7 @@
       "get" : {
         "tags" : [ "Services" ],
         "summary" : "Deploys all waiting deployments of a service",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_write`\n \n  - `rest:service_deploy_resources`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -2073,6 +1781,7 @@
       "get" : {
         "tags" : [ "Services" ],
         "summary" : "Get the cached log lines of a service",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_read`\n \n  - `rest:service_log_lines`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2121,7 +1830,7 @@
       "get" : {
         "tags" : [ "Services" ],
         "summary" : "Live console of a service",
-        "description" : "Upgrades the connection to a web socket connection and sends all new log lines\nreceived to the connection\n",
+        "description" : "Upgrades the connection to a web socket connection and sends all new log lines\nreceived to the connection.\n\nOne of the following scopes is needed to execute the request:\n  - `rest:service_read`\n \n  - `rest:service_live_log`\n",
         "responses" : {
           "400" : {
             "$ref" : "#/components/responses/BadRequest"
@@ -2139,6 +1848,7 @@
       "post" : {
         "tags" : [ "Services" ],
         "summary" : "Creates a new service",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_write`\n \n  - `rest:service_create`\n",
         "requestBody" : {
           "required" : true,
           "description" : "The request body can contain a service configuration, a service task or a name of a\nservice task to base the new service on. The start boolean in the body defines whether\nthe service should get started after the creation.\n",
@@ -2276,6 +1986,7 @@
         },
         "tags" : [ "Services" ],
         "summary" : "Adds an inclusion/deployment to a service",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_write`\n \n  - `rest:service_add_file`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -2322,6 +2033,7 @@
         },
         "tags" : [ "Services" ],
         "summary" : "Executes the specified command on a service",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_write`\n \n  - `rest:service_send_commands`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -2342,6 +2054,7 @@
       "get" : {
         "tags" : [ "Template Storage" ],
         "summary" : "Shows every available template storage",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_storage_read`\n \n  - `rest:template_storage_list`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2387,6 +2100,7 @@
         } ],
         "tags" : [ "Template Storage" ],
         "summary" : "List every template in the given storage",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_storage_read`\n \n  - `rest:template_storage_template_list`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2454,6 +2168,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Download a file from the specified template",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_read`\n \n  - `rest:template_file_download`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2529,6 +2244,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Get information about a path in a template",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_read`\n \n  - `rest:template_file_info`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2603,6 +2319,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Checks whether a file/directory exists at the specified path",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_read`\n \n  - `rest:template_file_exists`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2661,6 +2378,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Download a template as a zip file",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_read`\n \n  - `rest:template_download`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2745,6 +2463,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Lists all files in a template's directory",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_read`\n \n  - `rest:template_directory_list`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2805,6 +2524,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Creates a template in a storage",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_write`\n \n  - `rest:template_create`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -2886,6 +2606,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Installs a service version in a template",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_write`\n \n  - `rest:template_install`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -2939,6 +2660,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Deploys the zip archive into a template",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_write`\n \n  - `rest:template_deploy`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -2999,6 +2721,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Creates/Overrides a file in a template",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_write`\n \n  - `rest:template_file_create`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3069,6 +2792,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Appends the content to a file in a template",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_write`\n \n  - `rest:template_file_append`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3128,6 +2852,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Creates a directory in a template",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_write`\n \n  - `rest:template_directory_create`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3170,6 +2895,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Deletes a template",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_write`\n \n  - `rest:template_delete`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3219,6 +2945,7 @@
         } ],
         "tags" : [ "Templates" ],
         "summary" : "Deletes a file or directory from a template",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:template_write`\n \n  - `rest:template_delete_file`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3239,6 +2966,7 @@
       "get" : {
         "tags" : [ "Service Versions" ],
         "summary" : "Lists all available service version types",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_version_read`\n \n  - `rest:service_version_list`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -3282,6 +3010,7 @@
       "get" : {
         "tags" : [ "Service Versions" ],
         "summary" : "Get a specific service version type",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_version_read`\n \n  - `rest:service_version_get`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -3326,6 +3055,7 @@
         } ],
         "tags" : [ "Service Versions" ],
         "summary" : "Loads the service types into the service type provider",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_version_write`\n \n  - `rest:service_version_load`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3357,6 +3087,7 @@
         },
         "tags" : [ "Service Versions" ],
         "summary" : "Adds a service version type to the service type provider",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:service_version_write`\n \n  - `rest:service_version_add`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3377,6 +3108,7 @@
       "get" : {
         "tags" : [ "Modules" ],
         "summary" : "Lists all loaded modules",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:module_read`\n \n  - `rest:module_list`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -3412,6 +3144,7 @@
       "get" : {
         "tags" : [ "Modules" ],
         "summary" : "Unloads and loads all loaded modules",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:module_write`\n \n  - `rest:module_reload_all`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3437,6 +3170,7 @@
         } ],
         "tags" : [ "Modules" ],
         "summary" : "Get the information about a specific module",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:module_read`\n \n  - `rest:module_get`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -3476,6 +3210,7 @@
         } ],
         "tags" : [ "Modules" ],
         "summary" : "Unloads and loads a specific module",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:module_write`\n \n  - `rest:module_reload`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3504,6 +3239,7 @@
         } ],
         "tags" : [ "Modules" ],
         "summary" : "Unloads a specific module",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:module_write`\n \n  - `rest:module_unreload`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3584,6 +3320,7 @@
         } ],
         "tags" : [ "Modules" ],
         "summary" : "Updates the configuration file of a module",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:module_write`\n \n  - `rest:module_config_update`\n",
         "responses" : {
           "200" : {
             "$ref" : "#/components/responses/Success"
@@ -3623,6 +3360,7 @@
         } ],
         "tags" : [ "Modules" ],
         "summary" : "Copies a module from the request body and loads it",
+        "description" : "One of the following scopes is needed to execute the request:\n  - `rest:module_write`\n \n  - `rest:module_load`\n",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -4069,132 +3807,6 @@
                 "type" : "string"
               },
               "example" : [ "MINECRAFT_SERVER", "VELOCITY" ]
-            }
-          }
-        } ]
-      },
-      "PermissionGroup" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/Permissible"
-        }, {
-          "properties" : {
-            "color" : {
-              "type" : "string",
-              "example" : "&6"
-            },
-            "prefix" : {
-              "type" : "string",
-              "example" : "&7Player"
-            },
-            "suffix" : {
-              "type" : "string",
-              "example" : "&a"
-            },
-            "display" : {
-              "type" : "string",
-              "example" : "&7Player"
-            },
-            "sortId" : {
-              "type" : "integer",
-              "example" : 50
-            },
-            "defaultGroup" : {
-              "type" : "boolean",
-              "example" : true
-            },
-            "groups" : {
-              "type" : "array",
-              "items" : {
-                "type" : "string"
-              }
-            }
-          }
-        } ]
-      },
-      "Permission" : {
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string",
-            "example" : "cloudnet.*"
-          },
-          "potency" : {
-            "type" : "integer",
-            "example" : 50
-          },
-          "timeOutMillis" : {
-            "type" : "number",
-            "example" : -1
-          }
-        }
-      },
-      "PermissionUser" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/Permissible"
-        }, {
-          "properties" : {
-            "uniqueId" : {
-              "type" : "string",
-              "example" : "62b37d32-3305-475a-bf26-9abee4b0b90f"
-            },
-            "hashedPassword" : {
-              "type" : "string",
-              "example" : "pmWkWSBCL51Bfkhn79xPuKBKHz//H6B+mY6G9/eieuM=",
-              "description" : "A sha-256 hashed string encoded in base64"
-            },
-            "groups" : {
-              "type" : "array",
-              "items" : {
-                "type" : "object",
-                "properties" : {
-                  "group" : {
-                    "type" : "string",
-                    "example" : "Admin"
-                  },
-                  "timeOutMillis" : {
-                    "type" : "number",
-                    "example" : -1
-                  }
-                }
-              }
-            }
-          }
-        } ]
-      },
-      "Permissible" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/JsonDocPropertyable"
-        }, {
-          "properties" : {
-            "name" : {
-              "type" : "string",
-              "example" : "Player"
-            },
-            "potency" : {
-              "type" : "integer",
-              "example" : 10
-            },
-            "createdTime" : {
-              "type" : "number",
-              "example" : 1642377151
-            },
-            "permissions" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/components/schemas/Permission"
-              }
-            },
-            "groupPermissions" : {
-              "type" : "object",
-              "additionalProperties" : {
-                "type" : "array",
-                "items" : {
-                  "$ref" : "#/components/schemas/Permission"
-                }
-              }
             }
           }
         } ]

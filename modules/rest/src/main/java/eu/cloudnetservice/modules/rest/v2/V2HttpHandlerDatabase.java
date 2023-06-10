@@ -49,7 +49,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_database_read", "rest_database_list"})
+  @HandlerScope({"rest:database_read", "rest:database_list"})
   @HttpRequestHandler(paths = "/api/v2/database")
   private void handleNamesRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -60,7 +60,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_database_write", "rest_database_clear"})
+  @HandlerScope({"rest:database_write", "rest:database_clear"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/clear")
   private void handleClearRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var database = this.databaseProvider.database(name);
@@ -73,7 +73,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_database_read", "rest_database_contains"})
+  @HandlerScope({"rest:database_read", "rest:database_contains"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/contains")
   private void handleContainsRequest(
     @NonNull HttpContext context,
@@ -89,7 +89,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_database_read", "rest_database_keys"})
+  @HandlerScope({"rest:database_read", "rest:database_keys"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/keys")
   private void handleKeysRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var database = this.databaseProvider.database(name);
@@ -101,7 +101,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_database_read", "rest_database_count"})
+  @HandlerScope({"rest:database_read", "rest:database_count"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/count")
   private void handleCountRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var database = this.databaseProvider.database(name);
@@ -113,7 +113,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_database_write", "rest_database_insert"})
+  @HandlerScope({"rest:database_write", "rest:database_insert"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}", methods = "POST")
   private void handleInsertRequest(
     @NonNull HttpContext context,
@@ -139,7 +139,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_database_read", "rest_database_get"})
+  @HandlerScope({"rest:database_read", "rest:database_get"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/get", methods = "POST")
   private void handleGetRequest(
     @NonNull HttpContext context,
@@ -155,7 +155,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_database_read", "rest_database_find"})
+  @HandlerScope({"rest:database_read", "rest:database_find"})
   @HttpRequestHandler(paths = "api/v2/database/{name}/find", methods = "POST")
   private void handleFindRequest(
     @NonNull HttpContext context,
@@ -173,7 +173,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_database_write", "rest_database_delete"})
+  @HandlerScope({"rest:database_write", "rest:database_delete"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}", methods = "DELETE")
   private void handleDeleteRequest(
     @NonNull HttpContext context,

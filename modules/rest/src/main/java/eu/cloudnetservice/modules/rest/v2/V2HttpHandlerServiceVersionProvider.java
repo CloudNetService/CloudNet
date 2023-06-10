@@ -50,7 +50,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_service_version_read", "rest_service_version_list"})
+  @HandlerScope({"rest:service_version_read", "rest:service_version_list"})
   @HttpRequestHandler(paths = "/api/v2/serviceversion")
   private void handleVersionListRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -61,7 +61,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_service_version_read", "rest_service_version_get"})
+  @HandlerScope({"rest:service_version_read", "rest:service_version_get"})
   @HttpRequestHandler(paths = "/api/v2/serviceversion/{version}")
   private void handleVersionRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("version") String version) {
     var serviceVersion = this.versionProvider.getServiceVersionType(version);
@@ -82,7 +82,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_service_version_write", "rest_service_version_load"})
+  @HandlerScope({"rest:service_version_write", "rest:service_version_load"})
   @HttpRequestHandler(paths = "/api/v2/serviceversion/load")
   private void handleVersionLoadRequest(
     @NonNull HttpContext context,
@@ -114,7 +114,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest_service_version_write", "rest_service_version_add"})
+  @HandlerScope({"rest:service_version_write", "rest:service_version_add"})
   @HttpRequestHandler(paths = "/api/v2/serviceversion/add", methods = "POST")
   private void handleVersionAddRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var type = body.toInstanceOf(ServiceVersionType.class);
