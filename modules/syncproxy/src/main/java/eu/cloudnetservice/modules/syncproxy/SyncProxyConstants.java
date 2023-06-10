@@ -22,17 +22,6 @@ public final class SyncProxyConstants {
   public static final String SYNC_PROXY_UPDATE_CONFIG = "update_syncproxy_config";
   public static final String SYNC_PROXY_CONFIG_REQUEST = "request_syncproxy_config";
 
-  public static boolean CLOUD_PERMS_ENABLED;
-
-  static {
-    try {
-      Class.forName("eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper");
-      CLOUD_PERMS_ENABLED = true;
-    } catch (ClassNotFoundException ignored) {
-      CLOUD_PERMS_ENABLED = false;
-    }
-  }
-
   private SyncProxyConstants() {
     throw new UnsupportedOperationException();
   }

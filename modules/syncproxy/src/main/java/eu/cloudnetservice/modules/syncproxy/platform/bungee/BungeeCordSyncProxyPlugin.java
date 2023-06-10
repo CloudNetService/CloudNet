@@ -36,7 +36,7 @@ import net.md_5.bungee.api.plugin.PluginManager;
   version = "{project.build.version}",
   description = "CloudNet extension which serves proxy utils with CloudNet support",
   authors = "CloudNetService",
-  dependencies = {@Dependency(name = "CloudNet-Bridge"), @Dependency(name = "CloudNet-CloudPerms", optional = true)})
+  dependencies = @Dependency(name = "CloudNet-Bridge"))
 public final class BungeeCordSyncProxyPlugin implements PlatformEntrypoint {
 
   private final Plugin plugin;
