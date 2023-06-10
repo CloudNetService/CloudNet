@@ -27,8 +27,8 @@ import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationPa
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessor;
 import eu.cloudnetservice.driver.network.http.annotation.parser.HttpAnnotationProcessorUtil;
 import eu.cloudnetservice.node.http.HttpSession;
-import eu.cloudnetservice.node.http.RestScopeManagement;
 import eu.cloudnetservice.node.http.RestUser;
+import eu.cloudnetservice.node.http.RestUserManagement;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Method;
@@ -101,13 +101,13 @@ public final class SecurityAnnotationExtension {
     }
 
     for (var scope : handlerScope.value()) {
-      if (!RestScopeManagement.SCOPE_PATTERN.matcher(scope).matches()) {
+      if (!RestUserManagement.SCOPE_PATTERN.matcher(scope).matches()) {
         throw new AnnotationHttpHandleException(
           path,
           String.format(
             "Required scope %s does not match the scope pattern %s",
             scope,
-            RestScopeManagement.SCOPE_PATTERN.pattern()));
+            RestUserManagement.SCOPE_PATTERN.pattern()));
       }
     }
   }

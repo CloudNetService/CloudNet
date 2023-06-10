@@ -59,7 +59,7 @@ public class V2HttpAuthentication {
   protected static final LoginResult<RestUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
 
-  protected final RestScopeManagement restScopeManagement;
+  protected final RestUserManagement restUserManagement;
   protected final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
 
   protected final Key signingKey;
@@ -68,10 +68,10 @@ public class V2HttpAuthentication {
 
   @Inject
   public V2HttpAuthentication(
-    @NonNull RestScopeManagement restScopeManagement,
+    @NonNull RestUserManagement restUserManagement,
     @NonNull ComponentInfo componentInfo
   ) {
-    this.restScopeManagement = restScopeManagement;
+    this.restUserManagement = restUserManagement;
     this.jwtIssuer = String.format(JWT_ISSUER_FORMAT, componentInfo.componentName());
 
     // initialize the secret & parser
@@ -87,7 +87,7 @@ public class V2HttpAuthentication {
         System.currentTimeMillis() + sessionTimeMillis,
         subject.id(),
         this,
-        this.restScopeManagement));
+        this.restUserManagement));
     return this.generateJwt(subject, session);
   }
 
@@ -101,7 +101,7 @@ public class V2HttpAuthentication {
     if (matcher.matches()) {
       var auth = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8).split(":", 2);
       if (auth.length == 2) {
-        var user = this.restScopeManagement.restUser(auth[0]);
+        var user = this.restUserManagement.restUser(auth[0]);
         if (user != null && user.verifyPassword(auth[1])) {
           return LoginResult.success(user);
         }

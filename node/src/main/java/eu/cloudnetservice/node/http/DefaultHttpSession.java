@@ -30,7 +30,7 @@ public class DefaultHttpSession implements HttpSession {
   protected final V2HttpAuthentication issuer;
   protected final Map<String, Object> properties;
 
-  protected final RestScopeManagement restScopeManagement;
+  protected final RestUserManagement restUserManagement;
 
   protected long expireTime;
 
@@ -38,9 +38,9 @@ public class DefaultHttpSession implements HttpSession {
     long expireTime,
     @NonNull String userId,
     @NonNull V2HttpAuthentication issuer,
-    @NonNull RestScopeManagement restScopeManagement
+    @NonNull RestUserManagement restUserManagement
   ) {
-    this(expireTime, UUID.randomUUID().toString(), userId, issuer, restScopeManagement);
+    this(expireTime, UUID.randomUUID().toString(), userId, issuer, restUserManagement);
   }
 
   public DefaultHttpSession(
@@ -48,9 +48,9 @@ public class DefaultHttpSession implements HttpSession {
     @NonNull String uniqueId,
     @NonNull String userId,
     @NonNull V2HttpAuthentication issuer,
-    @NonNull RestScopeManagement restScopeManagement
+    @NonNull RestUserManagement restUserManagement
   ) {
-    this(expireTime, uniqueId, userId, issuer, new HashMap<>(), restScopeManagement);
+    this(expireTime, uniqueId, userId, issuer, new HashMap<>(), restUserManagement);
   }
 
   public DefaultHttpSession(
@@ -59,14 +59,14 @@ public class DefaultHttpSession implements HttpSession {
     @NonNull String userId,
     @NonNull V2HttpAuthentication issuer,
     @NonNull Map<String, Object> properties,
-    @NonNull RestScopeManagement restScopeManagement
+    @NonNull RestUserManagement restUserManagement
   ) {
     this.expireTime = expireTime;
     this.uniqueId = uniqueId;
     this.userId = userId;
     this.issuer = issuer;
     this.properties = properties;
-    this.restScopeManagement = restScopeManagement;
+    this.restUserManagement = restUserManagement;
   }
 
   @Override
@@ -91,7 +91,7 @@ public class DefaultHttpSession implements HttpSession {
 
   @Override
   public RestUser user() {
-    return this.restScopeManagement.restUser(this.userId);
+    return this.restUserManagement.restUser(this.userId);
   }
 
   @Override

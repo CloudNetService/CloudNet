@@ -20,23 +20,23 @@ import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
-import eu.cloudnetservice.node.http.RestScopeManagement;
 import eu.cloudnetservice.node.http.RestUser;
+import eu.cloudnetservice.node.http.RestUserManagement;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-@Provides(RestScopeManagement.class)
-public class DefaultScopeManagement implements RestScopeManagement {
+@Provides(RestUserManagement.class)
+public class DefaultUserManagement implements RestUserManagement {
 
   private static final String REST_USER_DB_NAME = "REST_SCOPE_USER";
 
   private final LocalDatabase localDatabase;
 
   @Inject
-  public DefaultScopeManagement(@NonNull NodeDatabaseProvider databaseProvider) {
+  public DefaultUserManagement(@NonNull NodeDatabaseProvider databaseProvider) {
     this.localDatabase = databaseProvider.database(REST_USER_DB_NAME);
   }
 

@@ -18,8 +18,8 @@ package eu.cloudnetservice.modules.rest.scope;
 
 import com.google.common.hash.Hashing;
 import eu.cloudnetservice.common.util.StringUtil;
-import eu.cloudnetservice.node.http.RestScopeManagement;
 import eu.cloudnetservice.node.http.RestUser;
+import eu.cloudnetservice.node.http.RestUserManagement;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
@@ -50,14 +50,14 @@ public record DefaultRestUser(
 
   @Override
   public void addScope(@NonNull String scope) {
-    var matcher = RestScopeManagement.SCOPE_PATTERN.matcher(scope);
+    var matcher = RestUserManagement.SCOPE_PATTERN.matcher(scope);
     if (scope.equals("admin") || matcher.matches()) {
       this.scopes.add(StringUtil.toLower(scope));
     } else {
       throw new IllegalArgumentException(String.format(
         "The given scope %s does not match the desired scope regex %s",
         scope,
-        RestScopeManagement.SCOPE_PATTERN.pattern()));
+        RestUserManagement.SCOPE_PATTERN.pattern()));
     }
   }
 
