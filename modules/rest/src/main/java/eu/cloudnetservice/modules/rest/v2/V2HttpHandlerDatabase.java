@@ -49,7 +49,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:database_read", "rest:database_list"})
+  @HandlerScope({"cloudnet_rest:database_read", "cloudnet_rest:database_list"})
   @HttpRequestHandler(paths = "/api/v2/database")
   private void handleNamesRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -60,7 +60,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:database_write", "rest:database_clear"})
+  @HandlerScope({"cloudnet_rest:database_write", "cloudnet_rest:database_clear"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/clear")
   private void handleClearRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var database = this.databaseProvider.database(name);
@@ -73,7 +73,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:database_read", "rest:database_contains"})
+  @HandlerScope({"cloudnet_rest:database_read", "cloudnet_rest:database_contains"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/contains")
   private void handleContainsRequest(
     @NonNull HttpContext context,
@@ -89,7 +89,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:database_read", "rest:database_keys"})
+  @HandlerScope({"cloudnet_rest:database_read", "cloudnet_rest:database_keys"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/keys")
   private void handleKeysRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var database = this.databaseProvider.database(name);
@@ -101,7 +101,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:database_read", "rest:database_count"})
+  @HandlerScope({"cloudnet_rest:database_read", "cloudnet_rest:database_count"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/count")
   private void handleCountRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var database = this.databaseProvider.database(name);
@@ -113,7 +113,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:database_write", "rest:database_insert"})
+  @HandlerScope({"cloudnet_rest:database_write", "cloudnet_rest:database_insert"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}", methods = "POST")
   private void handleInsertRequest(
     @NonNull HttpContext context,
@@ -139,7 +139,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:database_read", "rest:database_get"})
+  @HandlerScope({"cloudnet_rest:database_read", "cloudnet_rest:database_get"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}/get", methods = "POST")
   private void handleGetRequest(
     @NonNull HttpContext context,
@@ -155,7 +155,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:database_read", "rest:database_find"})
+  @HandlerScope({"cloudnet_rest:database_read", "cloudnet_rest:database_find"})
   @HttpRequestHandler(paths = "api/v2/database/{name}/find", methods = "POST")
   private void handleFindRequest(
     @NonNull HttpContext context,
@@ -173,7 +173,7 @@ public final class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:database_write", "rest:database_delete"})
+  @HandlerScope({"cloudnet_rest:database_write", "cloudnet_rest:database_delete"})
   @HttpRequestHandler(paths = "/api/v2/database/{name}", methods = "DELETE")
   private void handleDeleteRequest(
     @NonNull HttpContext context,

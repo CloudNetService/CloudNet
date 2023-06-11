@@ -22,13 +22,19 @@ import org.jetbrains.annotations.Nullable;
 
 public interface RestUserManagement {
 
+  String SCOPE_NAMING_REGEX = "(^[a-z][a-z0-9_]{4,39}):([a-z0-9.\\-_]+)";
+
   // https://regex101.com/r/3nG0Nu/1
-  Pattern SCOPE_PATTERN = Pattern.compile("(^[a-z][a-z0-9_]{4,39}):([a-z0-9.\\-_]+)");
+  Pattern SCOPE_NAMING_PATTERN = Pattern.compile(SCOPE_NAMING_REGEX);
 
   @Nullable RestUser restUser(@NonNull String id);
 
   void saveRestUser(@NonNull RestUser user);
 
   boolean deleteRestUser(@NonNull RestUser user);
+
+  @NonNull RestUser.Builder builder();
+
+  @NonNull RestUser.Builder builder(@NonNull RestUser restUser);
 
 }

@@ -42,7 +42,7 @@ public final class V2HttpHandlerTemplateStorage extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:template_storage_read", "rest:template_storage_list"})
+  @HandlerScope({"cloudnet_rest:template_storage_read", "cloudnet_rest:template_storage_list"})
   @HttpRequestHandler(paths = "/api/v2/templateStorage")
   private void handleStorageListRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -55,7 +55,7 @@ public final class V2HttpHandlerTemplateStorage extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:template_storage_read", "rest:template_storage_template_list"})
+  @HandlerScope({"cloudnet_rest:template_storage_read", "cloudnet_rest:template_storage_template_list"})
   @HttpRequestHandler(paths = "/api/v2/templateStorage/{storage}/templates")
   private void handleTemplateListRequest(
     @NonNull HttpContext context,

@@ -16,26 +16,20 @@
 
 package eu.cloudnetservice.modules.rest.scope;
 
-import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.http.RestUser;
 import eu.cloudnetservice.node.http.RestUserManagement;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-@Singleton
-@Provides(RestUserManagement.class)
-public class DefaultUserManagement implements RestUserManagement {
+public final class DefaultUserManagement implements RestUserManagement {
 
   private static final String REST_USER_DB_NAME = "REST_SCOPE_USER";
 
   private final LocalDatabase localDatabase;
 
-  @Inject
   public DefaultUserManagement(@NonNull NodeDatabaseProvider databaseProvider) {
     this.localDatabase = databaseProvider.database(REST_USER_DB_NAME);
   }
@@ -58,5 +52,18 @@ public class DefaultUserManagement implements RestUserManagement {
   @Override
   public boolean deleteRestUser(@NonNull RestUser user) {
     return this.localDatabase.delete(user.id());
+  }
+
+  @Override
+  public @NonNull RestUser.Builder builder() {
+    return new DefaultRestUser.Builder();
+  }
+
+  @Override
+  public @NonNull RestUser.Builder builder(@NonNull RestUser restUser) {
+    return this.builder()
+      .id(restUser.id())
+      .password(restUser.passwordHash())
+      .scopes(restUser.scopes());
   }
 }

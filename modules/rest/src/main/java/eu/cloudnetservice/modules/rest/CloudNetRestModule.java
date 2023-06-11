@@ -19,6 +19,8 @@ package eu.cloudnetservice.modules.rest;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.http.HttpServer;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.modules.rest.scope.DefaultUserManagement;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerAuthorization;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerCluster;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerDatabase;
@@ -32,6 +34,9 @@ import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerSession;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTask;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTemplate;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTemplateStorage;
+import eu.cloudnetservice.node.command.CommandProvider;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.http.RestUserManagement;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
 import eu.cloudnetservice.node.http.annotation.SecurityAnnotationExtension;
 import jakarta.inject.Singleton;
@@ -47,6 +52,20 @@ public final class CloudNetRestModule extends DriverModule {
     @NonNull SecurityAnnotationExtension securityAnnotationExtension
   ) {
     securityAnnotationExtension.install(httpServer.annotationParser(), authentication);
+  }
+
+  @ModuleTask(order = 127)
+  public void registerUserManagement(
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull NodeDatabaseProvider databaseProvider
+  ) {
+    var restUserManagement = new DefaultUserManagement(databaseProvider);
+    serviceRegistry.registerProvider(RestUserManagement.class, "RestUserManagement", restUserManagement);
+  }
+
+  @ModuleTask(order = 120)
+  public void registerCommand(@NonNull CommandProvider commandProvider) {
+    commandProvider.register(RestCommand.class);
   }
 
   @ModuleTask

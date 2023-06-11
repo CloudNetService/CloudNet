@@ -44,7 +44,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:task_read", "rest:task_list"})
+  @HandlerScope({"cloudnet_rest:task_read", "cloudnet_rest:task_list"})
   @HttpRequestHandler(paths = "/api/v2/task")
   private void handleTaskListRequest(@NonNull HttpContext context) {
     this.ok(context)
@@ -55,7 +55,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:task_read", "rest:task_exists"})
+  @HandlerScope({"cloudnet_rest:task_read", "cloudnet_rest:task_exists"})
   @HttpRequestHandler(paths = "/api/v2/task/{name}/exists")
   private void handleTaskExistsRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var task = this.taskProvider.serviceTask(name);
@@ -67,7 +67,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:task_read", "rest:task_get"})
+  @HandlerScope({"cloudnet_rest:task_read", "cloudnet_rest:task_get"})
   @HttpRequestHandler(paths = "/api/v2/task/{name}")
   private void handleTaskRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var serviceTask = this.taskProvider.serviceTask(name);
@@ -87,7 +87,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:task_write", "rest:task_create"})
+  @HandlerScope({"cloudnet_rest:task_write", "cloudnet_rest:task_create"})
   @HttpRequestHandler(paths = "/api/v2/task", methods = "POST")
   private void handleTaskCreateRequest(@NonNull HttpContext context, @NonNull @RequestBody Document body) {
     var serviceTask = body.toInstanceOf(ServiceTask.class);
@@ -112,7 +112,7 @@ public final class V2HttpHandlerTask extends V2HttpHandler {
   }
 
   @BearerAuth
-  @HandlerScope({"rest:task_write", "rest:task_delete"})
+  @HandlerScope({"cloudnet_rest:task_write", "cloudnet_rest:task_delete"})
   @HttpRequestHandler(paths = "/api/v2/task/{name}", methods = "DELETE")
   private void handleTaskDeleteRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("name") String name) {
     var serviceTask = this.taskProvider.serviceTask(name);

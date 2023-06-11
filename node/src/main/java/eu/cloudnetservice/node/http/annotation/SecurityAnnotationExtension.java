@@ -101,13 +101,13 @@ public final class SecurityAnnotationExtension {
     }
 
     for (var scope : handlerScope.value()) {
-      if (!RestUserManagement.SCOPE_PATTERN.matcher(scope).matches()) {
+      if (!RestUserManagement.SCOPE_NAMING_PATTERN.matcher(scope).matches()) {
         throw new AnnotationHttpHandleException(
           path,
           String.format(
             "Required scope %s does not match the scope pattern %s",
             scope,
-            RestUserManagement.SCOPE_PATTERN.pattern()));
+            RestUserManagement.SCOPE_NAMING_REGEX));
       }
     }
   }

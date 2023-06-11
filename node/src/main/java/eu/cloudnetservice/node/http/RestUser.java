@@ -41,11 +41,21 @@ public interface RestUser {
     return false;
   }
 
-  void addScope(@NonNull String scope);
-
-  void removeScope(@NonNull String scope);
-
   @UnmodifiableView
   @NonNull Set<String> scopes();
 
+  interface Builder {
+
+    @NonNull Builder id(@NonNull String id);
+
+    @NonNull Builder password(@Nullable String password);
+
+    @NonNull Builder addScope(@NonNull String scope);
+
+    @NonNull Builder removeScope(@NonNull String scope);
+
+    @NonNull Builder scopes(@NonNull Set<String> scopes);
+
+    @NonNull RestUser build();
+  }
 }

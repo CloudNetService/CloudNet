@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.network.rpc.generation.api;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.document.Document;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class BaseDatabase implements Database {
@@ -27,12 +26,12 @@ public abstract class BaseDatabase implements Database {
   public static final Document TEST_DOCUMENT = Document.newJsonDocument().append("hello", "world");
 
   @Override
-  public @Nullable Document get(@NotNull String key) {
+  public @Nullable Document get(String key) {
     return TEST_DOCUMENT;
   }
 
   @Override
-  public @NotNull Task<Document> getAsync(@NotNull String key) {
+  public Task<Document> getAsync(String key) {
     return Task.completedTask(TEST_DOCUMENT);
   }
 }

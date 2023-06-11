@@ -21,6 +21,7 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
@@ -59,7 +60,7 @@ public class V2HttpAuthentication {
   protected static final LoginResult<RestUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
 
-  protected final RestUserManagement restUserManagement;
+  protected final ServiceRegistry serviceRegistry;
   protected final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
 
   protected final Key signingKey;
@@ -68,10 +69,10 @@ public class V2HttpAuthentication {
 
   @Inject
   public V2HttpAuthentication(
-    @NonNull RestUserManagement restUserManagement,
+    @NonNull ServiceRegistry serviceRegistry,
     @NonNull ComponentInfo componentInfo
   ) {
-    this.restUserManagement = restUserManagement;
+    this.serviceRegistry = serviceRegistry;
     this.jwtIssuer = String.format(JWT_ISSUER_FORMAT, componentInfo.componentName());
 
     // initialize the secret & parser
@@ -87,7 +88,7 @@ public class V2HttpAuthentication {
         System.currentTimeMillis() + sessionTimeMillis,
         subject.id(),
         this,
-        this.restUserManagement));
+        this.serviceRegistry));
     return this.generateJwt(subject, session);
   }
 
@@ -101,7 +102,7 @@ public class V2HttpAuthentication {
     if (matcher.matches()) {
       var auth = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8).split(":", 2);
       if (auth.length == 2) {
-        var user = this.restUserManagement.restUser(auth[0]);
+        var user = this.restUserManagement().restUser(auth[0]);
         if (user != null && user.verifyPassword(auth[1])) {
           return LoginResult.success(user);
         }
@@ -208,6 +209,10 @@ public class V2HttpAuthentication {
   public @NonNull Map<String, HttpSession> sessions() {
     this.cleanup();
     return this.sessions;
+  }
+
+  private @NonNull RestUserManagement restUserManagement() {
+    return this.serviceRegistry.firstProvider(RestUserManagement.class);
   }
 
   public record LoginResult<T>(@UnknownNullability T result, @UnknownNullability String errorMessage) {
