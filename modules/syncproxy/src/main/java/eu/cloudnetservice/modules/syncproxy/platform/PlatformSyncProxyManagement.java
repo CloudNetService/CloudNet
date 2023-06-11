@@ -290,11 +290,11 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     int onlinePlayers,
     int maxPlayers
   ) {
-    input = BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo())
-      .replace("%time%", TIME_FORMATTER.format(LocalTime.now()))
+    input = input.replace("%time%", TIME_FORMATTER.format(LocalTime.now()))
       .replace("%online_players%", String.valueOf(onlinePlayers))
       .replace("%max_players%", String.valueOf(maxPlayers))
       .replace("%player_name%", this.playerName(player));
+    input = BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
 
     if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
       var permissionUser = this.permissionManagement.user(this.playerUniqueId(player));
