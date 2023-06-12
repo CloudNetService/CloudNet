@@ -24,16 +24,27 @@ import eu.cloudnetservice.node.http.RestUserManagement;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * {@inheritDoc}
+ */
 public final class DefaultUserManagement implements RestUserManagement {
 
   private static final String REST_USER_DB_NAME = "REST_SCOPE_USER";
 
   private final LocalDatabase localDatabase;
 
+  /**
+   * Creates the default user management and initializes the used database.
+   *
+   * @param databaseProvider the node database provider to use to create the user database.
+   */
   public DefaultUserManagement(@NonNull NodeDatabaseProvider databaseProvider) {
     this.localDatabase = databaseProvider.database(REST_USER_DB_NAME);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable RestUser restUser(@NonNull String id) {
     var user = this.localDatabase.get(id);
@@ -44,21 +55,33 @@ public final class DefaultUserManagement implements RestUserManagement {
     return user.toInstanceOf(DefaultRestUser.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void saveRestUser(@NonNull RestUser user) {
     this.localDatabase.insert(user.id(), Document.newJsonDocument().appendTree(user));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean deleteRestUser(@NonNull RestUser user) {
     return this.localDatabase.delete(user.id());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RestUser.Builder builder() {
     return new DefaultRestUser.Builder();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RestUser.Builder builder(@NonNull RestUser restUser) {
     return this.builder()

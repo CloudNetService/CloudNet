@@ -29,12 +29,15 @@ import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public record DefaultRestUser(
+record DefaultRestUser(
   @NonNull String id,
   @Nullable String passwordHash,
   @NonNull Set<String> scopes
 ) implements RestUser {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean verifyPassword(@NonNull String password) {
     if (this.passwordHash == null) {
@@ -45,34 +48,52 @@ public record DefaultRestUser(
     return this.passwordHash.equals(Base64.getEncoder().encodeToString(hash));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasScope(@NonNull String scope) {
     return this.scopes.contains("admin") || this.scopes.contains(StringUtil.toLower(scope));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Set<String> scopes() {
     return Collections.unmodifiableSet(this.scopes);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   static class Builder implements RestUser.Builder {
 
     private String id;
     private String password;
     private final Set<String> scopes = new HashSet<>();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Builder id(@NonNull String id) {
       this.id = id;
       return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Builder password(@Nullable String password) {
       this.password = password;
       return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Builder addScope(@NonNull String scope) {
       var matcher = RestUserManagement.SCOPE_NAMING_PATTERN.matcher(scope);
@@ -87,12 +108,18 @@ public record DefaultRestUser(
       return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Builder removeScope(@NonNull String scope) {
       this.scopes.remove(StringUtil.toLower(scope));
       return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Builder scopes(@NonNull Set<String> scopes) {
       this.scopes.clear();
@@ -103,6 +130,9 @@ public record DefaultRestUser(
       return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RestUser build() {
       Preconditions.checkNotNull(this.id, "Missing rest user id");
@@ -110,6 +140,11 @@ public record DefaultRestUser(
       return new DefaultRestUser(this.id, this.hashPassword(), this.scopes);
     }
 
+    /**
+     * Hashes the currently set password and encodes it using base64.
+     *
+     * @return the hashed and encoded password, null if no password was set.
+     */
     private @Nullable String hashPassword() {
       if (this.password == null) {
         return null;
