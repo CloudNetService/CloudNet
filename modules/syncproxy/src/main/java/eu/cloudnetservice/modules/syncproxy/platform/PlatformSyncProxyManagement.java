@@ -291,8 +291,8 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     int maxPlayers
   ) {
     input = input.replace("%time%", TIME_FORMATTER.format(LocalTime.now()))
-      .replace("%online_players%", String.valueOf(onlinePlayers))
-      .replace("%max_players%", String.valueOf(maxPlayers))
+      .replace("%syncproxy_online_players%", String.valueOf(onlinePlayers))
+      .replace("%syncproxy_max_players%", String.valueOf(maxPlayers))
       .replace("%player_name%", this.playerName(player));
     input = BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
 
