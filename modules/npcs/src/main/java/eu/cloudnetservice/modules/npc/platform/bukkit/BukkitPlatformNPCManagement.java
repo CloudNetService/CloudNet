@@ -105,6 +105,19 @@ public class BukkitPlatformNPCManagement extends
         .build();
     }
 
+    // spawn all npcs that are in chunks that were loaded before the plugin was enabled
+    for (var entries : this.npcs.entrySet()) {
+      var world = this.server.getWorld(entries.getKey().world());
+      if (world != null) {
+        var x = NumberConversions.floor(entries.getKey().x()) >> 4;
+        var z = NumberConversions.floor(entries.getKey().z()) >> 4;
+        // only spawn in already loaded chunks
+        if (world.isChunkLoaded(x, z)) {
+          this.trackedEntities.get(entries.getKey()).spawn();
+        }
+      }
+    }
+
     // start the emote player
     this.startEmoteTask(false);
     // start the knock back task
