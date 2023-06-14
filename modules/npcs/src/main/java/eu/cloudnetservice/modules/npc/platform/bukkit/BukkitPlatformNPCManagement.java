@@ -170,7 +170,7 @@ public class BukkitPlatformNPCManagement extends
 
     // spawn all npcs that are in chunks that were loaded before the plugin was enabled
     for (var entity : this.trackedEntities.values()) {
-      if (entity != null && entity.canSpawn()) {
+      if (entity.canSpawn()) {
         entity.spawn();
       }
     }
