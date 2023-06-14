@@ -105,14 +105,6 @@ public class BukkitPlatformNPCManagement extends
         .build();
     }
 
-    // spawn all npcs that are in chunks that were loaded before the plugin was enabled
-    for (var entries : this.npcs.entrySet()) {
-      var entity = this.trackedEntities().get(entries.getKey());
-      if (entity != null && entity.canSpawn()) {
-        entity.spawn();
-      }
-    }
-
     // start the emote player
     this.startEmoteTask(false);
     // start the knock back task
@@ -170,6 +162,18 @@ public class BukkitPlatformNPCManagement extends
         }
       }
     }, 20, 5);
+  }
+
+  @Override
+  public void initialize() {
+    super.initialize();
+
+    // spawn all npcs that are in chunks that were loaded before the plugin was enabled
+    for (var entity : this.trackedEntities.values()) {
+      if (entity != null && entity.canSpawn()) {
+        entity.spawn();
+      }
+    }
   }
 
   @Override
