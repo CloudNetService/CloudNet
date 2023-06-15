@@ -22,6 +22,7 @@ import com.github.juliarn.npclib.api.flag.NpcFlag;
 import com.github.juliarn.npclib.api.profile.Profile;
 import com.github.juliarn.npclib.api.profile.ProfileProperty;
 import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
@@ -52,10 +53,11 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
     @NonNull Plugin plugin,
     @NonNull Server server,
     @NonNull BukkitScheduler scheduler,
+    @NonNull PlayerManager playerManager,
     @NonNull BukkitPlatformNPCManagement npcManagement,
     @NonNull Platform<World, Player, ItemStack, Plugin> platform
   ) {
-    super(npc, plugin, server, scheduler, npcManagement);
+    super(npc, plugin, server, scheduler, playerManager, npcManagement);
     this.platform = platform;
   }
 
@@ -83,7 +85,9 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
       .flag(Npc.LOOK_AT_PLAYER, this.npc.lookAtPlayer())
       .npcSettings(builder -> builder.profileResolver((player, spawnedNpc) -> {
         if (this.npc.usePlayerSkin()) {
-          return this.platform.profileResolver().resolveProfile(Profile.unresolved(player.getUniqueId()));
+          return this.platform.profileResolver()
+            .resolveProfile(Profile.unresolved(player.getUniqueId()))
+            .thenApply(resolvedProfile -> spawnedNpc.profile().withProperties(resolvedProfile.properties()));
         } else {
           return CompletableFuture.completedFuture(spawnedNpc.profile());
         }

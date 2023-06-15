@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPCManagement;
@@ -47,6 +48,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @Singleton
 public class CloudNetNPCModule extends DriverModule {
@@ -206,8 +208,7 @@ public class CloudNetNPCModule extends DriverModule {
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
-  public void handleReload(@NonNull ServiceRegistry serviceRegistry) {
-    var management = serviceRegistry.firstProvider(NPCManagement.class);
+  public void handleReload(@Nullable @Service NPCManagement management) {
     if (management != null) {
       management.npcConfiguration(this.loadConfig());
     }

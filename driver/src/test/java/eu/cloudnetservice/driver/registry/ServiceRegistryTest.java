@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.driver.registry;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +25,7 @@ public final class ServiceRegistryTest {
 
   @Test
   public void testDefaultRegistry() {
-    ServiceRegistry registry = new DefaultServiceRegistry();
+    var registry = new DefaultServiceRegistry(InjectionLayer.boot());
 
     registry
       .registerProvider(A.class, "b", new B())
@@ -51,6 +53,34 @@ public final class ServiceRegistryTest {
 
     Assertions.assertEquals(0, registry.providers(A.class).size());
     registry.unregisterAll();
+  }
+
+  @Test
+  public void testRegistryInjection() {
+    var registry = new DefaultServiceRegistry(InjectionLayer.boot());
+    var instanceB = new B();
+
+    registry.registerProvider(A.class, "b", instanceB);
+    registry.registerProvider(A.class, "c", new B());
+
+    var serviceD = InjectionLayer.boot().instance(D.class);
+    Assertions.assertNotNull(serviceD.withoutSpecialName());
+
+    Assertions.assertNotNull(serviceD.specialNameB());
+    Assertions.assertSame(instanceB, serviceD.specialNameB());
+
+    Assertions.assertNotSame(instanceB, serviceD.specialNameC());
+
+    Assertions.assertNull(serviceD.nonExistent());
+  }
+
+  private record D(
+    @Service A withoutSpecialName,
+    @Service(name = "b") A specialNameB,
+    @Service(name = "c") A specialNameC,
+    @Service(name = "non-existing") A nonExistent
+  ) {
+
   }
 
   private interface A {

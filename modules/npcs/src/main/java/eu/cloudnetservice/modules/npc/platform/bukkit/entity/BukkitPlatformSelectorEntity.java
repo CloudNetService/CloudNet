@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -67,6 +66,7 @@ public abstract class BukkitPlatformSelectorEntity
   protected final Plugin plugin;
   protected final Server server;
   protected final BukkitScheduler scheduler;
+  protected final PlayerManager playerManager;
   protected final BukkitPlatformNPCManagement npcManagement;
 
   protected final UUID uniqueId;
@@ -84,12 +84,14 @@ public abstract class BukkitPlatformSelectorEntity
     @NonNull Plugin plugin,
     @NonNull Server server,
     @NonNull BukkitScheduler scheduler,
+    @NonNull PlayerManager playerManager,
     @NonNull BukkitPlatformNPCManagement npcManagement
   ) {
     this.npc = npc;
     this.plugin = plugin;
     this.server = server;
     this.scheduler = scheduler;
+    this.playerManager = playerManager;
     this.npcManagement = npcManagement;
     this.npcLocation = npcManagement.toPlatformLocation(npc.location());
     // construct the unique id randomly
@@ -469,7 +471,7 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   protected @NonNull PlayerManager playerManager() {
-    return ServiceRegistry.first(PlayerManager.class);
+    return this.playerManager;
   }
 
   protected double heightAddition(int lineNumber) {
