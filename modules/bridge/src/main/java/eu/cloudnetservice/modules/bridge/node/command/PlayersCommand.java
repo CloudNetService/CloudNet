@@ -34,6 +34,7 @@ import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
+import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
@@ -222,7 +223,7 @@ public class PlayersCommand {
     var reasonComponent = reason == null
       ? Component.empty()
       : ComponentFormats.BUNGEE_TO_ADVENTURE.convert(reason);
-    player.playerExecutor().kick(reasonComponent);
+    this.playerExecutor(player).kick(reasonComponent);
 
     source.sendMessage(I18n.trans("module-bridge-command-players-kick-player",
       player.name(),
@@ -242,7 +243,7 @@ public class PlayersCommand {
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Greedy @Argument("message") String message
   ) {
-    player.playerExecutor().sendChatMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message));
+    this.playerExecutor(player).sendChatMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message));
     source.sendMessage(
       I18n.trans("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
   }
@@ -254,7 +255,7 @@ public class PlayersCommand {
     @NonNull @Argument("server") ServiceInfoSnapshot server
   ) {
     if (server.readProperty(BridgeDocProperties.IS_ONLINE)) {
-      player.playerExecutor().connect(server.name());
+      this.playerExecutor(player).connect(server.name());
 
       source.sendMessage(
         I18n.trans("module-bridge-command-players-send-player-server", player.name(), player.uniqueId()));
@@ -262,5 +263,9 @@ public class PlayersCommand {
       source.sendMessage(
         I18n.trans("module-bridge-command-players-send-player-server-not-found", player.name(), player.uniqueId()));
     }
+  }
+
+  private @NonNull PlayerExecutor playerExecutor(@NonNull CloudPlayer cloudPlayer) {
+    return this.playerManager.playerExecutor(cloudPlayer.uniqueId());
   }
 }

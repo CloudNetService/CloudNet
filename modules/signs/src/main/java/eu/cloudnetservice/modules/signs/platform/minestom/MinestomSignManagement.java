@@ -20,8 +20,10 @@ import com.google.common.util.concurrent.MoreExecutors;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -47,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 @ProvidesFor(platform = "minestom", types = {PlatformSignManagement.class, SignManagement.class})
 public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple2<Point, Instance>, String> {
 
+  private final PlayerManager playerManager;
   private final GlobalEventHandler eventHandler;
   private final InstanceManager instanceManager;
   private final SchedulerManager schedulerManager;
@@ -54,6 +57,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
   @Inject
   protected MinestomSignManagement(
     @NonNull EventManager eventManager,
+    @NonNull @Service PlayerManager playerManager,
     @NonNull GlobalEventHandler eventHandler,
     @NonNull InstanceManager instanceManager,
     @NonNull SchedulerManager schedulerManager,
@@ -62,6 +66,8 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
     @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
   ) {
     super(eventManager, MoreExecutors.directExecutor(), wrapperConfig, serviceProvider, executorService);
+
+    this.playerManager = playerManager;
     this.eventHandler = eventHandler;
     this.instanceManager = instanceManager;
     this.schedulerManager = schedulerManager;
@@ -121,6 +127,6 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
 
   @Override
   protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
-    return new MinestomPlatformSign(base, this.eventHandler, this.instanceManager);
+    return new MinestomPlatformSign(base, this.playerManager, this.eventHandler, this.instanceManager);
   }
 }

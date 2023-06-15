@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.service.defaults;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
@@ -54,6 +55,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -339,7 +341,7 @@ public class JVMService extends AbstractService {
           path,
           file -> new ApplicationStartupInformation(
             file.getEntry("META-INF/versions.list") != null,
-            file.getManifest().getMainAttributes())
+            this.validateManifest(file.getManifest()).getMainAttributes())
         )).orElse(null);
     } catch (IOException exception) {
       LOGGER.severe("Unable to find application file information in %s for environment %s",
@@ -389,6 +391,16 @@ public class JVMService extends AbstractService {
     });
     // contains all paths we need now
     return builder.toString();
+  }
+
+  protected @NonNull Manifest validateManifest(@Nullable Manifest manifest) {
+    // make sure that we have a manifest at all
+    Preconditions.checkNotNull(manifest, "Application jar does not contain a manifest.");
+    // make sure that the manifest at least contains a main class
+    Preconditions.checkNotNull(
+      manifest.getMainAttributes().getValue("Main-Class"),
+      "Application jar manifest does not contain a Main-Class.");
+    return manifest;
   }
 
   protected record ApplicationStartupInformation(boolean preloadJarContent, @NonNull Attributes mainAttributes) {

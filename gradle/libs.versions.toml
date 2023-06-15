@@ -5,21 +5,21 @@ shadow = "8.1.1"
 blossom = "1.3.1"
 juppiter = "0.4.0"
 spotless = "6.18.0"
-fabricLoom = "1.1.13"
+fabricLoom = "1.2.7"
 nexusPublish = "1.3.0"
-checkstyleTools = "10.10.0"
+checkstyleTools = "10.11.0"
 
 # google libs
 gson = "2.10.1"
 guava = "31.1-jre"
 
 # testing
-junit = "5.9.2"
-mockito = "5.3.0"
-testcontainers = "1.18.0"
+junit = "5.9.3"
+mockito = "5.3.1"
+testcontainers = "1.18.1"
 
 # compile time processing
-lombok = "1.18.26"
+lombok = "1.18.28"
 javapoet = "1.13.0"
 
 # console
@@ -33,26 +33,26 @@ h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "4.9.1"
 hikariCp = "5.0.1"
-mysqlConnector = "8.0.32"
+mysqlConnector = "8.0.33"
 
 # general
 asm = "9.5"
-oshi = "6.4.1"
+oshi = "6.4.2"
 vavr = "0.10.4"
 sshj = "0.35.0"
 jjwt = "0.11.5"
 slf4j = "1.7.36"
 aerogel = "2.1.0"
 caffeine = "3.1.6"
-awsSdk = "2.20.47"
+awsSdk = "2.20.72"
 reflexion = "1.8.0"
 geantyref = "1.3.14"
 dockerJava = "3.3.0"
-unirestCore = "4.0.0-RC2"
-unirestMapper = "4.0.0-RC7"
+unirestCore = "4.0.0-RC9"
+unirestMapper = "4.0.0-RC9"
 nightConfig = "3.6.6"
 annotations = "24.0.1"
-influxClient = "6.7.0"
+influxClient = "6.9.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
 
@@ -69,12 +69,12 @@ bungeecord = "1.19-R0.1-SNAPSHOT"
 vault = "1.7.1"
 adventure = "4.13.1"
 modlauncher = "8.1.3"
-npcLib = "3.0.0-beta4"
+npcLib = "3.0.0-beta5"
 placeholderApi = "2.11.3"
 
 # fabric platform special dependencies
 minecraft = "1.19.4"
-fabricLoader = "0.14.19"
+fabricLoader = "0.14.20"
 
 
 [libraries]
@@ -119,7 +119,7 @@ testContainers = { group = "org.testcontainers", name = "testcontainers", versio
 testContainersJunit = { group = "org.testcontainers", name = "junit-jupiter", version.ref = "testcontainers" }
 
 # unirest
-unirest = { group = "com.konghq", name = "unirest-java", version.ref = "unirestCore" }
+unirest = { group = "com.konghq", name = "unirest-java-core", version.ref = "unirestCore" }
 unirestGson = { group = "com.konghq", name = "unirest-object-mappers-gson", version.ref = "unirestMapper" }
 
 # docker-java

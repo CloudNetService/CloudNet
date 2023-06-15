@@ -236,12 +236,12 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   ) {
     var header = this.replaceTabListItem(
       tabList.header(),
-      this.playerUniqueId(player),
+      player,
       onlinePlayers,
       maxPlayers);
     var footer = this.replaceTabListItem(
       tabList.footer(),
-      this.playerUniqueId(player),
+      player,
       onlinePlayers,
       maxPlayers);
 
@@ -286,17 +286,18 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   private @NonNull String replaceTabListItem(
     @NonNull String input,
-    @NonNull UUID playerUniqueId,
+    @NonNull P player,
     int onlinePlayers,
     int maxPlayers
   ) {
-    input = BridgeServiceHelper.fillCommonPlaceholders(input
+    input = BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo())
       .replace("%time%", TIME_FORMATTER.format(LocalTime.now()))
       .replace("%online_players%", String.valueOf(onlinePlayers))
-      .replace("%max_players%", String.valueOf(maxPlayers)), null, this.serviceInfoHolder.serviceInfo());
+      .replace("%max_players%", String.valueOf(maxPlayers))
+      .replace("%player_name%", this.playerName(player));
 
     if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
-      var permissionUser = this.permissionManagement.user(playerUniqueId);
+      var permissionUser = this.permissionManagement.user(this.playerUniqueId(player));
 
       if (permissionUser != null) {
         var group = this.permissionManagement.highestPermissionGroup(permissionUser);

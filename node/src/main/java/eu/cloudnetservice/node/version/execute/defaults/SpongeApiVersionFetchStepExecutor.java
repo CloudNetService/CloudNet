@@ -24,8 +24,8 @@ import eu.cloudnetservice.node.version.information.VersionInstaller;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
-import kong.unirest.HttpStatus;
-import kong.unirest.Unirest;
+import kong.unirest.core.HttpStatus;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
 public class SpongeApiVersionFetchStepExecutor implements InstallStepExecutor {
