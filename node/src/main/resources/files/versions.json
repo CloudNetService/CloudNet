@@ -358,11 +358,15 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.4.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.20.1.jar",
           "cacheFiles": false
         },
         {
-          "name": "1.19.3",
+          "name": "1.20.1",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.20.1.jar"
+        },
+        {
+          "name": "1.19.4",
           "url": "https://download.getbukkit.org/spigot/spigot-1.19.4.jar"
         },
         {
