@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.util.Collection;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -42,7 +43,15 @@ public interface ServiceRegistry {
    * @param <T>     the type of the service to query.
    * @return the last registered provider for the given service or null if no provider is registered.
    * @throws NullPointerException if the given service class is null.
+   * @deprecated the method is deprecated as it requires abusing the purpose of dependency injection in order to work.
+   * There are two ways to replace this part of the api
+   * <ul>
+   *   <li>injecting the service registry itself and calling {@link #firstProvider(Class)}.</li>
+   *   <li>injecting the requested service directly using the {@link eu.cloudnetservice.driver.registry.injection.Service} annotation.</li>
+   * </ul>
    */
+  @Deprecated(since = "4.0", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "4.1")
   static <T> @UnknownNullability T first(@NonNull Class<T> service) {
     var registry = InjectionLayer.boot().instance(ServiceRegistry.class);
     return registry.firstProvider(service);
