@@ -35,7 +35,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class MySQLDatabaseTest {
 
   @Container
-  private final GenericContainer<?> mysqlContainer = new GenericContainer<>("mariadb:latest")
+  private final GenericContainer<?> mysqlContainer = new GenericContainer<>("mariadb:11.1.1-rc")
     .withExposedPorts(3306)
     .withEnv("MYSQL_USER", "test")
     .withEnv("MYSQL_PASSWORD", "test")
@@ -51,7 +51,6 @@ class MySQLDatabaseTest {
       "test",
       "mysql",
       List.of(new MySQLConnectionEndpoint(
-        false,
         "cn_testing",
         new HostAndPort(this.mysqlContainer.getHost(), this.mysqlContainer.getFirstMappedPort())))),
       null);
