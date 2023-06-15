@@ -51,7 +51,6 @@ class MySQLDatabaseTest {
       "test",
       "mysql",
       List.of(new MySQLConnectionEndpoint(
-        false,
         "cn_testing",
         new HostAndPort(this.mysqlContainer.getHost(), this.mysqlContainer.getFirstMappedPort())))),
       null);
