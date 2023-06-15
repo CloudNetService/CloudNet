@@ -85,7 +85,9 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
       .flag(Npc.LOOK_AT_PLAYER, this.npc.lookAtPlayer())
       .npcSettings(builder -> builder.profileResolver((player, spawnedNpc) -> {
         if (this.npc.usePlayerSkin()) {
-          return this.platform.profileResolver().resolveProfile(Profile.unresolved(player.getUniqueId()));
+          return this.platform.profileResolver()
+            .resolveProfile(Profile.unresolved(player.getUniqueId()))
+            .thenApply(resolvedProfile -> spawnedNpc.profile().withProperties(resolvedProfile.properties()));
         } else {
           return CompletableFuture.completedFuture(spawnedNpc.profile());
         }
