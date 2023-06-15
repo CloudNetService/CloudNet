@@ -52,7 +52,7 @@ unirestCore = "4.0.0-RC9"
 unirestMapper = "4.0.0-RC9"
 nightConfig = "3.6.6"
 annotations = "24.0.1"
-influxClient = "6.8.0"
+influxClient = "6.9.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
 
@@ -69,7 +69,7 @@ bungeecord = "1.19-R0.1-SNAPSHOT"
 vault = "1.7.1"
 adventure = "4.13.1"
 modlauncher = "8.1.3"
-npcLib = "3.0.0-beta4"
+npcLib = "3.0.0-beta5"
 placeholderApi = "2.11.3"
 
 # fabric platform special dependencies
