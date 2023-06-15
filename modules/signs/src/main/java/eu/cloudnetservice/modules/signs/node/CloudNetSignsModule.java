@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
@@ -42,6 +43,7 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @Singleton
 public class CloudNetSignsModule extends DriverModule {
@@ -99,8 +101,11 @@ public class CloudNetSignsModule extends DriverModule {
 
   @Deprecated
   @ModuleTask(order = 20)
-  public void handleDatabaseConvert(@NonNull DatabaseProvider databaseProvider) {
-    this.convertDatabaseIfNecessary(databaseProvider);
+  public void handleDatabaseConvert(
+    @NonNull DatabaseProvider databaseProvider,
+    @NonNull @Service SignManagement signManagement
+  ) {
+    this.convertDatabaseIfNecessary(databaseProvider, signManagement);
   }
 
   @ModuleTask(order = 40, lifecycle = ModuleLifeCycle.STOPPED)
@@ -109,15 +114,17 @@ public class CloudNetSignsModule extends DriverModule {
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
-  public void handleReload() {
-    var management = ServiceRegistry.first(SignManagement.class);
+  public void handleReload(@Nullable @Service SignManagement management) {
     if (management != null) {
       management.signsConfiguration(NodeSignsConfigurationHelper.read(this.configPath()));
     }
   }
 
   @Deprecated
-  private void convertDatabaseIfNecessary(@NonNull DatabaseProvider databaseProvider) {
+  private void convertDatabaseIfNecessary(
+    @NonNull DatabaseProvider databaseProvider,
+    @NonNull SignManagement signManagement
+  ) {
     // convert the old database (old h2 databases convert the name to lower case - we need to check both names)
     var db = databaseProvider.database("cloudNet_module_configuration");
     if (db.documentCount() == 0) {
@@ -138,9 +145,8 @@ public class CloudNetSignsModule extends DriverModule {
         SignConstants.COLLECTION_SIGNS);
       if (oldSigns != null) {
         // convert the old sign entries
-        var management = ServiceRegistry.first(SignManagement.class);
         for (var oldSign : oldSigns) {
-          management.createSign(new Sign(
+          signManagement.createSign(new Sign(
             oldSign.getTargetGroup(),
             oldSign.getTemplatePath(),
             new WorldPosition(

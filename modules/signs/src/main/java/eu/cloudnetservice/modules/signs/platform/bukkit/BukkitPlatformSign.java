@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.signs.platform.bukkit;
 
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -39,8 +40,13 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
   private final Server server;
   private final PluginManager pluginManager;
 
-  public BukkitPlatformSign(@NonNull Sign base, @NonNull Server server, @NonNull PluginManager pluginManager) {
-    super(base, input -> ChatColor.translateAlternateColorCodes('&', input));
+  public BukkitPlatformSign(
+    @NonNull Sign base,
+    @NonNull Server server,
+    @NonNull PluginManager pluginManager,
+    @NonNull PlayerManager playerManager
+  ) {
+    super(base, playerManager, input -> ChatColor.translateAlternateColorCodes('&', input));
     this.server = server;
 
     this.pluginManager = pluginManager;

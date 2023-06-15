@@ -73,21 +73,25 @@ public final class BukkitFunctionalityListener implements Listener {
   }
 
   public void handleNpcShow(@NonNull ShowNpcEvent.Post event) {
-    var packetFactory = event.npc().platform().packetFactory();
-    packetFactory
-      .createEntityMetaPacket(true, EntityMetadataFactory.skinLayerMetaFactory())
-      .scheduleForTracked(event.npc());
-    event.npc().flagValue(NPCBukkitPlatformSelector.SELECTOR_ENTITY).ifPresent(selectorEntity -> {
-      packetFactory.createEntityMetaPacket(
-        this.collectEntityStatus(selectorEntity.npc()),
-        EntityMetadataFactory.entityStatusMetaFactory()
-      ).scheduleForTracked(event.npc());
+    var npc = event.npc();
+    var player = event.player();
 
+    // enable all skin players
+    npc.changeMetadata(EntityMetadataFactory.skinLayerMetaFactory(), true).schedule(player);
+
+    // applies the settings made to the selector entity (the stored CloudNet entity)
+    npc.flagValue(NPCBukkitPlatformSelector.SELECTOR_ENTITY).ifPresent(selectorEntity -> {
+      // applies the entity status: glowing, on fire, flying with elytra, ...
+      npc
+        .changeMetadata(EntityMetadataFactory.entityStatusMetaFactory(), this.collectEntityStatus(selectorEntity.npc()))
+        .schedule(player);
+
+      // applies the items (in hands & armor)
       var entries = selectorEntity.npc().items().entrySet();
       for (var entry : entries) {
         if (entry.getKey() >= 0 && entry.getKey() <= 5) {
           var item = new ItemStack(Material.matchMaterial(entry.getValue()));
-          packetFactory.createEquipmentPacket(ITEM_SLOTS[entry.getKey()], item).scheduleForTracked(event.npc());
+          npc.changeItem(ITEM_SLOTS[entry.getKey()], item).schedule(player);
         }
       }
     });
