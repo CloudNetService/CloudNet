@@ -29,7 +29,7 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -65,10 +65,14 @@ public final class ReportCommand {
   private final CloudServiceProvider serviceProvider;
 
   @Inject
-  public ReportCommand(@NonNull CloudNetReportModule reportModule, @NonNull CloudServiceProvider serviceProvider) {
+  public ReportCommand(
+    @NonNull CloudNetReportModule reportModule,
+    @NonNull CloudServiceProvider serviceProvider,
+    @NonNull @Service EmitterRegistry emitterRegistry
+  ) {
     this.reportModule = reportModule;
     this.serviceProvider = serviceProvider;
-    this.emitterRegistry = ServiceRegistry.first(EmitterRegistry.class);
+    this.emitterRegistry = emitterRegistry;
   }
 
   @Parser(suggestions = "pasteServer")

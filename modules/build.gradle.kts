@@ -30,8 +30,9 @@ subprojects {
   }
 
   repositories {
+    maven("https://repo.waterdog.dev/releases/")
     maven("https://repo.md-5.net/repository/releases/")
-    maven("https://repo.waterdog.dev/artifactory/main/")
+    maven("https://repo.md-5.net/repository/snapshots/")
     maven("https://repo.opencollab.dev/maven-releases/")
     maven("https://repo.opencollab.dev/maven-snapshots/")
     maven("https://repo.papermc.io/repository/maven-public/")
