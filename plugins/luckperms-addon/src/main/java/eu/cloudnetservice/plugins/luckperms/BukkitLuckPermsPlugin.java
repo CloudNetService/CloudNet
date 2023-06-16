@@ -17,6 +17,7 @@
 package eu.cloudnetservice.plugins.luckperms;
 
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
@@ -30,7 +31,8 @@ import net.luckperms.api.LuckPermsProvider;
   authors = "CloudNetService",
   version = "{project.build.version}",
   description = "Brings LuckPerms support to all server platforms",
-  pluginFileNames = "plugin.yml"
+  pluginFileNames = "plugin.yml",
+  dependencies = @Dependency(name = "LuckPerms")
 )
 public class BukkitLuckPermsPlugin implements PlatformEntrypoint {
   private final ServiceInfoHolder serviceInfoHolder;

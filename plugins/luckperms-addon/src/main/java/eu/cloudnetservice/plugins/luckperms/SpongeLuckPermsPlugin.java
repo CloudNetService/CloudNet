@@ -29,7 +29,10 @@ import net.luckperms.api.LuckPermsProvider;
   platform = "sponge",
   name = "CloudNet-LuckPerms-Addon",
   version = "{project.build.version}",
-  dependencies = @Dependency(name = "spongeapi", version = "8.0.0"),
+  dependencies = {
+    @Dependency(name = "spongeapi", version = "8.0.0"),
+    @Dependency(name = "LuckPerms")
+  },
   authors = "CloudNetService",
   description = "Brings LuckPerms support to all server platforms"
 )

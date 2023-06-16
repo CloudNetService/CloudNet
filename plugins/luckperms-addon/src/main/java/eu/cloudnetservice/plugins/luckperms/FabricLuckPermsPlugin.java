@@ -32,7 +32,8 @@ import net.luckperms.api.LuckPermsProvider;
   dependencies = {
     @Dependency(name = "fabricloader", version = ">=0.14.17"),
     @Dependency(name = "minecraft", version = "~1.19.4"),
-    @Dependency(name = "java", version = ">=17")
+    @Dependency(name = "java", version = ">=17"),
+    @Dependency(name = "LuckPerms")
   },
   authors = "CloudNetService",
   description = "Brings LuckPerms support to all server platforms"
