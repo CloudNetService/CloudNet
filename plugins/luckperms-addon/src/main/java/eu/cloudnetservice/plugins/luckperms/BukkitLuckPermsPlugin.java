@@ -19,9 +19,9 @@ package eu.cloudnetservice.plugins.luckperms;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
-import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import lombok.NonNull;
 import net.luckperms.api.LuckPermsProvider;
 
 @Singleton
@@ -35,15 +35,16 @@ import net.luckperms.api.LuckPermsProvider;
   dependencies = @Dependency(name = "LuckPerms")
 )
 public class BukkitLuckPermsPlugin implements PlatformEntrypoint {
-  private final ServiceInfoHolder serviceInfoHolder;
+
+  private final CloudNetContextCalculator cloudNetContextCalculator;
 
   @Inject
-  public BukkitLuckPermsPlugin(ServiceInfoHolder serviceInfoHolder) {
-    this.serviceInfoHolder = serviceInfoHolder;
+  public BukkitLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
+    this.cloudNetContextCalculator = cloudNetContextCalculator;
   }
 
   @Override
   public void onLoad() {
-    LuckPermsProvider.get().getContextManager().registerCalculator(new CloudNetContextCalculator(this.serviceInfoHolder));
+    LuckPermsProvider.get().getContextManager().registerCalculator(this.cloudNetContextCalculator);
   }
 }

@@ -16,26 +16,28 @@
 
 package eu.cloudnetservice.plugins.luckperms;
 
-import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.luckperms.api.context.ContextConsumer;
 import net.luckperms.api.context.StaticContextCalculator;
 
+@Singleton
 public class CloudNetContextCalculator implements StaticContextCalculator {
 
-  private final ServiceInfoHolder serviceInfoHolder;
+  private final WrapperConfiguration wrapperConfiguration;
 
   @Inject
-  public CloudNetContextCalculator(ServiceInfoHolder serviceInfoHolder) {
-    this.serviceInfoHolder = serviceInfoHolder;
+  public CloudNetContextCalculator(@NonNull WrapperConfiguration wrapperConfiguration) {
+    this.wrapperConfiguration = wrapperConfiguration;
   }
 
   @Override
   public void calculate(@NonNull ContextConsumer consumer) {
-    consumer.accept("service", this.serviceInfoHolder.serviceInfo().serviceId().name());
-    consumer.accept("task", this.serviceInfoHolder.serviceInfo().serviceId().taskName());
-    consumer.accept("node", this.serviceInfoHolder.serviceInfo().serviceId().nodeUniqueId());
-    consumer.accept("environment", this.serviceInfoHolder.serviceInfo().serviceId().environmentName());
+    consumer.accept("service", this.wrapperConfiguration.serviceConfiguration().serviceId().name());
+    consumer.accept("task", this.wrapperConfiguration.serviceConfiguration().serviceId().taskName());
+    consumer.accept("node", this.wrapperConfiguration.serviceConfiguration().serviceId().nodeUniqueId());
+    consumer.accept("environment", this.wrapperConfiguration.serviceConfiguration().serviceId().environmentName());
   }
 }

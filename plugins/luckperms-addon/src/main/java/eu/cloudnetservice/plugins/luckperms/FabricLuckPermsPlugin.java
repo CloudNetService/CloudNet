@@ -19,9 +19,9 @@ package eu.cloudnetservice.plugins.luckperms;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
-import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import lombok.NonNull;
 import net.luckperms.api.LuckPermsProvider;
 
 @Singleton
@@ -39,15 +39,16 @@ import net.luckperms.api.LuckPermsProvider;
   description = "Brings LuckPerms support to all server platforms"
 )
 public class FabricLuckPermsPlugin implements PlatformEntrypoint {
-  private final ServiceInfoHolder serviceInfoHolder;
+
+  private final CloudNetContextCalculator cloudNetContextCalculator;
 
   @Inject
-  public FabricLuckPermsPlugin(ServiceInfoHolder serviceInfoHolder) {
-    this.serviceInfoHolder = serviceInfoHolder;
+  public FabricLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
+    this.cloudNetContextCalculator = cloudNetContextCalculator;
   }
 
   @Override
   public void onLoad() {
-    LuckPermsProvider.get().getContextManager().registerCalculator(new CloudNetContextCalculator(this.serviceInfoHolder));
+    LuckPermsProvider.get().getContextManager().registerCalculator(this.cloudNetContextCalculator);
   }
 }
