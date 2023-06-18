@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.driver.module.driver;
 
-import com.google.gson.JsonSyntaxException;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.InjectionContext;
 import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.driver.document.DocumentParseException;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.DefaultModule;
 import eu.cloudnetservice.driver.module.Module;
@@ -53,7 +53,7 @@ public class DriverModule extends DefaultModule {
    *
    * @param factory the config factory to use when parsing the configuration.
    * @return the config at the default path.
-   * @throws JsonSyntaxException if the document is invalid.
+   * @throws DocumentParseException if the document cannot be parsed from the given path.
    */
   public @NonNull Document readConfig(@NonNull DocumentFactory factory) {
     return factory.parse(this.configPath());

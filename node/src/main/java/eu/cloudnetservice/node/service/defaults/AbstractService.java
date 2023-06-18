@@ -79,8 +79,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiPredicate;
 import java.util.regex.Pattern;
-import kong.unirest.Unirest;
-import kong.unirest.UnirestException;
+import kong.unirest.core.Unirest;
+import kong.unirest.core.UnirestException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 

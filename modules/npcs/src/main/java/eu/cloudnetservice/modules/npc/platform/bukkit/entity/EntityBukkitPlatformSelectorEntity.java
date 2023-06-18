@@ -22,6 +22,7 @@ import static eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
@@ -89,9 +90,10 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
     @NonNull Plugin plugin,
     @NonNull Server server,
     @NonNull BukkitScheduler scheduler,
+    @NonNull PlayerManager playerManager,
     @NonNull BukkitPlatformNPCManagement npcManagement
   ) {
-    super(npc, plugin, server, scheduler, npcManagement);
+    super(npc, plugin, server, scheduler, playerManager, npcManagement);
   }
 
   @Override

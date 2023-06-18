@@ -18,8 +18,10 @@ package eu.cloudnetservice.modules.signs.platform.bukkit;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -44,6 +46,7 @@ public class BukkitSignManagement extends PlatformSignManagement<Player, Locatio
 
   protected final Plugin plugin;
   protected final PluginManager pluginManager;
+  protected final PlayerManager playerManager;
   protected final BukkitScheduler scheduler;
 
   @Inject
@@ -53,6 +56,7 @@ public class BukkitSignManagement extends PlatformSignManagement<Player, Locatio
     @NonNull BukkitScheduler scheduler,
     @NonNull EventManager eventManager,
     @NonNull PluginManager pluginManager,
+    @NonNull @Service PlayerManager playerManager,
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull CloudServiceProvider serviceProvider,
     @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
@@ -69,6 +73,7 @@ public class BukkitSignManagement extends PlatformSignManagement<Player, Locatio
     this.plugin = plugin;
     this.scheduler = scheduler;
     this.pluginManager = pluginManager;
+    this.playerManager = playerManager;
   }
 
   @Override
@@ -127,6 +132,6 @@ public class BukkitSignManagement extends PlatformSignManagement<Player, Locatio
 
   @Override
   protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
-    return new BukkitPlatformSign(base, this.plugin.getServer(), this.pluginManager);
+    return new BukkitPlatformSign(base, this.plugin.getServer(), this.pluginManager, this.playerManager);
   }
 }

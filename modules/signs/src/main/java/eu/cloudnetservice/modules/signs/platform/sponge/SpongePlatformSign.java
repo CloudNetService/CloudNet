@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.signs.platform.sponge;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -50,9 +51,10 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
     @NonNull Sign base,
     @NonNull Game game,
     @NonNull EventManager eventManager,
-    @NonNull WorldManager worldManager
+    @NonNull WorldManager worldManager,
+    @NonNull PlayerManager playerManager
   ) {
-    super(base, ComponentFormats.BUNGEE_TO_ADVENTURE::convert);
+    super(base, playerManager, ComponentFormats.BUNGEE_TO_ADVENTURE::convert);
 
     this.game = game;
     this.eventManager = eventManager;

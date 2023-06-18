@@ -25,10 +25,12 @@ import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.platform.PlatformNPCManagement;
@@ -59,6 +61,7 @@ public class BukkitPlatformNPCManagement extends
   protected final Plugin plugin;
   protected final Server server;
   protected final BukkitScheduler scheduler;
+  protected final PlayerManager playerManager;
 
   protected final Platform<World, Player, ItemStack, Plugin> npcPlatform;
   protected final BukkitTask knockBackTask;
@@ -72,6 +75,7 @@ public class BukkitPlatformNPCManagement extends
     @NonNull BukkitScheduler scheduler,
     @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo,
+    @NonNull @Service PlayerManager playerManager,
     @NonNull CloudServiceProvider cloudServiceProvider,
     @NonNull WrapperConfiguration wrapperConfiguration
   ) {
@@ -80,6 +84,7 @@ public class BukkitPlatformNPCManagement extends
     this.plugin = plugin;
     this.server = server;
     this.scheduler = scheduler;
+    this.playerManager = playerManager;
 
     // npc pool init
     var entry = this.applicableNPCConfigurationEntry();
@@ -160,12 +165,31 @@ public class BukkitPlatformNPCManagement extends
   }
 
   @Override
+  public void initialize() {
+    super.initialize();
+
+    // spawn all npcs that are in chunks that were loaded before the plugin was enabled
+    for (var entity : this.trackedEntities.values()) {
+      if (entity.canSpawn()) {
+        entity.spawn();
+      }
+    }
+  }
+
+  @Override
   protected @NonNull PlatformSelectorEntity<Location, Player, ItemStack, Inventory, Scoreboard> createSelectorEntity(
     @NonNull NPC base
   ) {
     return base.npcType() == NPC.NPCType.ENTITY
-      ? new EntityBukkitPlatformSelectorEntity(base, this.plugin, this.server, this.scheduler, this)
-      : new NPCBukkitPlatformSelector(base, this.plugin, this.server, this.scheduler, this, this.npcPlatform);
+      ? new EntityBukkitPlatformSelectorEntity(base, this.plugin, this.server, this.scheduler, this.playerManager, this)
+      : new NPCBukkitPlatformSelector(
+        base,
+        this.plugin,
+        this.server,
+        this.scheduler,
+        this.playerManager,
+        this,
+        this.npcPlatform);
   }
 
   @Override

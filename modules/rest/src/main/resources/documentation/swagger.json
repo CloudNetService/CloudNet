@@ -4519,6 +4519,15 @@
               "type" : "string"
             },
             "example" : [ "Parameter1", "Parameter2" ]
+          },
+          "environmentVariables" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            },
+            "example" : {
+              "MYSQL_PASSWORD" : "PASSWORD"
+            }
           }
         }
       },
@@ -4641,6 +4650,9 @@
           "$ref" : "#/components/schemas/JsonDocPropertyable"
         }, {
           "properties" : {
+            "retryConfiguration" : {
+              "$ref" : "#/components/schemas/ServiceCreateRetryConfiguration"
+            },
             "serviceId" : {
               "$ref" : "#/components/schemas/ServiceId"
             },
@@ -4735,6 +4747,25 @@
             }
           }
         } ]
+      },
+      "ServiceCreateRetryConfiguration" : {
+        "type" : "object",
+        "properties" : {
+          "maxRetries" : {
+            "type" : "integer",
+            "example" : 5
+          },
+          "backoffStrategy" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "example" : [ 500, 1500 ]
+            }
+          },
+          "eventReceivers" : {
+            "type" : "object"
+          }
+        }
       },
       "ServiceCreateResult" : {
         "type" : "object",

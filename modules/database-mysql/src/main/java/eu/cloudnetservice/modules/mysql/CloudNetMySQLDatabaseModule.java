@@ -58,7 +58,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
         "root",
         "123456",
         "mysql",
-        List.of(new MySQLConnectionEndpoint(false, "cloudnet", new HostAndPort("127.0.0.1", 3306)))),
+        List.of(new MySQLConnectionEndpoint("cloudnet", new HostAndPort("127.0.0.1", 3306)))),
       DocumentFactory.json());
 
     serviceRegistry.registerProvider(

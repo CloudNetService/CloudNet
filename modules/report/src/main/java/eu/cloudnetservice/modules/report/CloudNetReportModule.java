@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -58,8 +59,7 @@ public final class CloudNetReportModule extends DriverModule {
   }
 
   @ModuleTask(order = 64)
-  public void registerDefaultEmitters() {
-    var emitterRegistry = ServiceRegistry.first(EmitterRegistry.class);
+  public void registerDefaultEmitters(@NonNull @Service EmitterRegistry emitterRegistry) {
     emitterRegistry
       // general emitters
       .registerEmitter(SystemInfoDataEmitter.class)

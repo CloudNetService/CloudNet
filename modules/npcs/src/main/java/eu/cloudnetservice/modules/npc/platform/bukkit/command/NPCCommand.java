@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import kong.unirest.Unirest;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -400,6 +400,8 @@ public final class NPCCommand extends BaseTabExecutor {
           if (material == null) {
             sender.sendMessage(String.format("§cNo material found by query: §6%s§c.", args[2]));
             return true;
+          } else if (material == Material.AIR) {
+            updatedNpc = NPC.builder(npc).floatingItem(null).build();
           } else {
             updatedNpc = NPC.builder(npc).floatingItem(material.name()).build();
           }

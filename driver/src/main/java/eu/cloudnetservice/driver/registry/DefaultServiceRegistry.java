@@ -19,6 +19,11 @@ package eu.cloudnetservice.driver.registry;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.internal.reflect.TypeUtil;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.registry.injection.Service;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +42,38 @@ public class DefaultServiceRegistry implements ServiceRegistry {
   protected final Multimap<Class<?>, RegistryEntry<?>> providers = Multimaps.newMultimap(
     new ConcurrentHashMap<>(),
     ConcurrentHashMap::newKeySet);
+
+  @Inject
+  public DefaultServiceRegistry(@NonNull InjectionLayer<?> injectionLayer) {
+    var bindingConstructor = BindingBuilder.create()
+      .bindMatching(element -> {
+        // ensure that the element has at least one special requirement (like the Service annotation)
+        if (element.hasSpecialRequirements()) {
+          return element.requiredAnnotations()
+            .stream()
+            .anyMatch(predicate -> predicate.annotationType().equals(Service.class));
+        } else {
+          return false;
+        }
+      }).toLazyProvider((element, $) -> () -> {
+        // get the predicate for the Service annotation
+        return element.requiredAnnotations().stream()
+          .filter(predicate -> predicate.annotationType().equals(Service.class))
+          .findFirst()
+          .map(annotationPredicate -> {
+            var annotationValues = annotationPredicate.annotationValues();
+            var serviceClass = TypeUtil.rawType(element.componentType());
+            var serviceName = (String) annotationValues.get("name");
+
+            if (serviceName.isEmpty()) {
+              return this.firstProvider(serviceClass);
+            } else {
+              return this.provider(serviceClass, serviceName);
+            }
+          }).orElse(null);
+      });
+    injectionLayer.install(bindingConstructor);
+  }
 
   /**
    * {@inheritDoc}

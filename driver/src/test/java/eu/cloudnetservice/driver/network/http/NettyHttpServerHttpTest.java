@@ -203,7 +203,7 @@ public class NettyHttpServerHttpTest extends NetworkTestCase {
 
     this.httpServer.registerHandler(
       "/test1",
-      HttpHandler.PRIORITY_LOW,
+      HttpHandler.PRIORITY_HIGH,
       new HttpHandler() {
         @Override
         public void handle(String path, HttpContext context) {
@@ -214,7 +214,7 @@ public class NettyHttpServerHttpTest extends NetworkTestCase {
       });
     this.httpServer.registerHandler(
       "/test1",
-      HttpHandler.PRIORITY_HIGH,
+      HttpHandler.PRIORITY_LOW,
       new HttpHandler() {
         @Override
         public void handle(String path, HttpContext context) {
