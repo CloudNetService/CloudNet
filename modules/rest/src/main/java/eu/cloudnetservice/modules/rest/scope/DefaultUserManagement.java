@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class DefaultUserManagement implements RestUserManagement {
 
-  private static final String REST_USER_DB_NAME = "REST_SCOPE_USER";
+  private static final String REST_USER_DB_NAME = "cloudnet_rest_users";
 
   private final LocalDatabase localDatabase;
 

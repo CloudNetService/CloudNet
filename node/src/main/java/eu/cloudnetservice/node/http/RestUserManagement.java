@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.http;
 
 import java.util.regex.Pattern;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
  * @see eu.cloudnetservice.driver.registry.ServiceRegistry
  * @since 4.0
  */
+@ApiStatus.Experimental
 public interface RestUserManagement {
 
   String SCOPE_NAMING_REGEX = "(^[a-z][a-z0-9_]{4,39}):([a-z0-9.\\-_]+)";

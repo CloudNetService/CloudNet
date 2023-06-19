@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.http;
 
 import java.util.Set;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.Unmodifiable;
  * @see RestUserManagement
  * @since 4.0
  */
+@ApiStatus.Experimental
 public interface RestUser {
 
   /**
@@ -100,6 +102,7 @@ public interface RestUser {
    * @see RestUserManagement
    * @since 4.0
    */
+  @ApiStatus.Experimental
   interface Builder {
 
     /**
