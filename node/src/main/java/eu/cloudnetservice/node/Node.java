@@ -461,11 +461,14 @@ public final class Node {
   @Inject
   @Order(10_000)
   private void installShutdownHook(@NonNull Provider<ShutdownHandler> shutdownHandlerProvider) {
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+    var shutdownHookThread = new Thread(() -> {
       // get the shutdown handler instance & execute the shutdown process
       var shutdownHandler = shutdownHandlerProvider.get();
       shutdownHandler.shutdown();
-    }));
+    });
+    shutdownHookThread.setName(ShutdownHandler.SHUTDOWN_THREAD_NAME);
+
+    Runtime.getRuntime().addShutdownHook(shutdownHookThread);
   }
 
   @Inject
