@@ -17,7 +17,9 @@
 package eu.cloudnetservice.node.config;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gson.JsonSyntaxException;
 import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.util.StringUtil;
@@ -262,20 +264,26 @@ public final class JsonConfiguration implements Configuration {
 
     if (this.restConfiguration == null) {
       this.restConfiguration = ConfigurationUtil.get(
-        "cloudnet.config.accessControlConfiguration",
-        new RestConfiguration("*", "*", "Content-Encoding", 3600, 60),
+        "cloudnet.config.restConfiguration",
+        new RestConfiguration(
+          new CorsConfiguration(
+            "*",
+            "*",
+            "*",
+            "*",
+            true,
+            3600
+          ),
+          Maps.newHashMap(),
+          60
+        ),
         value -> {
-          var parts = value.split(";");
-          if (parts.length == 5) {
-            return new RestConfiguration(
-              parts[0],
-              parts[1],
-              parts[2],
-              Integer.parseInt(parts[3]),
-              Integer.parseInt(parts[4]));
+          Document.Mutable doc = DocumentFactory.json().parse(value);
+          try {
+            return doc.toInstanceOf(RestConfiguration.class);
+          } catch (JsonSyntaxException ex) {
+            return null; // Unable to parse
           }
-          // unable to parse
-          return null;
         });
     }
 

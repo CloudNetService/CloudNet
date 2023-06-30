@@ -16,13 +16,15 @@
 
 package eu.cloudnetservice.node.config;
 
-import java.util.Map;
 import lombok.NonNull;
 
-public record RestConfiguration(
-  @NonNull CorsConfiguration cors,
-  @NonNull Map<String, String> headers,
-  int jwtValidTimeMinutes
+public record CorsConfiguration(
+  @NonNull String allowedOrigins,
+  @NonNull String allowedHeaders,
+  @NonNull String exposedHeaders,
+  @NonNull String allowedMethods,
+  boolean allowCredentials,
+  int maxAge
 ) {
 
 }

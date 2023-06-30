@@ -36,8 +36,8 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.service.CloudService;
@@ -55,6 +55,7 @@ import lombok.NonNull;
 
 @Singleton
 @HandlerPermission("http.v2.services")
+@ApplyHeaders
 public final class V2HttpHandlerService extends V2HttpHandler {
 
   private final CloudServiceFactory serviceFactory;
@@ -63,12 +64,10 @@ public final class V2HttpHandlerService extends V2HttpHandler {
 
   @Inject
   public V2HttpHandlerService(
-    @NonNull Configuration config,
     @NonNull CloudServiceFactory serviceFactory,
     @NonNull CloudServiceManager serviceManager,
     @NonNull ServiceTaskProvider serviceTaskProvider
   ) {
-    super(config.restConfiguration());
     this.serviceFactory = serviceFactory;
     this.serviceManager = serviceManager;
     this.serviceTaskProvider = serviceTaskProvider;

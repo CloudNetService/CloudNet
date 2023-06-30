@@ -27,6 +27,7 @@ import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerGroup;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerModule;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerNode;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerPermission;
+import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerPreflight;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerService;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerServiceVersionProvider;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerSession;
@@ -34,6 +35,7 @@ import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTask;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTemplate;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTemplateStorage;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
+import eu.cloudnetservice.node.http.annotation.HeaderAnnotationExtension;
 import eu.cloudnetservice.node.http.annotation.SecurityAnnotationExtension;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -42,23 +44,25 @@ import lombok.NonNull;
 public final class CloudNetRestModule extends DriverModule {
 
   @ModuleTask
-  public void installSecurityExtensions(
+  public void installExtensions(
     @NonNull HttpServer httpServer,
     @NonNull V2HttpAuthentication authentication,
-    @NonNull SecurityAnnotationExtension securityAnnotationExtension
+    @NonNull SecurityAnnotationExtension securityAnnotationExtension,
+    @NonNull HeaderAnnotationExtension headerAnnotationExtension
   ) {
     securityAnnotationExtension.install(httpServer.annotationParser(), authentication);
+    headerAnnotationExtension.install(httpServer.annotationParser());
   }
 
   @ModuleTask
   public void registerHandlers(@NonNull HttpServer httpServer) {
     httpServer.annotationParser()
+      .parseAndRegister(V2HttpHandlerPreflight.class)
       .parseAndRegister(V2HttpHandlerAuthorization.class)
       .parseAndRegister(V2HttpHandlerCluster.class)
       .parseAndRegister(V2HttpHandlerDatabase.class)
       .parseAndRegister(V2HttpHandlerDocumentation.class)
       .parseAndRegister(V2HttpHandlerGroup.class)
-      .parseAndRegister(V2HttpHandlerModule.class)
       .parseAndRegister(V2HttpHandlerModule.class)
       .parseAndRegister(V2HttpHandlerNode.class)
       .parseAndRegister(V2HttpHandlerPermission.class)

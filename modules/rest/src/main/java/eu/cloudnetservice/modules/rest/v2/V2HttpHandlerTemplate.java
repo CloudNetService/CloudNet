@@ -29,8 +29,8 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.version.ServiceVersion;
@@ -46,6 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @HandlerPermission("http.v2.template")
+@ApplyHeaders
 public final class V2HttpHandlerTemplate extends V2HttpHandler {
 
   private static final Logger LOGGER = LogManager.logger(V2HttpHandlerTemplate.class);
@@ -53,8 +54,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   private final ServiceVersionProvider versionProvider;
 
   @Inject
-  public V2HttpHandlerTemplate(@NonNull Configuration config, @NonNull ServiceVersionProvider versionProvider) {
-    super(config.restConfiguration());
+  public V2HttpHandlerTemplate(@NonNull ServiceVersionProvider versionProvider) {
     this.versionProvider = versionProvider;
   }
 
@@ -423,8 +423,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   private @NonNull HttpResponse ok(@NonNull HttpContext context, @NonNull String contentType) {
     return context.response()
       .status(HttpResponseCode.OK)
-      .header("Content-Type", contentType)
-      .header("Access-Control-Allow-Origin", this.restConfiguration.corsPolicy());
+      .header("Content-Type", contentType);
   }
 
   private @Nullable String guessFileName(@NonNull String path) {

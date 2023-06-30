@@ -23,8 +23,8 @@ import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.Optional;
 import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
@@ -37,16 +37,15 @@ import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @HandlerPermission("http.v2.service.provider")
+@ApplyHeaders
 public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
   private final ServiceVersionProvider versionProvider;
 
   @Inject
   public V2HttpHandlerServiceVersionProvider(
-    @NonNull Configuration config,
     @NonNull ServiceVersionProvider versionProvider
   ) {
-    super(config.restConfiguration());
     this.versionProvider = versionProvider;
   }
 

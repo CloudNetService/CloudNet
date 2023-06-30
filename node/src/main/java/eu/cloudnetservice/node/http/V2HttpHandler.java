@@ -22,17 +22,10 @@ import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
 import eu.cloudnetservice.driver.network.http.HttpResponse;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
-import eu.cloudnetservice.node.config.RestConfiguration;
 import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
 
 public abstract class V2HttpHandler {
-
-  protected final RestConfiguration restConfiguration;
-
-  public V2HttpHandler(@NonNull RestConfiguration restConfiguration) {
-    this.restConfiguration = restConfiguration;
-  }
 
   protected void send403(@NonNull HttpContext context, @NonNull String reason) {
     this.response(context, HttpResponseCode.FORBIDDEN)
@@ -65,8 +58,7 @@ public abstract class V2HttpHandler {
   protected @NonNull HttpResponse response(@NonNull HttpContext context, @NonNull HttpResponseCode statusCode) {
     return context.response()
       .status(statusCode)
-      .header("Content-Type", "application/json")
-      .header("Access-Control-Allow-Origin", this.restConfiguration.corsPolicy());
+      .header("Content-Type", "application/json");
   }
 
   protected @NonNull Document.Mutable body(@NonNull HttpRequest request) {

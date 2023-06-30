@@ -24,8 +24,8 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import jakarta.inject.Inject;
@@ -34,13 +34,13 @@ import lombok.NonNull;
 
 @Singleton
 @HandlerPermission("http.v2.tasks")
+@ApplyHeaders
 public final class V2HttpHandlerTask extends V2HttpHandler {
 
   private final ServiceTaskProvider taskProvider;
 
   @Inject
-  public V2HttpHandlerTask(@NonNull Configuration config, @NonNull ServiceTaskProvider taskProvider) {
-    super(config.restConfiguration());
+  public V2HttpHandlerTask(@NonNull ServiceTaskProvider taskProvider) {
     this.taskProvider = taskProvider;
   }
 

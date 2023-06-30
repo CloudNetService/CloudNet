@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.config;
+package eu.cloudnetservice.modules.rest.v2;
 
-import java.util.Map;
+import eu.cloudnetservice.driver.network.http.HttpContext;
+import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
+import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
+import jakarta.inject.Singleton;
 import lombok.NonNull;
 
-public record RestConfiguration(
-  @NonNull CorsConfiguration cors,
-  @NonNull Map<String, String> headers,
-  int jwtValidTimeMinutes
-) {
+@Singleton
+@ApplyHeaders
+public final class V2HttpHandlerPreflight extends V2HttpHandler {
+
+  @HttpRequestHandler(paths = "*", methods = "OPTIONS")
+  private void handlePreflight(@NonNull HttpContext context) {
+    this.ok(context)
+      .body(this.success().toString())
+      .context()
+      .closeAfter(true);
+  }
 
 }

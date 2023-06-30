@@ -28,6 +28,7 @@ import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import jakarta.inject.Inject;
@@ -36,15 +37,15 @@ import lombok.NonNull;
 
 @Singleton
 @HandlerPermission("http.v2.cluster")
+@ApplyHeaders
 public final class V2HttpHandlerCluster extends V2HttpHandler {
 
   private final Configuration configuration;
   private final NodeServerProvider nodeServerProvider;
 
   @Inject
-  public V2HttpHandlerCluster(@NonNull Configuration config, @NonNull NodeServerProvider nodeServerProvider) {
-    super(config.restConfiguration());
-    this.configuration = config;
+  public V2HttpHandlerCluster(@NonNull Configuration configuration, @NonNull NodeServerProvider nodeServerProvider) {
+    this.configuration = configuration;
     this.nodeServerProvider = nodeServerProvider;
   }
 

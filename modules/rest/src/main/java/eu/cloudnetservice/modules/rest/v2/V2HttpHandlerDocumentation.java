@@ -20,9 +20,8 @@ import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPath;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
-import jakarta.inject.Inject;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.net.URLConnection;
@@ -30,12 +29,8 @@ import java.util.Objects;
 import lombok.NonNull;
 
 @Singleton
+@ApplyHeaders
 public final class V2HttpHandlerDocumentation extends V2HttpHandler {
-
-  @Inject
-  public V2HttpHandlerDocumentation(@NonNull Configuration config) {
-    super(config.restConfiguration());
-  }
 
   @HttpRequestHandler(paths = "/api/v2/documentation")
   private void handleDocumentationRequest(@NonNull HttpContext context) {
@@ -46,7 +41,6 @@ public final class V2HttpHandlerDocumentation extends V2HttpHandler {
     context.response()
       .status(HttpResponseCode.MOVED_PERMANENTLY)
       .header("Location", pathPrefix + "index.html")
-      .header("Access-Control-Allow-Origin", this.restConfiguration.corsPolicy())
       .context()
       .closeAfter(true)
       .cancelNext(true);
@@ -61,7 +55,6 @@ public final class V2HttpHandlerDocumentation extends V2HttpHandler {
     if (filePath.contains("..")) {
       context.response()
         .status(HttpResponseCode.BAD_REQUEST)
-        .header("Access-Control-Allow-Origin", this.restConfiguration.corsPolicy())
         .context()
         .closeAfter(true)
         .cancelNext(true);
@@ -80,7 +73,6 @@ public final class V2HttpHandlerDocumentation extends V2HttpHandler {
     if (resource == null) {
       context.response()
         .status(HttpResponseCode.NOT_FOUND)
-        .header("Access-Control-Allow-Origin", this.restConfiguration.corsPolicy())
         .context()
         .closeAfter(true)
         .cancelNext(true);
@@ -91,7 +83,6 @@ public final class V2HttpHandlerDocumentation extends V2HttpHandler {
       .response()
       .status(HttpResponseCode.OK)
       .header("Content-Type", contentType)
-      .header("Access-Control-Allow-Origin", this.restConfiguration.corsPolicy())
       .body(resource.openStream())
       .context()
       .closeAfter(true)

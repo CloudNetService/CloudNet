@@ -25,8 +25,8 @@ import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import jakarta.inject.Inject;
@@ -37,13 +37,13 @@ import lombok.NonNull;
 
 @Singleton
 @HandlerPermission("http.v2.permission")
+@ApplyHeaders
 public final class V2HttpHandlerPermission extends V2HttpHandler {
 
   private final PermissionManagement permissionManagement;
 
   @Inject
-  public V2HttpHandlerPermission(@NonNull Configuration config, @NonNull PermissionManagement permissionManagement) {
-    super(config.restConfiguration());
+  public V2HttpHandlerPermission(@NonNull PermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }
 

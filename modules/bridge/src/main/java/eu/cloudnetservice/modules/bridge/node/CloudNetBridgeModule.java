@@ -41,6 +41,7 @@ import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.http.annotation.HeaderAnnotationExtension;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
@@ -174,6 +175,19 @@ public final class CloudNetBridgeModule extends DriverModule {
     }
   }
 
+  @ModuleTask
+  public void installExtensions(
+    @NonNull HttpServer httpServer,
+    @NonNull HeaderAnnotationExtension headerAnnotationExtension
+  ) {
+    headerAnnotationExtension.install(httpServer.annotationParser());
+  }
+
+  @ModuleTask
+  public void registerHandlers(@NonNull HttpServer httpServer) {
+    httpServer.annotationParser().parseAndRegister(V2HttpHandlerBridge.class);
+  }
+
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STARTED)
   public void initModule(
     @NonNull HttpServer httpServer,
@@ -200,8 +214,6 @@ public final class CloudNetBridgeModule extends DriverModule {
       .singletonCollector(management::configuration)
       .currentGetter($ -> management.configuration())
       .build());
-    // register the bridge rest handler
-    httpServer.annotationParser().parseAndRegister(V2HttpHandlerBridge.class);
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)

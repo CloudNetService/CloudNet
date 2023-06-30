@@ -27,8 +27,8 @@ import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.network.http.annotation.RequestBody;
 import eu.cloudnetservice.driver.network.http.annotation.RequestPathParam;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import jakarta.inject.Inject;
@@ -42,13 +42,13 @@ import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @HandlerPermission("http.v2.module")
+@ApplyHeaders
 public final class V2HttpHandlerModule extends V2HttpHandler {
 
   private final ModuleProvider moduleProvider;
 
   @Inject
-  public V2HttpHandlerModule(@NonNull Configuration config, @NonNull ModuleProvider moduleProvider) {
-    super(config.restConfiguration());
+  public V2HttpHandlerModule(@NonNull ModuleProvider moduleProvider) {
     this.moduleProvider = moduleProvider;
   }
 

@@ -21,9 +21,11 @@ import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.driver.network.http.annotation.HttpRequestHandler;
 import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.config.RestConfiguration;
 import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpAuthentication;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import eu.cloudnetservice.node.http.annotation.BasicAuth;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import jakarta.inject.Inject;
@@ -32,13 +34,15 @@ import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
 @Singleton
+@ApplyHeaders
 public final class V2HttpHandlerAuthorization extends V2HttpHandler {
 
   private final V2HttpAuthentication authentication;
+  private final RestConfiguration restConfiguration;
 
   @Inject
-  public V2HttpHandlerAuthorization(@NonNull Configuration config, @NonNull V2HttpAuthentication authentication) {
-    super(config.restConfiguration());
+  public V2HttpHandlerAuthorization(@NonNull Configuration configuration, @NonNull V2HttpAuthentication authentication) {
+    this.restConfiguration = configuration.restConfiguration();
     this.authentication = authentication;
   }
 

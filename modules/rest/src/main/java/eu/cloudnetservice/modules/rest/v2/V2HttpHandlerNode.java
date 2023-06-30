@@ -44,6 +44,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.config.JsonConfiguration;
 import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.http.annotation.ApplyHeaders;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
 import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
@@ -59,6 +60,7 @@ import lombok.NonNull;
 
 @Singleton
 @HandlerPermission("http.v2.node")
+@ApplyHeaders
 public final class V2HttpHandlerNode extends V2HttpHandler {
 
   private final Configuration configuration;
@@ -85,7 +87,6 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
     @NonNull PermissionManagement permissionManagement,
     @NonNull GroupConfigurationProvider groupConfigurationProvider
   ) {
-    super(configuration.restConfiguration());
     this.configuration = configuration;
     this.networkClient = networkClient;
     this.moduleProvider = moduleProvider;
