@@ -1588,7 +1588,7 @@
           }
         },
         "tags" : [ "Tasks" ],
-        "summary" : "Create or update task",
+        "summary" : "Create or update a task",
         "responses" : {
           "200" : {
             "description" : "The request was ok but the task couldn't be created/edited",
@@ -1607,7 +1607,7 @@
             }
           },
           "201" : {
-            "description" : "The task was created/edited successfully",
+            "description" : "The task was created/updated successfully",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -4003,6 +4003,13 @@
               "$ref" : "#/components/schemas/ServiceTemplate"
             },
             "excludes" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              },
+              "example" : [ "spigot.jar", "plugins/cool.jar" ]
+            },
+            "includes" : {
               "type" : "array",
               "items" : {
                 "type" : "string"
