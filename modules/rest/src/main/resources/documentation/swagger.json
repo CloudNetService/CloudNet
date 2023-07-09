@@ -1607,7 +1607,7 @@
             }
           },
           "201" : {
-            "description" : "The task was created/updated successfully",
+            "description" : "The task was created / updated successfully",
             "content" : {
               "application/json" : {
                 "schema" : {
