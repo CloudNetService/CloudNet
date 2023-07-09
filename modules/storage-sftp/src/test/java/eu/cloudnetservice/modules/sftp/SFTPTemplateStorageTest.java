@@ -193,4 +193,15 @@ public final class SFTPTemplateStorageTest {
     Assertions.assertFalse(storage.contains(TEMPLATE));
     Assertions.assertFalse(storage.hasFile(TEMPLATE, "test.txt"));
   }
+
+  @Test
+  @Order(120)
+  void testDeleteDirectory() {
+    var directory = "hello";
+    Assertions.assertTrue(storage.createDirectory(TEMPLATE, directory));
+    Assertions.assertTrue(storage.createFile(TEMPLATE, directory + "/test.txt"));
+    Assertions.assertTrue(storage.hasFile(TEMPLATE, directory + "/test.txt"));
+    Assertions.assertTrue(storage.deleteDirectory(TEMPLATE, directory));
+    Assertions.assertFalse(storage.hasFile(TEMPLATE, directory + "/test.txt"));
+  }
 }

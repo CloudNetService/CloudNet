@@ -277,7 +277,6 @@ public class SFTPTemplateStorage implements TemplateStorage {
   public boolean deleteDirectory(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.executeWithClient(client -> {
       this.deleteDir(client, this.constructRemotePath(template, path));
-      client.rmdir(this.constructRemotePath(template, path));
       return true;
     }, false);
   }
