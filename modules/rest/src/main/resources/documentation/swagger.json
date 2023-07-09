@@ -1588,7 +1588,7 @@
           }
         },
         "tags" : [ "Tasks" ],
-        "summary" : "Create or update a task",
+        "summary" : "Create or edit a task",
         "responses" : {
           "200" : {
             "description" : "The request was ok but the task couldn't be created/edited",
