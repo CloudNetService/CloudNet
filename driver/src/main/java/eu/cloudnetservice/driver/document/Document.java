@@ -152,6 +152,16 @@ public interface Document extends DocPropertyHolder, Serializable {
   boolean contains(@NonNull String key);
 
   /**
+   * Get if this document has a non-null value mapping for the given key. Note that the given key is not
+   * interpreted as a path.
+   *
+   * @param key the key to check if a value is present.
+   * @return true if this document has a non-null value mapping for the given key, false otherwise.
+   * @throws NullPointerException if the given key is null.
+   */
+  boolean containsNonNull(@NonNull String key);
+
+  /**
    * Converts this document into a version that can be cross-handled by other document implementations. The serialized
    * form of this document can be used to convert it to a different type of document. Note that the returned form is a
    * snapshot of the document at the time the method was called. Any changes made to this document after the method call

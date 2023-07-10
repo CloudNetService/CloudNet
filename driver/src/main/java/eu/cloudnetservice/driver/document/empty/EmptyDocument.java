@@ -91,6 +91,14 @@ public final class EmptyDocument implements Document.Mutable, DefaultedDocProper
    * {@inheritDoc}
    */
   @Override
+  public boolean containsNonNull(@NonNull String key) {
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @NonNull DocumentSend send() {
     return EmptyDocumentSend.INSTANCE;
   }

@@ -123,6 +123,21 @@ public class DocumentTest {
 
   @ParameterizedTest
   @MethodSource("documentTypeProvider")
+  void testContains(Document.Mutable document) {
+    document.append("stringA", "Hello");
+    document.appendNull("stringB");
+
+    Assertions.assertTrue(document.contains("stringA"));
+    Assertions.assertTrue(document.contains("stringB"));
+    Assertions.assertFalse(document.contains("stringC"));
+
+    Assertions.assertTrue(document.containsNonNull("stringA"));
+    Assertions.assertFalse(document.containsNonNull("stringB"));
+    Assertions.assertFalse(document.containsNonNull("stringC"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("documentTypeProvider")
   void testAppendDocument(Document.Mutable document) {
     var someDocument = Document.newJsonDocument();
     someDocument.append("stringA", "Hello");

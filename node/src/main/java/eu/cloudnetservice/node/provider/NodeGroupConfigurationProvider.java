@@ -222,8 +222,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
       var document = DocumentFactory.json().parse(file);
 
       // TODO: remove in 4.1
-      // check if the task has environment variables
-      if (!document.contains("environmentVariables")) {
+      // check if the group has environment variables
+      if (!document.containsNonNull("environmentVariables")) {
         document.append("environmentVariables", new HashMap<>());
       }
 

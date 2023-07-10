@@ -119,6 +119,15 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
    * {@inheritDoc}
    */
   @Override
+  public boolean containsNonNull(@NonNull String key) {
+    var element = this.internalObject.get(key);
+    return element != null && !element.isJsonNull();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @NonNull DocumentSend send() {
     return GsonDocumentSend.fromJsonObject(this.internalObject);
   }
