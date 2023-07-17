@@ -190,7 +190,6 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STARTED)
   public void initModule(
-    @NonNull HttpServer httpServer,
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull @Named("module") InjectionLayer<?> injectionLayer
