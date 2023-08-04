@@ -84,7 +84,7 @@ public final class V2HttpHandlerCluster extends V2HttpHandler {
 
   @BearerAuth
   @HandlerScope({"cloudnet_rest:cluster_write", "cloudnet_rest:cluster_node_command"})
-  @HttpRequestHandler(paths = "/api/v2/cluster/{node}", methods = "POST")
+  @HttpRequestHandler(paths = "/api/v2/cluster/{node}/command", methods = "POST")
   private void handleNodeCommandRequest(
     @NonNull HttpContext context,
     @NonNull @RequestPathParam("node") String node,

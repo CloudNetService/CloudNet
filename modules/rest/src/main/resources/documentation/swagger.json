@@ -1276,7 +1276,7 @@
       "post" : {
         "requestBody" : {
           "required" : true,
-          "description" : "The task to create",
+          "description" : "The task to create or edit",
           "content" : {
             "application/json" : {
               "schema" : {
@@ -1286,11 +1286,11 @@
           }
         },
         "tags" : [ "Tasks" ],
-        "summary" : "Creates a task",
+        "summary" : "Create or edit a task",
         "description" : "One of the following scopes is needed to execute the request:\n  - `cloudnet_rest:task_write`\n \n  - `cloudnet_rest:task_create`\n",
         "responses" : {
           "200" : {
-            "description" : "The request was ok but the task couldn't be created",
+            "description" : "The request was ok but the task couldn't be created / edited",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -1306,7 +1306,7 @@
             }
           },
           "201" : {
-            "description" : "The task was created successfully",
+            "description" : "The task was created / edited successfully",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -3741,6 +3741,13 @@
               "$ref" : "#/components/schemas/ServiceTemplate"
             },
             "excludes" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              },
+              "example" : [ "spigot.jar", "plugins/cool.jar" ]
+            },
+            "includes" : {
               "type" : "array",
               "items" : {
                 "type" : "string"

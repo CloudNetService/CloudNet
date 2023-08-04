@@ -46,6 +46,12 @@ var cloudnet.updateBranch beta
 # each level includes all messages for levels lower than itself (in the above list: left to right) too
 var cloudnet.logging.defaultlevel INFO
 
+# This value sets the memory settings of the JVM for the cloudnet node.
+# The value set here is to be specified in megabytes and describes -xmx as well as -xms.
+#
+# A change in the associated start files (e.g. start.sh) has no effect on the node and should therefore not be changed.
+var cloudnet.node.memory 256
+
 #
 # CloudNet runtime properties
 #

@@ -165,6 +165,18 @@ public class BukkitPlatformNPCManagement extends
   }
 
   @Override
+  public void initialize() {
+    super.initialize();
+
+    // spawn all npcs that are in chunks that were loaded before the plugin was enabled
+    for (var entity : this.trackedEntities.values()) {
+      if (entity.canSpawn()) {
+        entity.spawn();
+      }
+    }
+  }
+
+  @Override
   protected @NonNull PlatformSelectorEntity<Location, Player, ItemStack, Inventory, Scoreboard> createSelectorEntity(
     @NonNull NPC base
   ) {
