@@ -53,7 +53,6 @@ public class CloudNetLabyModModule extends DriverModule {
           LabyModConfiguration.builder()
             .enabled(config.getBoolean("enabled"))
             .discordRPC(this.convertDisplayEntry(config.readDocument("discordRPC")))
-            .gameModeSwitch(this.convertDisplayEntry(config.readDocument("gameModeSwitchMessages")))
             .banner(config.readObject("bannerConfig", LabyModBanner.class))
             .permissions(LabyModPermissions.builder()
               .enabled(config.readDocument("permissionConfig").getBoolean("enabled"))

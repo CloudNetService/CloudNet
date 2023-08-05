@@ -22,7 +22,6 @@ import lombok.NonNull;
 public record LabyModConfiguration(
   boolean enabled,
   @NonNull LabyModServiceDisplay discordRPC,
-  @NonNull LabyModServiceDisplay gameModeSwitchMessages,
   @NonNull LabyModBanner banner,
   @NonNull LabyModPermissions permissions
 ) {
@@ -35,7 +34,6 @@ public record LabyModConfiguration(
     return builder()
       .enabled(configuration.enabled())
       .discordRPC(configuration.discordRPC())
-      .gameModeSwitch(configuration.gameModeSwitchMessages())
       .banner(configuration.banner())
       .permissions(configuration.permissions());
   }
@@ -44,14 +42,10 @@ public record LabyModConfiguration(
   public static class Builder {
 
     private boolean enabled = true;
-
     private LabyModServiceDisplay discordRPC = new LabyModServiceDisplay(true, "Playing on %name%");
-    private LabyModServiceDisplay gameModeSwitch = new LabyModServiceDisplay(true, "§bCloud§fNet §8➢ §e%name%");
-
     private LabyModBanner banner = new LabyModBanner(
       false,
       "http://dl.cloudnetservice.eu/data/minecraft/CloudNet-LabyMod-Banner.png");
-
     private LabyModPermissions permissions = LabyModPermissions.builder().build();
 
     public @NonNull Builder enabled(boolean enabled) {
@@ -61,11 +55,6 @@ public record LabyModConfiguration(
 
     public @NonNull Builder discordRPC(@NonNull LabyModServiceDisplay serviceDisplay) {
       this.discordRPC = serviceDisplay;
-      return this;
-    }
-
-    public @NonNull Builder gameModeSwitch(@NonNull LabyModServiceDisplay serviceDisplay) {
-      this.gameModeSwitch = serviceDisplay;
       return this;
     }
 
@@ -81,14 +70,12 @@ public record LabyModConfiguration(
 
     public @NonNull LabyModConfiguration build() {
       Preconditions.checkNotNull(this.discordRPC, "Missing discord rpc");
-      Preconditions.checkNotNull(this.gameModeSwitch, "Missing gamemode switch");
       Preconditions.checkNotNull(this.banner, "Missing banner");
       Preconditions.checkNotNull(this.permissions, "Missing permissions");
 
       return new LabyModConfiguration(
         this.enabled,
         this.discordRPC,
-        this.gameModeSwitch,
         this.banner,
         this.permissions);
     }

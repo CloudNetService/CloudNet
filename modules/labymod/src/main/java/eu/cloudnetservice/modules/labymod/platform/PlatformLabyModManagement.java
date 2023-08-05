@@ -71,29 +71,6 @@ public class PlatformLabyModManagement implements LabyModManagement {
     this.configuration = configuration;
   }
 
-  public void handleServerUpdate(@NonNull CloudPlayer cloudPlayer, @NonNull ServiceInfoSnapshot snapshot) {
-    // construct the new discord rpc as the player switched the server
-    var discordRPC = this.constructRPCInfo(snapshot);
-    if (discordRPC != null) {
-      // send the updated discord rpc to the player
-      this.sendPluginMessage(cloudPlayer, discordRPC);
-    }
-
-    var serviceDisplay = this.configuration.gameModeSwitchMessages();
-    var playingServer = serviceDisplay.display(snapshot);
-
-    // if the display is null we can't send anything
-    if (playingServer != null) {
-      var labyModResponse = Document.newJsonDocument()
-        .append("show_gamemode", true)
-        .append("gamemode_name", playingServer);
-
-      // create & send a databuf with all information for the gamemode message
-      var gameMode = DataBuf.empty().writeString("server_gamemode").writeString(labyModResponse.toString());
-      this.sendPluginMessage(cloudPlayer, gameMode);
-    }
-  }
-
   public void handleIncomingClientMessage(@NonNull UUID playerId, @Nullable String server, byte[] bytes) {
     // get the player that send the message, if possible
     var cloudPlayer = this.playerManager.onlinePlayer(playerId);
