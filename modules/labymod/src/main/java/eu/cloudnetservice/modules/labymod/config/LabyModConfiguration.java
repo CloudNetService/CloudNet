@@ -23,9 +23,6 @@ public record LabyModConfiguration(
   boolean enabled,
   @NonNull LabyModServiceDisplay discordRPC,
   @NonNull LabyModServiceDisplay gameModeSwitchMessages,
-  @NonNull LabyModDiscordRPC discordJoinMatch,
-  @NonNull LabyModDiscordRPC discordSpectateMatch,
-  @NonNull String loginDomain,
   @NonNull LabyModBanner banner,
   @NonNull LabyModPermissions permissions
 ) {
@@ -39,9 +36,6 @@ public record LabyModConfiguration(
       .enabled(configuration.enabled())
       .discordRPC(configuration.discordRPC())
       .gameModeSwitch(configuration.gameModeSwitchMessages())
-      .joinMatch(configuration.discordJoinMatch())
-      .spectateMatch(configuration.discordSpectateMatch())
-      .loginDomain(configuration.loginDomain())
       .banner(configuration.banner())
       .permissions(configuration.permissions());
   }
@@ -54,10 +48,6 @@ public record LabyModConfiguration(
     private LabyModServiceDisplay discordRPC = new LabyModServiceDisplay(true, "Playing on %name%");
     private LabyModServiceDisplay gameModeSwitch = new LabyModServiceDisplay(true, "§bCloud§fNet §8➢ §e%name%");
 
-    private LabyModDiscordRPC discordJoinMatch = LabyModDiscordRPC.builder().build();
-    private LabyModDiscordRPC discordSpectateMatch = LabyModDiscordRPC.builder().build();
-
-    private String loginDomain = "mc.cloudnetservice.eu";
     private LabyModBanner banner = new LabyModBanner(
       false,
       "http://dl.cloudnetservice.eu/data/minecraft/CloudNet-LabyMod-Banner.png");
@@ -79,21 +69,6 @@ public record LabyModConfiguration(
       return this;
     }
 
-    public @NonNull Builder joinMatch(@NonNull LabyModDiscordRPC joinMatch) {
-      this.discordJoinMatch = joinMatch;
-      return this;
-    }
-
-    public @NonNull Builder spectateMatch(@NonNull LabyModDiscordRPC spectateMatch) {
-      this.discordSpectateMatch = spectateMatch;
-      return this;
-    }
-
-    public @NonNull Builder loginDomain(@NonNull String domain) {
-      this.loginDomain = domain;
-      return this;
-    }
-
     public @NonNull Builder banner(@NonNull LabyModBanner banner) {
       this.banner = banner;
       return this;
@@ -107,9 +82,6 @@ public record LabyModConfiguration(
     public @NonNull LabyModConfiguration build() {
       Preconditions.checkNotNull(this.discordRPC, "Missing discord rpc");
       Preconditions.checkNotNull(this.gameModeSwitch, "Missing gamemode switch");
-      Preconditions.checkNotNull(this.discordJoinMatch, "Missing discord join match");
-      Preconditions.checkNotNull(this.discordSpectateMatch, "Missing discord spectate match");
-      Preconditions.checkNotNull(this.loginDomain, "Missing login domain");
       Preconditions.checkNotNull(this.banner, "Missing banner");
       Preconditions.checkNotNull(this.permissions, "Missing permissions");
 
@@ -117,9 +89,6 @@ public record LabyModConfiguration(
         this.enabled,
         this.discordRPC,
         this.gameModeSwitch,
-        this.discordJoinMatch,
-        this.discordSpectateMatch,
-        this.loginDomain,
         this.banner,
         this.permissions);
     }

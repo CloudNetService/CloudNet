@@ -27,7 +27,6 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.labymod.config.LabyModBanner;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
-import eu.cloudnetservice.modules.labymod.config.LabyModDiscordRPC;
 import eu.cloudnetservice.modules.labymod.config.LabyModPermissions;
 import eu.cloudnetservice.modules.labymod.config.LabyModServiceDisplay;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
@@ -37,7 +36,6 @@ import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
-import java.util.Collection;
 import java.util.Map;
 import lombok.NonNull;
 
@@ -56,20 +54,12 @@ public class CloudNetLabyModModule extends DriverModule {
             .enabled(config.getBoolean("enabled"))
             .discordRPC(this.convertDisplayEntry(config.readDocument("discordRPC")))
             .gameModeSwitch(this.convertDisplayEntry(config.readDocument("gameModeSwitchMessages")))
-            .joinMatch(config.readDocument("discordJoinMatch").toInstanceOf(LabyModDiscordRPC.class))
-            .spectateMatch(LabyModDiscordRPC.builder()
-              .enabled(config.getBoolean("discordSpectateEnabled"))
-              .excludedGroups(config.readObject(
-                "excludedSpectateGroups",
-                TypeFactory.parameterizedClass(Collection.class, String.class)))
-              .build())
-            .loginDomain(config.getString("loginDomain"))
             .banner(config.readObject("bannerConfig", LabyModBanner.class))
             .permissions(LabyModPermissions.builder()
               .enabled(config.readDocument("permissionConfig").getBoolean("enabled"))
               .permissions(config.readDocument("permissionConfig")
                 .readObject(
-                  "labyModPermissions",
+                  "permissions",
                   TypeFactory.parameterizedClass(Map.class, String.class, Boolean.class)))
               .build())
             .build()
