@@ -32,6 +32,7 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.database.WrapperDatabaseProvider;
+import eu.cloudnetservice.wrapper.network.chunk.TemplateStorageCallbackListener;
 import eu.cloudnetservice.wrapper.permission.WrapperPermissionManagement;
 import eu.cloudnetservice.wrapper.provider.WrapperCloudServiceProvider;
 import eu.cloudnetservice.wrapper.provider.WrapperTemplateStorageProvider;
@@ -106,14 +107,15 @@ final class RPCFactories {
   public static @NonNull TemplateStorageProvider provideTemplateStorageProvider(
     @NonNull RPCFactory factory,
     @NonNull NetworkClient networkClient,
-    @NonNull ComponentInfo componentInfo
+    @NonNull ComponentInfo componentInfo,
+    @NonNull TemplateStorageCallbackListener templateStorageCallbackListener
   ) {
     return provideSpecial(
       factory,
       networkClient,
       TemplateStorageProvider.class,
       WrapperTemplateStorageProvider.class,
-      componentInfo, networkClient);
+      componentInfo, networkClient, templateStorageCallbackListener);
   }
 
   @Factory

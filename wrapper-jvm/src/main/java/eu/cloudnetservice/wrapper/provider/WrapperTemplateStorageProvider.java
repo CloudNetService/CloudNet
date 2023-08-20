@@ -23,7 +23,8 @@ import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
-import eu.cloudnetservice.driver.template.defaults.RemoteTemplateStorage;
+import eu.cloudnetservice.wrapper.network.RemoteTemplateStorage;
+import eu.cloudnetservice.wrapper.network.chunk.TemplateStorageCallbackListener;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,15 +33,17 @@ public abstract class WrapperTemplateStorageProvider implements TemplateStorageP
   private final RPCSender rpcSender;
   private final ComponentInfo componentInfo;
   private final NetworkClient networkClient;
+  private final TemplateStorageCallbackListener templateStorageCallbackListener;
 
   public WrapperTemplateStorageProvider(
     @NonNull RPCSender sender,
     @NonNull ComponentInfo componentInfo,
-    @NonNull NetworkClient networkClient
-  ) {
+    @NonNull NetworkClient networkClient,
+    TemplateStorageCallbackListener templateStorageCallbackListener) {
     this.rpcSender = sender;
     this.componentInfo = componentInfo;
     this.networkClient = networkClient;
+    this.templateStorageCallbackListener = templateStorageCallbackListener;
   }
 
   @Override
@@ -59,6 +62,7 @@ public abstract class WrapperTemplateStorageProvider implements TemplateStorageP
       this.rpcSender,
       TemplateStorage.class,
       GenerationContext.forClass(RemoteTemplateStorage.class).build()
-    ).newInstance(new Object[]{storage, this.componentInfo, this.networkClient}, new Object[]{storage});
+    ).newInstance(new Object[]{storage, this.componentInfo, this.templateStorageCallbackListener, this.networkClient},
+      new Object[]{storage});
   }
 }

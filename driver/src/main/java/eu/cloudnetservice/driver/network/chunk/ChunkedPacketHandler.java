@@ -72,5 +72,13 @@ public interface ChunkedPacketHandler extends ChunkedPacketProvider {
     void handleSessionComplete(
       @NonNull ChunkSessionInformation information,
       @NonNull InputStream dataInput) throws IOException;
+
+    /**
+     * @return whether the {@code dataInput} from {@link #handleSessionComplete(ChunkSessionInformation, InputStream)}
+     * should be closed after {@link #handleSessionComplete(ChunkSessionInformation, InputStream)} has finished
+     */
+    default boolean autoClose() {
+      return true;
+    }
   }
 }

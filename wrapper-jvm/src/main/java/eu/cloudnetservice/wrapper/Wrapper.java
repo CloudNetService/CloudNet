@@ -188,11 +188,13 @@ public final class Wrapper {
 
   @Inject
   @Order(300)
-  private void registerDefaultListeners(@NonNull EventManager eventManager) {
+  private void registerDefaultListeners(@NonNull EventManager eventManager,
+    TemplateStorageCallbackListener templateStorageCallbackListener) {
     eventManager.registerListener(TaskChannelMessageListener.class);
     eventManager.registerListener(GroupChannelMessageListener.class);
     eventManager.registerListener(ServiceChannelMessageListener.class);
-    eventManager.registerListener(TemplateStorageCallbackListener.class);
+    // We can't use the extension layer here, or we get multiple instances
+    eventManager.registerListener(templateStorageCallbackListener);
   }
 
   @Inject

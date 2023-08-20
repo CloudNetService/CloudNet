@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.template.defaults;
+package eu.cloudnetservice.wrapper.network;
 
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.io.ListenableOutputStream;
@@ -28,12 +28,12 @@ import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
+import eu.cloudnetservice.wrapper.network.chunk.TemplateStorageCallbackListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -49,23 +49,26 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
 
   private final String name;
   private final ComponentInfo componentInfo;
+  private final TemplateStorageCallbackListener templateStorageCallbackListener;
   private final NetworkClient networkClient;
 
   /**
    * Constructs a new remote template storage instance.
    *
-   * @param name          the name of the storage which was created.
-   * @param componentInfo the information about the current component.
-   * @param networkClient the network client of the current component.
+   * @param name                            the name of the storage which was created.
+   * @param componentInfo                   the information about the current component.
+   * @param templateStorageCallbackListener the callback listener for file transfer
+   * @param networkClient                   the network client of the current component.
    * @throws NullPointerException if the given name, component info or network client is null.
    */
   public RemoteTemplateStorage(
     @NonNull String name,
     @NonNull ComponentInfo componentInfo,
-    @NonNull NetworkClient networkClient
+    TemplateStorageCallbackListener templateStorageCallbackListener, @NonNull NetworkClient networkClient
   ) {
     this.name = name;
     this.componentInfo = componentInfo;
+    this.templateStorageCallbackListener = templateStorageCallbackListener;
     this.networkClient = networkClient;
   }
 
@@ -112,9 +115,10 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) throws IOException {
+  public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) {
     // send a request for the template to the node
     var responseId = UUID.randomUUID();
+    this.templateStorageCallbackListener.startSession(responseId);
     var response = ChannelMessage.builder()
       .message("remote_templates_zip_template")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -124,10 +128,11 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
       .sendSingleQuery();
     // check if we got a response
     if (response == null || !response.content().readBoolean()) {
+      this.templateStorageCallbackListener.stopSession(responseId);
       return null;
     }
-    // the file is transferred and should be readable
-    return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
+    // the file is transferred, but may not be fully written yet
+    return this.templateStorageCallbackListener.waitForFile(responseId);
   }
 
   /**
@@ -190,9 +195,10 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
   public @Nullable InputStream newInputStream(
     @NonNull ServiceTemplate template,
     @NonNull String path
-  ) throws IOException {
+  ) {
     // send a request for the file to the node
     var responseId = UUID.randomUUID();
+    this.templateStorageCallbackListener.startSession(responseId);
     var response = ChannelMessage.builder()
       .message("remote_templates_template_file")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -202,9 +208,10 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
       .sendSingleQuery();
     // check if we got a response
     if (response == null || !response.content().readBoolean()) {
+      this.templateStorageCallbackListener.stopSession(responseId);
       return null;
     }
-    // the file is transferred and should be readable
-    return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
+    // the file is transferred, but may not be fully written yet
+    return this.templateStorageCallbackListener.waitForFile(responseId);
   }
 }

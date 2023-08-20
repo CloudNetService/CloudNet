@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -129,9 +130,15 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
           return true;
         }
         // delete the file after posting
-        try (var inputStream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE)) {
+        InputStream inputStream = null;
+        try {
+          inputStream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE);
           this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, inputStream);
           return true;
+        } finally {
+          if (inputStream != null && this.writeCompleteHandler.autoClose()) {
+            inputStream.close();
+          }
         }
       }
       // not completed yet
