@@ -39,7 +39,8 @@ import lombok.NonNull;
  */
 public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacketSender.Builder {
 
-  public static final int DEFAULT_CHUNK_SIZE = 50 * 1024 * 1024;
+  // 1 MB for every file chunk should be a good value. Setting this too high causes huge arrays (OOME), too low slow transfer speeds. To note:
+  public static final int DEFAULT_CHUNK_SIZE = 1024 * 1024;
 
   protected InputStream source;
   protected String transferChannel;

@@ -99,7 +99,7 @@ public final class NettyUtil {
       maximumPoolSize,
       30L,
       TimeUnit.SECONDS,
-      new LinkedBlockingQueue<>(),
+      new LinkedBlockingQueue<>((int) Math.ceil(maximumPoolSize * 1.1)), // A little delay is fine to prevent OOME
       threadFactory,
       DEFAULT_REJECT_HANDLER));
   }
