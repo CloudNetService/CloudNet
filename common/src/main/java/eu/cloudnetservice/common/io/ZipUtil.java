@@ -115,6 +115,7 @@ public final class ZipUtil {
   public static @Nullable Path zipToFile(@NonNull Path dir, @NonNull Path target, @Nullable Predicate<Path> filter) {
     if (Files.exists(dir)) {
       try (var out = new ZipOutputStream(Files.newOutputStream(target), StandardCharsets.UTF_8)) {
+        out.setLevel(ZipOutputStream.STORED); // Disable compression
         zipDir(out, dir, filter);
         return target;
       } catch (IOException exception) {
