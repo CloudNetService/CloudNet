@@ -30,7 +30,7 @@ public final class TemplateStorageCallbackListener {
       event.handler(new DefaultFileChunkedPacketHandler(
         event.session(),
         null,
-        FileUtil.TEMP_DIR.resolve(event.session().sessionUniqueId().toString())));
+        FileUtil.createTempFile(event.session().sessionUniqueId().toString())));
     }
   }
 }
