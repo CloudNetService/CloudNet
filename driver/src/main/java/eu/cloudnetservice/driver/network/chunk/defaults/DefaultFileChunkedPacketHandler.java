@@ -85,6 +85,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     try {
       // create the file
       if (Files.notExists(tempFilePath)) {
+        FileUtil.createDirectory(tempFilePath.getParent());
         Files.createFile(tempFilePath);
       }
       // open the file
