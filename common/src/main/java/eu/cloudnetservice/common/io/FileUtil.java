@@ -241,14 +241,32 @@ public final class FileUtil {
   }
 
   /**
-   * Resolves a random path in the temp directory of the cloud and creates all needed parents directories for a
-   * temporary file including the {@link FileUtil#TEMP_DIR}.
+   * Resolves a random path in the temp directory of the cloud and creates all needed parent directories for a temporary
+   * file including the {@link FileUtil#TEMP_DIR}. This method is equivalent to
+   * {@code FileUtil.createTempFile(UUID.randomUUID().toString())}
    *
    * @return the path to the temporary file.
+   * @see #createTempFile(String)
    */
   public static @NonNull Path createTempFile() {
+    return createTempFile(UUID.randomUUID().toString());
+  }
+
+  /**
+   * Resolves a path in the temp directory of the cloud and creates all needed parent directories for a temporary file
+   * including the {@link FileUtil#TEMP_DIR}. The final name might not be the argument if the file already exists.
+   *
+   * @param name the preferred name of the temporary file.
+   * @return the path to the temporary file.
+   */
+  public static @NonNull Path createTempFile(String name) {
     createDirectory(TEMP_DIR);
-    return TEMP_DIR.resolve(UUID.randomUUID().toString());
+    int id = 0;
+    Path path;
+    do {
+      path = TEMP_DIR.resolve(id++ == 0 ? name : name + "-" + id);
+    } while (Files.exists(path));
+    return path;
   }
 
   /**
