@@ -161,6 +161,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
    */
   protected void writePacketContent(int chunkPosition, @NonNull DataBuf dataBuf) throws IOException {
     // calculate the index of to which we need to sink in order to write
+    // we need to use a long here as we might be sending many chunks leading to an overflow when multiplying
     var targetIndex = (long) chunkPosition * this.chunkSessionInformation.chunkSize();
     // sink to the index of the chunk position we need to write to
     this.targetFile.seek(targetIndex);
