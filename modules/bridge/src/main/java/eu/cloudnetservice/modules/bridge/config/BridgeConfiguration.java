@@ -48,6 +48,7 @@ public final class BridgeConfiguration {
       .put("proxy-join-cancel-because-maintenance", "§7This proxy is currently in maintenance mode.")
       .put("proxy-join-disconnect-because-no-hub", "§cThere is currently no hub server you can connect to.")
       .put("command-cloud-sub-command-no-permission", "§7You are not allowed to use §b%command%.")
+      .put("command-cloud-sub-command-not-found", "§b%command% §7was not found.")
       .put("already-connected", "§cYou are already connected to this network!")
       .put("error-connecting-to-server", "§cUnable to connect to %server%: %reason%")
       .build()));

@@ -64,11 +64,19 @@ public final class VelocityCloudCommand implements SimpleCommand {
     } else {
       // get the command info
       this.clusterNodeProvider.consoleCommandAsync(arguments[0]).thenAcceptAsync(info -> {
+        var locale = invocation.source() instanceof Player player ? player.getEffectiveLocale() : Locale.ENGLISH;
         // check if the sender has the required permission to execute the command
-        if (info == null || !invocation.source().hasPermission(info.permission())) {
+        if (info == null) {
+          // there is no such command
+          this.management.configuration().handleMessage(
+            locale,
+            "command-cloud-sub-command-not-found",
+            message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message.replace("%command%", arguments[0])),
+            invocation.source()::sendMessage);
+        } else if (!invocation.source().hasPermission(info.permission())) {
           // no permission to execute the command
           this.management.configuration().handleMessage(
-            invocation.source() instanceof Player player ? player.getEffectiveLocale() : Locale.ENGLISH,
+            locale,
             "command-cloud-sub-command-no-permission",
             message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message.replace("%command%", arguments[0])),
             invocation.source()::sendMessage);

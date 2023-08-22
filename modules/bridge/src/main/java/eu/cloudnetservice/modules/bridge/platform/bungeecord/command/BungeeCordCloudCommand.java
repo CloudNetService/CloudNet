@@ -61,16 +61,23 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
     if (sender instanceof ProxiedPlayer player) {
       // get the command info
       this.clusterNodeProvider.consoleCommandAsync(args[0]).thenAcceptAsync(info -> {
-        // check if the player has the required permission
-        if (info == null || !sender.hasPermission(info.permission())) {
+        if (info == null) {
+          // there is no such command
+          this.management.configuration().handleMessage(
+            player.getLocale(),
+            "command-cloud-sub-command-not-found",
+            message -> this.bungeeHelper.translateToComponent(message.replace("%command%", args[0])),
+            player::sendMessage);
+        } else if (!player.hasPermission(info.permission())) {
+          // no permission to execute the command
           this.management.configuration().handleMessage(
             player.getLocale(),
             "command-cloud-sub-command-no-permission",
             message -> this.bungeeHelper.translateToComponent(message.replace("%command%", args[0])),
-            sender::sendMessage);
+            player::sendMessage);
         } else {
-          // execute command
-          this.executeNow(sender, commandLine);
+          // execute the command
+          this.executeNow(player, commandLine);
         }
       });
     } else {

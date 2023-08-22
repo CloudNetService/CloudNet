@@ -63,16 +63,22 @@ public final class WaterDogPECloudCommand extends Command {
     if (sender instanceof ProxiedPlayer) {
       // get the command info
       this.clusterNodeProvider.consoleCommandAsync(args[0]).thenAcceptAsync(info -> {
-        // check if the player has the required permission
-        if (info == null || !sender.hasPermission(info.permission())) {
-          // no permission
+        if (info == null) {
+          // there is no such command
+          this.management.configuration().handleMessage(
+            Locale.ENGLISH,
+            "command-cloud-sub-command-not-found",
+            message -> message.replace("%command%", args[0]),
+            sender::sendMessage);
+        } else if (!sender.hasPermission(info.permission())) {
+          // no permission to execute the command
           this.management.configuration().handleMessage(
             Locale.ENGLISH,
             "command-cloud-sub-command-no-permission",
             message -> message.replace("%command%", args[0]),
             sender::sendMessage);
         } else {
-          // execute command
+          // execute the command
           this.executeNow(sender, commandLine);
         }
       });
