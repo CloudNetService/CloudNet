@@ -18,6 +18,7 @@ package eu.cloudnetservice.driver.module;
 
 import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.SpecifiedInjector;
 import dev.derklaro.aerogel.auto.Provides;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
@@ -26,6 +27,7 @@ import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.module.util.ModuleDependencyUtil;
 import jakarta.inject.Singleton;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -34,8 +36,11 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,6 +50,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -181,62 +187,16 @@ public class DefaultModuleProvider implements ModuleProvider {
   @Override
   public @Nullable ModuleWrapper loadModule(@NonNull URL url) {
     try {
-      // check if there is any other module loaded from the same url
-      if (this.findModuleBySource(url).isPresent()) {
-        return null;
-      }
-      // check if we can load the module configuration from the file
-      var moduleConfiguration = this.findModuleConfiguration(url).orElse(null);
+      var moduleConfiguration = this.loadModuleConfigurationIfValid(url).orElse(null);
       if (moduleConfiguration == null) {
-        throw new ModuleConfigurationNotFoundException(url);
-      }
-      // check if the module can run on the current java version release.
-      if (!moduleConfiguration.canRunOn(JavaVersion.runtimeVersion())) {
-        LOGGER.warn(
-          "Unable to load module {}:{} because it only supports Java {}+",
-          moduleConfiguration.group(),
-          moduleConfiguration.name(),
-          moduleConfiguration.minJavaVersionId());
         return null;
       }
-
-      // get the data directory of the module
-      var dataDirectory = moduleConfiguration.dataFolder(this.moduleDirectory);
-
-      // create the injection layer for the module
-      var externalLayer = InjectionLayer.ext();
-      var moduleLayer = InjectionLayer.specifiedChild(externalLayer, "module", (layer, injector) -> {
-        injector.installSpecified(BindingBuilder.create()
-          .bind(DATA_DIRECTORY_ELEMENT)
-          .toInstance(dataDirectory));
-        injector.installSpecified(BindingBuilder.create()
-          .bind(MODULE_CONFIGURATION_ELEMENT)
-          .toInstance(moduleConfiguration));
-      });
 
       // initialize all dependencies of the module
       var repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
       var dependencies = this.loadDependencies(repositories, moduleConfiguration);
-      // create the class loader for the module
-      var loader = new ModuleURLClassLoader(url, dependencies.first(), moduleLayer);
-      loader.registerGlobally();
-      // try to load and create the main class instance
-      var mainModuleClass = loader.loadClass(moduleConfiguration.main());
-      // check if the main class is an instance of the IModule class
-      if (!Module.class.isAssignableFrom(mainModuleClass)) {
-        throw new AssertionError(String.format("Module main class %s is not assignable from %s",
-          mainModuleClass.getCanonicalName(), Module.class.getCanonicalName()));
-      }
 
-      // create an instance of the class and the main module wrapper
-      var moduleInstance = (Module) moduleLayer.instance(mainModuleClass);
-      var moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
-        this, loader, dependencies.second(), moduleConfiguration, moduleLayer);
-      // initialize the module instance now
-      moduleInstance.init(loader, moduleWrapper, moduleConfiguration);
-      // register the module, load it and return the created wrapper
-      this.modules.add(moduleWrapper);
-      return moduleWrapper.loadModule();
+      return this.loadAndInitialize(url, dependencies, moduleConfiguration);
     } catch (IOException | URISyntaxException exception) {
       throw new AssertionError("Exception reading module information of " + url, exception);
     } catch (ReflectiveOperationException exception) {
@@ -257,13 +217,23 @@ public class DefaultModuleProvider implements ModuleProvider {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @see #loadAll(Collection)
+   */
   @Override
   public @NonNull ModuleProvider loadAll() {
-    FileUtil.walkFileTree(
-      this.moduleDirectory,
-      ($, current) -> this.loadModule(current),
-      false,
-      "*.{jar,war}");
+    var urls = new ArrayList<URL>();
+    FileUtil.walkFileTree(this.moduleDirectory, (_, current) -> {
+      try {
+        urls.add(current.toUri().toURL());
+      } catch (MalformedURLException exception) {
+        LOGGER.error("Unable to resolve url of module path", exception);
+      }
+    }, false, "*.{jar,war}");
+
+    this.loadAll(urls);
     return this;
   }
 
@@ -361,6 +331,224 @@ public class DefaultModuleProvider implements ModuleProvider {
         }
       }
     }
+  }
+
+  /**
+   * Loads modules from a {@link Collection} of {@link URL}s
+   *
+   * @param urls a collection of URLs to modules that should be loaded
+   * @throws ModuleCyclicDependenciesException if cyclic dependencies are detected
+   * @see ModuleWrapper#moduleLifeCycle()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   * @see #loadAll()
+   */
+  protected void loadAll(Collection<URL> urls) {
+    // Collect the configurations before loading any classes
+    var loadableModules = new HashMap<String, ModuleConfiguration>();
+    var loadableUrls = new HashMap<String, URL>();
+
+    for (URL url : urls) {
+      try {
+        this.loadModuleConfigurationIfValid(url).ifPresent(moduleConfiguration -> {
+          loadableModules.put(moduleConfiguration.name(), moduleConfiguration);
+          loadableUrls.put(moduleConfiguration.name(), url);
+        });
+      } catch (IOException | URISyntaxException exception) {
+        throw new AssertionError("Exception reading module information of " + url, exception);
+      }
+    }
+
+    // map for easy dependency resolution by name. this will be populated further, so it must be mutable.
+    var knownModules = this.modules().stream().map(ModuleWrapper::moduleConfiguration)
+      .collect(Collectors.toMap(ModuleConfiguration::name, configuration -> configuration, ($1, $2) -> {
+        throw new AssertionError("Two modules must not have the same name");
+      }, HashMap::new));
+
+    // iterate in a queue-like manner. Using a map is preferable, because it makes dependency resolution easier.
+    while (!loadableModules.isEmpty()) {
+      var moduleName = loadableModules.keySet().iterator().next();
+      var moduleConfiguration = loadableModules.remove(moduleName);
+      var url = loadableUrls.remove(moduleName);
+      try {
+        // load the module after recursively loading all its dependencies.
+        this.loadModuleAndDependencies(url, moduleConfiguration, knownModules, loadableUrls, loadableModules,
+          new ArrayDeque<>());
+      } catch (ReflectiveOperationException exception) {
+        throw new AssertionError("Exception creating module instance for module " + moduleName, exception);
+      } catch (URISyntaxException exception) {
+        throw new AssertionError("Exception reading module information of " + url, exception);
+      }
+    }
+  }
+
+  /**
+   * Recursively loads a module and its dependencies
+   *
+   * @param url                 the url to the module
+   * @param moduleConfiguration the module configuration
+   * @param knownModules        all modules that are already loaded
+   * @param loadableUrls        urls to all modules that can be loaded
+   * @param loadableModules     configurations to all modules that can be loaded
+   * @throws ReflectiveOperationException      if there is an access problem
+   * @throws ModuleCyclicDependenciesException if cyclic dependencies are detected
+   * @throws URISyntaxException                if the syntax of the given url is invalid
+   */
+  protected void loadModuleAndDependencies(@NonNull URL url, @NonNull ModuleConfiguration moduleConfiguration,
+    @NonNull Map<String, ModuleConfiguration> knownModules, @NonNull Map<String, URL> loadableUrls,
+    @NonNull Map<String, ModuleConfiguration> loadableModules, @NonNull Deque<String> dependencyPath)
+    throws ReflectiveOperationException, URISyntaxException {
+    var moduleName = moduleConfiguration.name();
+    // add this module to the dependency path. this allows for cyclic dependency detection
+    dependencyPath.offerLast(moduleName);
+    var repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
+    var dependencies = this.loadDependencies(repositories, moduleConfiguration);
+    // make sure all dependencies are loaded.
+    for (var dependency : dependencies.second()) {
+      var dependencyName = dependency.name();
+      if (dependencyPath.contains(dependencyName)) {
+        // cyclic dependencies detected! add the last dependency for complete cycle and throw an error
+        dependencyPath.offerLast(dependencyName);
+        throw new ModuleCyclicDependenciesException(dependencyPath.toArray(String[]::new));
+      }
+
+      // do we already know the dependency?
+      if (!knownModules.containsKey(dependencyName)) {
+        // can we load the dependency?
+        if (!loadableModules.containsKey(dependencyName)) {
+          // the dependency wasn't found.
+          throw new ModuleDependencyNotFoundException(dependencyName, moduleName);
+        }
+        // load the dependency (and its dependencies).
+        var dependencyConfiguration = loadableModules.remove(dependencyName);
+        var dependencyUrl = loadableUrls.remove(dependencyName);
+
+        // recursive load for the dependency module
+        this.loadModuleAndDependencies(dependencyUrl, dependencyConfiguration, knownModules, loadableUrls,
+          loadableModules, dependencyPath);
+      }
+      // the dependency is available.
+      var presentDependency = knownModules.get(dependencyName);
+      // make sure the version demands are met
+      ModuleDependencyUtil.checkDependencyVersion(moduleConfiguration, presentDependency, dependency);
+    }
+    // all the dependency requirements are met. Now we have to load the module
+    this.loadAndInitialize(url, dependencies, moduleConfiguration);
+    // after loading the module, store it so other modules can resolve it.
+    knownModules.put(moduleName, moduleConfiguration);
+    // don't forget removing this module from the dependency path
+    dependencyPath.pollLast();
+  }
+
+  /**
+   * Creates an {@link InjectionLayer} for the module, then calls
+   * {@link #loadAndInitialize(URL, Tuple2, InjectionLayer, ModuleConfiguration, Path)}
+   *
+   * @param url                 the url to the module file
+   * @param dependencies        the dependencies for the module
+   * @param moduleConfiguration the module configuration
+   * @return the loaded and initialized wrapper for the module
+   * @throws ReflectiveOperationException      if there is an access problem
+   * @throws URISyntaxException                if the syntax of the given url is invalid
+   * @throws ModuleDependencyNotFoundException if a {@link ModuleDependency} is missing
+   */
+  protected @NonNull ModuleWrapper loadAndInitialize(@NonNull URL url,
+    @NonNull Tuple2<Set<URL>, Set<ModuleDependency>> dependencies, @NonNull ModuleConfiguration moduleConfiguration)
+    throws ReflectiveOperationException, ModuleDependencyNotFoundException, URISyntaxException {
+    // get the data directory of the module
+    var dataDirectory = moduleConfiguration.dataFolder(this.moduleDirectory);
+
+    // create the injection layer for the module
+    var externalLayer = InjectionLayer.ext();
+    var moduleLayer = InjectionLayer.specifiedChild(externalLayer, "module", (layer, injector) -> {
+      injector.installSpecified(BindingBuilder.create().bind(DATA_DIRECTORY_ELEMENT).toInstance(dataDirectory));
+      injector.installSpecified(
+        BindingBuilder.create().bind(MODULE_CONFIGURATION_ELEMENT).toInstance(moduleConfiguration));
+    });
+    return this.loadAndInitialize(url, dependencies, moduleLayer, moduleConfiguration, dataDirectory);
+  }
+
+  /**
+   * @param url                 the url to the module file
+   * @param dependencies        the dependencies for the module
+   * @param moduleLayer         the injection layer for the module
+   * @param moduleConfiguration the module configuration
+   * @param dataDirectory       the data directory of the module
+   * @return the loaded and initialized wrapper for the module
+   * @throws ReflectiveOperationException      if there is an access problem
+   * @throws URISyntaxException                if the syntax of the given url is invalid
+   * @throws ModuleDependencyNotFoundException if a {@link ModuleDependency} is missing
+   */
+  protected @NonNull ModuleWrapper loadAndInitialize(@NonNull URL url,
+    @NonNull Tuple2<Set<URL>, Set<ModuleDependency>> dependencies,
+    @NonNull InjectionLayer<SpecifiedInjector> moduleLayer, @NonNull ModuleConfiguration moduleConfiguration,
+    @NonNull Path dataDirectory)
+    throws ReflectiveOperationException, ModuleDependencyNotFoundException, URISyntaxException {
+    for (ModuleDependency dependency : dependencies.second()) {
+      var wrapper = this.module(dependency.name());
+      // ensure that the wrapper is present
+      if (wrapper == null) {
+        throw new ModuleDependencyNotFoundException(dependency.name(), moduleConfiguration.name());
+      }
+    }
+    // create the class loader for the module
+    var loader = new ModuleURLClassLoader(url, dependencies.first(), moduleLayer);
+    loader.registerGlobally();
+    // try to load and create the main class instance
+    var mainModuleClass = loader.loadClass(moduleConfiguration.main());
+    // check if the main class is an instance of the IModule class
+    if (!Module.class.isAssignableFrom(mainModuleClass)) {
+      throw new AssertionError(
+        String.format("Module main class %s is not assignable from %s", mainModuleClass.getCanonicalName(),
+          Module.class.getCanonicalName()));
+    }
+
+    // create an instance of the class and the main module wrapper
+    var moduleInstance = (Module) moduleLayer.instance(mainModuleClass);
+    var moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory, this, loader,
+      dependencies.second(), moduleConfiguration, moduleLayer);
+    // initialize the module instance now
+    moduleInstance.init(loader, moduleWrapper, moduleConfiguration);
+    // register the module, load it and return the created wrapper
+    this.modules.add(moduleWrapper);
+    return moduleWrapper.loadModule();
+  }
+
+  /**
+   * Same as {@link #findModuleConfiguration(URL)} with additional checks:
+   * <ul>
+   *     <li>the {@code moduleFile} must exist</li>
+   *     <li>there must be no other module loaded from the same url</li>
+   *     <li>the module must support the current java version</li>
+   * </ul>
+   *
+   * @param moduleFile the module file to find the module configuration of.
+   * @return the deserialized module configuration file located in the provided module file, or an empty Optional if a
+   * check failed.
+   * @throws ModuleConfigurationNotFoundException if the file doesn't contain a module.json.
+   * @throws IOException                          if an I/O or deserialize exception occurs.
+   * @throws NullPointerException                 if the given module file is null.
+   */
+  protected @NonNull Optional<ModuleConfiguration> loadModuleConfigurationIfValid(@NonNull URL moduleFile)
+    throws IOException, URISyntaxException {
+    // check if there is any other module loaded from the same url
+    if (this.findModuleBySource(moduleFile).isPresent()) {
+      return Optional.empty();
+    }
+    // check if we can load the module configuration from the file
+    var moduleConfiguration = this.findModuleConfiguration(moduleFile).orElse(null);
+    if (moduleConfiguration == null) {
+      throw new ModuleConfigurationNotFoundException(moduleFile);
+    }
+    // check if the module can run on the current java version release.
+    if (!moduleConfiguration.canRunOn(JavaVersion.runtimeVersion())) {
+      LOGGER.warn(
+        "Unable to load module {}:{} because it only supports Java {}+",
+        moduleConfiguration.group(),
+        moduleConfiguration.name(),
+        moduleConfiguration.minJavaVersionId());
+      return Optional.empty();
+    }
+    return Optional.of(moduleConfiguration);
   }
 
   /**

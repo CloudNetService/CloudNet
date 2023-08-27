@@ -38,7 +38,29 @@ public class ModuleDependencyOutdatedException extends RuntimeException {
    * @throws NullPointerException if requiringModule, dependency or semverIndex is null.
    */
   public ModuleDependencyOutdatedException(
-    @NonNull ModuleWrapper requiringModule,
+    @NonNull ModuleConfiguration requiringModule,
+    @NonNull ModuleDependency dependency,
+    @NonNull String semverIndex,
+    int required,
+    int actual
+  ) {
+    this(requiringModule.group(), requiringModule.name(), dependency, semverIndex, required, actual);
+  }
+
+  /**
+   * Creates a new instance of this ModuleDependencyOutdatedException.
+   *
+   * @param requiringModuleGroup the group of the module which requires the dependency.
+   * @param requiringModuleName  the name of the module which requires the dependency.
+   * @param dependency           the dependency which is outdated.
+   * @param semverIndex          the semver index name: major, minor, patch
+   * @param required             the required version of the semver index.
+   * @param actual               the actual running version of the semver index.
+   * @throws NullPointerException if requiringModuleGroup, requiringModuleName, dependency or semverIndex is null.
+   */
+  public ModuleDependencyOutdatedException(
+    @NonNull String requiringModuleGroup,
+    @NonNull String requiringModuleName,
     @NonNull ModuleDependency dependency,
     @NonNull String semverIndex,
     int required,
@@ -46,11 +68,12 @@ public class ModuleDependencyOutdatedException extends RuntimeException {
   ) {
     super(String.format(
       "Module %s:%s requires minimum %s version %d of %s:%s but is currently %d",
-      requiringModule.module().group(), requiringModule.module().name(),
+      requiringModuleGroup, requiringModuleName,
       semverIndex,
       required,
       dependency.group(), dependency.name(),
       actual
     ));
   }
+
 }

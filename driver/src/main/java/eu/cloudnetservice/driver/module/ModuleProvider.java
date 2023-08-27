@@ -125,12 +125,12 @@ public interface ModuleProvider {
    *
    * @param url the url to load the module from.
    * @return the loaded module or null if checks failed or a module from this url is already loaded.
-   * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
-   *                                                      module.json.
-   * @throws NullPointerException                         if required properties are missing in dependency or repository
-   *                                                      information.
-   * @throws AssertionError                               if any exception occurs during the load of the module.
-   * @throws NullPointerException                         if url is null.
+   * @throws ModuleConfigurationNotFoundException if the file associated with the url doesn't contain a module.json.
+   * @throws ModuleDependencyNotFoundException    if a dependency module is not loaded.
+   * @throws NullPointerException                 if required properties are missing in dependency or repository
+   *                                              information.
+   * @throws AssertionError                       if any exception occurs during the load of the module.
+   * @throws NullPointerException                 if url is null.
    */
   @Nullable ModuleWrapper loadModule(@NonNull URL url);
 
@@ -139,12 +139,11 @@ public interface ModuleProvider {
    *
    * @param path the path to load the module from.
    * @return the loaded module or null if checks failed or a module from this path is already loaded.
-   * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
-   *                                                      module.json.
-   * @throws NullPointerException                         if required properties are missing in dependency or repository
-   *                                                      information.
-   * @throws AssertionError                               if any exception occurs during the load of the module.
-   * @throws NullPointerException                         if path is null.
+   * @throws ModuleConfigurationNotFoundException if the file associated with the url doesn't contain a module.json.
+   * @throws NullPointerException                 if required properties are missing in dependency or repository
+   *                                              information.
+   * @throws AssertionError                       if any exception occurs during the load of the module.
+   * @throws NullPointerException                 if path is null.
    * @see #loadModule(URL)
    */
   @Nullable ModuleWrapper loadModule(@NonNull Path path);
@@ -153,10 +152,11 @@ public interface ModuleProvider {
    * Loads all modules which files are located at the module directory.
    *
    * @return the same instance of the class, for chaining.
+   * @throws ModuleCyclicDependenciesException if cyclic dependencies are detected
    * @see ModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NonNull ModuleProvider loadAll();
+  @NonNull ModuleProvider loadAll() throws ModuleCyclicDependenciesException;
 
   /**
    * Starts all modules which are loaded by this provided and can change to the started state.
