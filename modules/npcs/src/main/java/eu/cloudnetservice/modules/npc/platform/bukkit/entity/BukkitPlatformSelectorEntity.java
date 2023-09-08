@@ -62,7 +62,9 @@ public abstract class BukkitPlatformSelectorEntity
     .findMethod("setColor", ChatColor.class)
     .orElse(null);
 
-  protected static final int MAX_INVENTORY_SIZE = 9 * 6;
+  protected static final int MAX_ROWS = 6;
+  protected static final int MAX_ROW_ITEMS = 9;
+  protected static final int MAX_SIZE = MAX_ROW_ITEMS * MAX_ROWS;
 
   protected final NPC npc;
   protected final Plugin plugin;
@@ -470,11 +472,11 @@ public abstract class BukkitPlatformSelectorEntity
     if (configuration.dynamicSize()) {
       // dynamic size: create the smallest possible inventory that can fit all items (one row can fit 9 items)
       inventorySize = this.serviceItems.size();
-      inventorySize += 9 - (inventorySize % 9);
+      inventorySize += MAX_ROW_ITEMS - (inventorySize % MAX_ROW_ITEMS);
     }
 
     // minecraft inventories have a limit of 54 items
-    return Math.min(MAX_INVENTORY_SIZE, inventorySize);
+    return Math.min(MAX_SIZE, inventorySize);
   }
 
   protected @NonNull PlayerManager playerManager() {
