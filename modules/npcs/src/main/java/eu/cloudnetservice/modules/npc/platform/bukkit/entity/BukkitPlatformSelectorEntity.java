@@ -62,6 +62,8 @@ public abstract class BukkitPlatformSelectorEntity
     .findMethod("setColor", ChatColor.class)
     .orElse(null);
 
+  protected static final int MAX_INVENTORY_SIZE = 9 * 6;
+
   protected final NPC npc;
   protected final Plugin plugin;
   protected final Server server;
@@ -432,14 +434,7 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected void rebuildInventory(@NonNull InventoryConfiguration configuration) {
     // calculate the inventory size
-    var inventorySize = configuration.inventorySize();
-    if (configuration.dynamicSize()) {
-      inventorySize = this.serviceItems.size();
-      // try to make it to the next higher possible inventory size
-      while (inventorySize == 0 || (inventorySize < 54 && inventorySize % 9 != 0)) {
-        inventorySize++;
-      }
-    }
+    var inventorySize = this.calculateInventorySize(configuration);
     // create the inventory
     var inventory = this.inventory;
     if (inventory == null || inventory.getSize() != inventorySize) {
@@ -468,6 +463,18 @@ public abstract class BukkitPlatformSelectorEntity
         break;
       }
     }
+  }
+
+  protected int calculateInventorySize(@NonNull InventoryConfiguration configuration) {
+    var inventorySize = configuration.inventorySize();
+    if (configuration.dynamicSize()) {
+      // dynamic size: create the smallest possible inventory that can fit all items (one row can fit 9 items)
+      inventorySize = this.serviceItems.size();
+      inventorySize += 9 - (inventorySize % 9);
+    }
+
+    // minecraft inventories have a limit of 54 items
+    return Math.min(MAX_INVENTORY_SIZE, inventorySize);
   }
 
   protected @NonNull PlayerManager playerManager() {
