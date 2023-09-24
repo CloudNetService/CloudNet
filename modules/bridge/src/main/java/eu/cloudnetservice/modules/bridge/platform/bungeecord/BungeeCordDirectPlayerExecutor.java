@@ -38,7 +38,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   // the first minecraft version to support hex colors
   // https://minecraft.fandom.com/wiki/Java_Edition_1.16
-  private static final int MODERN_PROTOCOL = 735;
+  private static final int PROTOCOL_VERSION_1_16 = 735;
 
   private final ProxyServer proxyServer;
   private final PluginManager pluginManager;
@@ -149,7 +149,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   private @NonNull BaseComponent[] convertComponent(@NonNull Component component, @NonNull ProxiedPlayer player) {
     // check if we have to use legacy colors because the client is on an old version
-    if (player.getPendingConnection().getVersion() < MODERN_PROTOCOL) {
+    if (player.getPendingConnection().getVersion() < PROTOCOL_VERSION_1_16) {
       return BungeeComponentSerializer.legacy().serialize(component);
     } else {
       return BungeeComponentSerializer.get().serialize(component);
