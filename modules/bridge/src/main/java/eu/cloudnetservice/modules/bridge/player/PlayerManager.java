@@ -29,9 +29,9 @@ import org.jetbrains.annotations.Range;
 /**
  * The player manager is the main api point to access cloud offline and online players.
  * <p>
- * The player manager can be accessed using the service registry. Either using the {@link eu.cloudnetservice.driver.registry.injection.Service}
- * annotation to inject the player manager directly into a constructor or field, or otherwise use the
- * {@link eu.cloudnetservice.driver.registry.ServiceRegistry} like this:
+ * The player manager can be accessed using the service registry. Either using the
+ * {@link eu.cloudnetservice.driver.registry.injection.Service} annotation to inject the player manager directly into a
+ * constructor or field, or otherwise use the {@link eu.cloudnetservice.driver.registry.ServiceRegistry} like this:
  * {@code serviceRegistry.firstProvider(PlayerManager.class)}
  *
  * @since 4.0
