@@ -32,6 +32,20 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ThreadSnapshot;
 import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.MonthDay;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -141,6 +155,96 @@ public class DefaultObjectMapperTest {
         System.nanoTime(),
         ServiceLifeCycle.STOPPED,
         Document.newJsonDocument().append("test", 1234)))
+    );
+  }
+
+  static Stream<Arguments> timeClassProvider() {
+    return Stream.of(
+      // Year
+      Arguments.of(Year.MIN_VALUE),
+      Arguments.of(Year.MAX_VALUE),
+      Arguments.of(Year.of(1902)),
+      Arguments.of(Year.of(-57889)),
+      Arguments.of(Year.now()),
+      // Period
+      Arguments.of(Period.ZERO),
+      Arguments.of(Period.ofDays(15)),
+      Arguments.of(Period.ofWeeks(178)),
+      Arguments.of(Period.ofYears(199943)),
+      Arguments.of(Period.of(12234, 9990, 22345)),
+      // ZoneId
+      Arguments.of(ZoneOffset.UTC),
+      Arguments.of(ZoneOffset.MIN),
+      Arguments.of(ZoneOffset.MAX),
+      Arguments.of(ZoneOffset.ofHours(5)),
+      Arguments.of(ZoneOffset.ofHours(-3)),
+      Arguments.of(ZoneId.of("Europe/Berlin")),
+      Arguments.of(ZoneId.of("America/New_York")),
+      Arguments.of(ZoneId.of("GMT+5")),
+      Arguments.of(ZoneId.of("UTC-2")),
+      // Instant
+      Arguments.of(Instant.MIN),
+      Arguments.of(Instant.MAX),
+      Arguments.of(Instant.EPOCH),
+      Arguments.of(Instant.now()),
+      Arguments.of(Instant.now().minusSeconds(500)),
+      // Duration
+      Arguments.of(Duration.ZERO),
+      Arguments.of(Duration.ofDays(5)),
+      Arguments.of(Duration.ofMinutes(50000)),
+      Arguments.of(Duration.ofHours(999999999)),
+      Arguments.of(Duration.ofSeconds(120000)),
+      // MonthDay
+      Arguments.of(MonthDay.of(12, 5)),
+      Arguments.of(MonthDay.of(9, 18)),
+      Arguments.of(MonthDay.of(1, 1)),
+      Arguments.of(MonthDay.of(6, 30)),
+      Arguments.of(MonthDay.of(3, 1)),
+      // LocalDate
+      Arguments.of(LocalDate.EPOCH),
+      Arguments.of(LocalDate.MIN),
+      Arguments.of(LocalDate.MAX),
+      Arguments.of(LocalDate.now()),
+      Arguments.of(LocalDate.of(2003, 9, 18)),
+      Arguments.of(LocalDate.of(1999, 12, 31)),
+      Arguments.of(LocalDate.of(1989, 11, 9)),
+      Arguments.of(LocalDate.of(1871, 1, 18)),
+      // LocalTime
+      Arguments.of(LocalTime.MIN),
+      Arguments.of(LocalTime.MAX),
+      Arguments.of(LocalTime.MIDNIGHT),
+      Arguments.of(LocalTime.NOON),
+      Arguments.of(LocalTime.now()),
+      Arguments.of(LocalTime.of(11, 11)),
+      Arguments.of(LocalTime.of(16, 12, 34, 667)),
+      // YearMonth
+      Arguments.of(YearMonth.now()),
+      Arguments.of(YearMonth.of(1961, 8)),
+      Arguments.of(YearMonth.of(1929, 10)),
+      Arguments.of(YearMonth.of(2024, 11)),
+      // OffsetTime
+      Arguments.of(OffsetTime.MIN),
+      Arguments.of(OffsetTime.MAX),
+      Arguments.of(OffsetTime.now()),
+      Arguments.of(OffsetTime.of(LocalTime.now(), ZoneOffset.UTC)),
+      Arguments.of(OffsetTime.of(LocalTime.now(), ZoneOffset.ofHours(5))),
+      Arguments.of(OffsetTime.of(LocalTime.now(), ZoneOffset.ofHours(-3))),
+      // LocalDateTime
+      Arguments.of(LocalDateTime.MIN),
+      Arguments.of(LocalDateTime.MAX),
+      Arguments.of(LocalDateTime.now()),
+      Arguments.of(LocalDateTime.of(1945, 8, 6, 8, 16, 2)),
+      Arguments.of(LocalDateTime.of(1945, 8, 9, 11, 2)),
+      // ZonedDateTime
+      Arguments.of(ZonedDateTime.now()),
+      Arguments.of(ZonedDateTime.of(LocalDateTime.of(2034, 6, 6, 12, 5), ZoneId.of("UTC-2"))),
+      Arguments.of(ZonedDateTime.of(LocalDateTime.of(2011, 3, 11, 14, 46, 23), ZoneId.of("GMT+9"))),
+      // OffsetDateTime
+      Arguments.of(OffsetDateTime.MIN),
+      Arguments.of(OffsetDateTime.MAX),
+      Arguments.of(OffsetDateTime.now()),
+      Arguments.of(OffsetDateTime.of(LocalDateTime.of(2058, 8, 15, 23, 12), ZoneOffset.ofHours(-5))),
+      Arguments.of(OffsetDateTime.of(LocalDateTime.of(1986, 4, 26, 1, 23, 44), ZoneOffset.ofHours(3)))
     );
   }
 
@@ -254,5 +358,19 @@ public class DefaultObjectMapperTest {
 
     Assertions.assertNotNull(result);
     Assertions.assertArrayEquals(bytes, result);
+  }
+
+  @Order(80)
+  @ParameterizedTest
+  @MethodSource("timeClassProvider")
+  void testTimeClassSerialization(Object timeInstance) {
+    var mapper = new DefaultObjectMapper();
+    var buf = DataBuf.empty();
+
+    mapper.writeObject(buf, timeInstance);
+    var result = mapper.readObject(buf, timeInstance.getClass());
+
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(timeInstance, result);
   }
 }
