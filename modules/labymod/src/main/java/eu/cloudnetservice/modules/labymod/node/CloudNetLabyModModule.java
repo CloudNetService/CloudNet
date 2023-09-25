@@ -58,7 +58,7 @@ public class CloudNetLabyModModule extends DriverModule {
               .enabled(config.readDocument("permissionConfig").getBoolean("enabled"))
               .permissions(config.readDocument("permissionConfig")
                 .readObject(
-                  "permissions",
+                  "labyModPermissions",
                   TypeFactory.parameterizedClass(Map.class, String.class, Boolean.class)))
               .build())
             .build()
