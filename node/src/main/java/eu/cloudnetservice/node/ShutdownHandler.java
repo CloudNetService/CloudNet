@@ -39,6 +39,7 @@ import lombok.NonNull;
 @Singleton
 public final class ShutdownHandler {
 
+  public static final String SHUTDOWN_THREAD_NAME = "CloudNet Shutdown Thread";
   private static final Logger LOGGER = LogManager.logger(ShutdownHandler.class);
 
   private final Console console;
@@ -126,10 +127,11 @@ public final class ShutdownHandler {
         LOGGER.severe("Caught exception while trying to cleanly stop CloudNet", exception);
       }
 
-      // exit cleanly in all cases, this tricks the jvm into thinking that all shutdown hooks should
-      // get executed. If we call exit with a non-zero exit code, and the jvm is already shutting down
-      // this would cause the jvm the directly halt
-      System.exit(0);
+      // exit if this was not called from a shutdown thread. We have to check this to prevent calling System.exit(0)
+      // twice which results in the jvm stalling due to a lock
+      if (!Thread.currentThread().getName().equals(SHUTDOWN_THREAD_NAME)) {
+        System.exit(0);
+      }
     }
   }
 }

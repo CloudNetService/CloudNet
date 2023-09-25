@@ -23,6 +23,6 @@ repositories {
 }
 
 dependencies {
-  implementation("net.kyori", "indra-common", "3.1.1")
+  implementation("net.kyori", "indra-common", "3.1.2")
   implementation("com.google.code.gson", "gson", "2.10.1")
 }

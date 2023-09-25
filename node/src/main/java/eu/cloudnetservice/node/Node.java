@@ -465,7 +465,7 @@ public final class Node {
       // get the shutdown handler instance & execute the shutdown process
       var shutdownHandler = shutdownHandlerProvider.get();
       shutdownHandler.shutdown();
-    }));
+    }, ShutdownHandler.SHUTDOWN_THREAD_NAME));
   }
 
   @Inject
