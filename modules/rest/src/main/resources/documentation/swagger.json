@@ -1667,7 +1667,7 @@
         "description" : "The target service lifecycle",
         "schema" : {
           "type" : "string",
-          "enum" : [ "start", "stop", "restart", "kill" ]
+          "enum" : [ "start", "stop", "restart"]
         }
       } ],
       "patch" : {
