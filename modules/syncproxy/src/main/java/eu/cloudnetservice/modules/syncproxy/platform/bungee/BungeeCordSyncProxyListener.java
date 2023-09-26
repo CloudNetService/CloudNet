@@ -34,6 +34,7 @@ import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 @Singleton
 public final class BungeeCordSyncProxyListener implements Listener {
@@ -116,7 +117,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
     }
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGH)
   public void handleProxyLogin(@NonNull ServerConnectEvent event) {
     // only handle the initial proxy connect
     if (event.getReason() != ServerConnectEvent.Reason.JOIN_PROXY) {
