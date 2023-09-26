@@ -117,10 +117,10 @@ public final class BungeeCordSyncProxyListener implements Listener {
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGH)
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void handleProxyLogin(@NonNull ServerConnectEvent event) {
-    // only handle the initial proxy connect
-    if (event.getReason() != ServerConnectEvent.Reason.JOIN_PROXY) {
+    // only handle the initial proxy connect and the event was not cancelled by someone else
+    if (event.getReason() != ServerConnectEvent.Reason.JOIN_PROXY || event.isCancelled()) {
       return;
     }
 
