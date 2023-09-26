@@ -38,14 +38,13 @@ public record LabyModConfiguration(
       .permissions(configuration.permissions());
   }
 
-  @SuppressWarnings("HttpUrlsUsage") // LabyMod 1.8 is too old
   public static class Builder {
 
     private boolean enabled = true;
     private LabyModServiceDisplay discordRPC = new LabyModServiceDisplay(true, "Playing on %name%");
     private LabyModBanner banner = new LabyModBanner(
       false,
-      "http://dl.cloudnetservice.eu/data/minecraft/CloudNet-LabyMod-Banner.png");
+      "https://dl.cloudnetservice.eu/data/minecraft/CloudNet-LabyMod-Banner.png");
     private LabyModPermissions permissions = LabyModPermissions.builder().build();
 
     public @NonNull Builder enabled(boolean enabled) {
