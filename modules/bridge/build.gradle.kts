@@ -38,6 +38,7 @@ dependencies {
 
   "runtimeImpl"(libs.bundles.adventure)
   "runtimeImpl"(projects.ext.adventureHelper)
+  "runtimeImpl"(libs.adventureSerializerBungee)
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)

@@ -37,6 +37,7 @@ import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.MapObje
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.OptionalObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.PathObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.PatternObjectSerializer;
+import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.TimeObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.UUIDObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.exception.MissingObjectSerializerException;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
@@ -45,6 +46,18 @@ import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.MonthDay;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -132,6 +145,20 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(NavigableMap.class, MapObjectSerializer.of(TreeMap::new))
     .put(ConcurrentNavigableMap.class, MapObjectSerializer.of(ConcurrentSkipListMap::new))
     //    ==== object data class types ====
+    // java.time classes
+    .put(Year.class, TimeObjectSerializer.YEAR_SERIALIZER)
+    .put(Period.class, TimeObjectSerializer.PERIOD_SERIALIZER)
+    .put(ZoneId.class, TimeObjectSerializer.ZONE_ID_SERIALIZER)
+    .put(Instant.class, TimeObjectSerializer.INSTANT_SERIALIZER)
+    .put(Duration.class, TimeObjectSerializer.DURATION_SERIALIZER)
+    .put(MonthDay.class, TimeObjectSerializer.MONTH_DAY_SERIALIZER)
+    .put(LocalDate.class, TimeObjectSerializer.LOCAL_DATE_SERIALIZER)
+    .put(LocalTime.class, TimeObjectSerializer.LOCAL_TIME_SERIALIZER)
+    .put(YearMonth.class, TimeObjectSerializer.YEAR_MONTH_SERIALIZER)
+    .put(OffsetTime.class, TimeObjectSerializer.OFFSET_TIME_SERIALIZER)
+    .put(LocalDateTime.class, TimeObjectSerializer.LOCAL_DATE_TIME_SERIALIZER)
+    .put(ZonedDateTime.class, TimeObjectSerializer.ZONED_DATE_TIME_SERIALIZER)
+    .put(OffsetDateTime.class, TimeObjectSerializer.OFFSET_DATE_TIME_SERIALIZER)
     // data classes
     .put(Path.class, new PathObjectSerializer())
     .put(DataBuf.class, new DataBufObjectSerializer())
