@@ -2,7 +2,6 @@
 
 # plugins
 shadow = "8.1.1"
-blossom = "1.3.1"
 juppiter = "0.4.0"
 spotless = "6.18.0"
 fabricLoom = "1.3.9"
@@ -16,6 +15,7 @@ guava = "32.1.1-jre"
 # testing
 junit = "5.9.3"
 mockito = "5.3.1"
+junitLauncher = "1.10.0"
 testcontainers = "1.18.3"
 
 # compile time processing
@@ -111,6 +111,7 @@ jjwtGson = { group = "io.jsonwebtoken", name = "jjwt-gson", version.ref = "jjwt"
 junitApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
 junitParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
 junitEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+junitLauncher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitLauncher" }
 
 # general testing
 mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
@@ -211,7 +212,6 @@ serverPlatform = ["spigot", "sponge", "nukkitX", "minestom"]
 
 [plugins]
 
-blossom = { id = "net.kyori.blossom", version.ref = "blossom" }
 fabricLoom = { id = "fabric-loom", version.ref = "fabricLoom" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }

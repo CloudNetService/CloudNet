@@ -31,7 +31,7 @@ import lombok.NonNull;
 @PlatformPlugin(
   platform = "waterdog",
   name = "CloudNet-SyncProxy",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "CloudNet extension which serves proxy utils with CloudNet support",
   authors = "CloudNetService",
   dependencies = {@Dependency(name = "CloudNet-Bridge"), @Dependency(name = "CloudNet-CloudPerms", optional = true)})

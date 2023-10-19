@@ -36,7 +36,7 @@ import lombok.NonNull;
   platform = "nukkit",
   name = "CloudNet-CloudPerms",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   api = "1.0.5",
   description = "Nukkit extension which implement the permission management system from CloudNet into Nukkit"
 )

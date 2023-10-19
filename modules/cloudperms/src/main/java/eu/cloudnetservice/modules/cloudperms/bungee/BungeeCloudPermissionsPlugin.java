@@ -30,7 +30,7 @@ import net.md_5.bungee.api.plugin.PluginManager;
   platform = "bungeecord",
   name = "CloudNet-CloudPerms",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "BungeeCord extension which implement the permission management system from CloudNet into BungeeCord"
 )
 public final class BungeeCloudPermissionsPlugin implements PlatformEntrypoint {

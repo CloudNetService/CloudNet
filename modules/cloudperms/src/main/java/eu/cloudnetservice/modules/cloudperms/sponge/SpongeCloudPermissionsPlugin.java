@@ -40,7 +40,7 @@ import org.spongepowered.plugin.PluginContainer;
   platform = "sponge",
   name = "CloudNet-CloudPerms",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   homepage = "https://cloudnetservice.eu",
   description = "Sponge extension which implement the permission management system from CloudNet into Sponge",
   dependencies = @Dependency(name = "spongeapi", version = "8.0.0")

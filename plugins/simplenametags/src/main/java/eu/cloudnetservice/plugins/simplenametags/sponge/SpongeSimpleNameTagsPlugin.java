@@ -38,13 +38,13 @@ import org.spongepowered.plugin.PluginContainer;
 @PlatformPlugin(
   platform = "sponge",
   name = "CloudNet-SimpleNameTags",
-  version = "{project.build.version}",
+  version = "@version@",
   authors = "CloudNetService",
   homepage = "https://cloudnetservice.eu",
   description = "Adds prefix, suffix and display name support to all server platforms",
   dependencies = {
     @Dependency(name = "spongeapi", version = "8.0.0"),
-    @Dependency(name = "CloudNet-CloudPerms", version = "{project.build.version}")
+    @Dependency(name = "CloudNet-CloudPerms", version = "@version@")
   }
 )
 public final class SpongeSimpleNameTagsPlugin implements PlatformEntrypoint {

@@ -39,7 +39,7 @@ import org.bukkit.scheduler.BukkitScheduler;
   authors = "CloudNetService",
   pluginFileNames = "plugin.yml",
   name = "CloudNet-SimpleNameTags",
-  version = "{project.build.version}",
+  version = "@version@",
   dependencies = @Dependency(name = "CloudNet-CloudPerms"),
   description = "Adds prefix, suffix and display name support to all server platforms"
 )
