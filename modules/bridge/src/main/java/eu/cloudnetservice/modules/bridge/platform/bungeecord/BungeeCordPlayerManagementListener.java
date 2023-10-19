@@ -18,6 +18,8 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
+import dev.derklaro.reflexion.MethodAccessor;
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -48,6 +50,15 @@ import net.md_5.bungee.event.EventPriority;
 
 @Singleton
 public final class BungeeCordPlayerManagementListener implements Listener {
+
+  // https://minecraft.wiki/w/Java_Edition_1.20.2
+  // 1.20.2 changed the login process and therefore BungeeCord is somewhat breaking
+  private static final int PROTOCOL_1_20_2 = 764;
+  private static final MethodAccessor<?> PLAYER_DIMENSION_ACCESSOR = Reflexion.get(
+      "net.md_5.bungee.UserConnection",
+      null)
+    .findMethod("getDimension")
+    .orElseThrow();
 
   private final Plugin plugin;
   private final ProxyServer proxyServer;
@@ -192,8 +203,9 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       .cachedService(service -> service.name().equals(event.getServer().getInfo().getName()))
       .map(NetworkServiceInfo::fromServiceInfoSnapshot)
       .orElse(null);
+
     // check if the player connection was initial
-    if (event.getPlayer().getServer() == null) {
+    if (this.initialConnect(event.getPlayer())) {
       this.proxyPlatformHelper.sendChannelMessageLoginSuccess(
         this.management.createPlayerInformation(event.getPlayer()),
         joinedServiceInfo);
@@ -218,4 +230,15 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());
   }
+
+  private boolean initialConnect(@NonNull ProxiedPlayer player) {
+    // since 1.20.2 we can not detect an initial connect using the nullability of the server field
+    // but the dimension of a player is null on an initial connect and non-null on a server switch
+    if (player.getPendingConnection().getVersion() >= PROTOCOL_1_20_2) {
+      return PLAYER_DIMENSION_ACCESSOR.invoke(player).getOrThrow() == null;
+    }
+
+    return player.getServer() == null;
+  }
+
 }

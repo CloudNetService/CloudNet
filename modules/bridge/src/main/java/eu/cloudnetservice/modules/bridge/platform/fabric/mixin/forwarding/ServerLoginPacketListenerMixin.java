@@ -37,19 +37,18 @@ public final class ServerLoginPacketListenerMixin {
 
   @Final
   @Shadow
-  public Connection connection;
+  Connection connection;
 
   @Shadow
-  GameProfile gameProfile;
+  private GameProfile authenticatedProfile;
 
-  @Inject(at = @At("HEAD"), method = "handleAcceptedLogin")
+  @Inject(at = @At("TAIL"), method = "startClientVerification")
   private void onAcceptedLogin(@NonNull CallbackInfo callbackInfo) {
     if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
       var bridged = (BridgedClientConnection) this.connection;
-      // update the profile according to the forwarded data
-      this.gameProfile = new GameProfile(bridged.forwardedUniqueId(), this.gameProfile.getName());
+      this.authenticatedProfile = new GameProfile(bridged.forwardedUniqueId(), this.authenticatedProfile.getName());
       for (var property : bridged.forwardedProfile()) {
-        this.gameProfile.getProperties().put(property.getName(), property);
+        this.authenticatedProfile.getProperties().put(property.name(), property);
       }
     }
   }
