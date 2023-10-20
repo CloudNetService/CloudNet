@@ -35,7 +35,7 @@ import lombok.NonNull;
   platform = "velocity",
   name = "CloudNet-LabyMod",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Displays LabyMod DiscordRPC information when playing on cloudnet a server",
   dependencies = @Dependency(name = "CloudNet-Bridge")
 )

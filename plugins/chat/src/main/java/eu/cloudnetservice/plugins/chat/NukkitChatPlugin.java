@@ -37,7 +37,7 @@ import lombok.NonNull;
   platform = "nukkit",
   name = "CloudNet-Chat",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Brings chat prefixes and colored message support to all server platforms",
   dependencies = @Dependency(name = "CloudNet-CloudPerms")
 )

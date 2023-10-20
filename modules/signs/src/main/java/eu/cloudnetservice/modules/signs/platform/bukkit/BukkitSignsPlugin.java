@@ -35,7 +35,7 @@ import org.bukkit.plugin.java.JavaPlugin;
   api = "1.13",
   platform = "bukkit",
   name = "CloudNet-Signs",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Bukkit extension for the CloudNet runtime which adds sign connector support",
   authors = "CloudNetService",
   dependencies = @Dependency(name = "CloudNet-Bridge"),

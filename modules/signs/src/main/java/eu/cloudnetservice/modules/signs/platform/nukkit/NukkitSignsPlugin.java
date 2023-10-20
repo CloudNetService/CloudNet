@@ -35,7 +35,7 @@ import lombok.NonNull;
 @PlatformPlugin(
   platform = "nukkit",
   name = "CloudNet-Signs",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Nukkit extension for the CloudNet runtime which adds sign connector support",
   authors = "CloudNetService",
   dependencies = @Dependency(name = "CloudNet-Bridge"),

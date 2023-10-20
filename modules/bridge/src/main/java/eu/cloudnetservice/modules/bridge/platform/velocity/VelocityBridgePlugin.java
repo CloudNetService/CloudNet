@@ -33,7 +33,7 @@ import lombok.NonNull;
 @PlatformPlugin(
   platform = "velocity",
   name = "CloudNet-Bridge",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
   authors = "CloudNetService")
 public final class VelocityBridgePlugin implements PlatformEntrypoint {

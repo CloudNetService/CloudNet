@@ -39,7 +39,7 @@ import net.minestom.server.network.ConnectionManager;
   platform = "minestom",
   name = "CloudNet-CloudPerms",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   externalDependencies = @ExternalDependency(
     groupId = "com.google.guava",
     artifactId = "guava",

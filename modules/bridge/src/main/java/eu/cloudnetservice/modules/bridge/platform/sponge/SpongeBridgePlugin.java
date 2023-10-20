@@ -31,7 +31,7 @@ import org.spongepowered.plugin.PluginContainer;
 @PlatformPlugin(
   platform = "sponge",
   name = "CloudNet-Bridge",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
   authors = "CloudNetService",
   dependencies = @Dependency(name = "spongeapi", version = "8.0.0")

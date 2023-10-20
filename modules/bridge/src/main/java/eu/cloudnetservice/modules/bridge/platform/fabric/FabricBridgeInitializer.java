@@ -28,7 +28,7 @@ import lombok.NonNull;
 @PlatformPlugin(
   platform = "fabric",
   name = "CloudNet-Bridge",
-  version = "{project.build.version}",
+  version = "@version@",
   dependencies = {
     @Dependency(name = "fabricloader", version = ">=0.14.22"),
     @Dependency(name = "minecraft", version = "~1.20.2"),

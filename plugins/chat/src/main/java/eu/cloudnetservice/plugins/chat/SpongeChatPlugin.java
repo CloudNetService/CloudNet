@@ -58,13 +58,13 @@ import org.spongepowered.plugin.ResourceQueryable;
 @PlatformPlugin(
   platform = "sponge",
   name = "CloudNet-Chat",
-  version = "{project.build.version}",
+  version = "@version@",
   authors = "CloudNetService",
   homepage = "https://cloudnetservice.eu",
   description = "Brings chat prefixes and colored message support to all server platforms",
   dependencies = {
     @Dependency(name = "spongeapi", version = "8.0.0"),
-    @Dependency(name = "CloudNet-CloudPerms", version = "{project.build.version}")
+    @Dependency(name = "CloudNet-CloudPerms", version = "@version@")
   }
 )
 public class SpongeChatPlugin implements PlatformEntrypoint {
