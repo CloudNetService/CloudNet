@@ -37,7 +37,7 @@ import org.bukkit.plugin.java.JavaPlugin;
   platform = "bukkit",
   name = "CloudNet-CloudPerms",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Bukkit extension which implement the permission management system from CloudNet into Bukkit"
 )
 public final class BukkitCloudPermissionsPlugin implements PlatformEntrypoint {

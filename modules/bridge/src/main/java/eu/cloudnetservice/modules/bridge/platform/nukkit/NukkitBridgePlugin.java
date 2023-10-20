@@ -32,7 +32,7 @@ import lombok.NonNull;
   platform = "nukkit",
   api = "1.0.5",
   name = "CloudNet-Bridge",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
   authors = "CloudNetService")
 public final class NukkitBridgePlugin implements PlatformEntrypoint {

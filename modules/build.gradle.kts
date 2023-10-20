@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import net.kyori.blossom.BlossomExtension
+import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-  alias(libs.plugins.blossom) apply false
   alias(libs.plugins.juppiter) apply false
 }
 
 subprojects {
-  apply(plugin = "net.kyori.blossom")
   apply(plugin = "eu.cloudnetservice.juppiter")
 
   configurations {
@@ -51,7 +49,15 @@ subprojects {
     "implementation"(rootProject.libs.guava)
   }
 
-  configure<BlossomExtension> {
-    replaceToken("{project.build.version}", project.version)
+  tasks.create<Sync>("processSources") {
+    inputs.property("version", project.version)
+    from(sourceSets().getByName("main").java)
+    into(layout.buildDirectory.dir("src"))
+    filter(ReplaceTokens::class, mapOf("tokens" to mapOf("version" to rootProject.version)))
+  }
+
+  tasks.named<JavaCompile>("compileJava") {
+    dependsOn(tasks.getByName("processSources"))
+    source = tasks.getByName("processSources").outputs.files.asFileTree
   }
 }

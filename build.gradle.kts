@@ -76,6 +76,7 @@ subprojects {
     "compileOnly"(rootProject.libs.annotations)
     // testing
     "testImplementation"(rootProject.libs.mockito)
+    "testRuntimeOnly"(rootProject.libs.junitLauncher)
     "testImplementation"(rootProject.libs.bundles.junit)
     "testImplementation"(rootProject.libs.bundles.testContainers)
   }
@@ -148,7 +149,7 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   val options = options as? StandardJavadocDocletOptions ?: return@register
 
   title = "CloudNet JavaDocs"
-  setDestinationDir(buildDir.resolve("javadocs"))
+  setDestinationDir(layout.buildDirectory.dir("javadocs").get().asFile)
   // options
   applyDefaultJavadocOptions(options)
   options.windowTitle = "CloudNet JavaDocs"
