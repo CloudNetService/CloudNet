@@ -662,7 +662,7 @@ public abstract class AbstractService implements CloudService {
     // check jvm heap size
     if (this.cloudServiceManager.currentUsedHeapMemory()
       + this.serviceConfiguration().processConfig().maxHeapMemorySize()
-      >= this.configuration.maxMemory()) {
+      > this.configuration.maxMemory()) {
       // schedule a retry
       if (this.configuration.runBlockedServiceStartTryLaterAutomatic()) {
         this.mainThread.runTask(this::start);
