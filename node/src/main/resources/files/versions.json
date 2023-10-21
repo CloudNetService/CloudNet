@@ -91,11 +91,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.20.1"
+            "versionGroup": "1.20.2"
           }
         },
         {
-          "name": "1.20.1",
+          "name": "1.20.2",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -106,7 +106,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.20.1"
+            "versionGroup": "1.20.2"
           }
         },
         {
@@ -277,7 +277,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.20.1/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.20.2/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -291,8 +291,8 @@
           }
         },
         {
-          "name": "1.20.1",
-          "url": "https://api.purpurmc.org/v2/purpur/1.20.1/latest/download",
+          "name": "1.20.2",
+          "url": "https://api.purpurmc.org/v2/purpur/1.20.2/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -438,7 +438,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.20.1",
+          "name": "1.20.2",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -479,11 +479,11 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.20"
+            "mcVersion": "1.20.2"
           }
         },
         {
-          "name": "1.20",
+          "name": "1.20.2",
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -492,7 +492,7 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.20"
+            "mcVersion": "1.20.2"
           }
         },
         {
@@ -596,14 +596,6 @@
       "versions": [
         {
           "name": "latest",
-          "cacheFiles": false,
-          "properties": {
-            "fetchOverPaperApi": true,
-            "versionGroup": "3.1.1"
-          }
-        },
-        {
-          "name": "development",
           "cacheFiles": false,
           "properties": {
             "fetchOverPaperApi": true,

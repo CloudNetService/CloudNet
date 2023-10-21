@@ -38,7 +38,7 @@ import org.bukkit.plugin.java.JavaPlugin;
   platform = "bukkit",
   name = "CloudNet-NPCs",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   homepage = "https://cloudnetservice.eu",
   description = "CloudNet extension which adds NPCs for server selection",
   dependencies = {

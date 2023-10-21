@@ -38,7 +38,7 @@ import org.bukkit.plugin.java.JavaPlugin;
   name = "CloudNet-Chat",
   authors = "CloudNetService",
   pluginFileNames = "plugin.yml",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Brings chat prefixes and colored message support to all server platforms",
   dependencies = @Dependency(name = "CloudNet-CloudPerms")
 )

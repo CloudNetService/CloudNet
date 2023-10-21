@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 @PlatformPlugin(
   platform = "minestom",
   name = "CloudNet-Bridge",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
   authors = "CloudNetService",
   externalDependencies = @ExternalDependency(

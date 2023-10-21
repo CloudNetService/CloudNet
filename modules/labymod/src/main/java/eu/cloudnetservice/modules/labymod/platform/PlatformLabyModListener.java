@@ -18,8 +18,6 @@ package eu.cloudnetservice.modules.labymod.platform;
 
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
-import eu.cloudnetservice.modules.bridge.event.BridgeProxyPlayerServerSwitchEvent;
-import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import jakarta.inject.Singleton;
@@ -27,18 +25,6 @@ import lombok.NonNull;
 
 @Singleton
 public class PlatformLabyModListener {
-
-  @EventListener
-  public void handlePlayerServerSwitch(
-    @NonNull BridgeProxyPlayerServerSwitchEvent event,
-    @NonNull PlatformLabyModManagement labyModManagement,
-    @NonNull PlatformBridgeManagement<?, ?> bridgeManagement
-  ) {
-    bridgeManagement.cachedService(event.target().uniqueId()).ifPresent(service -> {
-      // let the management handle the new server
-      labyModManagement.handleServerUpdate(event.cloudPlayer(), service);
-    });
-  }
 
   @EventListener
   public void handleConfigUpdate(

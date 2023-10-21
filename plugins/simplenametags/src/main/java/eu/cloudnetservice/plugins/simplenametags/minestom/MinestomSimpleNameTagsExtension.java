@@ -37,7 +37,7 @@ import net.minestom.server.scoreboard.TeamManager;
 @PlatformPlugin(
   platform = "minestom",
   name = "CloudNet-SimpleNameTags",
-  version = "{project.build.version}",
+  version = "@version@",
   authors = "CloudNetService",
   dependencies = @Dependency(name = "CloudNet-CloudPerms")
 )

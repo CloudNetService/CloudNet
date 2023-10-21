@@ -28,7 +28,7 @@ import lombok.NonNull;
   platform = "waterdog",
   name = "CloudNet-CloudPerms",
   authors = "CloudNetService",
-  version = "{project.build.version}"
+  version = "@version@"
 )
 public class WaterdogPECloudPermissionsPlugin implements PlatformEntrypoint {
 

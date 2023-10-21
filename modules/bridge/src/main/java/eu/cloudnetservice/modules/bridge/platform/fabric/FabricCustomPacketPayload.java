@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-plugins {
-  `kotlin-dsl`
-}
+package eu.cloudnetservice.modules.bridge.platform.fabric;
 
-repositories {
-  gradlePluginPortal()
-}
+import lombok.NonNull;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-dependencies {
-  implementation("net.kyori", "indra-common", "3.1.3")
-  implementation("com.google.code.gson", "gson", "2.10.1")
+record FabricCustomPacketPayload(@NonNull ResourceLocation id, byte[] payload) implements CustomPacketPayload {
+
+  @Override
+  public void write(@NonNull FriendlyByteBuf buf) {
+    buf.writeBytes(this.payload);
+  }
 }

@@ -78,7 +78,7 @@ fun snapshotsOnly(repository: MavenArtifactRepository) {
 }
 
 fun Project.exportLanguageFileInformation(): String {
-  val file = project.buildDir.resolve("languages.txt")
+  val file = project.layout.buildDirectory.file("languages.txt").get().asFile
   file.writeText(project.projectDir.resolve("src/main/resources/lang").listFiles()?.joinToString(separator = "\n") { it.name }!!)
 
   return file.absolutePath
@@ -120,7 +120,7 @@ fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<Strin
   }
 
   // write to the output file
-  val target = project.buildDir.resolve(fileName)
+  val target = project.layout.buildDirectory.file(fileName).get().asFile
   target.writeText(stringBuilder.toString())
 
   return target.absolutePath
