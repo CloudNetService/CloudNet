@@ -28,14 +28,12 @@ import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
@@ -43,7 +41,6 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
@@ -63,7 +60,6 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   private final Plugin plugin;
   private final ProxyServer proxyServer;
   private final TaskScheduler scheduler;
-  private final PluginManager pluginManager;
   private final BungeeCordHelper bungeeHelper;
   private final ServiceInfoHolder serviceInfoHolder;
   private final ProxyPlatformHelper proxyPlatformHelper;
@@ -74,7 +70,6 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     @NonNull Plugin plugin,
     @NonNull ProxyServer proxyServer,
     @NonNull TaskScheduler scheduler,
-    @NonNull PluginManager pluginManager,
     @NonNull BungeeCordHelper bungeeHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull ProxyPlatformHelper proxyPlatformHelper,
@@ -83,63 +78,62 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     this.plugin = plugin;
     this.proxyServer = proxyServer;
     this.scheduler = scheduler;
-    this.pluginManager = pluginManager;
     this.bungeeHelper = bungeeHelper;
     this.serviceInfoHolder = serviceInfoHolder;
     this.proxyPlatformHelper = proxyPlatformHelper;
     this.management = management;
   }
 
-  @EventHandler
-  public void handle(@NonNull LoginEvent event) {
-    var task = this.management.selfTask();
-    // check if the current task is present
-    if (task != null) {
-      // we need to wrap the proxied player to allow permission checks
-      var player = new PendingConnectionProxiedPlayer(this.pluginManager, event.getConnection());
-      // check if maintenance is activated
-      if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-        event.setCancelled(true);
-        this.management.configuration().handleMessage(
-          Locale.ENGLISH,
-          "proxy-join-cancel-because-maintenance",
-          this.bungeeHelper::translateToComponent,
-          event::setCancelReason);
-        return;
-      }
-      // check if a custom permission is required to join
-      var permission = task.propertyHolder().getString("requiredPermission");
-      if (permission != null && !player.hasPermission(permission)) {
-        event.setCancelled(true);
-        this.management.configuration().handleMessage(
-          Locale.ENGLISH,
-          "proxy-join-cancel-because-permission",
-          this.bungeeHelper::translateToComponent,
-          event::setCancelReason);
-        return;
-      }
-    }
-    // check if the player is allowed to log in
-    var loginResult = this.proxyPlatformHelper.sendChannelMessagePreLogin(new NetworkPlayerProxyInfo(
-      event.getConnection().getUniqueId(),
-      event.getConnection().getName(),
-      null,
-      event.getConnection().getVersion(),
-      BridgeHostAndPortUtil.fromSocketAddress(event.getConnection().getSocketAddress()),
-      BridgeHostAndPortUtil.fromSocketAddress(event.getConnection().getListener().getSocketAddress()),
-      event.getConnection().isOnlineMode(),
-      this.management.ownNetworkServiceInfo()));
-    if (!loginResult.permitLogin()) {
-      event.setCancelled(true);
-      event.setCancelReason(TextComponent.fromLegacyText(legacySection().serialize(loginResult.result())));
-    }
-  }
-
   @EventHandler(priority = EventPriority.LOWEST)
   public void handle(@NonNull ServerConnectEvent event) {
+    var player = event.getPlayer();
+    // handle permission checks here before we send a request to the node about the login
+    if (event.getReason() == Reason.JOIN_PROXY) {
+      var task = this.management.selfTask();
+      // check if the current task is present
+      if (task != null) {
+        // check if maintenance is activated
+        if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+          event.setCancelled(true);
+          this.management.configuration().handleMessage(
+            player.getLocale(),
+            "proxy-join-cancel-because-maintenance",
+            this.bungeeHelper::translateToComponent,
+            player::disconnect);
+          return;
+        }
+        // check if a custom permission is required to join
+        var permission = task.propertyHolder().getString("requiredPermission");
+        if (permission != null && !player.hasPermission(permission)) {
+          event.setCancelled(true);
+          this.management.configuration().handleMessage(
+            player.getLocale(),
+            "proxy-join-cancel-because-permission",
+            this.bungeeHelper::translateToComponent,
+            player::disconnect);
+          return;
+        }
+      }
+      // check if the player is allowed to log in
+      var loginResult = this.proxyPlatformHelper.sendChannelMessagePreLogin(new NetworkPlayerProxyInfo(
+        player.getUniqueId(),
+        player.getName(),
+        null,
+        player.getPendingConnection().getVersion(),
+        BridgeHostAndPortUtil.fromSocketAddress(player.getSocketAddress()),
+        BridgeHostAndPortUtil.fromSocketAddress(player.getPendingConnection().getListener().getSocketAddress()),
+        player.getPendingConnection().isOnlineMode(),
+        this.management.ownNetworkServiceInfo()));
+      if (!loginResult.permitLogin()) {
+        event.setCancelled(true);
+        player.disconnect(TextComponent.fromLegacyText(legacySection().serialize(loginResult.result())));
+        return;
+      }
+    }
+
     // initial connect reasons, LOBBY_FALLBACK will be used if the initial fallback is not present
     if (event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK) {
-      var target = this.management.fallback(event.getPlayer())
+      var target = this.management.fallback(player)
         .map(service -> this.proxyServer.getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present
