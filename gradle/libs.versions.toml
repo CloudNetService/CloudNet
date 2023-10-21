@@ -43,7 +43,7 @@ sshj = "0.37.0"
 jjwt = "0.11.5"
 slf4j = "1.7.36"
 aerogel = "2.1.0"
-awsSdk = "2.21.2"
+awsSdk = "2.21.5"
 unirest = "4.1.0"
 caffeine = "3.1.8"
 reflexion = "1.8.0"
@@ -74,7 +74,7 @@ adventure-serializer-bungee = "4.3.1"
 
 # fabric platform special dependencies
 minecraft = "1.20.2"
-fabricLoader = "0.14.22"
+fabricLoader = "0.14.23"
 
 
 [libraries]
