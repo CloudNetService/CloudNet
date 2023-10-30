@@ -36,8 +36,8 @@ import eu.cloudnetservice.driver.document.send.element.Element;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import io.leangen.geantyref.TypeToken;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serial;
@@ -459,29 +459,18 @@ class ImmutableGsonDocument implements Document, DefaultedDocPropertyHolder {
   }
 
   /**
-   * Writes this document in a compact way to the given output stream. This method is part of the java serialisation
-   * api.
-   *
-   * @param out the target stream to write the content of this document to.
-   * @throws IOException                    if an i/o error occurs while writing the content.
-   * @throws DocumentSerialisationException if an exception occurs serialising the document.
+   * {@inheritDoc}
    */
-  @Serial
-  private void writeObject(@NonNull ObjectOutputStream out) throws IOException {
+  @Override
+  public void writeExternal(@NonNull ObjectOutput out) throws IOException {
     out.writeUTF(this.serializeToString(StandardSerialisationStyle.COMPACT));
   }
 
   /**
-   * Reads a json object from the given stream and copies all it's members into this document. This method does not take
-   * into account whether a key of the deserialized object is already present in this document. This method is part of
-   * the java serialisation api.
-   *
-   * @param in the stream to read the json content from.
-   * @throws IOException              if an i/o error occurs while reading the document content.
-   * @throws IllegalArgumentException if the decoded json element from the stream is not a json object.
+   * {@inheritDoc}
    */
-  @Serial
-  private void readObject(@NonNull ObjectInputStream in) throws IOException {
+  @Override
+  public void readExternal(@NonNull ObjectInput in) throws IOException {
     var parsedDocument = JsonParser.parseString(in.readUTF());
     Preconditions.checkArgument(parsedDocument.isJsonObject(), "Input is not a json object");
 

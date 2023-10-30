@@ -18,7 +18,11 @@ package eu.cloudnetservice.driver.document;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.object.AllPrimitiveTypesDataClass;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -32,7 +36,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.shaded.org.apache.commons.io.output.ByteArrayOutputStream;
 
 public class DocumentSerialisationTest {
 
@@ -69,6 +72,10 @@ public class DocumentSerialisationTest {
         StandardSerialisationStyle.COMPACT));
   }
 
+  static Stream<Arguments> documentTypeProvider() {
+    return Stream.of(Arguments.of(Document.newJsonDocument(), Document.emptyDocument()));
+  }
+
   @Test
   void testFileReadReturnsNewDocumentIfMissing() {
     var targetFile = Path.of("random_test_file_data_" + UUID.randomUUID());
@@ -99,7 +106,7 @@ public class DocumentSerialisationTest {
       Assertions.assertDoesNotThrow(() -> input.writeTo(out, style));
       out.flush();
 
-      try (var in = out.toInputStream()) {
+      try (var in = new ByteArrayInputStream(out.toByteArray())) {
         var deserializedFromStream = Assertions.assertDoesNotThrow(() -> DocumentFactory.json().parse(in));
         Assertions.assertEquals(input, deserializedFromStream);
       }
@@ -127,5 +134,28 @@ public class DocumentSerialisationTest {
 
     var deserialized = Assertions.assertDoesNotThrow(() -> DocumentFactory.json().parse(encoded));
     Assertions.assertEquals(input, deserialized);
+  }
+
+  @ParameterizedTest
+  @MethodSource("documentTypeProvider")
+  void testJavaIoSerialization(Document.Mutable document) throws IOException, ClassNotFoundException {
+    document.append("hello", "world").append("test", 1234);
+    var immutableCopy = document.immutableCopy();
+
+    try (var byteStream = new ByteArrayOutputStream(); var objectOutStream = new ObjectOutputStream(byteStream)) {
+      objectOutStream.writeObject(document);
+      objectOutStream.writeObject(immutableCopy);
+
+      try (var objectInStream = new ObjectInputStream(new ByteArrayInputStream(byteStream.toByteArray()))) {
+        var mutableDoc = objectInStream.readObject();
+        var immutableDoc = objectInStream.readObject();
+
+        Assertions.assertInstanceOf(Document.Mutable.class, mutableDoc);
+        Assertions.assertInstanceOf(Document.class, immutableDoc);
+
+        Assertions.assertEquals(document, mutableDoc);
+        Assertions.assertEquals(immutableCopy, immutableDoc);
+      }
+    }
   }
 }
