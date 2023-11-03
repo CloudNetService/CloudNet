@@ -146,7 +146,7 @@ public abstract class SimpleNameTagsManager<P> {
     var teamName = String.format(
       TEAM_NAME_FORMAT,
       highestSortIdLength == sortIdLength
-        ? sortIdLength
+        ? group.sortId()
         : String.format("%0" + highestSortIdLength + "d", group.sortId()),
       group.name());
     // shorten the name if needed
