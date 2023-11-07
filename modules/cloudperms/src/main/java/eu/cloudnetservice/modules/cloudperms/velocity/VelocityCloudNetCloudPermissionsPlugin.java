@@ -30,7 +30,7 @@ import lombok.NonNull;
 @PlatformPlugin(
   platform = "velocity",
   name = "CloudNet-CloudPerms",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Velocity extension which implement the permission management system from CloudNet into Velocity",
   homepage = "https://cloudnetservice.eu",
   authors = "CloudNetService"

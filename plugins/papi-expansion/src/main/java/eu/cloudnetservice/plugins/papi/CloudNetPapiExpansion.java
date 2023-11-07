@@ -51,7 +51,7 @@ public class CloudNetPapiExpansion extends PlaceholderExpansion {
 
   @Override
   public @NonNull String getVersion() {
-    return "{project.build.version}";
+    return "@version@";
   }
 
   @Override

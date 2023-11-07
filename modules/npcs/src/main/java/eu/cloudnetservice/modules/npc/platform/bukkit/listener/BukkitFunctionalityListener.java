@@ -66,10 +66,10 @@ public final class BukkitFunctionalityListener implements Listener {
     this.scheduler = scheduler;
     this.management = management;
 
-    var bus = management.npcPlatform().eventBus();
-    bus.subscribe(AttackNpcEvent.class, this::handleNpcAttack);
-    bus.subscribe(InteractNpcEvent.class, this::handleNpcInteract);
-    bus.subscribe(ShowNpcEvent.Post.class, this::handleNpcShow);
+    var bus = management.npcPlatform().eventManager();
+    bus.registerEventHandler(AttackNpcEvent.class, this::handleNpcAttack);
+    bus.registerEventHandler(InteractNpcEvent.class, this::handleNpcInteract);
+    bus.registerEventHandler(ShowNpcEvent.Post.class, this::handleNpcShow);
   }
 
   public void handleNpcShow(@NonNull ShowNpcEvent.Post event) {

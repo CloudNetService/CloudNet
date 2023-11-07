@@ -38,7 +38,7 @@ final class DefaultCommandManager extends CommandManager<CommandSource> {
    * a thread pool with 4 threads.
    */
   private DefaultCommandManager() {
-    super(AsynchronousCommandExecutionCoordinator.<CommandSource>newBuilder()
+    super(AsynchronousCommandExecutionCoordinator.<CommandSource>builder()
         .withExecutor(Executors.newFixedThreadPool(4))
         .build(),
       CommandRegistrationHandler.nullCommandRegistrationHandler());

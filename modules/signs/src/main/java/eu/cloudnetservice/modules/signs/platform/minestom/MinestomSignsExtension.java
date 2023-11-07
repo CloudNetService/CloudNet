@@ -32,7 +32,7 @@ import net.minestom.server.command.CommandManager;
 @PlatformPlugin(
   platform = "minestom",
   name = "CloudNet_Signs",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Minestom extension for the CloudNet runtime which adds sign connector support",
   authors = "CloudNetService",
   dependencies = @Dependency(name = "CloudNet-Bridge"))

@@ -34,7 +34,7 @@ public final class ClientIntentionPacketMixin {
     at = @At(value = "INVOKE", target = "Lnet/minecraft/network/FriendlyByteBuf;readUtf(I)Ljava/lang/String;"),
     method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V"
   )
-  public String read(@NonNull FriendlyByteBuf buf, int amount) {
+  private static String read(@NonNull FriendlyByteBuf buf, int amount) {
     if (FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
       // default behaviour
       return buf.readUtf(255);

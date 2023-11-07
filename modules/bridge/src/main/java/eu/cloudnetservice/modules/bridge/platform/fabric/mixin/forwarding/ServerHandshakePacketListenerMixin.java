@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.forwarding;
 
 import com.google.gson.Gson;
 import com.mojang.authlib.properties.Property;
-import com.mojang.util.UUIDTypeAdapter;
+import com.mojang.util.UndashedUuid;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
 import java.net.InetSocketAddress;
@@ -26,14 +26,15 @@ import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.handshake.ClientIntent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 import net.minecraft.server.network.ServerHandshakePacketListenerImpl;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -42,7 +43,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerHandshakePacketListenerImpl.class)
 public final class ServerHandshakePacketListenerMixin {
 
+  @Unique
   private static final Gson GSON = new Gson();
+  @Unique
   private static final Component IP_INFO_MISSING = Component.literal(
     "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!");
 
@@ -53,14 +56,14 @@ public final class ServerHandshakePacketListenerMixin {
   @Inject(at = @At("HEAD"), method = "handleIntention")
   public void onHandshake(@NonNull ClientIntentionPacket packet, @NonNull CallbackInfo info) {
     // do not try this for pings
-    if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING && packet.getIntention() == ConnectionProtocol.LOGIN) {
+    if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING && packet.intention() == ClientIntent.LOGIN) {
       var bridged = (BridgedClientConnection) this.connection;
       // decode the bungee handshake
-      var split = packet.getHostName().split("\00");
+      var split = packet.hostName().split("\00");
       if (split.length == 3 || split.length == 4) {
         packet.hostName = split[0];
         // set bridged properties for later use
-        bridged.forwardedUniqueId(UUIDTypeAdapter.fromString(split[2]));
+        bridged.forwardedUniqueId(UndashedUuid.fromStringLenient(split[2]));
         bridged.addr(
           new InetSocketAddress(split[1], ((InetSocketAddress) this.connection.getRemoteAddress()).getPort()));
         // check if properties were supplied
