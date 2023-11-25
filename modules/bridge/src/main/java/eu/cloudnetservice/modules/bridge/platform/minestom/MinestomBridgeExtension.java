@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge.platform.minestom;
 
+import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
@@ -49,6 +51,7 @@ public final class MinestomBridgeExtension implements PlatformEntrypoint {
   private final ModuleHelper moduleHelper;
   private final ServiceRegistry serviceRegistry;
   private final MinestomBridgeManagement bridgeManagement;
+  private final NetworkClient networkClient;
 
   @Inject
   public MinestomBridgeExtension(
@@ -56,12 +59,14 @@ public final class MinestomBridgeExtension implements PlatformEntrypoint {
     @NonNull ModuleHelper moduleHelper,
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull MinestomBridgeManagement bridgeManagement,
-    @NonNull MinestomPlayerManagementListener playerListener
+    @NonNull MinestomPlayerManagementListener playerListener,
+    @NonNull NetworkClient networkClient
   ) {
     this.logger = logger;
     this.moduleHelper = moduleHelper;
     this.serviceRegistry = serviceRegistry;
     this.bridgeManagement = bridgeManagement;
+    this.networkClient = networkClient;
   }
 
   @Override
@@ -84,5 +89,15 @@ public final class MinestomBridgeExtension implements PlatformEntrypoint {
   @Override
   public void onDisable() {
     this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
+    try {
+      this.networkClient.close();
+    } catch (Exception exception) {
+      this.logger.error("Exception while closing network client", exception);
+    }
+    try {
+      Task.shutdownNow();
+    } catch (InterruptedException exception) {
+      this.logger.error("Exception while shutting down task executor", exception);
+    }
   }
 }
