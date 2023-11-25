@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +65,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
   protected final EventManager eventManager;
-  protected final Executor packetDispatcher;
+  protected final ExecutorService packetDispatcher;
   protected final SSLConfiguration sslConfiguration;
   protected final Callable<NetworkChannelHandler> handlerFactory;
 
@@ -160,6 +161,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
   public void close() {
     this.closeChannels();
     this.eventLoopGroup.shutdownGracefully();
+    this.packetDispatcher.shutdownNow();
   }
 
   /**
