@@ -30,7 +30,7 @@ import io.netty5.util.ResourceLeakDetector;
 import io.netty5.util.concurrent.Future;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -89,7 +89,7 @@ public final class NettyUtil {
    * @throws NullPointerException if the given environment is null.
    * @see #threadAmount(DriverEnvironment)
    */
-  public static @NonNull Executor newPacketDispatcher(@NonNull DriverEnvironment driverEnvironment) {
+  public static @NonNull ExecutorService newPacketDispatcher(@NonNull DriverEnvironment driverEnvironment) {
     // a cached pool with a thread idle-lifetime of 30 seconds
     // rejected tasks will be executed on the calling thread (See ThreadPoolExecutor.CallerRunsPolicy)
     // at least one thread is always idling in this executor
