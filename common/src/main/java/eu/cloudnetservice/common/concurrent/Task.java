@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -161,6 +162,14 @@ public class Task<V> extends CompletableFuture<V> {
       return this.get(time, timeUnit);
     } catch (CancellationException | ExecutionException | InterruptedException | TimeoutException exception) {
       return def;
+    }
+  }
+
+  @ApiStatus.Internal
+  public static void shutdownNow() throws InterruptedException {
+    SERVICE.shutdownNow();
+    if (!SERVICE.awaitTermination(5, TimeUnit.SECONDS)) {
+      throw new IllegalStateException("Could not shutdown task executor");
     }
   }
 }
