@@ -156,18 +156,24 @@ public final class BridgeServiceHelper {
     value = value.replace(
       "%cpu_usage%",
       ResourceFormatter.formatTwoDigitPrecision(service.processSnapshot().cpuUsage()));
+
     // bridge information
-    value = value.replace("%online%", service.readProperty(BridgeDocProperties.IS_ONLINE) ? "Online" : "Offline");
-    value = value.replace(
-      "%online_players%",
-      Integer.toString(service.readProperty(BridgeDocProperties.ONLINE_COUNT)));
-    value = value.replace(
-      "%max_players%",
-      Integer.toString(service.readProperty(BridgeDocProperties.MAX_PLAYERS)));
-    value = value.replace("%motd%", service.readProperty(BridgeDocProperties.MOTD));
-    value = value.replace("%extra%", service.readProperty(BridgeDocProperties.EXTRA));
-    value = value.replace("%state%", service.readProperty(BridgeDocProperties.STATE));
-    value = value.replace("%version%", service.readProperty(BridgeDocProperties.VERSION));
+    var online = service.readProperty(BridgeDocProperties.IS_ONLINE);
+    value = value.replace("%online%", online ? "Online" : "Offline");
+
+    // make sure that the bridge is loaded before accessing any of the properties
+    if (online) {
+      value = value.replace(
+        "%online_players%",
+        Integer.toString(service.readProperty(BridgeDocProperties.ONLINE_COUNT)));
+      value = value.replace(
+        "%max_players%",
+        Integer.toString(service.readProperty(BridgeDocProperties.MAX_PLAYERS)));
+      value = value.replace("%motd%", service.readProperty(BridgeDocProperties.MOTD));
+      value = value.replace("%extra%", service.readProperty(BridgeDocProperties.EXTRA));
+      value = value.replace("%state%", service.readProperty(BridgeDocProperties.STATE));
+      value = value.replace("%version%", service.readProperty(BridgeDocProperties.VERSION));
+    }
     // done
     return value;
   }
