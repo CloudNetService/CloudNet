@@ -47,6 +47,7 @@ import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
 import eu.cloudnetservice.wrapper.transform.bukkit.BukkitCommodoreTransformer;
 import eu.cloudnetservice.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
 import eu.cloudnetservice.wrapper.transform.bukkit.PaperConfigTransformer;
+import eu.cloudnetservice.wrapper.transform.minestom.MinestomStopCleanlyTransformer;
 import eu.cloudnetservice.wrapper.transform.netty.OldEpollDisableTransformer;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -184,6 +185,10 @@ public final class Wrapper {
       String.join("/", "io", "netty", "channel", "epoll"),
       "Epoll",
       new OldEpollDisableTransformer());
+    transformerRegistry.registerTransformer(
+      "net/minestom/server",
+      "MinecraftServer",
+      new MinestomStopCleanlyTransformer());
   }
 
   @Inject
