@@ -599,7 +599,7 @@
           "cacheFiles": false,
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "3.2.0-SNAPSHOT"
+            "versionGroup": "3.3.0-SNAPSHOT"
           }
         }
       ]
