@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - 17
+          - 21
 
     steps:
       - name: Checkout repository
@@ -30,7 +30,7 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
 
       - name: Setup java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           check-latest: true
           distribution: 'zulu'
@@ -39,7 +39,7 @@ jobs:
       - name: Setup gradle cache
         uses: gradle/gradle-build-action@v2
         with:
-          cache-read-only: ${{ github.ref != 'refs/heads/nightly' || matrix.java != 17 }}
+          cache-read-only: ${{ github.ref != 'refs/heads/nightly' || matrix.java != 21 }}
 
       - name: Setup Loom cache
         uses: actions/cache@v3
@@ -52,18 +52,18 @@ jobs:
         run: ./gradlew build test shadowJar genUpdaterInformation --stacktrace
 
       - name: Publish test summary
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 21 }}
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           junit_files: "**/build/test-results/test/TEST-*.xml"
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@v7
+        uses: tj-actions/branch-names@v8
 
       - name: Publish updater metadata
         uses: s0/git-publish-subdir-action@develop
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/renovate/') && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/renovate/') && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 21 }}
         env:
           REPO: git@github.com:CloudNetService/launchermeta.git
           BRANCH: ${{ steps.branch-name.outputs.current_branch }}
@@ -75,7 +75,7 @@ jobs:
           MESSAGE: 'Update launcher meta for {target-branch} (commit: {sha})'
 
       - name: Set version type in GitHub environment
-        if: ${{ matrix.java == 17 }}
+        if: ${{ matrix.java == 21 }}
         run: |
           if [ "$(./gradlew properties | awk '/^version:/ { print $2; }' | grep '\-SNAPSHOT')" ]; then
             echo "STATUS=snapshot" >> $GITHUB_ENV
@@ -84,14 +84,14 @@ jobs:
           fi
 
       - name: Publish snapshot to Sonatype
-        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 21 }}
         run: ./gradlew publish
         env:
           SONATYPE_USER: "${{ secrets.SONATYPE_USER }}"
           SONATYPE_TOKEN: "${{ secrets.SONATYPE_TOKEN }}"
 
       - name: Prepare artifacts zip
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
+        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 21 }}
         run: |
           mkdir -p temp/;
           mkdir -p temp/plugins;
@@ -103,8 +103,8 @@ jobs:
           find plugins/ -type f -regex '.*/build/libs/.*\.jar' ! -name '*-javadoc.jar' ! -name '*-sources.jar' -exec cp {} temp/plugins \;
 
       - name: Upload artifacts zip
-        uses: actions/upload-artifact@v3
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
+        uses: actions/upload-artifact@v4
+        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 21 }}
         with:
           name: CloudNet
           path: temp/

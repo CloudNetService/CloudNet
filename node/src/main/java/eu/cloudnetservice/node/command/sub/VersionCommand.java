@@ -74,7 +74,7 @@ public final class VersionCommand {
       .column(pair -> pair.first().name())
       .column(pair -> pair.second().name())
       .column(pair -> pair.second().deprecated())
-      .column(pair -> pair.second().minJavaVersion().orElse(JavaVersion.JAVA_17).name())
+      .column(pair -> pair.second().minJavaVersion().orElse(JavaVersion.JAVA_21).name())
       .column(pair -> pair.second().maxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
       .build();
 

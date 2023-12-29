@@ -23,6 +23,10 @@ plugins {
   alias(libs.plugins.fabricLoom) apply false
 }
 
+// java version to use for compiling, updates here change
+// the whole build process accordingly
+val compileJavaVersion = JavaVersion.VERSION_21
+
 defaultTasks("build", "test", "shadowJar")
 
 allprojects {
@@ -101,13 +105,19 @@ subprojects {
   }
 
   tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_17.toString()
-    targetCompatibility = JavaVersion.VERSION_17.toString()
-    // options
+    sourceCompatibility = compileJavaVersion.toString()
+    targetCompatibility = compileJavaVersion.toString()
+
     options.encoding = "UTF-8"
     options.isIncremental = true
-    // we are aware that those are there, but we only do that if there is no other way we can use - so please keep the terminal clean!
-    options.compilerArgs = mutableListOf("-Xlint:-deprecation,-unchecked")
+    options.compilerArgs = mutableListOf("-Xlint:all,-deprecation,-unchecked")
+  }
+
+  extensions.configure<JavaPluginExtension> {
+    toolchain {
+      vendor.set(JvmVendorSpec.AZUL)
+      languageVersion.set(JavaLanguageVersion.of(compileJavaVersion.ordinal + 1))
+    }
   }
 
   tasks.withType<Checkstyle> {
@@ -138,7 +148,7 @@ subprojects {
 
   tasks.withType<Javadoc> {
     val options = options as? StandardJavadocDocletOptions ?: return@withType
-    applyDefaultJavadocOptions(options)
+    applyDefaultJavadocOptions(options, compileJavaVersion)
   }
 
   // all these projects are publishing their java artifacts
@@ -151,7 +161,7 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   title = "CloudNet JavaDocs"
   setDestinationDir(layout.buildDirectory.dir("javadocs").get().asFile)
   // options
-  applyDefaultJavadocOptions(options)
+  applyDefaultJavadocOptions(options, compileJavaVersion)
   options.windowTitle = "CloudNet JavaDocs"
   // set the sources
   val sources = subprojects.filter { it.plugins.hasPlugin("java") }.map { it.path }

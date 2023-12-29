@@ -19,8 +19,8 @@ package eu.cloudnetservice.launcher.java8;
 public final class Launcher {
 
   public static void main(String[] args) throws Exception {
-    // check if we're at least on java 17
-    if (detectJavaVersion() >= 17) {
+    // check if we're at least on java 21
+    if (detectJavaVersion() >= 21) {
       Class.forName("eu.cloudnetservice.launcher.java17.CloudNetLauncher")
         .getConstructor(String[].class)
         .newInstance((Object) args);

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
@@ -42,16 +43,15 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
           url.set("https://cloudnetservice.eu")
 
           developers {
-            developer {
-              id.set("derklaro")
-              email.set("git@derklaro.dev")
-              timezone.set("Europe/Berlin")
-            }
-
-            developer {
-              id.set("0utplay")
-              email.set("me@0utplay.de")
-              timezone.set("Europe/Berlin")
+            mapOf(
+              "0utplay" to "Aldin Sijamhodzic",
+              "derklaro" to "Pasqual Koschmieder",
+            ).forEach {
+              developer {
+                id.set(it.key)
+                name.set(it.value)
+                url.set("https://github.com/${it.key}")
+              }
             }
           }
 
@@ -115,11 +115,12 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
   }
 }
 
-fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions) {
+fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions, targetJavaVersion: JavaVersion) {
   options.use()
   options.encoding = "UTF-8"
   options.memberLevel = JavadocMemberLevel.PRIVATE
-  options.addBooleanOption("Xdoclint:-missing", true)
+  options.addBooleanOption("Xdoclint:all,-missing", true)
+  options.addStringOption("-release", targetJavaVersion.majorVersion)
   options.links(
     "https://projectlombok.org/api/",
     "https://jd.adventure.kyori.net/api/4.11.0/",

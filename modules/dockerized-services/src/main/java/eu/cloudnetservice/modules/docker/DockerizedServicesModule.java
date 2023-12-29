@@ -49,7 +49,7 @@ public class DockerizedServicesModule extends DriverModule {
       () -> new DockerConfiguration(
         "docker-jvm",
         "host",
-        DockerImage.builder().repository("azul/zulu-openjdk").tag("17-jre-headless").build(),
+        DockerImage.builder().repository("azul/zulu-openjdk").tag("21-jre-headless").build(),
         Set.of(),
         Set.of(),
         Set.of(),
