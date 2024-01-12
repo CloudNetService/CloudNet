@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -201,6 +201,10 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
         }
       }
     });
+  }
+
+  public void close() {
+    this.trackedEntities.values().forEach(PlatformSelectorEntity::remove);
   }
 
   public @Nullable NPCConfigurationEntry applicableNPCConfigurationEntry() {
