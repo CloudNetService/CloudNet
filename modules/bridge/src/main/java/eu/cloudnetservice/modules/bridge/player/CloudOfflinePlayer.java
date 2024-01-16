@@ -159,6 +159,20 @@ public class CloudOfflinePlayer implements DefaultedDocPropertyHolder, Cloneable
   }
 
   /**
+   * Sets the underlying document storing the properties of the cloud player. This method replaces all properties that
+   * were previously set.
+   * <p>
+   * As a copy of the given document is stored any further modifications to the same document don't have any effect on
+   * the cloud player properties.
+   *
+   * @param document the document with the properties for the cloud player.
+   * @throws NullPointerException if the given document is null.
+   */
+  public void propertyHolder(@NonNull Document document) {
+    this.properties = document.immutableCopy();
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
