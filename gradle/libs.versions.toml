@@ -74,7 +74,7 @@ adventure-serializer-bungee = "4.3.1"
 
 # fabric platform special dependencies
 minecraft = "1.20.2"
-fabricLoader = "0.14.23"
+fabricLoader = "0.15.7"
 
 
 [libraries]
