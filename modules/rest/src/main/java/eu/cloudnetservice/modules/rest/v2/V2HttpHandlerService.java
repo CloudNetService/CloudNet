@@ -40,6 +40,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import eu.cloudnetservice.node.http.annotation.TokenAuth;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
@@ -192,7 +193,7 @@ public final class V2HttpHandlerService extends V2HttpHandler {
       .cancelNext(true));
   }
 
-  @BearerAuth
+  @TokenAuth
   @HttpRequestHandler(paths = "/api/v2/service/{id}/liveLog")
   private void handleLiveLogRequest(@NonNull HttpContext context, @NonNull @RequestPathParam("id") String id) {
     this.handleWithServiceContext(context, id, service -> {

@@ -46,6 +46,7 @@ import eu.cloudnetservice.node.http.HttpSession;
 import eu.cloudnetservice.node.http.V2HttpHandler;
 import eu.cloudnetservice.node.http.annotation.BearerAuth;
 import eu.cloudnetservice.node.http.annotation.HandlerPermission;
+import eu.cloudnetservice.node.http.annotation.TokenAuth;
 import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Inject;
@@ -183,7 +184,7 @@ public final class V2HttpHandlerNode extends V2HttpHandler {
   }
 
   @HttpRequestHandler(paths = "/api/v2/node/liveConsole")
-  private void handleLiveConsoleRequest(@NonNull HttpContext context, @NonNull @BearerAuth HttpSession session) {
+  private void handleLiveConsoleRequest(@NonNull HttpContext context, @NonNull @TokenAuth HttpSession session) {
     context.upgrade().thenAccept(channel -> {
       var handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.END_LINE_SEPARATOR);
       channel.addListener(handler);

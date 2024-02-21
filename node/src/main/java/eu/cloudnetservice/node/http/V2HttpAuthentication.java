@@ -55,10 +55,10 @@ public class V2HttpAuthentication {
   protected static final Pattern BASIC_LOGIN_PATTERN = Pattern.compile("Basic ([a-zA-Z\\d=]+)$");
   protected static final Pattern BEARER_LOGIN_PATTERN = Pattern.compile("Bearer ([a-zA-Z\\d-_.]+)$");
 
-  protected static final LoginResult<HttpSession> ERROR_HANDLING_BEARER_LOGIN = LoginResult.failure(
-    "Unable to process bearer login");
-  protected static final LoginResult<HttpSession> ERROR_HANDLING_BEARER_LOGIN_USER_GONE = LoginResult.failure(
-    "Unable to process bearer login: user gone");
+  protected static final LoginResult<HttpSession> ERROR_HANDLING_TOKEN_LOGIN = LoginResult.failure(
+    "Unable to process token login");
+  protected static final LoginResult<HttpSession> ERROR_HANDLING_TOKEN_LOGIN_USER_GONE = LoginResult.failure(
+    "Unable to process token login: user gone");
   protected static final LoginResult<PermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
 
@@ -125,33 +125,50 @@ public class V2HttpAuthentication {
 
     var matcher = BEARER_LOGIN_PATTERN.matcher(authenticationHeader);
     if (matcher.matches()) {
-      try {
-        var jws = this.jwtParser.parseClaimsJws(matcher.group(1));
-        var session = this.sessionById(jws.getBody().getId());
-        if (session != null) {
-          var user = session.user();
-          if (user == null) {
-            // the user associated with the session no longer exists
-            this.sessions.remove(session.userId().toString());
-            return ERROR_HANDLING_BEARER_LOGIN_USER_GONE;
-          }
-          // ensure that the user is the owner of the session
-          var userUniqueId = UUID.fromString(jws.getBody().get("uniqueId", String.class));
-          if (user.uniqueId().equals(userUniqueId)) {
-            return LoginResult.success(session);
-          }
-        }
-      } catch (JwtException | IllegalArgumentException exception) {
-        LOGGER.log(Level.FINE, "Exception while handling bearer auth", exception);
-        // the key is not yet usable or too old
-        if (exception instanceof PrematureJwtException || exception instanceof ExpiredJwtException) {
-          return LoginResult.failure(exception.getMessage());
-        }
-      }
-      return ERROR_HANDLING_BEARER_LOGIN;
+      return this.handleAdvancedLoginRequest(matcher.group(1));
     }
 
     return LoginResult.undefinedFailure();
+  }
+
+  public @NonNull LoginResult<HttpSession> handleTokenLoginRequest(@NonNull HttpRequest request) {
+    LoginResult<HttpSession> loginResult = this.handleBearerLoginRequest(request);
+    if (loginResult.succeeded()) {
+      return loginResult;
+    }
+    var authenticationParameter = request.queryParameters().get("token");
+    if (authenticationParameter == null || authenticationParameter.isEmpty()) {
+      return LoginResult.undefinedFailure();
+    }
+    var token = authenticationParameter.get(0);
+    return this.handleAdvancedLoginRequest(token);
+  }
+
+  private @NonNull LoginResult<HttpSession> handleAdvancedLoginRequest(@NonNull String token) {
+    try {
+      var jws = this.jwtParser.parseClaimsJws(token);
+      var session = this.sessionById(jws.getBody().getId());
+      if (session != null) {
+        var user = session.user();
+        if (user == null) {
+          // the user associated with the session no longer exists
+          this.sessions.remove(session.userId().toString());
+          return ERROR_HANDLING_TOKEN_LOGIN_USER_GONE;
+        }
+        // ensure that the user is the owner of the session
+        var userUniqueId = UUID.fromString(jws.getBody().get("uniqueId", String.class));
+        if (user.uniqueId().equals(userUniqueId)) {
+          return LoginResult.success(session);
+        }
+      }
+    } catch (JwtException | IllegalArgumentException exception) {
+      LOGGER.log(Level.FINE, "Exception while handling bearer auth", exception);
+      // the key is not yet usable or too old
+      if (exception instanceof PrematureJwtException || exception instanceof ExpiredJwtException) {
+        return LoginResult.failure(exception.getMessage());
+      }
+    }
+    return ERROR_HANDLING_TOKEN_LOGIN;
   }
 
   public boolean expireSession(@NonNull HttpRequest request) {

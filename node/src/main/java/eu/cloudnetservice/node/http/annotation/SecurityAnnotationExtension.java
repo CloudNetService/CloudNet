@@ -53,7 +53,8 @@ public final class SecurityAnnotationExtension {
   public void install(@NonNull HttpAnnotationParser<?> annotationParser, @NonNull V2HttpAuthentication auth) {
     annotationParser
       .registerAnnotationProcessor(new BasicAuthProcessor(auth))
-      .registerAnnotationProcessor(new BearerAuthProcessor(auth));
+      .registerAnnotationProcessor(new BearerAuthProcessor(auth))
+      .registerAnnotationProcessor(new TokenAuthProcessor(auth));
   }
 
   private @Nullable <T> HttpContext handleAuthResult(
@@ -208,6 +209,61 @@ public final class SecurityAnnotationExtension {
         return (path, ctx) -> {
           // drop the request if the authentication failed
           var authResult = this.authentication.handleBearerLoginRequest(ctx.request());
+          return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, HttpSession::user, permission);
+        };
+      }
+
+      // ok, nothing to do
+      return null;
+    }
+  }
+
+  private final class TokenAuthProcessor implements HttpAnnotationProcessor {
+
+    private final @NonNull V2HttpAuthentication authentication;
+
+    private TokenAuthProcessor(@NonNull V2HttpAuthentication authentication) {
+      this.authentication = authentication;
+    }
+
+    @Override
+    public @Nullable HttpContextPreprocessor buildPreprocessor(@NonNull Method method, @NonNull Object handler) {
+      var permission = SecurityAnnotationExtension.this.resolvePermissionAnnotation(method);
+      var hints = HttpAnnotationProcessorUtil.mapParameters(
+        method,
+        TokenAuth.class,
+        (param, annotation) -> (path, context) -> {
+          // try to authenticate the user; throw an exception if that failed and the parameter is required
+          var authResult = this.authentication.handleTokenLoginRequest(context.request());
+          if (!param.isAnnotationPresent(Optional.class) && authResult.failed()) {
+            throw new AnnotationHttpHandleException(
+              path,
+              "Unable to authenticate user: " + authResult.errorMessage(),
+              HttpResponseCode.UNAUTHORIZED,
+              SecurityAnnotationExtension.this.buildErrorResponse("Unable to authenticate user"));
+          }
+
+          // put the user into the context if he has the required permission
+          if (SecurityAnnotationExtension.this.validatePermission(authResult.result().user(), permission)) {
+            return authResult.result();
+          }
+
+          throw new AnnotationHttpHandleException(
+            path,
+            "User has not the required permission to send a request",
+            HttpResponseCode.FORBIDDEN,
+            SecurityAnnotationExtension.this.buildErrorResponse("Missing required permission"));
+        });
+      // check if we got any hints
+      if (!hints.isEmpty()) {
+        return (path, ctx) -> ctx.addInvocationHints(DefaultHttpAnnotationParser.PARAM_INVOCATION_HINT_KEY, hints);
+      }
+
+      // check if the annotation is present on method level
+      if (method.isAnnotationPresent(TokenAuth.class)) {
+        return (path, ctx) -> {
+          // drop the request if the authentication failed
+          var authResult = this.authentication.handleTokenLoginRequest(ctx.request());
           return SecurityAnnotationExtension.this.handleAuthResult(ctx, authResult, HttpSession::user, permission);
         };
       }
