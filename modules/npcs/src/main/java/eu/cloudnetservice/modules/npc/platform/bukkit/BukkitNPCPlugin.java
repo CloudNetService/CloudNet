@@ -94,7 +94,7 @@ public final class BukkitNPCPlugin implements PlatformEntrypoint {
 
   @Override
   public void onDisable() {
-    this.npcManagement.close();
+    this.npcManagement.removeSpawnedEntities();
     this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

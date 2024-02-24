@@ -203,7 +203,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
     });
   }
 
-  public void close() {
+  public void removeSpawnedEntities() {
     this.trackedEntities.values().forEach(PlatformSelectorEntity::remove);
   }
 
