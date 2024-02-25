@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ final class DefaultCommandManager extends CommandManager<CommandSource> {
    * a thread pool with 4 threads.
    */
   private DefaultCommandManager() {
-    super(AsynchronousCommandExecutionCoordinator.<CommandSource>newBuilder()
+    super(AsynchronousCommandExecutionCoordinator.<CommandSource>builder()
         .withExecutor(Executors.newFixedThreadPool(4))
         .build(),
       CommandRegistrationHandler.nullCommandRegistrationHandler());

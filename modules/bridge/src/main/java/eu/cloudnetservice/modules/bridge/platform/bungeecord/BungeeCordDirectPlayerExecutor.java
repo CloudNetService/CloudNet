@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
-import static net.md_5.bungee.api.chat.TextComponent.fromLegacyText;
-
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
@@ -29,13 +26,19 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import net.md_5.bungee.api.plugin.PluginManager;
 import org.jetbrains.annotations.Nullable;
 
 final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ProxiedPlayer> {
+
+  // the first minecraft version to support hex colors
+  // https://minecraft.fandom.com/wiki/Java_Edition_1.16
+  private static final int PROTOCOL_VERSION_1_16 = 735;
 
   private final ProxyServer proxyServer;
   private final PluginManager pluginManager;
@@ -107,14 +110,14 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void kick(@NonNull Component message) {
-    this.forEach(player -> player.disconnect(fromLegacyText(legacySection().serialize(message))));
+    this.forEach(player -> player.disconnect(this.convertComponent(message, player)));
   }
 
   @Override
   protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
     this.forEach(player -> this.proxyServer.createTitle()
-      .title(fromLegacyText(legacySection().serialize(title)))
-      .subTitle(fromLegacyText(legacySection().serialize(subtitle)))
+      .title(this.convertComponent(title, player))
+      .subTitle(this.convertComponent(subtitle, player))
       .fadeIn(fadeIn)
       .stay(stay)
       .fadeOut(fadeOut)
@@ -125,7 +128,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
-        player.sendMessage(fromLegacyText(legacySection().serialize(message)));
+        player.sendMessage(this.convertComponent(message, player));
       }
     });
   }
@@ -142,5 +145,14 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
         player.chat('/' + command);
       }
     });
+  }
+
+  private @NonNull BaseComponent[] convertComponent(@NonNull Component component, @NonNull ProxiedPlayer player) {
+    // check if we have to use legacy colors because the client is on an old version
+    if (player.getPendingConnection().getVersion() < PROTOCOL_VERSION_1_16) {
+      return BungeeComponentSerializer.legacy().serialize(component);
+    } else {
+      return BungeeComponentSerializer.get().serialize(component);
+    }
   }
 }
