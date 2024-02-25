@@ -22,8 +22,8 @@ import eu.cloudnetservice.driver.document.send.DocumentSend;
 import eu.cloudnetservice.driver.document.send.element.Element;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import io.leangen.geantyref.TypeToken;
+import java.io.Externalizable;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -88,7 +88,7 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * @since 4.0
  */
-public interface Document extends DocPropertyHolder, Serializable {
+public interface Document extends DocPropertyHolder, Externalizable {
 
   /**
    * Get the jvm static implementation of an empty document. The returned document does not take any writes into account
