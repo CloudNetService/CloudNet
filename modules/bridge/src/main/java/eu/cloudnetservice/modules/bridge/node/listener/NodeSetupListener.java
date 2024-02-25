@@ -88,7 +88,7 @@ public final class NodeSetupListener {
         })
         .possibleResults(taskProvider.serviceTasks().stream().filter(
             task -> {
-              var env = versionProvider.getEnvironmentType(task.processConfiguration().environment());
+              var env = versionProvider.environmentType(task.processConfiguration().environment());
               // only minecraft servers are allowed to be a fallback
               return env != null && ServiceEnvironmentType.minecraftServer(env);
             })

@@ -163,7 +163,7 @@ public final class TemplateCommand {
     @NonNull Queue<String> input
   ) {
     var env = input.remove();
-    var type = this.serviceVersionProvider.getEnvironmentType(env);
+    var type = this.serviceVersionProvider.environmentType(env);
     if (type != null) {
       return type;
     }

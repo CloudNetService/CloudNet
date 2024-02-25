@@ -63,7 +63,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/serviceversion/{version}")
   private void handleVersionRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("version") String version) {
-    var serviceVersion = this.versionProvider.getServiceVersionType(version);
+    var serviceVersion = this.versionProvider.serviceVersionType(version);
     if (serviceVersion == null) {
       this.badRequest(ctx)
         .body(this.failure().append("reason", "Unknown service version").toString())
