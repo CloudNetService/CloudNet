@@ -450,7 +450,6 @@
             "parameters": [
               "server",
               "-mcversion %version%",
-              "-loader 0.14.25",
               "-downloadMinecraft"
             ],
             "fetchOverFabricApi": true
