@@ -203,6 +203,10 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
     });
   }
 
+  public void removeSpawnedEntities() {
+    this.trackedEntities.values().forEach(PlatformSelectorEntity::remove);
+  }
+
   public @Nullable NPCConfigurationEntry applicableNPCConfigurationEntry() {
     for (var entry : this.npcConfiguration.entries()) {
       if (this.currentServiceConfiguration.groups().contains(entry.targetGroup())) {
