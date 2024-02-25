@@ -192,13 +192,13 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
       // TODO: remove in 4.1
       // check if the task has a name splitter
-      if (!document.contains("nameSplitter")) {
+      if (!document.containsNonNull("nameSplitter")) {
         document.append("nameSplitter", "-");
       }
 
       // check if the task has environment variables
       var processConfiguration = document.readMutableDocument("processConfiguration");
-      if (!processConfiguration.contains("environmentVariables")) {
+      if (!processConfiguration.containsNonNull("environmentVariables")) {
         processConfiguration.append("environmentVariables", new HashMap<>());
         document.append("processConfiguration", processConfiguration);
       }
