@@ -55,19 +55,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class BukkitNPCPlugin implements PlatformEntrypoint {
 
   private final ModuleHelper moduleHelper;
+  private final BukkitPlatformNPCManagement npcManagement;
 
   @Inject
-  public BukkitNPCPlugin(@NonNull ModuleHelper moduleHelper) {
+  public BukkitNPCPlugin(@NonNull ModuleHelper moduleHelper, @NonNull BukkitPlatformNPCManagement npcManagement) {
     this.moduleHelper = moduleHelper;
+    this.npcManagement = npcManagement;
   }
 
   @Inject
-  private void registerNPCManagement(
-    @NonNull ServiceRegistry serviceRegistry,
-    @NonNull BukkitPlatformNPCManagement npcManagement
-  ) {
-    npcManagement.registerToServiceRegistry(serviceRegistry);
-    npcManagement.initialize();
+  private void registerNPCManagement(@NonNull ServiceRegistry serviceRegistry) {
+    this.npcManagement.registerToServiceRegistry(serviceRegistry);
+    this.npcManagement.initialize();
   }
 
   @Inject
@@ -95,6 +94,7 @@ public final class BukkitNPCPlugin implements PlatformEntrypoint {
 
   @Override
   public void onDisable() {
+    this.npcManagement.removeSpawnedEntities();
     this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

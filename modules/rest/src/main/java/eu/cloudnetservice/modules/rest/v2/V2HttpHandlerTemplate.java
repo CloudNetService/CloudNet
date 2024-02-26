@@ -268,7 +268,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
       var versionType = body.readObject("type", ServiceVersionType.class);
       if (versionType == null) {
-        versionType = this.versionProvider.getServiceVersionType(body.getString("typeName", ""));
+        versionType = this.versionProvider.serviceVersionType(body.getString("typeName", ""));
         if (versionType == null) {
           this.badRequest(context)
             .body(this.failure().append("reason", "No service type or type name provided").toString())
