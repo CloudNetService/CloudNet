@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -268,7 +268,7 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
     this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
       var versionType = body.readObject("type", ServiceVersionType.class);
       if (versionType == null) {
-        versionType = this.versionProvider.getServiceVersionType(body.getString("typeName", ""));
+        versionType = this.versionProvider.serviceVersionType(body.getString("typeName", ""));
         if (versionType == null) {
           this.badRequest(context)
             .body(this.failure().append("reason", "No service type or type name provided").toString())

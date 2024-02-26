@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,6 +88,9 @@ class S3TemplateStorageTest {
     Assertions.assertTrue(storage.create(TEMPLATE));
     Assertions.assertTrue(storage.createFile(TEMPLATE, "spigot.yml"));
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "spigot.yml"));
+
+    Assertions.assertTrue(storage.createFile(TEMPLATE, "deep/rummel.yml"));
+    Assertions.assertTrue(storage.hasFile(TEMPLATE, "deep/rummel.yml"));
   }
 
   @Test
@@ -111,6 +114,17 @@ class S3TemplateStorageTest {
 
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "test.txt"));
     try (var stream = storage.newInputStream(TEMPLATE, "test.txt")) {
+      Assertions.assertNotNull(stream);
+      Assertions.assertEquals("Hello", new String(stream.readAllBytes(), StandardCharsets.UTF_8));
+    }
+
+    try (var stream = storage.newOutputStream(TEMPLATE, "test/test.txt")) {
+      Assertions.assertNotNull(stream);
+      stream.write("Hello".getBytes(StandardCharsets.UTF_8));
+    }
+
+    Assertions.assertTrue(storage.hasFile(TEMPLATE, "test/test.txt"));
+    try (var stream = storage.newInputStream(TEMPLATE, "test/test.txt")) {
       Assertions.assertNotNull(stream);
       Assertions.assertEquals("Hello", new String(stream.readAllBytes(), StandardCharsets.UTF_8));
     }
@@ -183,7 +197,7 @@ class S3TemplateStorageTest {
   void testFileListingDeep() {
     var files = storage.listFiles(TEMPLATE, "", true);
     Assertions.assertNotNull(files);
-    Assertions.assertEquals(2, files.size());
+    Assertions.assertEquals(4, files.size());
   }
 
   @Test

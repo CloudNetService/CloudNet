@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ fun snapshotsOnly(repository: MavenArtifactRepository) {
 }
 
 fun Project.exportLanguageFileInformation(): String {
-  val file = project.buildDir.resolve("languages.txt")
+  val file = project.layout.buildDirectory.file("languages.txt").get().asFile
   file.writeText(project.projectDir.resolve("src/main/resources/lang").listFiles()?.joinToString(separator = "\n") { it.name }!!)
 
   return file.absolutePath
@@ -120,7 +120,7 @@ fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<Strin
   }
 
   // write to the output file
-  val target = project.buildDir.resolve(fileName)
+  val target = project.layout.buildDirectory.file(fileName).get().asFile
   target.writeText(stringBuilder.toString())
 
   return target.absolutePath

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public final class ClientIntentionPacketMixin {
     at = @At(value = "INVOKE", target = "Lnet/minecraft/network/FriendlyByteBuf;readUtf(I)Ljava/lang/String;"),
     method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V"
   )
-  public String read(@NonNull FriendlyByteBuf buf, int amount) {
+  private static String read(@NonNull FriendlyByteBuf buf, int amount) {
     if (FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
       // default behaviour
       return buf.readUtf(255);

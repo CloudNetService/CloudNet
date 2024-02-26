@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -59,7 +59,7 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@v6
+        uses: tj-actions/branch-names@v7
 
       - name: Publish updater metadata
         uses: s0/git-publish-subdir-action@develop

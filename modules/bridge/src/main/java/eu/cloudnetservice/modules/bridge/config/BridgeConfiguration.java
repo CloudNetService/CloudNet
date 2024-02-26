@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public final class BridgeConfiguration {
     new HashMap<>(ImmutableMap.<String, String>builder()
       .put("command-hub-success-connect", "§7You did successfully connect to %server%.")
       .put("command-hub-already-in-hub", "§cYou are already connected to a hub service.")
-      .put("command-hub-no-server-found", "§7The is currently §cno §7hub server available.")
+      .put("command-hub-no-server-found", "§7There is currently §cno §7hub server available.")
       .put("server-join-cancel-because-maintenance", "§7This server is currently in maintenance mode.")
       .put("server-join-cancel-because-permission", "§7You do not have the required permissions to join this server.")
       .put("proxy-join-cancel-because-permission", "§7You do not have the required permissions to join this proxy.")

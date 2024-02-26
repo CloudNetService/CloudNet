@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,7 +133,7 @@ public class ServiceVersionProvider {
   public void registerServiceVersionType(@NonNull ServiceVersionType versionType) {
     // ensure that we know the target environment for the service version
     Preconditions.checkNotNull(
-      this.getEnvironmentType(versionType.environmentType()),
+      this.environmentType(versionType.environmentType()),
       "Missing environment %s for service version %s",
       versionType.environmentType(),
       versionType.name());
@@ -141,7 +141,7 @@ public class ServiceVersionProvider {
     this.serviceVersionTypes.put(StringUtil.toLower(versionType.name()), versionType);
   }
 
-  public @Nullable ServiceVersionType getServiceVersionType(@NonNull String name) {
+  public @Nullable ServiceVersionType serviceVersionType(@NonNull String name) {
     return this.serviceVersionTypes.get(StringUtil.toLower(name));
   }
 
@@ -149,7 +149,7 @@ public class ServiceVersionProvider {
     this.serviceEnvironmentTypes.put(StringUtil.toUpper(environmentType.name()), environmentType);
   }
 
-  public @Nullable ServiceEnvironmentType getEnvironmentType(@NonNull String name) {
+  public @Nullable ServiceEnvironmentType environmentType(@NonNull String name) {
     return this.serviceEnvironmentTypes.get(StringUtil.toUpper(name));
   }
 

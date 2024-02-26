@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import net.minestom.server.extensions.Extension;
   platform = "minestom",
   name = "CloudNet-Chat",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   dependencies = @Dependency(name = "CloudNet-CloudPerms")
 )
 public class MinestomChatExtension implements PlatformEntrypoint {

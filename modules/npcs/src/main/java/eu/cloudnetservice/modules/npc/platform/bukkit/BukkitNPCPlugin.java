@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.bukkit.plugin.java.JavaPlugin;
   platform = "bukkit",
   name = "CloudNet-NPCs",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   homepage = "https://cloudnetservice.eu",
   description = "CloudNet extension which adds NPCs for server selection",
   dependencies = {
@@ -55,19 +55,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class BukkitNPCPlugin implements PlatformEntrypoint {
 
   private final ModuleHelper moduleHelper;
+  private final BukkitPlatformNPCManagement npcManagement;
 
   @Inject
-  public BukkitNPCPlugin(@NonNull ModuleHelper moduleHelper) {
+  public BukkitNPCPlugin(@NonNull ModuleHelper moduleHelper, @NonNull BukkitPlatformNPCManagement npcManagement) {
     this.moduleHelper = moduleHelper;
+    this.npcManagement = npcManagement;
   }
 
   @Inject
-  private void registerNPCManagement(
-    @NonNull ServiceRegistry serviceRegistry,
-    @NonNull BukkitPlatformNPCManagement npcManagement
-  ) {
-    npcManagement.registerToServiceRegistry(serviceRegistry);
-    npcManagement.initialize();
+  private void registerNPCManagement(@NonNull ServiceRegistry serviceRegistry) {
+    this.npcManagement.registerToServiceRegistry(serviceRegistry);
+    this.npcManagement.initialize();
   }
 
   @Inject
@@ -95,6 +94,7 @@ public final class BukkitNPCPlugin implements PlatformEntrypoint {
 
   @Override
   public void onDisable() {
+    this.npcManagement.removeSpawnedEntities();
     this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import lombok.NonNull;
 @PlatformPlugin(
   platform = "waterdog",
   name = "CloudNet-SyncProxy",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "CloudNet extension which serves proxy utils with CloudNet support",
   authors = "CloudNetService",
   dependencies = {@Dependency(name = "CloudNet-Bridge"), @Dependency(name = "CloudNet-CloudPerms", optional = true)})
