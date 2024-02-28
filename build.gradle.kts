@@ -120,6 +120,12 @@ subprojects {
     toolVersion = rootProject.libs.versions.checkstyleTools.get()
   }
 
+  configurations.named("checkstyle") {
+    resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
+      select("com.google.guava:guava:0")
+    }
+  }
+
   extensions.configure<SpotlessExtension> {
     java {
       licenseHeaderFile(rootProject.file("LICENSE_HEADER"))
