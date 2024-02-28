@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public abstract class BaseLocalCloudServiceFactory implements LocalCloudServiceF
     // set the environment type
     if (configuration.serviceId().environment() == null) {
       var env = Objects.requireNonNull(
-        this.versionProvider.getEnvironmentType(configuration.serviceId().environmentName()),
+        this.versionProvider.environmentType(configuration.serviceId().environmentName()),
         "Unknown environment type " + configuration.serviceId().environmentName());
       // set the environment type
       configurationBuilder.environment(env);

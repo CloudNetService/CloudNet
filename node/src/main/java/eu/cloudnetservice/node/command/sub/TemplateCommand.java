@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,7 +163,7 @@ public final class TemplateCommand {
     @NonNull Queue<String> input
   ) {
     var env = input.remove();
-    var type = this.serviceVersionProvider.getEnvironmentType(env);
+    var type = this.serviceVersionProvider.environmentType(env);
     if (type != null) {
       return type;
     }

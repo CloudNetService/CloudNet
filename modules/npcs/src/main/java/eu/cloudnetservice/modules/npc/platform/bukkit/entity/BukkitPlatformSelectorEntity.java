@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
@@ -556,7 +557,7 @@ public abstract class BukkitPlatformSelectorEntity
         .replace("%max_players%", maxPlayers).replace("%m_p%", maxPlayers)
         .replace("%online_servers%", onlineServers).replace("%o_s%", onlineServers);
       // set the custom name of the armor stand
-      this.armorStand.setCustomName(newInfoLine);
+      this.armorStand.setCustomName(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(newInfoLine));
     }
   }
 }

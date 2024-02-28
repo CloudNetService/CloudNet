@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
 import eu.cloudnetservice.wrapper.transform.bukkit.BukkitCommodoreTransformer;
 import eu.cloudnetservice.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
 import eu.cloudnetservice.wrapper.transform.bukkit.PaperConfigTransformer;
+import eu.cloudnetservice.wrapper.transform.fabric.KnotClassDelegateTransformer;
 import eu.cloudnetservice.wrapper.transform.netty.OldEpollDisableTransformer;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -179,6 +180,10 @@ public final class Wrapper {
       "org/github/paperspigot",
       "PaperSpigotConfig",
       new PaperConfigTransformer());
+    transformerRegistry.registerTransformer(
+      "net/fabricmc/loader/impl/launch/knot",
+      "KnotClassDelegate",
+      new KnotClassDelegateTransformer());
     // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
     transformerRegistry.registerTransformer(
       String.join("/", "io", "netty", "channel", "epoll"),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import eu.cloudnetservice.driver.document.send.DocumentSend;
 import eu.cloudnetservice.driver.document.send.element.Element;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import io.leangen.geantyref.TypeToken;
+import java.io.Externalizable;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -88,7 +88,7 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * @since 4.0
  */
-public interface Document extends DocPropertyHolder, Serializable {
+public interface Document extends DocPropertyHolder, Externalizable {
 
   /**
    * Get the jvm static implementation of an empty document. The returned document does not take any writes into account
@@ -150,6 +150,16 @@ public interface Document extends DocPropertyHolder, Serializable {
    * @throws NullPointerException if the given key is null.
    */
   boolean contains(@NonNull String key);
+
+  /**
+   * Get if this document has a non-null value mapping for the given key. Note that the given key is not
+   * interpreted as a path.
+   *
+   * @param key the key to check if a value is present.
+   * @return true if this document has a non-null value mapping for the given key, false otherwise.
+   * @throws NullPointerException if the given key is null.
+   */
+  boolean containsNonNull(@NonNull String key);
 
   /**
    * Converts this document into a version that can be cross-handled by other document implementations. The serialized

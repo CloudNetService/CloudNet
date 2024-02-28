@@ -4,7 +4,7 @@
 shadow = "8.1.1"
 juppiter = "0.4.0"
 spotless = "6.23.3"
-fabricLoom = "1.4.5"
+fabricLoom = "1.5.8"
 nexusPublish = "2.0.0-rc-1"
 checkstyleTools = "10.12.6"
 
@@ -66,15 +66,15 @@ bungeecord = "1.20-R0.2-SNAPSHOT"
 
 # platform extensions
 vault = "1.7.1"
-adventure = "4.15.0"
+adventure = "4.16.0"
 modlauncher = "8.1.3"
 npcLib = "3.0.0-beta6"
 placeholderApi = "2.11.4"
 adventure-serializer-bungee = "4.3.1"
 
 # fabric platform special dependencies
-minecraft = "1.20.2"
-fabricLoader = "0.14.23"
+minecraft = "1.20.4"
+fabricLoader = "0.15.7"
 
 
 [libraries]
