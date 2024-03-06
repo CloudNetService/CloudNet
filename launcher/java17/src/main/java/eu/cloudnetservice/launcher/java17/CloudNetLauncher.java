@@ -141,8 +141,12 @@ public final class CloudNetLauncher {
       this.registry.registerUpdater(new LauncherCloudNetUpdater());
       this.registry.registerUpdater(new LauncherModuleJsonUpdater());
       this.registry.registerUpdater(new LauncherChecksumsFileUpdater());
-      // run the updater - use a new object as a placeholder as we need no special context here
-      this.registry.runUpdater(new Object(), !autoUpdaterEnabled);
+
+      // only run the updater if the auto updater is enabled
+      // use a new object as a placeholder as we need no special context here
+      if (autoUpdaterEnabled) {
+        this.registry.runUpdater(new Object(), false);
+      }
     }
 
     // resolve the debugger port; use -1 if not given to disable the debugger

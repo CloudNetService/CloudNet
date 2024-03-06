@@ -223,11 +223,11 @@ public final class Node {
     @NonNull ModuleUpdater moduleUpdater,
     @NonNull ModuleUpdaterRegistry updaterRegistry
   ) throws Exception {
-    // apply all module updates if we're not running in dev mode
-    if (!DEV_MODE) {
+    // apply all module updates if we're not running in dev mode and auto update is enabled
+    if (!DEV_MODE && AUTO_UPDATE) {
       LOGGER.info(I18n.trans("start-module-updater"));
       updaterRegistry.registerUpdater(moduleUpdater);
-      updaterRegistry.runUpdater(modulesHolder, !AUTO_UPDATE);
+      updaterRegistry.runUpdater(modulesHolder, false);
     }
 
     // load the modules before proceeding for example to allow the database provider init
