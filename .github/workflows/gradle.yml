@@ -37,7 +37,7 @@ jobs:
           java-version: ${{ matrix.java }}
 
       - name: Setup gradle cache
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/nightly' || matrix.java != 17 }}
 
