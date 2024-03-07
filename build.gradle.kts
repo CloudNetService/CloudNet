@@ -123,7 +123,7 @@ subprojects {
   // checkstyle issue https://github.com/checkstyle/checkstyle/issues/14211
   configurations.named("checkstyle") {
     resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
-      select("com.google.guava:guava:0")
+      select("com.google.guava:guava:23.0")
     }
   }
 
