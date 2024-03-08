@@ -16,11 +16,13 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
 
+import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.sponge.SpongeSignManagement;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.identity.Identity;
@@ -49,77 +51,67 @@ public class SignsCommand implements CommandExecutor {
     this.signManagement = signManagement;
   }
 
+  public @NonNull CommandResult handleCreateAction(@NonNull CommandContext context) {
+    return this.executeCommand(context, (player, entry) -> {
+      var targetGroup = context.requireOne(TARGET_GROUP);
+      var targetTemplatePath = context.one(TARGET_TEMPLATE).orElse(null);
+
+      var hit = this.getTargetBlock(player);
+      if (hit.isEmpty()) {
+        return;
+      }
+
+      var loc = this.signManagement.get().convertPosition(hit.get().serverLocation());
+      var sign = this.signManagement.get().platformSignAt(loc);
+      if (sign != null) {
+        SignsConfiguration.sendMessage(
+          "command-cloudsign-sign-already-exist",
+          message -> player.sendMessage(Component.text(message)));
+      } else {
+        //noinspection ConstantConditions
+        this.signManagement.get().createSign(new eu.cloudnetservice.modules.signs.Sign(
+          targetGroup,
+          targetTemplatePath,
+          loc));
+        SignsConfiguration.sendMessage(
+          "command-cloudsign-create-success",
+          m -> player.sendMessage(Component.text(m)),
+          m -> m.replace("%group%", targetGroup));
+      }
+    });
+  }
+
+  public @NonNull CommandResult handleCleanupAction(@NonNull CommandContext context) {
+    return this.executeCommand(context, (player, entry) -> {
+      var world = context.one(WORLD).orElse(player.world().properties().name());
+      var removed = this.signManagement.get().removeMissingSigns(world);
+      SignsConfiguration.sendMessage(
+        "command-cloudsign-cleanup-success",
+        m -> player.sendMessage(Component.text(m)),
+        m -> m.replace("%amount%", Integer.toString(removed)));
+    });
+  }
+
   @Override
   public CommandResult execute(@NonNull CommandContext context) {
-    if (!(context.subject() instanceof ServerPlayer player)) {
-      context.sendMessage(Identity.nil(), Component.text("Only players may execute this command"));
-      return CommandResult.success();
-    }
-
-    var entry = this.signManagement.get().applicableSignConfigurationEntry();
-    if (entry == null) {
-      SignsConfiguration.sendMessage(
-        "command-cloudsign-no-entry",
-        message -> player.sendMessage(Component.text(message)));
-      return CommandResult.success();
-    }
-
-    var type = context.one(ACTION).orElse(null);
-    var targetGroup = context.one(TARGET_GROUP).orElse(null);
-    var targetTemplatePath = context.one(TARGET_TEMPLATE).orElse(null);
-    var world = context.one(WORLD).orElse(player.world().properties().name());
-
-    if (type != null) {
-      if (type.equalsIgnoreCase("create") && targetGroup != null) {
-        var hit = this.getTargetBlock(player);
-        if (hit.isEmpty()) {
-          return CommandResult.success();
-        }
-
-        var loc = this.signManagement.get().convertPosition(hit.get().serverLocation());
-        var sign = this.signManagement.get().platformSignAt(loc);
-        if (sign != null) {
-          SignsConfiguration.sendMessage(
-            "command-cloudsign-sign-already-exist",
-            message -> player.sendMessage(Component.text(message)));
-        } else {
-          //noinspection ConstantConditions
-          this.signManagement.get().createSign(new eu.cloudnetservice.modules.signs.Sign(
-            targetGroup,
-            targetTemplatePath,
-            loc));
-          SignsConfiguration.sendMessage(
-            "command-cloudsign-create-success",
-            m -> player.sendMessage(Component.text(m)),
-            m -> m.replace("%group%", targetGroup));
-        }
-
-        return CommandResult.success();
-      } else if (type.equalsIgnoreCase("cleanupall")) {
+    return this.executeCommand(context, (player, entry) -> {
+      var type = context.requireOne(ACTION);
+      if (type.equalsIgnoreCase("cleanupall")) {
         var removed = this.signManagement.get().removeAllMissingSigns();
         SignsConfiguration.sendMessage(
           "command-cloudsign-cleanup-success",
           m -> player.sendMessage(Component.text(m)),
           m -> m.replace("%amount%", Integer.toString(removed)));
-        return CommandResult.success();
-      } else if (type.equalsIgnoreCase("cleanup")) {
-        var removed = this.signManagement.get().removeMissingSigns(world);
-        SignsConfiguration.sendMessage(
-          "command-cloudsign-cleanup-success",
-          m -> player.sendMessage(Component.text(m)),
-          m -> m.replace("%amount%", Integer.toString(removed)));
-        return CommandResult.success();
       } else if (type.equalsIgnoreCase("removeall")) {
         var removed = this.signManagement.get().deleteAllSigns();
         SignsConfiguration.sendMessage(
           "command-cloudsign-bulk-remove-success",
           m -> player.sendMessage(Component.text(m)),
           m -> m.replace("%amount%", Integer.toString(removed)));
-        return CommandResult.success();
       } else if (type.equalsIgnoreCase("remove")) {
         var hit = this.getTargetBlock(player);
         if (hit.isEmpty()) {
-          return CommandResult.success();
+          return;
         }
 
         var loc = this.signManagement.get().convertPosition(hit.get().serverLocation());
@@ -134,17 +126,31 @@ public class SignsCommand implements CommandExecutor {
             "command-cloudsign-remove-not-existing",
             m -> player.sendMessage(Component.text(m)));
         }
-
-        return CommandResult.success();
       }
+    });
+  }
+
+  private @NonNull CommandResult executeCommand(
+    @NonNull CommandContext context,
+    @NonNull BiConsumer<ServerPlayer, SignConfigurationEntry> commandHandler
+  ) {
+    if (!(context.subject() instanceof ServerPlayer player)) {
+      context.sendMessage(Identity.nil(), Component.text("Only players may execute this command"));
+      return CommandResult.success();
     }
 
-    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns create <targetGroup> [templatePath]"));
-    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns remove"));
-    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns removeAll"));
-    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns cleanup [world]"));
-    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns cleanupAll"));
+    var entry = this.signManagement.get().applicableSignConfigurationEntry();
+    if (entry == null) {
+      SignsConfiguration.sendMessage(
+        "command-cloudsign-no-entry",
+        message -> player.sendMessage(Component.text(message)));
+      return CommandResult.success();
+    }
 
+    // call the actual command handler
+    commandHandler.accept(player, entry);
+
+    // it's always a success
     return CommandResult.success();
   }
 
