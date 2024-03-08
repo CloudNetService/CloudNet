@@ -40,6 +40,7 @@ public class SignsCommand implements CommandExecutor {
   public static final Parameter.Key<String> ACTION = Parameter.key("action", String.class);
   public static final Parameter.Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
   public static final Parameter.Key<String> TARGET_TEMPLATE = Parameter.key("target_template_path", String.class);
+  public static final Parameter.Key<String> WORLD = Parameter.key("world", String.class);
 
   protected final Supplier<SpongeSignManagement> signManagement;
 
@@ -66,6 +67,7 @@ public class SignsCommand implements CommandExecutor {
     var type = context.one(ACTION).orElse(null);
     var targetGroup = context.one(TARGET_GROUP).orElse(null);
     var targetTemplatePath = context.one(TARGET_TEMPLATE).orElse(null);
+    var world = context.one(WORLD).orElse(player.world().properties().name());
 
     if (type != null) {
       if (type.equalsIgnoreCase("create") && targetGroup != null) {
@@ -93,8 +95,15 @@ public class SignsCommand implements CommandExecutor {
         }
 
         return CommandResult.success();
+      } else if (type.equalsIgnoreCase("cleanupall")) {
+        var removed = this.signManagement.get().removeAllMissingSigns();
+        SignsConfiguration.sendMessage(
+          "command-cloudsign-cleanup-success",
+          m -> player.sendMessage(Component.text(m)),
+          m -> m.replace("%amount%", Integer.toString(removed)));
+        return CommandResult.success();
       } else if (type.equalsIgnoreCase("cleanup")) {
-        var removed = this.signManagement.get().removeMissingSigns();
+        var removed = this.signManagement.get().removeMissingSigns(world);
         SignsConfiguration.sendMessage(
           "command-cloudsign-cleanup-success",
           m -> player.sendMessage(Component.text(m)),
@@ -133,7 +142,8 @@ public class SignsCommand implements CommandExecutor {
     context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns create <targetGroup> [templatePath]"));
     context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns remove"));
     context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns removeAll"));
-    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns cleanup"));
+    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns cleanup [world]"));
+    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns cleanupAll"));
 
     return CommandResult.success();
   }

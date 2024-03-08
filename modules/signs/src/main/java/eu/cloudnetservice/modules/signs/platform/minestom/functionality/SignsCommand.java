@@ -42,6 +42,7 @@ public class SignsCommand extends Command {
   private static final ArgumentLiteral REMOVE_LITERAL = new ArgumentLiteral("remove");
   private static final ArgumentLiteral REMOVE_ALL_LITERAL = new ArgumentLiteral("removeAll");
   private static final ArgumentLiteral CLEANUP_LITERAL = new ArgumentLiteral("cleanup");
+  private static final ArgumentLiteral CLEANUP_ALL_LITERAL = new ArgumentLiteral("cleanupAll");
 
   private static final CommandCondition DEFAULT_CONDITION = (sender, $) ->
     sender instanceof Player && !(sender instanceof FakePlayer) && sender.hasPermission("cloudnet.command.cloudsign");
@@ -59,6 +60,7 @@ public class SignsCommand extends Command {
   }.setDefaultValue(() -> null);
 
   private final Argument<String> targetGroup;
+  private final Argument<String> world;
   private final MinestomSignManagement signManagement;
 
   @Inject
@@ -69,6 +71,7 @@ public class SignsCommand extends Command {
     super("cloudsign", "cs", "signs", "cloudsigns");
 
     this.targetGroup = this.createTargetGroupArgument(groupProvider);
+    this.world = new ArgumentString("world");
     this.signManagement = signManagement;
 
     var createLiteral = new ArgumentLiteral("create");
@@ -76,7 +79,8 @@ public class SignsCommand extends Command {
     this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCreate, createLiteral, this.targetGroup, this.template);
     this.addConditionalSyntax(DEFAULT_CONDITION, this::handleRemove, REMOVE_LITERAL);
     this.addConditionalSyntax(DEFAULT_CONDITION, this::handleRemoveAll, REMOVE_ALL_LITERAL);
-    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCleanup, CLEANUP_LITERAL);
+    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCleanup, CLEANUP_LITERAL, this.world);
+    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCleanupAll, CLEANUP_ALL_LITERAL);
   }
 
   private @NonNull ArgumentString createTargetGroupArgument(@NonNull GroupConfigurationProvider groupProvider) {
@@ -178,8 +182,18 @@ public class SignsCommand extends Command {
   }
 
   private void handleCleanup(@NonNull CommandSender sender, @NonNull CommandContext context) {
+    var world = context.getOrDefault(this.world, ((Player) sender).getInstance().getUniqueId().toString());
     // removes all signs on which location is not a sign anymore
-    var removed = this.signManagement.removeMissingSigns();
+    var removed = this.signManagement.removeMissingSigns(world);
+    SignsConfiguration.sendMessage(
+      "command-cloudsign-cleanup-success",
+      sender::sendMessage,
+      m -> m.replace("%amount%", Integer.toString(removed)));
+  }
+
+  private void handleCleanupAll(@NonNull CommandSender sender, @NonNull CommandContext context) {
+    // removes all signs on which location is not a sign anymore
+    var removed = this.signManagement.removeAllMissingSigns();
     SignsConfiguration.sendMessage(
       "command-cloudsign-cleanup-success",
       sender::sendMessage,
