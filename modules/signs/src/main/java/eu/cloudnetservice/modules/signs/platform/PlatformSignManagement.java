@@ -50,7 +50,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -199,10 +199,10 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
     return this.removeMissingSigns(sign -> sign.base().location().world().equalsIgnoreCase(world));
   }
 
-  public int removeMissingSigns(@NonNull Function<PlatformSign<P, C>, Boolean> filter) {
+  public int removeMissingSigns(@NonNull Predicate<PlatformSign<P, C>> filter) {
     var removed = 0;
     for (var sign : this.platformSigns.values()) {
-      if (filter.apply(sign) && !sign.exists()) {
+      if (filter.test(sign) && !sign.exists()) {
         this.deleteSign(sign.base());
         removed++;
       }
