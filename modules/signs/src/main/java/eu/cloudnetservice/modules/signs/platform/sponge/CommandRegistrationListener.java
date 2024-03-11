@@ -40,20 +40,31 @@ final class CommandRegistrationListener {
 
   @Listener
   public void handleCommandRegister(@NonNull RegisterCommandEvent<Command.Parameterized> event) {
+    var signsCommand = new SignsCommand(() -> {
+      var layer = InjectionLayer.findLayerOf(SignManagement.class);
+      return layer.instance(SpongeSignManagement.class);
+    });
+
+    var createCommand = Command.builder()
+      .addParameters(
+        Parameter.string().key(SignsCommand.TARGET_GROUP).build(),
+        Parameter.string().key(SignsCommand.TARGET_TEMPLATE).optional().build())
+      .executor(signsCommand::handleCreateAction)
+      .build();
+    var cleanupCommand = Command.builder()
+      .addParameter(Parameter.string().key(SignsCommand.WORLD).optional().build())
+      .executor(signsCommand::handleCleanupAction)
+      .build();
+
     event.register(
       this.plugin,
       Command.builder()
         .shortDescription(Component.text("Management of the signs"))
         .permission("cloudnet.command.cloudsign")
-        .addParameters(
-          Parameter.string().key(SignsCommand.ACTION).build(),
-          Parameter.string().key(SignsCommand.TARGET_GROUP).optional().build(),
-          Parameter.string().key(SignsCommand.TARGET_TEMPLATE).optional().build()
-        )
-        .executor(new SignsCommand(() -> {
-          var layer = InjectionLayer.findLayerOf(SignManagement.class);
-          return layer.instance(SpongeSignManagement.class);
-        }))
+        .addChild(createCommand, "create")
+        .addChild(cleanupCommand, "cleanup")
+        .addParameters(Parameter.choices("cleanupall", "removeall", "remove").key(SignsCommand.ACTION).build())
+        .executor(signsCommand)
         .build(),
       "cloudsigns",
       "cs", "signs", "cloudsign");
