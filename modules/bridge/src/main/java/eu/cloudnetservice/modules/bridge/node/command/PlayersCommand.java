@@ -22,6 +22,7 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
@@ -217,7 +218,7 @@ public class PlayersCommand {
   public void kickPlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
-    @Nullable @Greedy @Argument("reason") String reason,
+    @Nullable @Quoted @Argument("reason") String reason,
     @Flag("force") boolean force
   ) {
     var reasonComponent = reason == null
