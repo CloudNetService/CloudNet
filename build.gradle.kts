@@ -148,6 +148,10 @@ subprojects {
     applyDefaultJavadocOptions(options)
   }
 
+  tasks.withType<JavaCompile> {
+    dependsOn(tasks.withType<ProcessResources>())
+  }
+
   // all these projects are publishing their java artifacts
   configurePublishing("java", true)
 }
