@@ -63,7 +63,7 @@ public final class NodeSetupListener {
   public void handleSetupComplete(@NonNull SetupCompleteEvent event, @NonNull BridgeManagement bridgeManagement) {
     String fallbackName = event.setup().result("generateBridgeFallback");
     // check if we want to add a fallback
-    if (fallbackName != null && !fallbackName.isEmpty()) {
+    if (fallbackName != null && !fallbackName.isEmpty() && !fallbackName.equalsIgnoreCase("none")) {
       var config = bridgeManagement.configuration();
       config.fallbackConfigurations().add(ProxyFallbackConfiguration.builder()
         .targetGroup(event.setup().result("taskName"))
