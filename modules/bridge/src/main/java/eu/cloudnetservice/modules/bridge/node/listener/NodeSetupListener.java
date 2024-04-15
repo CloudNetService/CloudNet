@@ -30,6 +30,8 @@ import eu.cloudnetservice.node.event.setup.SetupInitiateEvent;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.Collection;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 
 @Singleton
@@ -80,21 +82,31 @@ public final class NodeSetupListener {
       .translatedQuestion("module-bridge-tasks-setup-default-fallback")
       .answerType(QuestionAnswerType.<String>builder()
         .parser(input -> {
-          // we allow an empty input or an existing task
-          if (!input.isEmpty() && taskProvider.serviceTask(input) == null) {
-            throw Parsers.ParserException.INSTANCE;
+          // either "none" or an existing task
+          if (input.equalsIgnoreCase("none") || taskProvider.serviceTask(input) != null) {
+            return input;
           }
-          return input;
+
+          throw Parsers.ParserException.INSTANCE;
         })
-        .possibleResults(taskProvider.serviceTasks().stream().filter(
-            task -> {
-              var env = versionProvider.environmentType(task.processConfiguration().environment());
-              // only minecraft servers are allowed to be a fallback
-              return env != null && ServiceEnvironmentType.minecraftServer(env);
-            })
-          .map(Named::name)
-          .toList()))
+        .possibleResults(this.possibleFallbackTasks(taskProvider, versionProvider)))
       .build();
   }
 
+  private @NonNull Collection<String> possibleFallbackTasks(
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull ServiceVersionProvider versionProvider
+  ) {
+    return taskProvider.serviceTasks().stream()
+      .filter(task -> {
+        var env = versionProvider.environmentType(task.processConfiguration().environment());
+        // only minecraft servers are allowed to be a fallback
+        return env != null && ServiceEnvironmentType.minecraftServer(env);
+      })
+      .map(Named::name)
+      .collect(Collectors.collectingAndThen(Collectors.toList(), results -> {
+        results.add("none");
+        return results;
+      }));
+  }
 }
