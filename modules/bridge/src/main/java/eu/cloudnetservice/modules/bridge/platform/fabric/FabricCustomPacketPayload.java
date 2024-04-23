@@ -18,13 +18,29 @@ package eu.cloudnetservice.modules.bridge.platform.fabric;
 
 import lombok.NonNull;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
+// TODO: this compiles but WONT WORK EVER
 record FabricCustomPacketPayload(@NonNull ResourceLocation id, byte[] payload) implements CustomPacketPayload {
 
-  @Override
-  public void write(@NonNull FriendlyByteBuf buf) {
+  private static final StreamCodec<FriendlyByteBuf, FabricCustomPacketPayload> STREAM_CODEC = CustomPacketPayload.codec(
+    FabricCustomPacketPayload::write, FabricCustomPacketPayload::new
+  );
+
+  private static final Type<FabricCustomPacketPayload> TYPE = CustomPacketPayload.createType("fabric/custom_payload");
+
+  public FabricCustomPacketPayload(FriendlyByteBuf byteBuf) {
+    this(byteBuf.readResourceLocation(), byteBuf.readByteArray());
+  }
+
+  private void write(@NonNull FriendlyByteBuf buf) {
     buf.writeBytes(this.payload);
+  }
+
+  @Override
+  public @NonNull Type<? extends CustomPacketPayload> type() {
+    return TYPE;
   }
 }

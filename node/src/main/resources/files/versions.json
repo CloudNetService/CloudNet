@@ -567,25 +567,6 @@
       ]
     },
     {
-      "name": "waterfall",
-      "environmentType": "BUNGEECORD",
-      "website": "https://papermc.io",
-      "installSteps": [
-        "PAPER_API",
-        "DOWNLOAD"
-      ],
-      "versions": [
-        {
-          "name": "latest",
-          "cacheFiles": false,
-          "properties": {
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.20"
-          }
-        }
-      ]
-    },
-    {
       "name": "velocity",
       "environmentType": "VELOCITY",
       "website": "https://docs.papermc.io/velocity",

@@ -20,6 +20,7 @@ import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializ
 
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -60,7 +61,6 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   private final Plugin plugin;
   private final ProxyServer proxyServer;
   private final TaskScheduler scheduler;
-  private final BungeeCordHelper bungeeHelper;
   private final ServiceInfoHolder serviceInfoHolder;
   private final ProxyPlatformHelper proxyPlatformHelper;
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
@@ -70,7 +70,6 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     @NonNull Plugin plugin,
     @NonNull ProxyServer proxyServer,
     @NonNull TaskScheduler scheduler,
-    @NonNull BungeeCordHelper bungeeHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull ProxyPlatformHelper proxyPlatformHelper,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
@@ -78,7 +77,6 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     this.plugin = plugin;
     this.proxyServer = proxyServer;
     this.scheduler = scheduler;
-    this.bungeeHelper = bungeeHelper;
     this.serviceInfoHolder = serviceInfoHolder;
     this.proxyPlatformHelper = proxyPlatformHelper;
     this.management = management;
@@ -98,7 +96,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           this.management.configuration().handleMessage(
             player.getLocale(),
             "proxy-join-cancel-because-maintenance",
-            this.bungeeHelper::translateToComponent,
+            ComponentFormats.ADVENTURE_TO_BUNGEE::convert,
             player::disconnect);
           return;
         }
@@ -109,7 +107,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           this.management.configuration().handleMessage(
             player.getLocale(),
             "proxy-join-cancel-because-permission",
-            this.bungeeHelper::translateToComponent,
+            ComponentFormats.ADVENTURE_TO_BUNGEE::convert,
             player::disconnect);
           return;
         }
@@ -172,8 +170,9 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "error-connecting-to-server",
-          message -> this.bungeeHelper.translateToComponent(message
+          message -> ComponentFormats.ADVENTURE_TO_BUNGEE.convert(message
             .replace("%server%", event.getKickedFrom().getName())
+            // TODO: take a look at single components instead of arrays
             .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()))),
           event.getPlayer()::sendMessage);
       } else {
@@ -185,7 +184,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "proxy-join-disconnect-because-no-hub",
-          this.bungeeHelper::translateToComponent,
+          ComponentFormats.ADVENTURE_TO_BUNGEE::convert,
           event::setKickReasonComponent);
       }
     }

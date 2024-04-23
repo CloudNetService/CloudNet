@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -92,7 +93,7 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   private @NonNull net.minecraft.network.chat.Component vanillaFromAdventure(@NonNull Component adventure) {
     var adventureAsJson = GsonComponentSerializer.gson().serializeToTree(adventure);
-    var vanilla = net.minecraft.network.chat.Component.Serializer.fromJson(adventureAsJson);
+    var vanilla = net.minecraft.network.chat.Component.Serializer.fromJson(adventureAsJson, RegistryAccess.EMPTY);
     return vanilla == null ? net.minecraft.network.chat.Component.empty() : vanilla;
   }
 }
