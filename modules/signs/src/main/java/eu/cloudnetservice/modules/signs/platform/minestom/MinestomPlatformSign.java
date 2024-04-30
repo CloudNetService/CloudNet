@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.signs.platform.minestom;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
-import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
@@ -51,8 +50,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
     @NonNull InstanceManager instanceManager
   ) {
     super(base, playerManager, input -> {
-      var coloredComponent = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(input);
-      return GsonComponentSerializer.gson().serialize(coloredComponent);
+      return GsonComponentSerializer.gson().serialize(input);
     });
 
     this.eventHandler = eventHandler;

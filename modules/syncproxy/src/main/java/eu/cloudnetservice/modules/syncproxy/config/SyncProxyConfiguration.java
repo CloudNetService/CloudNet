@@ -20,9 +20,9 @@ import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,7 +31,6 @@ import java.util.function.Consumer;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -50,25 +49,6 @@ public record SyncProxyConfiguration(
     "service-start", "<gray>The service <yellow><service></yellow> is <green>starting</green> on node <yellow><node></yellow>...</gray>",
     "service-stop", "<gray>The service <yellow><service></yellow> is <red>stopping</red> on node <yellow><node></yellow>...</gray>");
 
-  public static @Nullable String fillCommonPlaceholders(
-    @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
-    @Nullable String input,
-    int onlinePlayers,
-    int maxPlayers
-  ) {
-    if (input == null) {
-      return null;
-    }
-
-    var placeholders = new HashMap<String, String>();
-    fillCommonPlaceholders(placeholders, serviceInfoSnapshot, onlinePlayers, maxPlayers);
-    for (var placeholder : placeholders.entrySet()) {
-      input = input.replace("%" + placeholder.getKey() + "%", placeholder.getValue());
-    }
-
-    return input;
-  }
-
   public static void fillCommonPlaceholders(
     @NonNull Map<String, String> map,
     @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
@@ -85,13 +65,9 @@ public record SyncProxyConfiguration(
     int onlinePlayers,
     int maxPlayers
   ) {
-    var resolvers = new ArrayList<TagResolver>();
     var placeholders = new HashMap<String, String>();
     fillCommonPlaceholders(placeholders, serviceInfoSnapshot, onlinePlayers, maxPlayers);
-    for (var placeholder : placeholders.entrySet()) {
-      resolvers.add(Placeholder.unparsed(placeholder.getKey(), placeholder.getValue()));
-    }
-    return resolvers.toArray(new TagResolver[0]);
+    return MinimessageUtils.tagsFromMap(placeholders);
   }
 
   public static @NonNull Builder builder() {

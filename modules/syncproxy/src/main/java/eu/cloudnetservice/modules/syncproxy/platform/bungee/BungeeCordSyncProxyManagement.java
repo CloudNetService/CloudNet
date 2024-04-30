@@ -101,7 +101,8 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, String> placeholders, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, String> placeholders,
+    @Nullable String header, @Nullable String footer) {
     placeholders.put("ping", String.valueOf(player.getPing()));
     placeholders.put("server", player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName());
 

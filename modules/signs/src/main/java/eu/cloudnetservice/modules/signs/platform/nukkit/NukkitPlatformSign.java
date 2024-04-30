@@ -25,7 +25,6 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.plugin.PluginManager;
 import cn.nukkit.utils.Faceable;
-import cn.nukkit.utils.TextFormat;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
@@ -35,6 +34,7 @@ import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.nukkit.event.NukkitCloudSignInteractEvent;
 import java.util.Arrays;
 import lombok.NonNull;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 
 public class NukkitPlatformSign extends PlatformSign<Player, String> {
@@ -52,7 +52,7 @@ public class NukkitPlatformSign extends PlatformSign<Player, String> {
     @NonNull PluginManager pluginManager,
     @NonNull PlayerManager playerManager
   ) {
-    super(base, playerManager, input -> TextFormat.colorize('&', input));
+    super(base, playerManager, input -> LegacyComponentSerializer.legacySection().serialize(input));
 
     this.server = server;
     this.pluginManager = pluginManager;

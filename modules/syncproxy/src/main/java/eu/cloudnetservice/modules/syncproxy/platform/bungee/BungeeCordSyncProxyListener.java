@@ -22,6 +22,7 @@ import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
@@ -85,6 +86,8 @@ public final class BungeeCordSyncProxyListener implements Listener {
       var protocolText = motd.protocolText();
       // check if there is a protocol text in the config
       if (protocolText != null) {
+        var placeholders = new HashMap<String, String>();
+        SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
         response.setVersion(new Protocol(
           LegacyComponentSerializer.legacySection().serialize(
             MiniMessage.miniMessage().deserialize(

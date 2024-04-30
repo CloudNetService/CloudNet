@@ -94,7 +94,8 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, String> placeholders, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, String> placeholders,
+    @Nullable String header, @Nullable String footer) {
     // there is no support for header and footer
   }
 

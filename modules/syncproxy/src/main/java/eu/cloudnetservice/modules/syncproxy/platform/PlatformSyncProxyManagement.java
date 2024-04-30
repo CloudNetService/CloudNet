@@ -273,7 +273,8 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   public abstract @NonNull UUID playerUniqueId(@NonNull P player);
 
-  public abstract void playerTabList(@NonNull P player, @NonNull Map<String, String> placeholders, @Nullable String header, @Nullable String footer);
+  public abstract void playerTabList(@NonNull P player, @NonNull Map<String, String> placeholders,
+    @Nullable String header, @Nullable String footer);
 
   public abstract void disconnectPlayer(@NonNull P player, @NonNull Component message);
 

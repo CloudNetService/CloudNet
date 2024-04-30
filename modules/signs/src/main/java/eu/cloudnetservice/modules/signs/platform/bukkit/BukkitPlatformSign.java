@@ -24,7 +24,7 @@ import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.bukkit.event.BukkitCloudSignInteractEvent;
 import lombok.NonNull;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -46,7 +46,7 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
     @NonNull PluginManager pluginManager,
     @NonNull PlayerManager playerManager
   ) {
-    super(base, playerManager, input -> ChatColor.translateAlternateColorCodes('&', input));
+    super(base, playerManager, input -> LegacyComponentSerializer.legacySection().serialize(input));
     this.server = server;
 
     this.pluginManager = pluginManager;

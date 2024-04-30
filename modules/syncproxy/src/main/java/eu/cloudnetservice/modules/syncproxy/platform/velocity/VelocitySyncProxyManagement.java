@@ -24,7 +24,7 @@ import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
@@ -38,8 +38,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -94,7 +92,8 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   @Override
-  public void playerTabList(@NonNull Player player, @NonNull Map<String, String> placeholders, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NonNull Player player, @NonNull Map<String, String> placeholders,
+    @Nullable String header, @Nullable String footer) {
     if (header == null || footer == null) {
       player.getTabList().clearHeaderAndFooter();
     } else {
@@ -106,17 +105,11 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
       player.sendPlayerListHeaderAndFooter(
         MiniMessage.miniMessage().deserialize(
           header,
-          placeholders.entrySet()
-            .stream()
-            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
-            .toArray((size) -> new TagResolver[size])
+          MinimessageUtils.tagsFromMap(placeholders)
         ),
         MiniMessage.miniMessage().deserialize(
           footer,
-          placeholders.entrySet()
-            .stream()
-            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
-            .toArray((size) -> new TagResolver[size])
+          MinimessageUtils.tagsFromMap(placeholders)
         ));
     }
   }

@@ -46,30 +46,48 @@ public record SignConfigurationEntry(
       .groupConfigurations(List.of(SignGroupConfiguration.builder()
         .targetGroup("TARGET_GROUP")
         .emptyLayout(SignLayoutsHolder.singleLayout(SignLayout.builder()
-          .lines("&7%task% &0- &7%task_id%", "&8[&7EMPTY&8]", "%online_players% / %max_players%", "%motd%")
+          .lines("<gray><task></gray> <black>-</black> <gray><task_id></gray>",
+            "<dark_gray>[</dark_gray><gray>EMPTY</gray><dark_gray>]</dark_gray>",
+            "<online_players> / <max_players>",
+            "<motd>")
           .blockMaterial(onlineBlockType)
           .build()))
         .onlineLayout(SignLayoutsHolder.singleLayout(SignLayout.builder()
-          .lines("&6%task% &0- &6%task_id%", "&8[&6LOBBY&8]", "%online_players% / %max_players%", "%motd%")
+          .lines("<gold><task></gold> <black>-</black> <gold><task_id></gold>",
+            "<dark_gray>[</dark_gray><gold>LOBBY</gray><gold>]</dark_gray>",
+            "<online_players> / <max_players>",
+            "<motd>")
           .blockMaterial(onlineBlockType)
           .build()))
         .fullLayout(SignLayoutsHolder.singleLayout(SignLayout.builder()
-          .lines("&5%task% &0- &5%task_id%", "&8[&5FULL&8]", "%online_players% / %max_players%", "%motd%")
+          .lines("<dark_purple><task></dark_purple> <black>-</black> <dark_purple><task_id></dark_purple>",
+            "<dark_gray>[</dark_gray><dark_purple>FULL</gray><dark_purple>]</dark_gray>",
+            "<online_players> / <max_players>",
+            "<motd>")
           .blockMaterial(fullBlockType)
           .build()))
         .build()))
       .searchingLayout(defaultLayout("Waiting", searchingBlock))
       .startingLayout(defaultLayout("Starting", startingBlock))
       .emptyLayout(SignLayoutsHolder.singleLayout(SignLayout.builder()
-        .lines("&7%task% &0- &7%task_id%", "&8[&7EMPTY&8]", "%online_players% / %max_players%", "%motd%")
+        .lines("<gray><task></gray> <black>-</black> <gray><task_id></gray>",
+          "<dark_gray>[</dark_gray><gray>EMPTY</gray><dark_gray>]</dark_gray>",
+          "<online_players> / <max_players>",
+          "<motd>")
         .blockMaterial(onlineBlockType)
         .build()))
       .onlineLayout(SignLayoutsHolder.singleLayout(SignLayout.builder()
-        .lines("&6%task% &0- &6%task_id%", "&8[&6LOBBY&8]", "%online_players% / %max_players%", "%motd%")
+        .lines("<gold><task></gold> <black>-</black> <gold><task_id></gold>",
+          "<dark_gray>[</dark_gray><gold>LOBBY</gold><dark_gray>]</dark_gray>",
+          "<online_players> / <max_players>",
+          "<motd>")
         .blockMaterial(onlineBlockType)
         .build()))
       .fullLayout(SignLayoutsHolder.singleLayout(SignLayout.builder()
-        .lines("&5%task% &0- &5%task_id%", "&8[&5FULL&8]", "%online_players% / %max_players%", "%motd%")
+        .lines("<dark_purple><task></dark_purple> <black>-</black> <dark_purple><task_id></dark_purple>",
+          "<dark_gray>[</dark_gray><dark_purple>FULL</dark_purple><dark_gray>]</dark_gray>",
+          "<online_players> / <max_players>",
+          "<motd>")
         .blockMaterial(fullBlockType)
         .build()))
       .build();

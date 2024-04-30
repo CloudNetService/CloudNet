@@ -28,19 +28,20 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C>> {
 
   protected final Sign base;
   protected final PlayerManager playerManager;
-  protected final Function<String, C> lineMapper;
+  protected final Function<Component, C> lineMapper;
   protected volatile ServiceInfoSnapshot target;
 
   public PlatformSign(
     @NonNull Sign base,
     @NonNull PlayerManager playerManager,
-    @NonNull Function<String, C> lineMapper
+    @NonNull Function<Component, C> lineMapper
   ) {
     this.base = base;
     this.playerManager = playerManager;

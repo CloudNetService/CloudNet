@@ -37,7 +37,6 @@ dependencies {
   "annotationProcessor"(libs.aerogelAuto)
 
   "implementation"(projects.ext.adventureHelper)
-  "api"(libs.adventureMinimessage)
 }
 
 moduleJson {

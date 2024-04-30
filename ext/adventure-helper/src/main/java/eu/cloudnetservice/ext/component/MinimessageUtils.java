@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-dependencies {
-  "compileOnly"(libs.adventureApi)
-  "compileOnly"(libs.adventureSerializerLegacy)
-  "compileOnly"(libs.bungeecordChat)
-  "api"(libs.adventureMinimessage)
-}
+package eu.cloudnetservice.ext.component;
 
-configurations {
-  named("testImplementation").get().extendsFrom(named("compileOnly").get())
+import java.util.Map;
+import lombok.NonNull;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+
+public class MinimessageUtils {
+
+  public static TagResolver[] tagsFromMap(@NonNull Map<String, String> placeholders) {
+    return placeholders.entrySet()
+            .stream()
+            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
+            .toArray((size) -> new TagResolver[size]);
+  }
+
 }
