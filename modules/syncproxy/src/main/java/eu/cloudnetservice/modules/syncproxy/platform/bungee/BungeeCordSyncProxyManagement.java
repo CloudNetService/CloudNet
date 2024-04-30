@@ -32,10 +32,14 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -97,10 +101,29 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void playerTabList(@NonNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, String> placeholders, @Nullable String header, @Nullable String footer) {
+    placeholders.put("ping", String.valueOf(player.getPing()));
+    placeholders.put("server", player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName());
+
     player.setTabHeader(
-      header != null ? this.bungeeCordHelper.translateToComponent(this.replaceTabPlaceholder(header, player)) : null,
-      footer != null ? this.bungeeCordHelper.translateToComponent(this.replaceTabPlaceholder(footer, player)) : null);
+      header != null ? BungeeComponentSerializer.get().serialize(
+        MiniMessage.miniMessage().deserialize(
+          header,
+          placeholders.entrySet()
+            .stream()
+            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
+            .toArray((size) -> new TagResolver[size])
+        )
+      ) : null,
+      footer != null ? BungeeComponentSerializer.get().serialize(
+        MiniMessage.miniMessage().deserialize(
+          footer,
+          placeholders.entrySet()
+            .stream()
+            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
+            .toArray((size) -> new TagResolver[size])
+        )
+      ) : null);
   }
 
   @Override
@@ -118,11 +141,5 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   @Override
   public boolean checkPlayerPermission(@NonNull ProxiedPlayer player, @NonNull String permission) {
     return player.hasPermission(permission);
-  }
-
-  private @NonNull String replaceTabPlaceholder(@NonNull String input, @NonNull ProxiedPlayer player) {
-    return input
-      .replace("%ping%", String.valueOf(player.getPing()))
-      .replace("%server%", player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName());
   }
 }

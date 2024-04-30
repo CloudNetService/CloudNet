@@ -239,18 +239,10 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     int onlinePlayers,
     int maxPlayers
   ) {
-    var header = this.replaceTabListItem(
-      tabList.header(),
-      player,
-      onlinePlayers,
-      maxPlayers);
-    var footer = this.replaceTabListItem(
-      tabList.footer(),
-      player,
-      onlinePlayers,
-      maxPlayers);
+    var map = new HashMap<String, String>();
+    this.fillTabListPlaceholders(map, player, onlinePlayers, maxPlayers);
 
-    this.playerTabList(player, header, footer);
+    this.playerTabList(player, map, tabList.header(), tabList.footer());
   }
 
   protected boolean checkServiceGroup(@NonNull ServiceInfoSnapshot snapshot) {
@@ -281,7 +273,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   public abstract @NonNull UUID playerUniqueId(@NonNull P player);
 
-  public abstract void playerTabList(@NonNull P player, @Nullable String header, @Nullable String footer);
+  public abstract void playerTabList(@NonNull P player, @NonNull Map<String, String> placeholders, @Nullable String header, @Nullable String footer);
 
   public abstract void disconnectPlayer(@NonNull P player, @NonNull Component message);
 
@@ -289,17 +281,17 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   public abstract boolean checkPlayerPermission(@NonNull P player, @NonNull String permission);
 
-  private @NonNull String replaceTabListItem(
-    @NonNull String input,
+  private void fillTabListPlaceholders(
+    @NonNull Map<String, String> input,
     @NonNull P player,
     int onlinePlayers,
     int maxPlayers
   ) {
-    input = input.replace("%time%", TIME_FORMATTER.format(LocalTime.now()))
-      .replace("%syncproxy_online_players%", String.valueOf(onlinePlayers))
-      .replace("%syncproxy_max_players%", String.valueOf(maxPlayers))
-      .replace("%player_name%", this.playerName(player));
-    input = BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
+    input.put("time", TIME_FORMATTER.format(LocalTime.now()));
+    input.put("syncproxy_online_players", String.valueOf(onlinePlayers));
+    input.put("syncproxy_max_players", String.valueOf(maxPlayers));
+    input.put("player_name", this.playerName(player));
+    BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
 
     if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
       var permissionUser = this.permissionManagement.user(this.playerUniqueId(player));
@@ -308,15 +300,13 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
         var group = this.permissionManagement.highestPermissionGroup(permissionUser);
 
         if (group != null) {
-          input = input.replace("%perms_group_prefix%", group.prefix())
-            .replace("%perms_group_suffix%", group.suffix())
-            .replace("%perms_group_display%", group.display())
-            .replace("%perms_group_color%", group.color())
-            .replace("%perms_group_name%", group.name());
+          input.put("perms_group_prefix", group.prefix());
+          input.put("perms_group_suffix", group.suffix());
+          input.put("perms_group_display", group.display());
+          input.put("perms_group_color", group.color());
+          input.put("perms_group_name", group.name());
         }
       }
     }
-
-    return input;
   }
 }

@@ -60,12 +60,31 @@ public class SyncProxyTabListConfiguration {
     return builder()
       .targetGroup(targetGroup)
       .addTabListEntry(SyncProxyTabList.builder()
-        .header("""
-          \s
-           &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■\s
-           &8► &7Current server &8● &b%server% &8◄\s
-          \s""")
-        .footer(" \n &7Discord &8&l» &bdiscord.cloudnetservice.eu \n &7&onext &3&l&ogeneration &7&onetwork \n ")
+        .header(" <newline> "
+          + "<aqua><italic>■</italic></aqua> "
+          + "<dark_gray>┃</dark_gray> "
+          + "<dark_aqua><bold>CloudNet</bold></dark_aqua> "
+          + "<dark_gray>●</dark_gray> "
+          + "<red>Blizzard</red> "
+          + "<dark_gray><bold>»</bold></dark_gray> "
+          + "<gray><italic><online_players></gray><dark_gray>/</dark_gray><gray><italic><max_players></italic></gray> "
+          + "<dark_gray>┃</dark_gray> <aqua><italic>■</italic></aqua>"
+          + "<newline>"
+          + "<dark_gray>►</dark_gray> "
+          + "<gray>Current server</gray> "
+          + "<dark_gray>● </dark_gray>"
+          + "<aqua><server></aqua> "
+          + "<dark_gray>◄</dark_gray> "
+          + "<newline> ")
+        .footer(" <newline> "
+          + "<gray>Discord</gray> "
+          + "<dark_gray><bold>»</bold></dark_gray> "
+          + "<aqua>discord.cloudnetservice.eu</aqua> "
+          + "<newline> "
+          + "<gray><italic>next</italic></gray> "
+          + "<dark_aqua><bold><italic>generation</italic></bold></dark_aqua> "
+          + "<gray><italic>network</italic></gray> "
+          + "<newline> ")
         .build())
       .animationsPerSecond(1.0)
       .build();

@@ -33,6 +33,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
@@ -93,7 +94,7 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void playerTabList(@NonNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, String> placeholders, @Nullable String header, @Nullable String footer) {
     // there is no support for header and footer
   }
 

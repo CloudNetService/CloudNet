@@ -32,10 +32,14 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -90,13 +94,30 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   @Override
-  public void playerTabList(@NonNull Player player, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NonNull Player player, @NonNull Map<String, String> placeholders, @Nullable String header, @Nullable String footer) {
     if (header == null || footer == null) {
       player.getTabList().clearHeaderAndFooter();
     } else {
+      placeholders.put("server", player.getCurrentServer()
+        .map(serverConnection -> serverConnection.getServerInfo().getName())
+        .orElse("UNAVAILABLE"));
+      placeholders.put("ping", String.valueOf(player.getPing()));
+
       player.sendPlayerListHeaderAndFooter(
-        ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.replaceTabPlaceholder(header, player)),
-        ComponentFormats.BUNGEE_TO_ADVENTURE.convert(this.replaceTabPlaceholder(footer, player)));
+        MiniMessage.miniMessage().deserialize(
+          header,
+          placeholders.entrySet()
+            .stream()
+            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
+            .toArray((size) -> new TagResolver[size])
+        ),
+        MiniMessage.miniMessage().deserialize(
+          footer,
+          placeholders.entrySet()
+            .stream()
+            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
+            .toArray((size) -> new TagResolver[size])
+        ));
     }
   }
 
@@ -115,15 +136,5 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   @Override
   public boolean checkPlayerPermission(@NonNull Player player, @NonNull String permission) {
     return player.hasPermission(permission);
-  }
-
-  private @NonNull String replaceTabPlaceholder(@NonNull String input, @NonNull Player player) {
-    var server = player.getCurrentServer()
-      .map(serverConnection -> serverConnection.getServerInfo().getName())
-      .orElse("UNAVAILABLE");
-
-    return input
-      .replace("%ping%", String.valueOf(player.getPing()))
-      .replace("%server%", server);
   }
 }
