@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
-import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
@@ -28,6 +27,7 @@ import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ServerPing.PlayerInfo;
 import net.md_5.bungee.api.ServerPing.Players;
 import net.md_5.bungee.api.ServerPing.Protocol;
@@ -82,14 +82,17 @@ public final class BungeeCordSyncProxyListener implements Listener {
       var response = event.getResponse();
 
       var serviceInfo = this.serviceInfoHolder.serviceInfo();
-      var protocolText = SyncProxyConfiguration.fillCommonPlaceholders(
-        serviceInfo,
-        motd.protocolText(),
-        onlinePlayers,
-        maxPlayers);
+      var protocolText = motd.protocolText();
       // check if there is a protocol text in the config
       if (protocolText != null) {
-        response.setVersion(new Protocol(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(protocolText), 1));
+        response.setVersion(new Protocol(
+          LegacyComponentSerializer.legacySection().serialize(
+            MiniMessage.miniMessage().deserialize(
+              protocolText,
+              SyncProxyConfiguration.adventurePlaceholders(serviceInfo, onlinePlayers, maxPlayers)
+            )
+          ),
+          1));
       }
 
       var playerSamples = EMPTY_PLAYER_INFO;
@@ -97,8 +100,11 @@ public final class BungeeCordSyncProxyListener implements Listener {
         // convert the player info into individual player samples
         playerSamples = Arrays.stream(motd.playerInfo())
           .filter(Objects::nonNull)
-          .map(info -> SyncProxyConfiguration.fillCommonPlaceholders(serviceInfo, info, onlinePlayers, maxPlayers))
-          .map(ComponentFormats.ADVENTURE_TO_BUNGEE::convertText)
+          .map(info -> MiniMessage.miniMessage().deserialize(
+            info,
+            SyncProxyConfiguration.adventurePlaceholders(serviceInfo, onlinePlayers, maxPlayers)
+          ))
+          .map(LegacyComponentSerializer.legacySection()::serialize)
           .map(info -> new PlayerInfo(info, UUID.randomUUID()))
           .toArray(PlayerInfo[]::new);
       }

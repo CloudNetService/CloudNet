@@ -53,21 +53,52 @@ public record SyncProxyLoginConfiguration(
       .targetGroup(targetGroup)
       .maxPlayers(100)
       .modifyMotd(motds -> motds.add(SyncProxyMotd.builder()
-        .firstLine("         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8┃ &b&o■")
-        .secondLine("              &7&onext &3&l&ogeneration &7&onetwork")
+        .firstLine("         "
+          + "<aqua><italic>■</italic></aqua> "
+          + "<dark_gray>┃</dark_gray> "
+          + "<dark_aqua><bold>CloudNet</bold></dark_aqua> "
+          + "<dark_gray>●</dark_gray> "
+          + "<red>Blizzard</red> "
+          + "<dark_gray>┃</dark_gray> "
+          + "<aqua><italic>■</italic></aqua>")
+        .secondLine("              "
+          + "<gray><italic>next</italic></gray> "
+          + "<dark_aqua><bold><italic>generation</italic></bold></dark_aqua> "
+          + "<gray><italic>network</italic></gray>")
         .autoSlotDistance(1)
         .build()))
       .modifyMaintenanceMotd(motds -> motds.add(SyncProxyMotd.builder()
-        .firstLine("         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8┃ &b&o■")
-        .secondLine("     &3&lMaintenance &8&l» &7We are still in &3&lmaintenance")
+        .firstLine("         "
+          + "<aqua><italic>■</italic></aqua> "
+          + "<dark_gray>┃</dark_gray> "
+          + "<dark_aqua><bold>CloudNet</bold></dark_aqua> "
+          + "<dark_gray>●</dark_gray> "
+          + "<red>Blizzard</red> "
+          + "<dark_gray>┃</dark_gray> "
+          + "<aqua><italic>■</italic></aqua>")
+        .secondLine("     "
+          + "<dark_aqua><bold>Maintenance</bold></dark_aqua> "
+          + "<dark_gray><bold>»</bold></dark_gray> "
+          + "<gray>We are still in</gray> "
+          + "<dark_aqua><bold>maintenance</bold></dark_aqua>")
         .autoSlotDistance(1)
         .playerInfo(new String[]{
           " ",
-          "&b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8┃ &b&o■",
-          "&7Discord &8&l» &bdiscord.cloudnetservice.eu",
+          "<aqua><italic>■</italic></aqua> "
+            + "<dark_gray>┃</dark_gray> "
+            + "<dark_aqua><bold>CloudNet</bold></dark_aqua> "
+            + "<dark_gray>●</dark_gray> "
+            + "<red>Blizzard</red> "
+            + "<dark_gray>┃</dark_gray> "
+            + "<aqua><italic>■</italic></aqua>",
+          "<gray>Discord</gray> "
+            + "<dark_gray><bold>»</bold></dark_gray> "
+            + "<aqua>discord.cloudnetservice.eu</aqua>",
           " "
         })
-        .protocolText("&8➜ &c&lMaintenance &8┃ &c✘")
+        .protocolText("<dark_gray>➜</dark_gray> "
+          + "<red><bold>Maintenance</bold></red> "
+          + "<dark_gray>┃</dark_gray> <red>✘</red>")
         .build()))
       .build();
   }
