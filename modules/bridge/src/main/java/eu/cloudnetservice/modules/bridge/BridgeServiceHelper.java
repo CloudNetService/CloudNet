@@ -125,9 +125,7 @@ public final class BridgeServiceHelper {
    * @param service the service to use as source for the placeholder values.
    * @return the String with the placeholders replaced.
    * @throws NullPointerException if the given input string is null.
-   * @deprecated Use {@link #fillCommonPlaceholders(Map, String, ServiceInfoSnapshot)} instead
    */
-  @Deprecated
   public static @NonNull String fillCommonPlaceholders(
     @NonNull String value,
     @Nullable String group,
@@ -136,7 +134,7 @@ public final class BridgeServiceHelper {
     var placeholders = new HashMap<String, String>();
     fillCommonPlaceholders(placeholders, group, service);
     for (var placeholder : placeholders.entrySet()) {
-      value = value.replace("%" + placeholder.getKey() + "%", placeholder.getValue());
+      value = value.replace("<" + placeholder.getKey() + ">", placeholder.getValue());
     }
     // done
     return value;

@@ -19,6 +19,7 @@ package eu.cloudnetservice.plugins.papi;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import java.util.HashMap;
 import lombok.NonNull;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
@@ -64,9 +65,9 @@ public class CloudNetPapiExpansion extends PlaceholderExpansion {
     // This is a bit tricky - PlaceholderAPI requires us to return "null" if the placeholder is unknown.
     // The bridge will just replace all placeholders in the string with the correct association.
     // We can just return null if the resulting string matches the input string
-    var input = '%' + params + '%';
-    var out = BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
+    var map = new HashMap<String, String>();
+    BridgeServiceHelper.fillCommonPlaceholders(map, null, this.serviceInfoHolder.serviceInfo());
 
-    return out.equals(input) ? null : out;
+    return map.getOrDefault(params, null);
   }
 }

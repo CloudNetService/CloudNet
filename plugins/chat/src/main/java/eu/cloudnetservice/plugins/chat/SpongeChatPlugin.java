@@ -20,7 +20,6 @@ import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
@@ -167,7 +166,7 @@ public class SpongeChatPlugin implements PlatformEntrypoint {
 
         // broadcast the new message if the formatting was successful
         if (format != null) {
-          Sponge.server().broadcastAudience().sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(format));
+          Sponge.server().broadcastAudience().sendMessage(format);
         }
       }
     }
@@ -188,7 +187,7 @@ public class SpongeChatPlugin implements PlatformEntrypoint {
       if (format == null) {
         event.setCancelled(true);
       } else {
-        event.setChatFormatter(($, $1, $2, $3) -> Optional.of(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(format)));
+        event.setChatFormatter(($, $1, $2, $3) -> Optional.of(format));
       }
     }
   }

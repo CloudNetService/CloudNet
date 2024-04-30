@@ -23,6 +23,7 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -89,7 +90,7 @@ public class BukkitChatPlugin implements PlatformEntrypoint, Listener {
     if (formattedMessage == null) {
       event.setCancelled(true);
     } else {
-      event.setFormat(formattedMessage);
+      event.setFormat(LegacyComponentSerializer.legacySection().serialize(formattedMessage));
     }
   }
 }

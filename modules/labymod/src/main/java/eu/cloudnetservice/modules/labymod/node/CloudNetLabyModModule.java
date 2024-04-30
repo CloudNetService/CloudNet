@@ -123,9 +123,9 @@ public class CloudNetLabyModModule extends DriverModule {
     var displayType = entry.getString("displayType");
     // convert the old display type
     if (displayType.equals("TASK")) {
-      return new LabyModServiceDisplay(enabled, format.replace("%display%", "%task%"));
+      return new LabyModServiceDisplay(enabled, format.replace("<display>", "<task>"));
     } else {
-      return new LabyModServiceDisplay(enabled, format.replace("%display%", "%name%"));
+      return new LabyModServiceDisplay(enabled, format.replace("<display>", "<name>"));
     }
   }
 

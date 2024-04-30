@@ -31,6 +31,7 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @Singleton
 @PlatformPlugin(
@@ -83,7 +84,7 @@ public class NukkitChatPlugin implements PlatformEntrypoint, Listener {
     if (format == null) {
       event.setCancelled(true);
     } else {
-      event.setFormat(format);
+      event.setFormat(LegacyComponentSerializer.legacySection().serialize(format));
     }
   }
 }

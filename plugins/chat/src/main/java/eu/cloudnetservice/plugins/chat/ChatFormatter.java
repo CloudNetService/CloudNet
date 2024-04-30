@@ -17,10 +17,17 @@
 package eu.cloudnetservice.plugins.chat;
 
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.MinimessageUtils;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.jetbrains.annotations.Nullable;
 
 public final class ChatFormatter {
@@ -29,7 +36,7 @@ public final class ChatFormatter {
     throw new UnsupportedOperationException();
   }
 
-  public static @Nullable String buildFormat(
+  public static @Nullable Component buildFormat(
     @NonNull UUID playerId,
     @NonNull String playerName,
     @NonNull String displayName,
@@ -47,23 +54,30 @@ public final class ChatFormatter {
 
     // check if the player is allowed to use colors and replace them
     var coloredMessage = permissionTester.apply("cloudnet.chat.color")
-      ? colorReplacer.apply('&', message.replace("%", "%%"))
-      : message.replace("%", "%%");
-    // check if there even is a message left to prevent empty messages
-    if (coloredMessage.trim().isEmpty()) {
-      return null;
-    }
+      ? MiniMessage.builder()
+      .tags(TagResolver.resolver(
+        StandardTags.color(),
+        StandardTags.decorations(),
+        StandardTags.gradient(), StandardTags.rainbow()
+      )).build().deserialize(message)
+      : Component.text(message);
 
     var group = permissionManagement.highestPermissionGroup(permissionUser);
-    format = format
-      .replace("%name%", playerName)
-      .replace("%display_name%", displayName)
-      .replace("%uniqueId%", playerId.toString())
-      .replace("%group%", group == null ? "" : group.name())
-      .replace("%display%", group == null ? "" : group.display())
-      .replace("%prefix%", group == null ? "" : group.prefix())
-      .replace("%suffix%", group == null ? "" : group.suffix())
-      .replace("%color%", group == null ? "" : group.color());
-    return colorReplacer.apply('&', format).replace("%message%", coloredMessage);
+
+    var placeholders = new HashMap<String, String>();
+    placeholders.put("name", playerName);
+    placeholders.put("display_name", displayName);
+    placeholders.put("uniqueId", playerId.toString());
+    placeholders.put("group", group == null ? "" : group.name());
+    placeholders.put("display", group == null ? "" : group.display());
+    placeholders.put("prefix", group == null ? "" : group.prefix());
+    placeholders.put("suffix", group == null ? "" : group.suffix());
+    placeholders.put("color", group == null ? "" : group.color());
+
+    return MiniMessage.miniMessage()
+      .deserialize(format,
+        TagResolver.resolver(MinimessageUtils.tagsFromMap(placeholders)),
+        Placeholder.component("message", coloredMessage)
+      );
   }
 }

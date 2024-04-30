@@ -41,7 +41,7 @@ public record LabyModConfiguration(
   public static class Builder {
 
     private boolean enabled = true;
-    private LabyModServiceDisplay discordRPC = new LabyModServiceDisplay(true, "Playing on %name%");
+    private LabyModServiceDisplay discordRPC = new LabyModServiceDisplay(true, "Playing on <name>");
     private LabyModBanner banner = new LabyModBanner(
       false,
       "https://dl.cloudnetservice.eu/data/minecraft/CloudNet-LabyMod-Banner.png");

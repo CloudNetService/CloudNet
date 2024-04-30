@@ -17,7 +17,6 @@
 package eu.cloudnetservice.plugins.chat;
 
 import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
@@ -91,7 +90,7 @@ public class MinestomChatExtension implements PlatformEntrypoint {
     if (format == null) {
       event.setCancelled(true);
     } else {
-      event.setChatFormat($ -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(format));
+      event.setChatFormat($ -> format);
     }
   }
 }
