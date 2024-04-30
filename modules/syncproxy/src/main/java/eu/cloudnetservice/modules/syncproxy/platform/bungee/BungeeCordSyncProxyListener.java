@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ServerPing.PlayerInfo;
 import net.md_5.bungee.api.ServerPing.Players;
 import net.md_5.bungee.api.ServerPing.Protocol;
@@ -104,14 +106,26 @@ public final class BungeeCordSyncProxyListener implements Listener {
       var players = new Players(maxPlayers, onlinePlayers, playerSamples);
       response.setPlayers(players);
 
-      var description = SyncProxyConfiguration.fillCommonPlaceholders(
-        serviceInfo,
-        motd.firstLine() + "\n" + motd.secondLine(),
-        onlinePlayers,
-        maxPlayers);
+      var description = MiniMessage.miniMessage().deserialize(
+          motd.firstLine(),
+          SyncProxyConfiguration.adventurePlaceholders(
+            serviceInfo,
+            onlinePlayers,
+            maxPlayers
+          )
+      )
+        .appendNewline()
+        .append(MiniMessage.miniMessage().deserialize(
+          motd.secondLine(),
+          SyncProxyConfiguration.adventurePlaceholders(
+            serviceInfo,
+            onlinePlayers,
+            maxPlayers
+          )
+      ));
 
       // thanks bungeecord - convert the component array into a single component
-      response.setDescriptionComponent(new TextComponent(this.bungeeCordHelper.translateToComponent(description)));
+      response.setDescriptionComponent(new TextComponent(BungeeComponentSerializer.get().serialize(description)));
 
       event.setResponse(response);
     }
@@ -133,16 +147,16 @@ public final class BungeeCordSyncProxyListener implements Listener {
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
-        player.disconnect(this.bungeeCordHelper.translateToComponent(
-          this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null)));
+        player.disconnect(BungeeComponentSerializer.get()
+          .serialize(this.syncProxyManagement.configuration().message("player-login-not-whitelisted")));
         event.setCancelled(true);
       }
     } else {
       // check if the proxy is full and if the player is allowed to join or not
       if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
         && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-        player.disconnect(this.bungeeCordHelper.translateToComponent(
-          this.syncProxyManagement.configuration().message("player-login-full-server", null)));
+        player.disconnect(BungeeComponentSerializer.get()
+          .serialize(this.syncProxyManagement.configuration().message("player-login-full-server")));
         event.setCancelled(true);
       }
     }

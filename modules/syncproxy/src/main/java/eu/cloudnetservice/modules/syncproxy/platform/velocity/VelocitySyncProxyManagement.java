@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -100,14 +101,14 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   @Override
-  public void disconnectPlayer(@NonNull Player player, @NonNull String message) {
-    player.disconnect(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message));
+  public void disconnectPlayer(@NonNull Player player, @NonNull Component message) {
+    player.disconnect(message);
   }
 
   @Override
-  public void messagePlayer(@NonNull Player player, @Nullable String message) {
+  public void messagePlayer(@NonNull Player player, @Nullable Component message) {
     if (message != null) {
-      player.sendMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message));
+      player.sendMessage(message);
     }
   }
 

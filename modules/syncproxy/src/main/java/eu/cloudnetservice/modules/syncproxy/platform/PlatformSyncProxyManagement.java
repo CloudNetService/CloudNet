@@ -47,6 +47,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagement {
@@ -155,7 +158,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       for (var onlinePlayer : this.onlinePlayers()) {
         // check if the player is allowed to join
         if (!this.checkPlayerMaintenance(onlinePlayer)) {
-          this.disconnectPlayer(onlinePlayer, this.configuration.message("player-login-not-whitelisted", null));
+          this.disconnectPlayer(onlinePlayer, this.configuration.message("player-login-not-whitelisted", new TagResolver[0]));
         }
       }
     }
@@ -193,13 +196,15 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     this.proxyOnlineCountCache.remove(snapshot.serviceId().uniqueId());
   }
 
-  public @Nullable String serviceUpdateMessage(
+  public @Nullable Component serviceUpdateMessage(
     @NonNull String key,
     @NonNull ServiceInfoSnapshot serviceInfoSnapshot
   ) {
-    return this.configuration.message(key, message -> message
-      .replace("%service%", serviceInfoSnapshot.name())
-      .replace("%node%", serviceInfoSnapshot.serviceId().nodeUniqueId()));
+    return this.configuration.message(
+      key,
+      Placeholder.unparsed("service", serviceInfoSnapshot.name()),
+      Placeholder.unparsed("node", serviceInfoSnapshot.serviceId().nodeUniqueId())
+    );
   }
 
   protected void scheduleTabListUpdate() {
@@ -278,9 +283,9 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   public abstract void playerTabList(@NonNull P player, @Nullable String header, @Nullable String footer);
 
-  public abstract void disconnectPlayer(@NonNull P player, @NonNull String message);
+  public abstract void disconnectPlayer(@NonNull P player, @NonNull Component message);
 
-  public abstract void messagePlayer(@NonNull P player, @Nullable String message);
+  public abstract void messagePlayer(@NonNull P player, @Nullable Component message);
 
   public abstract boolean checkPlayerPermission(@NonNull P player, @NonNull String permission);
 

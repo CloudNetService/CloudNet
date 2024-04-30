@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 @Singleton
 public final class VelocitySyncProxyListener {
@@ -94,11 +95,23 @@ public final class VelocitySyncProxyListener {
       }
 
       // construct the description for the response
-      var description = SyncProxyConfiguration.fillCommonPlaceholders(
-        serviceInfo,
-        motd.firstLine() + "\n" + motd.secondLine(),
-        onlinePlayers,
-        maxPlayers);
+      var description = MiniMessage.miniMessage().deserialize(
+          motd.firstLine(),
+          SyncProxyConfiguration.adventurePlaceholders(
+            serviceInfo,
+            onlinePlayers,
+            maxPlayers
+          )
+      )
+        .appendNewline()
+        .append(MiniMessage.miniMessage().deserialize(
+          motd.secondLine(),
+          SyncProxyConfiguration.adventurePlaceholders(
+            serviceInfo,
+            onlinePlayers,
+            maxPlayers
+          )
+      ));
 
       // construct the response to the ping event
       var builder = ServerPing.builder()
@@ -106,7 +119,7 @@ public final class VelocitySyncProxyListener {
         .onlinePlayers(onlinePlayers)
         .maximumPlayers(maxPlayers)
         .samplePlayers(samplePlayers)
-        .description(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(description));
+        .description(description);
 
       event.getPing().getFavicon().ifPresent(builder::favicon);
       event.getPing().getModinfo().ifPresent(builder::mods);
@@ -123,16 +136,14 @@ public final class VelocitySyncProxyListener {
       if (loginConfiguration.maintenance()) {
         // the player is either whitelisted or has the permission to join during maintenance, ignore him
         if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
-          var reason = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-            this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null));
+          var reason = this.syncProxyManagement.configuration().message("player-login-not-whitelisted");
           event.setResult(ResultedEvent.ComponentResult.denied(reason));
         }
       } else {
         // check if the proxy is full and if the player is allowed to join or not
         if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
           && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-          var reason = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(
-            this.syncProxyManagement.configuration().message("player-login-full-server", null));
+          var reason = this.syncProxyManagement.configuration().message("player-login-full-server");
           event.setResult(ResultedEvent.ComponentResult.denied(reason));
         }
       }

@@ -22,13 +22,17 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -41,10 +45,10 @@ public record SyncProxyConfiguration(
 ) {
 
   public static final Map<String, String> DEFAULT_MESSAGES = ImmutableMap.of(
-    "player-login-not-whitelisted", "&cThe network is currently in maintenance!",
-    "player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network",
-    "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
-    "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
+    "player-login-not-whitelisted", "<red>The network is currently in maintenance!</red>",
+    "player-login-full-server", "<red>The network is currently full. You need extra permissions to enter the network</red>",
+    "service-start", "<gray>The service &e<service> is <green>starting</green> on node <yellow><node></yellow>...</gray>",
+    "service-stop", "<gray>The service <yellow><service></yellow> is <red>stopping</red> on node <yellow><node></yellow>...</gray>");
 
   public static @Nullable String fillCommonPlaceholders(
     @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
@@ -56,12 +60,38 @@ public record SyncProxyConfiguration(
       return null;
     }
 
-    return BridgeServiceHelper.fillCommonPlaceholders(
-      input
-        .replace("%online_players%", String.valueOf(onlinePlayers))
-        .replace("%max_players%", String.valueOf(maxPlayers)),
-      null,
-      serviceInfoSnapshot);
+    var placeholders = new HashMap<String, String>();
+    fillCommonPlaceholders(placeholders, serviceInfoSnapshot, onlinePlayers, maxPlayers);
+    for (var placeholder : placeholders.entrySet()) {
+      input = input.replace("%" + placeholder.getKey() + "%", placeholder.getValue());
+    }
+
+    return input;
+  }
+
+  public static void fillCommonPlaceholders(
+    @NonNull Map<String, String> map,
+    @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
+    int onlinePlayers,
+    int maxPlayers
+  ) {
+    map.put("online_players", String.valueOf(onlinePlayers));
+    map.put("max_players", String.valueOf(maxPlayers));
+    BridgeServiceHelper.fillCommonPlaceholders(map, null, serviceInfoSnapshot);
+  }
+
+  public static TagResolver[] adventurePlaceholders(
+    @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
+    int onlinePlayers,
+    int maxPlayers
+  ) {
+    var resolvers = new ArrayList<TagResolver>();
+    var placeholders = new HashMap<String, String>();
+    fillCommonPlaceholders(placeholders, serviceInfoSnapshot, onlinePlayers, maxPlayers);
+    for (var placeholder : placeholders.entrySet()) {
+      resolvers.add(Placeholder.unparsed(placeholder.getKey(), placeholder.getValue()));
+    }
+    return resolvers.toArray(new TagResolver[0]);
   }
 
   public static @NonNull Builder builder() {
@@ -100,13 +130,9 @@ public record SyncProxyConfiguration(
     return null;
   }
 
-  public @UnknownNullability String message(@NonNull String key, @Nullable Function<String, String> modifier) {
+  public @UnknownNullability Component message(@NonNull String key, @NonNull TagResolver... placeholders) {
     var message = this.messages.getOrDefault(key, DEFAULT_MESSAGES.get(key));
-    if (message != null && modifier != null) {
-      message = modifier.apply(message);
-    }
-
-    return message;
+    return MiniMessage.miniMessage().deserialize(message, placeholders);
   }
 
   public void sendUpdate() {

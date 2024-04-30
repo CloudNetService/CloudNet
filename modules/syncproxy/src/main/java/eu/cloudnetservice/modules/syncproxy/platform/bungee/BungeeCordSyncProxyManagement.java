@@ -35,6 +35,8 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
@@ -102,14 +104,14 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull String message) {
-    player.disconnect(this.bungeeCordHelper.translateToComponent(message));
+  public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull Component message) {
+    player.disconnect(BungeeComponentSerializer.get().serialize(message));
   }
 
   @Override
-  public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable String message) {
+  public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable Component message) {
     if (message != null) {
-      player.sendMessage(this.bungeeCordHelper.translateToComponent(message));
+      player.sendMessage(BungeeComponentSerializer.get().serialize(message));
     }
   }
 

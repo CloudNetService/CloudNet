@@ -27,6 +27,8 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
@@ -129,53 +131,74 @@ public final class BridgeServiceHelper {
     @Nullable String group,
     @Nullable ServiceInfoSnapshot service
   ) {
-    value = value.replace("%group%", group == null ? "" : group);
+    var placeholders = new HashMap<String, String>();
+    fillCommonPlaceholders(placeholders, group, service);
+    for (var placeholder : placeholders.entrySet()) {
+      value = value.replace("%" + placeholder.getKey() + "%", placeholder.getValue());
+    }
+    // done
+    return value;
+  }
+
+  /**
+   * Puts commonly used placeholders in the given input map using the given service as the information source. If
+   * no service is given only the group property is replaced.
+   *
+   * @param map     the map to put the placeholders in.
+   * @param group   the group for the {@literal group} placeholder.
+   * @param service the service to use as source for the placeholder values.
+   * @throws NullPointerException if the given map is null.
+   */
+  public static void fillCommonPlaceholders(
+    @NonNull Map<String, String> map,
+    @Nullable String group,
+    @Nullable ServiceInfoSnapshot service
+  ) {
+    map.put("group", group == null ? "" : group);
 
     // stop replacing if no service is given
     if (service == null) {
-      return value;
+      return;
     }
 
-    // replace all service id placeholders
-    value = value.replace("%name%", service.serviceId().name());
-    value = value.replace("%task%", service.serviceId().taskName());
-    value = value.replace("%node%", service.serviceId().nodeUniqueId());
-    value = value.replace("%unique_id%", service.serviceId().uniqueId().toString());
-    value = value.replace("%environment%", service.serviceId().environment().name());
-    value = value.replace("%task_id%", Integer.toString(service.serviceId().taskServiceId()));
-    value = value.replace("%uid%", service.serviceId().uniqueId().toString().split("-")[0]);
+    // put all service id placeholders
+    map.put("name", service.serviceId().name());
+    map.put("task", service.serviceId().taskName());
+    map.put("node", service.serviceId().nodeUniqueId());
+    map.put("unique_id", service.serviceId().uniqueId().toString());
+    map.put("environment", service.serviceId().environment().name());
+    map.put("task_id", Integer.toString(service.serviceId().taskServiceId()));
+    map.put("uid", service.serviceId().uniqueId().toString().split("-")[0]);
     // general service information
-    value = value.replace("%life_cycle%", service.lifeCycle().name());
-    value = value.replace("%runtime%", service.configuration().runtime());
-    value = value.replace("%port%", Integer.toString(service.configuration().port()));
+    map.put("life_cycle", service.lifeCycle().name());
+    map.put("runtime", service.configuration().runtime());
+    map.put("port", Integer.toString(service.configuration().port()));
     // process information
-    value = value.replace("%pid%", Long.toString(service.processSnapshot().pid()));
-    value = value.replace("%threads%", Integer.toString(service.processSnapshot().threads().size()));
-    value = value.replace("%heap_usage%", Long.toString(service.processSnapshot().heapUsageMemory()));
-    value = value.replace("%max_heap_usage%", Long.toString(service.processSnapshot().maxHeapMemory()));
-    value = value.replace(
-      "%cpu_usage%",
+    map.put("pid", Long.toString(service.processSnapshot().pid()));
+    map.put("threads", Integer.toString(service.processSnapshot().threads().size()));
+    map.put("heap_usage", Long.toString(service.processSnapshot().heapUsageMemory()));
+    map.put("max_heap_usage", Long.toString(service.processSnapshot().maxHeapMemory()));
+    map.put(
+      "cpu_usage",
       ResourceFormatter.formatTwoDigitPrecision(service.processSnapshot().cpuUsage()));
 
     // bridge information
     var online = service.readProperty(BridgeDocProperties.IS_ONLINE);
-    value = value.replace("%online%", online ? "Online" : "Offline");
+    map.put("online", online ? "Online" : "Offline");
 
     // make sure that the bridge is loaded before accessing any of the properties
     if (online) {
-      value = value.replace(
-        "%online_players%",
+      map.put(
+        "online_players",
         Integer.toString(service.readProperty(BridgeDocProperties.ONLINE_COUNT)));
-      value = value.replace(
-        "%max_players%",
+      map.put(
+        "max_players",
         Integer.toString(service.readProperty(BridgeDocProperties.MAX_PLAYERS)));
-      value = value.replace("%motd%", service.readProperty(BridgeDocProperties.MOTD));
-      value = value.replace("%extra%", service.readProperty(BridgeDocProperties.EXTRA));
-      value = value.replace("%state%", service.readProperty(BridgeDocProperties.STATE));
-      value = value.replace("%version%", service.readProperty(BridgeDocProperties.VERSION));
+      map.put("motd", service.readProperty(BridgeDocProperties.MOTD));
+      map.put("extra", service.readProperty(BridgeDocProperties.EXTRA));
+      map.put("state", service.readProperty(BridgeDocProperties.STATE));
+      map.put("version", service.readProperty(BridgeDocProperties.VERSION));
     }
-    // done
-    return value;
   }
 
   /**
