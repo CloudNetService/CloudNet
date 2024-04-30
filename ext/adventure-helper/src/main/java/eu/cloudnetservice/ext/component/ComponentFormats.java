@@ -16,21 +16,22 @@
 
 package eu.cloudnetservice.ext.component;
 
+import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.flattener.ComponentFlattener;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 public final class ComponentFormats {
 
   public static final ComponentFormat<Component> ADVENTURE = new AdventureComponentFormat();
   public static final ComponentFormat<BaseComponent[]> BUNGEE = new BungeeComponentFormat();
-
-  public static final ComponentConverter<BaseComponent[]> BUNGEE_TO_BUNGEE = BUNGEE.converterTo(BUNGEE);
-  public static final ComponentConverter<BaseComponent[]> ADVENTURE_TO_BUNGEE = ADVENTURE.converterTo(BUNGEE)
-    .andThen(BUNGEE_TO_BUNGEE);
-
-  public static final ComponentConverter<Component> ADVENTURE_TO_ADVENTURE = ADVENTURE.converterTo(ADVENTURE);
-  public static final ComponentConverter<Component> BUNGEE_TO_ADVENTURE = BUNGEE.converterTo(ADVENTURE)
-    .andThen(ADVENTURE_TO_ADVENTURE);
+  public static final ComponentFormat<String> BUKKIT = new LegacyComponentFormat(BukkitComponentSerializer.legacy());
+  public static final ComponentFormat<String> BEDROCK = new LegacyComponentFormat(
+    LegacyComponentSerializer.builder()
+    .character('§')
+    .flattener(ComponentFlattener.basic()).build()
+  );
 
   private ComponentFormats() {
     throw new UnsupportedOperationException();

@@ -20,41 +20,16 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-final class AdventureComponentFormat extends JavaEditionComponentFormat<Component> {
+final class AdventureComponentFormat implements ComponentFormat<Component> {
 
-  private static final char HEX_CHAR = '#';
-  private static final int HEX_SEG_LENGTH = 8;
-
-  private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.builder()
-    .character(COLOR_CHAR)
-    .extractUrls()
-    .hexColors()
-    .build();
 
   @Override
-  public int hexSegmentLength() {
-    return HEX_SEG_LENGTH;
+  public @NonNull Component toAdventure(@NonNull Component component) {
+    return component;
   }
 
   @Override
-  public char hexIndicationChar() {
-    return HEX_CHAR;
-  }
-
-  @Override
-  public boolean usesColorCharAsHexDelimiter() {
-    return false;
-  }
-
-  @Override
-  public boolean nextSegmentIsHexadecimalFormatting(char[] fullData, int pos, char current, char next) {
-    return (current == COLOR_CHAR || current == LEGACY_CHAR)
-      && next == HEX_CHAR
-      && (pos + HEX_SEG_LENGTH) < fullData.length;
-  }
-
-  @Override
-  public @NonNull Component encodeStringToComponent(@NonNull String text) {
-    return SERIALIZER.deserialize(text);
+  public @NonNull Component fromAdventure(@NonNull Component adventure) {
+    return adventure;
   }
 }

@@ -18,10 +18,17 @@ package eu.cloudnetservice.ext.component;
 
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-public interface ComponentFormat<C> {
+record LegacyComponentFormat(LegacyComponentSerializer serializer) implements ComponentFormat<String> {
 
-  @NonNull Component toAdventure(@NonNull C component);
+  @Override
+  public @NonNull Component toAdventure(@NonNull String component) {
+    return serializer.deserialize(component);
+  }
 
-  @NonNull C fromAdventure(@NonNull Component adventure);
+  @Override
+  public @NonNull String fromAdventure(@NonNull Component adventure) {
+    return serializer.serialize(adventure);
+  }
 }

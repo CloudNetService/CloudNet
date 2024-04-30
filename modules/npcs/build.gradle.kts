@@ -33,7 +33,6 @@ dependencies {
   "compileOnly"(libs.bundles.serverPlatform)
 
   "api"(libs.bundles.npcLib)
-  "api"(libs.adventureBukkitPlatform)
 }
 
 moduleJson {

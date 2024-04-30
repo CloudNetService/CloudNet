@@ -17,38 +17,21 @@
 package eu.cloudnetservice.ext.component;
 
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 
-final class BungeeComponentFormat extends JavaEditionComponentFormat<BaseComponent[]> {
+final class BungeeComponentFormat implements ComponentFormat<BaseComponent[]> {
 
-  private static final char HEX_CHAR = 'x';
-  private static final int HEX_SEG_LENGTH = 14;
+  private static final BungeeComponentSerializer SERIALIZER = BungeeComponentSerializer.get();
 
   @Override
-  public int hexSegmentLength() {
-    return HEX_SEG_LENGTH;
+  public @NonNull Component toAdventure(@NonNull BaseComponent[] component) {
+    return SERIALIZER.deserialize(component);
   }
 
   @Override
-  public char hexIndicationChar() {
-    return HEX_CHAR;
-  }
-
-  @Override
-  public boolean usesColorCharAsHexDelimiter() {
-    return true;
-  }
-
-  @Override
-  public boolean nextSegmentIsHexadecimalFormatting(char[] fullData, int pos, char current, char next) {
-    return (current == COLOR_CHAR || current == LEGACY_CHAR)
-      && next == HEX_CHAR
-      && (pos + HEX_SEG_LENGTH) < fullData.length;
-  }
-
-  @Override
-  public @NonNull BaseComponent[] encodeStringToComponent(@NonNull String text) {
-    return TextComponent.fromLegacyText(text);
+  public @NonNull BaseComponent[] fromAdventure(@NonNull Component adventure) {
+    return SERIALIZER.serialize(adventure);
   }
 }
