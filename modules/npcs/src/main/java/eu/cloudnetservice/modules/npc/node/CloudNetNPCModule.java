@@ -110,11 +110,11 @@ public class CloudNetNPCModule extends DriverModule {
           if (!inventoryConfig.contains("ingameLayout")) {
             inventoryConfig.append("ingameLayout", ItemLayout.builder()
               .material("REDSTONE")
-              .displayName("§7%name%")
+              .displayName("<gray><name></gray>")
               .lore(Arrays.asList(
-                "§8● §eIngame",
-                "§8● §7%online_players%§8/§7%max_players%",
-                "§8● §7%motd%")).build());
+                "<dark_gray>●</dark_gray> <yellow>Ingame</yellow>",
+                "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
+                "<dark_gray>●</dark_gray> <gray><motd></gray>")).build());
           }
         }
 

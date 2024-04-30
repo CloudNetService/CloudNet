@@ -27,11 +27,13 @@ tasks.withType<Jar> {
 dependencies {
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
+  "compileOnly"(projects.ext.adventureHelper)
   "implementation"(projects.ext.bukkitCommand)
 
   "compileOnly"(libs.bundles.serverPlatform)
 
   "api"(libs.bundles.npcLib)
+  "api"(libs.adventureBukkitPlatform)
 }
 
 moduleJson {

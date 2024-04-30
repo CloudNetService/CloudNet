@@ -76,38 +76,38 @@ public record InventoryConfiguration(
     private ItemLayoutHolder defaultItems = new ItemLayoutHolder(
       ItemLayout.builder()
         .material("EGG")
-        .displayName("§7%name%")
+        .displayName("<gray><name></gray>")
         .lore(Arrays.asList(
           " ",
-          "§8● §e%state%",
-          "§8● §7%online_players%§8/§7%max_players%",
-          "§8● §7%motd%"
+          "<dark_gray>●</dark_gray> <yellow><state></yellow>",
+          "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
+          "<dark_gray>●</dark_gray> <gray><motd></gray>"
         )).build(),
       ItemLayout.builder()
         .material("EMERALD")
-        .displayName("§7%name%")
+        .displayName("<gray><name></gray>")
         .lore(Arrays.asList(
           " ",
-          "§8● §e%state%",
-          "§8● §7%online_players%§8/§7%max_players%",
-          "§8● §7%motd%"
+          "<dark_gray>●</dark_gray> <yellow><state></yellow>",
+          "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
+          "<dark_gray>●</dark_gray> <gray><motd></gray>"
         )).build(),
       ItemLayout.builder()
         .material("REDSTONE")
-        .displayName("§7%name%")
+        .displayName("<gray><name></gray>")
         .lore(Arrays.asList(
           " ",
-          "§8● §e%state%",
-          "§8● §7%online_players%§8/§7%max_players%",
-          "§8● §7%motd%"
+          "<dark_gray>●</dark_gray> <yellow><state></yellow>",
+          "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
+          "<dark_gray>●</dark_gray> <gray><motd></gray>"
         )).build(),
       ItemLayout.builder()
         .material("REDSTONE")
-        .displayName("§7%name%")
+        .displayName("<gray><name></gray>")
         .lore(Arrays.asList(
-          "§8● §eIngame",
-          "§8● §7%online_players%§8/§7%max_players%",
-          "§8● §7%motd%"
+          "<dark_gray>●</dark_gray> <yellow>Ingame</yellow>",
+          "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
+          "<dark_gray>●</dark_gray> <gray><motd></gray>"
         )).build());
 
     private Map<Integer, ItemLayout> fixedItems = new HashMap<>();

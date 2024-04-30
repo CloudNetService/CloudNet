@@ -71,6 +71,7 @@ modlauncher = "8.1.3"
 npcLib = "3.0.0-beta6"
 placeholderApi = "2.11.5"
 adventure-serializer-bungee = "4.3.2"
+adventure-platform-bukkit = "4.3.2"
 
 # fabric platform special dependencies
 minecraft = "1.20.4"
@@ -173,6 +174,7 @@ adventureSerializerGson = { group = "net.kyori", name = "adventure-text-serializ
 adventureSerializerLegacy = { group = "net.kyori", name = "adventure-text-serializer-legacy", version.ref = "adventure" }
 adventureSerializerBungee = { group = "net.kyori", name = "adventure-text-serializer-bungeecord", version.ref = "adventure-serializer-bungee" }
 adventureMinimessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "adventure" }
+adventureBukkitPlatform = { group = "net.kyori", name = "adventure-platform-bukkit", version.ref = "adventure-platform-bukkit" }
 
 # platform extensions
 vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }

@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
@@ -29,6 +29,7 @@ import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,6 +39,8 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -398,12 +401,24 @@ public abstract class BukkitPlatformSelectorEntity
       // apply the meta
       var meta = item.getItemMeta();
       if (meta != null) {
-        meta.setDisplayName(BridgeServiceHelper.fillCommonPlaceholders(
-          layout.displayName(),
+        var placeholders = new HashMap<String, String>();
+        BridgeServiceHelper.fillCommonPlaceholders(
+          placeholders,
           this.npc.targetGroup(),
-          service));
+          service);
+        meta.setDisplayName(BukkitComponentSerializer.legacy()
+          .serialize(MiniMessage.miniMessage().deserialize(
+            layout.displayName(),
+            MinimessageUtils.tagsFromMap(placeholders)
+          ))
+        );
         meta.setLore(layout.lore().stream()
-          .map(line -> BridgeServiceHelper.fillCommonPlaceholders(line, this.npc.targetGroup(), service))
+          .map(line -> BukkitComponentSerializer.legacy()
+            .serialize(MiniMessage.miniMessage().deserialize(
+              line,
+              MinimessageUtils.tagsFromMap(placeholders)
+            ))
+          )
           .collect(Collectors.toList()));
         // set the meta again
         item.setItemMeta(meta);
@@ -551,13 +566,20 @@ public abstract class BukkitPlatformSelectorEntity
         .sum());
       var onlineServers = Integer.toString(tracked.size());
       // rebuild the info line
-      var newInfoLine = this.basedInfoLine
-        .replace("%group%", npc.targetGroup()).replace("%g%", npc.targetGroup())
-        .replace("%online_players%", onlinePlayers).replace("%o_p%", onlinePlayers)
-        .replace("%max_players%", maxPlayers).replace("%m_p%", maxPlayers)
-        .replace("%online_servers%", onlineServers).replace("%o_s%", onlineServers);
+      var placeholders = new HashMap<String, String>();
+      placeholders.put("group", npc.targetGroup());
+      placeholders.put("g", npc.targetGroup());
+      placeholders.put("online_players", onlinePlayers);
+      placeholders.put("o_p", onlinePlayers);
+      placeholders.put("max_players", maxPlayers);
+      placeholders.put("m_p", maxPlayers);
+      placeholders.put("online_servers", onlineServers);
+      placeholders.put("o_s", onlineServers);
+      var newInfoLine = MiniMessage.miniMessage().deserialize(
+        this.basedInfoLine,
+        MinimessageUtils.tagsFromMap(placeholders));
       // set the custom name of the armor stand
-      this.armorStand.setCustomName(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(newInfoLine));
+      this.armorStand.setCustomName(BukkitComponentSerializer.legacy().serialize(newInfoLine));
     }
   }
 }
