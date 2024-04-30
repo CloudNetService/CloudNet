@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.signs.platform.minestom;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
@@ -27,7 +28,6 @@ import eu.cloudnetservice.modules.signs.platform.minestom.event.MinestomCloudSig
 import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
@@ -49,9 +49,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
     @NonNull GlobalEventHandler eventHandler,
     @NonNull InstanceManager instanceManager
   ) {
-    super(base, playerManager, input -> {
-      return GsonComponentSerializer.gson().serialize(input);
-    });
+    super(base, playerManager, ComponentFormats.MINESTOM);
 
     this.eventHandler = eventHandler;
     this.instanceManager = instanceManager;

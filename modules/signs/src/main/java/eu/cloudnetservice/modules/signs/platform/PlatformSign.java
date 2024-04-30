@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.signs.platform;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormat;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
@@ -35,17 +36,17 @@ public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C
 
   protected final Sign base;
   protected final PlayerManager playerManager;
-  protected final Function<Component, C> lineMapper;
+  protected final ComponentFormat<C> componentFormat;
   protected volatile ServiceInfoSnapshot target;
 
   public PlatformSign(
     @NonNull Sign base,
     @NonNull PlayerManager playerManager,
-    @NonNull Function<Component, C> lineMapper
+    @NonNull ComponentFormat<C> componentFormat
   ) {
     this.base = base;
     this.playerManager = playerManager;
-    this.lineMapper = lineMapper;
+    this.componentFormat = componentFormat;
   }
 
   public @NonNull Sign base() {
@@ -102,7 +103,7 @@ public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C
   }
 
   protected void changeSignLines(@NonNull SignLayout layout, @NonNull BiConsumer<Integer, C> lineSetter) {
-    LayoutUtil.updateSignLines(layout, this.base.targetGroup(), this.target, this.lineMapper, lineSetter);
+    LayoutUtil.updateSignLines(layout, this.base.targetGroup(), this.target, componentFormat, lineSetter);
   }
 
   @Override

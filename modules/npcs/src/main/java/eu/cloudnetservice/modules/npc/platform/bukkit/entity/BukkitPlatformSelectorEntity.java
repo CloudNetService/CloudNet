@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -39,7 +40,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -406,15 +406,15 @@ public abstract class BukkitPlatformSelectorEntity
           placeholders,
           this.npc.targetGroup(),
           service);
-        meta.setDisplayName(BukkitComponentSerializer.legacy()
-          .serialize(MiniMessage.miniMessage().deserialize(
+        meta.setDisplayName(ComponentFormats.BUKKIT.fromAdventure(
+          MiniMessage.miniMessage().deserialize(
             layout.displayName(),
             MinimessageUtils.tagsFromMap(placeholders)
           ))
         );
         meta.setLore(layout.lore().stream()
-          .map(line -> BukkitComponentSerializer.legacy()
-            .serialize(MiniMessage.miniMessage().deserialize(
+          .map(line -> ComponentFormats.BUKKIT.fromAdventure(
+            MiniMessage.miniMessage().deserialize(
               line,
               MinimessageUtils.tagsFromMap(placeholders)
             ))
@@ -459,7 +459,12 @@ public abstract class BukkitPlatformSelectorEntity
       this.inventory = inventory = this.server.createInventory(
         null,
         inventorySize,
-        Objects.requireNonNullElse(this.npc.inventoryName(), InventoryType.CHEST.getDefaultTitle()));
+        ComponentFormats.BUKKIT.fromAdventure(
+          MiniMessage.miniMessage().deserialize(
+            Objects.requireNonNullElse(this.npc.inventoryName(), InventoryType.CHEST.getDefaultTitle())
+          )
+        )
+      );
     }
     // remove all current contents
     inventory.clear();
@@ -579,7 +584,7 @@ public abstract class BukkitPlatformSelectorEntity
         this.basedInfoLine,
         MinimessageUtils.tagsFromMap(placeholders));
       // set the custom name of the armor stand
-      this.armorStand.setCustomName(BukkitComponentSerializer.legacy().serialize(newInfoLine));
+      this.armorStand.setCustomName(ComponentFormats.BUKKIT.fromAdventure(newInfoLine));
     }
   }
 }

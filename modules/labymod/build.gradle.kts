@@ -24,6 +24,7 @@ dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
+  "compileOnly"(projects.ext.adventureHelper)
 }
 
 moduleJson {

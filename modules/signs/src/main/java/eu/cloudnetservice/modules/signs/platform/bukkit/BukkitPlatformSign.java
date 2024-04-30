@@ -18,13 +18,13 @@ package eu.cloudnetservice.modules.signs.platform.bukkit;
 
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.bukkit.event.BukkitCloudSignInteractEvent;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -46,7 +46,7 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
     @NonNull PluginManager pluginManager,
     @NonNull PlayerManager playerManager
   ) {
-    super(base, playerManager, input -> LegacyComponentSerializer.legacySection().serialize(input));
+    super(base, playerManager, ComponentFormats.BUKKIT);
     this.server = server;
 
     this.pluginManager = pluginManager;

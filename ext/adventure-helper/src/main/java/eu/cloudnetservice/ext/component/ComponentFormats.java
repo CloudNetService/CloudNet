@@ -32,6 +32,7 @@ public final class ComponentFormats {
     .character('§')
     .flattener(ComponentFlattener.basic()).build()
   );
+  public static final ComponentFormat<String> MINESTOM = new MinestomComponentFormat();
 
   private ComponentFormats() {
     throw new UnsupportedOperationException();
