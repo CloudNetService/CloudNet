@@ -47,7 +47,7 @@ public record SyncProxyConfiguration(
   public static final Map<String, String> DEFAULT_MESSAGES = ImmutableMap.of(
     "player-login-not-whitelisted", "<red>The network is currently in maintenance!</red>",
     "player-login-full-server", "<red>The network is currently full. You need extra permissions to enter the network</red>",
-    "service-start", "<gray>The service &e<service> is <green>starting</green> on node <yellow><node></yellow>...</gray>",
+    "service-start", "<gray>The service <yellow><service></yellow> is <green>starting</green> on node <yellow><node></yellow>...</gray>",
     "service-stop", "<gray>The service <yellow><service></yellow> is <red>stopping</red> on node <yellow><node></yellow>...</gray>");
 
   public static @Nullable String fillCommonPlaceholders(
