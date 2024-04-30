@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public final class NodeSetupListener {
         })
         .possibleResults(taskProvider.serviceTasks().stream().filter(
             task -> {
-              var env = versionProvider.getEnvironmentType(task.processConfiguration().environment());
+              var env = versionProvider.environmentType(task.processConfiguration().environment());
               // only minecraft servers are allowed to be a fallback
               return env != null && ServiceEnvironmentType.minecraftServer(env);
             })

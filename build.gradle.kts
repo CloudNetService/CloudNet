@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,6 +120,13 @@ subprojects {
     toolVersion = rootProject.libs.versions.checkstyleTools.get()
   }
 
+  // checkstyle issue https://github.com/checkstyle/checkstyle/issues/14211
+  configurations.named("checkstyle") {
+    resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
+      select("com.google.guava:guava:0")
+    }
+  }
+
   extensions.configure<SpotlessExtension> {
     java {
       licenseHeaderFile(rootProject.file("LICENSE_HEADER"))
@@ -139,6 +146,10 @@ subprojects {
   tasks.withType<Javadoc> {
     val options = options as? StandardJavadocDocletOptions ?: return@withType
     applyDefaultJavadocOptions(options)
+  }
+
+  tasks.withType<JavaCompile> {
+    dependsOn(tasks.withType<ProcessResources>())
   }
 
   // all these projects are publishing their java artifacts

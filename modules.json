@@ -1,3 +1,23 @@
 {
-  "entries": []
+  "entries": [
+    {
+      "official": false,
+      "name": "CloudNet-JMX-Support",
+      "website": "https://github.com/OneLiteFeatherNET/CloudNet-JMX-Support",
+      "version": "1.0.2",
+      "sha3256": "8ae234675fda8e4ac2134724a31f64b7f598a8206d863ed2493bcf022c35235e",
+      "description": "Node extension for the CloudNet runtime, which enables for Java Processes JMX Support",
+      "url": "https://github.com/OneLiteFeatherNET/CloudNet-JMX-Support/releases/download/v1.0.2/CloudNet-JMX-Support-1.0.2.jar",
+      "maintainers": [
+        "TheMeinerLP",
+        "theEvilReaper",
+        "theShadowsDust",
+        "OneLiteFeather"
+      ],
+      "releaseNotes": [
+        "Core functionalities"
+      ],
+      "dependingModules": []
+    }
+  ]
 }

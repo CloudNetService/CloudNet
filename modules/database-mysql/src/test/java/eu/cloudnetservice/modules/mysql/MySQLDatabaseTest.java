@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class MySQLDatabaseTest {
 
   @Container
-  private final GenericContainer<?> mysqlContainer = new GenericContainer<>("mariadb:11.1.1-rc")
+  private final GenericContainer<?> mysqlContainer = new GenericContainer<>("mariadb:latest")
     .withExposedPorts(3306)
     .withEnv("MYSQL_USER", "test")
     .withEnv("MYSQL_PASSWORD", "test")
