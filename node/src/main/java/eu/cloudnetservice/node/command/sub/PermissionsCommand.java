@@ -420,10 +420,10 @@ public final class PermissionsCommand {
     source.sendMessage(" - Inherits: " + Arrays.toString(permissionGroup.groupNames().toArray()));
     source.sendMessage(" - Default: " + permissionGroup.defaultGroup());
     source.sendMessage(" - SortId: " + permissionGroup.sortId());
-    source.sendMessage(" - Prefix: " + permissionGroup.prefix().replace("&", "§"));
-    source.sendMessage(" - Color: " + permissionGroup.color().replace("&", "§"));
-    source.sendMessage(" - Suffix: " + permissionGroup.suffix().replace("&", "§"));
-    source.sendMessage(" - Chat-Display: " + permissionGroup.display().replace("&", "§"));
+    source.sendMessage(" - Prefix: " + permissionGroup.prefix());
+    source.sendMessage(" - Color: " + permissionGroup.color());
+    source.sendMessage(" - Suffix: " + permissionGroup.suffix());
+    source.sendMessage(" - Chat-Display: " + permissionGroup.display());
     this.displayPermission(source, permissionGroup);
   }
 

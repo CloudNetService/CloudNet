@@ -19,13 +19,14 @@ package eu.cloudnetservice.plugins.simplenametags;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.plugins.simplenametags.event.PrePlayerPrefixSetEvent;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SimpleNameTagsManager<P> {
@@ -76,7 +77,9 @@ public abstract class SimpleNameTagsManager<P> {
         }
       }
       // set the players display name
-      this.displayName(player, MiniMessage.miniMessage().deserialize(group.display()).append(Component.text(playerName)));
+      this.displayName(player, ComponentFormats.USER_INPUT
+        .withPlaceholders(Map.of("player_name", Component.text(playerName)))
+        .toAdventure(group.display()));
     }
   }
 

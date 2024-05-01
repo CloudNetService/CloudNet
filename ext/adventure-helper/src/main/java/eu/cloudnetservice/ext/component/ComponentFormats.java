@@ -52,7 +52,7 @@ public final class ComponentFormats {
   public static final PlaceholderComponentFormat<String> BEDROCK = LEGACY;
   public static final MinestomComponentFormat JSON = new MinestomComponentFormat();
   public static final PlaceholderComponentFormat<String> PLAIN = new StripColorComponentFormat(LEGACY_HEX);
-  public static final PlaceholderComponentFormat<String> MINIMESSAGE = new MinimessageComponentFormat();
+  static final PlaceholderComponentFormat<String> MINIMESSAGE = new MinimessageComponentFormat();
   public static final PlaceholderComponentFormat<String> USER_INPUT = new ConditionalComponentFormat(
     () -> true,
     LEGACY_HEX_AMPERSAND,

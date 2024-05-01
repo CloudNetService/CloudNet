@@ -21,12 +21,12 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.network.ConnectionManager;
@@ -87,8 +87,8 @@ final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> 
       .findFirst()
       .orElseGet(() -> this.teamManager.createBuilder(name).build());
     // set the default team attributes
-    team.setPrefix(MiniMessage.miniMessage().deserialize(group.prefix()));
-    team.setSuffix(MiniMessage.miniMessage().deserialize(group.suffix()));
+    team.setPrefix(ComponentFormats.USER_INPUT.toAdventure(group.prefix()));
+    team.setSuffix(ComponentFormats.USER_INPUT.toAdventure(group.suffix()));
     // set the team color if possible
     var teamColor = AdventureTextFormatLookup.findColor(group.color());
     if (teamColor != null) {
