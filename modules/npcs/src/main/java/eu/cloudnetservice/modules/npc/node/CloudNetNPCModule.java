@@ -28,6 +28,8 @@ import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.InternalPlaceholder;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc._deprecated.CloudNPC;
@@ -48,6 +50,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -110,11 +114,23 @@ public class CloudNetNPCModule extends DriverModule {
           if (!inventoryConfig.contains("ingameLayout")) {
             inventoryConfig.append("ingameLayout", ItemLayout.builder()
               .material("REDSTONE")
-              .displayName("<gray><name></gray>")
+              .displayName(InternalPlaceholder.create("name"))
               .lore(Arrays.asList(
-                "<dark_gray>●</dark_gray> <yellow>Ingame</yellow>",
-                "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
-                "<dark_gray>●</dark_gray> <gray><motd></gray>")).build());
+                Component.text("● ", NamedTextColor.DARK_GRAY)
+                  .append(Component.text("Ingame", NamedTextColor.YELLOW)),
+                Component.text("● ", NamedTextColor.DARK_GRAY)
+                  .append(InternalPlaceholder.create("online_players")
+                    .color(NamedTextColor.GRAY)
+                  )
+                  .append(Component.text("/"))
+                  .append(InternalPlaceholder.create("max_players")
+                    .color(NamedTextColor.GRAY)
+                  ),
+                Component.text("● ", NamedTextColor.DARK_GRAY)
+                  .append(InternalPlaceholder.create("motd")
+                    .color(NamedTextColor.GRAY)
+                  )
+              )).build());
           }
         }
 
@@ -227,8 +243,12 @@ public class CloudNetNPCModule extends DriverModule {
     return ItemLayout.builder()
       .material(oldLayout.material())
       .subId(oldLayout.subId())
-      .lore(oldLayout.lore())
-      .displayName(oldLayout.displayName())
+      .lore(oldLayout.lore()
+        .stream()
+        .map(ComponentFormats.USER_INPUT::toAdventure)
+        .toList()
+      )
+      .displayName(ComponentFormats.USER_INPUT.toAdventure(oldLayout.displayName()))
       .build();
   }
 }

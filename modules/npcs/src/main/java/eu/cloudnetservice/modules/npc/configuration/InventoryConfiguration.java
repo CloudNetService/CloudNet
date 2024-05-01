@@ -16,10 +16,13 @@
 
 package eu.cloudnetservice.modules.npc.configuration;
 
+import eu.cloudnetservice.ext.component.InternalPlaceholder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 public record InventoryConfiguration(
   int inventorySize,
@@ -76,38 +79,59 @@ public record InventoryConfiguration(
     private ItemLayoutHolder defaultItems = new ItemLayoutHolder(
       ItemLayout.builder()
         .material("EGG")
-        .displayName("<gray><name></gray>")
+        .displayName(InternalPlaceholder.create("name").color(NamedTextColor.GRAY))
         .lore(Arrays.asList(
-          " ",
-          "<dark_gray>●</dark_gray> <yellow><state></yellow>",
-          "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
-          "<dark_gray>●</dark_gray> <gray><motd></gray>"
+          Component.text(" "),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("state").color(NamedTextColor.YELLOW)),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("online_players").color(NamedTextColor.GRAY))
+            .append(Component.text("/"))
+            .append(InternalPlaceholder.create("max_players").color(NamedTextColor.GRAY)),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("motd").color(NamedTextColor.GRAY))
         )).build(),
       ItemLayout.builder()
         .material("EMERALD")
-        .displayName("<gray><name></gray>")
+        .displayName(InternalPlaceholder.create("name").color(NamedTextColor.GRAY))
         .lore(Arrays.asList(
-          " ",
-          "<dark_gray>●</dark_gray> <yellow><state></yellow>",
-          "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
-          "<dark_gray>●</dark_gray> <gray><motd></gray>"
+          Component.text(" "),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("state").color(NamedTextColor.YELLOW)),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("online_players").color(NamedTextColor.GRAY))
+            .append(Component.text("/"))
+            .append(InternalPlaceholder.create("max_players").color(NamedTextColor.GRAY)),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("motd").color(NamedTextColor.GRAY))
         )).build(),
       ItemLayout.builder()
         .material("REDSTONE")
-        .displayName("<gray><name></gray>")
+        .displayName(InternalPlaceholder.create("name").color(NamedTextColor.GRAY))
         .lore(Arrays.asList(
-          " ",
-          "<dark_gray>●</dark_gray> <yellow><state></yellow>",
-          "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
-          "<dark_gray>●</dark_gray> <gray><motd></gray>"
+          Component.text(" "),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("state").color(NamedTextColor.YELLOW)),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("online_players").color(NamedTextColor.GRAY))
+            .append(Component.text("/"))
+            .append(InternalPlaceholder.create("max_players").color(NamedTextColor.GRAY)),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("motd").color(NamedTextColor.GRAY))
         )).build(),
       ItemLayout.builder()
         .material("REDSTONE")
-        .displayName("<gray><name></gray>")
+        .displayName(InternalPlaceholder.create("name").color(NamedTextColor.GRAY))
         .lore(Arrays.asList(
-          "<dark_gray>●</dark_gray> <yellow>Ingame</yellow>",
-          "<dark_gray>●</dark_gray> <gray><online_players></gray><dark_gray>/</dark_gray><gray><max_players></gray>",
-          "<dark_gray>●</dark_gray> <gray><motd></gray>"
+          Component.text(" "),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(Component.text("Ingame", NamedTextColor.YELLOW)),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("online_players").color(NamedTextColor.GRAY))
+            .append(Component.text("/"))
+            .append(InternalPlaceholder.create("max_players").color(NamedTextColor.GRAY)),
+          Component.text("● ", NamedTextColor.DARK_GRAY)
+            .append(InternalPlaceholder.create("motd").color(NamedTextColor.GRAY))
         )).build());
 
     private Map<Integer, ItemLayout> fixedItems = new HashMap<>();

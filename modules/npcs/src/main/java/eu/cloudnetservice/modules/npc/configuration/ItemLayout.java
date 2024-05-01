@@ -17,9 +17,11 @@
 package eu.cloudnetservice.modules.npc.configuration;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 
 public record ItemLayout(
   @NonNull String material,
@@ -36,16 +38,20 @@ public record ItemLayout(
     return builder()
       .material(layout.material())
       .subId(layout.subId())
-      .displayName(layout.displayName())
-      .lore(layout.lore());
+      .displayName(ComponentFormats.USER_INPUT.toAdventure(layout.displayName()))
+      .lore(layout.lore()
+        .stream()
+        .map(ComponentFormats.USER_INPUT::toAdventure)
+        .toList()
+      );
   }
 
   public static class Builder {
 
     private String material;
     private int subId = -1;
-    private String displayName;
-    private List<String> lore = new ArrayList<>();
+    private Component displayName;
+    private List<Component> lore = new ArrayList<>();
 
     public Builder material(@NonNull String material) {
       this.material = material;
@@ -57,12 +63,12 @@ public record ItemLayout(
       return this;
     }
 
-    public Builder displayName(@NonNull String displayName) {
+    public Builder displayName(@NonNull Component displayName) {
       this.displayName = displayName;
       return this;
     }
 
-    public Builder lore(@NonNull List<String> lore) {
+    public Builder lore(@NonNull List<Component> lore) {
       this.lore = new ArrayList<>(lore);
       return this;
     }
@@ -71,7 +77,15 @@ public record ItemLayout(
       Preconditions.checkNotNull(this.material, "no material given");
       Preconditions.checkNotNull(this.displayName, "no display name given");
 
-      return new ItemLayout(this.material, this.subId, this.displayName, this.lore);
+      return new ItemLayout(
+        this.material,
+        this.subId,
+        ComponentFormats.USER_INPUT.fromAdventure(this.displayName),
+        this.lore
+          .stream()
+          .map(ComponentFormats.USER_INPUT::fromAdventure)
+          .toList()
+      );
     }
   }
 }
