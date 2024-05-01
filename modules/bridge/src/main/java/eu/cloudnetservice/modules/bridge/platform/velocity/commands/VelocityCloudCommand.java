@@ -56,7 +56,6 @@ public final class VelocityCloudCommand implements SimpleCommand {
       // <prefix> /cloudnet <command>
       invocation.source().sendMessage(this.management.configuration().prefix().append(
         Component.text("/cloudnet <command>")
-        .color(NamedTextColor.AQUA)
       ));
       return;
     }
@@ -91,7 +90,6 @@ public final class VelocityCloudCommand implements SimpleCommand {
     for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
       source.sendMessage(this.management.configuration().prefix().append(
         Component.text(output)
-          .color(NamedTextColor.AQUA)
       ));
     }
   }

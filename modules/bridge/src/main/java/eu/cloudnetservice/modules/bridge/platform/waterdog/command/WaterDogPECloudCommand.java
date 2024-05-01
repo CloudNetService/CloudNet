@@ -29,7 +29,6 @@ import java.util.Locale;
 import java.util.Map;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -57,7 +56,7 @@ public final class WaterDogPECloudCommand extends Command {
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
       sender.sendMessage(ComponentFormats.BEDROCK.fromAdventure(
-        this.management.configuration().prefix().append(Component.text("/cloudnet <command>").color(NamedTextColor.AQUA))
+        this.management.configuration().prefix().append(Component.text("/cloudnet <command>"))
       ));
       return true;
     }
@@ -93,7 +92,6 @@ public final class WaterDogPECloudCommand extends Command {
     for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
       sender.sendMessage(ComponentFormats.BEDROCK.fromAdventure(this.management.configuration().prefix().append(
         Component.text(output)
-          .color(NamedTextColor.AQUA)
       )));
     }
   }

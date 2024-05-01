@@ -25,7 +25,6 @@ import jakarta.inject.Singleton;
 import java.util.Map;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -62,7 +61,7 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
       // <prefix> /cloudnet <command>
       sender.sendMessage(
         ComponentFormats.BUNGEE.version(protocolVersion).fromAdventure(
-          this.management.configuration().prefix().append(Component.text("/cloudnet <command>").color(NamedTextColor.AQUA))
+          this.management.configuration().prefix().append(Component.text("/cloudnet <command>"))
         ));
       return;
     }
@@ -102,7 +101,7 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
 
     for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
       sender.sendMessage(ComponentFormats.BUNGEE.version(protocolVersion).fromAdventure(
-        this.management.configuration().prefix().append(Component.text(output).color(NamedTextColor.AQUA))
+        this.management.configuration().prefix().append(Component.text(output))
       ));
     }
   }

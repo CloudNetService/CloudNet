@@ -107,7 +107,11 @@ public final class BridgeConfiguration {
   private final Collection<ProxyFallbackConfiguration> fallbackConfigurations;
 
   public BridgeConfiguration() {
-    this.prefix = "<gray>Cloud</gray> <dark_gray>|</dark_gray> ";
+    this.prefix = ComponentFormats.USER_INPUT.fromAdventure(
+      Component.empty().color(NamedTextColor.AQUA)
+      .append(Component.text("Cloud ", NamedTextColor.GRAY))
+      .append(Component.text("| ", NamedTextColor.DARK_GRAY))
+    );
     this.localizedMessages = new HashMap<>(DEFAULT_MESSAGES);
     this.excludedGroups = new ArrayList<>();
     this.hubCommandNames = Arrays.asList("hub", "lobby", "leave", "l");
@@ -226,9 +230,9 @@ public final class BridgeConfiguration {
     }
 
     // format the final message
-    var formattedMessage = Component.empty();
+    Component formattedMessage = Component.empty();
     if (withPrefix) {
-      formattedMessage.append(this.prefix());
+      formattedMessage = this.prefix();
     }
     formattedMessage.append(ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(message));
     C component = format.fromAdventure(formattedMessage);
