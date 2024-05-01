@@ -55,7 +55,7 @@ public record SyncProxyMotd(
     return
       this.playerInfo == null
         ? null
-        : Arrays.stream(playerInfo)
+        : Arrays.stream(this.playerInfo)
           .map((info) -> ComponentFormats.USER_INPUT
             .withPlaceholders(placeholders)
             .toAdventure(info))
