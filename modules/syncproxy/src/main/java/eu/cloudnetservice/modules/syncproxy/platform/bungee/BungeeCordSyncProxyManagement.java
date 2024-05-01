@@ -23,7 +23,6 @@ import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
@@ -39,7 +38,6 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
@@ -101,23 +99,21 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
 
   @Override
   public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, Component> placeholders,
-    @Nullable String header, @Nullable String footer) {
+    @Nullable Component header, @Nullable Component footer) {
     placeholders.put("ping", Component.text(player.getPing()));
     placeholders.put("server", Component.text(player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName()));
 
     player.setTabHeader(
-      header != null ? ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()).fromAdventure(
-        MiniMessage.miniMessage().deserialize(
-          header,
-          MinimessageUtils.tagsFromMap(placeholders)
-        )
-      ) : null,
-      footer != null ? ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()).fromAdventure(
-        MiniMessage.miniMessage().deserialize(
-          footer,
-          MinimessageUtils.tagsFromMap(placeholders)
-        )
-      ) : null);
+      header != null
+        ? ComponentFormats.BUNGEE
+          .version(player.getPendingConnection().getVersion())
+          .fromAdventure(header)
+        : null,
+      footer != null
+        ? ComponentFormats.BUNGEE
+          .version(player.getPendingConnection().getVersion())
+          .fromAdventure(footer)
+        : null);
   }
 
   @Override

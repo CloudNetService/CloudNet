@@ -16,9 +16,11 @@
 
 package eu.cloudnetservice.ext.component;
 
+import java.util.List;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class ComponentFormats {
@@ -56,6 +58,8 @@ public final class ComponentFormats {
       .character('§')
       .flattener(ComponentFlattener.basic()).build()
   ));
+  public static final PlaceholderComponentFormat<String> MINIMESSAGE = new MinimessageComponentFormat(List.of(TagResolver.standard()));
+  public static final PlaceholderComponentFormat<String> USER_INPUT = MINIMESSAGE;
 
   private ComponentFormats() {
     throw new UnsupportedOperationException();

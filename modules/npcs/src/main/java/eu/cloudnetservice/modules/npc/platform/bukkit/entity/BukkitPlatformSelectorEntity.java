@@ -20,7 +20,6 @@ import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
@@ -41,7 +40,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -408,16 +406,14 @@ public abstract class BukkitPlatformSelectorEntity
           this.npc.targetGroup(),
           service);
         meta.setDisplayName(ComponentFormats.BUKKIT.fromAdventure(
-          MiniMessage.miniMessage().deserialize(
-            layout.displayName(),
-            MinimessageUtils.tagsFromMap(placeholders)
+          ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(
+            layout.displayName()
           ))
         );
         meta.setLore(layout.lore().stream()
           .map(line -> ComponentFormats.BUKKIT.fromAdventure(
-            MiniMessage.miniMessage().deserialize(
-              line,
-              MinimessageUtils.tagsFromMap(placeholders)
+            ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(
+              line
             ))
           )
           .collect(Collectors.toList()));
@@ -461,7 +457,7 @@ public abstract class BukkitPlatformSelectorEntity
         null,
         inventorySize,
         ComponentFormats.BUKKIT.fromAdventure(
-          MiniMessage.miniMessage().deserialize(
+          ComponentFormats.USER_INPUT.toAdventure(
             Objects.requireNonNullElse(this.npc.inventoryName(), InventoryType.CHEST.getDefaultTitle())
           )
         )
@@ -581,9 +577,9 @@ public abstract class BukkitPlatformSelectorEntity
       placeholders.put("m_p", Component.text(maxPlayers));
       placeholders.put("online_servers", Component.text(onlineServers));
       placeholders.put("o_s", Component.text(onlineServers));
-      var newInfoLine = MiniMessage.miniMessage().deserialize(
-        this.basedInfoLine,
-        MinimessageUtils.tagsFromMap(placeholders));
+      var newInfoLine = ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(
+        this.basedInfoLine
+      );
       // set the custom name of the armor stand
       this.armorStand.setCustomName(ComponentFormats.BUKKIT.fromAdventure(newInfoLine));
     }

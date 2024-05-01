@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.signs.util;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormat;
-import eu.cloudnetservice.ext.component.MinimessageUtils;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -117,7 +116,7 @@ public final class LayoutUtil {
     var lines = layout.lines();
     for (var i = 0; i < Math.min(4, lines.size()); i++) {
       var converted = componentFormat.fromAdventure(
-        MiniMessage.miniMessage().deserialize(lines.get(i), MinimessageUtils.tagsFromMap(placeholders))
+        ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(lines.get(i))
       );
       lineSetter.accept(i, converted);
     }

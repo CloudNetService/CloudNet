@@ -17,7 +17,13 @@
 package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
 public record SyncProxyMotd(
@@ -41,6 +47,46 @@ public record SyncProxyMotd(
       .autoSlotDistance(motd.autoSlotMaxPlayersDistance())
       .playerInfo(motd.playerInfo())
       .protocolText(motd.protocolText());
+  }
+
+  public @Nullable List<Component> playerInfoComponents(@NonNull ServiceInfoSnapshot serviceInfo, int onlinePlayers, int maxPlayers) {
+    var placeholders = new HashMap<String, Component>();
+    SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
+    return
+      this.playerInfo == null
+        ? null
+        : Arrays.stream(playerInfo)
+          .map((info) -> ComponentFormats.USER_INPUT
+            .withPlaceholders(placeholders)
+            .toAdventure(info))
+          .toList();
+  }
+
+  public @Nullable Component protocolTextComponent(@NonNull ServiceInfoSnapshot serviceInfo, int onlinePlayers, int maxPlayers) {
+    var placeholders = new HashMap<String, Component>();
+    SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
+    return
+      this.protocolText == null
+        ? null
+        : ComponentFormats.USER_INPUT
+          .withPlaceholders(placeholders)
+          .toAdventure(this.protocolText);
+  }
+
+  public @NonNull Component firstLineComponent(@NonNull ServiceInfoSnapshot serviceInfo, int onlinePlayers, int maxPlayers) {
+    var placeholders = new HashMap<String, Component>();
+    SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
+    return ComponentFormats.USER_INPUT
+      .withPlaceholders(placeholders)
+      .toAdventure(this.firstLine);
+  }
+
+  public @NonNull Component secondLineComponent(@NonNull ServiceInfoSnapshot serviceInfo, int onlinePlayers, int maxPlayers) {
+    var placeholders = new HashMap<String, Component>();
+    SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
+    return ComponentFormats.USER_INPUT
+      .withPlaceholders(placeholders)
+      .toAdventure(this.secondLine);
   }
 
   public static class Builder {

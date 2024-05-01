@@ -268,7 +268,7 @@ public final class SyncProxyCommand {
       "- Motd",
       "AutoSlot: " + syncProxyMotd.autoSlot(),
       "AutoSlot-MaxPlayerDistance: " + syncProxyMotd.autoSlotMaxPlayersDistance(),
-      "Protocol-Text: " + syncProxyMotd.protocolText(),
+      "Protocol-Text: " + syncProxyMotd.protocolText(serviceInfo, onlinePlayers, maxPlayers),
       "First Line: " + syncProxyMotd.firstLine(),
       "Second Line: " + syncProxyMotd.secondLine(),
       "PlayerInfo: "

@@ -19,16 +19,14 @@ package eu.cloudnetservice.ext.component;
 import java.util.Map;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.format.TextColor;
 
-public class MinimessageUtils {
+public interface PlaceholderComponentFormat<C> extends ComponentFormat<C> {
 
-  public static TagResolver[] tagsFromMap(@NonNull Map<String, Component> placeholders) {
-    return placeholders.entrySet()
-            .stream()
-            .map((entry) -> Placeholder.component(entry.getKey(), entry.getValue()))
-            .toArray((size) -> new TagResolver[size]);
-  }
+  PlaceholderComponentFormat<C> withPlaceholders(@NonNull Map<String, Component> placeholders);
+
+  PlaceholderComponentFormat<C> limitPlaceholders();
+
+  PlaceholderComponentFormat<C> withColorPlaceholder(String name, TextColor color);
 
 }

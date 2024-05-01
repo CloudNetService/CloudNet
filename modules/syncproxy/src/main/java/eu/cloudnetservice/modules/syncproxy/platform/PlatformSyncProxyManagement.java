@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConfigurationUpdateEvent;
@@ -242,7 +243,14 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     var map = new HashMap<String, Component>();
     this.fillTabListPlaceholders(map, player, onlinePlayers, maxPlayers);
 
-    this.playerTabList(player, map, tabList.header(), tabList.footer());
+    this.playerTabList(player, map,
+      tabList.header() == null
+        ? null
+        : ComponentFormats.USER_INPUT.toAdventure(tabList.header()),
+      tabList.footer() == null
+        ? null
+        : ComponentFormats.USER_INPUT.toAdventure(tabList.footer())
+    );
   }
 
   protected boolean checkServiceGroup(@NonNull ServiceInfoSnapshot snapshot) {
@@ -274,7 +282,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   public abstract @NonNull UUID playerUniqueId(@NonNull P player);
 
   public abstract void playerTabList(@NonNull P player, @NonNull Map<String, Component> placeholders,
-    @Nullable String header, @Nullable String footer);
+    @Nullable Component header, @Nullable Component footer);
 
   public abstract void disconnectPlayer(@NonNull P player, @NonNull Component message);
 

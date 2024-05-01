@@ -17,16 +17,14 @@
 package eu.cloudnetservice.plugins.chat;
 
 import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.ext.component.MinimessageUtils;
+import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.jetbrains.annotations.Nullable;
 
 public final class ChatFormatter {
@@ -52,12 +50,7 @@ public final class ChatFormatter {
 
     // check if the player is allowed to use colors and replace them
     var coloredMessage = permissionTester.apply("cloudnet.chat.color")
-      ? MiniMessage.builder()
-      .tags(TagResolver.resolver(
-        StandardTags.color(),
-        StandardTags.decorations(),
-        StandardTags.gradient(), StandardTags.rainbow()
-      )).build().deserialize(message)
+      ? ComponentFormats.USER_INPUT.limitPlaceholders().toAdventure(message)
       : Component.text(message);
 
     var group = permissionManagement.highestPermissionGroup(permissionUser);
@@ -67,15 +60,17 @@ public final class ChatFormatter {
     placeholders.put("display_name", displayName);
     placeholders.put("uniqueId", Component.text(playerId.toString()));
     placeholders.put("group", Component.text(group == null ? "" : group.name()));
-    placeholders.put("display", group == null ? Component.empty() : MiniMessage.miniMessage().deserialize(group.display()));
-    placeholders.put("prefix", group == null ? Component.empty() : MiniMessage.miniMessage().deserialize(group.prefix()));
-    placeholders.put("suffix", group == null ? Component.empty() : MiniMessage.miniMessage().deserialize(group.suffix()));
-    placeholders.put("color", group == null ? Component.empty() : MiniMessage.miniMessage().deserialize(group.color()));
+    placeholders.put("display", group == null ? Component.empty() : ComponentFormats.USER_INPUT.toAdventure(group.display()));
+    placeholders.put("prefix", group == null ? Component.empty() : ComponentFormats.USER_INPUT.toAdventure(group.prefix()));
+    placeholders.put("suffix", group == null ? Component.empty() : ComponentFormats.USER_INPUT.toAdventure(group.suffix()));
 
-    return MiniMessage.miniMessage()
-      .deserialize(format,
-        TagResolver.resolver(MinimessageUtils.tagsFromMap(placeholders)),
-        Placeholder.component("message", coloredMessage)
-      );
+    var result = ComponentFormats.USER_INPUT
+      .withPlaceholders(placeholders)
+      .withPlaceholders(Map.of("message", coloredMessage));
+    var group_color = AdventureTextFormatLookup.findColor(group.color());
+    if (group_color != null) {
+      result = result.withColorPlaceholder("group_color", group_color);
+    }
+    return result.toAdventure(format);
   }
 }

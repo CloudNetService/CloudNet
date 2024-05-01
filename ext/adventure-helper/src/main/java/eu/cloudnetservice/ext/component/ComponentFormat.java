@@ -23,7 +23,7 @@ import net.kyori.adventure.text.Component;
 public interface ComponentFormat<C> {
 
   default @NonNull Component toAdventure(@NonNull C component) {
-    return Component.empty();
+    throw new UnsupportedOperationException();
   }
 
   @NonNull C fromAdventure(@NonNull Component adventure);

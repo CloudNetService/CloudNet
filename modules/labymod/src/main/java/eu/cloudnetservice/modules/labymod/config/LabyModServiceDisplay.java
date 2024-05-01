@@ -18,11 +18,9 @@ package eu.cloudnetservice.modules.labymod.config;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import java.util.HashMap;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Nullable;
 
 public record LabyModServiceDisplay(boolean enabled, @Nullable String format) {
@@ -34,7 +32,7 @@ public record LabyModServiceDisplay(boolean enabled, @Nullable String format) {
       var placeholders = new HashMap<String, Component>();
       BridgeServiceHelper.fillCommonPlaceholders(placeholders, null, serviceInfoSnapshot);
       return ComponentFormats.PLAIN.fromAdventure(
-        MiniMessage.miniMessage().deserialize(this.format, MinimessageUtils.tagsFromMap(placeholders))
+        ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(this.format)
       );
     }
   }

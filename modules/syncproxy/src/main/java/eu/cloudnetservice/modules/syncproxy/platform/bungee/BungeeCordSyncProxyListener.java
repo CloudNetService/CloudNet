@@ -17,19 +17,13 @@
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
-import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.ServerPing.PlayerInfo;
 import net.md_5.bungee.api.ServerPing.Players;
 import net.md_5.bungee.api.ServerPing.Protocol;
@@ -85,9 +79,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
       var serviceInfo = this.serviceInfoHolder.serviceInfo();
 
-      var placeholders = new HashMap<String, Component>();
-      SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
-      var protocolText = motd.protocolText();
+      var protocolText = motd.protocolTextComponent(serviceInfo, onlinePlayers, maxPlayers);
       // check if there is a protocol text in the config
       if (protocolText != null) {
         response.setVersion(new Protocol(
@@ -95,24 +87,17 @@ public final class BungeeCordSyncProxyListener implements Listener {
             ComponentFormats.supportsHex(event.getConnection().getVersion())
               ? ComponentFormats.LEGACY_HEX
               : ComponentFormats.LEGACY
-          ).fromAdventure(
-            MiniMessage.miniMessage().deserialize(
-              protocolText,
-              MinimessageUtils.tagsFromMap(placeholders)
-            )
-          ),
+          ).fromAdventure(protocolText),
           1));
       }
 
       var playerSamples = EMPTY_PLAYER_INFO;
-      if (motd.playerInfo() != null) {
+      var playerInfo = motd.playerInfoComponents(serviceInfo, onlinePlayers, maxPlayers);
+      if (playerInfo != null) {
         // convert the player info into individual player samples
-        playerSamples = Arrays.stream(motd.playerInfo())
+        playerSamples = playerInfo
+          .stream()
           .filter(Objects::nonNull)
-          .map(info -> MiniMessage.miniMessage().deserialize(
-            info,
-            MinimessageUtils.tagsFromMap(placeholders)
-          ))
           .map((
             ComponentFormats.supportsHex(event.getConnection().getVersion())
               ? ComponentFormats.LEGACY_HEX
@@ -125,15 +110,9 @@ public final class BungeeCordSyncProxyListener implements Listener {
       var players = new Players(maxPlayers, onlinePlayers, playerSamples);
       response.setPlayers(players);
 
-      var description = MiniMessage.miniMessage().deserialize(
-          motd.firstLine(),
-          MinimessageUtils.tagsFromMap(placeholders)
-      )
+      var description = motd.firstLineComponent(serviceInfo, onlinePlayers, maxPlayers)
         .appendNewline()
-        .append(MiniMessage.miniMessage().deserialize(
-          motd.secondLine(),
-          MinimessageUtils.tagsFromMap(placeholders)
-      ));
+        .append(motd.secondLineComponent(serviceInfo, onlinePlayers, maxPlayers));
 
       // thanks bungeecord - convert the component array into a single component
       response.setDescriptionComponent(new TextComponent(ComponentFormats.BUNGEE

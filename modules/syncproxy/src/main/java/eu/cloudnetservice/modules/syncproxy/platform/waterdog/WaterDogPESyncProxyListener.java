@@ -20,15 +20,10 @@ import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.ProxyPingEvent;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.ext.component.MinimessageUtils;
-import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.HashMap;
 import lombok.NonNull;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 @Singleton
 public final class WaterDogPESyncProxyListener {
@@ -74,20 +69,8 @@ public final class WaterDogPESyncProxyListener {
       // bedrock has just to lines that are separated from each other
       var serviceInfo = this.serviceInfoHolder.serviceInfo();
 
-      var placeholders = new HashMap<String, Component>();
-      SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
-
-      var mainMotd = MiniMessage.miniMessage().deserialize(
-          motd.firstLine(),
-          MinimessageUtils.tagsFromMap(placeholders)
-      );
-      var subMotd = MiniMessage.miniMessage().deserialize(
-          motd.secondLine(),
-          MinimessageUtils.tagsFromMap(placeholders)
-      );
-
-      event.setMotd(ComponentFormats.BEDROCK.fromAdventure(mainMotd));
-      event.setSubMotd(ComponentFormats.BEDROCK.fromAdventure(subMotd));
+      event.setMotd(ComponentFormats.BEDROCK.fromAdventure(motd.firstLineComponent(serviceInfo, onlinePlayers, maxPlayers)));
+      event.setSubMotd(ComponentFormats.BEDROCK.fromAdventure(motd.secondLineComponent(serviceInfo, onlinePlayers, maxPlayers)));
     }
   }
 
