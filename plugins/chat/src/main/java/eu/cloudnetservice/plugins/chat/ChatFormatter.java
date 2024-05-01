@@ -67,9 +67,9 @@ public final class ChatFormatter {
     var result = ComponentFormats.USER_INPUT
       .withPlaceholders(placeholders)
       .withPlaceholders(Map.of("message", coloredMessage));
-    var group_color = AdventureTextFormatLookup.findColor(group.color());
-    if (group_color != null) {
-      result = result.withColorPlaceholder("group_color", group_color);
+    var groupColor = AdventureTextFormatLookup.findColor(group.color());
+    if (groupColor != null) {
+      result = result.withColorPlaceholder("group_color", groupColor);
     }
     return result.toAdventure(format);
   }
