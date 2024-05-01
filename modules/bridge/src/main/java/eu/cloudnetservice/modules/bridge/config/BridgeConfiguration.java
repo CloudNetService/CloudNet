@@ -43,25 +43,37 @@ public final class BridgeConfiguration {
   public static final Map<String, Map<String, Component>> DEFAULT_MESSAGE_COMPONENTS = ImmutableMap.of(
     "default",
     new HashMap<>(ImmutableMap.<String, Component>builder()
-      .put("command-hub-success-connect", Component.text("You did successfully connect to <server>.", NamedTextColor.GRAY))
-      .put("command-hub-already-in-hub", Component.text("You are already connected to a hub service.", NamedTextColor.RED))
-      .put("command-hub-no-server-found", Component.text("There is currently ", NamedTextColor.GRAY)
+      .put("command-hub-success-connect",
+        Component.text("You did successfully connect to ", NamedTextColor.GRAY)
+          .append(InternalPlaceholder.create("server"))
+          .append(Component.text("."))
+      )
+      .put("command-hub-already-in-hub",
+        Component.text("You are already connected to a hub service.", NamedTextColor.RED))
+      .put("command-hub-no-server-found",
+        Component.text("There is currently ", NamedTextColor.GRAY)
         .append(Component.text("no", NamedTextColor.RED))
         .append(Component.text("hub server available."))
       )
-      .put("server-join-cancel-because-maintenance", Component.text("This server is currently in maintenance mode.", NamedTextColor.GRAY))
+      .put("server-join-cancel-because-maintenance",
+        Component.text("This server is currently in maintenance mode.", NamedTextColor.GRAY))
       .put("server-join-cancel-because-permission",
         Component.text("You do not have the required permissions to join this server.", NamedTextColor.GRAY)
       )
-      .put("proxy-join-cancel-because-permission", Component.text("You do not have the required permissions to join this proxy.", NamedTextColor.GRAY))
+      .put("proxy-join-cancel-because-permission",
+        Component.text("You do not have the required permissions to join this proxy.", NamedTextColor.GRAY))
       .put("proxy-join-cancel-because-maintenance", Component.text("This proxy is currently in maintenance mode.", NamedTextColor.GRAY))
-      .put("proxy-join-disconnect-because-no-hub", Component.text("There is currently no hub server you can connect to.", NamedTextColor.RED))
-      .put("command-cloud-sub-command-no-permission", Component.text("You are not allowed to use ", NamedTextColor.GRAY)
+      .put("proxy-join-disconnect-because-no-hub",
+        Component.text("There is currently no hub server you can connect to.", NamedTextColor.RED))
+      .put("command-cloud-sub-command-no-permission",
+        Component.text("You are not allowed to use ", NamedTextColor.GRAY)
         .append(InternalPlaceholder.create("command").color(NamedTextColor.AQUA))
         .append(Component.text("."))
       )
-      .put("already-connected", Component.text("You are already connected to this network!", NamedTextColor.RED))
-      .put("error-connecting-to-server", Component.text("Unable to connect to ", NamedTextColor.RED)
+      .put("already-connected",
+        Component.text("You are already connected to this network!", NamedTextColor.RED))
+      .put("error-connecting-to-server",
+        Component.text("Unable to connect to ", NamedTextColor.RED)
         .append(InternalPlaceholder.create("server"))
         .append(Component.text(": "))
         .append(InternalPlaceholder.create("reason"))

@@ -22,13 +22,16 @@ import net.kyori.adventure.text.Component;
 public final class InternalPlaceholder {
 
   public static @NonNull Component create(@NonNull String name) {
+    if (!name.matches("[A-Za-z0-9_-]+")) {
+      throw new IllegalArgumentException("The Name of the placeholder doesn't match this regex: \"[A-Za-z0-9_-]+\"");
+    }
     return Component.text("{__placeholder:")
       .append(Component.text(name))
       .append(Component.text("}"));
   }
 
   public static @NonNull String replacePlaceholders(@NonNull String input) {
-    return input.replaceAll("\\{__placeholder:(.*)\\}", "<$1>");
+    return input.replaceAll("\\{__placeholder:([A-Za-z0-9_-]+)}", "<$1>");
   }
 
   private InternalPlaceholder() {
