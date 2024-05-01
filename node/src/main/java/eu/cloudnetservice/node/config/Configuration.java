@@ -41,6 +41,10 @@ public interface Configuration {
 
   void language(@NonNull String language);
 
+  boolean minimessage();
+
+  void minimessage(boolean minimessage);
+
   @NonNull String hostAddress();
 
   void hostAddress(@NonNull String hostAddress);

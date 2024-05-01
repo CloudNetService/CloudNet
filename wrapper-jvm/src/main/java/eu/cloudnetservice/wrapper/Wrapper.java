@@ -16,7 +16,11 @@
 
 package eu.cloudnetservice.wrapper;
 
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.Order;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -93,6 +97,16 @@ public final class Wrapper {
   private void initI18n() {
     I18n.loadFromLangPath(Wrapper.class);
     I18n.language(System.getProperty("cloudnet.wrapper.messages.language", "en_US"));
+  }
+
+  @Inject
+  @Order(110)
+  private void initMinimessage(@NonNull WrapperConfiguration configuration, @NonNull Injector injector) {
+    injector.install(BindingBuilder.create()
+      .bind(Element.forType(boolean.class)
+        .requireAnnotation(Qualifiers.named("minimessage"))
+      ).toInstance(configuration.minimessage())
+    );
   }
 
   @Inject

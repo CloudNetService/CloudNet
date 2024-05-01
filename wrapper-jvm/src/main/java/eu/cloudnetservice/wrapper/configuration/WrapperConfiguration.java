@@ -66,4 +66,11 @@ public interface WrapperConfiguration {
    * @return the ssl configuration to apply to all client connection of this wrapper.
    */
   @NonNull SSLConfiguration sslConfiguration();
+
+  /**
+   * Gets the boolean which is used to determine if minimessage should be used.
+   *
+   * @return the boolean if minimessage should be used
+   */
+  boolean minimessage();
 }

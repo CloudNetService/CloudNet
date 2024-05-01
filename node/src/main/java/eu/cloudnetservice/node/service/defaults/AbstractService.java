@@ -720,6 +720,7 @@ public abstract class AbstractService implements CloudService {
       .append("serviceInfoSnapshot", this.currentServiceInfo)
       .append("serviceConfiguration", this.serviceConfiguration())
       .append("sslConfiguration", sslConfiguration)
+      .append("minimessage", this.configuration.minimessage())
       .writeTo(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // finished the prepare process
     this.eventManager.callEvent(new CloudServicePostPrepareEvent(this));

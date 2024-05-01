@@ -16,8 +16,11 @@
 
 package eu.cloudnetservice.node;
 
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.Order;
 import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -131,6 +134,17 @@ public final class Node {
   private void initLanguage(@NonNull Configuration configuration) {
     I18n.loadFromLangPath(Node.class);
     I18n.language(configuration.language());
+  }
+
+  @Inject
+  @Order(10)
+  private void initMinimessage(@NonNull Configuration configuration,
+    @NonNull Injector injector) {
+    injector.install(BindingBuilder.create()
+      .bind(Element.forType(boolean.class)
+        .requireAnnotation(Qualifiers.named("minimessage"))
+      ).toInstance(configuration.minimessage())
+    );
   }
 
   @Inject

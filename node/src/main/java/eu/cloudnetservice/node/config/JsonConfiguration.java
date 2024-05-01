@@ -76,6 +76,7 @@ public final class JsonConfiguration implements Configuration {
   };
 
   private String language;
+  private Boolean minimessage;
 
   private NetworkClusterNode identity;
   private NetworkCluster clusterConfig;
@@ -151,6 +152,14 @@ public final class JsonConfiguration implements Configuration {
       this.language = ConfigurationUtil.get(
         "cloudnet.config.language",
         "en_US");
+    }
+
+    if (this.minimessage == null) {
+      this.minimessage = ConfigurationUtil.get(
+        "cloudnet.config.minimessage",
+        false,
+        Boolean::parseBoolean
+      );
     }
 
     if (this.identity == null) {
@@ -370,6 +379,16 @@ public final class JsonConfiguration implements Configuration {
   @Override
   public void language(@NonNull String language) {
     this.language = language;
+  }
+
+  @Override
+  public boolean minimessage() {
+    return this.minimessage;
+  }
+
+  @Override
+  public void minimessage(boolean minimessage) {
+    this.minimessage = minimessage;
   }
 
   @Override

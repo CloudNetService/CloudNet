@@ -109,6 +109,19 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             }
           }))
         .build(),
+      // minimessage
+      QuestionListEntry.<Boolean>builder()
+        .key("minimessage")
+        .translatedQuestion("cloudnet-init-minimessage")
+        .answerType(QuestionAnswerType.<Boolean>builder()
+          .recommendation("yes")
+          .possibleResults("yes", "no")
+          .parser(input -> switch (input) {
+            case "yes" -> true;
+            case "no" -> false;
+            default -> throw Parsers.ParserException.INSTANCE;
+          }))
+        .build(),
       // network server host
       QuestionListEntry.<HostAndPort>builder()
         .key("internalHost")
@@ -210,6 +223,9 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     // language
     this.configuration.language(animation.result("language"));
+
+    // minimessage
+    this.configuration.minimessage(animation.result("minimessage"));
 
     // init the local node identity
     HostAndPort host = animation.result("internalHost");

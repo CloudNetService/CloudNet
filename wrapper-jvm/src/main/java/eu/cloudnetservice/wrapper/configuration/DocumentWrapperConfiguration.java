@@ -30,7 +30,8 @@ public record DocumentWrapperConfiguration(
   @NonNull HostAndPort targetListener,
   @NonNull SSLConfiguration sslConfiguration,
   @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
-  @NonNull ServiceConfiguration serviceConfiguration) implements WrapperConfiguration {
+  @NonNull ServiceConfiguration serviceConfiguration,
+  boolean minimessage) implements WrapperConfiguration {
 
   private static final Path WRAPPER_CONFIG_PATH = Path.of(
     System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));

@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.ext.component;
 
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.util.Qualifiers;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
@@ -54,7 +57,10 @@ public final class ComponentFormats {
   public static final PlaceholderComponentFormat<String> PLAIN = new StripColorComponentFormat(LEGACY_HEX);
   static final PlaceholderComponentFormat<String> MINIMESSAGE = new MinimessageComponentFormat();
   public static final PlaceholderComponentFormat<String> USER_INPUT = new ConditionalComponentFormat(
-    () -> true,
+    () -> InjectionLayer.ext().instance(
+      Element.forType(boolean.class)
+        .requireAnnotation(Qualifiers.named("minimessage"))
+    ),
     LEGACY_HEX_AMPERSAND,
     MINIMESSAGE
   );
