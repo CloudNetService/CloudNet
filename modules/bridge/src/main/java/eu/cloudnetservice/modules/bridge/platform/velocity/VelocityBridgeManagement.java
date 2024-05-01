@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.platform.velocity;
 
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
-
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -91,7 +89,7 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
       this,
       proxyServer::getAllPlayers);
     // init the bridge properties
-    serviceHelper.motd().set(legacySection().serialize(proxyServer.getConfiguration().getMotd()));
+    serviceHelper.motd().set(proxyServer.getConfiguration().getMotd());
     serviceHelper.maxPlayers().set(proxyServer.getConfiguration().getShowMaxPlayers());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER

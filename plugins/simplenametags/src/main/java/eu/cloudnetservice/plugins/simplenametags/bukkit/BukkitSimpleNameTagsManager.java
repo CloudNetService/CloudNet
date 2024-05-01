@@ -19,11 +19,14 @@ package eu.cloudnetservice.plugins.simplenametags.bukkit;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -50,8 +53,8 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
   }
 
   @Override
-  public void displayName(@NonNull Player player, @NonNull String displayName) {
-    player.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+  public void displayName(@NonNull Player player, @NonNull Component displayName) {
+    player.setDisplayName(ComponentFormats.BUKKIT.fromAdventure(displayName));
   }
 
   @Override
@@ -79,7 +82,8 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
     team.setPrefix(ChatColor.translateAlternateColorCodes('&', group.prefix()));
     team.setSuffix(ChatColor.translateAlternateColorCodes('&', group.suffix()));
     // set the team color if possible
-    var teamColor = ChatColor.getByChar(this.getColorChar(group));
+    var adventureTeamColor = AdventureTextFormatLookup.findColor(group.color());
+    var teamColor = ChatColor.getByChar(adventureTeamColor == null ? ' ' : AdventureTextFormatLookup.findFormatChar(adventureTeamColor));
     if (teamColor != null) {
       BukkitCompatibility.teamColor(team, teamColor);
     }

@@ -16,10 +16,9 @@
 
 package eu.cloudnetservice.modules.bridge.platform.nukkit;
 
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
-
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
 import java.util.Collection;
@@ -69,14 +68,14 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
 
   @Override
   public void kick(@NonNull Component message) {
-    this.forEach(player -> player.kick(legacySection().serialize(message)));
+    this.forEach(player -> player.kick(ComponentFormats.BEDROCK.fromAdventure(message)));
   }
 
   @Override
   protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
     this.forEach(player -> player.sendTitle(
-      legacySection().serialize(title),
-      legacySection().serialize(subtitle),
+      ComponentFormats.BEDROCK.fromAdventure(title),
+      ComponentFormats.BEDROCK.fromAdventure(subtitle),
       fadeIn,
       stay,
       fadeOut));
@@ -86,7 +85,7 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
-        player.sendMessage(legacySection().serialize(message));
+        player.sendMessage(ComponentFormats.BEDROCK.fromAdventure(message));
       }
     });
   }

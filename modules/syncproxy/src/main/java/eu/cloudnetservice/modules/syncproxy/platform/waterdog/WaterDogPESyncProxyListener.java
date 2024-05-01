@@ -19,13 +19,16 @@ package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.ProxyPingEvent;
+import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.HashMap;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @Singleton
 public final class WaterDogPESyncProxyListener {
@@ -70,25 +73,21 @@ public final class WaterDogPESyncProxyListener {
 
       // bedrock has just to lines that are separated from each other
       var serviceInfo = this.serviceInfoHolder.serviceInfo();
+
+      var placeholders = new HashMap<String, Component>();
+      SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
+
       var mainMotd = MiniMessage.miniMessage().deserialize(
           motd.firstLine(),
-          SyncProxyConfiguration.adventurePlaceholders(
-            serviceInfo,
-            onlinePlayers,
-            maxPlayers
-          )
+          MinimessageUtils.tagsFromMap(placeholders)
       );
       var subMotd = MiniMessage.miniMessage().deserialize(
           motd.secondLine(),
-          SyncProxyConfiguration.adventurePlaceholders(
-            serviceInfo,
-            onlinePlayers,
-            maxPlayers
-          )
+          MinimessageUtils.tagsFromMap(placeholders)
       );
 
-      event.setMotd(LegacyComponentSerializer.legacySection().serialize(mainMotd));
-      event.setSubMotd(LegacyComponentSerializer.legacySection().serialize(subMotd));
+      event.setMotd(ComponentFormats.BEDROCK.fromAdventure(mainMotd));
+      event.setSubMotd(ComponentFormats.BEDROCK.fromAdventure(subMotd));
     }
   }
 
@@ -103,7 +102,7 @@ public final class WaterDogPESyncProxyListener {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (!this.syncProxyManagement.checkPlayerMaintenance(proxiedPlayer)) {
         var cancelReason = this.syncProxyManagement.configuration().message("player-login-not-whitelisted");
-        event.setCancelReason(LegacyComponentSerializer.legacySection().serialize(cancelReason));
+        event.setCancelReason(ComponentFormats.BEDROCK.fromAdventure(cancelReason));
         event.setCancelled(true);
       }
     } else {
@@ -111,7 +110,7 @@ public final class WaterDogPESyncProxyListener {
       if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
         && !proxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
         var cancelReason = this.syncProxyManagement.configuration().message("player-login-full-server");
-        event.setCancelReason(LegacyComponentSerializer.legacySection().serialize(cancelReason));
+        event.setCancelReason(ComponentFormats.BEDROCK.fromAdventure(cancelReason));
         event.setCancelled(true);
       }
     }

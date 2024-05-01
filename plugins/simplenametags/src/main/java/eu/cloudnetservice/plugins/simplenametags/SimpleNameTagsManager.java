@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SimpleNameTagsManager<P> {
@@ -74,7 +76,7 @@ public abstract class SimpleNameTagsManager<P> {
         }
       }
       // set the players display name
-      this.displayName(player, group.display() + playerName);
+      this.displayName(player, MiniMessage.miniMessage().deserialize(group.display()).append(Component.text(playerName)));
     }
   }
 
@@ -82,7 +84,7 @@ public abstract class SimpleNameTagsManager<P> {
 
   public abstract @NonNull UUID playerUniqueId(@NonNull P player);
 
-  public abstract void displayName(@NonNull P player, @NonNull String displayName);
+  public abstract void displayName(@NonNull P player, @NonNull Component displayName);
 
   public abstract void resetScoreboard(@NonNull P player);
 
@@ -95,29 +97,6 @@ public abstract class SimpleNameTagsManager<P> {
   public abstract @NonNull Collection<? extends P> onlinePlayers();
 
   public abstract @Nullable P onlinePlayer(@NonNull UUID uniqueId);
-
-  protected char getColorChar(@NonNull PermissionGroup group) {
-    // check if the color of the group is given and valid
-    if (group.color().length() == 2) {
-      // check if the first char is a color indicator
-      var indicatorChar = group.color().charAt(0);
-      if (indicatorChar == '&' || indicatorChar == '§') {
-        // the next char should be the color char then
-        return group.color().charAt(1);
-      }
-    }
-    // search for the last color char in the prefix of the group
-    var length = group.prefix().length();
-    for (var index = length - 2; index >= 0; index--) {
-      // check if the current char is a color indicator char
-      var atPosition = group.prefix().charAt(index);
-      if (atPosition == '&' || atPosition == '§') {
-        return group.prefix().charAt(index + 1);
-      }
-    }
-    // no color char found
-    return ' ';
-  }
 
   protected @Nullable PermissionGroup getPermissionGroup(@NonNull UUID playerUniqueId, @NonNull P platformPlayer) {
     // select the best permission group for the player

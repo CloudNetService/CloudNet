@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.platform.minestom;
 
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
-
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -99,7 +97,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     eventHandler.call(pingEvent);
 
     // init the bridge properties
-    serviceHelper.motd().set(legacySection().serialize(pingEvent.getResponseData().getDescription()));
+    serviceHelper.motd().set(pingEvent.getResponseData().getDescription());
     serviceHelper.maxPlayers().set(pingEvent.getResponseData().getMaxPlayer());
   }
 

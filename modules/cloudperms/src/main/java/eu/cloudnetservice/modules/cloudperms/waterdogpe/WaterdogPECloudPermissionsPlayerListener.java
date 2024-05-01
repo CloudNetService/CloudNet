@@ -24,6 +24,7 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerPermissionCheckEvent;
 import dev.waterdog.waterdogpe.utils.ConfigurationManager;
 import eu.cloudnetservice.driver.permission.Permission;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -46,7 +47,7 @@ final class WaterdogPECloudPermissionsPlayerListener {
         event.getPlayer().getName(),
         message -> {
           event.setCancelled(true);
-          event.setCancelReason(message.replace('&', '§'));
+          event.setCancelReason(ComponentFormats.BEDROCK.fromAdventure(message));
         },
         configurationManager.getProxyConfig().isOnlineMode()
       ),

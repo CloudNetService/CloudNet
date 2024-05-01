@@ -25,6 +25,7 @@ import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.Locale;
 import lombok.NonNull;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 public final class WaterDogPEHubCommand extends Command {
 
@@ -50,7 +51,7 @@ public final class WaterDogPEHubCommand extends Command {
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "command-hub-already-in-hub",
-          ComponentFormats.ADVENTURE_TO_BUNGEE::convertText,
+          ComponentFormats.BEDROCK,
           player::sendMessage);
       } else {
         // try to get a fallback for the player
@@ -63,9 +64,10 @@ public final class WaterDogPEHubCommand extends Command {
           this.management.configuration().handleMessage(
             Locale.ENGLISH,
             "command-hub-success-connect",
-            message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convertText(
-              message.replace("%server%", hub.getServerName())),
-            player::sendMessage);
+            ComponentFormats.BEDROCK,
+            player::sendMessage,
+            true,
+            Placeholder.unparsed("server", hub.getServerName()));
         }
       }
     }

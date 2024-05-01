@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Properties;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.EventFilter;
@@ -81,11 +80,10 @@ public class MinestomChatExtension implements PlatformEntrypoint {
     var format = ChatFormatter.buildFormat(
       player.getUuid(),
       player.getUsername(),
-      LegacyComponentSerializer.legacySection().serialize(player.getName()),
+      player.getName(),
       this.format,
       event.getMessage(),
       player::hasPermission,
-      (character, message) -> message.replace(character, '§'),
       this.permissionManagement);
     if (format == null) {
       event.setCancelled(true);

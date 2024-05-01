@@ -24,6 +24,7 @@ import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.scheduler.ServerScheduler;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -67,6 +68,7 @@ public final class NukkitPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "server-join-cancel-because-maintenance",
+          ComponentFormats.BEDROCK,
           event::setKickMessage);
         return;
       }
@@ -77,6 +79,7 @@ public final class NukkitPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "server-join-cancel-because-permission",
+          ComponentFormats.BEDROCK,
           event::setKickMessage);
       }
     }

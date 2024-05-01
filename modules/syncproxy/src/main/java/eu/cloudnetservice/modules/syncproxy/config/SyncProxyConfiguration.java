@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import java.util.HashMap;
@@ -50,24 +49,14 @@ public record SyncProxyConfiguration(
     "service-stop", "<gray>The service <yellow><service></yellow> is <red>stopping</red> on node <yellow><node></yellow>...</gray>");
 
   public static void fillCommonPlaceholders(
-    @NonNull Map<String, String> map,
+    @NonNull Map<String, Component> map,
     @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
     int onlinePlayers,
     int maxPlayers
   ) {
-    map.put("online_players", String.valueOf(onlinePlayers));
-    map.put("max_players", String.valueOf(maxPlayers));
+    map.put("online_players", Component.text(onlinePlayers));
+    map.put("max_players", Component.text(maxPlayers));
     BridgeServiceHelper.fillCommonPlaceholders(map, null, serviceInfoSnapshot);
-  }
-
-  public static TagResolver[] adventurePlaceholders(
-    @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
-    int onlinePlayers,
-    int maxPlayers
-  ) {
-    var placeholders = new HashMap<String, String>();
-    fillCommonPlaceholders(placeholders, serviceInfoSnapshot, onlinePlayers, maxPlayers);
-    return MinimessageUtils.tagsFromMap(placeholders);
   }
 
   public static @NonNull Builder builder() {

@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 
 public final class CloudPermissionsHelper {
@@ -41,7 +43,7 @@ public final class CloudPermissionsHelper {
     @NonNull PermissionManagement permissionsManagement,
     @NonNull UUID uniqueId,
     @NonNull String name,
-    @NonNull Consumer<String> disconnectHandler,
+    @NonNull Consumer<Component> disconnectHandler,
     boolean shouldUpdateName
   ) {
     PermissionUser permissionUser;
@@ -50,7 +52,7 @@ public final class CloudPermissionsHelper {
     } catch (ExecutionException | TimeoutException exception) {
       LOGGER.severe("Error while loading permission user: " + uniqueId + "/" + name, exception);
       // disconnect the player now
-      disconnectHandler.accept("§cAn internal error while loading your permission profile");
+      disconnectHandler.accept(Component.text("An internal error while loading your permission profile", NamedTextColor.RED));
       return;
     } catch (InterruptedException exception) {
       Thread.currentThread().interrupt(); // reset the interrupted state of the thread

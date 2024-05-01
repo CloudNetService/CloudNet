@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.cloudperms.minestom.listener;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
@@ -58,7 +57,7 @@ public final class MinestomCloudPermissionsPlayerListener {
         this.permissionManagement,
         player.getUuid(),
         player.getUsername(),
-        message -> player.kick(LegacyComponentSerializer.legacySection().deserialize(message)),
+        message -> player.kick(message),
         MojangAuth.isEnabled());
     }
   }

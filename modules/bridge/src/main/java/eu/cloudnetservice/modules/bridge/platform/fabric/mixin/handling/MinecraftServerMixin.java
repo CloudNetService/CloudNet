@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.handling;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
@@ -27,6 +28,7 @@ import java.util.UUID;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.kyori.adventure.text.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -89,8 +91,8 @@ public abstract class MinecraftServerMixin implements BridgedServer {
   }
 
   @Override
-  public @NonNull String motd() {
-    return this.getMotd();
+  public @NonNull Component motd() {
+    return ComponentFormats.LEGACY_HEX.toAdventure(this.getMotd());
   }
 
   @Override

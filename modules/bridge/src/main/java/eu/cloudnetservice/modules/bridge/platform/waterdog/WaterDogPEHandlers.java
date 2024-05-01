@@ -21,9 +21,11 @@ import dev.waterdog.waterdogpe.network.serverinfo.ServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import dev.waterdog.waterdogpe.utils.types.IForcedHostHandler;
 import dev.waterdog.waterdogpe.utils.types.IReconnectHandler;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.Locale;
 import lombok.NonNull;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.jetbrains.annotations.Nullable;
 
 final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler {
@@ -56,10 +58,11 @@ final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler 
     this.management.configuration().handleMessage(
       Locale.ENGLISH,
       "error-connecting-to-server",
-      message -> message
-        .replace("%server%", oldServer.getServerName())
-        .replace("%reason%", kickMessage),
-      player::sendMessage);
+      ComponentFormats.BEDROCK,
+      player::sendMessage,
+      true,
+      Placeholder.unparsed("server", oldServer.getServerName()),
+      Placeholder.component("reason", ComponentFormats.BEDROCK.toAdventure(kickMessage)));
     // filter the next fallback for the player
     return this.management.fallback(player, oldServer.getServerName())
       .map(server -> this.proxyServer.getServerInfo(server.name()))

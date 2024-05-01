@@ -24,6 +24,7 @@ import cn.nukkit.event.player.PlayerAsyncPreLoginEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import eu.cloudnetservice.modules.cloudperms.nukkit.NukkitPermissionInjectionHelper;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
@@ -53,7 +54,7 @@ public final class NukkitCloudPermissionsPlayerListener implements Listener {
         this.permissionsManagement,
         event.getUuid(),
         event.getName(),
-        message -> event.disAllow(message.replace("&", "§")),
+        message -> event.disAllow(ComponentFormats.BEDROCK.fromAdventure(message)),
         Server.getInstance().getPropertyBoolean("xbox-auth", true));
     }
   }

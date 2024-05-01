@@ -20,12 +20,13 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
-import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -59,8 +60,8 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
   }
 
   @Override
-  public void displayName(@NonNull ServerPlayer player, @NonNull String displayName) {
-    player.displayName().set(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(displayName));
+  public void displayName(@NonNull ServerPlayer player, @NonNull Component displayName) {
+    player.displayName().set(displayName);
   }
 
   @Override
@@ -84,10 +85,10 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
       return newTeam;
     });
     // set the default team attributes
-    team.setPrefix(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(group.prefix()));
-    team.setSuffix(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(group.suffix()));
+    team.setPrefix(MiniMessage.miniMessage().deserialize(group.prefix()));
+    team.setSuffix(MiniMessage.miniMessage().deserialize(group.suffix()));
     // set the team color if possible
-    var teamColor = AdventureTextFormatLookup.findColor(this.getColorChar(group));
+    var teamColor = AdventureTextFormatLookup.findColor(group.color());
     if (teamColor != null) {
       team.setColor(teamColor);
     }

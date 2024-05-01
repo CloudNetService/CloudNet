@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -67,6 +68,7 @@ public final class BukkitPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           BukkitUtil.playerLocale(event.getPlayer()),
           "server-join-cancel-because-maintenance",
+          ComponentFormats.BUKKIT,
           event::setKickMessage);
         return;
       }
@@ -77,6 +79,7 @@ public final class BukkitPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           BukkitUtil.playerLocale(event.getPlayer()),
           "server-join-cancel-because-permission",
+          ComponentFormats.BUKKIT,
           event::setKickMessage);
       }
     }

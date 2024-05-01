@@ -17,14 +17,13 @@
 package eu.cloudnetservice.plugins.chat;
 
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -80,17 +79,16 @@ public class BukkitChatPlugin implements PlatformEntrypoint, Listener {
     var formattedMessage = ChatFormatter.buildFormat(
       player.getUniqueId(),
       player.getName(),
-      player.getDisplayName(),
+      ComponentFormats.BUKKIT.toAdventure(player.getDisplayName()),
       this.format,
       event.getMessage(),
       player::hasPermission,
-      ChatColor::translateAlternateColorCodes,
       this.permissionManagement);
 
     if (formattedMessage == null) {
       event.setCancelled(true);
     } else {
-      event.setFormat(LegacyComponentSerializer.legacySection().serialize(formattedMessage));
+      event.setFormat(ComponentFormats.BUKKIT.fromAdventure(formattedMessage));
     }
   }
 }

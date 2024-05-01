@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 public final class AdventureTextFormatLookup {
 
   private static final String ALL_CHARS;
+  private static final List<String> ALL_NAMES;
   private static final List<TextFormat> FORMATS;
 
   static {
@@ -60,27 +61,28 @@ public final class AdventureTextFormatLookup {
     // copy into immutable, this method prevents us from (un-) boxing in runtime
     FORMATS = new LinkedList<>(formats.keySet());
     ALL_CHARS = String.join("", formats.values());
+    ALL_NAMES = formats.keySet().stream().map(TextFormat::toString).map(String::toLowerCase).toList();
   }
 
   private AdventureTextFormatLookup() {
     throw new UnsupportedOperationException();
   }
 
-  public static @Nullable TextFormat findFormat(char formatChar) {
+  public static @Nullable TextFormat findFormat(@NonNull String name) {
     // find the index of the char
-    var formatIndex = ALL_CHARS.indexOf(formatChar);
+    var formatIndex = ALL_NAMES.indexOf(name.toLowerCase());
     return formatIndex == -1 ? null : FORMATS.get(formatIndex);
   }
 
-  public static @Nullable NamedTextColor findColor(char colorChar) {
+  public static @Nullable NamedTextColor findColor(@NonNull String name) {
     // check if the format at the position is a color
-    var format = findFormat(colorChar);
+    var format = findFormat(name);
     return format instanceof NamedTextColor color ? color : null;
   }
 
-  public static @Nullable TextDecoration findDecoration(char decorationChar) {
+  public static @Nullable TextDecoration findDecoration(@NonNull String name) {
     // check if the format at the position is a decoration
-    var format = findFormat(decorationChar);
+    var format = findFormat(name);
     return format instanceof TextDecoration decoration ? decoration : null;
   }
 

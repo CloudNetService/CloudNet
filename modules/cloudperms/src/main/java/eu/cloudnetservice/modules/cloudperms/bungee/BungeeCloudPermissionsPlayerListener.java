@@ -18,13 +18,12 @@ package eu.cloudnetservice.modules.cloudperms.bungee;
 
 import eu.cloudnetservice.driver.permission.Permission;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
@@ -51,7 +50,7 @@ public final class BungeeCloudPermissionsPlayerListener implements Listener {
       event.getConnection().getName(),
       message -> {
         event.setCancelled(true);
-        event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+        event.setCancelReason(ComponentFormats.BUNGEE.version(event.getConnection().getVersion()).fromAdventure(message));
       },
       ProxyServer.getInstance().getConfig().isOnlineMode());
   }

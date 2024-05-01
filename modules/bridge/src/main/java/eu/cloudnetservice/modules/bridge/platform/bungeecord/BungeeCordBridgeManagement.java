@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -88,7 +89,9 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
       this,
       proxyServer::getPlayers);
     // init the bridge properties
-    serviceHelper.motd().set(Iterables.get(this.proxyServer.getConfig().getListeners(), 0).getMotd());
+    serviceHelper.motd().set(ComponentFormats.LEGACY_HEX_AMPERSAND.toAdventure(
+      Iterables.get(this.proxyServer.getConfig().getListeners(), 0).getMotd()
+    ));
     serviceHelper.maxPlayers().set(this.proxyServer.getConfig().getPlayerLimit());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER

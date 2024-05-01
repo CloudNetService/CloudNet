@@ -92,15 +92,15 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   @Override
-  public void playerTabList(@NonNull Player player, @NonNull Map<String, String> placeholders,
+  public void playerTabList(@NonNull Player player, @NonNull Map<String, Component> placeholders,
     @Nullable String header, @Nullable String footer) {
     if (header == null || footer == null) {
       player.getTabList().clearHeaderAndFooter();
     } else {
-      placeholders.put("server", player.getCurrentServer()
+      placeholders.put("server", Component.text(player.getCurrentServer()
         .map(serverConnection -> serverConnection.getServerInfo().getName())
-        .orElse("UNAVAILABLE"));
-      placeholders.put("ping", String.valueOf(player.getPing()));
+        .orElse("UNAVAILABLE")));
+      placeholders.put("ping", Component.text(player.getPing()));
 
       player.sendPlayerListHeaderAndFooter(
         MiniMessage.miniMessage().deserialize(

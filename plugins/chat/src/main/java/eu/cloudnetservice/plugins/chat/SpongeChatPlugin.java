@@ -20,6 +20,7 @@ import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
@@ -34,7 +35,6 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
@@ -153,11 +153,10 @@ public class SpongeChatPlugin implements PlatformEntrypoint {
         var format = ChatFormatter.buildFormat(
           player.uniqueId(),
           player.name(),
-          LegacyComponentSerializer.legacySection().serialize(player.displayName().get()),
+          player.displayName().get(),
           this.chatFormat,
-          LegacyComponentSerializer.legacySection().serialize(event.message()),
+          ComponentFormats.PLAIN.fromAdventure(event.message()),
           player::hasPermission,
-          (colorChar, message) -> message.replace(colorChar, '§'),
           this.permissionManagement);
         // always cancel the event as we want to broadcast the message
         if (CANCEL_CHAT_EVENT_METHOD != null) {
@@ -178,11 +177,10 @@ public class SpongeChatPlugin implements PlatformEntrypoint {
       var format = ChatFormatter.buildFormat(
         player.uniqueId(),
         player.name(),
-        LegacyComponentSerializer.legacySection().serialize(player.displayName().get()),
+        player.displayName().get(),
         this.chatFormat,
-        LegacyComponentSerializer.legacySection().serialize(event.message()),
+        ComponentFormats.PLAIN.fromAdventure(event.message()),
         player::hasPermission,
-        (colorChar, message) -> message.replace(colorChar, '§'),
         this.permissionManagement);
       if (format == null) {
         event.setCancelled(true);

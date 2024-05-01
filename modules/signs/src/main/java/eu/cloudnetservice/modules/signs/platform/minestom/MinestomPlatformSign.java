@@ -49,7 +49,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
     @NonNull GlobalEventHandler eventHandler,
     @NonNull InstanceManager instanceManager
   ) {
-    super(base, playerManager, ComponentFormats.MINESTOM);
+    super(base, playerManager, ComponentFormats.JSON);
 
     this.eventHandler = eventHandler;
     this.instanceManager = instanceManager;
@@ -87,7 +87,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
         // set the sign glowing if requested
         var glowingColor = layout.glowingColor();
         if (glowingColor != null && glowingColor.length() == 1) {
-          var color = AdventureTextFormatLookup.findColor(glowingColor.charAt(0));
+          var color = AdventureTextFormatLookup.findColor(glowingColor);
 
           nbt.put("GlowingText", NBT.Boolean(color != null));
           nbt.put("Color", NBT.String(color == null ? NamedTextColor.WHITE.toString() : color.toString()));

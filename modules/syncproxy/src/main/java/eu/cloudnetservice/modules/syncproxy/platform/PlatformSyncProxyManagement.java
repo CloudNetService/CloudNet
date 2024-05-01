@@ -239,7 +239,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     int onlinePlayers,
     int maxPlayers
   ) {
-    var map = new HashMap<String, String>();
+    var map = new HashMap<String, Component>();
     this.fillTabListPlaceholders(map, player, onlinePlayers, maxPlayers);
 
     this.playerTabList(player, map, tabList.header(), tabList.footer());
@@ -273,7 +273,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   public abstract @NonNull UUID playerUniqueId(@NonNull P player);
 
-  public abstract void playerTabList(@NonNull P player, @NonNull Map<String, String> placeholders,
+  public abstract void playerTabList(@NonNull P player, @NonNull Map<String, Component> placeholders,
     @Nullable String header, @Nullable String footer);
 
   public abstract void disconnectPlayer(@NonNull P player, @NonNull Component message);
@@ -283,15 +283,15 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   public abstract boolean checkPlayerPermission(@NonNull P player, @NonNull String permission);
 
   private void fillTabListPlaceholders(
-    @NonNull Map<String, String> input,
+    @NonNull Map<String, Component> input,
     @NonNull P player,
     int onlinePlayers,
     int maxPlayers
   ) {
-    input.put("time", TIME_FORMATTER.format(LocalTime.now()));
-    input.put("syncproxy_online_players", String.valueOf(onlinePlayers));
-    input.put("syncproxy_max_players", String.valueOf(maxPlayers));
-    input.put("player_name", this.playerName(player));
+    input.put("time", Component.text(TIME_FORMATTER.format(LocalTime.now())));
+    input.put("syncproxy_online_players", Component.text(String.valueOf(onlinePlayers)));
+    input.put("syncproxy_max_players", Component.text(String.valueOf(maxPlayers)));
+    input.put("player_name", Component.text(this.playerName(player)));
     BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
 
     if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
@@ -301,11 +301,11 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
         var group = this.permissionManagement.highestPermissionGroup(permissionUser);
 
         if (group != null) {
-          input.put("perms_group_prefix", group.prefix());
-          input.put("perms_group_suffix", group.suffix());
-          input.put("perms_group_display", group.display());
-          input.put("perms_group_color", group.color());
-          input.put("perms_group_name", group.name());
+          input.put("perms_group_prefix", Component.text(group.prefix()));
+          input.put("perms_group_suffix", Component.text(group.suffix()));
+          input.put("perms_group_display", Component.text(group.display()));
+          input.put("perms_group_color", Component.text(group.color()));
+          input.put("perms_group_name", Component.text(group.name()));
         }
       }
     }

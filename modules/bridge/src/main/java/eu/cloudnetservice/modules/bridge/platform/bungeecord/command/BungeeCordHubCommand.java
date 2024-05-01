@@ -16,9 +16,11 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord.command;
 
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import lombok.NonNull;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -52,7 +54,7 @@ public final class BungeeCordHubCommand extends Command {
         this.management.configuration().handleMessage(
           player.getLocale(),
           "command-hub-already-in-hub",
-          this.bungeeHelper::translateToComponent,
+          ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()),
           player::sendMessage);
       } else {
         // try to get a fallback for the player
@@ -67,14 +69,16 @@ public final class BungeeCordHubCommand extends Command {
               this.management.configuration().handleMessage(
                 player.getLocale(),
                 "command-hub-success-connect",
-                message -> this.bungeeHelper.translateToComponent(message.replace("%server%", hub.getName())),
-                player::sendMessage);
+                ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()),
+                player::sendMessage,
+                true,
+                Placeholder.unparsed("server", hub.getName()));
             } else {
               // the connection was not successful
               this.management.configuration().handleMessage(
                 player.getLocale(),
                 "command-hub-no-server-found",
-                this.bungeeHelper::translateToComponent,
+                ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()),
                 player::sendMessage);
             }
           }, Reason.COMMAND);

@@ -40,6 +40,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -401,7 +402,7 @@ public abstract class BukkitPlatformSelectorEntity
       // apply the meta
       var meta = item.getItemMeta();
       if (meta != null) {
-        var placeholders = new HashMap<String, String>();
+        var placeholders = new HashMap<String, Component>();
         BridgeServiceHelper.fillCommonPlaceholders(
           placeholders,
           this.npc.targetGroup(),
@@ -571,15 +572,15 @@ public abstract class BukkitPlatformSelectorEntity
         .sum());
       var onlineServers = Integer.toString(tracked.size());
       // rebuild the info line
-      var placeholders = new HashMap<String, String>();
-      placeholders.put("group", npc.targetGroup());
-      placeholders.put("g", npc.targetGroup());
-      placeholders.put("online_players", onlinePlayers);
-      placeholders.put("o_p", onlinePlayers);
-      placeholders.put("max_players", maxPlayers);
-      placeholders.put("m_p", maxPlayers);
-      placeholders.put("online_servers", onlineServers);
-      placeholders.put("o_s", onlineServers);
+      var placeholders = new HashMap<String, Component>();
+      placeholders.put("group", Component.text(npc.targetGroup()));
+      placeholders.put("g", Component.text(npc.targetGroup()));
+      placeholders.put("online_players", Component.text(onlinePlayers));
+      placeholders.put("o_p", Component.text(onlinePlayers));
+      placeholders.put("max_players", Component.text(maxPlayers));
+      placeholders.put("m_p", Component.text(maxPlayers));
+      placeholders.put("online_servers", Component.text(onlineServers));
+      placeholders.put("o_s", Component.text(onlineServers));
       var newInfoLine = MiniMessage.miniMessage().deserialize(
         this.basedInfoLine,
         MinimessageUtils.tagsFromMap(placeholders));

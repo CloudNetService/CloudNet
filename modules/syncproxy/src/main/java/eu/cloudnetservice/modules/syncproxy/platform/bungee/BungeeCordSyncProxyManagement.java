@@ -22,6 +22,8 @@ import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
@@ -38,9 +40,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
@@ -101,41 +100,35 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, String> placeholders,
+  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, Component> placeholders,
     @Nullable String header, @Nullable String footer) {
-    placeholders.put("ping", String.valueOf(player.getPing()));
-    placeholders.put("server", player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName());
+    placeholders.put("ping", Component.text(player.getPing()));
+    placeholders.put("server", Component.text(player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName()));
 
     player.setTabHeader(
-      header != null ? BungeeComponentSerializer.get().serialize(
+      header != null ? ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()).fromAdventure(
         MiniMessage.miniMessage().deserialize(
           header,
-          placeholders.entrySet()
-            .stream()
-            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
-            .toArray((size) -> new TagResolver[size])
+          MinimessageUtils.tagsFromMap(placeholders)
         )
       ) : null,
-      footer != null ? BungeeComponentSerializer.get().serialize(
+      footer != null ? ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()).fromAdventure(
         MiniMessage.miniMessage().deserialize(
           footer,
-          placeholders.entrySet()
-            .stream()
-            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
-            .toArray((size) -> new TagResolver[size])
+          MinimessageUtils.tagsFromMap(placeholders)
         )
       ) : null);
   }
 
   @Override
   public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull Component message) {
-    player.disconnect(BungeeComponentSerializer.get().serialize(message));
+    player.disconnect(ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()).fromAdventure(message));
   }
 
   @Override
   public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable Component message) {
     if (message != null) {
-      player.sendMessage(BungeeComponentSerializer.get().serialize(message));
+      player.sendMessage(ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()).fromAdventure(message));
     }
   }
 

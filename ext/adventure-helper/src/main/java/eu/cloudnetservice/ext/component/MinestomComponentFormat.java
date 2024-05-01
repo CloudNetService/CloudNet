@@ -16,11 +16,12 @@
 
 package eu.cloudnetservice.ext.component;
 
+import com.google.gson.JsonElement;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
-final class MinestomComponentFormat implements ComponentFormat<String> {
+public final class MinestomComponentFormat implements ComponentFormat<String> {
 
   private static final GsonComponentSerializer SERIALIZER = GsonComponentSerializer.gson();
 
@@ -29,8 +30,16 @@ final class MinestomComponentFormat implements ComponentFormat<String> {
     return SERIALIZER.deserialize(component);
   }
 
+  public @NonNull Component toAdventureFromTree(@NonNull JsonElement component) {
+    return SERIALIZER.deserializeFromTree(component);
+  }
+
   @Override
   public @NonNull String fromAdventure(@NonNull Component adventure) {
     return SERIALIZER.serialize(adventure);
+  }
+
+  public @NonNull JsonElement fromAdventureToTree(@NonNull Component adventure) {
+    return SERIALIZER.serializeToTree(adventure);
   }
 }

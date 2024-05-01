@@ -17,11 +17,13 @@
 package eu.cloudnetservice.plugins.papi;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import java.util.HashMap;
 import lombok.NonNull;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,9 +67,10 @@ public class CloudNetPapiExpansion extends PlaceholderExpansion {
     // This is a bit tricky - PlaceholderAPI requires us to return "null" if the placeholder is unknown.
     // The bridge will just replace all placeholders in the string with the correct association.
     // We can just return null if the resulting string matches the input string
-    var map = new HashMap<String, String>();
+    var map = new HashMap<String, Component>();
     BridgeServiceHelper.fillCommonPlaceholders(map, null, this.serviceInfoHolder.serviceInfo());
 
-    return map.getOrDefault(params, null);
+    var component = map.getOrDefault(params, null);
+    return component == null ? null : ComponentFormats.BUKKIT.fromAdventure(component);
   }
 }

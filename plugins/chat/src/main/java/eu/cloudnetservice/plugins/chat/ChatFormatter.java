@@ -20,7 +20,6 @@ import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.ext.component.MinimessageUtils;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -39,11 +38,10 @@ public final class ChatFormatter {
   public static @Nullable Component buildFormat(
     @NonNull UUID playerId,
     @NonNull String playerName,
-    @NonNull String displayName,
+    @NonNull Component displayName,
     @NonNull String format,
     @NonNull String message,
     @NonNull Function<String, Boolean> permissionTester,
-    @NonNull BiFunction<Character, String, String> colorReplacer,
     @NonNull PermissionManagement permissionManagement
   ) {
     var permissionUser = permissionManagement.user(playerId);
@@ -64,15 +62,15 @@ public final class ChatFormatter {
 
     var group = permissionManagement.highestPermissionGroup(permissionUser);
 
-    var placeholders = new HashMap<String, String>();
-    placeholders.put("name", playerName);
+    var placeholders = new HashMap<String, Component>();
+    placeholders.put("name", Component.text(playerName));
     placeholders.put("display_name", displayName);
-    placeholders.put("uniqueId", playerId.toString());
-    placeholders.put("group", group == null ? "" : group.name());
-    placeholders.put("display", group == null ? "" : group.display());
-    placeholders.put("prefix", group == null ? "" : group.prefix());
-    placeholders.put("suffix", group == null ? "" : group.suffix());
-    placeholders.put("color", group == null ? "" : group.color());
+    placeholders.put("uniqueId", Component.text(playerId.toString()));
+    placeholders.put("group", Component.text(group == null ? "" : group.name()));
+    placeholders.put("display", group == null ? Component.empty() : MiniMessage.miniMessage().deserialize(group.display()));
+    placeholders.put("prefix", group == null ? Component.empty() : MiniMessage.miniMessage().deserialize(group.prefix()));
+    placeholders.put("suffix", group == null ? Component.empty() : MiniMessage.miniMessage().deserialize(group.suffix()));
+    placeholders.put("color", group == null ? Component.empty() : MiniMessage.miniMessage().deserialize(group.color()));
 
     return MiniMessage.miniMessage()
       .deserialize(format,

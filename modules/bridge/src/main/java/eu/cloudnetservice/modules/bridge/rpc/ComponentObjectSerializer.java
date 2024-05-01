@@ -19,10 +19,10 @@ package eu.cloudnetservice.modules.bridge.rpc;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import java.lang.reflect.Type;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 /**
  * A serializer to write adventure components to a data buf.
@@ -41,7 +41,7 @@ public final class ComponentObjectSerializer implements ObjectSerializer<Compone
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    dataBuf.writeString(GsonComponentSerializer.gson().serialize(object));
+    dataBuf.writeString(ComponentFormats.JSON.fromAdventure(object));
   }
 
   /**
@@ -53,6 +53,6 @@ public final class ComponentObjectSerializer implements ObjectSerializer<Compone
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    return GsonComponentSerializer.gson().deserialize(source.readString());
+    return ComponentFormats.JSON.toAdventure(source.readString());
   }
 }

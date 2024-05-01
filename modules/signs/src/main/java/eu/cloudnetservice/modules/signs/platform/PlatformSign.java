@@ -27,9 +27,7 @@ import eu.cloudnetservice.modules.signs.util.LayoutUtil;
 import eu.cloudnetservice.modules.signs.util.PriorityUtil;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import lombok.NonNull;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C>> {
@@ -103,7 +101,7 @@ public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C
   }
 
   protected void changeSignLines(@NonNull SignLayout layout, @NonNull BiConsumer<Integer, C> lineSetter) {
-    LayoutUtil.updateSignLines(layout, this.base.targetGroup(), this.target, componentFormat, lineSetter);
+    LayoutUtil.updateSignLines(layout, this.base.targetGroup(), this.target, this.componentFormat, lineSetter);
   }
 
   @Override

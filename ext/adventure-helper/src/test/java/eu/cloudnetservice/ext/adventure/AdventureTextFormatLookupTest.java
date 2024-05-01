@@ -26,34 +26,34 @@ class AdventureTextFormatLookupTest {
 
   @Test
   void testFindColorByChar() {
-    Assertions.assertEquals(NamedTextColor.RED, AdventureTextFormatLookup.findColor('c'));
-    Assertions.assertEquals(NamedTextColor.GREEN, AdventureTextFormatLookup.findColor('a'));
-    Assertions.assertEquals(NamedTextColor.DARK_BLUE, AdventureTextFormatLookup.findColor('1'));
+    Assertions.assertEquals(NamedTextColor.RED, AdventureTextFormatLookup.findColor("red"));
+    Assertions.assertEquals(NamedTextColor.GREEN, AdventureTextFormatLookup.findColor("GREEN"));
+    Assertions.assertEquals(NamedTextColor.DARK_BLUE, AdventureTextFormatLookup.findColor("dark_blue"));
 
-    Assertions.assertEquals(NamedTextColor.GOLD, AdventureTextFormatLookup.findFormat('6'));
-    Assertions.assertEquals(NamedTextColor.DARK_RED, AdventureTextFormatLookup.findFormat('4'));
+    Assertions.assertEquals(NamedTextColor.GOLD, AdventureTextFormatLookup.findFormat("gold"));
+    Assertions.assertEquals(NamedTextColor.DARK_RED, AdventureTextFormatLookup.findFormat("dark_red"));
 
-    Assertions.assertNull(AdventureTextFormatLookup.findColor('k'));
-    Assertions.assertNull(AdventureTextFormatLookup.findColor('n'));
+    Assertions.assertNull(AdventureTextFormatLookup.findColor("italic"));
+    Assertions.assertNull(AdventureTextFormatLookup.findColor("strikethrough"));
 
-    Assertions.assertNull(AdventureTextFormatLookup.findColor('g'));
-    Assertions.assertNull(AdventureTextFormatLookup.findColor('h'));
+    Assertions.assertNull(AdventureTextFormatLookup.findColor(""));
+    Assertions.assertNull(AdventureTextFormatLookup.findColor("test"));
   }
 
   @Test
   void testFindDecorationByChar() {
-    Assertions.assertEquals(TextDecoration.BOLD, AdventureTextFormatLookup.findDecoration('l'));
-    Assertions.assertEquals(TextDecoration.ITALIC, AdventureTextFormatLookup.findDecoration('o'));
-    Assertions.assertEquals(TextDecoration.STRIKETHROUGH, AdventureTextFormatLookup.findDecoration('m'));
+    Assertions.assertEquals(TextDecoration.BOLD, AdventureTextFormatLookup.findDecoration("bold"));
+    Assertions.assertEquals(TextDecoration.ITALIC, AdventureTextFormatLookup.findDecoration("italic"));
+    Assertions.assertEquals(TextDecoration.STRIKETHROUGH, AdventureTextFormatLookup.findDecoration("strikethrough"));
 
-    Assertions.assertEquals(TextDecoration.UNDERLINED, AdventureTextFormatLookup.findFormat('n'));
-    Assertions.assertEquals(TextDecoration.OBFUSCATED, AdventureTextFormatLookup.findFormat('k'));
+    Assertions.assertEquals(TextDecoration.UNDERLINED, AdventureTextFormatLookup.findFormat("underlined"));
+    Assertions.assertEquals(TextDecoration.OBFUSCATED, AdventureTextFormatLookup.findFormat("obfuscated"));
 
-    Assertions.assertNull(AdventureTextFormatLookup.findDecoration('1'));
-    Assertions.assertNull(AdventureTextFormatLookup.findDecoration('c'));
+    Assertions.assertNull(AdventureTextFormatLookup.findDecoration("dark_blue"));
+    Assertions.assertNull(AdventureTextFormatLookup.findDecoration("red"));
 
-    Assertions.assertNull(AdventureTextFormatLookup.findDecoration('g'));
-    Assertions.assertNull(AdventureTextFormatLookup.findDecoration('h'));
+    Assertions.assertNull(AdventureTextFormatLookup.findDecoration(""));
+    Assertions.assertNull(AdventureTextFormatLookup.findDecoration("test"));
   }
 
   @Test

@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -89,7 +90,7 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       Bukkit::getOnlinePlayers);
     // init the bridge properties
-    serviceHelper.motd().set(server.getMotd());
+    serviceHelper.motd().set(ComponentFormats.BUKKIT.toAdventure(server.getMotd()));
     serviceHelper.maxPlayers().set(server.getMaxPlayers());
   }
 

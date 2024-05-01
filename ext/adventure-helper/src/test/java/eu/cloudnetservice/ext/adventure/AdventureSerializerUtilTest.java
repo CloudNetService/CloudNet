@@ -47,10 +47,11 @@ public class AdventureSerializerUtilTest {
       .serialize("&x&0&0&0&f&f&fHello &1W§x§0§0§0§b§b§bo&6rld§rBye")
       .children();
 
-    Assertions.assertEquals(serialized.get(0).color(), TextColor.color(0xfff));
-    Assertions.assertEquals(serialized.get(1).color(), NamedTextColor.DARK_BLUE);
-    Assertions.assertEquals(serialized.get(2).color(), TextColor.color(0xbbb));
-    Assertions.assertEquals(serialized.get(3).color(), NamedTextColor.GOLD);
+    Assertions.assertEquals(5, serialized.size());
+    Assertions.assertEquals(TextColor.color(0xfff), serialized.get(0).color());
+    Assertions.assertEquals(NamedTextColor.DARK_BLUE, serialized.get(1).color());
+    Assertions.assertEquals(TextColor.color(0xbbb), serialized.get(2).color());
+    Assertions.assertEquals(NamedTextColor.GOLD, serialized.get(3).color());
     Assertions.assertNull(serialized.get(4).color());
   }
 }

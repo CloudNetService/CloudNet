@@ -21,7 +21,6 @@ import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.event.BridgeDeleteCloudOfflinePlayerEvent;
 import eu.cloudnetservice.modules.bridge.event.BridgeProxyPlayerDisconnectEvent;
@@ -67,10 +66,7 @@ public final class NodePlayerChannelMessageListener {
             preLoginEvent.result(bridgeManagement.configuration().findMessage(
               Locale.ENGLISH,
               "already-connected",
-              message -> {
-                var component = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message);
-                return LocalPlayerPreLoginEvent.Result.denied(component);
-              },
+              LocalPlayerPreLoginEvent.Result::denied,
               LocalPlayerPreLoginEvent.Result.denied(Component.empty()),
               true));
           }

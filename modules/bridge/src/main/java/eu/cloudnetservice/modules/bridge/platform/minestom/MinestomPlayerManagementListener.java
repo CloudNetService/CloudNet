@@ -73,7 +73,7 @@ public final class MinestomPlayerManagementListener {
         this.management.configuration().handleMessage(
           player.getLocale(),
           "server-join-cancel-because-maintenance",
-          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          ComponentFormats.ADVENTURE,
           player::kick);
         return;
       }
@@ -83,7 +83,7 @@ public final class MinestomPlayerManagementListener {
         this.management.configuration().handleMessage(
           player.getLocale(),
           "server-join-cancel-because-permission",
-          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          ComponentFormats.ADVENTURE,
           player::kick);
       }
     }

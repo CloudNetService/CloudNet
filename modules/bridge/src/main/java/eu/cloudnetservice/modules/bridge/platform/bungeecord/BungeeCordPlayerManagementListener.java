@@ -16,10 +16,9 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
-
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -30,9 +29,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -98,7 +96,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           this.management.configuration().handleMessage(
             player.getLocale(),
             "proxy-join-cancel-because-maintenance",
-            this.bungeeHelper::translateToComponent,
+            ComponentFormats.BUNGEE.version(event.getPlayer().getPendingConnection().getVersion()),
             player::disconnect);
           return;
         }
@@ -109,7 +107,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           this.management.configuration().handleMessage(
             player.getLocale(),
             "proxy-join-cancel-because-permission",
-            this.bungeeHelper::translateToComponent,
+            ComponentFormats.BUNGEE.version(event.getPlayer().getPendingConnection().getVersion()),
             player::disconnect);
           return;
         }
@@ -126,7 +124,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.ownNetworkServiceInfo()));
       if (!loginResult.permitLogin()) {
         event.setCancelled(true);
-        player.disconnect(TextComponent.fromLegacyText(legacySection().serialize(loginResult.result())));
+        player.disconnect(ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()).fromAdventure(loginResult.result()));
         return;
       }
     }
@@ -172,10 +170,11 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "error-connecting-to-server",
-          message -> this.bungeeHelper.translateToComponent(message
-            .replace("%server%", event.getKickedFrom().getName())
-            .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()))),
-          event.getPlayer()::sendMessage);
+          ComponentFormats.BUNGEE.version(event.getPlayer().getPendingConnection().getVersion()),
+          event.getPlayer()::sendMessage,
+          true,
+          Placeholder.unparsed("server", event.getKickedFrom().getName()),
+          Placeholder.component("reason", ComponentFormats.BUNGEE.toAdventure(event.getKickReasonComponent())));
       } else {
         // no lobby server - the player will disconnect
         event.setCancelled(false);
@@ -185,7 +184,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         this.management.configuration().handleMessage(
           event.getPlayer().getLocale(),
           "proxy-join-disconnect-because-no-hub",
-          this.bungeeHelper::translateToComponent,
+          ComponentFormats.BUNGEE.version(event.getPlayer().getPendingConnection().getVersion()),
           event::setKickReasonComponent);
       }
     }

@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
@@ -38,7 +39,6 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -94,20 +94,20 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, String> placeholders,
+  public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, Component> placeholders,
     @Nullable String header, @Nullable String footer) {
     // there is no support for header and footer
   }
 
   @Override
   public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull Component message) {
-    player.disconnect(LegacyComponentSerializer.legacySection().serialize(message));
+    player.disconnect(ComponentFormats.BEDROCK.fromAdventure(message));
   }
 
   @Override
   public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable Component message) {
     if (message != null) {
-      player.sendMessage(LegacyComponentSerializer.legacySection().serialize(message));
+      player.sendMessage(ComponentFormats.BEDROCK.fromAdventure(message));
     }
   }
 

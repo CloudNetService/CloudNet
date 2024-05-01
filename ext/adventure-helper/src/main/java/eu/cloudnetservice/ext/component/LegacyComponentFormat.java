@@ -16,19 +16,24 @@
 
 package eu.cloudnetservice.ext.component;
 
+import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-record LegacyComponentFormat(LegacyComponentSerializer serializer) implements ComponentFormat<String> {
+record LegacyComponentFormat(Supplier<LegacyComponentSerializer> serializer) implements ComponentFormat<String> {
+
+  public LegacyComponentFormat(LegacyComponentSerializer serializer) {
+    this(() -> serializer);
+  }
 
   @Override
   public @NonNull Component toAdventure(@NonNull String component) {
-    return serializer.deserialize(component);
+    return this.serializer.get().deserialize(component);
   }
 
   @Override
   public @NonNull String fromAdventure(@NonNull Component adventure) {
-    return serializer.serialize(adventure);
+    return this.serializer.get().serialize(adventure);
   }
 }

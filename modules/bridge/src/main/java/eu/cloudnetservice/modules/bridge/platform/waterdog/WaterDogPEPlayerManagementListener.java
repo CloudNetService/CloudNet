@@ -23,6 +23,7 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.TransferCompleteEvent;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import dev.waterdog.waterdogpe.scheduler.WaterdogScheduler;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -32,7 +33,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Locale;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @Singleton
 public final class WaterDogPEPlayerManagementListener {
@@ -71,6 +71,7 @@ public final class WaterDogPEPlayerManagementListener {
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance",
+          ComponentFormats.BEDROCK,
           event::setCancelReason);
         return;
       }
@@ -81,6 +82,7 @@ public final class WaterDogPEPlayerManagementListener {
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission",
+          ComponentFormats.BEDROCK,
           event::setCancelReason);
         return;
       }
@@ -90,7 +92,7 @@ public final class WaterDogPEPlayerManagementListener {
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.permitLogin()) {
       event.setCancelled(true);
-      event.setCancelReason(LegacyComponentSerializer.legacySection().serialize(loginResult.result()));
+      event.setCancelReason(ComponentFormats.BEDROCK.fromAdventure(loginResult.result()));
     }
   }
 

@@ -21,17 +21,29 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 
-final class BungeeComponentFormat implements ComponentFormat<BaseComponent[]> {
+public final class BungeeComponentFormat implements ComponentFormat<BaseComponent[]> {
 
-  private static final BungeeComponentSerializer SERIALIZER = BungeeComponentSerializer.get();
+  private final BungeeComponentSerializer serializer;
+
+  private BungeeComponentFormat(boolean legacy) {
+    this.serializer = legacy ? BungeeComponentSerializer.legacy() : BungeeComponentSerializer.get();
+  }
+
+  BungeeComponentFormat() {
+    this(false);
+  }
+
+  public BungeeComponentFormat version(int version) {
+    return new BungeeComponentFormat(!ComponentFormats.supportsHex(version));
+  }
 
   @Override
   public @NonNull Component toAdventure(@NonNull BaseComponent[] component) {
-    return SERIALIZER.deserialize(component);
+    return this.serializer.deserialize(component);
   }
 
   @Override
   public @NonNull BaseComponent[] fromAdventure(@NonNull Component adventure) {
-    return SERIALIZER.serialize(adventure);
+    return this.serializer.serialize(adventure);
   }
 }

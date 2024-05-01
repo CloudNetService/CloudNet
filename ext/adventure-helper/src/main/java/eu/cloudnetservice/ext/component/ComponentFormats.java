@@ -20,21 +20,50 @@ import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.chat.BaseComponent;
 
 public final class ComponentFormats {
 
   public static final ComponentFormat<Component> ADVENTURE = new AdventureComponentFormat();
-  public static final ComponentFormat<BaseComponent[]> BUNGEE = new BungeeComponentFormat();
-  public static final ComponentFormat<String> BUKKIT = new LegacyComponentFormat(BukkitComponentSerializer.legacy());
-  public static final ComponentFormat<String> BEDROCK = new LegacyComponentFormat(
+  public static final BungeeComponentFormat BUNGEE = new BungeeComponentFormat();
+  public static final ComponentFormat<String> BUKKIT = new LegacyComponentFormat(() -> BukkitComponentSerializer.legacy());
+
+  public static final ComponentFormat<String> LEGACY_HEX = new LegacyComponentFormat(
+    LegacyComponentSerializer.builder()
+      .character('§')
+      .hexColors()
+      .useUnusualXRepeatedCharacterHexFormat()
+      .flattener(ComponentFlattener.basic()).build()
+  );
+
+  public static final ComponentFormat<String> LEGACY_HEX_AMPERSAND = new LegacyComponentFormat(
+    LegacyComponentSerializer.builder()
+      .character('&')
+      .hexColors()
+      .useUnusualXRepeatedCharacterHexFormat()
+      .flattener(ComponentFlattener.basic()).build()
+  );
+
+  public static final ComponentFormat<String> LEGACY = new LegacyComponentFormat(
     LegacyComponentSerializer.builder()
     .character('§')
     .flattener(ComponentFlattener.basic()).build()
   );
-  public static final ComponentFormat<String> MINESTOM = new MinestomComponentFormat();
+
+  public static final ComponentFormat<String> BEDROCK = LEGACY;
+  public static final MinestomComponentFormat JSON = new MinestomComponentFormat();
+  public static final ComponentFormat<String> PLAIN = new StripColorComponentFormat(new LegacyComponentFormat(
+    LegacyComponentSerializer.builder()
+      .character('§')
+      .flattener(ComponentFlattener.basic()).build()
+  ));
 
   private ComponentFormats() {
     throw new UnsupportedOperationException();
+  }
+
+  // the first minecraft version to support hex colors
+  // https://minecraft.fandom.com/wiki/Java_Edition_1.16
+  public static boolean supportsHex(int version) {
+    return version >= 735;
   }
 }

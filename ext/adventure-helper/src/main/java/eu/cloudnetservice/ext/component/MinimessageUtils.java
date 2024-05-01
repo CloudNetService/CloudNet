@@ -18,15 +18,16 @@ package eu.cloudnetservice.ext.component;
 
 import java.util.Map;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 public class MinimessageUtils {
 
-  public static TagResolver[] tagsFromMap(@NonNull Map<String, String> placeholders) {
+  public static TagResolver[] tagsFromMap(@NonNull Map<String, Component> placeholders) {
     return placeholders.entrySet()
             .stream()
-            .map((entry) -> Placeholder.unparsed(entry.getKey(), entry.getValue()))
+            .map((entry) -> Placeholder.component(entry.getKey(), entry.getValue()))
             .toArray((size) -> new TagResolver[size]);
   }
 

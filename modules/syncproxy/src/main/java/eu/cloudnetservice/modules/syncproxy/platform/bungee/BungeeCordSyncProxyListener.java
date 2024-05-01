@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
+import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
@@ -26,9 +28,8 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ServerPing.PlayerInfo;
 import net.md_5.bungee.api.ServerPing.Players;
 import net.md_5.bungee.api.ServerPing.Protocol;
@@ -83,16 +84,21 @@ public final class BungeeCordSyncProxyListener implements Listener {
       var response = event.getResponse();
 
       var serviceInfo = this.serviceInfoHolder.serviceInfo();
+
+      var placeholders = new HashMap<String, Component>();
+      SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
       var protocolText = motd.protocolText();
       // check if there is a protocol text in the config
       if (protocolText != null) {
-        var placeholders = new HashMap<String, String>();
-        SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
         response.setVersion(new Protocol(
-          LegacyComponentSerializer.legacySection().serialize(
+          (
+            ComponentFormats.supportsHex(event.getConnection().getVersion())
+              ? ComponentFormats.LEGACY_HEX
+              : ComponentFormats.LEGACY
+          ).fromAdventure(
             MiniMessage.miniMessage().deserialize(
               protocolText,
-              SyncProxyConfiguration.adventurePlaceholders(serviceInfo, onlinePlayers, maxPlayers)
+              MinimessageUtils.tagsFromMap(placeholders)
             )
           ),
           1));
@@ -105,9 +111,13 @@ public final class BungeeCordSyncProxyListener implements Listener {
           .filter(Objects::nonNull)
           .map(info -> MiniMessage.miniMessage().deserialize(
             info,
-            SyncProxyConfiguration.adventurePlaceholders(serviceInfo, onlinePlayers, maxPlayers)
+            MinimessageUtils.tagsFromMap(placeholders)
           ))
-          .map(LegacyComponentSerializer.legacySection()::serialize)
+          .map((
+            ComponentFormats.supportsHex(event.getConnection().getVersion())
+              ? ComponentFormats.LEGACY_HEX
+              : ComponentFormats.LEGACY
+          )::fromAdventure)
           .map(info -> new PlayerInfo(info, UUID.randomUUID()))
           .toArray(PlayerInfo[]::new);
       }
@@ -117,24 +127,18 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
       var description = MiniMessage.miniMessage().deserialize(
           motd.firstLine(),
-          SyncProxyConfiguration.adventurePlaceholders(
-            serviceInfo,
-            onlinePlayers,
-            maxPlayers
-          )
+          MinimessageUtils.tagsFromMap(placeholders)
       )
         .appendNewline()
         .append(MiniMessage.miniMessage().deserialize(
           motd.secondLine(),
-          SyncProxyConfiguration.adventurePlaceholders(
-            serviceInfo,
-            onlinePlayers,
-            maxPlayers
-          )
+          MinimessageUtils.tagsFromMap(placeholders)
       ));
 
       // thanks bungeecord - convert the component array into a single component
-      response.setDescriptionComponent(new TextComponent(BungeeComponentSerializer.get().serialize(description)));
+      response.setDescriptionComponent(new TextComponent(ComponentFormats.BUNGEE
+        .version(event.getConnection().getVersion())
+        .fromAdventure(description)));
 
       event.setResponse(response);
     }
@@ -156,16 +160,18 @@ public final class BungeeCordSyncProxyListener implements Listener {
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
-        player.disconnect(BungeeComponentSerializer.get()
-          .serialize(this.syncProxyManagement.configuration().message("player-login-not-whitelisted")));
+        player.disconnect(ComponentFormats.BUNGEE.version(event.getPlayer().getPendingConnection().getVersion()).fromAdventure(
+          this.syncProxyManagement.configuration().message("player-login-not-whitelisted")
+        ));
         event.setCancelled(true);
       }
     } else {
       // check if the proxy is full and if the player is allowed to join or not
       if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
         && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-        player.disconnect(BungeeComponentSerializer.get()
-          .serialize(this.syncProxyManagement.configuration().message("player-login-full-server")));
+        player.disconnect(ComponentFormats.BUNGEE.version(event.getPlayer().getPendingConnection().getVersion()).fromAdventure(
+          this.syncProxyManagement.configuration().message("player-login-full-server")
+        ));
         event.setCancelled(true);
       }
     }

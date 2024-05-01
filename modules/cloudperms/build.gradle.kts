@@ -24,6 +24,8 @@ dependencies {
   "compileOnly"(libs.vault)
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
+  "api"(libs.bundles.adventure)
+  "api"(projects.ext.adventureHelper)
 }
 
 moduleJson {

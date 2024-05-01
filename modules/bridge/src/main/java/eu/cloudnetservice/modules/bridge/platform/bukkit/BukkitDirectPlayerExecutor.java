@@ -16,8 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
-
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
 import java.util.Collection;
@@ -71,21 +70,21 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
   public void kick(@NonNull Component message) {
     this.plugin.getServer().getScheduler().runTask(
       this.plugin,
-      () -> this.forEach(player -> player.kickPlayer(legacySection().serialize(message))));
+      () -> this.forEach(player -> player.kickPlayer(ComponentFormats.BUKKIT.fromAdventure(message))));
   }
 
   @Override
   protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
     this.forEach(player -> player.sendTitle(
-      legacySection().serialize(title),
-      legacySection().serialize(subtitle)));
+      ComponentFormats.BUKKIT.fromAdventure(title),
+      ComponentFormats.BUKKIT.fromAdventure(subtitle)));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
-        player.sendMessage(legacySection().serialize(message));
+        player.sendMessage(ComponentFormats.BUKKIT.fromAdventure(message));
       }
     });
   }

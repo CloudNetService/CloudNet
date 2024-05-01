@@ -23,15 +23,14 @@ import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.plugin.PluginManager;
-import cn.nukkit.utils.TextFormat;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @Singleton
 @PlatformPlugin(
@@ -75,16 +74,15 @@ public class NukkitChatPlugin implements PlatformEntrypoint, Listener {
     var format = ChatFormatter.buildFormat(
       player.getUniqueId(),
       player.getName(),
-      player.getDisplayName(),
+      ComponentFormats.BEDROCK.toAdventure(player.getDisplayName()),
       this.format,
       event.getMessage(),
       event.getPlayer()::hasPermission,
-      TextFormat::colorize,
       this.permissionManagement);
     if (format == null) {
       event.setCancelled(true);
     } else {
-      event.setFormat(LegacyComponentSerializer.legacySection().serialize(format));
+      event.setFormat(ComponentFormats.BEDROCK.fromAdventure(format));
     }
   }
 }

@@ -21,7 +21,7 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 
 /**
- * @deprecated use {@link ComponentFormats#BUNGEE_TO_ADVENTURE} instead.
+ * @deprecated use Mimimessage instead.
  */
 @Deprecated(forRemoval = true)
 public final class AdventureSerializerUtil {
@@ -36,10 +36,12 @@ public final class AdventureSerializerUtil {
   }
 
   public static @NonNull String serializeToString(@NonNull String textToSerialize) {
-    return ComponentFormats.BUNGEE_TO_ADVENTURE.convertText(textToSerialize);
+    return ComponentFormats.LEGACY_HEX.fromAdventure(ComponentFormats.LEGACY_HEX_AMPERSAND.toAdventure(textToSerialize));
   }
 
   public static @NonNull Component serialize(@NonNull String input) {
-    return ComponentFormats.BUNGEE_TO_ADVENTURE.convert(input);
+    return ComponentFormats.LEGACY_HEX.toAdventure(
+      ComponentFormats.LEGACY_HEX.fromAdventure(ComponentFormats.LEGACY_HEX_AMPERSAND.toAdventure(input))
+    );
   }
 }

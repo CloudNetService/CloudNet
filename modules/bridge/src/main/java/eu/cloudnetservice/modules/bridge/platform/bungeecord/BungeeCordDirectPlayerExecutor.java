@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
 import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
@@ -26,7 +27,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -35,10 +35,6 @@ import net.md_5.bungee.api.plugin.PluginManager;
 import org.jetbrains.annotations.Nullable;
 
 final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ProxiedPlayer> {
-
-  // the first minecraft version to support hex colors
-  // https://minecraft.fandom.com/wiki/Java_Edition_1.16
-  private static final int PROTOCOL_VERSION_1_16 = 735;
 
   private final ProxyServer proxyServer;
   private final PluginManager pluginManager;
@@ -148,11 +144,6 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   private @NonNull BaseComponent[] convertComponent(@NonNull Component component, @NonNull ProxiedPlayer player) {
-    // check if we have to use legacy colors because the client is on an old version
-    if (player.getPendingConnection().getVersion() < PROTOCOL_VERSION_1_16) {
-      return BungeeComponentSerializer.legacy().serialize(component);
-    } else {
-      return BungeeComponentSerializer.get().serialize(component);
-    }
+    return ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()).fromAdventure(component);
   }
 }

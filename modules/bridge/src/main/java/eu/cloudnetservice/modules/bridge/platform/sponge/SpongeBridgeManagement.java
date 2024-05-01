@@ -42,7 +42,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Server;
@@ -99,7 +98,7 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
       this.server::onlinePlayers);
     // init the bridge properties
     serviceHelper.maxPlayers().set(this.server.maxPlayers());
-    serviceHelper.motd().set(LegacyComponentSerializer.legacySection().serialize(this.server.motd()));
+    serviceHelper.motd().set(this.server.motd());
   }
 
   @Override

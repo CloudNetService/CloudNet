@@ -19,9 +19,12 @@ package eu.cloudnetservice.ext.component;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 
+@FunctionalInterface
 public interface ComponentFormat<C> {
 
-  @NonNull Component toAdventure(@NonNull C component);
+  default @NonNull Component toAdventure(@NonNull C component) {
+    return Component.empty();
+  }
 
   @NonNull C fromAdventure(@NonNull Component adventure);
 }

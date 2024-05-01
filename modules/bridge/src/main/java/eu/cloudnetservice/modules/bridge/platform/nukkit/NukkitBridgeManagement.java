@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -84,7 +85,7 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       () -> this.server.getOnlinePlayers().values());
     // init the bridge properties
-    serviceHelper.motd().set(this.server.getMotd());
+    serviceHelper.motd().set(ComponentFormats.BEDROCK.toAdventure(this.server.getMotd()));
     serviceHelper.maxPlayers().set(this.server.getMaxPlayers());
   }
 

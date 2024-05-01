@@ -30,7 +30,6 @@ import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @Singleton
 public final class VelocityCloudPermissionsPlayerListener {
@@ -57,8 +56,7 @@ public final class VelocityCloudPermissionsPlayerListener {
       event.getPlayer().getUniqueId(),
       event.getPlayer().getUsername(),
       message -> {
-        var reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
-        event.setResult(ResultedEvent.ComponentResult.denied(reasonComponent));
+        event.setResult(ResultedEvent.ComponentResult.denied(message));
       },
       this.proxyServer.getConfiguration().isOnlineMode());
   }

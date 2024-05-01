@@ -21,16 +21,19 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
+import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.MinimessageUtils;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @Singleton
 public final class VelocitySyncProxyListener {
@@ -71,15 +74,22 @@ public final class VelocitySyncProxyListener {
       }
 
       var serviceInfo = this.serviceInfoHolder.serviceInfo();
+      var placeholders = new HashMap<String, Component>();
+      SyncProxyConfiguration.fillCommonPlaceholders(placeholders, serviceInfo, onlinePlayers, maxPlayers);
+
       var protocolText = motd.protocolText();
       var version = event.getPing().getVersion();
       // check if a protocol text is specified in the config
       if (protocolText != null) {
         version = new ServerPing.Version(1,
-          LegacyComponentSerializer.legacySection().serialize(
+          (
+            ComponentFormats.supportsHex(event.getConnection().getProtocolVersion().getProtocol())
+              ? ComponentFormats.LEGACY_HEX
+              : ComponentFormats.LEGACY
+          ).fromAdventure(
             MiniMessage.miniMessage().deserialize(
               protocolText,
-              SyncProxyConfiguration.adventurePlaceholders(serviceInfo, onlinePlayers, maxPlayers)
+              MinimessageUtils.tagsFromMap(placeholders)
             )
           )
         );
@@ -93,9 +103,13 @@ public final class VelocitySyncProxyListener {
           .filter(Objects::nonNull)
           .map(info -> MiniMessage.miniMessage().deserialize(
             info,
-            SyncProxyConfiguration.adventurePlaceholders(serviceInfo, onlinePlayers, maxPlayers)
+            MinimessageUtils.tagsFromMap(placeholders)
           ))
-          .map(LegacyComponentSerializer.legacySection()::serialize)
+          .map((
+            ComponentFormats.supportsHex(event.getConnection().getProtocolVersion().getProtocol())
+              ? ComponentFormats.LEGACY_HEX
+              : ComponentFormats.LEGACY
+          )::fromAdventure)
           .map(info -> new ServerPing.SamplePlayer(info, UUID.randomUUID()))
           .toArray(ServerPing.SamplePlayer[]::new);
       }
@@ -103,20 +117,12 @@ public final class VelocitySyncProxyListener {
       // construct the description for the response
       var description = MiniMessage.miniMessage().deserialize(
           motd.firstLine(),
-          SyncProxyConfiguration.adventurePlaceholders(
-            serviceInfo,
-            onlinePlayers,
-            maxPlayers
-          )
+          MinimessageUtils.tagsFromMap(placeholders)
       )
         .appendNewline()
         .append(MiniMessage.miniMessage().deserialize(
           motd.secondLine(),
-          SyncProxyConfiguration.adventurePlaceholders(
-            serviceInfo,
-            onlinePlayers,
-            maxPlayers
-          )
+          MinimessageUtils.tagsFromMap(placeholders)
       ));
 
       // construct the response to the ping event

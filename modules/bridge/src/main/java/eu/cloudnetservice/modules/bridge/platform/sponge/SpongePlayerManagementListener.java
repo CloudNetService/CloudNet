@@ -69,7 +69,7 @@ public final class SpongePlayerManagementListener {
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "server-join-cancel-because-maintenance",
-          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          ComponentFormats.ADVENTURE,
           event::setMessage);
         return;
       }
@@ -80,7 +80,7 @@ public final class SpongePlayerManagementListener {
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "server-join-cancel-because-permission",
-          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          ComponentFormats.ADVENTURE,
           event::setMessage);
       }
     }

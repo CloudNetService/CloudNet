@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.cloudperms.bukkit.listener;
 
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import eu.cloudnetservice.modules.cloudperms.bukkit.BukkitPermissionHelper;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
@@ -24,7 +25,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -56,7 +56,7 @@ public final class BukkitCloudPermissionsPlayerListener implements Listener {
         event.getName(),
         message -> {
           event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-          event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
+          event.setKickMessage(ComponentFormats.BUKKIT.fromAdventure(message));
         },
         Bukkit.getOnlineMode());
     }

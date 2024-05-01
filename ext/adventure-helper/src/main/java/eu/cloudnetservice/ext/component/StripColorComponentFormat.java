@@ -16,19 +16,27 @@
 
 package eu.cloudnetservice.ext.component;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 
-final class AdventureComponentFormat implements ComponentFormat<Component> {
-
+public record StripColorComponentFormat<C>(ComponentFormat<C> parent) implements ComponentFormat<C> {
 
   @Override
-  public @NonNull Component toAdventure(@NonNull Component component) {
-    return component;
+  public @NonNull Component toAdventure(@NonNull C component) {
+    return this.strip(this.parent.toAdventure(component));
   }
 
   @Override
-  public @NonNull Component fromAdventure(@NonNull Component adventure) {
-    return adventure;
+  public @NonNull C fromAdventure(@NonNull Component adventure) {
+    return this.parent.fromAdventure(this.strip(adventure));
+  }
+
+  private @NonNull Component strip(@NonNull Component component) {
+    return component.color(null)
+      .decorations(Arrays.stream(TextDecoration.values()).collect(Collectors.toSet()), false)
+      .children(component.children().stream().map(this::strip).toList());
   }
 }

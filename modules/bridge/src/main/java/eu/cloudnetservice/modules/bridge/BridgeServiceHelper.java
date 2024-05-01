@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -51,7 +53,7 @@ public final class BridgeServiceHelper {
 
   private final AtomicInteger maxPlayers = new AtomicInteger();
 
-  private final AtomicReference<String> motd = new AtomicReference<>("");
+  private final AtomicReference<Component> motd = new AtomicReference<>(Component.empty());
   private final AtomicReference<String> extra = new AtomicReference<>("");
   private final AtomicReference<String> state = new AtomicReference<>("LOBBY");
 
@@ -125,16 +127,18 @@ public final class BridgeServiceHelper {
    * @param service the service to use as source for the placeholder values.
    * @return the String with the placeholders replaced.
    * @throws NullPointerException if the given input string is null.
+   * @deprecated Use {#{@link #fillCommonPlaceholders(Map, String, ServiceInfoSnapshot)}} instead
    */
+  @Deprecated
   public static @NonNull String fillCommonPlaceholders(
     @NonNull String value,
     @Nullable String group,
     @Nullable ServiceInfoSnapshot service
   ) {
-    var placeholders = new HashMap<String, String>();
+    var placeholders = new HashMap<String, Component>();
     fillCommonPlaceholders(placeholders, group, service);
     for (var placeholder : placeholders.entrySet()) {
-      value = value.replace("<" + placeholder.getKey() + ">", placeholder.getValue());
+      value = value.replace("<" + placeholder.getKey() + ">", ComponentFormats.LEGACY_HEX.fromAdventure(placeholder.getValue()));
     }
     // done
     return value;
@@ -144,17 +148,17 @@ public final class BridgeServiceHelper {
    * Puts commonly used placeholders in the given input map using the given service as the information source. If
    * no service is given only the group property is replaced.
    *
-   * @param map     the map to put the placeholders in.
-   * @param group   the group for the {@literal group} placeholder.
-   * @param service the service to use as source for the placeholder values.
+   * @param placeholders the map to put the placeholders in.
+   * @param group        the group for the {@literal group} placeholder.
+   * @param service      the service to use as source for the placeholder values.
    * @throws NullPointerException if the given map is null.
    */
   public static void fillCommonPlaceholders(
-    @NonNull Map<String, String> map,
+    @NonNull Map<String, Component> placeholders,
     @Nullable String group,
     @Nullable ServiceInfoSnapshot service
   ) {
-    map.put("group", group == null ? "" : group);
+    placeholders.put("group", Component.text(group == null ? "" : group));
 
     // stop replacing if no service is given
     if (service == null) {
@@ -162,42 +166,42 @@ public final class BridgeServiceHelper {
     }
 
     // put all service id placeholders
-    map.put("name", service.serviceId().name());
-    map.put("task", service.serviceId().taskName());
-    map.put("node", service.serviceId().nodeUniqueId());
-    map.put("unique_id", service.serviceId().uniqueId().toString());
-    map.put("environment", service.serviceId().environment().name());
-    map.put("task_id", Integer.toString(service.serviceId().taskServiceId()));
-    map.put("uid", service.serviceId().uniqueId().toString().split("-")[0]);
+    placeholders.put("name", Component.text(service.serviceId().name()));
+    placeholders.put("task", Component.text(service.serviceId().taskName()));
+    placeholders.put("node", Component.text(service.serviceId().nodeUniqueId()));
+    placeholders.put("unique_id", Component.text(service.serviceId().uniqueId().toString()));
+    placeholders.put("environment", Component.text(service.serviceId().environment().name()));
+    placeholders.put("task_id", Component.text(service.serviceId().taskServiceId()));
+    placeholders.put("uid", Component.text(service.serviceId().uniqueId().toString().split("-")[0]));
     // general service information
-    map.put("life_cycle", service.lifeCycle().name());
-    map.put("runtime", service.configuration().runtime());
-    map.put("port", Integer.toString(service.configuration().port()));
+    placeholders.put("life_cycle", Component.text(service.lifeCycle().name()));
+    placeholders.put("runtime", Component.text(service.configuration().runtime()));
+    placeholders.put("port", Component.text(service.configuration().port()));
     // process information
-    map.put("pid", Long.toString(service.processSnapshot().pid()));
-    map.put("threads", Integer.toString(service.processSnapshot().threads().size()));
-    map.put("heap_usage", Long.toString(service.processSnapshot().heapUsageMemory()));
-    map.put("max_heap_usage", Long.toString(service.processSnapshot().maxHeapMemory()));
-    map.put(
+    placeholders.put("pid", Component.text(service.processSnapshot().pid()));
+    placeholders.put("threads", Component.text(service.processSnapshot().threads().size()));
+    placeholders.put("heap_usage", Component.text(service.processSnapshot().heapUsageMemory()));
+    placeholders.put("max_heap_usage", Component.text(service.processSnapshot().maxHeapMemory()));
+    placeholders.put(
       "cpu_usage",
-      ResourceFormatter.formatTwoDigitPrecision(service.processSnapshot().cpuUsage()));
+      Component.text(ResourceFormatter.formatTwoDigitPrecision(service.processSnapshot().cpuUsage())));
 
     // bridge information
     var online = service.readProperty(BridgeDocProperties.IS_ONLINE);
-    map.put("online", online ? "Online" : "Offline");
+    placeholders.put("online", Component.text(online ? "Online" : "Offline"));
 
     // make sure that the bridge is loaded before accessing any of the properties
     if (online) {
-      map.put(
+      placeholders.put(
         "online_players",
-        Integer.toString(service.readProperty(BridgeDocProperties.ONLINE_COUNT)));
-      map.put(
+        Component.text(service.readProperty(BridgeDocProperties.ONLINE_COUNT)));
+      placeholders.put(
         "max_players",
-        Integer.toString(service.readProperty(BridgeDocProperties.MAX_PLAYERS)));
-      map.put("motd", service.readProperty(BridgeDocProperties.MOTD));
-      map.put("extra", service.readProperty(BridgeDocProperties.EXTRA));
-      map.put("state", service.readProperty(BridgeDocProperties.STATE));
-      map.put("version", service.readProperty(BridgeDocProperties.VERSION));
+        Component.text(service.readProperty(BridgeDocProperties.MAX_PLAYERS)));
+      placeholders.put("motd", ComponentFormats.JSON.toAdventureFromTree(service.readProperty(BridgeDocProperties.MOTD)));
+      placeholders.put("extra", Component.text(service.readProperty(BridgeDocProperties.EXTRA)));
+      placeholders.put("state", Component.text(service.readProperty(BridgeDocProperties.STATE)));
+      placeholders.put("version", Component.text(service.readProperty(BridgeDocProperties.VERSION)));
     }
   }
 
@@ -273,7 +277,9 @@ public final class BridgeServiceHelper {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING
       && service.connected()
       && service.readProperty(BridgeDocProperties.IS_ONLINE)
-      && (matchesInGameString(service.readProperty(BridgeDocProperties.MOTD))
+      && (matchesInGameString(ComponentFormats.PLAIN.fromAdventure(
+        ComponentFormats.JSON.toAdventureFromTree(service.readProperty(BridgeDocProperties.MOTD))
+      ))
       || matchesInGameString(service.readProperty(BridgeDocProperties.EXTRA))
       || matchesInGameString(service.readProperty(BridgeDocProperties.STATE)));
   }
@@ -307,7 +313,7 @@ public final class BridgeServiceHelper {
     return this.maxPlayers;
   }
 
-  public @NonNull AtomicReference<String> motd() {
+  public @NonNull AtomicReference<Component> motd() {
     return this.motd;
   }
 

@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.util;
 
-import static eu.cloudnetservice.modules.bridge.BridgeServiceHelper.fillCommonPlaceholders;
-
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormat;
 import eu.cloudnetservice.ext.component.MinimessageUtils;
@@ -30,6 +28,7 @@ import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Nullable;
 
@@ -113,11 +112,13 @@ public final class LayoutUtil {
     @NonNull ComponentFormat<C> componentFormat,
     @NonNull BiConsumer<Integer, C> lineSetter
   ) {
-    var placeholders = new HashMap<String, String>();
-    fillCommonPlaceholders(placeholders, signTargetGroup, target);
+    var placeholders = new HashMap<String, Component>();
+    BridgeServiceHelper.fillCommonPlaceholders(placeholders, signTargetGroup, target);
     var lines = layout.lines();
     for (var i = 0; i < Math.min(4, lines.size()); i++) {
-      var converted = componentFormat.fromAdventure(MiniMessage.miniMessage().deserialize(lines.get(i), MinimessageUtils.tagsFromMap(placeholders)));
+      var converted = componentFormat.fromAdventure(
+        MiniMessage.miniMessage().deserialize(lines.get(i), MinimessageUtils.tagsFromMap(placeholders))
+      );
       lineSetter.accept(i, converted);
     }
   }

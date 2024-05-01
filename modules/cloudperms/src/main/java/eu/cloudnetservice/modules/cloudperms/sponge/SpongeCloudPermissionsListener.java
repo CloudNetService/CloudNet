@@ -21,7 +21,6 @@ import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.kyori.adventure.text.Component;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -51,7 +50,7 @@ public final class SpongeCloudPermissionsListener {
       user.name(),
       message -> {
         event.setCancelled(true);
-        event.setMessage(Component.text(message));
+        event.setMessage(message);
       },
       Sponge.server().isOnlineModeEnabled());
   }

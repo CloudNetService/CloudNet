@@ -38,10 +38,8 @@ import jakarta.inject.Singleton;
 import java.util.Locale;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 @Singleton
 public final class VelocityPlayerManagementListener {
@@ -74,7 +72,6 @@ public final class VelocityPlayerManagementListener {
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance",
-          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
           component -> event.setResult(ResultedEvent.ComponentResult.denied(component)));
         return;
       }
@@ -84,7 +81,6 @@ public final class VelocityPlayerManagementListener {
         this.management.configuration().handleMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission",
-          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
           component -> event.setResult(ResultedEvent.ComponentResult.denied(component)));
         return;
       }
@@ -127,7 +123,7 @@ public final class VelocityPlayerManagementListener {
         .orElse(KickedFromServerEvent.DisconnectPlayer.create(this.management.configuration().findMessage(
           event.getPlayer().getEffectiveLocale(),
           "proxy-join-disconnect-because-no-hub",
-          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          ComponentFormats.ADVENTURE,
           Component.empty(),
           true))));
     }
@@ -180,32 +176,26 @@ public final class VelocityPlayerManagementListener {
     }
     // check if we have a reason component
     if (message != null) {
-      // check if we should try to translate the message
-      if (message instanceof TranslatableComponent) {
-        message = GlobalTranslator.render(message, playerLocale == null ? Locale.getDefault() : playerLocale);
-      }
-      // if the message is still not a TextComponent use the default message instead
-      if (message instanceof TextComponent textComponent) {
-        // wrap the message
-        return this.management.configuration().findMessage(
+      return this.management.configuration().findMessage(
           playerLocale,
           "error-connecting-to-server",
-          rawMessage -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(rawMessage
-            .replace("%server%", event.getServer().getServerInfo().getName())
-            .replace("%reason%", LegacyComponentSerializer.legacySection().serialize(textComponent))),
+          ComponentFormats.ADVENTURE,
           Component.empty(),
-          true);
-      }
+          true,
+          Placeholder.unparsed("server", event.getServer().getServerInfo().getName()),
+          Placeholder.component("reason", message)
+      );
     }
 
     // unknown reason
     return this.management.configuration().findMessage(
-      playerLocale,
-      "error-connecting-to-server",
-      rawMessage -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(rawMessage
-        .replace("%server%", event.getServer().getServerInfo().getName())
-        .replace("%reason%", "§cUnknown")),
-      Component.empty(),
-      true);
+          playerLocale,
+          "error-connecting-to-server",
+          ComponentFormats.ADVENTURE,
+          Component.empty(),
+          true,
+          Placeholder.unparsed("server", event.getServer().getServerInfo().getName()),
+          Placeholder.component("reason", Component.text("Unknown", NamedTextColor.RED))
+      );
   }
 }

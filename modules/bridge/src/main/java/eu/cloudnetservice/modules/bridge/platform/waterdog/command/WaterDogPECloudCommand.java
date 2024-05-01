@@ -27,6 +27,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Locale;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -53,8 +55,9 @@ public final class WaterDogPECloudCommand extends Command {
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
-      sender.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(
-        this.management.configuration().prefix() + "/cloudnet <command>"));
+      sender.sendMessage(ComponentFormats.BEDROCK.fromAdventure(
+        this.management.configuration().prefix().append(Component.text("/cloudnet <command>"))
+      ));
       return true;
     }
     // get the full command line
@@ -69,8 +72,10 @@ public final class WaterDogPECloudCommand extends Command {
           this.management.configuration().handleMessage(
             Locale.ENGLISH,
             "command-cloud-sub-command-no-permission",
-            message -> message.replace("%command%", args[0]),
-            sender::sendMessage);
+            ComponentFormats.BEDROCK,
+            sender::sendMessage,
+            true,
+            Placeholder.unparsed("command", args[0]));
         } else {
           // execute command
           this.executeNow(sender, commandLine);
@@ -85,8 +90,7 @@ public final class WaterDogPECloudCommand extends Command {
 
   private void executeNow(@NonNull CommandSender sender, @NonNull String commandLine) {
     for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
-      sender.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(
-        this.management.configuration().prefix() + output));
+      sender.sendMessage(ComponentFormats.BEDROCK.fromAdventure(this.management.configuration().prefix().append(Component.text(output))));
     }
   }
 }

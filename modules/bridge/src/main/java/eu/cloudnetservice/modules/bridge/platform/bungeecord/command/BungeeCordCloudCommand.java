@@ -17,11 +17,14 @@
 package eu.cloudnetservice.modules.bridge.platform.bungeecord.command;
 
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -48,17 +51,25 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
 
   @Override
   public void execute(@NonNull CommandSender sender, @NonNull String[] args) {
+    var protocolVersion = 1000000;
+    if (sender instanceof ProxiedPlayer pp) {
+      protocolVersion = pp.getPendingConnection().getVersion();
+    }
+
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
       sender.sendMessage(
-        this.bungeeHelper.translateToComponent(this.management.configuration().prefix() + "/cloudnet <command>"));
+        ComponentFormats.BUNGEE.version(protocolVersion).fromAdventure(
+          this.management.configuration().prefix().append(Component.text("/cloudnet <command>"))
+        ));
       return;
     }
     // get the full command line
     var commandLine = String.join(" ", args);
     // skip the permission check if the source is the console
     if (sender instanceof ProxiedPlayer player) {
+      final var protocolVersion1 = protocolVersion;
       // get the command info
       this.clusterNodeProvider.consoleCommandAsync(args[0]).thenAcceptAsync(info -> {
         // check if the player has the required permission
@@ -66,8 +77,11 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
           this.management.configuration().handleMessage(
             player.getLocale(),
             "command-cloud-sub-command-no-permission",
-            message -> this.bungeeHelper.translateToComponent(message.replace("%command%", args[0])),
-            sender::sendMessage);
+            ComponentFormats.BUNGEE.version(protocolVersion1),
+            sender::sendMessage,
+            true,
+            Placeholder.unparsed("command", args[0])
+          );
         } else {
           // execute command
           this.executeNow(sender, commandLine);
@@ -80,8 +94,15 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
   }
 
   private void executeNow(@NonNull CommandSender sender, @NonNull String commandLine) {
+    var protocolVersion = 1000000;
+    if (sender instanceof ProxiedPlayer pp) {
+      protocolVersion = pp.getPendingConnection().getVersion();
+    }
+
     for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
-      sender.sendMessage(this.bungeeHelper.translateToComponent(this.management.configuration().prefix() + output));
+      sender.sendMessage(ComponentFormats.BUNGEE.version(protocolVersion).fromAdventure(
+        this.management.configuration().prefix().append(Component.text(output))
+      ));
     }
   }
 

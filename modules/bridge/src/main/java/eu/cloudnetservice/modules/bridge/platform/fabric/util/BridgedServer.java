@@ -21,6 +21,7 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +31,7 @@ public interface BridgedServer {
 
   int playerCount();
 
-  @NonNull String motd();
+  @NonNull Component motd();
 
   @NonNull Collection<ServerPlayer> players();
 

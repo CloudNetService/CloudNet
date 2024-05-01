@@ -17,6 +17,8 @@
 package eu.cloudnetservice.modules.bridge.config;
 
 import com.google.common.collect.ImmutableMap;
+import eu.cloudnetservice.ext.component.ComponentFormat;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,10 +27,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -84,8 +88,8 @@ public final class BridgeConfiguration {
     this.fallbackConfigurations = fallbackConfigurations;
   }
 
-  public @NonNull String prefix() {
-    return this.prefix;
+  public @NonNull Component prefix() {
+    return MiniMessage.miniMessage().deserialize(this.prefix);
   }
 
   public @NonNull Collection<ProxyFallbackConfiguration> fallbackConfigurations() {
@@ -103,28 +107,29 @@ public final class BridgeConfiguration {
   public void handleMessage(
     @Nullable Locale locale,
     @NonNull String key,
-    @NonNull Consumer<String> sender
+    @NonNull Consumer<Component> sender
   ) {
-    this.handleMessage(locale, key, Function.identity(), sender, true);
+    this.handleMessage(locale, key, ComponentFormats.ADVENTURE, sender, true);
   }
 
   public <C> void handleMessage(
     @Nullable Locale locale,
     @NonNull String key,
-    @NonNull Function<String, C> toComponentConverter,
+    @NonNull ComponentFormat<C> format,
     @NonNull Consumer<C> sender
   ) {
-    this.handleMessage(locale, key, toComponentConverter, sender, true);
+    this.handleMessage(locale, key, format, sender, true);
   }
 
   public <C> void handleMessage(
     @Nullable Locale locale,
     @NonNull String key,
-    @NonNull Function<String, C> toComponentConverter,
+    @NonNull ComponentFormat<C> format,
     @NonNull Consumer<C> sender,
-    boolean withPrefix
+    boolean withPrefix,
+    TagResolver... placeholders
   ) {
-    C component = this.findMessage(locale, key, toComponentConverter, null, withPrefix);
+    C component = this.findMessage(locale, key, format, null, withPrefix, placeholders);
     if (component != null) {
       sender.accept(component);
     }
@@ -133,9 +138,10 @@ public final class BridgeConfiguration {
   public @UnknownNullability <C> C findMessage(
     @Nullable Locale locale,
     @NonNull String key,
-    @NonNull Function<String, C> toComponentConverter,
+    @NonNull ComponentFormat<C> format,
     @Nullable C defaultValue,
-    boolean withPrefix
+    boolean withPrefix,
+    TagResolver... placeholders
   ) {
     String message = null;
     // don't bother resolving if no locale is present
@@ -157,11 +163,15 @@ public final class BridgeConfiguration {
     }
 
     // format the final message
-    var formattedMessage = String.format("%s%s", withPrefix ? this.prefix : "", message);
-    C component = toComponentConverter.apply(formattedMessage);
+    var formattedMessage = Component.empty();
+    if (withPrefix) {
+      formattedMessage.append(MiniMessage.miniMessage().deserialize(this.prefix));
+    }
+    formattedMessage.append(MiniMessage.miniMessage().deserialize(message, placeholders));
+    C component = format.fromAdventure(formattedMessage);
 
     // check if the converter was able to convert the message
-    return component != null ? component : defaultValue;
+    return component;
   }
 
   private @Nullable String resolveMessage(@Nullable Map<String, String> messages, @NonNull String key) {
