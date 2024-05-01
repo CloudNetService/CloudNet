@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.bridge.config;
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.ext.component.ComponentFormat;
 import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.InternalPlaceholder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,6 +32,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -38,21 +40,52 @@ import org.jetbrains.annotations.UnknownNullability;
 @EqualsAndHashCode
 public final class BridgeConfiguration {
 
-  public static final Map<String, Map<String, String>> DEFAULT_MESSAGES = ImmutableMap.of(
+  public static final Map<String, Map<String, Component>> DEFAULT_MESSAGE_COMPONENTS = ImmutableMap.of(
     "default",
-    new HashMap<>(ImmutableMap.<String, String>builder()
-      .put("command-hub-success-connect", "<gray>You did successfully connect to <server>.</gray>")
-      .put("command-hub-already-in-hub", "<red>You are already connected to a hub service.</red>")
-      .put("command-hub-no-server-found", "<gray>There is currently</gray> <red>no</red> <gray>hub server available.</gray>")
-      .put("server-join-cancel-because-maintenance", "<gray>This server is currently in maintenance mode.</gray>")
-      .put("server-join-cancel-because-permission", "<gray>You do not have the required permissions to join this server.</gray>")
-      .put("proxy-join-cancel-because-permission", "<gray>You do not have the required permissions to join this proxy.</gray>")
-      .put("proxy-join-cancel-because-maintenance", "<gray>This proxy is currently in maintenance mode.</gray>")
-      .put("proxy-join-disconnect-because-no-hub", "<red>There is currently no hub server you can connect to.</red>")
-      .put("command-cloud-sub-command-no-permission", "<gray>You are not allowed to use</gray> <aqua><command></aqua><gray>.</gray>")
-      .put("already-connected", "<red>You are already connected to this network!</red>")
-      .put("error-connecting-to-server", "<red>Unable to connect to <server>: <reason></red>")
+    new HashMap<>(ImmutableMap.<String, Component>builder()
+      .put("command-hub-success-connect", Component.text("You did successfully connect to <server>.", NamedTextColor.GRAY))
+      .put("command-hub-already-in-hub", Component.text("You are already connected to a hub service.", NamedTextColor.RED))
+      .put("command-hub-no-server-found", Component.text("There is currently ", NamedTextColor.GRAY)
+        .append(Component.text("no", NamedTextColor.RED))
+        .append(Component.text("hub server available."))
+      )
+      .put("server-join-cancel-because-maintenance", Component.text("This server is currently in maintenance mode.", NamedTextColor.GRAY))
+      .put("server-join-cancel-because-permission",
+        Component.text("You do not have the required permissions to join this server.", NamedTextColor.GRAY)
+      )
+      .put("proxy-join-cancel-because-permission", Component.text("You do not have the required permissions to join this proxy.", NamedTextColor.GRAY))
+      .put("proxy-join-cancel-because-maintenance", Component.text("This proxy is currently in maintenance mode.", NamedTextColor.GRAY))
+      .put("proxy-join-disconnect-because-no-hub", Component.text("There is currently no hub server you can connect to.", NamedTextColor.RED))
+      .put("command-cloud-sub-command-no-permission", Component.text("You are not allowed to use ", NamedTextColor.GRAY)
+        .append(InternalPlaceholder.create("command").color(NamedTextColor.AQUA))
+        .append(Component.text("."))
+      )
+      .put("already-connected", Component.text("You are already connected to this network!", NamedTextColor.RED))
+      .put("error-connecting-to-server", Component.text("Unable to connect to ", NamedTextColor.RED)
+        .append(InternalPlaceholder.create("server"))
+        .append(Component.text(": "))
+        .append(InternalPlaceholder.create("reason"))
+      )
       .build()));
+
+  public static final Map<String, Map<String, String>> DEFAULT_MESSAGES;
+
+  static {
+    var map = new HashMap<String, Map<String, String>>();
+    for (var language : DEFAULT_MESSAGE_COMPONENTS.entrySet()) {
+      var messages = new HashMap<String, String>();
+      for (var message : language.getValue().entrySet()) {
+        messages.put(
+          message.getKey(),
+          InternalPlaceholder.replacePlaceholders(
+            ComponentFormats.USER_INPUT.fromAdventure(message.getValue())
+          )
+        );
+      }
+      map.put(language.getKey(), messages);
+    }
+    DEFAULT_MESSAGES = ImmutableMap.copyOf(map);
+  }
 
   private final String prefix;
   private final Map<String, Map<String, String>> localizedMessages;
