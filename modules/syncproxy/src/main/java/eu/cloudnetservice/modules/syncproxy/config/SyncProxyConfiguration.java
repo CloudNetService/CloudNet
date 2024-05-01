@@ -21,6 +21,7 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.InternalPlaceholder;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -40,11 +42,43 @@ public record SyncProxyConfiguration(
   boolean ingameServiceStartStopMessages
 ) {
 
-  public static final Map<String, String> DEFAULT_MESSAGES = ImmutableMap.of(
-    "player-login-not-whitelisted", "<red>The network is currently in maintenance!</red>",
-    "player-login-full-server", "<red>The network is currently full. You need extra permissions to enter the network</red>",
-    "service-start", "<gray>The service <yellow><service></yellow> is <green>starting</green> on node <yellow><node></yellow>...</gray>",
-    "service-stop", "<gray>The service <yellow><service></yellow> is <red>stopping</red> on node <yellow><node></yellow>...</gray>");
+  public static final Map<String, Component> DEFAULT_MESSAGE_COMPONENTS = ImmutableMap.of(
+    "player-login-not-whitelisted",
+      Component.text("The network is currently in maintenance!", NamedTextColor.RED),
+    "player-login-full-server",
+      Component.text("The network is currently full. You need extra permissions to enter the network", NamedTextColor.RED),
+    "service-start",
+      Component.text("The service ", NamedTextColor.GRAY)
+        .append(InternalPlaceholder.create("service").color(NamedTextColor.YELLOW))
+        .append(Component.text(" is "))
+        .append(Component.text("starting", NamedTextColor.GREEN))
+        .append(Component.text(" on node "))
+        .append(InternalPlaceholder.create("node").color(NamedTextColor.YELLOW))
+        .append(Component.text("...")),
+    "service-stop",
+      Component.text("The service ")
+        .append(InternalPlaceholder.create("service").color(NamedTextColor.YELLOW))
+        .append(Component.text(" is "))
+        .append(Component.text("stopping", NamedTextColor.RED))
+        .append(Component.text(" on node "))
+        .append(InternalPlaceholder.create("node").color(NamedTextColor.YELLOW))
+        .append(Component.text("..."))
+  );
+
+  public static final Map<String, String> DEFAULT_MESSAGES;
+
+  static {
+    var map = new HashMap<String, String>();
+    for (var message : DEFAULT_MESSAGE_COMPONENTS.entrySet()) {
+        map.put(
+          message.getKey(),
+          InternalPlaceholder.process(
+            ComponentFormats.USER_INPUT.fromAdventure(message.getValue())
+          )
+        );
+      }
+    DEFAULT_MESSAGES = ImmutableMap.copyOf(map);
+  }
 
   public static void fillCommonPlaceholders(
     @NonNull Map<String, Component> map,
