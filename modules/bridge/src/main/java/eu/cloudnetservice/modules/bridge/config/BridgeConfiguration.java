@@ -31,8 +31,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -43,17 +41,17 @@ public final class BridgeConfiguration {
   public static final Map<String, Map<String, String>> DEFAULT_MESSAGES = ImmutableMap.of(
     "default",
     new HashMap<>(ImmutableMap.<String, String>builder()
-      .put("command-hub-success-connect", "§7You did successfully connect to %server%.")
-      .put("command-hub-already-in-hub", "§cYou are already connected to a hub service.")
-      .put("command-hub-no-server-found", "§7There is currently §cno §7hub server available.")
-      .put("server-join-cancel-because-maintenance", "§7This server is currently in maintenance mode.")
-      .put("server-join-cancel-because-permission", "§7You do not have the required permissions to join this server.")
-      .put("proxy-join-cancel-because-permission", "§7You do not have the required permissions to join this proxy.")
-      .put("proxy-join-cancel-because-maintenance", "§7This proxy is currently in maintenance mode.")
-      .put("proxy-join-disconnect-because-no-hub", "§cThere is currently no hub server you can connect to.")
-      .put("command-cloud-sub-command-no-permission", "§7You are not allowed to use §b%command%.")
-      .put("already-connected", "§cYou are already connected to this network!")
-      .put("error-connecting-to-server", "§cUnable to connect to %server%: %reason%")
+      .put("command-hub-success-connect", "<gray>You did successfully connect to <server>.</gray>")
+      .put("command-hub-already-in-hub", "<red>You are already connected to a hub service.</red>")
+      .put("command-hub-no-server-found", "<gray>There is currently</gray> <red>no</red> <gray>hub server available.</gray>")
+      .put("server-join-cancel-because-maintenance", "<gray>This server is currently in maintenance mode.</gray>")
+      .put("server-join-cancel-because-permission", "<gray>You do not have the required permissions to join this server.</gray>")
+      .put("proxy-join-cancel-because-permission", "<gray>You do not have the required permissions to join this proxy.</gray>")
+      .put("proxy-join-cancel-because-maintenance", "<gray>This proxy is currently in maintenance mode.</gray>")
+      .put("proxy-join-disconnect-because-no-hub", "<red>There is currently no hub server you can connect to.</red>")
+      .put("command-cloud-sub-command-no-permission", "<gray>You are not allowed to use</gray> <aqua><command></aqua><gray>.</gray>")
+      .put("already-connected", "<red>You are already connected to this network!</red>")
+      .put("error-connecting-to-server", "<red>Unable to connect to <server>: <reason></red>")
       .build()));
 
   private final String prefix;
@@ -64,7 +62,7 @@ public final class BridgeConfiguration {
   private final Collection<ProxyFallbackConfiguration> fallbackConfigurations;
 
   public BridgeConfiguration() {
-    this.prefix = "§7Cloud §8| §b";
+    this.prefix = "<gray>Cloud</gray> <dark_gray>|</dark_gray> ";
     this.localizedMessages = new HashMap<>(DEFAULT_MESSAGES);
     this.excludedGroups = new ArrayList<>();
     this.hubCommandNames = Arrays.asList("hub", "lobby", "leave", "l");
@@ -89,7 +87,7 @@ public final class BridgeConfiguration {
   }
 
   public @NonNull Component prefix() {
-    return MiniMessage.miniMessage().deserialize(this.prefix);
+    return ComponentFormats.USER_INPUT.toAdventure(this.prefix);
   }
 
   public @NonNull Collection<ProxyFallbackConfiguration> fallbackConfigurations() {
@@ -109,7 +107,7 @@ public final class BridgeConfiguration {
     @NonNull String key,
     @NonNull Consumer<Component> sender
   ) {
-    this.handleMessage(locale, key, ComponentFormats.ADVENTURE, sender, true);
+    this.handleMessage(locale, key, ComponentFormats.ADVENTURE, sender);
   }
 
   public <C> void handleMessage(
@@ -126,8 +124,18 @@ public final class BridgeConfiguration {
     @NonNull String key,
     @NonNull ComponentFormat<C> format,
     @NonNull Consumer<C> sender,
+    boolean withPrefix
+  ) {
+    this.handleMessage(locale, key, format, sender, withPrefix, Map.of());
+  }
+
+  public <C> void handleMessage(
+    @Nullable Locale locale,
+    @NonNull String key,
+    @NonNull ComponentFormat<C> format,
+    @NonNull Consumer<C> sender,
     boolean withPrefix,
-    TagResolver... placeholders
+    @NonNull Map<String, Component> placeholders
   ) {
     C component = this.findMessage(locale, key, format, null, withPrefix, placeholders);
     if (component != null) {
@@ -140,8 +148,18 @@ public final class BridgeConfiguration {
     @NonNull String key,
     @NonNull ComponentFormat<C> format,
     @Nullable C defaultValue,
+    boolean withPrefix
+  ) {
+    return this.findMessage(locale, key, format, defaultValue, withPrefix, Map.of());
+  }
+
+  public @UnknownNullability <C> C findMessage(
+    @Nullable Locale locale,
+    @NonNull String key,
+    @NonNull ComponentFormat<C> format,
+    @Nullable C defaultValue,
     boolean withPrefix,
-    TagResolver... placeholders
+    @NonNull Map<String, Component> placeholders
   ) {
     String message = null;
     // don't bother resolving if no locale is present
@@ -165,9 +183,9 @@ public final class BridgeConfiguration {
     // format the final message
     var formattedMessage = Component.empty();
     if (withPrefix) {
-      formattedMessage.append(MiniMessage.miniMessage().deserialize(this.prefix));
+      formattedMessage.append(this.prefix());
     }
-    formattedMessage.append(MiniMessage.miniMessage().deserialize(message, placeholders));
+    formattedMessage.append(ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(message));
     C component = format.fromAdventure(formattedMessage);
 
     // check if the converter was able to convert the message

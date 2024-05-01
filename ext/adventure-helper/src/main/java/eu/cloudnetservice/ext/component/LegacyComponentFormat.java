@@ -16,15 +16,23 @@
 
 package eu.cloudnetservice.ext.component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-record LegacyComponentFormat(Supplier<LegacyComponentSerializer> serializer) implements ComponentFormat<String> {
+record LegacyComponentFormat(@NonNull Supplier<LegacyComponentSerializer> serializer,
+                             @NonNull Map<String, String> placeholders) implements PlaceholderComponentFormat<String> {
 
-  public LegacyComponentFormat(LegacyComponentSerializer serializer) {
-    this(() -> serializer);
+  public LegacyComponentFormat(@NonNull LegacyComponentSerializer serializer) {
+    this(() -> serializer, Map.of());
+  }
+
+  public LegacyComponentFormat(@NonNull Supplier<LegacyComponentSerializer> serializer) {
+    this(serializer, Map.of());
   }
 
   @Override
@@ -35,5 +43,27 @@ record LegacyComponentFormat(Supplier<LegacyComponentSerializer> serializer) imp
   @Override
   public @NonNull String fromAdventure(@NonNull Component adventure) {
     return this.serializer.get().serialize(adventure);
+  }
+
+  @Override
+  public @NonNull PlaceholderComponentFormat<String> withPlaceholders(@NonNull Map<String, Component> placeholders) {
+    var map = new HashMap<>(this.placeholders);
+    placeholders.entrySet()
+      .stream()
+      .map((entry) -> Map.entry(entry.getKey(), this.serializer.get().serialize(entry.getValue())))
+      .forEach((entry) -> map.put(entry.getKey(), entry.getValue()));
+    return new LegacyComponentFormat(this.serializer, map);
+  }
+
+  @Override
+  public @NonNull PlaceholderComponentFormat<String> limitPlaceholders() {
+    return new LegacyComponentFormat(this.serializer, Map.of());
+  }
+
+  @Override
+  public @NonNull PlaceholderComponentFormat<String> withColorPlaceholder(String name, TextColor color) {
+    var map = new HashMap<>(this.placeholders);
+    map.put(name, this.serializer.get().serialize(Component.empty().color(color)));
+    return new LegacyComponentFormat(this.serializer, map);
   }
 }

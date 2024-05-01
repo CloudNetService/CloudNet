@@ -49,8 +49,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagement {
@@ -159,7 +157,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       for (var onlinePlayer : this.onlinePlayers()) {
         // check if the player is allowed to join
         if (!this.checkPlayerMaintenance(onlinePlayer)) {
-          this.disconnectPlayer(onlinePlayer, this.configuration.message("player-login-not-whitelisted", new TagResolver[0]));
+          this.disconnectPlayer(onlinePlayer, this.configuration.message("player-login-not-whitelisted"));
         }
       }
     }
@@ -203,8 +201,8 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   ) {
     return this.configuration.message(
       key,
-      Placeholder.unparsed("service", serviceInfoSnapshot.name()),
-      Placeholder.unparsed("node", serviceInfoSnapshot.serviceId().nodeUniqueId())
+      Map.of("service", Component.text(serviceInfoSnapshot.name()),
+        "node", Component.text(serviceInfoSnapshot.serviceId().nodeUniqueId()))
     );
   }
 

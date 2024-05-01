@@ -24,8 +24,9 @@ import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.Locale;
+import java.util.Map;
 import lombok.NonNull;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.Component;
 
 public final class WaterDogPEHubCommand extends Command {
 
@@ -67,7 +68,7 @@ public final class WaterDogPEHubCommand extends Command {
             ComponentFormats.BEDROCK,
             player::sendMessage,
             true,
-            Placeholder.unparsed("server", hub.getServerName()));
+            Map.of("server", Component.text(hub.getServerName())));
         }
       }
     }

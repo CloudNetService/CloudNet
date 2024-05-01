@@ -27,9 +27,10 @@ import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -173,8 +174,9 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           ComponentFormats.BUNGEE.version(event.getPlayer().getPendingConnection().getVersion()),
           event.getPlayer()::sendMessage,
           true,
-          Placeholder.unparsed("server", event.getKickedFrom().getName()),
-          Placeholder.component("reason", ComponentFormats.BUNGEE.toAdventure(event.getKickReasonComponent())));
+          Map.of("server", Component.text(event.getKickedFrom().getName()),
+            "reason", ComponentFormats.BUNGEE.toAdventure(event.getKickReasonComponent()))
+        );
       } else {
         // no lobby server - the player will disconnect
         event.setCancelled(false);

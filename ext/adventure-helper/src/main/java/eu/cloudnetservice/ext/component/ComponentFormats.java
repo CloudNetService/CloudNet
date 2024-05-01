@@ -16,20 +16,18 @@
 
 package eu.cloudnetservice.ext.component;
 
-import java.util.List;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class ComponentFormats {
 
   public static final ComponentFormat<Component> ADVENTURE = new AdventureComponentFormat();
   public static final BungeeComponentFormat BUNGEE = new BungeeComponentFormat();
-  public static final ComponentFormat<String> BUKKIT = new LegacyComponentFormat(() -> BukkitComponentSerializer.legacy());
+  public static final PlaceholderComponentFormat<String> BUKKIT = new LegacyComponentFormat(() -> BukkitComponentSerializer.legacy());
 
-  public static final ComponentFormat<String> LEGACY_HEX = new LegacyComponentFormat(
+  public static final PlaceholderComponentFormat<String> LEGACY_HEX = new LegacyComponentFormat(
     LegacyComponentSerializer.builder()
       .character('§')
       .hexColors()
@@ -37,7 +35,7 @@ public final class ComponentFormats {
       .flattener(ComponentFlattener.basic()).build()
   );
 
-  public static final ComponentFormat<String> LEGACY_HEX_AMPERSAND = new LegacyComponentFormat(
+  public static final PlaceholderComponentFormat<String> LEGACY_HEX_AMPERSAND = new LegacyComponentFormat(
     LegacyComponentSerializer.builder()
       .character('&')
       .hexColors()
@@ -45,21 +43,21 @@ public final class ComponentFormats {
       .flattener(ComponentFlattener.basic()).build()
   );
 
-  public static final ComponentFormat<String> LEGACY = new LegacyComponentFormat(
+  public static final PlaceholderComponentFormat<String> LEGACY = new LegacyComponentFormat(
     LegacyComponentSerializer.builder()
     .character('§')
     .flattener(ComponentFlattener.basic()).build()
   );
 
-  public static final ComponentFormat<String> BEDROCK = LEGACY;
+  public static final PlaceholderComponentFormat<String> BEDROCK = LEGACY;
   public static final MinestomComponentFormat JSON = new MinestomComponentFormat();
-  public static final ComponentFormat<String> PLAIN = new StripColorComponentFormat(new LegacyComponentFormat(
-    LegacyComponentSerializer.builder()
-      .character('§')
-      .flattener(ComponentFlattener.basic()).build()
-  ));
-  public static final PlaceholderComponentFormat<String> MINIMESSAGE = new MinimessageComponentFormat(List.of(TagResolver.standard()));
-  public static final PlaceholderComponentFormat<String> USER_INPUT = MINIMESSAGE;
+  public static final PlaceholderComponentFormat<String> PLAIN = new StripColorComponentFormat(LEGACY_HEX);
+  public static final PlaceholderComponentFormat<String> MINIMESSAGE = new MinimessageComponentFormat();
+  public static final PlaceholderComponentFormat<String> USER_INPUT = new ConditionalComponentFormat(
+    () -> true,
+    LEGACY_HEX_AMPERSAND,
+    MINIMESSAGE
+  );
 
   private ComponentFormats() {
     throw new UnsupportedOperationException();

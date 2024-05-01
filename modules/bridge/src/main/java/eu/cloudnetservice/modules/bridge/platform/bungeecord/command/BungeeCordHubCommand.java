@@ -19,8 +19,9 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord.command;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
+import java.util.Map;
 import lombok.NonNull;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -72,7 +73,7 @@ public final class BungeeCordHubCommand extends Command {
                 ComponentFormats.BUNGEE.version(player.getPendingConnection().getVersion()),
                 player::sendMessage,
                 true,
-                Placeholder.unparsed("server", hub.getName()));
+                Map.of("server", Component.text(hub.getName())));
             } else {
               // the connection was not successful
               this.management.configuration().handleMessage(

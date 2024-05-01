@@ -36,10 +36,10 @@ import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Locale;
+import java.util.Map;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 @Singleton
 public final class VelocityPlayerManagementListener {
@@ -182,8 +182,8 @@ public final class VelocityPlayerManagementListener {
           ComponentFormats.ADVENTURE,
           Component.empty(),
           true,
-          Placeholder.unparsed("server", event.getServer().getServerInfo().getName()),
-          Placeholder.component("reason", message)
+        Map.of("server", Component.text(event.getServer().getServerInfo().getName()),
+          "reason", message)
       );
     }
 
@@ -194,8 +194,8 @@ public final class VelocityPlayerManagementListener {
           ComponentFormats.ADVENTURE,
           Component.empty(),
           true,
-          Placeholder.unparsed("server", event.getServer().getServerInfo().getName()),
-          Placeholder.component("reason", Component.text("Unknown", NamedTextColor.RED))
+          Map.of("server", Component.text(event.getServer().getServerInfo().getName()),
+            "reason", Component.text("Unknown", NamedTextColor.RED))
       );
   }
 }

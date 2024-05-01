@@ -22,9 +22,10 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.Map;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -61,7 +62,7 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
       // <prefix> /cloudnet <command>
       sender.sendMessage(
         ComponentFormats.BUNGEE.version(protocolVersion).fromAdventure(
-          this.management.configuration().prefix().append(Component.text("/cloudnet <command>"))
+          this.management.configuration().prefix().append(Component.text("/cloudnet <command>").color(NamedTextColor.AQUA))
         ));
       return;
     }
@@ -80,7 +81,7 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
             ComponentFormats.BUNGEE.version(protocolVersion1),
             sender::sendMessage,
             true,
-            Placeholder.unparsed("command", args[0])
+            Map.of("command", Component.text(args[0]))
           );
         } else {
           // execute command
@@ -101,7 +102,7 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
 
     for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
       sender.sendMessage(ComponentFormats.BUNGEE.version(protocolVersion).fromAdventure(
-        this.management.configuration().prefix().append(Component.text(output))
+        this.management.configuration().prefix().append(Component.text(output).color(NamedTextColor.AQUA))
       ));
     }
   }

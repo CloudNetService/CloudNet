@@ -22,8 +22,9 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.List;
+import java.util.Map;
 import lombok.NonNull;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.Component;
 
 public final class VelocityHubCommand implements SimpleCommand {
 
@@ -61,7 +62,7 @@ public final class VelocityHubCommand implements SimpleCommand {
                 ComponentFormats.ADVENTURE,
                 player::sendMessage,
                 true,
-                Placeholder.unparsed("server", hub.getServerInfo().getName()));
+                Map.of("server", Component.text(hub.getServerInfo().getName())));
             } else {
               // the connection was not successful
               this.management.configuration().handleMessage(

@@ -20,6 +20,7 @@ import java.util.Map;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import org.jetbrains.annotations.Nullable;
 
 public interface PlaceholderComponentFormat<C> extends ComponentFormat<C> {
 
@@ -27,6 +28,6 @@ public interface PlaceholderComponentFormat<C> extends ComponentFormat<C> {
 
   @NonNull PlaceholderComponentFormat<C> limitPlaceholders();
 
-  @NonNull PlaceholderComponentFormat<C> withColorPlaceholder(String name, TextColor color);
+  @NonNull PlaceholderComponentFormat<C> withColorPlaceholder(@NonNull String name, @Nullable TextColor color);
 
 }

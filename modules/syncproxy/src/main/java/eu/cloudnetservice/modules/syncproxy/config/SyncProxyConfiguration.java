@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import java.util.HashMap;
@@ -29,10 +30,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
 public record SyncProxyConfiguration(
@@ -95,9 +93,13 @@ public record SyncProxyConfiguration(
     return null;
   }
 
-  public @UnknownNullability Component message(@NonNull String key, @NonNull TagResolver... placeholders) {
+  public @NonNull Component message(@NonNull String key) {
+    return this.message(key, Map.of());
+  }
+
+  public @NonNull Component message(@NonNull String key, @NonNull Map<String, Component> placeholders) {
     var message = this.messages.getOrDefault(key, DEFAULT_MESSAGES.get(key));
-    return MiniMessage.miniMessage().deserialize(message, placeholders);
+    return ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(message);
   }
 
   public void sendUpdate() {

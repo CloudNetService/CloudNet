@@ -26,9 +26,10 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Locale;
+import java.util.Map;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -56,7 +57,7 @@ public final class WaterDogPECloudCommand extends Command {
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
       sender.sendMessage(ComponentFormats.BEDROCK.fromAdventure(
-        this.management.configuration().prefix().append(Component.text("/cloudnet <command>"))
+        this.management.configuration().prefix().append(Component.text("/cloudnet <command>").color(NamedTextColor.AQUA))
       ));
       return true;
     }
@@ -75,7 +76,7 @@ public final class WaterDogPECloudCommand extends Command {
             ComponentFormats.BEDROCK,
             sender::sendMessage,
             true,
-            Placeholder.unparsed("command", args[0]));
+            Map.of("command", Component.text(args[0])));
         } else {
           // execute command
           this.executeNow(sender, commandLine);
@@ -90,7 +91,10 @@ public final class WaterDogPECloudCommand extends Command {
 
   private void executeNow(@NonNull CommandSender sender, @NonNull String commandLine) {
     for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
-      sender.sendMessage(ComponentFormats.BEDROCK.fromAdventure(this.management.configuration().prefix().append(Component.text(output))));
+      sender.sendMessage(ComponentFormats.BEDROCK.fromAdventure(this.management.configuration().prefix().append(
+        Component.text(output)
+          .color(NamedTextColor.AQUA)
+      )));
     }
   }
 }

@@ -27,10 +27,11 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 @Singleton
 public final class VelocityCloudCommand implements SimpleCommand {
@@ -53,7 +54,10 @@ public final class VelocityCloudCommand implements SimpleCommand {
     var arguments = invocation.arguments();
     if (arguments.length == 0) {
       // <prefix> /cloudnet <command>
-      invocation.source().sendMessage(this.management.configuration().prefix().append(Component.text("/cloudnet <command>")));
+      invocation.source().sendMessage(this.management.configuration().prefix().append(
+        Component.text("/cloudnet <command>")
+        .color(NamedTextColor.AQUA)
+      ));
       return;
     }
     // get the full command line
@@ -74,7 +78,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
             ComponentFormats.ADVENTURE,
             invocation.source()::sendMessage,
             true,
-            Placeholder.unparsed("command", arguments[0]));
+            Map.of("command", Component.text(arguments[0])));
         } else {
           // execute the command
           this.executeNow(invocation.source(), commandLine);
@@ -85,7 +89,10 @@ public final class VelocityCloudCommand implements SimpleCommand {
 
   private void executeNow(@NonNull CommandSource source, @NonNull String commandLine) {
     for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
-      source.sendMessage(this.management.configuration().prefix().append(Component.text(output)));
+      source.sendMessage(this.management.configuration().prefix().append(
+        Component.text(output)
+          .color(NamedTextColor.AQUA)
+      ));
     }
   }
 

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.ext.component;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,19 +24,20 @@ class ComponentFormatsTest {
   @Test
   void testBasicConversion() {
     // Hello World
-    var input = MiniMessage.miniMessage().deserialize("<red>Hello </red><aqua>W</aqua><gold>orld</gold> ");
+    var minimessage = ComponentFormats.MINIMESSAGE.toAdventure("<red>Hello </red><aqua>W</aqua><gold>orld</gold> ");
+    var legacy = ComponentFormats.LEGACY_HEX_AMPERSAND.toAdventure("&cHello &bW&6orld&r ");
 
-    var outputColored = ComponentFormats.LEGACY.fromAdventure(input);
-    var outputPlain = ComponentFormats.PLAIN.fromAdventure(input);
+    Assertions.assertEquals("§cHello §bW§6orld§r ", ComponentFormats.LEGACY.fromAdventure(minimessage));
+    Assertions.assertEquals("Hello World ", ComponentFormats.PLAIN.fromAdventure(minimessage));
 
-    Assertions.assertEquals("§cHello §bW§6orld§r ", outputColored);
-    Assertions.assertEquals("Hello World ", outputPlain);
+    Assertions.assertEquals("§cHello §bW§6orld§r ", ComponentFormats.LEGACY.fromAdventure(legacy));
+    Assertions.assertEquals("Hello World ", ComponentFormats.PLAIN.fromAdventure(legacy));
   }
 
   @Test
   void testHexFormatFromAdventureToLegacyHex() {
     // Hello World
-    var input = "<color:#084cfb>H</color>"
+    var minimessage = ComponentFormats.MINIMESSAGE.toAdventure("<color:#084cfb>H</color>"
       + "<color:#1a5ffb>e</color>"
       + "<color:#2d71fb>l</color>"
       + "<color:#3f84fc>l</color>"
@@ -46,13 +46,11 @@ class ComponentFormatsTest {
       + "<color:#76bbfc>o</color>"
       + "<color:#88cefd>r</color>"
       + "<color:#9be0fd>l</color>"
-      + "<color:#adf3fd>d</color>";
+      + "<color:#adf3fd>d</color>");
+
     var bukkit = "§x§0§8§4§c§f§bH§x§1§a§5§f§f§be§x§2§d§7§1§f§bl§x§3§f§8§4§f§cl§x§5§1§9§6§f§co "
       + "§x§6§4§a§9§f§cW§x§7§6§b§b§f§co§x§8§8§c§e§f§dr§x§9§b§e§0§f§dl§x§a§d§f§3§f§dd";
 
-    var convertedToAdventure = MiniMessage.miniMessage().deserialize(input);
-    var convertedToBukkit = ComponentFormats.LEGACY_HEX.fromAdventure(convertedToAdventure);
-
-    Assertions.assertEquals(bukkit, convertedToBukkit);
+    Assertions.assertEquals(bukkit, ComponentFormats.LEGACY_HEX.fromAdventure(minimessage));
   }
 }

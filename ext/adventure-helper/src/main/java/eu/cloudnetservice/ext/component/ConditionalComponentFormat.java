@@ -16,45 +16,41 @@
 
 package eu.cloudnetservice.ext.component;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.BooleanSupplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.Nullable;
 
-public record StripColorComponentFormat<C>(PlaceholderComponentFormat<C> parent) implements PlaceholderComponentFormat<C> {
+public record ConditionalComponentFormat<C>(
+  @NonNull BooleanSupplier condition,
+  @NonNull PlaceholderComponentFormat<C> ifFalse,
+  @NonNull PlaceholderComponentFormat<C> ifTrue
+) implements PlaceholderComponentFormat<C> {
 
   @Override
   public @NonNull Component toAdventure(@NonNull C component) {
-    return this.strip(this.parent.toAdventure(component));
+    return this.condition.getAsBoolean() ? this.ifTrue.toAdventure(component) : this.ifFalse.toAdventure(component);
   }
 
   @Override
   public @NonNull C fromAdventure(@NonNull Component adventure) {
-    return this.parent.fromAdventure(this.strip(adventure));
-  }
-
-  private @NonNull Component strip(@NonNull Component component) {
-    return component.color(null)
-      .decorations(Arrays.stream(TextDecoration.values()).collect(Collectors.toSet()), false)
-      .children(component.children().stream().map(this::strip).toList());
+    return this.condition.getAsBoolean() ? this.ifTrue.fromAdventure(adventure) : this.ifFalse.fromAdventure(adventure);
   }
 
   @Override
   public @NonNull PlaceholderComponentFormat<C> withPlaceholders(@NonNull Map<String, Component> placeholders) {
-    return new StripColorComponentFormat<>(this.parent.withPlaceholders(placeholders));
+    return this.condition.getAsBoolean() ? this.ifTrue.withPlaceholders(placeholders) : this.ifFalse.withPlaceholders(placeholders);
   }
 
   @Override
   public @NonNull PlaceholderComponentFormat<C> limitPlaceholders() {
-    return new StripColorComponentFormat<>(this.parent.limitPlaceholders());
+    return this.condition.getAsBoolean() ? this.ifTrue.limitPlaceholders() : this.ifFalse.limitPlaceholders();
   }
 
   @Override
   public @NonNull PlaceholderComponentFormat<C> withColorPlaceholder(@NonNull String name, @Nullable TextColor color) {
-    return new StripColorComponentFormat<>(this.parent.withColorPlaceholder(name, color));
+    return this.condition.getAsBoolean() ? this.ifTrue.withColorPlaceholder(name, color) : this.ifFalse.withColorPlaceholder(name, color);
   }
 }

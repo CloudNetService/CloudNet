@@ -29,18 +29,21 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.jetbrains.annotations.Nullable;
 
-public record MinimessageComponentFormat(@NonNull List<TagResolver> placeholders) implements PlaceholderComponentFormat<String> {
+public record MinimessageComponentFormat(@NonNull MiniMessage deserializer,
+                                         @NonNull List<TagResolver> placeholders) implements PlaceholderComponentFormat<String> {
 
-  private static final MiniMessage DESERIALIZER = MiniMessage.builder().tags(TagResolver.empty()).build();
+  public MinimessageComponentFormat() {
+    this(MiniMessage.builder().build(), List.of());
+  }
 
   @Override
   public @NonNull String fromAdventure(@NonNull Component adventure) {
-    throw new UnsupportedOperationException();
+    return this.deserializer.serialize(adventure);
   }
 
   @Override
   public @NonNull Component toAdventure(@NonNull String component) {
-    return DESERIALIZER.deserialize(component, this.placeholders().toArray(new TagResolver[0]));
+    return this.deserializer.deserialize(component, this.placeholders().toArray(new TagResolver[0]));
   }
 
   @Override
@@ -50,18 +53,25 @@ public record MinimessageComponentFormat(@NonNull List<TagResolver> placeholders
             .stream()
             .map((entry) -> Placeholder.component(entry.getKey(), entry.getValue()))
             .forEach(list::add);
-    return new MinimessageComponentFormat(list);
+    return new MinimessageComponentFormat(this.deserializer, list);
   }
 
   @Override
   public @NonNull PlaceholderComponentFormat<String> limitPlaceholders() {
-    return new MinimessageComponentFormat(List.of(
-      StandardTags.color(),
-      StandardTags.decorations(),
-      StandardTags.rainbow(),
-      StandardTags.gradient(),
-      StandardTags.reset()
-    ));
+    return new MinimessageComponentFormat(
+      MiniMessage.builder()
+        .tags(TagResolver.builder()
+          .resolvers(
+            StandardTags.color(),
+            StandardTags.decorations(),
+            StandardTags.rainbow(),
+            StandardTags.gradient(),
+            StandardTags.reset()
+          ).build()
+        )
+        .build(),
+      this.placeholders
+    );
   }
 
   @Override
@@ -70,6 +80,6 @@ public record MinimessageComponentFormat(@NonNull List<TagResolver> placeholders
     list.add(TagResolver.builder()
       .tag(name, Tag.styling((builder) -> builder.color(color)))
       .build());
-    return new MinimessageComponentFormat(list);
+    return new MinimessageComponentFormat(this.deserializer, list);
   }
 }

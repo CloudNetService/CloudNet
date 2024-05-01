@@ -30,6 +30,7 @@ import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
@@ -49,7 +50,6 @@ import java.util.Queue;
 import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -223,7 +223,7 @@ public class PlayersCommand {
   ) {
     var reasonComponent = reason == null
       ? Component.empty()
-      : MiniMessage.miniMessage().deserialize(reason);
+      : ComponentFormats.USER_INPUT.toAdventure(reason);
     this.playerExecutor(player).kick(reasonComponent);
 
     source.sendMessage(I18n.trans("module-bridge-command-players-kick-player",
@@ -244,7 +244,7 @@ public class PlayersCommand {
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Greedy @Argument("message") String message
   ) {
-    this.playerExecutor(player).sendChatMessage(MiniMessage.miniMessage().deserialize(message));
+    this.playerExecutor(player).sendChatMessage(ComponentFormats.USER_INPUT.toAdventure(message));
     source.sendMessage(
       I18n.trans("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
   }
