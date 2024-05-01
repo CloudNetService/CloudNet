@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.bukkit.BukkitSignManagement;
@@ -27,8 +28,10 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -57,7 +60,7 @@ public class SignsCommand extends BaseTabExecutor {
 
     var entry = this.signManagement.applicableSignConfigurationEntry();
     if (entry == null) {
-      SignsConfiguration.sendMessage("command-cloudsign-no-entry", sender::sendMessage);
+      SignsConfiguration.sendMessage("command-cloudsign-no-entry", ComponentFormats.BUKKIT, sender::sendMessage);
       return true;
     }
 
@@ -71,7 +74,10 @@ public class SignsCommand extends BaseTabExecutor {
         if (sign != null) {
           SignsConfiguration.sendMessage(
             "command-cloudsign-sign-already-exist",
-            player::sendMessage, m -> m.replace("%group%", sign.base().targetGroup()));
+            ComponentFormats.BUKKIT,
+            player::sendMessage,
+            Map.of("group", Component.text(sign.base().targetGroup()))
+          );
           return true;
         }
 
@@ -83,9 +89,12 @@ public class SignsCommand extends BaseTabExecutor {
           loc));
         SignsConfiguration.sendMessage(
           "command-cloudsign-create-success",
-          player::sendMessage, m -> m.replace("%group%", args[1]));
+          ComponentFormats.BUKKIT,
+          player::sendMessage,
+          Map.of("%group%", Component.text(args[1]))
+        );
       } else {
-        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", ComponentFormats.BUKKIT, player::sendMessage);
       }
 
       return true;
@@ -94,8 +103,10 @@ public class SignsCommand extends BaseTabExecutor {
       var removed = this.signManagement.removeAllMissingSigns();
       SignsConfiguration.sendMessage(
         "command-cloudsign-cleanup-success",
+        ComponentFormats.BUKKIT,
         player::sendMessage,
-        m -> m.replace("%amount%", Integer.toString(removed)));
+        Map.of("amount", Component.text(removed))
+      );
       return true;
     } else if ((args.length == 1 || args.length == 2) && args[0].equalsIgnoreCase("cleanup")) {
       var world = args.length == 2 ? args[1] : player.getWorld().getName();
@@ -103,16 +114,20 @@ public class SignsCommand extends BaseTabExecutor {
       var removed = this.signManagement.removeMissingSigns(world);
       SignsConfiguration.sendMessage(
         "command-cloudsign-cleanup-success",
+        ComponentFormats.BUKKIT,
         player::sendMessage,
-        m -> m.replace("%amount%", Integer.toString(removed)));
+        Map.of("amount", Component.text(removed))
+      );
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("removeall")) {
       // deletes all signs
       var removed = this.signManagement.deleteAllSigns();
       SignsConfiguration.sendMessage(
         "command-cloudsign-bulk-remove-success",
+        ComponentFormats.BUKKIT,
         player::sendMessage,
-        m -> m.replace("%amount%", Integer.toString(removed)));
+        Map.of("amount", Component.text(removed))
+      );
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
       // check if the player is facing a sign
@@ -124,16 +139,18 @@ public class SignsCommand extends BaseTabExecutor {
         if (sign == null) {
           SignsConfiguration.sendMessage(
             "command-cloudsign-remove-not-existing",
+            ComponentFormats.BUKKIT,
             player::sendMessage);
         } else {
           // remove the sign
           this.signManagement.deleteSign(sign.base());
           SignsConfiguration.sendMessage(
             "command-cloudsign-remove-success",
+            ComponentFormats.BUKKIT,
             player::sendMessage);
         }
       } else {
-        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", ComponentFormats.BUKKIT, player::sendMessage);
       }
 
       return true;

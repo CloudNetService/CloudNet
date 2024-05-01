@@ -17,46 +17,64 @@
 package eu.cloudnetservice.modules.signs.configuration;
 
 import com.google.common.collect.ImmutableMap;
+import eu.cloudnetservice.ext.component.ComponentFormat;
+import eu.cloudnetservice.ext.component.InternalPlaceholder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 public record SignsConfiguration(@Unmodifiable @NonNull List<SignConfigurationEntry> entries) {
 
-  public static final Map<String, String> MESSAGES = ImmutableMap.<String, String>builder()
-    .put("command-cloudsign-no-entry", "§7No configuration entry found for any group the wrapper belongs to.")
-    .put("command-cloudsign-not-looking-at-sign", "§7You are not facing a sign...")
+  public static final Map<String, Component> MESSAGES = ImmutableMap.<String, Component>builder()
+    .put("command-cloudsign-no-entry",
+      Component.text("No configuration entry found for any group the wrapper belongs to.", NamedTextColor.GRAY))
+    .put("command-cloudsign-not-looking-at-sign",
+      Component.text("You are not facing a sign...", NamedTextColor.GRAY))
     .put("command-cloudsign-create-success",
-      "§7The target sign with the target group §6%group% §7was successfully created.")
-    .put("command-cloudsign-remove-not-existing", "§7The target sign is not registered as a cloud sign.")
-    .put("command-cloudsign-remove-success", "§7Removing the target sign. Please wait...")
-    .put("command-cloudsign-bulk-remove-success", "§7Removing §6%amount% §7signs. Please wait...")
+      Component.text("The target sign with the target group ", NamedTextColor.GRAY)
+        .append(InternalPlaceholder.create("group").color(NamedTextColor.GOLD))
+        .append(Component.text(" was successfully created.")))
+    .put("command-cloudsign-remove-not-existing",
+      Component.text("The target sign is not registered as a cloud sign.", NamedTextColor.GRAY))
+    .put("command-cloudsign-remove-success",
+      Component.text("Removing the target sign. Please wait...", NamedTextColor.GRAY))
+    .put("command-cloudsign-bulk-remove-success",
+      Component.text("Removing ", NamedTextColor.GRAY)
+        .append(InternalPlaceholder.create("amount").color(NamedTextColor.GOLD))
+        .append(Component.text(" signs. Please wait..."))
+    )
     .put("command-cloudsign-sign-already-exist",
-      "§7The sign is already set. If you want to remove it, use '/cs remove'.")
-    .put("command-cloudsign-cleanup-success", "§6%amount% §7non-existing signs were removed successfully.")
+      Component.text("The sign is already set. If you want to remove it, use '/cs remove'.", NamedTextColor.GRAY)
+    )
+    .put("command-cloudsign-cleanup-success",
+      InternalPlaceholder.create("amount").color(NamedTextColor.GOLD)
+        .append(Component.text(" non-existing signs were removed successfully.", NamedTextColor.GRAY))
+    )
     .build();
 
-  public static void sendMessage(@NonNull String key, @NonNull Consumer<String> sender) {
-    sendMessage(key, sender, null);
+  public static <C> void sendMessage(@NonNull String key, @NonNull ComponentFormat<C> componentFormat, @NonNull Consumer<C> sender) {
+    sendMessage(key, componentFormat, sender, null);
   }
 
-  public static void sendMessage(
+  public static <C> void sendMessage(
     @NonNull String key,
-    @NonNull Consumer<String> sender,
-    @Nullable Function<String, String> modifier
+    @NonNull ComponentFormat<C> componentFormat,
+    @NonNull Consumer<C> sender,
+    @Nullable Map<String, Component> placeholders
   ) {
     var message = MESSAGES.get(key);
     if (message != null) {
-      if (modifier != null) {
-        message = modifier.apply(message);
+      if (placeholders != null) {
+        message = InternalPlaceholder.replacePlaceholders(message, placeholders);
       }
-      sender.accept(message);
+      sender.accept(componentFormat.fromAdventure(message));
     }
   }
 

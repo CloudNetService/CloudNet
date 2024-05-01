@@ -89,7 +89,7 @@ public final class BridgeConfiguration {
       for (var message : language.getValue().entrySet()) {
         messages.put(
           message.getKey(),
-          InternalPlaceholder.replacePlaceholders(
+          InternalPlaceholder.process(
             ComponentFormats.USER_INPUT.fromAdventure(message.getValue())
           )
         );

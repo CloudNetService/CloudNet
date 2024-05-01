@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.ext.component;
 
+import java.util.Map;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 
@@ -30,8 +31,19 @@ public final class InternalPlaceholder {
       .append(Component.text("}"));
   }
 
-  public static @NonNull String replacePlaceholders(@NonNull String input) {
+  public static @NonNull String process(@NonNull String input) {
     return input.replaceAll("\\{__placeholder:([A-Za-z0-9_-]+)}", "<$1>");
+  }
+
+  public static @NonNull Component replacePlaceholders(@NonNull Component component, @NonNull Map<String, Component> placeholders) {
+    return ComponentFormats.MINIMESSAGE.withPlaceholders(placeholders)
+      .toAdventure(
+      process(
+        ComponentFormats.MINIMESSAGE.fromAdventure(
+          component
+        )
+      )
+    );
   }
 
   private InternalPlaceholder() {

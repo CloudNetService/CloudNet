@@ -21,12 +21,15 @@ import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandExecutor;
 import cn.nukkit.command.CommandSender;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.nukkit.NukkitSignManagement;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.Map;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 
 @Singleton
 public class SignsCommand implements CommandExecutor {
@@ -48,7 +51,7 @@ public class SignsCommand implements CommandExecutor {
 
     var entry = this.signManagement.applicableSignConfigurationEntry();
     if (entry == null) {
-      SignsConfiguration.sendMessage("command-cloudsign-no-entry", sender::sendMessage);
+      SignsConfiguration.sendMessage("command-cloudsign-no-entry", ComponentFormats.BEDROCK, sender::sendMessage);
       return true;
     }
 
@@ -61,8 +64,10 @@ public class SignsCommand implements CommandExecutor {
         if (sign != null) {
           SignsConfiguration.sendMessage(
             "command-cloudsign-sign-already-exist",
+            ComponentFormats.BEDROCK,
             player::sendMessage,
-            m -> m.replace("%group%", sign.base().targetGroup()));
+            Map.of("group", Component.text(sign.base().targetGroup()))
+          );
           return true;
         }
 
@@ -70,28 +75,31 @@ public class SignsCommand implements CommandExecutor {
         this.signManagement.createSign(new Sign(args[1], args.length == 3 ? args[2] : null, pos));
         SignsConfiguration.sendMessage(
           "command-cloudsign-create-success",
+          ComponentFormats.BEDROCK,
           player::sendMessage,
-          m -> m.replace("%group%", args[1]));
+          Map.of("group", Component.text(args[1]))
+        );
       } else {
-        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", ComponentFormats.BEDROCK, player::sendMessage);
       }
 
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanupall")) {
       var removed = this.signManagement.removeAllMissingSigns();
-      SignsConfiguration.sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
-        m -> m.replace("%amount%", Integer.toString(removed)));
+      SignsConfiguration.sendMessage("command-cloudsign-cleanup-success", ComponentFormats.BEDROCK, player::sendMessage,
+        Map.of("amount", Component.text(removed))
+      );
       return true;
     } else if ((args.length == 1 || args.length == 2) && args[0].equalsIgnoreCase("cleanup")) {
       var world = args.length == 2 ? args[1] : player.getLocation().getLevel().getName();
       var removed = this.signManagement.removeMissingSigns(world);
-      SignsConfiguration.sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
-        m -> m.replace("%amount%", Integer.toString(removed)));
+      SignsConfiguration.sendMessage("command-cloudsign-cleanup-success", ComponentFormats.BEDROCK, player::sendMessage,
+        Map.of("amount", Component.text(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("removeall")) {
       var removed = this.signManagement.deleteAllSigns();
-      SignsConfiguration.sendMessage("command-cloudsign-bulk-remove-success", player::sendMessage,
-        m -> m.replace("%amount%", Integer.toString(removed)));
+      SignsConfiguration.sendMessage("command-cloudsign-bulk-remove-success", ComponentFormats.BEDROCK, player::sendMessage,
+        Map.of("amount", Component.text(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
       var targetBlock = player.getTargetBlock(15);
@@ -100,13 +108,13 @@ public class SignsCommand implements CommandExecutor {
         var pos = this.signManagement.convertPosition(targetBlock.getLocation());
         var sign = this.signManagement.platformSignAt(pos);
         if (sign == null) {
-          SignsConfiguration.sendMessage("command-cloudsign-remove-not-existing", player::sendMessage);
+          SignsConfiguration.sendMessage("command-cloudsign-remove-not-existing", ComponentFormats.BEDROCK, player::sendMessage);
         } else {
           this.signManagement.deleteSign(sign.base());
-          SignsConfiguration.sendMessage("command-cloudsign-remove-success", player::sendMessage);
+          SignsConfiguration.sendMessage("command-cloudsign-remove-success", ComponentFormats.BEDROCK, player::sendMessage);
         }
       } else {
-        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", ComponentFormats.BEDROCK, player::sendMessage);
       }
 
       return true;

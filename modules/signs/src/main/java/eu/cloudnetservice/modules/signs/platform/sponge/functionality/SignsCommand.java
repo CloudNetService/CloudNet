@@ -16,11 +16,13 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
 
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.sponge.SpongeSignManagement;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -66,7 +68,8 @@ public class SignsCommand implements CommandExecutor {
       if (sign != null) {
         SignsConfiguration.sendMessage(
           "command-cloudsign-sign-already-exist",
-          message -> player.sendMessage(Component.text(message)));
+          ComponentFormats.ADVENTURE,
+          player::sendMessage);
       } else {
         //noinspection ConstantConditions
         this.signManagement.get().createSign(new eu.cloudnetservice.modules.signs.Sign(
@@ -75,8 +78,10 @@ public class SignsCommand implements CommandExecutor {
           loc));
         SignsConfiguration.sendMessage(
           "command-cloudsign-create-success",
-          m -> player.sendMessage(Component.text(m)),
-          m -> m.replace("%group%", targetGroup));
+          ComponentFormats.ADVENTURE,
+          player::sendMessage,
+          Map.of("group", Component.text(targetGroup))
+        );
       }
     });
   }
@@ -87,8 +92,10 @@ public class SignsCommand implements CommandExecutor {
       var removed = this.signManagement.get().removeMissingSigns(world);
       SignsConfiguration.sendMessage(
         "command-cloudsign-cleanup-success",
-        m -> player.sendMessage(Component.text(m)),
-        m -> m.replace("%amount%", Integer.toString(removed)));
+        ComponentFormats.ADVENTURE,
+        player::sendMessage,
+        Map.of("amount", Component.text(removed))
+      );
     });
   }
 
@@ -100,14 +107,18 @@ public class SignsCommand implements CommandExecutor {
         var removed = this.signManagement.get().removeAllMissingSigns();
         SignsConfiguration.sendMessage(
           "command-cloudsign-cleanup-success",
-          m -> player.sendMessage(Component.text(m)),
-          m -> m.replace("%amount%", Integer.toString(removed)));
+          ComponentFormats.ADVENTURE,
+          player::sendMessage,
+          Map.of("amount", Component.text(removed))
+        );
       } else if (type.equalsIgnoreCase("removeall")) {
         var removed = this.signManagement.get().deleteAllSigns();
         SignsConfiguration.sendMessage(
           "command-cloudsign-bulk-remove-success",
-          m -> player.sendMessage(Component.text(m)),
-          m -> m.replace("%amount%", Integer.toString(removed)));
+          ComponentFormats.ADVENTURE,
+          player::sendMessage,
+          Map.of("amount", Component.text(removed))
+        );
       } else if (type.equalsIgnoreCase("remove")) {
         var hit = this.getTargetBlock(player);
         if (hit.isEmpty()) {
@@ -120,11 +131,13 @@ public class SignsCommand implements CommandExecutor {
           this.signManagement.get().deleteSign(loc);
           SignsConfiguration.sendMessage(
             "command-cloudsign-remove-success",
-            m -> player.sendMessage(Component.text(m)));
+            ComponentFormats.ADVENTURE,
+            player::sendMessage);
         } else {
           SignsConfiguration.sendMessage(
             "command-cloudsign-remove-not-existing",
-            m -> player.sendMessage(Component.text(m)));
+            ComponentFormats.ADVENTURE,
+            player::sendMessage);
         }
       }
     });
@@ -143,7 +156,8 @@ public class SignsCommand implements CommandExecutor {
     if (entry == null) {
       SignsConfiguration.sendMessage(
         "command-cloudsign-no-entry",
-        message -> player.sendMessage(Component.text(message)));
+        ComponentFormats.ADVENTURE,
+        player::sendMessage);
       return CommandResult.success();
     }
 
@@ -168,7 +182,8 @@ public class SignsCommand implements CommandExecutor {
     if (result.isEmpty()) {
       SignsConfiguration.sendMessage(
         "command-cloudsign-not-looking-at-sign",
-        message -> player.sendMessage(Component.text(message)));
+        ComponentFormats.ADVENTURE,
+        player::sendMessage);
       return Optional.empty();
     }
     return result;
