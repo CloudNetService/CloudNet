@@ -70,13 +70,13 @@ public record SyncProxyConfiguration(
   static {
     var map = new HashMap<String, String>();
     for (var message : DEFAULT_MESSAGE_COMPONENTS.entrySet()) {
-        map.put(
-          message.getKey(),
-          InternalPlaceholder.process(
-            ComponentFormats.USER_INPUT.fromAdventure(message.getValue())
-          )
-        );
-      }
+      map.put(
+        message.getKey(),
+        InternalPlaceholder.process(
+          ComponentFormats.USER_INPUT.fromAdventure(message.getValue())
+        )
+      );
+    }
     DEFAULT_MESSAGES = ImmutableMap.copyOf(map);
   }
 
