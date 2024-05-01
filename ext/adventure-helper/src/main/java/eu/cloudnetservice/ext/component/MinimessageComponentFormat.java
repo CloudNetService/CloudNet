@@ -44,7 +44,7 @@ public record MinimessageComponentFormat(@NonNull List<TagResolver> placeholders
   }
 
   @Override
-  public PlaceholderComponentFormat<String> withPlaceholders(@NonNull Map<String, Component> placeholders) {
+  public @NonNull PlaceholderComponentFormat<String> withPlaceholders(@NonNull Map<String, Component> placeholders) {
     var list = new ArrayList<>(this.placeholders);
     placeholders.entrySet()
             .stream()
@@ -54,7 +54,7 @@ public record MinimessageComponentFormat(@NonNull List<TagResolver> placeholders
   }
 
   @Override
-  public PlaceholderComponentFormat<String> limitPlaceholders() {
+  public @NonNull PlaceholderComponentFormat<String> limitPlaceholders() {
     return new MinimessageComponentFormat(List.of(
       StandardTags.color(),
       StandardTags.decorations(),
@@ -65,7 +65,7 @@ public record MinimessageComponentFormat(@NonNull List<TagResolver> placeholders
   }
 
   @Override
-  public PlaceholderComponentFormat<String> withColorPlaceholder(@NonNull String name, @Nullable TextColor color) {
+  public @NonNull PlaceholderComponentFormat<String> withColorPlaceholder(@NonNull String name, @Nullable TextColor color) {
     var list = new ArrayList<>(this.placeholders);
     list.add(TagResolver.builder()
       .tag(name, Tag.styling((builder) -> builder.color(color)))

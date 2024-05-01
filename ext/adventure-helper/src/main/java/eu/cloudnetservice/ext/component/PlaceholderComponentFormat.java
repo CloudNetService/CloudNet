@@ -23,10 +23,10 @@ import net.kyori.adventure.text.format.TextColor;
 
 public interface PlaceholderComponentFormat<C> extends ComponentFormat<C> {
 
-  PlaceholderComponentFormat<C> withPlaceholders(@NonNull Map<String, Component> placeholders);
+  @NonNull PlaceholderComponentFormat<C> withPlaceholders(@NonNull Map<String, Component> placeholders);
 
-  PlaceholderComponentFormat<C> limitPlaceholders();
+  @NonNull PlaceholderComponentFormat<C> limitPlaceholders();
 
-  PlaceholderComponentFormat<C> withColorPlaceholder(String name, TextColor color);
+  @NonNull PlaceholderComponentFormat<C> withColorPlaceholder(String name, TextColor color);
 
 }
