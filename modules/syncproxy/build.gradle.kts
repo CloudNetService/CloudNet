@@ -32,11 +32,11 @@ dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
+  "compileOnly"(libs.bundles.adventure)
+  "compileOnly"(projects.ext.adventureHelper)
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)
-
-  "implementation"(projects.ext.adventureHelper)
 }
 
 moduleJson {

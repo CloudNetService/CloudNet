@@ -27,6 +27,7 @@ tasks.withType<Jar> {
 dependencies {
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
+  "compileOnly"(libs.bundles.adventure)
   "compileOnly"(projects.ext.adventureHelper)
   "implementation"(projects.ext.bukkitCommand)
 

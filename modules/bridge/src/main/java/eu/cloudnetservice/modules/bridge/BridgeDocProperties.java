@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import eu.cloudnetservice.driver.document.property.DocProperty;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
@@ -74,7 +74,7 @@ public final class BridgeDocProperties {
    * <p>
    * Setting the state is possible using {@link BridgeServiceHelper#motd()} on the service itself.
    */
-  public static final DocProperty<JsonObject> MOTD = DocProperty.property("Motd", JsonObject.class).asReadOnly();
+  public static final DocProperty<JsonElement> MOTD = DocProperty.property("Motd", JsonElement.class).asReadOnly();
   /**
    * This service property reads the extra value of any given {@link ServiceInfoSnapshot}. The property is only updated
    * after the service itself was updated.
