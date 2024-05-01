@@ -482,7 +482,6 @@ public final class NPCCommand extends BaseTabExecutor {
               return true;
             }
           } else {
-            content = ChatColor.translateAlternateColorCodes('&', content);
             // set the info line add the location or add it
             if (npc.infoLines().size() > index) {
               npc.infoLines().set(index, content);
@@ -568,7 +567,7 @@ public final class NPCCommand extends BaseTabExecutor {
           // 3...: inventory name parts
           var inventoryName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
           updatedNpc = NPC.builder(npc)
-            .inventoryName(ChatColor.translateAlternateColorCodes('&', inventoryName))
+            .inventoryName(inventoryName)
             .build();
         }
 
