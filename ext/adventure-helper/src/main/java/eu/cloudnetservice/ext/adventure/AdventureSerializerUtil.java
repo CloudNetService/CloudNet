@@ -21,7 +21,7 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 
 /**
- * @deprecated use Mimimessage instead.
+ * @deprecated use {@link ComponentFormats#LEGACY_HEX} and {@link ComponentFormats#LEGACY_HEX_AMPERSAND} instead.
  */
 @Deprecated(forRemoval = true)
 public final class AdventureSerializerUtil {
@@ -40,8 +40,6 @@ public final class AdventureSerializerUtil {
   }
 
   public static @NonNull Component serialize(@NonNull String input) {
-    return ComponentFormats.LEGACY_HEX.toAdventure(
-      ComponentFormats.LEGACY_HEX.fromAdventure(ComponentFormats.LEGACY_HEX_AMPERSAND.toAdventure(input))
-    );
+    return ComponentFormats.LEGACY_HEX_AMPERSAND.toAdventure(input.replace('§', '&'));
   }
 }
