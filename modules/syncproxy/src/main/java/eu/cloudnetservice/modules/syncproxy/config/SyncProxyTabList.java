@@ -17,7 +17,10 @@
 package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.component.InternalPlaceholder;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
 
 public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
 
@@ -25,23 +28,17 @@ public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
     return new Builder();
   }
 
-  public static @NonNull Builder builder(@NonNull SyncProxyTabList tabList) {
-    return builder()
-      .header(tabList.header())
-      .footer(tabList.footer());
-  }
-
   public static class Builder {
 
-    private String header;
-    private String footer;
+    private Component header;
+    private Component footer;
 
-    public @NonNull Builder header(@NonNull String header) {
+    public @NonNull Builder header(@NonNull Component header) {
       this.header = header;
       return this;
     }
 
-    public @NonNull Builder footer(@NonNull String footer) {
+    public @NonNull Builder footer(@NonNull Component footer) {
       this.footer = footer;
       return this;
     }
@@ -50,7 +47,10 @@ public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
       Preconditions.checkNotNull(this.header, "Missing header");
       Preconditions.checkNotNull(this.footer, "Missing footer");
 
-      return new SyncProxyTabList(this.header, this.footer);
+      return new SyncProxyTabList(
+        InternalPlaceholder.process(ComponentFormats.USER_INPUT.fromAdventure(this.header)),
+        InternalPlaceholder.process(ComponentFormats.USER_INPUT.fromAdventure(this.footer))
+      );
     }
   }
 }

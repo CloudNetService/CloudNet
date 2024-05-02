@@ -45,6 +45,8 @@ public final class ComponentFormats {
       .useUnusualXRepeatedCharacterHexFormat()
       .flattener(ComponentFlattener.basic()).build()
   );
+  public static final PlaceholderComponentFormat<String> LEGACY_HEX_AMPERSAND_PRECISE
+    = new PreciseLegacyComponentFormat(LEGACY_HEX_AMPERSAND);
 
   public static final PlaceholderComponentFormat<String> LEGACY = new LegacyComponentFormat(
     LegacyComponentSerializer.builder()
@@ -61,7 +63,7 @@ public final class ComponentFormats {
       Element.forType(boolean.class)
         .requireAnnotation(Qualifiers.named("minimessage"))
     ),
-    LEGACY_HEX_AMPERSAND,
+    LEGACY_HEX_AMPERSAND_PRECISE,
     MINIMESSAGE
   );
 

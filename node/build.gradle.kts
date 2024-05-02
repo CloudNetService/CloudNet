@@ -30,6 +30,7 @@ tasks.withType<Jar> {
 
   from(projects.driver.sourceSets()["main"].output)
   from(projects.common.sourceSets()["main"].output)
+  from(projects.ext.adventureHelper.sourceSets()["main"].output)
 }
 
 tasks.withType<JavaCompile> {
@@ -39,6 +40,7 @@ tasks.withType<JavaCompile> {
 dependencies {
   "api"(projects.driver)
   "api"(projects.ext.updater)
+  "api"(projects.ext.adventureHelper)
 
   // dependencies which are available for modules
   "api"(libs.guava)

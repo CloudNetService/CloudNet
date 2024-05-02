@@ -17,11 +17,15 @@
 package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.ext.component.InternalPlaceholder;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -60,31 +64,40 @@ public class SyncProxyTabListConfiguration {
     return builder()
       .targetGroup(targetGroup)
       .addTabListEntry(SyncProxyTabList.builder()
-        .header(" <newline> "
-          + "<aqua><italic>■</italic></aqua> "
-          + "<dark_gray>┃</dark_gray> "
-          + "<dark_aqua><bold>CloudNet</bold></dark_aqua> "
-          + "<dark_gray>●</dark_gray> "
-          + "<red>Blizzard</red> "
-          + "<dark_gray><bold>»</bold></dark_gray> "
-          + "<gray><italic><online_players></gray><dark_gray>/</dark_gray><gray><italic><max_players></italic></gray> "
-          + "<dark_gray>┃</dark_gray> <aqua><italic>■</italic></aqua>"
-          + "<newline>"
-          + "<dark_gray>►</dark_gray> "
-          + "<gray>Current server</gray> "
-          + "<dark_gray>● </dark_gray>"
-          + "<aqua><server></aqua> "
-          + "<dark_gray>◄</dark_gray> "
-          + "<newline> ")
-        .footer(" <newline> "
-          + "<gray>Discord</gray> "
-          + "<dark_gray><bold>»</bold></dark_gray> "
-          + "<aqua>discord.cloudnetservice.eu</aqua> "
-          + "<newline> "
-          + "<gray><italic>next</italic></gray> "
-          + "<dark_aqua><bold><italic>generation</italic></bold></dark_aqua> "
-          + "<gray><italic>network</italic></gray> "
-          + "<newline> ")
+        .header(Component.space()
+          .appendNewline()
+          .append(Component.text(" ■ ", NamedTextColor.AQUA).decorate(TextDecoration.ITALIC))
+          .append(Component.text("┃ ", NamedTextColor.DARK_GRAY))
+          .append(Component.text("CloudNet ", NamedTextColor.DARK_AQUA).decorate(TextDecoration.BOLD))
+          .append(Component.text("● ", NamedTextColor.DARK_GRAY))
+          .append(Component.text("Blizzard ", NamedTextColor.RED))
+          .append(Component.text("» ", NamedTextColor.DARK_GRAY).decorate(TextDecoration.BOLD))
+          .append(InternalPlaceholder.create("online_players").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
+          .append(Component.text("/", NamedTextColor.DARK_GRAY))
+          .append(InternalPlaceholder.create("max_players").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
+          .append(Component.text(" ┃ ", NamedTextColor.DARK_GRAY))
+          .append(Component.text("■", NamedTextColor.AQUA).decorate(TextDecoration.ITALIC))
+          .appendNewline()
+          .append(Component.text("► ", NamedTextColor.DARK_GRAY))
+          .append(Component.text("Current server ", NamedTextColor.GRAY))
+          .append(Component.text("● ", NamedTextColor.DARK_GRAY))
+          .append(InternalPlaceholder.create("server").color(NamedTextColor.AQUA))
+          .append(Component.text(" ◄ ", NamedTextColor.DARK_GRAY))
+          .appendNewline()
+          .appendSpace()
+        )
+        .footer(Component.space()
+          .appendNewline()
+          .append(Component.text(" Discord ", NamedTextColor.GRAY))
+          .append(Component.text("» ", NamedTextColor.DARK_GRAY).decorate(TextDecoration.BOLD))
+          .append(Component.text("discord.cloudnetservice.eu", NamedTextColor.AQUA))
+          .appendNewline()
+          .append(Component.text(" next ", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
+          .append(Component.text("generation ", NamedTextColor.DARK_AQUA)).decorate(TextDecoration.BOLD).decorate(TextDecoration.ITALIC)
+          .append(Component.text("network ", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
+          .appendNewline()
+          .appendSpace()
+        )
         .build())
       .animationsPerSecond(1.0)
       .build();

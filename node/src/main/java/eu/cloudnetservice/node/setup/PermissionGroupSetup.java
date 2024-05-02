@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.setup;
 import eu.cloudnetservice.driver.permission.Permission;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
@@ -26,6 +27,8 @@ import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 @Singleton
 public class PermissionGroupSetup implements DefaultSetup {
@@ -59,10 +62,19 @@ public class PermissionGroupSetup implements DefaultSetup {
         .name("admin")
         .potency(100)
         .addPermission(Permission.of("*"))
-        .prefix("&4Admin &8| &7")
-        .color("&4")
-        .suffix("&f")
-        .display("&4")
+        .prefix(ComponentFormats.USER_INPUT
+          .fromAdventure(Component.empty().color(NamedTextColor.GRAY)
+            .append(Component.text("Admin ", NamedTextColor.DARK_RED))
+            .append(Component.text("| ", NamedTextColor.DARK_GRAY))
+          )
+        )
+        .color("dark_red")
+        .suffix(ComponentFormats.USER_INPUT
+          .fromAdventure(Component.empty().color(NamedTextColor.WHITE))
+        )
+        .display(ComponentFormats.USER_INPUT
+          .fromAdventure(Component.empty().color(NamedTextColor.DARK_RED))
+        )
         .sortId(10)
         .build();
       var defaultGroup = PermissionGroup.builder()
@@ -70,10 +82,16 @@ public class PermissionGroupSetup implements DefaultSetup {
         .potency(100)
         .addPermission(Permission.of("bukkit.broadcast.user"))
         .defaultGroup(true)
-        .prefix("&7")
-        .color("&7")
-        .suffix("&f")
-        .display("&7")
+        .prefix(ComponentFormats.USER_INPUT
+          .fromAdventure(Component.empty().color(NamedTextColor.GRAY))
+        )
+        .color("gray")
+        .suffix(ComponentFormats.USER_INPUT
+          .fromAdventure(Component.empty().color(NamedTextColor.WHITE))
+        )
+        .display(ComponentFormats.USER_INPUT
+          .fromAdventure(Component.empty().color(NamedTextColor.GRAY))
+        )
         .sortId(99)
         .build();
 

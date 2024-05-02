@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.Unmodifiable;
 
 public record SyncProxyLoginConfiguration(
@@ -53,53 +56,60 @@ public record SyncProxyLoginConfiguration(
       .targetGroup(targetGroup)
       .maxPlayers(100)
       .modifyMotd(motds -> motds.add(SyncProxyMotd.builder()
-        .firstLine("         "
-          + "<aqua><italic>■</italic></aqua> "
-          + "<dark_gray>┃</dark_gray> "
-          + "<dark_aqua><bold>CloudNet</bold></dark_aqua> "
-          + "<dark_gray>●</dark_gray> "
-          + "<red>Blizzard</red> "
-          + "<dark_gray>┃</dark_gray> "
-          + "<aqua><italic>■</italic></aqua>")
-        .secondLine("              "
-          + "<gray><italic>next</italic></gray> "
-          + "<dark_aqua><bold><italic>generation</italic></bold></dark_aqua> "
-          + "<gray><italic>network</italic></gray>")
+          .firstLine(Component.text("         ", NamedTextColor.DARK_GRAY)
+            .append(Component.text("■ ", NamedTextColor.AQUA).decorate(TextDecoration.ITALIC))
+            .append(Component.text("┃ "))
+            .append(Component.text("CloudNet ", NamedTextColor.DARK_AQUA).decorate(TextDecoration.BOLD))
+            .append(Component.text("● "))
+            .append(Component.text("Blizzard ", NamedTextColor.RED))
+            .append(Component.text("┃ "))
+            .append(Component.text("■", NamedTextColor.AQUA).decorate(TextDecoration.ITALIC))
+          )
+          .secondLine(Component.text("              ", NamedTextColor.GRAY)
+            .append(Component.text("next ").decorate(TextDecoration.ITALIC))
+            .append(Component.text("generation ", NamedTextColor.DARK_AQUA).decorate(TextDecoration.BOLD).decorate(TextDecoration.ITALIC))
+            .append(Component.text("network").decorate(TextDecoration.ITALIC))
+          )
         .autoSlotDistance(1)
         .build()))
       .modifyMaintenanceMotd(motds -> motds.add(SyncProxyMotd.builder()
-        .firstLine("         "
-          + "<aqua><italic>■</italic></aqua> "
-          + "<dark_gray>┃</dark_gray> "
-          + "<dark_aqua><bold>CloudNet</bold></dark_aqua> "
-          + "<dark_gray>●</dark_gray> "
-          + "<red>Blizzard</red> "
-          + "<dark_gray>┃</dark_gray> "
-          + "<aqua><italic>■</italic></aqua>")
-        .secondLine("     "
-          + "<dark_aqua><bold>Maintenance</bold></dark_aqua> "
-          + "<dark_gray><bold>»</bold></dark_gray> "
-          + "<gray>We are still in</gray> "
-          + "<dark_aqua><bold>maintenance</bold></dark_aqua>")
-        .autoSlotDistance(1)
-        .playerInfo(new String[]{
-          " ",
-          "<aqua><italic>■</italic></aqua> "
-            + "<dark_gray>┃</dark_gray> "
-            + "<dark_aqua><bold>CloudNet</bold></dark_aqua> "
-            + "<dark_gray>●</dark_gray> "
-            + "<red>Blizzard</red> "
-            + "<dark_gray>┃</dark_gray> "
-            + "<aqua><italic>■</italic></aqua>",
-          "<gray>Discord</gray> "
-            + "<dark_gray><bold>»</bold></dark_gray> "
-            + "<aqua>discord.cloudnetservice.eu</aqua>",
-          " "
-        })
-        .protocolText("<dark_gray>➜</dark_gray> "
-          + "<red><bold>Maintenance</bold></red> "
-          + "<dark_gray>┃</dark_gray> <red>✘</red>")
-        .build()))
+          .firstLine(Component.text("         ", NamedTextColor.DARK_GRAY)
+            .append(Component.text("■ ", NamedTextColor.AQUA).decorate(TextDecoration.ITALIC))
+            .append(Component.text("┃ "))
+            .append(Component.text("CloudNet ", NamedTextColor.DARK_AQUA).decorate(TextDecoration.BOLD))
+            .append(Component.text("● "))
+            .append(Component.text("Blizzard ", NamedTextColor.RED))
+            .append(Component.text("┃ "))
+            .append(Component.text("■", NamedTextColor.AQUA).decorate(TextDecoration.ITALIC))
+          )
+          .secondLine(Component.text("     ")
+            .append(Component.text("» ", NamedTextColor.DARK_GRAY).decorate(TextDecoration.BOLD))
+            .append(Component.text("We are still in ", NamedTextColor.GRAY))
+            .append(Component.text("maintenance", NamedTextColor.DARK_AQUA).decorate(TextDecoration.BOLD))
+          )
+          .autoSlotDistance(1)
+          .playerInfo(List.of(
+            Component.space(),
+            Component.empty()
+              .append(Component.text("■ ", NamedTextColor.AQUA).decorate(TextDecoration.ITALIC))
+              .append(Component.text("┃ ", NamedTextColor.DARK_GRAY))
+              .append(Component.text("CloudNet ", NamedTextColor.DARK_AQUA).decorate(TextDecoration.BOLD))
+              .append(Component.text("● ", NamedTextColor.DARK_GRAY))
+              .append(Component.text("Blizzard ", NamedTextColor.RED))
+              .append(Component.text("┃ ", NamedTextColor.DARK_GRAY))
+              .append(Component.text("■", NamedTextColor.AQUA).decorate(TextDecoration.ITALIC)),
+            Component.text("Discord ", NamedTextColor.GRAY)
+              .append(Component.text("» ", NamedTextColor.DARK_GRAY).decorate(TextDecoration.BOLD))
+              .append(Component.text("discord.cloudnetservice.eu", NamedTextColor.AQUA)),
+            Component.space()
+          ))
+          .protocolText(Component.text("➜ ", NamedTextColor.DARK_GRAY)
+            .append(Component.text("Maintenance ", NamedTextColor.RED).decorate(TextDecoration.BOLD))
+            .append(Component.text("┃ ", NamedTextColor.DARK_GRAY))
+            .append(Component.text("✘", NamedTextColor.RED))
+          )
+          .build()
+      ))
       .build();
   }
 

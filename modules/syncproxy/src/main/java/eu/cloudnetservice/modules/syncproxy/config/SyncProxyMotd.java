@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.syncproxy.config;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import java.util.Arrays;
+import eu.cloudnetservice.ext.component.InternalPlaceholder;
 import java.util.HashMap;
 import java.util.List;
 import lombok.NonNull;
@@ -31,22 +31,12 @@ public record SyncProxyMotd(
   @NonNull String secondLine,
   boolean autoSlot,
   int autoSlotMaxPlayersDistance,
-  @Nullable String[] playerInfo,
+  @Nullable List<String> playerInfo,
   @Nullable String protocolText
 ) {
 
   public static @NonNull Builder builder() {
     return new Builder();
-  }
-
-  public static @NonNull Builder builder(@NonNull SyncProxyMotd motd) {
-    return builder()
-      .firstLine(motd.firstLine())
-      .secondLine(motd.secondLine())
-      .autoSlot(motd.autoSlot())
-      .autoSlotDistance(motd.autoSlotMaxPlayersDistance())
-      .playerInfo(motd.playerInfo())
-      .protocolText(motd.protocolText());
   }
 
   public @Nullable List<Component> playerInfoComponents(@NonNull ServiceInfoSnapshot serviceInfo, int onlinePlayers, int maxPlayers) {
@@ -55,7 +45,7 @@ public record SyncProxyMotd(
     return
       this.playerInfo == null
         ? null
-        : Arrays.stream(this.playerInfo)
+        : this.playerInfo.stream()
           .map((info) -> ComponentFormats.USER_INPUT
             .withPlaceholders(placeholders)
             .toAdventure(info))
@@ -91,21 +81,21 @@ public record SyncProxyMotd(
 
   public static class Builder {
 
-    private String firstLine;
-    private String secondLine;
+    private Component firstLine;
+    private Component secondLine;
 
     private boolean autoSlot;
     private int autoSlotMaxPlayersDistance;
 
-    private String[] playerInfo = new String[0];
-    private String protocolText;
+    private List<Component> playerInfo = null;
+    private Component protocolText;
 
-    public @NonNull Builder firstLine(@NonNull String firstLine) {
+    public @NonNull Builder firstLine(@NonNull Component firstLine) {
       this.firstLine = firstLine;
       return this;
     }
 
-    public @NonNull Builder secondLine(@NonNull String secondLine) {
+    public @NonNull Builder secondLine(@NonNull Component secondLine) {
       this.secondLine = secondLine;
       return this;
     }
@@ -120,12 +110,12 @@ public record SyncProxyMotd(
       return this;
     }
 
-    public @NonNull Builder playerInfo(@Nullable String[] playerInfo) {
+    public @NonNull Builder playerInfo(@Nullable List<Component> playerInfo) {
       this.playerInfo = playerInfo;
       return this;
     }
 
-    public @NonNull Builder protocolText(@Nullable String protocolText) {
+    public @NonNull Builder protocolText(@Nullable Component protocolText) {
       this.protocolText = protocolText;
       return this;
     }
@@ -135,12 +125,16 @@ public record SyncProxyMotd(
       Preconditions.checkNotNull(this.secondLine, "Missing second line");
 
       return new SyncProxyMotd(
-        this.firstLine,
-        this.secondLine,
+        InternalPlaceholder.process(ComponentFormats.USER_INPUT.fromAdventure(this.firstLine)),
+        InternalPlaceholder.process(ComponentFormats.USER_INPUT.fromAdventure(this.secondLine)),
         this.autoSlot,
         this.autoSlotMaxPlayersDistance,
-        this.playerInfo,
-        this.protocolText);
+        this.playerInfo == null ? null
+          : this.playerInfo.stream()
+          .map(ComponentFormats.USER_INPUT::fromAdventure)
+          .map(InternalPlaceholder::process)
+          .toList(),
+        this.protocolText == null ? null : InternalPlaceholder.process(ComponentFormats.USER_INPUT.fromAdventure(this.protocolText)));
     }
   }
 }

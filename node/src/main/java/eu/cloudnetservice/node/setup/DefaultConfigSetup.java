@@ -19,9 +19,13 @@ package eu.cloudnetservice.node.setup;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.binding.BindingBuilder;
+import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -226,6 +230,10 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
 
     // minimessage
     this.configuration.minimessage(animation.result("minimessage"));
+    InjectionLayer.boot().install(BindingBuilder.create()
+      .bind(Element.forType(boolean.class)
+        .requireAnnotation(Qualifiers.named("minimessage"))
+      ).toInstance(configuration.minimessage()));
 
     // init the local node identity
     HostAndPort host = animation.result("internalHost");
