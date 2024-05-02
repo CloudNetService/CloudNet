@@ -123,7 +123,7 @@ public final class BridgeServiceHelper {
    * no service is given only the group property is replaced.
    *
    * @param value   the string to replace the placeholders in.
-   * @param group   the group to replace {@literal %group%} with.
+   * @param group   the group to replace {@literal <group>} with.
    * @param service the service to use as source for the placeholder values.
    * @return the String with the placeholders replaced.
    * @throws NullPointerException if the given input string is null.
