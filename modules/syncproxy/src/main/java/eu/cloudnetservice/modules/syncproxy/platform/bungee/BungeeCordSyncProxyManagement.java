@@ -99,7 +99,7 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
 
   @Override
   public void playerTabList(@NonNull ProxiedPlayer player, @NonNull Map<String, Component> placeholders,
-    @Nullable Component header, @Nullable Component footer) {
+    @Nullable String header, @Nullable String footer) {
     placeholders.put("ping", Component.text(player.getPing()));
     placeholders.put("server", Component.text(player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName()));
 
@@ -107,12 +107,20 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
       header != null
         ? ComponentFormats.BUNGEE
           .version(player.getPendingConnection().getVersion())
-          .fromAdventure(header)
+          .fromAdventure(
+            ComponentFormats.USER_INPUT
+              .withPlaceholders(placeholders)
+              .toAdventure(header)
+          )
         : null,
       footer != null
         ? ComponentFormats.BUNGEE
           .version(player.getPendingConnection().getVersion())
-          .fromAdventure(footer)
+          .fromAdventure(
+            ComponentFormats.USER_INPUT
+              .withPlaceholders(placeholders)
+              .toAdventure(footer)
+          )
         : null);
   }
 

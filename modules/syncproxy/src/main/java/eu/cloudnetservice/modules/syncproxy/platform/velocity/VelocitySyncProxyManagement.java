@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
@@ -91,7 +92,7 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
 
   @Override
   public void playerTabList(@NonNull Player player, @NonNull Map<String, Component> placeholders,
-    @Nullable Component header, @Nullable Component footer) {
+    @Nullable String header, @Nullable String footer) {
     if (header == null || footer == null) {
       player.getTabList().clearHeaderAndFooter();
     } else {
@@ -101,8 +102,8 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
       placeholders.put("ping", Component.text(player.getPing()));
 
       player.sendPlayerListHeaderAndFooter(
-        header,
-        footer
+        ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(header),
+        ComponentFormats.USER_INPUT.withPlaceholders(placeholders).toAdventure(footer)
       );
     }
   }

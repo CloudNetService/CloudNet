@@ -30,6 +30,7 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -156,7 +157,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   public void appendServiceInformation(@NonNull ServiceInfoPropertiesConfigureEvent configureEvent) {
     configureEvent.propertyHolder().append("Online", Boolean.TRUE);
-    configureEvent.propertyHolder().append("Motd", this.bridgeServiceHelper.motd().get());
+    configureEvent.propertyHolder().append("Motd", ComponentFormats.JSON.fromAdventure(this.bridgeServiceHelper.motd().get()));
     configureEvent.propertyHolder().append("Extra", this.bridgeServiceHelper.extra().get());
     configureEvent.propertyHolder().append("State", this.bridgeServiceHelper.state().get());
     configureEvent.propertyHolder().append("Max-Players", this.bridgeServiceHelper.maxPlayers().get());

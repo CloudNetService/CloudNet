@@ -244,10 +244,10 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     this.playerTabList(player, map,
       tabList.header() == null
         ? null
-        : ComponentFormats.USER_INPUT.toAdventure(tabList.header()),
+        : tabList.header(),
       tabList.footer() == null
         ? null
-        : ComponentFormats.USER_INPUT.toAdventure(tabList.footer())
+        : tabList.footer()
     );
   }
 
@@ -280,7 +280,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   public abstract @NonNull UUID playerUniqueId(@NonNull P player);
 
   public abstract void playerTabList(@NonNull P player, @NonNull Map<String, Component> placeholders,
-    @Nullable Component header, @Nullable Component footer);
+    @Nullable String header, @Nullable String footer);
 
   public abstract void disconnectPlayer(@NonNull P player, @NonNull Component message);
 

@@ -198,7 +198,7 @@ public final class BridgeServiceHelper {
       placeholders.put(
         "max_players",
         Component.text(service.readProperty(BridgeDocProperties.MAX_PLAYERS)));
-      placeholders.put("motd", ComponentFormats.JSON.toAdventureFromTree(service.readProperty(BridgeDocProperties.MOTD)));
+      placeholders.put("motd", ComponentFormats.JSON.toAdventure(service.readProperty(BridgeDocProperties.MOTD)));
       placeholders.put("extra", Component.text(service.readProperty(BridgeDocProperties.EXTRA)));
       placeholders.put("state", Component.text(service.readProperty(BridgeDocProperties.STATE)));
       placeholders.put("version", Component.text(service.readProperty(BridgeDocProperties.VERSION)));
@@ -278,7 +278,7 @@ public final class BridgeServiceHelper {
       && service.connected()
       && service.readProperty(BridgeDocProperties.IS_ONLINE)
       && (matchesInGameString(ComponentFormats.PLAIN.fromAdventure(
-        ComponentFormats.JSON.toAdventureFromTree(service.readProperty(BridgeDocProperties.MOTD))
+        ComponentFormats.JSON.toAdventure(service.readProperty(BridgeDocProperties.MOTD))
       ))
       || matchesInGameString(service.readProperty(BridgeDocProperties.EXTRA))
       || matchesInGameString(service.readProperty(BridgeDocProperties.STATE)));

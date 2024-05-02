@@ -21,7 +21,7 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
-public final class MinestomComponentFormat implements ComponentFormat<String> {
+public final class JsonComponentFormat implements ComponentFormat<String> {
 
   private static final GsonComponentSerializer SERIALIZER = GsonComponentSerializer.gson();
 
