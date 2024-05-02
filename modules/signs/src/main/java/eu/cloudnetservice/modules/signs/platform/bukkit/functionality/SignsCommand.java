@@ -91,7 +91,7 @@ public class SignsCommand extends BaseTabExecutor {
           "command-cloudsign-create-success",
           ComponentFormats.BUKKIT,
           player::sendMessage,
-          Map.of("%group%", Component.text(args[1]))
+          Map.of("group", Component.text(args[1]))
         );
       } else {
         SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", ComponentFormats.BUKKIT, player::sendMessage);
