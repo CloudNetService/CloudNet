@@ -75,7 +75,7 @@ jobs:
           MESSAGE: 'Update launcher meta for {target-branch} (commit: {sha})'
 
       - name: Set version type in GitHub environment
-        if: ${{ matrix.java == 17 }}
+        if: ${{ matrix.java == 21 }}
         run: |
           if [ "$(./gradlew properties | awk '/^version:/ { print $2; }' | grep '\-SNAPSHOT')" ]; then
             echo "STATUS=snapshot" >> $GITHUB_ENV
