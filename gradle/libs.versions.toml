@@ -73,7 +73,7 @@ placeholderApi = "2.11.5"
 adventure-serializer-bungee = "4.3.2"
 
 # fabric platform special dependencies
-minecraft = "1.20.5"
+minecraft = "1.20.6"
 fabricLoader = "0.15.10"
 
 
