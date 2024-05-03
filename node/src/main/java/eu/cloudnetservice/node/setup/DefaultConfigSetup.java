@@ -230,7 +230,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
 
     // minimessage
     this.configuration.minimessage(animation.result("minimessage"));
-    InjectionLayer.boot().install(BindingBuilder.create()
+    InjectionLayer.ext().install(BindingBuilder.create()
       .bind(Element.forType(boolean.class)
         .requireAnnotation(Qualifiers.named("minimessage"))
       ).toInstance(configuration.minimessage()));
