@@ -36,7 +36,6 @@ import eu.cloudnetservice.driver.module.DefaultModuleDependencyLoader;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkServer;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
@@ -291,7 +290,6 @@ public final class Node {
   @Inject
   @Order(550)
   private void bindNetworkListeners(
-    @NonNull HttpServer httpServer,
     @NonNull Configuration configuration,
     @NonNull NetworkServer networkServer
   ) throws InterruptedException {
@@ -324,21 +322,6 @@ public final class Node {
       // wait a bit, then stop
       Thread.sleep(5000);
       System.exit(1);
-    }
-
-    // http server init
-    for (var listener : configuration.httpListeners()) {
-      httpServer.addListener(listener).handle(($, exception) -> {
-        // check if the bind failed
-        if (exception != null) {
-          LOGGER.info(I18n.trans("http-listener-bound-exceptionally", listener, exception.getMessage()));
-        } else {
-          LOGGER.info(I18n.trans("http-listener-bound", listener));
-        }
-
-        // prevent the exception from being thrown
-        return null;
-      }).join();
     }
   }
 

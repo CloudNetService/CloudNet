@@ -23,7 +23,6 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
-import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
@@ -49,7 +48,6 @@ public final class ShutdownHandler {
   private final ServiceVersionProvider serviceVersionProvider;
 
   // network
-  private final HttpServer httpServer;
   private final NetworkClient networkClient;
   private final NetworkServer networkServer;
 
@@ -64,7 +62,6 @@ public final class ShutdownHandler {
     @NonNull NodeServerProvider nodeServerProvider,
     @NonNull @Named("taskScheduler") ScheduledExecutorService scheduledExecutor,
     @NonNull ServiceVersionProvider serviceVersionProvider,
-    @NonNull HttpServer httpServer,
     @NonNull NetworkClient networkClient,
     @NonNull NetworkServer networkServer,
     @NonNull NodeDatabaseProvider databaseProvider
@@ -75,7 +72,6 @@ public final class ShutdownHandler {
     this.nodeServerProvider = nodeServerProvider;
     this.scheduledExecutor = scheduledExecutor;
     this.serviceVersionProvider = serviceVersionProvider;
-    this.httpServer = httpServer;
     this.networkClient = networkClient;
     this.networkServer = networkServer;
     this.databaseProvider = databaseProvider;
@@ -100,7 +96,6 @@ public final class ShutdownHandler {
 
         // close all networking listeners
         LOGGER.info(I18n.trans("stop-network-components"));
-        this.httpServer.close();
         this.networkClient.close();
         this.networkServer.close();
 
