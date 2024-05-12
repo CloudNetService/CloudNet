@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public final class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   @HandlerScope({"cloudnet_rest:service_version_read", "cloudnet_rest:service_version_get"})
   @HttpRequestHandler(paths = "/api/v2/serviceversion/{version}")
   private void handleVersionRequest(@NonNull HttpContext ctx, @NonNull @RequestPathParam("version") String version) {
-    var serviceVersion = this.versionProvider.getServiceVersionType(version);
+    var serviceVersion = this.versionProvider.serviceVersionType(version);
     if (serviceVersion == null) {
       this.badRequest(ctx)
         .body(this.failure().append("reason", "Unknown service version").toString())

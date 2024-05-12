@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,20 +42,21 @@ public final class PlayerListMixin {
 
   @Inject(
     at = @At(
-      by = 2,
-      ordinal = 0,
-      value = "FIELD",
-      shift = At.Shift.BY,
-      opcode = Opcodes.GETFIELD,
-      target = "Lnet/minecraft/server/players/PlayerList;players:Ljava/util/List;"
+      value = "INVOKE",
+      target = "Lnet/minecraft/server/level/ServerLevel;addNewPlayer(Lnet/minecraft/server/level/ServerPlayer;)V"
     ),
     method = "placeNewPlayer"
   )
-  public void onJoin(@NonNull Connection con, @NonNull ServerPlayer player, @NonNull CallbackInfo info) {
+  public void onJoin(
+    @NonNull Connection connection,
+    @NonNull ServerPlayer serverPlayer,
+    @NonNull CommonListenerCookie commonListenerCookie,
+    @NonNull CallbackInfo callbackInfo
+  ) {
     if (this.server instanceof BridgedServer bridgedServer) {
       bridgedServer.injectionHolder().serverPlatformHelper().sendChannelMessageLoginSuccess(
-        player.getUUID(),
-        bridgedServer.management().createPlayerInformation(player));
+        serverPlayer.getUUID(),
+        bridgedServer.management().createPlayerInformation(serverPlayer));
       // update the service info instantly as the player is registered now
       bridgedServer.injectionHolder().serviceInfoHolder().publishServiceInfoUpdate();
     }

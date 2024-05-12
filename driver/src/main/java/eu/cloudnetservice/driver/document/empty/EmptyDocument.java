@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,15 @@ import eu.cloudnetservice.driver.document.send.DocumentSend;
 import eu.cloudnetservice.driver.document.send.element.Element;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import io.leangen.geantyref.TypeToken;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -49,10 +52,11 @@ public final class EmptyDocument implements Document.Mutable, DefaultedDocProper
   public static final Document.Mutable INSTANCE = new EmptyDocument();
 
   /**
-   * Constructs an empty document instance. This constructor is sealed to prevent accidental instantiations. Obtain the
-   * singleton instance of this implementation via {@link Document#emptyDocument()}.
+   * Constructs an empty document instance. This constructor is public to all serialization of this document and should
+   * not be called. Obtain the singleton instance of this implementation via {@link Document#emptyDocument()}.
    */
-  private EmptyDocument() {
+  @ApiStatus.Internal
+  public EmptyDocument() {
   }
 
   /**
@@ -84,6 +88,14 @@ public final class EmptyDocument implements Document.Mutable, DefaultedDocProper
    */
   @Override
   public boolean contains(@NonNull String key) {
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean containsNonNull(@NonNull String key) {
     return false;
   }
 
@@ -401,5 +413,19 @@ public final class EmptyDocument implements Document.Mutable, DefaultedDocProper
   @Override
   public @NonNull String toString() {
     return "[empty]";
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void writeExternal(@NonNull ObjectOutput out) {
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void readExternal(@NonNull ObjectInput in) {
   }
 }
