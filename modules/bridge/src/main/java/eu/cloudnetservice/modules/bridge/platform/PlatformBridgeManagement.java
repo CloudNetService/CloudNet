@@ -349,6 +349,10 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     this.selfTask = this.taskProvider.serviceTask(this.wrapperConfig.serviceConfiguration().serviceId().taskName());
   }
 
+  public @Nullable ProxyFallbackConfiguration currentFallbackConfiguration() {
+    return this.currentFallbackConfiguration;
+  }
+
   public @NonNull NetworkServiceInfo ownNetworkServiceInfo() {
     return this.ownNetworkServiceInfo;
   }

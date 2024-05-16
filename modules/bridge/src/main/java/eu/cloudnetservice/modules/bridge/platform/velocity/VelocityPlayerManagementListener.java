@@ -137,14 +137,20 @@ public final class VelocityPlayerManagementListener {
           }
         })
         .orElseGet(() -> {
-          // use the kick reason from the downstream service, if not present use config message
-          var kickReason = event.getServerKickReason().orElse(this.management.configuration().findMessage(
+          var serverKickReason = event.getServerKickReason();
+          var fallbackConfig = this.management.currentFallbackConfiguration();
+          // use the server kick reason if present & enabled in the configuration
+          if (serverKickReason.isPresent() && fallbackConfig != null && fallbackConfig.showDownstreamKickMessage()) {
+            return KickedFromServerEvent.DisconnectPlayer.create(serverKickReason.get());
+          }
+
+          // just fallback to the configuration message
+          return KickedFromServerEvent.DisconnectPlayer.create(this.management.configuration().findMessage(
             event.getPlayer().getEffectiveLocale(),
             "server-kick-no-other-hub",
             ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
             Component.empty(),
             true));
-          return KickedFromServerEvent.DisconnectPlayer.create(kickReason);
         }));
     }
   }

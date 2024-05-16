@@ -194,7 +194,8 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         event.setCancelled(false);
         event.setCancelServer(null);
 
-        if (event.getReason() == null) {
+        var fallbackConfig = this.management.currentFallbackConfiguration();
+        if (event.getReason() == null || (fallbackConfig != null && !fallbackConfig.showDownstreamKickMessage())) {
           // set the cancel reason if there is no reason from the downstream service
           this.management.configuration().handleMessage(
             event.getPlayer().getLocale(),

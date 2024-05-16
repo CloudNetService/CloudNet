@@ -67,6 +67,7 @@ public final class BridgeConfiguration {
     this.hubCommandNames = Arrays.asList("hub", "lobby", "leave", "l");
     this.fallbackConfigurations = new ArrayList<>(List.of(ProxyFallbackConfiguration.builder()
       .targetGroup("Proxy")
+      .showDownstreamKickMessage(false)
       .defaultFallbackTask("Lobby")
       .build()));
   }

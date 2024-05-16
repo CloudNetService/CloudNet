@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 public record ProxyFallbackConfiguration(
   @NonNull String targetGroup,
+  boolean showDownstreamKickMessage,
   @Nullable String defaultFallbackTask,
   @NonNull List<ProxyFallback> fallbacks
 ) {
@@ -35,6 +36,7 @@ public record ProxyFallbackConfiguration(
   public static @NonNull Builder builder(@NonNull ProxyFallbackConfiguration configuration) {
     return builder()
       .targetGroup(configuration.targetGroup())
+      .showDownstreamKickMessage(configuration.showDownstreamKickMessage())
       .defaultFallbackTask(configuration.defaultFallbackTask())
       .fallbacks(configuration.fallbacks());
   }
@@ -42,11 +44,17 @@ public record ProxyFallbackConfiguration(
   public static class Builder {
 
     private String targetGroup;
+    private boolean showDownstreamKickMessage;
     private String defaultFallbackTask;
     private List<ProxyFallback> fallbacks = new ArrayList<>();
 
     public @NonNull Builder targetGroup(@NonNull String targetGroup) {
       this.targetGroup = targetGroup;
+      return this;
+    }
+
+    public @NonNull Builder showDownstreamKickMessage(boolean showDownstreamKickMessage) {
+      this.showDownstreamKickMessage = showDownstreamKickMessage;
       return this;
     }
 
@@ -63,7 +71,11 @@ public record ProxyFallbackConfiguration(
     public @NonNull ProxyFallbackConfiguration build() {
       Preconditions.checkNotNull(this.targetGroup, "Missing targetGroup");
 
-      return new ProxyFallbackConfiguration(this.targetGroup, this.defaultFallbackTask, this.fallbacks);
+      return new ProxyFallbackConfiguration(
+        this.targetGroup,
+        this.showDownstreamKickMessage,
+        this.defaultFallbackTask,
+        this.fallbacks);
     }
   }
 
