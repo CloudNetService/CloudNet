@@ -121,7 +121,7 @@ testContainersJunit = { group = "org.testcontainers", name = "junit-jupiter", ve
 
 # unirest
 unirest = { group = "com.konghq", name = "unirest-java-core", version.ref = "unirest" }
-unirestGson = { group = "com.konghq", name = "unirest-object-mappers-gson", version.ref = "unirest" }
+unirestGson = { group = "com.konghq", name = "unirest-modules-gson", version.ref = "unirest" }
 
 # docker-java
 dockerJavaApi = { group = "com.github.docker-java", name = "docker-java-core", version.ref = "dockerJava" }
