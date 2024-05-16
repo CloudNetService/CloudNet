@@ -69,7 +69,7 @@ public final class ConsoleProgressWrappers {
   public void wrapDownload(@NonNull String url, @NonNull CheckedConsumer<InputStream> streamHandler) {
     Unirest
       .get(url)
-      .connectTimeout(5000)
+      .requestTimeout(5000)
       .thenConsume(rawResponse -> {
         if (rawResponse.getStatus() == 200) {
           var stream = rawResponse.getContent();
