@@ -204,6 +204,30 @@ public final class CloudNetBridgeModule extends DriverModule {
     httpServer.annotationParser().parseAndRegister(V2HttpHandlerBridge.class);
   }
 
+  // todo: remove in a release after 4.0.0-RC11
+  @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)
+  public void updateBridgeConfiguration() {
+    var config = DocumentFactory.json().parse(this.configPath());
+    var localizedMessages = config.readMutableDocument("localizedMessages");
+    var defaultMessages = localizedMessages.readMutableDocument("default");
+
+    // if there is no entry in the default messages with the key -> add a new entry
+    // it is important to check on json level here, as we want to distinguish between the key being present
+    // with a null value and the key not being present at all
+    if (!defaultMessages.contains("server-kick-no-other-hub")) {
+      defaultMessages.append(
+        "server-kick-no-other-hub",
+        BridgeConfiguration.DEFAULT_MESSAGES.get("default").get("server-kick-no-other-hub"));
+
+      // we need to update from the inside out
+      localizedMessages.append("default", defaultMessages);
+      config.append("localizedMessages", localizedMessages);
+
+      // write the changes to the configuration
+      this.writeConfig(config);
+    }
+  }
+
   @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)
   public void registerCommand(@NonNull CommandProvider commandProvider) {
     // register the bridge command
