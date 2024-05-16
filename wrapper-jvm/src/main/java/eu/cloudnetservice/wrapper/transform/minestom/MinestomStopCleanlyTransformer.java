@@ -20,17 +20,20 @@ import eu.cloudnetservice.wrapper.transform.Transformer;
 import lombok.NonNull;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 public class MinestomStopCleanlyTransformer implements Transformer {
 
   @Override
   public void transform(@NonNull String classname, @NonNull ClassNode classNode) {
     for (var method : classNode.methods) {
-      if (method.name.equals("stopCleanly")) {
+      // Find the stop method that does not have any parameters and returns void
+      if (method.name.equals("stop")) {
         var instructions = new InsnList();
 
         // System.exit(0);
@@ -42,9 +45,25 @@ public class MinestomStopCleanlyTransformer implements Transformer {
           "(I)V"
         ));
 
-        method.instructions.insertBefore(method.instructions.getLast(), instructions);
+        method.instructions.insertBefore(findLastReturn(method), instructions);
         return;
       }
     }
+  }
+
+  /**
+   * Find the last return instruction in the method.
+   * This method is useful to skip instructions in the method that come after the return statement, such as a
+   * label node or a line number node.
+   *
+   * @param method The method to search in
+   * @return The last return instruction in the method, or null if no return instruction was found
+   */
+  private static AbstractInsnNode findLastReturn(MethodNode method) {
+    var instruction = method.instructions.getLast();
+    while (instruction.getOpcode() != Opcodes.RETURN) {
+      instruction = instruction.getPrevious();
+    }
+    return instruction;
   }
 }

@@ -187,7 +187,7 @@ public final class Wrapper {
       new OldEpollDisableTransformer());
     transformerRegistry.registerTransformer(
       "net/minestom/server",
-      "MinecraftServer",
+      "ServerProcessImpl",
       new MinestomStopCleanlyTransformer());
   }
 
