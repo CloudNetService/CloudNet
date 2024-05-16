@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ public final class CloudNetBridgeModule extends DriverModule {
             serviceId.append("environmentName", environment);
 
             // try to set the new environment
-            var env = versionProvider.getEnvironmentType(environment);
+            var env = versionProvider.environmentType(environment);
             serviceId.append("environment", env);
             serviceId.append("nameSplitter", "-");
 

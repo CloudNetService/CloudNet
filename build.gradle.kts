@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +139,10 @@ subprojects {
   tasks.withType<Javadoc> {
     val options = options as? StandardJavadocDocletOptions ?: return@withType
     applyDefaultJavadocOptions(options)
+  }
+
+  tasks.withType<JavaCompile> {
+    dependsOn(tasks.withType<ProcessResources>())
   }
 
   // all these projects are publishing their java artifacts
