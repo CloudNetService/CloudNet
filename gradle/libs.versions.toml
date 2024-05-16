@@ -24,7 +24,7 @@ javapoet = "1.13.0"
 
 # console
 jansi = "2.4.1"
-jline = "3.25.1"
+jline = "3.26.1"
 cloud = "1.9.0-cn1"
 stringSimilarity = "2.0.0"
 
