@@ -57,7 +57,7 @@ public final class Parsers {
 
   public @NonNull QuestionAnswerType.Parser<String> nonEmptyStr() {
     return input -> {
-      if (input.trim().isEmpty()) {
+      if (input.isEmpty()) {
         throw ParserException.INSTANCE;
       }
       return input;
