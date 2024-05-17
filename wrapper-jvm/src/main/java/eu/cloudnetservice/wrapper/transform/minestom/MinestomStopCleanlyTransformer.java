@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class MinestomStopCleanlyTransformer implements Transformer {
+public final class MinestomStopCleanlyTransformer implements Transformer {
 
   @Override
   public void transform(@NonNull String classname, @NonNull ClassNode classNode) {
@@ -45,21 +45,25 @@ public class MinestomStopCleanlyTransformer implements Transformer {
           "(I)V"
         ));
 
-        method.instructions.insertBefore(findLastReturn(method), instructions);
-        return;
+        final AbstractInsnNode lastReturnStatement = findLastReturn(method);
+        if (lastReturnStatement == null) {
+          // If no return statement was found, just add the instructions at the end of the method
+          method.instructions.add(instructions);
+        } else {
+          method.instructions.insertBefore(lastReturnStatement, instructions);
+        }
       }
     }
   }
 
   /**
-   * Find the last return instruction in the method.
-   * This method is useful to skip instructions in the method that come after the return statement, such as a
-   * label node or a line number node.
+   * Find the last return instruction in the method. This method is useful to skip instructions in the method that come
+   * after the return statement, such as a label node or a line number node.
    *
    * @param method The method to search in
    * @return The last return instruction in the method, or null if no return instruction was found
    */
-  private static AbstractInsnNode findLastReturn(MethodNode method) {
+  private static AbstractInsnNode findLastReturn(@NonNull MethodNode method) {
     var instruction = method.instructions.getLast();
     while (instruction.getOpcode() != Opcodes.RETURN) {
       instruction = instruction.getPrevious();
