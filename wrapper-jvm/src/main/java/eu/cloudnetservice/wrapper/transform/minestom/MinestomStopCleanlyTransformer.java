@@ -18,6 +18,7 @@ package eu.cloudnetservice.wrapper.transform.minestom;
 
 import eu.cloudnetservice.wrapper.transform.Transformer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -45,7 +46,7 @@ public final class MinestomStopCleanlyTransformer implements Transformer {
           "(I)V"
         ));
 
-        final AbstractInsnNode lastReturnStatement = findLastReturn(method);
+        var lastReturnStatement = findLastReturn(method);
         if (lastReturnStatement == null) {
           // If no return statement was found, just add the instructions at the end of the method
           method.instructions.add(instructions);
@@ -62,8 +63,9 @@ public final class MinestomStopCleanlyTransformer implements Transformer {
    *
    * @param method The method to search in
    * @return The last return instruction in the method, or null if no return instruction was found
+   * @throws NullPointerException if the given method node is null.
    */
-  private static AbstractInsnNode findLastReturn(@NonNull MethodNode method) {
+  private static @Nullable AbstractInsnNode findLastReturn(@NonNull MethodNode method) {
     var instruction = method.instructions.getLast();
     while (instruction.getOpcode() != Opcodes.RETURN) {
       instruction = instruction.getPrevious();
