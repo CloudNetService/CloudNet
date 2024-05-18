@@ -44,7 +44,7 @@ public record PasteServer(
     return Unirest.request(this.requestMethod, String.format("%s%s", this.baseUrl(), this.apiDataEndpoint))
       .body(content)
       .headers(this.headers)
-      .connectTimeout(10_000)
+      .requestTimeout(10_000)
       .contentType("text/plain")
       .charset(StandardCharsets.UTF_8)
       .accept("application/json")
