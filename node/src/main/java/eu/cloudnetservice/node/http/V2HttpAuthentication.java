@@ -80,7 +80,7 @@ public class V2HttpAuthentication {
     // initialize the secret & parser
     // todo: can we use a key written to the disk so that issued jwts survive node restarts?
     this.signingKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    this.jwtParser = Jwts.parserBuilder().setSigningKey(this.signingKey).requireIssuer(this.jwtIssuer).build();
+    this.jwtParser = Jwts.parser().setSigningKey(this.signingKey).requireIssuer(this.jwtIssuer).build();
   }
 
   public @NonNull String createJwt(@NonNull PermissionUser subject, long sessionTimeMillis) {
