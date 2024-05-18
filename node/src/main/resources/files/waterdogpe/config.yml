@@ -1,16 +1,13 @@
 # Waterdog Main Configuration file
 # Configure your desired network settings here.
 
-
-# A list of all downstream servers that are available right after starting
-# address field is formatted using ip:port
-# publicAddress is optional and can be set to the ip players can directly connect through
-servers: { }
-
 listener:
 
   # The Motd which will be displayed in the server tab of a player and returned during ping
   motd: §bCloudNet §8[§cBlizzard§8] §7WaterdogPE §cProxy §7instance
+
+  # The name that is shown up in the player list (pause menu)
+  name: §bCloudNet §8[§cBlizzard§8] §7WaterdogPE §cProxy
 
   # The server priority list. If not changed by plugins, the proxy will connect the player to the first of those servers
   priorities: [ ]
@@ -26,13 +23,35 @@ listener:
   # when a player connects using skywars-xyz.com as the serverIp, he will be connected to SkyWars-1 directly
   forced_hosts: { }
 
+  # Additional ports to listen to
+  additional_ports: [ ]
+
+  # The join handler used to determine the first entered server. Possible options: DefaultJoinHandler
+  join_handler: DefaultJoinHandler
+
+  # The reconnect handler used to determine fallback connections. Possible options: DefaultReconnectHandler, RoundRobinReconnectHandler
+  reconnect_handler: DefaultReconnectHandler
+
+# A list of all downstream servers that are available right after starting
+# address field is formatted using ip:port
+# publicAddress is optional and can be set to the ip players can directly connect through
+servers: { }
+
+# Connection and security related settings. Do NOT edit unless you know what you are doing!
+network_settings:
+  connection_throttle: 10
+  connection_throttle_time: 1000
+  enable_ipv6: true
+  max_user_mtu: 1400
+  login_throttle: 2
+  max_downstream_mtu: 1400
+  connection_timeout: 15
+
 # Case-Sensitive permission list for players (empty using {})
 permissions: { }
 
 # List of permissions each player should get by default (empty using [])
-permissions_default:
-  - waterdog.command.help
-  - waterdog.command.info
+permissions_default: [ ]
 
 # Whether the debug output in the console should be enabled or not
 enable_debug: false
@@ -42,9 +61,6 @@ upstream_encryption: true
 
 # If enabled, only players which are authenticated with XBOX Live can join. If disabled, anyone can connect *with any name*
 online_mode: true
-
-# If enabled, the proxy will be able to bind to an Ipv6 Address
-enable_ipv6: true
 
 # If enabled, the proxy will pass information like XUID or IP to the downstream server using custom fields in the LoginPacket
 use_login_extras: true
@@ -58,11 +74,12 @@ enable_query: true
 # If enabled, when receiving a McpeTransferPacket, the proxy will check if the target server is in the downstream list, and if yes, use the fast transfer mechanism
 prefer_fast_transfer: true
 
-# Fast-codec only decodes the packets required by the proxy, everything else will be passed rawly. Disabling this can create a performance hit
-use_fast_codec: true
-
 # If enabled, the proxy will inject all the proxy commands in the AvailableCommandsPacket, enabling autocompletion
 inject_proxy_commands: true
+
+# Algorithm used for upstream compression. Currently supported: zlib, snappy
+# This is only applicable on 1.19.30 and newer versions
+compression: zlib
 
 # Upstream server compression ratio(proxy to client), higher = less bandwidth, more cpu, lower vice versa
 upstream_compression_level: 6
@@ -87,3 +104,6 @@ pack_cache_size: 16
 
 # Creating threads may be in some situations expensive. Specify minimum count of idle threads per internal thread executors. Set to -1 to auto-detect by core count.
 default_idle_threads: -1
+
+# Enable anonymous statistics that are sent to bstats. For more information, check out our bstats page at https://bstats.org/plugin/server-implementation/WaterdogPE/15678
+enable_statistics: true

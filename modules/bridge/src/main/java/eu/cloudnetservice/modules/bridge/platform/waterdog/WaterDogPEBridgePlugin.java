@@ -67,6 +67,7 @@ public final class WaterDogPEBridgePlugin implements PlatformEntrypoint {
 
     // register the WaterDog handlers
     var handlers = new WaterDogPEHandlers(this.proxyServer, this.bridgeManagement);
+    this.proxyServer.setJoinHandler(handlers);
     this.proxyServer.setReconnectHandler(handlers);
     this.proxyServer.setForcedHostHandler(handlers);
 

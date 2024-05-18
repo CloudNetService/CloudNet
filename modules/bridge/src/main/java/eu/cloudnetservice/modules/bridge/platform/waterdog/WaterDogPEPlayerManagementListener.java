@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform.waterdog;
 
 import dev.waterdog.waterdogpe.event.EventManager;
 import dev.waterdog.waterdogpe.event.defaults.InitialServerConnectedEvent;
-import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
+import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectedEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.TransferCompleteEvent;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
@@ -57,7 +57,7 @@ public final class WaterDogPEPlayerManagementListener {
     // subscribe to all events
     eventManager.subscribe(PlayerLoginEvent.class, this::handleLogin);
     eventManager.subscribe(TransferCompleteEvent.class, this::handleTransfer);
-    eventManager.subscribe(PlayerDisconnectEvent.class, this::handleDisconnected);
+    eventManager.subscribe(PlayerDisconnectedEvent.class, this::handleDisconnected);
     eventManager.subscribe(InitialServerConnectedEvent.class, this::handleInitialConnect);
   }
 
@@ -99,7 +99,7 @@ public final class WaterDogPEPlayerManagementListener {
     this.proxyPlatformHelper.sendChannelMessageLoginSuccess(
       this.management.createPlayerInformation(event.getPlayer()),
       this.management
-        .cachedService(service -> service.name().equals(event.getInitialDownstream().getServerInfo().getServerName()))
+        .cachedService(service -> service.name().equals(event.getServerInfo().getServerName()))
         .map(NetworkServiceInfo::fromServiceInfoSnapshot)
         .orElse(null));
     // update the service info
@@ -110,7 +110,7 @@ public final class WaterDogPEPlayerManagementListener {
 
   private void handleTransfer(@NonNull TransferCompleteEvent event) {
     this.management
-      .cachedService(service -> service.name().equals(event.getNewClient().getServerInfo().getServerName()))
+      .cachedService(service -> service.name().equals(event.getTargetServer().getServerName()))
       .map(NetworkServiceInfo::fromServiceInfoSnapshot)
       .ifPresent(serviceInfo -> {
         // the player switched the service
@@ -120,7 +120,7 @@ public final class WaterDogPEPlayerManagementListener {
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
   }
 
-  private void handleDisconnected(@NonNull PlayerDisconnectEvent event) {
+  private void handleDisconnected(@NonNull PlayerDisconnectedEvent event) {
     // check if the player successfully connected to a server before
     if (event.getPlayer().getServerInfo() != null) {
       this.proxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());

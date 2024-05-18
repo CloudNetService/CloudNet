@@ -41,7 +41,7 @@ public final class WaterDogPECloudCommand extends Command {
     @NonNull PlatformBridgeManagement<?, ?> management
   ) {
     super("cloudnet", CommandSettings.builder()
-      .setAliases(new String[]{"cloud", "cn"})
+      .setAliases("cloud", "cn")
       .setPermission("cloudnet.command.cloudnet")
       .build());
     this.clusterNodeProvider = clusterNodeProvider;
