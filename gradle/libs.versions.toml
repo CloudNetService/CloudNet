@@ -14,7 +14,7 @@ guava = "33.2.0-jre"
 
 # testing
 junit = "5.10.2"
-mockito = "5.11.0"
+mockito = "5.12.0"
 junitLauncher = "1.10.2"
 testcontainers = "1.19.7"
 
@@ -31,16 +31,16 @@ stringSimilarity = "2.0.0"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "5.0.0"
+mongodb = "5.1.0"
 hikariCp = "5.1.0"
-mysqlConnector = "8.3.0"
+mysqlConnector = "8.4.0"
 
 # general
 asm = "9.7"
 oshi = "6.6.0"
 vavr = "0.10.4"
 sshj = "0.38.0"
-jjwt = "0.11.5"
+jjwt = "0.12.5"
 slf4j = "2.0.12"
 aerogel = "2.1.0"
 awsSdk = "2.25.3"
@@ -49,9 +49,9 @@ caffeine = "3.1.8"
 reflexion = "1.8.0"
 geantyref = "1.3.15"
 dockerJava = "3.3.6"
-nightConfig = "3.6.7"
+nightConfig = "3.7.1"
 annotations = "24.1.0"
-influxClient = "7.0.0"
+influxClient = "7.1.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
 
@@ -66,7 +66,7 @@ bungeecord = "1.20-R0.3-SNAPSHOT"
 
 # platform extensions
 vault = "1.7.1"
-adventure = "4.16.0"
+adventure = "4.17.0"
 modlauncher = "8.1.3"
 npcLib = "3.0.0-beta6"
 placeholderApi = "2.11.5"
