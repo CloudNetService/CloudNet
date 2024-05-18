@@ -42,6 +42,7 @@ import eu.cloudnetservice.node.command.sub.ConfigCommand;
 import eu.cloudnetservice.node.command.sub.CreateCommand;
 import eu.cloudnetservice.node.command.sub.DebugCommand;
 import eu.cloudnetservice.node.command.sub.ExitCommand;
+import eu.cloudnetservice.node.command.sub.ExportCloudPermsCommand;
 import eu.cloudnetservice.node.command.sub.GroupsCommand;
 import eu.cloudnetservice.node.command.sub.HelpCommand;
 import eu.cloudnetservice.node.command.sub.MeCommand;
@@ -285,6 +286,9 @@ public final class DefaultCommandProvider implements CommandProvider {
     this.register(ConfigCommand.class);
     this.register(ModulesCommand.class);
     this.register(HelpCommand.class);
+
+    // todo: remove after cloudperms removal
+    this.register(ExportCloudPermsCommand.class);
   }
 
   /**
