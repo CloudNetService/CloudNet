@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,10 @@ package eu.cloudnetservice.node.console;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.UserInterruptException;
 
-public class ConsoleReadThread extends Thread {
+public final class ConsoleReadThread extends Thread {
 
   private final JLine3Console console;
   private Task<String> currentTask;
@@ -34,36 +33,42 @@ public class ConsoleReadThread extends Thread {
   @Override
   public void run() {
     String line;
-    while (!Thread.currentThread().isInterrupted() && (line = this.readLine()) != null) {
-      if (this.currentTask != null) {
-        this.currentTask.complete(line);
-        this.currentTask = null;
-      }
+    while (!Thread.currentThread().isInterrupted()) {
+      try {
+        // blocking-reads the current line that's typed in by the user
+        // this is done here to handle the thrown exceptions by the method correctly (see catch blocks below)
+        // todo(derklaro): this can also throw an IOError, not sure how to handle that
+        line = this.console.lineReader().readLine(this.console.prompt());
+        if (!line.isBlank()) {
+          // complete the current read task if any is awaiting console input
+          if (this.currentTask != null) {
+            this.currentTask.complete(line);
+            this.currentTask = null;
+          }
 
-      for (var value : this.console.consoleInputHandler().values()) {
-        if (value.enabled()) {
-          value.handleInput(line);
+          // post the command line to all input handlers that are enabled at the moment
+          for (var value : this.console.consoleInputHandler().values()) {
+            if (value.enabled()) {
+              value.handleInput(line);
+            }
+          }
+
+          // notify all animations that the cursor line has been moved one down
+          // this is required to allow them to react when f. ex. re-drawing styled console input
+          for (var animation : this.console.runningAnimations()) {
+            animation.addToCursor(1);
+          }
         }
-      }
-
-      for (var animation : this.console.runningAnimations()) {
-        animation.addToCursor(1);
+      } catch (EndOfFileException ignored) {
+        // just continue reading after EOT (CTRL-D)
+      } catch (UserInterruptException exception) {
+        // interrupt (CTRL-C)
+        System.exit(-1);
       }
     }
   }
 
-  private @Nullable String readLine() {
-    try {
-      return this.console.lineReader().readLine(this.console.prompt());
-    } catch (EndOfFileException ignored) {
-    } catch (UserInterruptException exception) {
-      System.exit(-1);
-    }
-
-    return null;
-  }
-
-  protected @NonNull Task<String> currentTask() {
+  @NonNull Task<String> currentTask() {
     if (this.currentTask == null) {
       this.currentTask = new Task<>();
     }

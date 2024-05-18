@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public final class V2HttpHandlerSession extends V2HttpHandler {
     super(configuration.restConfiguration());
   }
 
-  @HttpRequestHandler(paths = "/api/v2/session/refresh")
+  @HttpRequestHandler(paths = "/api/v2/session/refresh", methods = "POST")
   private void handleRefresh(@NonNull HttpContext context, @NonNull @BearerAuth HttpSession session) {
     var jwt = session.issuer().refreshJwt(
       session,
@@ -47,7 +47,7 @@ public final class V2HttpHandlerSession extends V2HttpHandler {
       .cancelNext(true);
   }
 
-  @HttpRequestHandler(paths = "/api/v2/session/logout")
+  @HttpRequestHandler(paths = "/api/v2/session/logout", methods = "POST")
   private void handleLogout(@NonNull HttpContext context, @NonNull @BearerAuth HttpSession session) {
     if (session.issuer().expireSession(session)) {
       this.ok(context)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import org.bukkit.plugin.java.JavaPlugin;
   api = "1.13",
   platform = "bukkit",
   name = "CloudNet-Signs",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Bukkit extension for the CloudNet runtime which adds sign connector support",
   authors = "CloudNetService",
   dependencies = @Dependency(name = "CloudNet-Bridge"),

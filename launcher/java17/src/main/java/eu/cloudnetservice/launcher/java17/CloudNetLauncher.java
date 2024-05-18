@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,9 +148,12 @@ public final class CloudNetLauncher {
     // resolve the debugger port; use -1 if not given to disable the debugger
     int debugPort = CommandLineHelper.findProperty(this.commandLineArguments, "debug.port", "-1", Integer::parseInt);
 
+    // resolve the memory for the node process
+    int nodeMemory = CommandLineHelper.findProperty(this.commandLineArguments, "node.memory", "256", Integer::parseInt);
+
     // resolve all dependencies & start the application
     var dependencies = DependencyHelper.loadFromLibrariesFile(cloudNetJarPath);
-    ApplicationBootstrap.bootstrap(cloudNetJarPath, dependencies, this.originalArgs, debugPort);
+    ApplicationBootstrap.bootstrap(cloudNetJarPath, dependencies, this.originalArgs, debugPort, nodeMemory);
   }
 
   private void runCnlInterpreter() throws Exception {

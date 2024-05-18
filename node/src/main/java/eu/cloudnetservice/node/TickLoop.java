@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import eu.cloudnetservice.node.event.instance.CloudNetTickEvent;
 import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -54,6 +55,7 @@ public final class TickLoop {
   private final ServiceTaskProvider taskProvider;
   private final CloudServiceManager serviceManager;
   private final NodeServerProvider nodeServerProvider;
+  private final Provider<ShutdownHandler> shutdownHandlerProvider;
 
   private final AtomicInteger tickPauseRequests = new AtomicInteger();
 
@@ -68,12 +70,14 @@ public final class TickLoop {
     @NonNull EventManager eventManager,
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull CloudServiceManager serviceManager,
-    @NonNull NodeServerProvider nodeServerProvider
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull Provider<ShutdownHandler> shutdownHandlerProvider
   ) {
     this.eventManager = eventManager;
     this.taskProvider = taskProvider;
     this.serviceManager = serviceManager;
     this.nodeServerProvider = nodeServerProvider;
+    this.shutdownHandlerProvider = shutdownHandlerProvider;
   }
 
   public @NonNull Task<Void> runTask(@NonNull Runnable runnable) {
@@ -169,7 +173,7 @@ public final class TickLoop {
             // check if there are no services on the node
             if (this.serviceManager.localCloudServices().isEmpty()) {
               // stop the node as it's marked for draining
-              System.exit(0);
+              this.shutdownHandlerProvider.get().shutdown();
               return;
             }
           }

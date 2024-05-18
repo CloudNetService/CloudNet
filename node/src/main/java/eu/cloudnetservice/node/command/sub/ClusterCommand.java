@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
+import eu.cloudnetservice.node.ShutdownHandler;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
@@ -48,6 +49,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.util.NetworkUtil;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -97,6 +99,7 @@ public final class ClusterCommand {
   private final NodeServerProvider nodeServerProvider;
   private final ClusterNodeProvider clusterNodeProvider;
   private final TemplateStorageProvider templateStorageProvider;
+  private final Provider<ShutdownHandler> shutdownHandlerProvider;
 
   @Inject
   public ClusterCommand(
@@ -104,13 +107,15 @@ public final class ClusterCommand {
     @NonNull CloudServiceManager serviceProvider,
     @NonNull NodeServerProvider nodeServerProvider,
     @NonNull ClusterNodeProvider clusterNodeProvider,
-    @NonNull TemplateStorageProvider templateStorageProvider
+    @NonNull TemplateStorageProvider templateStorageProvider,
+    @NonNull Provider<ShutdownHandler> shutdownHandlerProvider
   ) {
     this.configuration = configuration;
     this.nodeServerProvider = nodeServerProvider;
     this.clusterNodeProvider = clusterNodeProvider;
     this.serviceProvider = serviceProvider;
     this.templateStorageProvider = templateStorageProvider;
+    this.shutdownHandlerProvider = shutdownHandlerProvider;
   }
 
   @Parser(suggestions = "clusterNodeServer")
@@ -236,7 +241,7 @@ public final class ClusterCommand {
       }
     }
 
-    System.exit(0);
+    this.shutdownHandlerProvider.get().shutdown();
   }
 
   @CommandMethod("cluster|clu add <nodeId> <host>")

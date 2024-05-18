@@ -24,25 +24,25 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/wrapper-validation-action@v2
 
       - name: Setup java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           check-latest: true
           distribution: 'zulu'
           java-version: ${{ matrix.java }}
 
       - name: Setup gradle cache
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/nightly' || matrix.java != 17 }}
 
       - name: Setup Loom cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: '.gradle/loom-cache'
           restore-keys: ${{ runner.os }}-gradle-loom-
@@ -59,7 +59,7 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@v6
+        uses: tj-actions/branch-names@v8
 
       - name: Publish updater metadata
         uses: s0/git-publish-subdir-action@develop
@@ -103,7 +103,7 @@ jobs:
           find plugins/ -type f -regex '.*/build/libs/.*\.jar' ! -name '*-javadoc.jar' ! -name '*-sources.jar' -exec cp {} temp/plugins \;
 
       - name: Upload artifacts zip
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && matrix.java == 17 }}
         with:
           name: CloudNet

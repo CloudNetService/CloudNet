@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
@@ -217,7 +218,7 @@ public class PlayersCommand {
   public void kickPlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
-    @Nullable @Greedy @Argument("reason") String reason,
+    @Nullable @Quoted @Argument("reason") String reason,
     @Flag("force") boolean force
   ) {
     var reasonComponent = reason == null

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,13 +192,13 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
       // TODO: remove in 4.1
       // check if the task has a name splitter
-      if (!document.contains("nameSplitter")) {
+      if (!document.containsNonNull("nameSplitter")) {
         document.append("nameSplitter", "-");
       }
 
       // check if the task has environment variables
       var processConfiguration = document.readMutableDocument("processConfiguration");
-      if (!processConfiguration.contains("environmentVariables")) {
+      if (!processConfiguration.containsNonNull("environmentVariables")) {
         processConfiguration.append("environmentVariables", new HashMap<>());
         document.append("processConfiguration", processConfiguration);
       }

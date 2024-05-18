@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -458,7 +458,13 @@ public class DefaultModuleProvider implements ModuleProvider {
         }
         // ensure that the required properties are set
         dependency.assertDefaultPropertiesSet();
-        // decide which way to go (by url or repository). In this case we start with the more common repository way
+        // decide which way to go (by url or repository). In this case we start with the developer defined url if there's one
+        if (dependency.url() != null) {
+          loadedDependencies.add(this.doLoadDependency(dependency, configuration, handler,
+            () -> this.moduleDependencyLoader.loadModuleDependencyByUrl(configuration, dependency)));
+          continue;
+        }
+        // check if the repository defined a repository for us to use
         if (dependency.repo() != null) {
           var repoUrl = Preconditions.checkNotNull(
             repos.get(dependency.repo()),
@@ -466,12 +472,6 @@ public class DefaultModuleProvider implements ModuleProvider {
             dependency.toString(), dependency.repo());
           loadedDependencies.add(this.doLoadDependency(dependency, configuration, handler,
             () -> this.moduleDependencyLoader.loadModuleDependencyByRepository(configuration, dependency, repoUrl)));
-          continue;
-        }
-        // check if the repository defined a fixed download url for us to use
-        if (dependency.url() != null) {
-          loadedDependencies.add(this.doLoadDependency(dependency, configuration, handler,
-            () -> this.moduleDependencyLoader.loadModuleDependencyByUrl(configuration, dependency)));
           continue;
         }
         // the dependency might be a dependency for a module, save this

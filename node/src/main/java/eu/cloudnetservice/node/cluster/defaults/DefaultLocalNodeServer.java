@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
+import eu.cloudnetservice.node.ShutdownHandler;
 import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
@@ -39,6 +40,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.cluster.LocalNodeSnapshotConfigureEvent;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import java.time.Instant;
 import java.util.Collection;
@@ -60,6 +62,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   private final CommandProvider commandProvider;
   private final CloudServiceFactory cloudServiceFactory;
   private final CloudServiceManager cloudServiceProvider;
+  private final Provider<ShutdownHandler> shutdownHandlerProvider;
 
   private final long creationMillis = System.currentTimeMillis();
 
@@ -82,7 +85,8 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
     @NonNull ModuleProvider moduleProvider,
     @NonNull CommandProvider commandProvider,
     @NonNull CloudServiceFactory cloudServiceFactory,
-    @NonNull CloudServiceManager cloudServiceProvider
+    @NonNull CloudServiceManager cloudServiceProvider,
+    @NonNull Provider<ShutdownHandler> shutdownHandlerProvider
   ) {
     this.version = version;
     this.eventManager = eventManager;
@@ -92,6 +96,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
     this.commandProvider = commandProvider;
     this.cloudServiceFactory = cloudServiceFactory;
     this.cloudServiceProvider = cloudServiceProvider;
+    this.shutdownHandlerProvider = shutdownHandlerProvider;
   }
 
   @Override
@@ -111,7 +116,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
 
   @Override
   public void shutdown() {
-    System.exit(0);
+    this.shutdownHandlerProvider.get().shutdown();
   }
 
   @Override
