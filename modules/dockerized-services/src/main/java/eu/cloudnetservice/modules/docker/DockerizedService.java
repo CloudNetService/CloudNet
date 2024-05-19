@@ -208,7 +208,7 @@ public class DockerizedService extends JVMService {
         .withEntrypoint(arguments)
         .withStopSignal("SIGTERM")
         .withExposedPorts(exposedPorts)
-        .withName(this.serviceId().uniqueId().toString())
+        .withName(this.serviceId().name() + "_" + this.serviceId().uniqueId())
         .withWorkingDir(this.serviceDirectory.toAbsolutePath().toString())
         .withHostConfig(HostConfig.newHostConfig()
           .withBinds(binds)
