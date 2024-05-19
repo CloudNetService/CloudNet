@@ -36,5 +36,5 @@ dependencies {
 
 tasks.withType<RemapJarTask> {
   // base setup
-  archiveFileName.set(Files.luckPermsAddonPlugin)
+  archiveFileName.set(Files.luckPermsPlugin)
 }

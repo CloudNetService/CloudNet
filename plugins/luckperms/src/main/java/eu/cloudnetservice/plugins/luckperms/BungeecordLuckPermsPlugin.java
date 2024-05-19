@@ -26,24 +26,19 @@ import net.luckperms.api.LuckPermsProvider;
 
 @Singleton
 @PlatformPlugin(
-  platform = "fabric",
-  name = "CloudNet-LuckPerms-Addon",
-  version = "{project.build.version}",
-  dependencies = {
-    @Dependency(name = "fabricloader", version = ">=0.14.17"),
-    @Dependency(name = "minecraft", version = "~1.19.4"),
-    @Dependency(name = "java", version = ">=17"),
-    @Dependency(name = "LuckPerms")
-  },
+  platform = "bungeecord",
+  name = "CloudNet-LuckPerms",
   authors = "CloudNetService",
-  description = "Brings LuckPerms support to all server platforms"
+  version = "{project.build.version}",
+  description = "Brings LuckPerms support to all server platforms",
+  dependencies = @Dependency(name = "LuckPerms")
 )
-public class FabricLuckPermsPlugin implements PlatformEntrypoint {
+public class BungeecordLuckPermsPlugin implements PlatformEntrypoint {
 
   private final CloudNetContextCalculator cloudNetContextCalculator;
 
   @Inject
-  public FabricLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
+  public BungeecordLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
     this.cloudNetContextCalculator = cloudNetContextCalculator;
   }
 

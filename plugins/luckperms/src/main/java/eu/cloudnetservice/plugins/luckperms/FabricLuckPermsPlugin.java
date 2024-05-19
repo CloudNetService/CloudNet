@@ -26,20 +26,24 @@ import net.luckperms.api.LuckPermsProvider;
 
 @Singleton
 @PlatformPlugin(
-  platform = "nukkit",
-  api = "1.0.5",
-  name = "CloudNet-LuckPerms-Addon",
+  platform = "fabric",
+  name = "CloudNet-LuckPerms",
   version = "{project.build.version}",
+  dependencies = {
+    @Dependency(name = "fabricloader", version = ">=0.14.17"),
+    @Dependency(name = "minecraft", version = ">=1.20.4"),
+    @Dependency(name = "java", version = ">=17"),
+    @Dependency(name = "LuckPerms")
+  },
   authors = "CloudNetService",
-  description = "Brings LuckPerms support to all server platforms",
-  dependencies = @Dependency(name = "LuckPerms")
+  description = "Brings LuckPerms support to all server platforms"
 )
-public class NukkitLuckPermsPlugin implements PlatformEntrypoint {
+public class FabricLuckPermsPlugin implements PlatformEntrypoint {
 
   private final CloudNetContextCalculator cloudNetContextCalculator;
 
   @Inject
-  public NukkitLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
+  public FabricLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
     this.cloudNetContextCalculator = cloudNetContextCalculator;
   }
 

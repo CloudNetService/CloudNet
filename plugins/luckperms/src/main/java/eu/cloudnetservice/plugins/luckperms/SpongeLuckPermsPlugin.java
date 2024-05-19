@@ -26,19 +26,22 @@ import net.luckperms.api.LuckPermsProvider;
 
 @Singleton
 @PlatformPlugin(
-  platform = "velocity",
-  name = "CloudNet-LuckPerms-Addon",
+  platform = "sponge",
+  name = "CloudNet-LuckPerms",
   version = "{project.build.version}",
+  dependencies = {
+    @Dependency(name = "spongeapi", version = "9.0.0"),
+    @Dependency(name = "LuckPerms")
+  },
   authors = "CloudNetService",
-  description = "Brings LuckPerms support to all server platforms",
-  dependencies = @Dependency(name = "LuckPerms")
+  description = "Brings LuckPerms support to all server platforms"
 )
-public class VelocityLuckPermsPlugin implements PlatformEntrypoint {
+public class SpongeLuckPermsPlugin implements PlatformEntrypoint {
 
   private final CloudNetContextCalculator cloudNetContextCalculator;
 
   @Inject
-  public VelocityLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
+  public SpongeLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
     this.cloudNetContextCalculator = cloudNetContextCalculator;
   }
 

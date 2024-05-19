@@ -27,7 +27,7 @@ import net.luckperms.api.LuckPermsProvider;
 @Singleton
 @PlatformPlugin(
   platform = "bukkit",
-  name = "CloudNet-LuckPerms-Addon",
+  name = "CloudNet-LuckPerms",
   authors = "CloudNetService",
   version = "{project.build.version}",
   description = "Brings LuckPerms support to all server platforms",

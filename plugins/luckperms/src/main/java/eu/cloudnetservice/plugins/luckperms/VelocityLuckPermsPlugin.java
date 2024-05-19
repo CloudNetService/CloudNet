@@ -26,19 +26,19 @@ import net.luckperms.api.LuckPermsProvider;
 
 @Singleton
 @PlatformPlugin(
-  platform = "bungeecord",
-  name = "CloudNet-LuckPerms-Addon",
-  authors = "CloudNetService",
+  platform = "velocity",
+  name = "CloudNet-LuckPerms",
   version = "{project.build.version}",
+  authors = "CloudNetService",
   description = "Brings LuckPerms support to all server platforms",
   dependencies = @Dependency(name = "LuckPerms")
 )
-public class BungeecordLuckPermsPlugin implements PlatformEntrypoint {
+public class VelocityLuckPermsPlugin implements PlatformEntrypoint {
 
   private final CloudNetContextCalculator cloudNetContextCalculator;
 
   @Inject
-  public BungeecordLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
+  public VelocityLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
     this.cloudNetContextCalculator = cloudNetContextCalculator;
   }
 
