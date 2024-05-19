@@ -21,6 +21,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.luckperms.api.context.ContextConsumer;
+import net.luckperms.api.context.ContextSet;
 import net.luckperms.api.context.MutableContextSet;
 import net.luckperms.api.context.StaticContextCalculator;
 
@@ -34,8 +35,7 @@ public class CloudNetContextCalculator implements StaticContextCalculator {
     this.wrapperConfiguration = wrapperConfiguration;
   }
 
-  @Override
-  public void calculate(@NonNull ContextConsumer consumer) {
+  private ContextSet getContextSet() {
     var contextSet = MutableContextSet.create();
     var serviceId = this.wrapperConfiguration.serviceConfiguration().serviceId();
 
@@ -46,7 +46,16 @@ public class CloudNetContextCalculator implements StaticContextCalculator {
     for (var group : this.wrapperConfiguration.serviceConfiguration().groups()) {
       contextSet.add("group", group);
     }
+    return contextSet;
+  }
 
-    consumer.accept(contextSet);
+  @Override
+  public void calculate(@NonNull ContextConsumer consumer) {
+    consumer.accept(getContextSet());
+  }
+
+  @Override
+  public @NonNull ContextSet estimatePotentialContexts() {
+    return getContextSet();
   }
 }
