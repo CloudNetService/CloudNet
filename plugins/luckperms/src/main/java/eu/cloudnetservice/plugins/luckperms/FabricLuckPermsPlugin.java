@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import net.luckperms.api.LuckPermsProvider;
 @PlatformPlugin(
   platform = "fabric",
   name = "CloudNet-LuckPerms",
-  version = "{project.build.version}",
+  version = "@version@",
   dependencies = {
     @Dependency(name = "fabricloader", version = ">=0.14.17"),
     @Dependency(name = "minecraft", version = ">=1.20.4"),

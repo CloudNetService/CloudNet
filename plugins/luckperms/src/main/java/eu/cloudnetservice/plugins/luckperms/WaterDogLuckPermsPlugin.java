@@ -26,19 +26,19 @@ import net.luckperms.api.LuckPermsProvider;
 
 @Singleton
 @PlatformPlugin(
-  platform = "bungeecord",
+  platform = "waterdog",
   name = "CloudNet-LuckPerms",
-  authors = "CloudNetService",
   version = "@version@",
-  description = "Brings LuckPerms support to all server platforms",
-  dependencies = @Dependency(name = "LuckPerms")
+  authors = "CloudNetService",
+  dependencies = @Dependency(name = "LuckPerms"),
+  description = "Brings LuckPerms support to all server platforms"
 )
-public class BungeecordLuckPermsPlugin implements PlatformEntrypoint {
+public class WaterDogLuckPermsPlugin implements PlatformEntrypoint {
 
   private final CloudNetContextCalculator cloudNetContextCalculator;
 
   @Inject
-  public BungeecordLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
+  public WaterDogLuckPermsPlugin(@NonNull CloudNetContextCalculator cloudNetContextCalculator) {
     this.cloudNetContextCalculator = cloudNetContextCalculator;
   }
 
@@ -46,4 +46,5 @@ public class BungeecordLuckPermsPlugin implements PlatformEntrypoint {
   public void onLoad() {
     LuckPermsProvider.get().getContextManager().registerCalculator(this.cloudNetContextCalculator);
   }
+
 }

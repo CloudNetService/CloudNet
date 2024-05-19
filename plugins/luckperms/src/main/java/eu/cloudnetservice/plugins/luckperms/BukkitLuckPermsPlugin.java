@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import net.luckperms.api.LuckPermsProvider;
   platform = "bukkit",
   name = "CloudNet-LuckPerms",
   authors = "CloudNetService",
-  version = "{project.build.version}",
+  version = "@version@",
   description = "Brings LuckPerms support to all server platforms",
   pluginFileNames = "plugin.yml",
   dependencies = @Dependency(name = "LuckPerms")

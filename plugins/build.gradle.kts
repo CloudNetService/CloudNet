@@ -18,9 +18,12 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 subprojects {
   repositories {
+    maven("https://repo.waterdog.dev/releases/")
+    maven("https://repo.waterdog.dev/snapshots/")
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.opencollab.dev/maven-releases/")
     maven("https://repo.opencollab.dev/maven-snapshots/")
+    maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
   }
 
