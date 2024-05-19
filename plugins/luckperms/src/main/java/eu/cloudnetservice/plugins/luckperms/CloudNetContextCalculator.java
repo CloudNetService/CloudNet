@@ -35,7 +35,7 @@ public class CloudNetContextCalculator implements StaticContextCalculator {
     this.wrapperConfiguration = wrapperConfiguration;
   }
 
-  private ContextSet getContextSet() {
+  private @NonNull ContextSet contextSet() {
     var contextSet = MutableContextSet.create();
     var serviceId = this.wrapperConfiguration.serviceConfiguration().serviceId();
 
@@ -51,11 +51,11 @@ public class CloudNetContextCalculator implements StaticContextCalculator {
 
   @Override
   public void calculate(@NonNull ContextConsumer consumer) {
-    consumer.accept(getContextSet());
+    consumer.accept(this.contextSet());
   }
 
   @Override
   public @NonNull ContextSet estimatePotentialContexts() {
-    return getContextSet();
+    return this.contextSet();
   }
 }
