@@ -30,7 +30,6 @@ import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginMana
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
 import lombok.NonNull;
 
-
 public final class LimboPlatformPluginManager extends BasePlatformPluginManager<String, LimboPlugin> {
 
   public LimboPlatformPluginManager() {

@@ -20,6 +20,9 @@ import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializ
 
 import com.loohp.limbo.player.Player;
 import com.loohp.limbo.plugins.LimboPlugin;
+import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
 import java.io.IOException;
@@ -34,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 final class LimboDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
   private final LimboPlugin plugin;
+  private static final Logger LOGGER = LogManager.logger(LimboDirectPlayerExecutor.class);
 
   public LimboDirectPlayerExecutor(
     @NonNull LimboPlugin plugin,
@@ -102,7 +106,7 @@ final class LimboDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Play
       try {
         player.sendPluginMessage(Key.key(key), data);
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        LOGGER.severe(I18n.trans("module-bridge-plugin-message-sending-failed", key), e);
       }
     });
   }

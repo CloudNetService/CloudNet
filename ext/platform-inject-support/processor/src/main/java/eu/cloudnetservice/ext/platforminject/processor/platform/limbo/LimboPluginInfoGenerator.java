@@ -28,8 +28,8 @@ import lombok.NonNull;
 @SuppressWarnings("DuplicatedCode") // nukkit...
 final class LimboPluginInfoGenerator extends NightConfigInfoGenerator {
 
-  // ^[A-Za-z0-9 _.-]+$
-  // while bukkit does allow spaces in the plugin name it would replace the spaces with underscores at runtime anyway
+  // ^[A-Za-z0-9_.-]+$
+  // Limbo does not allow spaces in the plugin name, so we have to replace them with underscores
   private static final PluginIdGenerator PLUGIN_NAME_GENERATOR = PluginIdGenerator.withInfiniteLength()
     .registerRange(0, '_', CharRange.range(' '))
     .registerRange(

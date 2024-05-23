@@ -127,9 +127,9 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     this.addServicePreparer(ServiceEnvironmentType.NUKKIT, NukkitConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.VELOCITY, VelocityConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.BUNGEECORD, BungeeConfigurationPreparer.class);
+    this.addServicePreparer(ServiceEnvironmentType.LIMBO, LimboServiceConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, WaterdogPEConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, VanillaServiceConfigurationPreparer.class);
-    this.addServicePreparer(ServiceEnvironmentType.LIMBO, LimboServiceConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER, VanillaServiceConfigurationPreparer.class);
     // cluster data sync
     dataSyncRegistry.registerHandler(
