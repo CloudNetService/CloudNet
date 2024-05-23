@@ -12,6 +12,16 @@
       }
     },
     {
+      "name": "LIMBO",
+      "defaultServiceStartPort": 44955,
+      "defaultProcessArguments": [
+        "nogui"
+      ],
+      "properties": {
+        "isJavaServer": true
+      }
+    },
+    {
       "name": "MODDED_MINECRAFT_SERVER",
       "defaultServiceStartPort": 44955,
       "defaultProcessArguments": [
@@ -615,6 +625,21 @@
         {
           "name": "latest",
           "url": "https://ci.opencollab.dev/job/NukkitX/job/Nukkit/job/master/lastSuccessfulBuild/artifact/target/nukkit-1.0-SNAPSHOT.jar",
+          "cacheFiles": false
+        }
+      ]
+    },
+    {
+      "name": "limbo",
+      "environmentType": "LIMBO",
+      "website": "https://github.com/LOOHP/Limbo",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
+      "versions": [
+        {
+          "name": "latest",
+          "url": "https://ci.loohpjames.com/job/Limbo/lastSuccessfulBuild/artifact/target/Limbo-0.7.9-ALPHA-1.20.6.jar",
           "cacheFiles": false
         }
       ]

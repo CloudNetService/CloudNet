@@ -22,3 +22,4 @@ eu.cloudnetservice.ext.platforminject.processor.platform.nukkit.NukkitPlatformIn
 eu.cloudnetservice.ext.platforminject.processor.platform.sponge.SpongePlatformInfoProvider
 eu.cloudnetservice.ext.platforminject.processor.platform.velocity.VelocityPlatformInfoProvider
 eu.cloudnetservice.ext.platforminject.processor.platform.waterdog.WaterDogPlatformInfoProvider
+eu.cloudnetservice.ext.platforminject.processor.platform.limbo.LimboPlatformInfoProvider

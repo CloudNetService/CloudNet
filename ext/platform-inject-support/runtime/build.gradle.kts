@@ -15,6 +15,7 @@
  */
 
 repositories {
+  maven("https://jitpack.io/")
   maven("https://repo.waterdog.dev/releases/")
   maven("https://repo.md-5.net/repository/releases/")
   maven("https://repo.md-5.net/repository/snapshots/")
@@ -22,6 +23,7 @@ repositories {
   maven("https://repo.opencollab.dev/maven-snapshots/")
   maven("https://repo.papermc.io/repository/maven-public/")
   maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+  maven("https://repo.loohpjames.com/repository")
 }
 
 dependencies {

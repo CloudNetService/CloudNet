@@ -63,6 +63,7 @@ nukkitX = "1.0-SNAPSHOT"
 minestom = "2cdb3911b0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.20-R0.3-SNAPSHOT"
+limbo = "0.7.9-ALPHA"
 
 # platform extensions
 vault = "1.7.1"
@@ -167,6 +168,7 @@ bungeecord = { group = "net.md-5", name = "bungeecord-api", version.ref = "bunge
 minestom = { group = "com.github.Minestom", name = "Minestom", version.ref = "minestom" }
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 waterdogpe = { group = "dev.waterdog.waterdogpe", name = "waterdog", version.ref = "waterdogpe" }
+limbo = { group = "com.loohp", name = "Limbo", version.ref = "limbo" }
 
 # adventure
 adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
@@ -208,7 +210,7 @@ nightConfig = ["nightConfigToml", "nightConfigYaml", "nightConfigJson"]
 adventure = ["adventureApi", "adventureSerializerGson", "adventureSerializerLegacy"]
 
 proxyPlatform = ["bungeecord", "velocity", "waterdogpe"]
-serverPlatform = ["spigot", "sponge", "nukkitX", "minestom"]
+serverPlatform = ["spigot", "sponge", "nukkitX", "minestom", "limbo"]
 
 
 [plugins]

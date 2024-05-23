@@ -52,6 +52,7 @@ import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.BungeeConfigurationPreparer;
+import eu.cloudnetservice.node.service.defaults.config.LimboServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.NukkitConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.VanillaServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.VelocityConfigurationPreparer;
@@ -128,6 +129,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     this.addServicePreparer(ServiceEnvironmentType.BUNGEECORD, BungeeConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, WaterdogPEConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, VanillaServiceConfigurationPreparer.class);
+    this.addServicePreparer(ServiceEnvironmentType.LIMBO, LimboServiceConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER, VanillaServiceConfigurationPreparer.class);
     // cluster data sync
     dataSyncRegistry.registerHandler(

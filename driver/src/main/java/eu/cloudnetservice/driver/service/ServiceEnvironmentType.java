@@ -105,6 +105,14 @@ public final class ServiceEnvironmentType implements DefaultedDocPropertyHolder,
     .properties(Document.newJsonDocument().writeProperty(JAVA_SERVER, true).writeProperty(PLUGIN_DIR, "extensions"))
     .build();
   /**
+   * The Limbo service environment type (Java Edition dummy server).
+   */
+  public static final ServiceEnvironmentType LIMBO = ServiceEnvironmentType.builder()
+    .name("LIMBO")
+    .defaultProcessArguments(Set.of("nogui"))
+    .properties(Document.newJsonDocument().writeProperty(JAVA_SERVER, true))
+    .build();
+  /**
    * The bungeecord service environment type, can also be any fork of bungeecord (Java Edition proxy).
    */
   public static final ServiceEnvironmentType BUNGEECORD = ServiceEnvironmentType.builder()
