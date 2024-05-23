@@ -26,9 +26,6 @@ public final class LimboPlatformInfoProvider extends PlatformDataGeneratorProvid
       "limbo",
       LimboPluginInfoGenerator::new,
       LimboMainClassGenerator::new,
-      () -> PluginDataParser.create()
-        .enableSupport(PluginDataParser.PLUGIN_COMMANDS)
-        .enableSupport(PluginDataParser.PLUGIN_DEPENDENCIES)
-        .enableSupport(PluginDataParser.EXTERNAL_DEPENDENCIES));
+      PluginDataParser::create);
   }
 }

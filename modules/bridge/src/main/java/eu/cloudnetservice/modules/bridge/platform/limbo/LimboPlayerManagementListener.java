@@ -29,6 +29,7 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.Locale;
 import lombok.NonNull;
 
 @Singleton
@@ -64,7 +65,7 @@ public final class LimboPlayerManagementListener implements Listener {
       // check if maintenance is activated
       if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
         this.management.configuration().handleMessage(
-          LimboUtil.playerLocale(event.getPlayer()),
+          Locale.US,
           "server-join-cancel-because-maintenance",
           player::disconnect);
         return;
@@ -73,7 +74,7 @@ public final class LimboPlayerManagementListener implements Listener {
       var permission = task.propertyHolder().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
         this.management.configuration().handleMessage(
-          LimboUtil.playerLocale(event.getPlayer()),
+          Locale.US,
           "server-join-cancel-because-permission",
           player::disconnect);
 
