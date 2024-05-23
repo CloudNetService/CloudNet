@@ -249,7 +249,14 @@ public final class Wrapper {
     Collection<String> arguments = new LinkedList<>(consoleArgs);
     eventManager.callEvent(new ApplicationPreStartEvent(main, arguments, loader));
 
-    // we need to tamper with the class path property to ensure default java behaviour
+    // initially the class path is not allowed to contain the path to the app file
+    // as the wrapper need to load it in a custom class loader after the system
+    // class loader is set up.
+    // however, some people for some reason rely on the app file being on the class
+    // path (for example to search resources). therefore we re-append the app file
+    // after jvm init so that the app file does not show up in the system class path
+    // but will show up if someone access "java.class.path" (or some other source
+    // in java, everything uses this property, e.g. RuntimeMXBean)
     System.setProperty("java.class.path", this.appendAppFileToClassPath(appFile));
 
     // start the application
@@ -270,11 +277,11 @@ public final class Wrapper {
   }
 
   private @NonNull String appendAppFileToClassPath(@NonNull Path appFile) {
-    var classPath = System.getProperty("java.class.path");
-    if (classPath == null) {
+    var currentClassPath = System.getProperty("java.class.path");
+    if (currentClassPath == null || currentClassPath.isBlank()) {
       return appFile.getFileName().toString();
+    } else {
+      return currentClassPath + File.pathSeparator + appFile.getFileName();
     }
-
-    return classPath + File.pathSeparator + appFile.getFileName();
   }
 }
