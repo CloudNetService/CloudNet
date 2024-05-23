@@ -454,7 +454,8 @@
               "-downloadMinecraft"
             ],
             "fetchOverFabricApi": true
-          }
+          },
+          "minJavaVersion": 21
         }
       ]
     },
@@ -481,7 +482,8 @@
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
             "mcVersion": "1.20.6"
-          }
+          },
+          "minJavaVersion": 21
         },
         {
           "name": "1.20.6",
@@ -494,7 +496,8 @@
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
             "mcVersion": "1.20.6"
-          }
+          },
+          "minJavaVersion": 21
         },
         {
           "name": "1.19.4",
