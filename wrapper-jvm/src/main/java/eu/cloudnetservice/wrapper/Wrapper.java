@@ -53,6 +53,7 @@ import eu.cloudnetservice.wrapper.transform.netty.OldEpollDisableTransformer;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
+import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -248,6 +249,9 @@ public final class Wrapper {
     Collection<String> arguments = new LinkedList<>(consoleArgs);
     eventManager.callEvent(new ApplicationPreStartEvent(main, arguments, loader));
 
+    // we need to tamper with the class path property to ensure default java behaviour
+    System.setProperty("java.class.path", this.appendAppFileToClassPath(appFile));
+
     // start the application
     var applicationThread = new Thread(() -> {
       try {
@@ -263,5 +267,14 @@ public final class Wrapper {
 
     // inform the user about the post-start
     eventManager.callEvent(new ApplicationPostStartEvent(main, applicationThread, loader));
+  }
+
+  private @NonNull String appendAppFileToClassPath(@NonNull Path appFile) {
+    var classPath = System.getProperty("java.class.path");
+    if (classPath == null) {
+      return appFile.getFileName().toString();
+    }
+
+    return classPath + File.pathSeparator + appFile.getFileName();
   }
 }
