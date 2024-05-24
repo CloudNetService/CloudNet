@@ -43,7 +43,7 @@ final class LimboLoohpPluginInfoGenerator extends NightConfigInfoGenerator {
       CharRange.range('0', '9'));
 
   public LimboLoohpPluginInfoGenerator() {
-    super(YamlFormat.defaultInstance(), "plugin.limboloohp.yml");
+    super(YamlFormat.defaultInstance(), "plugin.limbo_loohp.yml");
   }
 
   @Override
