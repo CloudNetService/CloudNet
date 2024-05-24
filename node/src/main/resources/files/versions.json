@@ -12,7 +12,7 @@
       }
     },
     {
-      "name": "LIMBO",
+      "name": "LIMBO_LOOHP",
       "defaultServiceStartPort": 44955,
       "defaultProcessArguments": [
         "nogui"
@@ -630,8 +630,8 @@
       ]
     },
     {
-      "name": "limbo",
-      "environmentType": "LIMBO",
+      "name": "limboloohp",
+      "environmentType": "LIMBO_LOOHP",
       "website": "https://github.com/LOOHP/Limbo",
       "installSteps": [
         "DOWNLOAD"

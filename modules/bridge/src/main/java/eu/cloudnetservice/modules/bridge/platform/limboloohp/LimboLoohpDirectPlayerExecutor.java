@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.bridge.platform.limbo;
+package eu.cloudnetservice.modules.bridge.platform.limboloohp;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
@@ -34,12 +34,12 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
-final class LimboDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
+final class LimboLoohpDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
   private final LimboPlugin plugin;
-  private static final Logger LOGGER = LogManager.logger(LimboDirectPlayerExecutor.class);
+  private static final Logger LOGGER = LogManager.logger(LimboLoohpDirectPlayerExecutor.class);
 
-  public LimboDirectPlayerExecutor(
+  public LimboLoohpDirectPlayerExecutor(
     @NonNull LimboPlugin plugin,
     @NonNull UUID target,
     @NonNull Supplier<Collection<? extends Player>> playerSupplier

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.ext.platforminject.runtime.platform.limbo;
+package eu.cloudnetservice.ext.platforminject.runtime.platform.limboloohp;
 
 import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
 import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
@@ -30,9 +30,9 @@ import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginMana
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
 import lombok.NonNull;
 
-public final class LimboPlatformPluginManager extends BasePlatformPluginManager<String, LimboPlugin> {
+public final class LimboLoohpPlatformPluginManager extends BasePlatformPluginManager<String, LimboPlugin> {
 
-  public LimboPlatformPluginManager() {
+  public LimboLoohpPlatformPluginManager() {
     super(LimboPlugin::getName, FunctionalUtil.identity());
   }
 

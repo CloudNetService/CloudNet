@@ -94,7 +94,7 @@ public final class ModuleHelper {
    *   <li>plugin.bungee.yml if the given environment is BUNGEECORD.</li>
    *   <li>plugin.waterdogpe.yml if the given environment is WATERDOG_PE.</li>
    *   <li>plugin.nukkit.yml if the given environment is NUKKIT.</li>
-   *   <li>plugin.limbo.yml if the given environment is LIMBO.</li>
+   *   <li>plugin.limboloohp.yml if the given environment is LIMBO_LOOHP.</li>
    *   <li>plugin.bukkit.yml is used as a fallback - if the file does not exist it will not be used.</li>
    * </ul>
    *

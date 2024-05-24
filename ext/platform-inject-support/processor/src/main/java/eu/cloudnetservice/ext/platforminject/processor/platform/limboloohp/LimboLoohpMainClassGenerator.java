@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.ext.platforminject.processor.platform.limbo;
+package eu.cloudnetservice.ext.platforminject.processor.platform.limboloohp;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -25,12 +25,12 @@ import eu.cloudnetservice.ext.platforminject.processor.classgen.MethodBasedMainC
 import javax.lang.model.element.TypeElement;
 import lombok.NonNull;
 
-final class LimboMainClassGenerator extends MethodBasedMainClassGenerator {
+final class LimboLoohpMainClassGenerator extends MethodBasedMainClassGenerator {
 
   private static final TypeName LIMBO_PLUGIN_CLASS_NAME = ClassName.get("com.loohp.limbo.plugins", "LimboPlugin");
 
-  public LimboMainClassGenerator() {
-    super("limbo", "onEnable", "onDisable");
+  public LimboLoohpMainClassGenerator() {
+    super("limboloohp", "onEnable", "onDisable");
   }
 
   @Override

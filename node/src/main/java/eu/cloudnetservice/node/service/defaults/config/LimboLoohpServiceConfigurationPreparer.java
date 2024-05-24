@@ -26,10 +26,10 @@ import java.util.Properties;
 import lombok.NonNull;
 
 @Singleton
-public class LimboServiceConfigurationPreparer extends AbstractServiceConfigurationPreparer {
+public class LimboLoohpServiceConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
   @Inject
-  public LimboServiceConfigurationPreparer(@NonNull ServiceTaskProvider taskProvider) {
+  public LimboLoohpServiceConfigurationPreparer(@NonNull ServiceTaskProvider taskProvider) {
     super(taskProvider);
   }
 
@@ -37,7 +37,7 @@ public class LimboServiceConfigurationPreparer extends AbstractServiceConfigurat
   public void configure(@NonNull CloudService cloudService) {
     // copy the default file
     var configFile = cloudService.directory().resolve("server.properties");
-    this.copyCompiledFile("files/limbo/server.properties", configFile);
+    this.copyCompiledFile("files/limboloohp/server.properties", configFile);
     // load the configuration
     var properties = new Properties();
     try {

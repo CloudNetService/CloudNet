@@ -87,14 +87,14 @@ public final class TemplatePrepareListener {
         var in = this.resourceStream("files/nms/server.properties");
         FileUtil.copy(in, out);
       }
-    } else if (event.environmentType().equals(ServiceEnvironmentType.LIMBO)) {
+    } else if (event.environmentType().equals(ServiceEnvironmentType.LIMBO_LOOHP)) {
       try (var out = event.storage().newOutputStream(event.template(), "server.properties");
-        var in = this.resourceStream("files/limbo/server.properties")) {
+        var in = this.resourceStream("files/limboloohp/server.properties")) {
         FileUtil.copy(in, out);
       }
 
       try (var out = event.storage().newOutputStream(event.template(), "spawn.schem");
-        var in = this.resourceStream("files/limbo/spawn.schem")) {
+        var in = this.resourceStream("files/limboloohp/spawn.schem")) {
         FileUtil.copy(in, out);
       }
     }

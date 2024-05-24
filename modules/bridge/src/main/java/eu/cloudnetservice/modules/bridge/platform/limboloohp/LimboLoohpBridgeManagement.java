@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.bridge.platform.limbo;
+package eu.cloudnetservice.modules.bridge.platform.limboloohp;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
@@ -50,8 +50,8 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-@ProvidesFor(platform = "limbo", types = {PlatformBridgeManagement.class, BridgeManagement.class})
-final class LimboBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
+@ProvidesFor(platform = "limboloohp", types = {PlatformBridgeManagement.class, BridgeManagement.class})
+final class LimboLoohpBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
 
   private static final BiFunction<Player, String, Boolean> PERM_FUNCTION = Player::hasPermission;
 
@@ -60,7 +60,7 @@ final class LimboBridgeManagement extends PlatformBridgeManagement<Player, Netwo
   private final PlayerExecutor directGlobalExecutor;
 
   @Inject
-  public LimboBridgeManagement(
+  public LimboLoohpBridgeManagement(
     @NonNull Limbo limbo,
     @NonNull LimboPlugin plugin,
     @NonNull RPCFactory rpcFactory,
@@ -84,7 +84,7 @@ final class LimboBridgeManagement extends PlatformBridgeManagement<Player, Netwo
     // init fields
     this.limbo = limbo;
     this.plugin = plugin;
-    this.directGlobalExecutor = new LimboDirectPlayerExecutor(
+    this.directGlobalExecutor = new LimboLoohpDirectPlayerExecutor(
       plugin,
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       limbo::getPlayers);
@@ -96,7 +96,7 @@ final class LimboBridgeManagement extends PlatformBridgeManagement<Player, Netwo
   @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerProvider(PlatformBridgeManagement.class, "LimboBridgeManagement", this);
+    registry.registerProvider(PlatformBridgeManagement.class, "LimboLoohpBridgeManagement", this);
   }
 
   @Override
@@ -151,7 +151,7 @@ final class LimboBridgeManagement extends PlatformBridgeManagement<Player, Netwo
   public @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
-      : new LimboDirectPlayerExecutor(
+      : new LimboLoohpDirectPlayerExecutor(
         this.plugin,
         uniqueId,
         () -> Collections.singleton(this.limbo.getPlayer(uniqueId)));

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.bridge.platform.limbo;
+package eu.cloudnetservice.modules.bridge.platform.limboloohp;
 
 import com.loohp.limbo.events.EventsManager;
 import com.loohp.limbo.plugins.LimboPlugin;
@@ -28,29 +28,29 @@ import lombok.NonNull;
 
 @Singleton
 @PlatformPlugin(
-  platform = "limbo",
+  platform = "limboloohp",
   name = "CloudNet-Bridge",
   version = "@version@",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
   authors = "CloudNetService"
 )
-public final class LimboBridgePlugin implements PlatformEntrypoint {
+public final class LimboLoohpBridgePlugin implements PlatformEntrypoint {
 
   private final LimboPlugin plugin;
   private final ModuleHelper moduleHelper;
   private final EventsManager eventsManager;
   private final ServiceRegistry serviceRegistry;
-  private final LimboBridgeManagement bridgeManagement;
-  private final LimboPlayerManagementListener playerListener;
+  private final LimboLoohpBridgeManagement bridgeManagement;
+  private final LimboLoohpPlayerManagementListener playerListener;
 
   @Inject
-  public LimboBridgePlugin(
+  public LimboLoohpBridgePlugin(
     @NonNull LimboPlugin plugin,
     @NonNull ModuleHelper moduleHelper,
     @NonNull EventsManager eventsManager,
     @NonNull ServiceRegistry serviceRegistry,
-    @NonNull LimboBridgeManagement bridgeManagement,
-    @NonNull LimboPlayerManagementListener playerListener
+    @NonNull LimboLoohpBridgeManagement bridgeManagement,
+    @NonNull LimboLoohpPlayerManagementListener playerListener
   ) {
     this.plugin = plugin;
     this.moduleHelper = moduleHelper;

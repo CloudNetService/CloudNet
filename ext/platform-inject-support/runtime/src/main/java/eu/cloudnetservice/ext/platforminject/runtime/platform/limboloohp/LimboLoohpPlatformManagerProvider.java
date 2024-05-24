@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.ext.platforminject.runtime.platform.limbo;
+package eu.cloudnetservice.ext.platforminject.runtime.platform.limboloohp;
 
 import static eu.cloudnetservice.ext.platforminject.runtime.util.LazyClassInstantiationUtil.makeLazyLoader;
 
 import eu.cloudnetservice.ext.platforminject.api.spi.PlatformPluginManagerProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class LimboPlatformManagerProvider extends PlatformPluginManagerProvider<String, JavaPlugin> {
+public final class LimboLoohpPlatformManagerProvider extends PlatformPluginManagerProvider<String, JavaPlugin> {
 
-  public LimboPlatformManagerProvider() {
-    super("limbo", makeLazyLoader(LimboPlatformManagerProvider.class, "LimboPlatformPluginManager"));
+  public LimboLoohpPlatformManagerProvider() {
+    super("limboloohp", makeLazyLoader(LimboLoohpPlatformManagerProvider.class, "LimboLoohpPlatformPluginManager"));
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.ext.platforminject.processor.platform.limbo;
+package eu.cloudnetservice.ext.platforminject.processor.platform.limboloohp;
 
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.yaml.YamlFormat;
@@ -26,7 +26,7 @@ import eu.cloudnetservice.ext.platforminject.processor.util.ConfigUtil;
 import lombok.NonNull;
 
 @SuppressWarnings("DuplicatedCode") // nukkit...
-final class LimboPluginInfoGenerator extends NightConfigInfoGenerator {
+final class LimboLoohpPluginInfoGenerator extends NightConfigInfoGenerator {
 
   // ^[A-Za-z0-9_.-]+$
   // Limbo does not allow spaces in the plugin name, so we have to replace them with underscores
@@ -42,8 +42,8 @@ final class LimboPluginInfoGenerator extends NightConfigInfoGenerator {
       CharRange.range('a', 'z'),
       CharRange.range('0', '9'));
 
-  public LimboPluginInfoGenerator() {
-    super(YamlFormat.defaultInstance(), "plugin.limbo.yml");
+  public LimboLoohpPluginInfoGenerator() {
+    super(YamlFormat.defaultInstance(), "plugin.limboloohp.yml");
   }
 
   @Override

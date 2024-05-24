@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.ext.platforminject.processor.platform.limbo;
+package eu.cloudnetservice.ext.platforminject.processor.platform.limboloohp;
 
 import eu.cloudnetservice.ext.platforminject.api.data.PluginDataParser;
 import eu.cloudnetservice.ext.platforminject.api.spi.PlatformDataGeneratorProvider;
 
-public final class LimboPlatformInfoProvider extends PlatformDataGeneratorProvider {
+public final class LimboLoohpPlatformInfoProvider extends PlatformDataGeneratorProvider {
 
-  public LimboPlatformInfoProvider() {
+  public LimboLoohpPlatformInfoProvider() {
     super(
-      "limbo",
-      LimboPluginInfoGenerator::new,
-      LimboMainClassGenerator::new,
+      "limboloohp",
+      LimboLoohpPluginInfoGenerator::new,
+      LimboLoohpMainClassGenerator::new,
       PluginDataParser::create);
   }
 }

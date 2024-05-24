@@ -105,10 +105,10 @@ public final class ServiceEnvironmentType implements DefaultedDocPropertyHolder,
     .properties(Document.newJsonDocument().writeProperty(JAVA_SERVER, true).writeProperty(PLUGIN_DIR, "extensions"))
     .build();
   /**
-   * The Limbo service environment type (Java Edition dummy server).
+   * The Limbo (LOOHP) service environment type (Java Edition dummy server).
    */
-  public static final ServiceEnvironmentType LIMBO = ServiceEnvironmentType.builder()
-    .name("LIMBO")
+  public static final ServiceEnvironmentType LIMBO_LOOHP = ServiceEnvironmentType.builder()
+    .name("LIMBO_LOOHP")
     .defaultProcessArguments(Set.of("nogui"))
     .properties(Document.newJsonDocument().writeProperty(JAVA_SERVER, true))
     .build();

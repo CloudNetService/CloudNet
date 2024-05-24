@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.bridge.platform.limbo;
+package eu.cloudnetservice.modules.bridge.platform.limboloohp;
 
 import com.loohp.limbo.events.EventHandler;
 import com.loohp.limbo.events.Listener;
@@ -33,7 +33,7 @@ import java.util.Locale;
 import lombok.NonNull;
 
 @Singleton
-public final class LimboPlayerManagementListener implements Listener {
+public final class LimboLoohpPlayerManagementListener implements Listener {
 
   private final LimboPlugin plugin;
   private final LimboScheduler scheduler;
@@ -42,7 +42,7 @@ public final class LimboPlayerManagementListener implements Listener {
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
   @Inject
-  public LimboPlayerManagementListener(
+  public LimboLoohpPlayerManagementListener(
     @NonNull LimboPlugin plugin,
     @NonNull LimboScheduler scheduler,
     @NonNull ServiceInfoHolder serviceInfoHolder,
