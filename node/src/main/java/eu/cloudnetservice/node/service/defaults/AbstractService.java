@@ -372,8 +372,7 @@ public abstract class AbstractService implements CloudService {
         var destination = INCLUSION_TEMP_DIR.resolve(encodedUrl.replace('/', '_'));
 
         // download the file from the given url to the temp path if it does not exist
-        // or if file caching is not desired
-        if (!inclusion.cacheFiles() || Files.notExists(destination)) {
+        if (Files.notExists(destination)) {
           try {
             // copy the file to the temp path, ensure that the parent directory exists
             FileUtil.createDirectory(INCLUSION_TEMP_DIR);
