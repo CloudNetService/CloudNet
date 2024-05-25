@@ -624,9 +624,10 @@ public final class TasksCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
     @NonNull @Argument("url") String url,
-    @NonNull @Argument("path") String path
+    @NonNull @Argument("path") String path,
+    @Flag("cacheFiles") boolean cacheFiles
   ) {
-    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
+    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).cacheFiles(cacheFiles).build();
     this.applyChange(
       source,
       tasks,
@@ -714,14 +715,14 @@ public final class TasksCommand {
     @NonNull @Argument("url") String url,
     @NonNull @Argument("path") String path
   ) {
-    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
     this.applyChange(
       source,
       tasks,
-      (builder, $) -> builder.modifyInclusions(col -> col.remove(inclusion)),
+      (builder, $) -> builder.modifyInclusions(col -> col.removeIf(inclusion ->
+        inclusion.url().equals(url) && inclusion.destination().equals(path))),
       "command-tasks-remove-collection-property",
       "inclusion",
-      inclusion);
+      String.format("%s:%s", url, path));
   }
 
   @CommandMethod("tasks task <name> remove jvmOption <options>")
@@ -811,6 +812,20 @@ public final class TasksCommand {
       (builder, $) -> builder.modifyProcessParameters(Collection::clear),
       "command-tasks-clear-property",
       "processParameters",
+      null);
+  }
+
+  @CommandMethod("tasks task <name> clear inclusions")
+  public void clearInclusions(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> tasks
+  ) {
+    this.applyChange(
+      source,
+      tasks,
+      (builder, $) -> builder.modifyInclusions(Collection::clear),
+      "command-tasks-clear-property",
+      "inclusions",
       null);
   }
 

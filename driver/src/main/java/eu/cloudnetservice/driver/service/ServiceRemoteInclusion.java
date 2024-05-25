@@ -44,6 +44,7 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
 
   private final String url;
   private final String destination;
+  private final boolean cacheFiles;
   private final Document properties;
 
   /**
@@ -51,12 +52,19 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
    *
    * @param url         the url to download the associated file from.
    * @param destination the destination inside the service directory to copy the downloaded file to.
+   * @param cacheFiles  whether to cache files of this remote inclusion.
    * @param properties  the properties of the remote inclusion, these can for example contain the http headers to send.
    * @throws NullPointerException if one of the given parameters is null.
    */
-  private ServiceRemoteInclusion(@NonNull String url, @NonNull String destination, @NonNull Document properties) {
+  private ServiceRemoteInclusion(
+    @NonNull String url,
+    @NonNull String destination,
+    boolean cacheFiles,
+    @NonNull Document properties
+  ) {
     this.url = url;
     this.destination = destination;
+    this.cacheFiles = cacheFiles;
     this.properties = properties;
   }
 
@@ -107,6 +115,16 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
   }
 
   /**
+   * Whether the downloaded file will be cached on the node. If set to {@code true} the file is downloaded once and
+   * cached until the cloud is restarted.
+   *
+   * @return whether the downloaded file will be cached on the node.
+   */
+  public boolean cacheFiles() {
+    return this.cacheFiles;
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
@@ -143,6 +161,7 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
 
     protected String url;
     protected String destination;
+    protected boolean cacheFiles;
     protected Document properties = Document.emptyDocument();
 
     /**
@@ -173,6 +192,18 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
     }
 
     /**
+     * Sets whether the downloaded file will be cached on the node. If set to {@code true} the file is downloaded once
+     * and cached until the cloud is restarted.
+     *
+     * @param cacheFiles whether to cache the downloaded file.
+     * @return the same instance as used to call the method, for chaining.
+     */
+    public Builder cacheFiles(boolean cacheFiles) {
+      this.cacheFiles = cacheFiles;
+      return this;
+    }
+
+    /**
      * Sets the properties of the service remote inclusion. The properties can for example be used to set the http
      * headers which should get send when making a request to the given download url.
      *
@@ -195,7 +226,7 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
       Preconditions.checkNotNull(this.url, "no url given");
       Preconditions.checkNotNull(this.destination, "no destination given");
 
-      return new ServiceRemoteInclusion(this.url, this.destination, this.properties);
+      return new ServiceRemoteInclusion(this.url, this.destination, this.cacheFiles, this.properties);
     }
   }
 }

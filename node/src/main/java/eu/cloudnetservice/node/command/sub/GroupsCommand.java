@@ -191,9 +191,10 @@ public final class GroupsCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("url") String url,
-    @NonNull @Argument("path") String path
+    @NonNull @Argument("path") String path,
+    @Flag("cacheFiles") boolean cacheFiles
   ) {
-    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
+    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).cacheFiles(cacheFiles).build();
     this.updateGroup(group, builder -> builder.modifyInclusions(inclusions -> inclusions.add(inclusion)));
     source.sendMessage(I18n.trans("command-groups-add-collection-property",
       "inclusion",
@@ -287,11 +288,11 @@ public final class GroupsCommand {
     @NonNull @Argument("url") String url,
     @NonNull @Argument("path") String path
   ) {
-    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
-    this.updateGroup(group, builder -> builder.modifyInclusions(inclusions -> inclusions.remove(inclusion)));
+    this.updateGroup(group, builder -> builder.modifyInclusions(inclusions -> inclusions.removeIf(
+      inclusion -> inclusion.url().equals(url) && inclusion.destination().equals(path))));
     source.sendMessage(I18n.trans("command-groups-remove-collection-property",
       "inclusion",
-      inclusion,
+      String.format("%s:%s", url, path),
       group.name()));
   }
 
@@ -341,6 +342,17 @@ public final class GroupsCommand {
     this.updateGroup(group, builder -> builder.modifyProcessParameters(Collection::clear));
     source.sendMessage(I18n.trans("command-groups-clear-property",
       "processParameters",
+      group.name()));
+  }
+
+  @CommandMethod("groups group <name> clear inclusions")
+  public void clearInclusions(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") GroupConfiguration group
+  ) {
+    this.updateGroup(group, builder -> builder.modifyInclusions(Collection::clear));
+    source.sendMessage(I18n.trans("command-groups-clear-property",
+      "inclusions",
       group.name()));
   }
 
