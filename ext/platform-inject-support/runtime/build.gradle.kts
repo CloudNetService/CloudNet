@@ -22,7 +22,6 @@ repositories {
   maven("https://repo.opencollab.dev/maven-releases/")
   maven("https://repo.opencollab.dev/maven-snapshots/")
   maven("https://repo.papermc.io/repository/maven-public/")
-  maven("https://maven.scijava.org/content/repositories/public/")
   maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
 }
 
