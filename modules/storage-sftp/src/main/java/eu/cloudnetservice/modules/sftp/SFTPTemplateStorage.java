@@ -38,6 +38,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import lombok.NonNull;
 import net.schmizz.sshj.Config;
 import net.schmizz.sshj.DefaultConfig;
@@ -63,10 +64,12 @@ public class SFTPTemplateStorage implements TemplateStorage {
   private volatile SSHClient sshClient;
 
   public SFTPTemplateStorage(@NonNull SFTPTemplateStorageConfig config) {
+    // we do not need this information
+    Logger.getLogger("net.schmizz.sshj").setLevel(Level.WARNING);
+
     this.storageConfig = config;
     // init the config
     this.config = new DefaultConfig();
-    this.config.setLoggerFactory(NopLoggerFactory.INSTANCE);
     this.config.setKeepAliveProvider(ActiveHeartbeatKeepAliveProvider.INSTANCE);
     // init the pool
     this.pool = new SFTPClientPool(config.clientPoolSize(), () -> {

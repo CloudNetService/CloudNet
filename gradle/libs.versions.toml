@@ -135,12 +135,15 @@ nettyCodecHttp = { group = "io.netty", name = "netty5-codec-http", version.ref =
 nettyNativeEpoll = { group = "io.netty", name = "netty5-transport-native-epoll", version.ref = "netty" }
 nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue", version.ref = "netty" }
 
+# logging
+slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+slf4jJdk = { group = "org.slf4j", name = "slf4j-jdk14", version.ref = "slf4j" }
+
 # general
 vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }
 asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }
-slf4jNop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
 oshi = { group = "com.github.oshi", name = "oshi-core-java11", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
