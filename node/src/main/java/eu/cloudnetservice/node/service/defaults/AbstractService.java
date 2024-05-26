@@ -79,6 +79,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiPredicate;
 import java.util.regex.Pattern;
+import kong.unirest.core.GetRequest;
 import kong.unirest.core.Unirest;
 import kong.unirest.core.UnirestException;
 import lombok.NonNull;
@@ -371,33 +372,32 @@ public abstract class AbstractService implements CloudService {
         var encodedUrl = Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8));
         var destination = INCLUSION_TEMP_DIR.resolve(encodedUrl.replace('/', '_'));
 
-        // download the file from the given url to the temp path if it does not exist
-        if (Files.notExists(destination)) {
-          try {
-            // copy the file to the temp path, ensure that the parent directory exists
-            FileUtil.createDirectory(INCLUSION_TEMP_DIR);
-            req.asFile(destination.toString(), StandardCopyOption.REPLACE_EXISTING);
-          } catch (UnirestException exception) {
-            LOGGER.severe(
-              "Unable to download inclusion from %s to %s",
-              exception.getCause(),
-              inclusion.url(),
-              destination);
-            continue;
-          }
-        }
-
         // resolve the desired output path
         var target = this.serviceDirectory.resolve(inclusion.destination());
         FileUtil.ensureChild(this.serviceDirectory, target);
-        // copy the file to the desired output path
-        FileUtil.copy(destination, target);
-        // we've installed the inclusion successfully
-        this.installedInclusions.add(inclusion);
 
-        // we don't want to keep the temporary file if caching is disabled
-        if (!inclusion.cacheFiles()) {
-          FileUtil.delete(destination);
+        try {
+          if (inclusion.cacheFiles()) {
+            // download the file to the temp path if it does not exist
+            if (Files.notExists(destination)) {
+              this.downloadInclusionFiles(req, destination);
+            }
+
+            // copy the file from the temp path to the desired output path
+            FileUtil.copy(destination, target);
+          } else {
+            // download the file directly to the target path if caching is disabled
+            this.downloadInclusionFiles(req, target);
+          }
+
+          // we've installed the inclusion successfully
+          this.installedInclusions.add(inclusion);
+        } catch (UnirestException exception) {
+          LOGGER.severe(
+            "Unable to download inclusion from %s to %s",
+            exception.getCause(),
+            inclusion.url(),
+            destination);
         }
       }
     }
@@ -769,6 +769,11 @@ public abstract class AbstractService implements CloudService {
       configuration.trustCertificatePath() == null ? null : wrapperDir.resolve("trustCertificate"),
       configuration.certificatePath() == null ? null : wrapperDir.resolve("certificate"),
       configuration.privateKeyPath() == null ? null : wrapperDir.resolve("privateKey"));
+  }
+
+  protected void downloadInclusionFiles(@NonNull GetRequest request, @NonNull Path destination) {
+    FileUtil.createDirectory(destination.getParent());
+    request.asFile(destination.toString(), StandardCopyOption.REPLACE_EXISTING);
   }
 
   protected @NonNull Object[] serviceReplacement() {
