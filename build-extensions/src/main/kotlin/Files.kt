@@ -25,6 +25,7 @@ object Files {
   const val injectSupport = "platform-inject-support.jar"
 
   const val papiExpansion = "cloudnet-papi-expansion.jar"
+  const val luckPermsPlugin = "cloudnet-luckperms.jar"
 
   const val bridge = "cloudnet-bridge.jar"
   const val cloudflare = "cloudnet-cloudflare.jar"

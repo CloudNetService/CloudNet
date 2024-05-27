@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-plugins {
-  `kotlin-dsl`
-}
+package eu.cloudnetservice.ext.platforminject.runtime.platform.limboloohp;
 
-repositories {
-  gradlePluginPortal()
-}
+import static eu.cloudnetservice.ext.platforminject.runtime.util.LazyClassInstantiationUtil.makeLazyLoader;
 
-dependencies {
-  implementation("net.kyori", "indra-common", "3.1.3")
-  implementation("com.google.code.gson", "gson", "2.11.0")
+import eu.cloudnetservice.ext.platforminject.api.spi.PlatformPluginManagerProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public final class LimboLoohpPlatformManagerProvider extends PlatformPluginManagerProvider<String, JavaPlugin> {
+
+  public LimboLoohpPlatformManagerProvider() {
+    super("limboloohp", makeLazyLoader(LimboLoohpPlatformManagerProvider.class, "LimboLoohpPlatformPluginManager"));
+  }
 }

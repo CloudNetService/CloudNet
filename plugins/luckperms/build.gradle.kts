@@ -1,5 +1,7 @@
+import net.fabricmc.loom.task.RemapJarTask
+
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-2023 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +16,25 @@
  * limitations under the License.
  */
 
-repositories {
-  maven("https://repo.waterdog.dev/releases/")
-  maven("https://repo.loohpjames.com/repository")
-  maven("https://repo.md-5.net/repository/releases/")
-  maven("https://repo.md-5.net/repository/snapshots/")
-  maven("https://repo.opencollab.dev/maven-releases/")
-  maven("https://repo.opencollab.dev/maven-snapshots/")
-  maven("https://repo.papermc.io/repository/maven-public/")
-  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+plugins {
+  alias(libs.plugins.fabricLoom)
 }
+
 
 dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
-  "compileOnly"(projects.ext.platformInjectSupport.platformInjectApi)
+
+  "compileOnly"(libs.luckPermsApi)
+  "compileOnly"(projects.wrapperJvm)
+  "compileOnly"(projects.modules.bridge)
+
+  "minecraft"(libs.minecraft)
+  "modCompileOnly"(libs.fabricLoader)
+  "mappings"(loom.officialMojangMappings())
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.injectSupport)
+tasks.withType<RemapJarTask> {
+  // base setup
+  archiveFileName.set(Files.luckPermsPlugin)
 }

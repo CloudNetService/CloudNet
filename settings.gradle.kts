@@ -46,7 +46,7 @@ initializePrefixedSubProjects(
   "platform-inject",
   "api", "loader", "processor", "runtime")
 // plugins
-initializeSubProjects("plugins", "papi-expansion")
+initializeSubProjects("plugins", "papi-expansion", "luckperms")
 // modules
 initializeSubProjects("modules",
   "bridge",
