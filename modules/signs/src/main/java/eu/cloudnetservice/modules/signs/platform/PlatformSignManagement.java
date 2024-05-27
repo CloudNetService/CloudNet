@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -190,10 +191,18 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
       .target(ChannelMessageTarget.Type.NODE, this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId());
   }
 
-  public int removeMissingSigns() {
+  public int removeAllMissingSigns() {
+    return this.removeMissingSigns(sign -> true);
+  }
+
+  public int removeMissingSigns(@NonNull String world) {
+    return this.removeMissingSigns(sign -> sign.base().location().world().equalsIgnoreCase(world));
+  }
+
+  public int removeMissingSigns(@NonNull Predicate<PlatformSign<P, C>> filter) {
     var removed = 0;
     for (var sign : this.platformSigns.values()) {
-      if (!sign.exists()) {
+      if (filter.test(sign) && !sign.exists()) {
         this.deleteSign(sign.base());
         removed++;
       }
@@ -381,6 +390,10 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
     try {
       PlatformSign<P, C> bestChoice = null;
       for (var platformSign : this.platformSigns.values()) {
+        if (!platformSign.exists()) {
+          continue;
+        }
+
         var sign = platformSign.base();
         if (snapshot.configuration().groups().contains(sign.targetGroup())
           && (sign.templatePath() == null || this.checkTemplatePath(snapshot, sign))) {

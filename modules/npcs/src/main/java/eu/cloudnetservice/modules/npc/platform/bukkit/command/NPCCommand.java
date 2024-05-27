@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -510,7 +510,7 @@ public final class NPCCommand extends BaseTabExecutor {
         case "urlprofile", "up" -> {
           sender.sendMessage("§7Trying to get texture data based on the given texture url...");
           Unirest.post("https://api.mineskin.org/generate/url")
-            .connectTimeout(10000)
+            .requestTimeout(10000)
             .contentType("application/json")
             .header("User-Agent", "CloudNet-NPCs")
             .body(Document.newJsonDocument().append("url", args[2]).toString())

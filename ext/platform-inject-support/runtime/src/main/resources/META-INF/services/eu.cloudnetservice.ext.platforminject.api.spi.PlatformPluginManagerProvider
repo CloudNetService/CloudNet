@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2023 CloudNetService team & contributors
+# Copyright 2019-2024 CloudNetService team & contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,3 +22,4 @@ eu.cloudnetservice.ext.platforminject.runtime.platform.nukkit.NukkitPlatformMana
 eu.cloudnetservice.ext.platforminject.runtime.platform.sponge.SpongePlatformManagerProvider
 eu.cloudnetservice.ext.platforminject.runtime.platform.velocity.VelocityPlatformManagerProvider
 eu.cloudnetservice.ext.platforminject.runtime.platform.waterdog.WaterDogPlatformManagerProvider
+eu.cloudnetservice.ext.platforminject.runtime.platform.limboloohp.LimboLoohpPlatformManagerProvider

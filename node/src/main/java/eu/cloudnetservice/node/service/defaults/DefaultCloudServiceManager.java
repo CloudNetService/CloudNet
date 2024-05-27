@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.BungeeConfigurationPreparer;
+import eu.cloudnetservice.node.service.defaults.config.LimboLoohpServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.NukkitConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.VanillaServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.VelocityConfigurationPreparer;
@@ -126,6 +127,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     this.addServicePreparer(ServiceEnvironmentType.NUKKIT, NukkitConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.VELOCITY, VelocityConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.BUNGEECORD, BungeeConfigurationPreparer.class);
+    this.addServicePreparer(ServiceEnvironmentType.LIMBO_LOOHP, LimboLoohpServiceConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, WaterdogPEConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, VanillaServiceConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER, VanillaServiceConfigurationPreparer.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -210,7 +210,7 @@ public final class CloudNetTickListener {
     // check if we should decide directly which node server we use
     NodeServer server = null;
     if (config.splitLogicallyOverNodes()) {
-      server = this.selectNodeServer(services);
+      server = this.selectNodeServer(task, services);
     }
     // create a new service based on the task
     var createResult = this.serviceFactory.createCloudService(ServiceConfiguration.builder(task)
@@ -219,10 +219,17 @@ public final class CloudNetTickListener {
     return createResult.state() == ServiceCreateResult.State.CREATED ? createResult.serviceInfo() : null;
   }
 
-  private @Nullable NodeServer selectNodeServer(@NonNull Collection<ServiceInfoSnapshot> services) {
+  private @Nullable NodeServer selectNodeServer(
+    @NonNull ServiceTask serviceTask,
+    @NonNull Collection<ServiceInfoSnapshot> services
+  ) {
     // find the node server with the least services on it
     return this.nodeServerProvider.nodeServers().stream()
       .filter(nodeServer -> nodeServer.available() && !nodeServer.draining())
+      .filter(nodeServer -> {
+        var allowedNodes = serviceTask.associatedNodes();
+        return allowedNodes.isEmpty() || allowedNodes.contains(nodeServer.name());
+      })
       .map(node -> new Tuple2<>(node, services.stream()
         .filter(service -> service.serviceId().nodeUniqueId().equals(node.info().uniqueId()))
         .count()))

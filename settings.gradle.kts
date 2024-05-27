@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ initializePrefixedSubProjects(
   "platform-inject",
   "api", "loader", "processor", "runtime")
 // plugins
-initializeSubProjects("plugins", "chat", "simplenametags", "papi-expansion")
+initializeSubProjects("plugins", "chat", "simplenametags", "papi-expansion", "luckperms")
 // modules
 initializeSubProjects("modules",
   "bridge",

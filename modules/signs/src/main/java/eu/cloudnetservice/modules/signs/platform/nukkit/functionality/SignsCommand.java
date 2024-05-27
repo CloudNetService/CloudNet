@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,8 +77,14 @@ public class SignsCommand implements CommandExecutor {
       }
 
       return true;
-    } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
-      var removed = this.signManagement.removeMissingSigns();
+    } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanupall")) {
+      var removed = this.signManagement.removeAllMissingSigns();
+      SignsConfiguration.sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
+        m -> m.replace("%amount%", Integer.toString(removed)));
+      return true;
+    } else if ((args.length == 1 || args.length == 2) && args[0].equalsIgnoreCase("cleanup")) {
+      var world = args.length == 2 ? args[1] : player.getLocation().getLevel().getName();
+      var removed = this.signManagement.removeMissingSigns(world);
       SignsConfiguration.sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
         m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
@@ -109,7 +115,8 @@ public class SignsCommand implements CommandExecutor {
     sender.sendMessage("§7/cloudsigns create <targetGroup> [templatePath]");
     sender.sendMessage("§7/cloudsigns remove");
     sender.sendMessage("§7/cloudsigns removeAll");
-    sender.sendMessage("§7/cloudsigns cleanup");
+    sender.sendMessage("§7/cloudsigns cleanup [world]");
+    sender.sendMessage("§7/cloudsigns cleanupAll");
 
     return true;
   }

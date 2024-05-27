@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,13 @@ package eu.cloudnetservice.modules.bridge.platform.fabric;
 
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
-import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
@@ -80,10 +78,8 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   @Override
   public void sendPluginMessage(@NonNull String key, byte[] data) {
-    var identifier = new ResourceLocation(key);
-    this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(
-      identifier,
-      new FriendlyByteBuf(Unpooled.wrappedBuffer(data)))));
+    var customPayload = new FabricCustomPacketPayload(new ResourceLocation(key), data);
+    this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(customPayload)));
   }
 
   @Override

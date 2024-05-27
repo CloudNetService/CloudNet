@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.template.listener;
 
 import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
@@ -25,6 +26,7 @@ import eu.cloudnetservice.node.event.template.ServiceTemplateInstallEvent;
 import eu.cloudnetservice.node.template.TemplateStorageUtil;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +40,16 @@ public final class TemplatePrepareListener {
     } else if (event.environmentType().equals(ServiceEnvironmentType.VELOCITY)) {
       // velocity.toml & server icon
       this.prepareProxyTemplate(event.storage(), event.template(), "velocity.toml", "files/velocity/velocity.toml");
+
+      // velocity requires a forwarding secret inside the forwarding.secret file
+      // usually the file is not needed but velocity requires it
+      var outputStream = event.storage().newOutputStream(event.template(), "forwarding.secret");
+      if (outputStream != null) {
+        try (outputStream) {
+          var secret = StringUtil.generateRandomString(12);
+          outputStream.write(secret.getBytes(StandardCharsets.UTF_8));
+        }
+      }
     } else if (event.environmentType().equals(ServiceEnvironmentType.NUKKIT)) {
       // server.properties & nukkit.yml
       try (var out = event.storage().newOutputStream(event.template(), "server.properties");
@@ -73,6 +85,16 @@ public final class TemplatePrepareListener {
     } else if (event.environmentType().equals(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER)) {
       try (var out = event.storage().newOutputStream(event.template(), "server.properties")) {
         var in = this.resourceStream("files/nms/server.properties");
+        FileUtil.copy(in, out);
+      }
+    } else if (event.environmentType().equals(ServiceEnvironmentType.LIMBO_LOOHP)) {
+      try (var out = event.storage().newOutputStream(event.template(), "server.properties");
+        var in = this.resourceStream("files/limboloohp/server.properties")) {
+        FileUtil.copy(in, out);
+      }
+
+      try (var out = event.storage().newOutputStream(event.template(), "spawn.schem");
+        var in = this.resourceStream("files/limboloohp/spawn.schem")) {
         FileUtil.copy(in, out);
       }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 repositories {
   maven("https://repo.waterdog.dev/releases/")
+  maven("https://repo.loohpjames.com/repository")
   maven("https://repo.md-5.net/repository/releases/")
   maven("https://repo.md-5.net/repository/snapshots/")
   maven("https://repo.opencollab.dev/maven-releases/")

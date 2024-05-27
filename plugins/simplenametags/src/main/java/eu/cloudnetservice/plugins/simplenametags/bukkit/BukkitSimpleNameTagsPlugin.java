@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import org.bukkit.scheduler.BukkitScheduler;
   authors = "CloudNetService",
   pluginFileNames = "plugin.yml",
   name = "CloudNet-SimpleNameTags",
-  version = "{project.build.version}",
+  version = "@version@",
   dependencies = @Dependency(name = "CloudNet-CloudPerms"),
   description = "Adds prefix, suffix and display name support to all server platforms"
 )

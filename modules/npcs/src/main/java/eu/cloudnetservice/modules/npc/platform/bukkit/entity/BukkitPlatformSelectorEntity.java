@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
@@ -61,6 +62,10 @@ public abstract class BukkitPlatformSelectorEntity
   protected static final MethodAccessor<?> SET_COLOR = Reflexion.on(Team.class)
     .findMethod("setColor", ChatColor.class)
     .orElse(null);
+
+  protected static final int MAX_INVENTORY_ROWS = 6;
+  protected static final int MAX_INVENTORY_ROW_ITEMS = 9;
+  protected static final int MAX_INVENTORY_SIZE = MAX_INVENTORY_ROW_ITEMS * MAX_INVENTORY_ROWS;
 
   protected final NPC npc;
   protected final Plugin plugin;
@@ -432,14 +437,7 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected void rebuildInventory(@NonNull InventoryConfiguration configuration) {
     // calculate the inventory size
-    var inventorySize = configuration.inventorySize();
-    if (configuration.dynamicSize()) {
-      inventorySize = this.serviceItems.size();
-      // try to make it to the next higher possible inventory size
-      while (inventorySize == 0 || (inventorySize < 54 && inventorySize % 9 != 0)) {
-        inventorySize++;
-      }
-    }
+    var inventorySize = this.calculateInventorySize(configuration);
     // create the inventory
     var inventory = this.inventory;
     if (inventory == null || inventory.getSize() != inventorySize) {
@@ -468,6 +466,18 @@ public abstract class BukkitPlatformSelectorEntity
         break;
       }
     }
+  }
+
+  protected int calculateInventorySize(@NonNull InventoryConfiguration configuration) {
+    var inventorySize = configuration.inventorySize();
+    if (configuration.dynamicSize()) {
+      // dynamic size: create the smallest possible inventory that can fit all items (one row can fit 9 items)
+      inventorySize = this.serviceItems.size();
+      inventorySize += MAX_INVENTORY_ROW_ITEMS - (inventorySize % MAX_INVENTORY_ROW_ITEMS);
+    }
+
+    // minecraft inventories have a limit of 54 items
+    return Math.min(MAX_INVENTORY_SIZE, inventorySize);
   }
 
   protected @NonNull PlayerManager playerManager() {
@@ -547,7 +557,7 @@ public abstract class BukkitPlatformSelectorEntity
         .replace("%max_players%", maxPlayers).replace("%m_p%", maxPlayers)
         .replace("%online_servers%", onlineServers).replace("%o_s%", onlineServers);
       // set the custom name of the armor stand
-      this.armorStand.setCustomName(newInfoLine);
+      this.armorStand.setCustomName(ComponentFormats.ADVENTURE_TO_BUNGEE.convertText(newInfoLine));
     }
   }
 }

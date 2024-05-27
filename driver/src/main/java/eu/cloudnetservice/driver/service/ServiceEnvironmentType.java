@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,14 @@ public final class ServiceEnvironmentType implements DefaultedDocPropertyHolder,
   public static final ServiceEnvironmentType MINESTOM = ServiceEnvironmentType.builder()
     .name("MINESTOM")
     .properties(Document.newJsonDocument().writeProperty(JAVA_SERVER, true).writeProperty(PLUGIN_DIR, "extensions"))
+    .build();
+  /**
+   * The Limbo (LOOHP) service environment type (Java Edition dummy server).
+   */
+  public static final ServiceEnvironmentType LIMBO_LOOHP = ServiceEnvironmentType.builder()
+    .name("LIMBO_LOOHP")
+    .defaultProcessArguments(Set.of("nogui"))
+    .properties(Document.newJsonDocument().writeProperty(JAVA_SERVER, true))
     .build();
   /**
    * The bungeecord service environment type, can also be any fork of bungeecord (Java Edition proxy).
