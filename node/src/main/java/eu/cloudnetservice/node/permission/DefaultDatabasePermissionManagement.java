@@ -21,7 +21,7 @@ import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.permission.DefaultPermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionGroup;

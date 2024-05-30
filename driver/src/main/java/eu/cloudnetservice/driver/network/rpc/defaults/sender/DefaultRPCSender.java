@@ -21,7 +21,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPC;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;

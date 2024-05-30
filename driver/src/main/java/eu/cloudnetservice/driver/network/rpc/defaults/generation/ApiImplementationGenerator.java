@@ -41,7 +41,7 @@ import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCExecutable;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCIgnore;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCNoResult;

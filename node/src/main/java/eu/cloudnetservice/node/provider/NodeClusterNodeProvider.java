@@ -23,7 +23,7 @@ import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.node.cluster.NodeServer;

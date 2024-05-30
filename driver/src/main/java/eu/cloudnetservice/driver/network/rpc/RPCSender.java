@@ -18,6 +18,7 @@ package eu.cloudnetservice.driver.network.rpc;
 
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.rpc.exception.CannotDecideException;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import lombok.NonNull;
 
 /**
@@ -32,7 +33,8 @@ public interface RPCSender extends RPCProvider {
    *
    * @return the provider factory used to construct this rpc sender.
    */
-  @NonNull RPCFactory factory();
+  @NonNull
+  RPCFactory factory();
 
   /**
    * Get the network component associated with this rpc sender.

@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.syncproxy.platform;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;

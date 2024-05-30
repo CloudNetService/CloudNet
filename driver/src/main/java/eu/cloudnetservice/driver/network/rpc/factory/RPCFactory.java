@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.network.rpc;
+package eu.cloudnetservice.driver.network.rpc.factory;
 
-import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.network.rpc.RPCHandler;
+import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
 import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
@@ -38,7 +39,8 @@ public interface RPCFactory {
    *
    * @return the default object mapper of this factory.
    */
-  @NonNull ObjectMapper defaultObjectMapper();
+  @NonNull
+  ObjectMapper defaultObjectMapper();
 
   /**
    * Get the default data buf factory used by this factory if no other data buf factory is supplied to a factory
@@ -46,33 +48,18 @@ public interface RPCFactory {
    *
    * @return the default data buf factory of this factory.
    */
-  @NonNull DataBufFactory defaultDataBufFactory();
+  @NonNull
+  DataBufFactory defaultDataBufFactory();
 
   /**
-   * Constructs a new rpc sender for the given class.
+   * Constructs a new rpc sender builder which should be capable of executing methods in the given target class.
    *
-   * @param component the associated network component, or null if not associated.
-   * @param clazz     the class which the handler should handler.
-   * @return a new rpc sender targeting the given class.
+   * @param target the target class in which the sender should be able to execute methods.
+   * @return a new builder for an RPC sender to execute methods in the given target class.
    * @throws NullPointerException if the given target class is null.
    */
-  @NonNull RPCSender providerForClass(@Nullable NetworkComponent component, @NonNull Class<?> clazz);
-
-  /**
-   * Constructs a new rpc sender for the given class.
-   *
-   * @param component      the associated network component, or null if not associated.
-   * @param clazz          the class which the handler should handler.
-   * @param objectMapper   the object mapper to use for argument (de-) serialization.
-   * @param dataBufFactory the data buf factory to use for buffer allocation.
-   * @return a new rpc sender targeting the given class.
-   * @throws NullPointerException if either the given class, mapper or buffer factory is null.
-   */
-  @NonNull RPCSender providerForClass(
-    @Nullable NetworkComponent component,
-    @NonNull Class<?> clazz,
-    @NonNull ObjectMapper objectMapper,
-    @NonNull DataBufFactory dataBufFactory);
+  @NonNull
+  RPCSenderBuilder newRPCSenderBuilder(@NonNull Class<?> target);
 
   /**
    * Generates an api implementation for the given base class, invoking all of its method using rpc. This method only
@@ -97,7 +84,8 @@ public interface RPCFactory {
    * @throws NullPointerException   if the given base class or generation context is null.
    * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
    */
-  @NonNull <T> InstanceFactory<T> generateRPCBasedApi(
+  @NonNull
+  <T> InstanceFactory<T> generateRPCBasedApi(
     @NonNull Class<T> baseClass,
     @NonNull GenerationContext context);
 
@@ -126,7 +114,8 @@ public interface RPCFactory {
    * @throws NullPointerException   if the given base sender, chain base class or generation context is null.
    * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
    */
-  @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
+  @NonNull
+  <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
     @NonNull RPCSender baseSender,
     @NonNull Class<T> chainBaseClass,
     @NonNull GenerationContext context);
@@ -155,7 +144,8 @@ public interface RPCFactory {
    * @throws NullPointerException   if the given base sender, method, chain base class or generation context is null.
    * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
    */
-  @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
+  @NonNull
+  <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
     @NonNull RPCSender baseSender,
     @NonNull String baseCallerMethod,
     @NonNull Class<T> chainBaseClass,
@@ -169,7 +159,8 @@ public interface RPCFactory {
    * @return a new rpc handler for the given class.
    * @throws NullPointerException if the given target class is null.
    */
-  @NonNull RPCHandler newHandler(@NonNull Class<?> clazz, @Nullable Object binding);
+  @NonNull
+  RPCHandler newHandler(@NonNull Class<?> clazz, @Nullable Object binding);
 
   /**
    * Constructs a new rpc handler for the given class.
@@ -181,7 +172,8 @@ public interface RPCFactory {
    * @return a new rpc handler for the given class.
    * @throws NullPointerException if either the given class, mapper or buffer factory is null.
    */
-  @NonNull RPCHandler newHandler(
+  @NonNull
+  RPCHandler newHandler(
     @NonNull Class<?> clazz,
     @Nullable Object binding,
     @NonNull ObjectMapper objectMapper,

@@ -23,7 +23,7 @@ import com.google.common.collect.Table;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator;

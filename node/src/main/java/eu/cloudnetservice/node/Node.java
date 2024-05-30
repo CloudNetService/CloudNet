@@ -38,7 +38,7 @@ import eu.cloudnetservice.driver.network.NetworkServer;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.registry.injection.Service;

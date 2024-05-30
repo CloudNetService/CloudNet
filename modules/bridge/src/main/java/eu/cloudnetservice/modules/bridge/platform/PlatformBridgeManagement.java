@@ -21,7 +21,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;

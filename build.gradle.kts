@@ -101,13 +101,14 @@ subprojects {
   }
 
   tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_17.toString()
-    targetCompatibility = JavaVersion.VERSION_17.toString()
-    // options
+    sourceCompatibility = JavaVersion.VERSION_22.toString()
+    targetCompatibility = JavaVersion.VERSION_22.toString()
+
     options.encoding = "UTF-8"
     options.isIncremental = true
-    // we are aware that those are there, but we only do that if there is no other way we can use - so please keep the terminal clean!
-    options.compilerArgs = mutableListOf("-Xlint:-deprecation,-unchecked")
+
+    options.compilerArgs.add("--enable-preview")
+    options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
   }
 
   tasks.withType<Checkstyle> {

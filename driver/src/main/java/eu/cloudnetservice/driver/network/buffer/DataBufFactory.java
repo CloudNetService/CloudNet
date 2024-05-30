@@ -45,7 +45,8 @@ public interface DataBufFactory {
    *
    * @return a new, empty data buf.
    */
-  @NonNull DataBuf.Mutable createEmpty();
+  @NonNull
+  DataBuf.Mutable createEmpty();
 
   /**
    * Creates a new readonly buffer wrapping the given byte array and using it as it's data source. Modification to the
@@ -54,7 +55,8 @@ public interface DataBufFactory {
    * @param bytes the bytes to wrap.
    * @return a new buffer wrapping the given bytes.
    */
-  @NonNull DataBuf fromBytes(byte[] bytes);
+  @NonNull
+  DataBuf fromBytes(byte[] bytes);
 
   /**
    * Creates a readonly copy of the given data buffer. The copied variant of the buffer will start the read process from
@@ -69,7 +71,8 @@ public interface DataBufFactory {
    * @throws IllegalArgumentException if the buffer cannot be copied.
    * @throws NullPointerException     if the given buffer is null.
    */
-  @NonNull DataBuf copyOf(@NonNull DataBuf dataBuf);
+  @NonNull
+  DataBuf copyOf(@NonNull DataBuf dataBuf);
 
   /**
    * Creates a mutable copy of the given data buffer. The copied variant of the buffer will start the read and write
@@ -84,7 +87,8 @@ public interface DataBufFactory {
    * @throws IllegalArgumentException if the buffer cannot be copied.
    * @throws NullPointerException     if the given buffer is null.
    */
-  @NonNull DataBuf.Mutable mutableCopyOf(@NonNull DataBuf dataBuf);
+  @NonNull
+  DataBuf.Mutable mutableCopyOf(@NonNull DataBuf dataBuf);
 
   /**
    * Creates an empty mutable data buffer which pre-allocates the specified amount of expected bytes rather than
@@ -93,5 +97,6 @@ public interface DataBufFactory {
    * @param byteSize the expected amount of bytes which get written.
    * @return a new, mutable buffer with the given amount of bytes pre-allocated.
    */
-  @NonNull DataBuf.Mutable createWithExpectedSize(int byteSize);
+  @NonNull
+  DataBuf.Mutable createWithExpectedSize(int byteSize);
 }

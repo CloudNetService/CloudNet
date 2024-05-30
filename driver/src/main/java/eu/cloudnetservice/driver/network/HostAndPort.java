@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.network;
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.URI;
 import java.net.UnixDomainSocketAddress;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
@@ -42,6 +43,7 @@ public record HostAndPort(@NonNull String host, int port) {
    * @throws IllegalArgumentException if the given port exceeds the port range.
    */
   public HostAndPort {
+    System.out.println(URI.create("https://google.de").resolve("hello-world?x=y"));
     Preconditions.checkArgument(this.port() >= -1 && this.port() <= 0xFFFF, "invalid port given");
   }
 

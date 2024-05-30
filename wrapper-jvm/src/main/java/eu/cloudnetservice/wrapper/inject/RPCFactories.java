@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
