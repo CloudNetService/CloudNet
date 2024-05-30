@@ -53,6 +53,7 @@ import eu.cloudnetservice.wrapper.transform.netty.OldEpollDisableTransformer;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
+import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -248,6 +249,16 @@ public final class Wrapper {
     Collection<String> arguments = new LinkedList<>(consoleArgs);
     eventManager.callEvent(new ApplicationPreStartEvent(main, arguments, loader));
 
+    // initially the class path is not allowed to contain the path to the app file
+    // as the wrapper need to load it in a custom class loader after the system
+    // class loader is set up.
+    // however, some people for some reason rely on the app file being on the class
+    // path (for example to search resources). therefore we re-append the app file
+    // after jvm init so that the app file does not show up in the system class path
+    // but will show up if someone access "java.class.path" (or some other source
+    // in java, everything uses this property, e.g. RuntimeMXBean)
+    System.setProperty("java.class.path", this.appendAppFileToClassPath(appFile));
+
     // start the application
     var applicationThread = new Thread(() -> {
       try {
@@ -263,5 +274,14 @@ public final class Wrapper {
 
     // inform the user about the post-start
     eventManager.callEvent(new ApplicationPostStartEvent(main, applicationThread, loader));
+  }
+
+  private @NonNull String appendAppFileToClassPath(@NonNull Path appFile) {
+    var currentClassPath = System.getProperty("java.class.path");
+    if (currentClassPath == null || currentClassPath.isBlank()) {
+      return appFile.getFileName().toString();
+    } else {
+      return currentClassPath + File.pathSeparator + appFile.getFileName();
+    }
   }
 }

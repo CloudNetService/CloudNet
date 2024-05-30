@@ -29,6 +29,8 @@ subprojects {
 
   repositories {
     maven("https://repo.waterdog.dev/releases/")
+    maven("https://repo.waterdog.dev/snapshots/")
+    maven("https://repo.loohpjames.com/repository")
     maven("https://repo.md-5.net/repository/releases/")
     maven("https://repo.md-5.net/repository/snapshots/")
     maven("https://repo.opencollab.dev/maven-releases/")
