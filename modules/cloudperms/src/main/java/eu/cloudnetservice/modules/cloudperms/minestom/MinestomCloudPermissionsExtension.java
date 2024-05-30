@@ -30,7 +30,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.network.ConnectionManager;
 
@@ -88,16 +87,9 @@ public final class MinestomCloudPermissionsExtension implements PlatformEntrypoi
       MoreExecutors.directExecutor(),
       Player::refreshCommands,
       Player::getUuid,
-      uniqueId -> {
-        // only provide real players
-        var player = this.connectionManager.getPlayer(uniqueId);
-        return player instanceof FakePlayer ? null : player;
-      },
+      this.connectionManager::getOnlinePlayerByUuid,
       this.permissionManagement,
-      () -> this.connectionManager.getOnlinePlayers()
-        .stream()
-        .filter(player -> !(player instanceof FakePlayer))
-        .toList()));
+      this.connectionManager::getOnlinePlayers));
 
     // handle player login and disconnects
     new MinestomCloudPermissionsPlayerListener(this.eventHandler, this.permissionManagement);

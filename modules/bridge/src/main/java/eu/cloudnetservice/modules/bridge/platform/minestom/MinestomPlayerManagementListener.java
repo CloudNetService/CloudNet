@@ -25,7 +25,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
@@ -60,11 +59,6 @@ public final class MinestomPlayerManagementListener {
 
   private void handleLogin(@NonNull AsyncPlayerPreLoginEvent event) {
     var player = event.getPlayer();
-    // ignore fake players
-    if (player instanceof FakePlayer) {
-      return;
-    }
-
     var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
@@ -90,11 +84,6 @@ public final class MinestomPlayerManagementListener {
   }
 
   private void handleJoin(@NonNull PlayerSpawnEvent event) {
-    // ignore fake players
-    if (event.getPlayer() instanceof FakePlayer) {
-      return;
-    }
-
     this.serverPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUuid(),
       this.management.createPlayerInformation(event.getPlayer()));
@@ -103,11 +92,6 @@ public final class MinestomPlayerManagementListener {
   }
 
   private void handleDisconnect(@NonNull PlayerDisconnectEvent event) {
-    // ignore fake players
-    if (event.getPlayer() instanceof FakePlayer) {
-      return;
-    }
-
     this.serverPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUuid(),
       this.management.ownNetworkServiceInfo());

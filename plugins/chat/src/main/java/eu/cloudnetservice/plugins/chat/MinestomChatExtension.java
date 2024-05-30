@@ -29,7 +29,6 @@ import java.util.Properties;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.player.PlayerChatEvent;
@@ -73,12 +72,7 @@ public class MinestomChatExtension implements PlatformEntrypoint {
   }
 
   private void handleChat(@NonNull PlayerChatEvent event) {
-    // ignore fake players
     var player = event.getPlayer();
-    if (player instanceof FakePlayer) {
-      return;
-    }
-
     var format = ChatFormatter.buildFormat(
       player.getUuid(),
       player.getUsername(),

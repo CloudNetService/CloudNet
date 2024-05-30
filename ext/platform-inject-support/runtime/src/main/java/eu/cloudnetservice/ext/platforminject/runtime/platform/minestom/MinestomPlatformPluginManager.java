@@ -24,8 +24,10 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
 import lombok.NonNull;
+import net.hollowcube.minestom.extensions.ExtensionBootstrap;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.ServerProcess;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
@@ -43,8 +45,6 @@ import net.minestom.server.network.PacketProcessor;
 import net.minestom.server.recipe.RecipeManager;
 import net.minestom.server.scoreboard.TeamManager;
 import net.minestom.server.timer.SchedulerManager;
-import net.minestom.server.world.DimensionTypeManager;
-import net.minestom.server.world.biomes.BiomeManager;
 
 public final class MinestomPlatformPluginManager extends BasePlatformPluginManager<String, Extension> {
 
@@ -56,10 +56,10 @@ public final class MinestomPlatformPluginManager extends BasePlatformPluginManag
   protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull Extension platformData) {
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
       // install bindings for the platform
+      layer.install(createFixedBinding(MinecraftServer.process(), ServerProcess.class));
       layer.install(createFixedBinding(platformData.getLogger(), ComponentLogger.class));
       layer.install(createFixedBinding(MinecraftServer.getTagManager(), TagManager.class));
       layer.install(createFixedBinding(MinecraftServer.getTeamManager(), TeamManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getBiomeManager(), BiomeManager.class));
       layer.install(createFixedBinding(MinecraftServer.getBlockManager(), BlockManager.class));
       layer.install(createFixedBinding(MinecraftServer.getRecipeManager(), RecipeManager.class));
       layer.install(createFixedBinding(MinecraftServer.getBossBarManager(), BossBarManager.class));
@@ -67,13 +67,12 @@ public final class MinestomPlatformPluginManager extends BasePlatformPluginManag
       layer.install(createFixedBinding(MinecraftServer.getPacketProcessor(), PacketProcessor.class));
       layer.install(createFixedBinding(MinecraftServer.getInstanceManager(), InstanceManager.class));
       layer.install(createFixedBinding(MinecraftServer.getExceptionManager(), ExceptionManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getExtensionManager(), ExtensionManager.class));
       layer.install(createFixedBinding(MinecraftServer.getBenchmarkManager(), BenchmarkManager.class));
       layer.install(createFixedBinding(MinecraftServer.getSchedulerManager(), SchedulerManager.class));
       layer.install(createFixedBinding(MinecraftServer.getConnectionManager(), ConnectionManager.class));
+      layer.install(createFixedBinding(ExtensionBootstrap.getExtensionManager(), ExtensionManager.class));
       layer.install(createFixedBinding(MinecraftServer.getGlobalEventHandler(), GlobalEventHandler.class));
       layer.install(createFixedBinding(MinecraftServer.getAdvancementManager(), AdvancementManager.class));
-      layer.install(createFixedBinding(MinecraftServer.getDimensionTypeManager(), DimensionTypeManager.class));
       layer.install(createFixedBinding(MinecraftServer.getPacketListenerManager(), PacketListenerManager.class));
 
       // install the bindings which are specific to the plugin
