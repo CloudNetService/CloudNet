@@ -380,14 +380,14 @@ public abstract class AbstractService implements CloudService {
           if (inclusion.cacheFiles()) {
             // download the file to the temp path if it does not exist
             if (Files.notExists(destination)) {
-              this.downloadInclusionFiles(req, destination);
+              this.downloadInclusionFile(req, destination);
             }
 
             // copy the file from the temp path to the desired output path
             FileUtil.copy(destination, target);
           } else {
             // download the file directly to the target path if caching is disabled
-            this.downloadInclusionFiles(req, target);
+            this.downloadInclusionFile(req, target);
           }
 
           // we've installed the inclusion successfully
@@ -771,7 +771,7 @@ public abstract class AbstractService implements CloudService {
       configuration.privateKeyPath() == null ? null : wrapperDir.resolve("privateKey"));
   }
 
-  protected void downloadInclusionFiles(@NonNull GetRequest request, @NonNull Path destination) {
+  protected void downloadInclusionFile(@NonNull GetRequest request, @NonNull Path destination) {
     FileUtil.createDirectory(destination.getParent());
     request.asFile(destination.toString(), StandardCopyOption.REPLACE_EXISTING);
   }

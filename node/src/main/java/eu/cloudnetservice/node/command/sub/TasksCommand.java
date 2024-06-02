@@ -715,14 +715,14 @@ public final class TasksCommand {
     @NonNull @Argument("url") String url,
     @NonNull @Argument("path") String path
   ) {
+    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
     this.applyChange(
       source,
       tasks,
-      (builder, $) -> builder.modifyInclusions(col -> col.removeIf(inclusion ->
-        inclusion.url().equals(url) && inclusion.destination().equals(path))),
+      (builder, $) -> builder.modifyInclusions(col -> col.remove(inclusion)),
       "command-tasks-remove-collection-property",
       "inclusion",
-      String.format("%s:%s", url, path));
+      inclusion);
   }
 
   @CommandMethod("tasks task <name> remove jvmOption <options>")

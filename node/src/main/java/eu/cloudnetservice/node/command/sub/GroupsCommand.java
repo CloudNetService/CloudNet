@@ -288,11 +288,11 @@ public final class GroupsCommand {
     @NonNull @Argument("url") String url,
     @NonNull @Argument("path") String path
   ) {
-    this.updateGroup(group, builder -> builder.modifyInclusions(inclusions -> inclusions.removeIf(
-      inclusion -> inclusion.url().equals(url) && inclusion.destination().equals(path))));
+    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
+    this.updateGroup(group, builder -> builder.modifyInclusions(inclusions -> inclusions.remove(inclusion)));
     source.sendMessage(I18n.trans("command-groups-remove-collection-property",
       "inclusion",
-      String.format("%s:%s", url, path),
+      inclusion,
       group.name()));
   }
 

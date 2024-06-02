@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.document.property.DocProperty;
 import io.leangen.geantyref.TypeFactory;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 import lombok.NonNull;
 
 /**
@@ -31,7 +31,6 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-@EqualsAndHashCode
 public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder, Cloneable {
 
   /**
@@ -150,6 +149,22 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
     } catch (CloneNotSupportedException exception) {
       throw new IllegalStateException(); // cannot happen - just explode
     }
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof ServiceRemoteInclusion that)) {
+      return false;
+    }
+    return Objects.equals(this.url, that.url()) && Objects.equals(this.destination, that.destination());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.url, this.destination);
   }
 
   /**
