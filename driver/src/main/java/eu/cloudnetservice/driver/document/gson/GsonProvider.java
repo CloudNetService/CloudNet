@@ -20,6 +20,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.cloudnetservice.driver.document.Document;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
 
 /**
@@ -38,6 +46,26 @@ final class GsonProvider {
     .disableHtmlEscaping()
     .registerTypeAdapterFactory(DelegateTypeAdapterFactory.hierarchyFactory(Path.class, PathTypeAdapter::new))
     .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(Pattern.class, PatternTypeAdapter::new))
+
+    // local time, date & date time
+    .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(LocalTime.class, gson ->
+      TimeTypeAdapter.of(LocalTime::from, DateTimeFormatter.ISO_LOCAL_TIME, gson)))
+    .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(LocalDate.class, gson ->
+      TimeTypeAdapter.of(LocalDate::from, DateTimeFormatter.ISO_LOCAL_DATE, gson)))
+    .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(LocalDateTime.class, gson ->
+      TimeTypeAdapter.of(LocalDateTime::from, DateTimeFormatter.ISO_LOCAL_DATE_TIME, gson)))
+
+    // offset time & date time
+    .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(OffsetTime.class, gson ->
+      TimeTypeAdapter.of(OffsetTime::from, DateTimeFormatter.ISO_OFFSET_TIME, gson)))
+    .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(OffsetDateTime.class, gson ->
+      TimeTypeAdapter.of(OffsetDateTime::from, DateTimeFormatter.ISO_OFFSET_DATE_TIME, gson)))
+
+    // instant & duration
+    .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(Instant.class, gson ->
+      TimeTypeAdapter.of(Instant::from, DateTimeFormatter.ISO_INSTANT, gson)))
+    .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(Duration.class, DurationTypeAdapter::new))
+
     .registerTypeAdapterFactory(DelegateTypeAdapterFactory.hierarchyFactory(Document.class, DocumentTypeAdapter::new))
     .setFieldNamingStrategy(GsonDocumentFieldNamingStrategy.INSTANCE)
     .addSerializationExclusionStrategy(GsonDocumentExclusionStrategy.SERIALIZE)
