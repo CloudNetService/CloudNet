@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.network.rpc;
+package eu.cloudnetservice.driver.network.rpc.handler;
 
-import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
+import eu.cloudnetservice.driver.network.rpc.RPCProvider;
 import lombok.NonNull;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A handler for any rpc invocation happening on the network. Every handler is bound to a specific class and optionally
@@ -50,45 +51,35 @@ public interface RPCHandler extends RPCProvider {
    * @return the result of the handler execution.
    * @throws NullPointerException if the given context is null.
    */
-  @NonNull HandlingResult handle(@NonNull RPCInvocationContext context);
+  @NonNull
+  RPCInvocationResult handle(@NonNull RPCInvocationContext context);
 
   /**
-   * Represents the result of a method invocation with rpc.
+   * A builder for an RPC handler.
    *
+   * @param <T> the type that the handler is handling.
    * @since 4.0
    */
-  interface HandlingResult {
+  interface Builder<T> extends RPCProvider.Builder<Builder<T>> {
 
     /**
-     * Get if the method invocation was successful or not.
+     * Sets the target instance on which all incoming RPC calls should be executed. If the given instance is null, the
+     * invocation context must provide the instance to call the method on. If neither is present an exception is thrown
+     * during execution.
      *
-     * @return true if the method invocation was successful, false otherwise.
+     * @param instance the instance on which the target method should be called.
+     * @return this builder, for chaining.
      */
-    boolean wasSuccessful();
+    @NonNull
+    @Contract("_ -> this")
+    Builder<T> targetInstance(@Nullable T instance);
 
     /**
-     * Get the actual invocation result wrapped in this class. This method is only nullable if the result of the
-     * invocation was successful (then the method result was null), otherwise the invocation result must be non-null and
-     * a subtype of a throwable.
+     * Builds a new RPC handler based on the options provided to this builder.
      *
-     * @return the unwrapped invocation result.
+     * @return a new RPC handler for the given target class.
      */
-    @UnknownNullability Object invocationResult();
-
-    /**
-     * The handler which handled the invocation request and created the result wrapper based on the output of the
-     * method.
-     *
-     * @return the handler which handled the invocation request.
-     */
-    @NonNull RPCHandler invocationHandler();
-
-    /**
-     * Get the information about the method which was invoked by the handler and returned the data wrapped in this
-     * result.
-     *
-     * @return the information about the method which was invoked by the handler.
-     */
-    @NonNull MethodInformation targetMethodInformation();
+    @NonNull
+    RPCHandler build();
   }
 }

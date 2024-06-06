@@ -16,41 +16,107 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker;
 
-import static org.objectweb.asm.Opcodes.AALOAD;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACONST_NULL;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
-
-import eu.cloudnetservice.common.util.StringUtil;
-import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
-import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
-import eu.cloudnetservice.driver.util.asm.AsmHelper;
-import eu.cloudnetservice.driver.util.define.ClassDefiners;
-import io.leangen.geantyref.GenericTypeReflector;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.driver.util.CodeGenerationUtil;
+import java.lang.classfile.ClassFile;
+import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDescs;
+import java.lang.constant.MethodTypeDesc;
+import java.lang.invoke.MethodType;
 import lombok.NonNull;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A utility class to generate and define an invoker for a method in the runtime.
  *
  * @since 4.0
  */
-public class MethodInvokerGenerator {
+@ApiStatus.Internal
+public final class MethodInvokerGenerator {
+
+  // method name of MethodInvoker.callMethod
+  private static final String MI_CALL_METHOD_NAME = "callMethod";
+
+  // method descriptor for MethodInvoker.callMethod(Object, Object[]): Object
+  private static final MethodTypeDesc MTD_MI_CALL_METHOD = MethodTypeDesc.of(
+    /* returns       */ ConstantDescs.CD_Object,
+    /* target param  */ ConstantDescs.CD_Object,
+    /* params param  */ ConstantDescs.CD_Object.arrayType());
+
+  // method type for the generated no-args constructor in a MethodInvoker impl
+  private static final MethodType MI_CONSTRUCTOR_TYPE = MethodType.methodType(void.class);
+
+  public static @NonNull MethodInvoker makeMethodInvoker(@NonNull RPCMethodMetadata targetMethod) {
+    // generate the name of the class, format: "<original class name>$RPCInvoker$<method name>"
+    var ownerClassDesc = ClassDesc.ofDescriptor(targetMethod.definingClass().descriptorString());
+    var classDesc = ownerClassDesc.nested("RPCInvoker", targetMethod.name());
+
+    var classFileBytes = ClassFile.of().build(classDesc, classBuilder -> {
+      // generate no-args super constructor call
+      classBuilder.withMethodBody(
+        ConstantDescs.INIT_NAME,
+        ConstantDescs.MTD_void,
+        ClassFile.ACC_PUBLIC,
+        code -> code.aload(0).invokespecial(ConstantDescs.CD_Object, ConstantDescs.INIT_NAME, ConstantDescs.MTD_void));
+
+      // implement the callMethod method
+      classBuilder.withMethodBody(MI_CALL_METHOD_NAME, MTD_MI_CALL_METHOD, ClassFile.ACC_PUBLIC, code -> {
+        // load target parameter
+        code.aload(1);
+
+        // load all parameters, as the array length is known ahead-of-time we can just unroll this into one long list
+        // of instructions rather than using a loop in the generated code
+        var parameterTypes = targetMethod.methodType().parameterArray();
+        for (var index = 0; index < parameterTypes.length; index++) {
+          // load the array, push the index in the array we want to access, load the actual element at the array index
+          code.aload(2).ldc(index).aaload();
+
+          var parameterType = parameterTypes[index];
+          if (parameterType.isPrimitive()) {
+            // unbox the primitive type if the target parameter type is primitive
+            CodeGenerationUtil.unboxPrimitive(code, parameterType.descriptorString());
+          } else {
+            // just insert a cast to put in the right type
+            var targetTypeDesc = ClassDesc.ofDescriptor(parameterType.descriptorString());
+            code.checkcast(targetTypeDesc);
+          }
+        }
+
+        var targetMethodType = MethodTypeDesc.ofDescriptor(targetMethod.methodType().descriptorString());
+        if (targetMethod.definingClass().isInterface()) {
+          // target method is defined in interface
+          code.invokeinterface(ownerClassDesc, targetMethod.name(), targetMethodType);
+        } else {
+          // target method is defined in concrete class
+          code.invokevirtual(ownerClassDesc, targetMethod.name(), targetMethodType);
+        }
+
+        var returnDescriptor = targetMethodType.returnType().descriptorString();
+        switch (returnDescriptor) {
+          // void method should return null from the method invocation
+          case "V" -> code.aconst_null();
+          // primitive types need to be put into their wrapper type before returning
+          case "Z", "B", "S", "C", "I", "J", "F", "D" -> CodeGenerationUtil.boxPrimitive(code, returnDescriptor);
+        }
+
+        // return the wrapped object return value
+        code.areturn();
+      });
+    });
+
+    try {
+      // define the class as a nest mate in the class defining the method
+      var classLookup = CodeGenerationUtil.defineNestedClass(targetMethod.definingClass(), classFileBytes);
+      var noArgsConstructor = classLookup.findConstructor(classLookup.lookupClass(), MI_CONSTRUCTOR_TYPE);
+      return (MethodInvoker) noArgsConstructor.invokeExact();
+    } catch (Throwable throwable) {
+      throw new AssertionError("unable to define or constructor method accessor", throwable);
+    }
+  }
+
+
+
+/*
 
   private static final String SUPER = "java/lang/Object";
   private static final String OBJ_DESCRIPTOR = Type.getDescriptor(Object.class);
@@ -67,13 +133,6 @@ public class MethodInvokerGenerator {
   private static final String CLASS_NAME_FORMAT = "%s$GeneratedInvoker_%s_%s";
   private static final String NO_ARGS_CONSTRUCTOR_CLASS_NAME_FORMAT = "%s$GeneratedConstructorInvoker_%s";
 
-  /**
-   * Generates a method invoker based on the information supplied from the method information.
-   *
-   * @param methodInfo the information about the method the invoker is generated for.
-   * @return the generated method invoker.
-   * @throws ClassCreationException if something goes wrong during the class generation.
-   */
   public @NonNull MethodInvoker makeMethodInvoker(@NonNull MethodInformation methodInfo) {
     try {
       var className = String.format(
@@ -164,13 +223,6 @@ public class MethodInvokerGenerator {
     }
   }
 
-  /**
-   * Makes an invoker for a no-args {@code &lt;init&gt;} method (better known as a constructor) for the given class.
-   *
-   * @param clazz the class in which the no args constructor is located.
-   * @return a generated invoker for the given class no-args constructor.
-   * @throws ClassCreationException if something goes wrong during the class generation.
-   */
   public @NonNull MethodInvoker makeNoArgsConstructorInvoker(@NonNull Class<?> clazz) {
     try {
       // make a class name which is definitely unique for the class
@@ -222,4 +274,6 @@ public class MethodInvokerGenerator {
       ), exception);
     }
   }
+
+ */
 }

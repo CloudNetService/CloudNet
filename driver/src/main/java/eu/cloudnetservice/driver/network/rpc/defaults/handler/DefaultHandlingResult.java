@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 
-import eu.cloudnetservice.driver.network.rpc.RPCHandler;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;

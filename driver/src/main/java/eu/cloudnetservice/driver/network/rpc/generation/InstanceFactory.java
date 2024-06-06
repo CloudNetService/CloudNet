@@ -16,7 +16,9 @@
 
 package eu.cloudnetservice.driver.network.rpc.generation;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Contract;
 
 /**
  * Represents the factory which can be used to obtain new instances of generated rpc classes.
@@ -24,8 +26,29 @@ import lombok.NonNull;
  * @param <T> the type of the generated class.
  * @since 4.0
  */
-@FunctionalInterface
 public interface InstanceFactory<T> {
+
+  /**
+   * Constructs a new instance of the generated target class using the default ext injection layer.
+   *
+   * @return a new instance of the class, constructed using the ext injection layer.
+   */
+  @NonNull
+  @Contract("-> new")
+  default T constructInstance() {
+    return this.constructInstance(InjectionLayer.ext());
+  }
+
+  /**
+   * Constructs a new instance of the generated target class using the given injection layer.
+   *
+   * @param injectionLayer the injection layer to use.
+   * @return a new instance of the class, constructed using the given injection layer.
+   * @throws NullPointerException if the given injection layer is null.
+   */
+  @NonNull
+  @Contract("_ -> new")
+  T constructInstance(@NonNull InjectionLayer<?> injectionLayer);
 
   /**
    * Constructs a new instance of the underlying class, using the given arguments for the constructor invocation of the
@@ -35,5 +58,6 @@ public interface InstanceFactory<T> {
    * @return a new instance of the underlying class.
    * @throws NullPointerException if the given arguments are null.
    */
-  @NonNull T newInstance(@NonNull Object... args);
+  @NonNull
+  T newInstance(@NonNull Object... args);
 }

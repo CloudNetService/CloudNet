@@ -16,16 +16,11 @@
 
 package eu.cloudnetservice.driver.network.rpc.factory;
 
-import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandler;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
-import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
-import eu.cloudnetservice.driver.network.rpc.generation.InstanceFactory;
-import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A factory which can provide anything which is related to rpc.
@@ -35,23 +30,6 @@ import org.jetbrains.annotations.Nullable;
 public interface RPCFactory {
 
   /**
-   * Get the default object mapper used by this factory if no other mapper is supplied to a factory method.
-   *
-   * @return the default object mapper of this factory.
-   */
-  @NonNull
-  ObjectMapper defaultObjectMapper();
-
-  /**
-   * Get the default data buf factory used by this factory if no other data buf factory is supplied to a factory
-   * method.
-   *
-   * @return the default data buf factory of this factory.
-   */
-  @NonNull
-  DataBufFactory defaultDataBufFactory();
-
-  /**
    * Constructs a new rpc sender builder which should be capable of executing methods in the given target class.
    *
    * @param target the target class in which the sender should be able to execute methods.
@@ -59,7 +37,10 @@ public interface RPCFactory {
    * @throws NullPointerException if the given target class is null.
    */
   @NonNull
-  RPCSenderBuilder newRPCSenderBuilder(@NonNull Class<?> target);
+  RPCSender.Builder newRPCSenderBuilder(@NonNull Class<?> target);
+
+  @NonNull
+  <T> RPCHandler.Builder<T> newRPCHandlerBuilder(@NonNull Class<T> target);
 
   /**
    * Generates an api implementation for the given base class, invoking all of its method using rpc. This method only
@@ -85,9 +66,7 @@ public interface RPCFactory {
    * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
    */
   @NonNull
-  <T> InstanceFactory<T> generateRPCBasedApi(
-    @NonNull Class<T> baseClass,
-    @NonNull GenerationContext context);
+  <T> RPCImplementationBuilder.ForBasic<T> newBasicRPCBasedImplementationBuilder(@NonNull Class<T> baseClass);
 
   /**
    * Generates an api implementation for the given base class, invoking all of its method using a chained rpc call. The
@@ -115,67 +94,5 @@ public interface RPCFactory {
    * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
    */
   @NonNull
-  <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
-    @NonNull RPCSender baseSender,
-    @NonNull Class<T> chainBaseClass,
-    @NonNull GenerationContext context);
-
-  /**
-   * Generates an api implementation for the given base class, invoking all of its method using a chained rpc call. The
-   * base rpc is discovered using the given rpc sender and the given method name. This method only overrides methods
-   * which are abstract in the given class tree. In other words, if you're passing an implementation which has all
-   * methods which need to be processed locally already done, no rpc based method implementation will be generated for
-   * the class.
-   * <p>
-   * If the base class defined in the invocation context needs arguments to be supplied, they must get passed to the
-   * created instance factory. Note: the constructor parameters are not required to match the parameters supplied to the
-   * base rpc call.
-   * <p>
-   * This method will cache the result of the generation, calling this method twice will only result in two different
-   * instances in the same class, but only if the given generation context and the calling method name did not change
-   * between the calls.
-   *
-   * @param baseSender       the rpc sender for the base class from which the chain should start.
-   * @param baseCallerMethod the name of the method to use to obtain the base instance to call the chain on.
-   * @param chainBaseClass   the base class from which methods one step into the chain should get called.
-   * @param context          the context of the class generation, holding the options for it.
-   * @param <T>              the type which gets generated.
-   * @return a factory which is capable to create new instances of the given chain base class, for rpc chain calls.
-   * @throws NullPointerException   if the given base sender, method, chain base class or generation context is null.
-   * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
-   */
-  @NonNull
-  <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
-    @NonNull RPCSender baseSender,
-    @NonNull String baseCallerMethod,
-    @NonNull Class<T> chainBaseClass,
-    @NonNull GenerationContext context);
-
-  /**
-   * Constructs a new rpc handler for the given class.
-   *
-   * @param clazz   the class which the handler handles.
-   * @param binding an optional instance binding for the handler, can be null if relying on contextual instances.
-   * @return a new rpc handler for the given class.
-   * @throws NullPointerException if the given target class is null.
-   */
-  @NonNull
-  RPCHandler newHandler(@NonNull Class<?> clazz, @Nullable Object binding);
-
-  /**
-   * Constructs a new rpc handler for the given class.
-   *
-   * @param clazz          the class which the handler handles.
-   * @param binding        an optional instance binding for the handler, null if relying on contextual instances.
-   * @param objectMapper   the object mapper to use for argument (de-) serialization.
-   * @param dataBufFactory the data buf factory to use for buffer allocation.
-   * @return a new rpc handler for the given class.
-   * @throws NullPointerException if either the given class, mapper or buffer factory is null.
-   */
-  @NonNull
-  RPCHandler newHandler(
-    @NonNull Class<?> clazz,
-    @Nullable Object binding,
-    @NonNull ObjectMapper objectMapper,
-    @NonNull DataBufFactory dataBufFactory);
+  <T> RPCImplementationBuilder.ForChained<T> newChainedRPCBasedImplementationBuilder(@NonNull Class<T> baseClass);
 }

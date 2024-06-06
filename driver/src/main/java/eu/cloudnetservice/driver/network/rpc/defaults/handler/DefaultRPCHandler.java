@@ -18,15 +18,19 @@ package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.common.base.Defaults;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandler;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
-import eu.cloudnetservice.driver.network.rpc.RPCInvocationContext;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
-import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
-import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
+import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvoker;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandler;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationContext;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
+import java.lang.constant.MethodTypeDesc;
+import java.lang.invoke.TypeDescriptor;
+import java.time.Duration;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,32 +41,41 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
 
-  protected final Class<?> bindingClass;
-  protected final Object bindingInstance;
-  protected final MethodInvokerGenerator generator;
+  protected final Object boundInstance;
+  protected final RPCClassMetadata targetClassMeta;
+  protected final Cache<RPCMethodMetadata, MethodInvoker> methodInvokerCache;
 
-  protected final Cache<String, MethodInformation> methodCache = Caffeine.newBuilder().build();
+  public DefaultRPCHandler(
+    @NonNull Class<?> targetClass,
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory,
+    @Nullable Object boundInstance,
+    @NonNull RPCClassMetadata targetClassMeta
+  ) {
+    super(targetClass, objectMapper, dataBufFactory);
+    this.boundInstance = boundInstance;
+    this.targetClassMeta = targetClassMeta;
+    this.methodInvokerCache = Caffeine.newBuilder()
+      // remove invokers from cache after idling some time as they are defined as nested classes
+      // which means that they can get garbage collected to free up some heap when there are
+      // no more strong references (like the cache) to them anymore
+      .expireAfterAccess(Duration.ofDays(1))
+      .build();
+  }
 
   /**
-   * Constructs a new default rpc handler instance.
+   * Tries to parse the given method descriptor, returning null if the given method descriptor is invalid.
    *
-   * @param clazz          the raw clazz to which the handler is bound.
-   * @param binding        the instance to which the handler is bound, might be null if not needed.
-   * @param objectMapper   the object mapper used for reading / writing of arguments and return values.
-   * @param dataBufFactory the data buf factory used to allocate response buffers.
-   * @throws NullPointerException if either the given class, object mapper or buffer factory is null.
+   * @param descriptor the descriptor that should be parsed.
+   * @return the parsed method descriptor or null if the given descriptor is invalíd.
+   * @throws NullPointerException if the given descriptor is null.
    */
-  public DefaultRPCHandler(
-    @NonNull Class<?> clazz,
-    @Nullable Object binding,
-    @NonNull ObjectMapper objectMapper,
-    @NonNull DataBufFactory dataBufFactory
-  ) {
-    super(clazz, objectMapper, dataBufFactory);
-
-    this.bindingClass = clazz;
-    this.bindingInstance = binding;
-    this.generator = new MethodInvokerGenerator();
+  private static @Nullable TypeDescriptor parseTypeDescriptor(@NonNull String descriptor) {
+    try {
+      return MethodTypeDesc.ofDescriptor(descriptor);
+    } catch (IllegalArgumentException _) {
+      return null;
+    }
   }
 
   /**
@@ -77,59 +90,31 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
    * {@inheritDoc}
    */
   @Override
-  public @NonNull HandlingResult handle(@NonNull RPCInvocationContext context) {
-    // get the working instance
-    var inst = context.workingInstance();
-    if (inst == null) {
-      inst = context.strictInstanceUsage() ? null : this.bindingInstance;
+  public @NonNull RPCInvocationResult handle(@NonNull RPCInvocationContext context) {
+    // get the instance we're working with
+    var contextualInstance = context.workingInstance();
+    var workingInstance = contextualInstance != null ? contextualInstance : this.boundInstance;
+    if (workingInstance == null) {
+      return new RPCInvocationResult.ServerError("no instance to invoke the method on", this);
     }
-    // now we try to find the associated method information to the given method name or try to read it
-    var instance = inst; // pail
-    var information = this.methodCache.get(
-      String.format(
-        "%d@%s@%s@%d",
-        inst == null ? -1 : inst.hashCode(),
-        this.bindingClass.getCanonicalName(),
-        context.methodName(),
-        context.argumentCount()),
-      $ -> MethodInformation.find(
-        instance,
-        this.bindingClass,
-        context.methodName(),
-        instance == null ? null : this.generator,
-        context.argumentCount()));
-    // now as we have the method info, try to read all arguments needed
-    var arguments = new Object[information.arguments().length];
-    for (var i = 0; i < arguments.length; i++) {
-      arguments[i] = this.objectMapper.readObject(context.argumentInformation(), information.arguments()[i]);
+
+    // parse the method type to validate it
+    var targetMethodType = parseTypeDescriptor(context.methodDescriptor());
+    if (targetMethodType == null) {
+      return new RPCInvocationResult.BadRequest("invalid target method descriptor", this);
     }
-    // get the method invocation result
-    HandlingResult result;
-    if (instance == null) {
-      // no instance provided, no invocation we can make - just check if the result is primitive and return the default
-      // primitive value associated
-      if (information.rawReturnType().isPrimitive() && context.normalizePrimitives()) {
-        result = DefaultHandlingResult.success(
-          information,
-          this,
-          Defaults.defaultValue(information.rawReturnType()));
-      } else {
-        // no instance and not primitive means null
-        result = DefaultHandlingResult.success(information, this, null);
-      }
-    } else {
-      // there is an instance we can work on, do it!
-      try {
-        // spare the result allocation if the method invocation fails
-        var methodResult = information.methodInvoker().callMethod(arguments);
-        // now we can create the result as the method invocation succeeded
-        result = DefaultHandlingResult.success(information, this, methodResult);
-      } catch (Throwable throwable) {
-        // an exception occurred when invoking the method - not good
-        result = DefaultHandlingResult.failure(information, this, throwable);
-      }
+
+    // find the associated method meta in the target class
+    var targetMethod = this.targetClassMeta.findMethod(context.methodName(), targetMethodType);
+    if (targetMethod == null) {
+      return new RPCInvocationResult.BadRequest("target method not found", this);
     }
-    // return the result
-    return result;
+
+    try {
+
+    } catch (Throwable throwable) {
+      // other failure that is not categorized
+      return new RPCInvocationResult.Failure(throwable, this, targetMethod);
+    }
   }
 }

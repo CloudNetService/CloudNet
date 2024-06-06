@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.network.rpc.defaults.rpc;
 
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import eu.cloudnetservice.driver.network.protocol.Packet;
-import eu.cloudnetservice.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
+import eu.cloudnetservice.driver.network.rpc.defaults.handler.util.RPCExceptionUtil;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.lang.reflect.Type;
 import java.util.function.Function;
@@ -51,7 +51,7 @@ record RPCResultMapper<T>(
         return this.objectMapper.readObject(content, this.expectedResultType);
       } else {
         // rethrow the execution exception
-        ExceptionalResultUtil.rethrowException(content);
+        RPCExceptionUtil.rethrowException(content);
         return null; // ok fine, but this will never happen - no one was seen again after entering the rethrowException method
       }
     } else {

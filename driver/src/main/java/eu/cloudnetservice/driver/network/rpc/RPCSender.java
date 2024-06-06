@@ -16,10 +16,12 @@
 
 package eu.cloudnetservice.driver.network.rpc;
 
+import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkComponent;
-import eu.cloudnetservice.driver.network.rpc.exception.CannotDecideException;
-import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import java.lang.invoke.MethodType;
+import java.util.function.Supplier;
 import lombok.NonNull;
+import org.jetbrains.annotations.Contract;
 
 /**
  * A sender which can send rpc requests to another network component.
@@ -28,45 +30,89 @@ import lombok.NonNull;
  */
 public interface RPCSender extends RPCProvider {
 
-  /**
-   * Get the provider factory used to construct this rpc sender.
-   *
-   * @return the provider factory used to construct this rpc sender.
-   */
+  // @throws IllegalStateException if the caller cannot be resolved
   @NonNull
-  RPCFactory factory();
+  RPC invokeCaller(Object... args);
+
+  // @throws IllegalStateException if the caller cannot be resolved
+  @NonNull
+  RPC invokeCaller(int callerStackOffset, Object... args);
+
+  // @throws IllegalArgumentException if there cannot be a distinct method found to invoke
+  @NonNull
+  RPC invokeMethod(@NonNull String methodName, Object... args);
+
+  @NonNull
+  RPC invokeMethod(@NonNull String methodName, @NonNull MethodType methodDesc, Object... args);
 
   /**
-   * Get the network component associated with this rpc sender.
+   * A builder for an RPC sender which can be obtained from an RPC factory.
    *
-   * @return the network component associated with this rpc sender.
-   * @throws UnsupportedOperationException if this sender has no network component associated.
+   * @since 4.0
    */
-  @NonNull NetworkComponent associatedComponent();
+  interface Builder extends RPCProvider.Builder<Builder> {
 
-  /**
-   * Creates a rpc to invoke the target method with no arguments, preventing a new object array allocation each time the
-   * method is invoked. Equivalent to {@code sender.invokeMethod(name, new Object[0])}.
-   *
-   * @param methodName the name of the method to invoke.
-   * @return the rpc usable to fire the rpc request against the given method.
-   * @throws NullPointerException  if the given method name is null.
-   * @throws CannotDecideException if either none or multiple methods are matching the given method name.
-   */
-  @NonNull RPC invokeMethod(@NonNull String methodName);
+    /**
+     * Sets the network component to use for obtaining the network channel to send RPCs using this sender to. For that
+     * purpose the first channel of the given component is always used. An exception during RPC execution will be thrown
+     * if the first channel of the component every becomes null or closed.
+     *
+     * @param networkComponent the network component to use the first channel of during RPC execution.
+     * @return this builder, for chaining.
+     * @throws NullPointerException if the given network component is null.
+     */
+    @NonNull
+    @Contract("_ -> this")
+    Builder targetComponent(@NonNull NetworkComponent networkComponent);
 
-  /**
-   * Creates a rpc to invoke the target method with the given arguments. For this operation to succeed, the class must
-   * <ol>
-   *   <li>contain a method which equals the given method name (case sensitive)
-   *   <li>that method must have the amount of arguments supplied via the arguments array.
-   * </ol>
-   *
-   * @param methodName the name of the method to invoke.
-   * @param args       the arguments to use for the method invocation.
-   * @return the rpc usable to fire the rpc request against the given method.
-   * @throws NullPointerException  if the given method name is null.
-   * @throws CannotDecideException if either none or multiple methods are matching the given method name.
-   */
-  @NonNull RPC invokeMethod(@NonNull String methodName, Object... args);
+    /**
+     * Sets the singleton channel that will be used to send all RPCs that are using this sender to. The target channel
+     * should not be closed while this sender is in use.
+     *
+     * @param channel the channel to which all RPCs that are using this sender are sent to.
+     * @return this builder, for chaining.
+     * @throws NullPointerException     if the given channel is null.
+     * @throws IllegalArgumentException if the given channel is closed.
+     */
+    @NonNull
+    @Contract("_ -> this")
+    Builder targetChannel(@NonNull NetworkChannel channel);
+
+    /**
+     * Sets the supplier to use to resolve the network channel to which RPCs using this sender should be sent. The given
+     * supplier is called every time the channel is needed, and is allowed to change over time. An exception during RPC
+     * execution will be thrown if this supplier ever returns null or a channel that is closed.
+     *
+     * @param channelSupplier the supplier to call to obtain the target channel for RPCs.
+     * @return this builder, for chaining.
+     * @throws NullPointerException if the given supplier is null.
+     */
+    @NonNull
+    @Contract("_ -> this")
+    Builder targetChannel(@NonNull Supplier<NetworkChannel> channelSupplier);
+
+    /**
+     * Excludes the method in the target class that has the given name and method descriptor from being discovered for
+     * RPC execution. The method will not be callable using the sender and will not be introspected during build.
+     *
+     * @param name             the name of the method to exclude.
+     * @param methodDescriptor the descriptor of the method to exclude.
+     * @return this builder, for chaining.
+     * @throws NullPointerException if the given name or method descriptor is null.
+     */
+    @NonNull
+    @Contract("_, _ -> this")
+    Builder excludeMethod(@NonNull String name, @NonNull MethodType methodDescriptor);
+
+    /**
+     * Validates the options and target class provided to this builder and constructs the final sender instance in case
+     * everything checks out.
+     *
+     * @return a new sender instance based on the options provided to this builder.
+     * @throws IllegalArgumentException if an option provided to this builder does not match.
+     */
+    @NonNull
+    @Contract("-> new")
+    RPCSender build();
+  }
 }

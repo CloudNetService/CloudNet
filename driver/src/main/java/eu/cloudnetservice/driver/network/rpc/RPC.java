@@ -45,21 +45,32 @@ public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
    *
    * @return the sender of this rpc.
    */
-  @NonNull RPCSender sender();
+  @NonNull
+  RPCSender sender();
 
   /**
    * Get the fully qualified name of the class the target method is located in.
    *
    * @return the fully qualified name of the class the target method is located in.
    */
-  @NonNull String className();
+  @NonNull
+  String className();
 
   /**
    * Get the name of the method which should get called.
    *
    * @return the name of the method which should get called.
    */
-  @NonNull String methodName();
+  @NonNull
+  String methodName();
+
+  /**
+   * Get the descriptor string of the method that should be invoked.
+   *
+   * @return the descriptor string of the method that should be invoked.
+   */
+  @NonNull
+  String methodDescriptor();
 
   /**
    * Get the arguments which should get used to call the method. The main identification of a method happens based on
@@ -67,14 +78,16 @@ public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
    *
    * @return the arguments which should get used to call the method.
    */
-  @NonNull Object[] arguments();
+  @NonNull
+  Object[] arguments();
 
   /**
    * Get the expected result type of the method invocation. Can be void.
    *
    * @return the expected result type of the method invocation.
    */
-  @NonNull Type expectedResultType();
+  @NonNull
+  Type expectedResultType();
 
   /**
    * Disables that this rpc is waiting for a result from the target network component. By default, the current component
@@ -82,7 +95,8 @@ public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
    *
    * @return the same instance used to call the method, for chaining.
    */
-  @NonNull RPC disableResultExpectation();
+  @NonNull
+  RPC disableResultExpectation();
 
   /**
    * Get if this rpc expects a result from the network component the invoke request is sent to.

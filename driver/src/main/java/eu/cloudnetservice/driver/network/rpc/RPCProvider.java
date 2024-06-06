@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.network.rpc;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
+import org.jetbrains.annotations.Contract;
 
 /**
  * The base class implemented by anything which is related to rpc.
@@ -32,19 +33,54 @@ public interface RPCProvider {
    *
    * @return the target class.
    */
-  @NonNull Class<?> targetClass();
+  @NonNull
+  Class<?> targetClass();
 
   /**
    * Get the object mapper which is used for (de-) serialization of objects if needed.
    *
    * @return the associated object mapper.
    */
-  @NonNull ObjectMapper objectMapper();
+  @NonNull
+  ObjectMapper objectMapper();
 
   /**
    * Get the data buf factory which is used to allocate network data buffers if needed.
    *
    * @return the associated data buf factory.
    */
-  @NonNull DataBufFactory dataBufFactory();
+  @NonNull
+  DataBufFactory dataBufFactory();
+
+  /**
+   * A base builder that can be used for everything that implements RPC provider.
+   *
+   * @param <B> the subtype of the builder being used, for chaining.
+   * @since 4.0
+   */
+  interface Builder<B extends Builder<B>> {
+
+    /**
+     * Sets the object mapper for serialization of objects during RPC execution related to the final rpc provider.
+     *
+     * @param objectMapper the object mapper to use.
+     * @return this builder, for chaining.
+     * @throws NullPointerException if the given mapper is null.
+     */
+    @NonNull
+    @Contract("_ -> this")
+    B objectMapper(@NonNull ObjectMapper objectMapper);
+
+    /**
+     * Sets the data buf factory to use for everything that is related with data serialization in the final rpc
+     * provider.
+     *
+     * @param dataBufFactory the data buf factory to use.
+     * @return this builder, for chaining.
+     * @throws NullPointerException if the given factory is null.
+     */
+    @NonNull
+    @Contract("_ -> this")
+    B dataBufFactory(@NonNull DataBufFactory dataBufFactory);
+  }
 }

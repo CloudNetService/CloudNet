@@ -20,8 +20,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A method invoker used by rpc to invoke a requested method. Method invokers should only get created once for a class,
- * never multiple times during rpc processing.
+ * A method invoker used by RPC to invoke a requested method.
  *
  * @since 4.0
  */
@@ -29,11 +28,12 @@ import org.jetbrains.annotations.Nullable;
 public interface MethodInvoker {
 
   /**
-   * Invokes the target method of this invoker using the given arguments.
+   * Invokes the target method of this invoker using the given arguments on the given instance.
    *
+   * @param target    the target instance to invoke the method on.
    * @param arguments the arguments to use when invoking the target method.
    * @return the return value of the method invocation.
-   * @throws NullPointerException if the given arguments array is null.
+   * @throws NullPointerException if the given target or arguments array is null.
    */
-  @Nullable Object callMethod(@NonNull Object... arguments);
+  @Nullable Object callMethod(@NonNull Object target, @NonNull Object... arguments);
 }

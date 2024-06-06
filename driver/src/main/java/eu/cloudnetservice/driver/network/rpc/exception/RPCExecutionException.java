@@ -32,10 +32,9 @@ public class RPCExecutionException extends RuntimeException {
    *
    * @param exceptionName the name of the original thrown exception.
    * @param message       the message of the original thrown exception.
-   * @param firstElement  the formatted first stack trace element of the original thrown exception.
-   * @throws NullPointerException if either the given exception name, message or first stack element is null.
+   * @throws NullPointerException if either the given exception name or message is null.
    */
-  public RPCExecutionException(@NonNull String exceptionName, @NonNull String message, @NonNull String firstElement) {
-    super(String.format("%s(%s @ %s)", exceptionName, message, firstElement));
+  public RPCExecutionException(@NonNull String exceptionName, @NonNull String message) {
+    super(String.format("%s: %s", exceptionName, message));
   }
 }

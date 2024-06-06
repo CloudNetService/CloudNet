@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.network.rpc;
+package eu.cloudnetservice.driver.network.rpc.handler;
 
 import java.util.Map;
 import lombok.NonNull;

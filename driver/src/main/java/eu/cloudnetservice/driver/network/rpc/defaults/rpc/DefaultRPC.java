@@ -25,13 +25,20 @@ import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.packet.RPCRequestPacket;
 import java.lang.reflect.Type;
+import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * The default implementation of a rpc.
@@ -41,41 +48,33 @@ import org.jetbrains.annotations.Nullable;
 public class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   private final RPCSender sender;
-  private final String className;
-  private final String methodName;
+  private final Supplier<NetworkChannel> channelSupplier;
+
+  private final Duration executionTimeout;
+  private final RPCMethodMetadata targetMethod;
+
   private final Object[] arguments;
-  private final Type expectedResultType;
+  private boolean resultExpectation;
 
-  private boolean resultExpectation = true;
-
-  /**
-   * Constructs a new default rpc instance.
-   *
-   * @param sender             the sender of this rpc.
-   * @param clazz              the target class of this rpc.
-   * @param methodName         the name of the method which should get invoked.
-   * @param arguments          the arguments which should get supplied to the method to invoke.
-   * @param objectMapper       the object mapper used to write/read data from constructed buffers.
-   * @param expectedResultType true if this rpc execution expects a result, false otherwise.
-   * @param dataBufFactory     the data buf factory to use for data buf allocation.
-   * @throws NullPointerException if one of the given arguments is null.
-   */
   public DefaultRPC(
-    @NonNull RPCSender sender,
-    @NonNull Class<?> clazz,
-    @NonNull String methodName,
-    @NonNull Object[] arguments,
+    @NonNull Class<?> targetClass,
     @NonNull ObjectMapper objectMapper,
-    @NonNull Type expectedResultType,
-    @NonNull DataBufFactory dataBufFactory
+    @NonNull DataBufFactory dataBufFactory,
+    @NonNull RPCSender sender,
+    @NonNull Supplier<NetworkChannel> channelSupplier,
+    @Nullable Duration executionTimeout,
+    @NonNull RPCMethodMetadata targetMethod,
+    @NonNull Object[] arguments
   ) {
-    super(clazz, objectMapper, dataBufFactory);
-
+    super(targetClass, objectMapper, dataBufFactory);
     this.sender = sender;
-    this.className = clazz.getCanonicalName();
-    this.methodName = methodName;
+    this.channelSupplier = channelSupplier;
+
+    this.executionTimeout = executionTimeout;
+    this.targetMethod = targetMethod;
+
     this.arguments = arguments;
-    this.expectedResultType = expectedResultType;
+    this.resultExpectation = !targetMethod.executionResultIgnored();
   }
 
   /**
@@ -99,7 +98,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull String className() {
-    return this.className;
+    return this.targetClass.getName();
   }
 
   /**
@@ -107,7 +106,15 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull String methodName() {
-    return this.methodName;
+    return this.targetMethod.name();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull String methodDescriptor() {
+    return this.targetMethod.methodType().descriptorString();
   }
 
   /**
@@ -123,7 +130,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull Type expectedResultType() {
-    return this.expectedResultType;
+    return this.targetMethod.returnType();
   }
 
   /**
@@ -148,15 +155,19 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public void fireAndForget() {
-    this.fireAndForget(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
+    var targetNetworkChannel = this.channelSupplier.get();
+    Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
+    this.fireAndForget(targetNetworkChannel);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public <T> @Nullable T fireSync() {
-    return this.fireSync(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
+  public <T> @UnknownNullability T fireSync() {
+    var targetNetworkChannel = this.channelSupplier.get();
+    Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
+    return this.fireSync(targetNetworkChannel);
   }
 
   /**
@@ -164,7 +175,9 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull <T> Task<T> fire() {
-    return this.fire(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
+    var targetNetworkChannel = this.channelSupplier.get();
+    Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
+    return this.fire(targetNetworkChannel);
   }
 
   /**
@@ -183,7 +196,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     try {
       Task<T> queryTask = this.fire(component);
       return queryTask.get();
-    } catch (ExecutionException exception) {
+    } catch (ExecutionException | CancellationException exception) {
       if (exception.getCause() instanceof RPCExecutionException executionException) {
         // may be thrown when the handler did throw an exception, just rethrow that one
         throw executionException;
@@ -202,25 +215,31 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull <T> Task<T> fire(@NonNull NetworkChannel component) {
-    // write the default needed information we need
+    // write the information about the RPC into a buffer
     var dataBuf = this.dataBufFactory.createEmpty()
       .writeBoolean(false) // not a method chain
-      .writeString(this.className)
-      .writeString(this.methodName)
+      .writeString(this.className())
+      .writeString(this.methodName())
+      .writeString(this.methodDescriptor())
       .writeBoolean(this.resultExpectation)
       .writeInt(this.arguments.length);
-    // write the arguments provided
     for (var argument : this.arguments) {
       this.objectMapper.writeObject(dataBuf, argument);
     }
-    // send query if result is needed
+
     if (this.resultExpectation) {
-      // now send the query and read the response
-      return Task.wrapFuture(component
+      // send a query in case the result should be returned to the user & apply the requested timeout to it
+      CompletableFuture<T> queryFuture = component
         .sendQueryAsync(new RPCRequestPacket(dataBuf))
-        .thenApply(new RPCResultMapper<>(this.expectedResultType, this.objectMapper)));
+        .thenApply(new RPCResultMapper<>(this.expectedResultType(), this.objectMapper));
+      if (this.executionTimeout != null) {
+        var timeoutMillis = this.executionTimeout.toMillis();
+        queryFuture = queryFuture.orTimeout(timeoutMillis, TimeUnit.MILLISECONDS);
+      }
+
+      return Task.wrapFuture(queryFuture);
     } else {
-      // just send the method invocation request
+      // no result expected: send the RPC request and just return a completed future after
       component.sendPacket(new RPCRequestPacket(dataBuf));
       return Task.completedTask(null);
     }
