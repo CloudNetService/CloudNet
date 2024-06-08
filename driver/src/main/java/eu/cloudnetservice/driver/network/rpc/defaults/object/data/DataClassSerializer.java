@@ -16,45 +16,78 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.object.data;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCIgnore;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A serializer for all data classes and arrays which have no special serializer available.
  *
  * @since 4.0
  */
-public class DataClassSerializer implements ObjectSerializer<Object> {
+public final class DataClassSerializer implements ObjectSerializer<Object> {
 
-  private final LoadingCache<Type, DataClassInformation> dataClassInformationCache = Caffeine.newBuilder()
-    .build(key -> DataClassInformation.createClassInformation((Class<?>) key));
+  private final Cache<Class<?>, DataClassCodec> dataClassCodecCache = Caffeine.newBuilder()
+    .expireAfterAccess(Duration.ofHours(8)) // release generated classes for GC if not needed
+    .build();
+
+  /**
+   * Validates that an instance of the given class can be constructed in runtime. This means that the class is not
+   * abstract, an interface and does not represent a primitive type.
+   *
+   * @param clazz the class to check.
+   * @throws IllegalArgumentException if the given class is not instantiable.
+   * @throws NullPointerException     if the given class is null.
+   */
+  private static void ensureClassIsInstantiable(@NonNull Class<?> clazz) {
+    var notInstantiable = clazz.isPrimitive() || clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
+    if (notInstantiable) {
+      throw new IllegalArgumentException(String.format("class %s is not instantiable", clazz.getName()));
+    }
+  }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Object read(
+  public @NonNull Object read(
     @NonNull DataBuf source,
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    // ensure that the given type is a class & unwrap
-    Preconditions.checkState(type instanceof Class<?>, "Cannot call data class serializer on non-class");
-    var clazz = (Class<?>) type;
-    // check if the type is an array
-    if (clazz.isArray()) {
-      return this.readArray(source, clazz, caller);
+    if (!(type instanceof Class<?> clazz)) {
+      throw new IllegalArgumentException("data class serializer called with non-class type");
     }
-    // get the class information and deserialize the object
-    return this.dataClassInformationCache.get(type).instanceCreator().makeInstance(source, caller);
+
+    if (clazz.isArray()) {
+      // type is an array, deserialize each element
+      var arraySize = source.readInt();
+      var componentType = clazz.getComponentType();
+      var targetArray = Array.newInstance(componentType, arraySize);
+      for (var index = 0; index < arraySize; index++) {
+        var deserializedValue = caller.readObject(source, componentType);
+        Array.set(targetArray, index, deserializedValue);
+      }
+
+      return targetArray;
+    } else {
+      // not an array, deserialize if possible
+      ensureClassIsInstantiable(clazz);
+      var dataClassCodec = this.dataClassCodecCache.get(clazz, this::createDataClassCodec);
+      return dataClassCodec.deserialize(source, caller);
+    }
   }
 
   /**
@@ -67,56 +100,69 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    // ensure that the given type is a class & unwrap
-    Preconditions.checkState(type instanceof Class<?>, "Cannot call data class serializer on non-class");
-    var clazz = (Class<?>) type;
-    // check if the type is an array
+    if (!(type instanceof Class<?> clazz)) {
+      throw new IllegalArgumentException("data class serializer called with non-class type");
+    }
+
     if (clazz.isArray()) {
-      this.writeArray(dataBuf, object, caller);
-      return;
+      // type is an array, serialize each element
+      var arrayLength = Array.getLength(object);
+      dataBuf.writeInt(arrayLength);
+      for (var index = 0; index < arrayLength; index++) {
+        var entry = Array.get(object, index);
+        caller.writeObject(dataBuf, entry);
+      }
+    } else {
+      // not an array, serialize if possible
+      ensureClassIsInstantiable(clazz);
+      var dataClassCodec = this.dataClassCodecCache.get(clazz, this::createDataClassCodec);
+      dataClassCodec.serialize(dataBuf, caller, object);
     }
-    // get the class information and serialize the object
-    this.dataClassInformationCache.get(type).informationWriter().writeInformation(dataBuf, object, caller);
   }
 
   /**
-   * Reads an array from the given data buf source.
+   * Generates the data class codec for the given target type. The result of the method is cached, and should not be
+   * called directly due to some heavy work that is required to construct the data class codec.
    *
-   * @param source the buffer to read the array from.
-   * @param clazz  the type of the array to read.
-   * @param caller the object mapper used for deserialization of the entries.
-   * @return the read array from the buffer.
-   * @throws NullPointerException if either the given buffer, type or object mapper is null.
+   * @param targetType the target type to construct the data class codec for.
+   * @return the generated data class codec for the given target type.
+   * @throws IllegalStateException if the given target type is missing an all-args constructor.
+   * @throws NullPointerException  if the given target type is null.
    */
-  protected @Nullable Object readArray(@NonNull DataBuf source, @NonNull Class<?> clazz, @NonNull ObjectMapper caller) {
-    // read the array component type information
-    var arrayType = clazz.getComponentType();
-    // read the serialized array information
-    var size = source.readInt();
-    var array = Array.newInstance(arrayType, size);
-    // read the objects of the component type from the buffer
-    for (var i = 0; i < size; i++) {
-      Array.set(array, i, caller.readObject(source, arrayType));
-    }
-    // read done, return
-    return array;
-  }
+  private @NonNull DataClassCodec createDataClassCodec(@NonNull Class<?> targetType) {
+    // traverse class hierarchy, in order
+    var currentTarget = targetType;
+    List<Field> allFields = new ArrayList<>();    // all fields found in the hierarchy
+    List<Class<?>> hierarchy = new ArrayList<>(); // the complete class hierarchy
+    do {
+      hierarchy.add(currentTarget);
+      var fields = currentTarget.getDeclaredFields();
+      for (var field : fields) {
+        var modifiers = field.getModifiers();
+        if (field.isSynthetic()
+          || Modifier.isStatic(modifiers)
+          || Modifier.isTransient(modifiers)
+          || field.isAnnotationPresent(RPCIgnore.class)) {
+          // field is ignored
+          continue;
+        }
 
-  /**
-   * Writes the given array to the given data buffer.
-   *
-   * @param dataBuf the buffer to write the array to.
-   * @param object  the array to write.
-   * @param caller  the object mapper to serialize the array to.
-   * @throws NullPointerException if the given buffer, array or object mapper is null.
-   */
-  protected void writeArray(@NonNull DataBuf.Mutable dataBuf, @NonNull Object object, @NonNull ObjectMapper caller) {
-    // read the array information
-    var arraySize = Array.getLength(object);
-    // write the information about the array into the buffer
-    dataBuf.writeInt(arraySize);
-    for (var i = 0; i < arraySize; i++) {
-      caller.writeObject(dataBuf, Array.get(object, i));
+        allFields.add(field); // keep insertion order
+      }
+    } while ((currentTarget = currentTarget.getSuperclass()) != Object.class);
+
+    // ensure that the target constructor for invocation exists
+    var fieldTypes = allFields.stream().map(Field::getType).toArray(Class<?>[]::new);
+    try {
+      targetType.getDeclaredConstructor(fieldTypes);
+    } catch (NoSuchMethodException _) {
+      var paramTypeNames = Arrays.stream(fieldTypes).map(Class::getName).toList();
+      throw new IllegalStateException(String.format(
+        "%s does not have a constructor with with param types %s",
+        targetType.getName(), paramTypeNames));
     }
+
+    // generate the class codec
+    return DataClassCodecGenerator.generateClassCodec(allFields, hierarchy);
   }
 }

@@ -24,7 +24,10 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation which can be added to a field to indicate when generating a data class serializer, that a specific
- * method should be used as the getter rather than either a direct field access or the best matching method.
+ * method should be used as the getter rather than either a direct field access. The field provided in this annotation
+ * <strong>MUST BE</strong> declared in the same class that is declaring the annotated field. The value returned by the
+ * getter must be the value that should be written into the field on the remote side. The getter method must return the
+ * same type as the field type.
  *
  * @since 4.0
  */

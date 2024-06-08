@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.network.rpc.defaults.object.serializers;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
@@ -32,11 +31,11 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
+public final class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
 
-  private final LoadingCache<Type, Object[]> enumConstantCache = Caffeine.newBuilder()
-    .expireAfterAccess(Duration.ofMinutes(30))
-    .build(type -> ((Class<?>) type).getEnumConstants());
+  private final LoadingCache<Class<?>, Object[]> enumConstantCache = Caffeine.newBuilder()
+    .expireAfterAccess(Duration.ofHours(8))
+    .build(Class::getEnumConstants);
 
   /**
    * {@inheritDoc}
@@ -47,13 +46,14 @@ public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    // ensure that the method was called using a class as the type
-    Preconditions.checkState(type instanceof Class<?>, "Called enum read method without proving a class as type");
-    // get the cached enum constants of the class
-    var enumConstants = this.enumConstantCache.get(type);
-    // get the constant associated with the ordinal index
-    var ordinal = source.readInt();
-    return ordinal >= enumConstants.length ? null : (Enum<?>) enumConstants[ordinal];
+    if (!(type instanceof Class<?> clazz) || !clazz.isEnum()) {
+      throw new IllegalArgumentException("enum serializer called with non-enum type");
+    }
+
+    // get the index of the enum constant & the actual constants of the enum class
+    var enumConstantIndex = source.readInt();
+    var enumConstants = this.enumConstantCache.get(clazz);
+    return enumConstantIndex >= enumConstants.length ? null : (Enum<?>) enumConstants[enumConstantIndex];
   }
 
   /**

@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  * @param <T> the type of data to write/read from the buffer.
  * @since 4.0
  */
-public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
+public final class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
 
   private final Function<DataBuf, T> reader;
   private final BiConsumer<DataBuf.Mutable, T> writer;
@@ -43,7 +43,7 @@ public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
    * @param writer the writer which writes the given data to the buffer.
    * @throws NullPointerException if either the writer or reader is null.
    */
-  protected FunctionalObjectSerializer(
+  private FunctionalObjectSerializer(
     @NonNull Function<DataBuf, T> reader,
     @NonNull BiConsumer<DataBuf.Mutable, T> writer
   ) {

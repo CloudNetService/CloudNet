@@ -34,6 +34,7 @@ public record RPCMethodMetadata(
   boolean executionResultIgnored,
   @NonNull String name,
   @NonNull Type returnType,
+  @NonNull Type[] parameterTypes,
   @NonNull MethodType methodType,
   @NonNull Class<?> definingClass,
   @Nullable Duration executionTimeout
@@ -54,6 +55,7 @@ public record RPCMethodMetadata(
       executionResultIgnored,
       method.getName(),
       method.getGenericReturnType(),
+      method.getGenericParameterTypes(),
       methodType,
       method.getDeclaringClass(),
       rpcTimeout);

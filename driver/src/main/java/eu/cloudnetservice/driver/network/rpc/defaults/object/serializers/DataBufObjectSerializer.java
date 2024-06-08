@@ -21,14 +21,13 @@ import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An object serializer to write a data buf into the outbound buffer.
  *
  * @since 4.0
  */
-public class DataBufObjectSerializer implements ObjectSerializer<DataBuf> {
+public final class DataBufObjectSerializer implements ObjectSerializer<DataBuf> {
 
   /**
    * {@inheritDoc}
@@ -47,7 +46,7 @@ public class DataBufObjectSerializer implements ObjectSerializer<DataBuf> {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Object read(
+  public @NonNull Object read(
     @NonNull DataBuf source,
     @NonNull Type type,
     @NonNull ObjectMapper caller

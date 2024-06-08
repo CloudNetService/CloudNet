@@ -24,29 +24,34 @@ import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An object serializer which can write and read a json document to/from the buffer.
  *
  * @since 4.0
  */
-public class DocumentObjectSerializer implements ObjectSerializer<Document> {
+public final class DocumentObjectSerializer implements ObjectSerializer<Document> {
+
+  private final DocumentFactoryRegistry documentFactoryRegistry;
+
+  /**
+   * Constructs a new document object serializer instance.
+   */
+  public DocumentObjectSerializer() {
+    this.documentFactoryRegistry = InjectionLayer.boot().instance(DocumentFactoryRegistry.class);
+  }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Object read(
+  public @NonNull Object read(
     @NonNull DataBuf source,
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
     var documentFactoryName = source.readString();
-    var documentFactoryRegistry = InjectionLayer.boot().instance(DocumentFactoryRegistry.class);
-
-    // get the document factory for the document and construct the document
-    var documentFactory = documentFactoryRegistry.documentFactory(documentFactoryName);
+    var documentFactory = this.documentFactoryRegistry.documentFactory(documentFactoryName);
     return documentFactory.parse(source);
   }
 

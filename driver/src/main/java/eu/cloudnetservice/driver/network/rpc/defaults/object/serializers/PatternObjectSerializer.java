@@ -22,20 +22,19 @@ import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.util.regex.Pattern;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An object serializer which can write and read a pattern from/to a buffer.
  *
  * @since 4.0
  */
-public class PatternObjectSerializer implements ObjectSerializer<Pattern> {
+public final class PatternObjectSerializer implements ObjectSerializer<Pattern> {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Object read(@NonNull DataBuf source, @NonNull Type type, @NonNull ObjectMapper caller) {
+  public @NonNull Object read(@NonNull DataBuf source, @NonNull Type type, @NonNull ObjectMapper caller) {
     return Pattern.compile(source.readString());
   }
 
