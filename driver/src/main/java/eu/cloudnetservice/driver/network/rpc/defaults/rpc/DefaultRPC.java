@@ -45,16 +45,16 @@ import org.jetbrains.annotations.UnknownNullability;
  *
  * @since 4.0
  */
-public class DefaultRPC extends DefaultRPCProvider implements RPC {
+public final class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   private final RPCSender sender;
   private final Supplier<NetworkChannel> channelSupplier;
 
-  private final Duration executionTimeout;
+  private final Object[] arguments;
   private final RPCMethodMetadata targetMethod;
 
-  private final Object[] arguments;
-  private boolean resultExpectation;
+  private boolean dropResult;
+  private Duration executionTimeout;
 
   public DefaultRPC(
     @NonNull Class<?> targetClass,
@@ -74,7 +74,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     this.targetMethod = targetMethod;
 
     this.arguments = arguments;
-    this.resultExpectation = !targetMethod.executionResultIgnored();
+    this.dropResult = targetMethod.executionResultIgnored();
   }
 
   /**
@@ -82,7 +82,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull RPCChain join(@NonNull RPC rpc) {
-    return new DefaultRPCChain(this, rpc);
+    return DefaultRPCChain.of(this, rpc, this.channelSupplier);
   }
 
   /**
@@ -137,8 +137,8 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull RPC disableResultExpectation() {
-    this.resultExpectation = false;
+  public @NonNull RPC timeout(@Nullable Duration timeout) {
+    this.executionTimeout = timeout;
     return this;
   }
 
@@ -146,8 +146,25 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    * {@inheritDoc}
    */
   @Override
-  public boolean expectsResult() {
-    return this.resultExpectation;
+  public @Nullable Duration timeout() {
+    return this.executionTimeout;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull RPC dropResult() {
+    this.dropResult = true;
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean resultDropped() {
+    return this.dropResult;
   }
 
   /**
@@ -185,7 +202,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public void fireAndForget(@NonNull NetworkChannel component) {
-    this.disableResultExpectation().fireSync(component);
+    this.dropResult().fireSync(component);
   }
 
   /**
@@ -217,31 +234,31 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   public @NonNull <T> Task<T> fire(@NonNull NetworkChannel component) {
     // write the information about the RPC into a buffer
     var dataBuf = this.dataBufFactory.createEmpty()
-      .writeBoolean(false) // not a method chain
+      .writeInt(1) // single RPC
       .writeString(this.className())
       .writeString(this.methodName())
-      .writeString(this.methodDescriptor())
-      .writeBoolean(this.resultExpectation)
-      .writeInt(this.arguments.length);
+      .writeString(this.methodDescriptor());
     for (var argument : this.arguments) {
       this.objectMapper.writeObject(dataBuf, argument);
     }
 
-    if (this.resultExpectation) {
-      // send a query in case the result should be returned to the user & apply the requested timeout to it
+    if (this.dropResult) {
+      // no result expected: send the RPC request (not a query) and just return a completed future
+      component.sendPacket(new RPCRequestPacket(dataBuf));
+      return Task.completedTask(null);
+    } else {
+      // result is expected: send a query to the target network component and return the future so that
+      // the caller can decide how to wait for the result
       CompletableFuture<T> queryFuture = component
         .sendQueryAsync(new RPCRequestPacket(dataBuf))
         .thenApply(new RPCResultMapper<>(this.expectedResultType(), this.objectMapper));
       if (this.executionTimeout != null) {
+        // apply the requested timeout
         var timeoutMillis = this.executionTimeout.toMillis();
         queryFuture = queryFuture.orTimeout(timeoutMillis, TimeUnit.MILLISECONDS);
       }
 
       return Task.wrapFuture(queryFuture);
-    } else {
-      // no result expected: send the RPC request and just return a completed future after
-      component.sendPacket(new RPCRequestPacket(dataBuf));
-      return Task.completedTask(null);
     }
   }
 }

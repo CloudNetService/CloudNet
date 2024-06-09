@@ -44,22 +44,21 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
+final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
 
   private static final Logger LOGGER = LogManager.logger(DefaultRPCHandler.class);
 
-  protected final Object boundInstance;
-  protected final RPCClassMetadata targetClassMeta;
-  protected final Cache<RPCMethodMetadata, MethodInvoker> methodInvokerCache;
+  private final Object boundInstance;
+  private final RPCClassMetadata targetClassMeta;
+  private final Cache<RPCMethodMetadata, MethodInvoker> methodInvokerCache;
 
-  public DefaultRPCHandler(
-    @NonNull Class<?> targetClass,
+  DefaultRPCHandler(
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory,
     @Nullable Object boundInstance,
     @NonNull RPCClassMetadata targetClassMeta
   ) {
-    super(targetClass, objectMapper, dataBufFactory);
+    super(targetClassMeta.targetClass(), objectMapper, dataBufFactory);
     this.boundInstance = boundInstance;
     this.targetClassMeta = targetClassMeta;
     this.methodInvokerCache = Caffeine.newBuilder()
@@ -151,7 +150,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
    * @return a method invoker for the given target method.
    * @throws NullPointerException if the given method metadata is null.
    */
-  protected @NonNull Try<MethodInvoker> getOrCreateMethodInvoker(@NonNull RPCMethodMetadata methodMetadata) {
+  private @NonNull Try<MethodInvoker> getOrCreateMethodInvoker(@NonNull RPCMethodMetadata methodMetadata) {
     return Try.of(() -> this.methodInvokerCache.get(methodMetadata, MethodInvokerGenerator::makeMethodInvoker));
   }
 
@@ -165,7 +164,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
    * @return an array containing the deserialized method arguments, null if the buffer contained bad argument data.
    * @throws NullPointerException if the given target method or argument buffer is null.
    */
-  protected @Nullable Object[] deserializeMethodArguments(
+  private @Nullable Object[] deserializeMethodArguments(
     @NonNull RPCMethodMetadata targetMethod,
     @NonNull DataBuf encodedArgumentsBuffer
   ) {

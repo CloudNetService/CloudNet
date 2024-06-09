@@ -32,7 +32,7 @@ public interface RPCChain extends RPCProvider, RPCExecutable, ChainableRPC {
    *
    * @return the last call in the rpc chain.
    */
-  @NonNull RPC head();
+  @NonNull RPC tail();
 
   /**
    * Get all joins of the rpc in the order in which they get called. The first call in the chain will be the first

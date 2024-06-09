@@ -17,15 +17,14 @@
 package eu.cloudnetservice.driver.network.rpc.introspec;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCTimeout;
 import java.lang.invoke.TypeDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import lombok.NonNull;
@@ -36,15 +35,22 @@ public final class RPCClassMetadata {
   private final Class<?> target;
   private final Duration rpcTimeout;
 
-  private final Map<String, RPCFieldMetadata> fields;             // name -> field
   private final Table<String, String, RPCMethodMetadata> methods; // name, desc -> method
 
   private RPCClassMetadata(@NonNull Class<?> target) {
     this.target = target;
     this.rpcTimeout = parseRPCTimeout(target.getAnnotation(RPCTimeout.class));
-
-    this.fields = new HashMap<>();
     this.methods = HashBasedTable.create();
+  }
+
+  private RPCClassMetadata(
+    @NonNull Class<?> target,
+    @NonNull Duration rpcTimeout,
+    @NonNull Table<String, String, RPCMethodMetadata> methods
+  ) {
+    this.target = target;
+    this.rpcTimeout = rpcTimeout;
+    this.methods = methods;
   }
 
   static @Nullable Duration parseRPCTimeout(@Nullable RPCTimeout annotation) {
@@ -60,29 +66,17 @@ public final class RPCClassMetadata {
 
   public static @NonNull RPCClassMetadata introspect(@NonNull Class<?> target) {
     var metadata = new RPCClassMetadata(target);
-    metadata.introspectFields(target);
     metadata.introspectMethods(target);
     return metadata;
   }
 
-  private void introspectFields(@NonNull Class<?> target) {
-    for (var field : target.getDeclaredFields()) {
-      if (!Modifier.isStatic(field.getModifiers())) {
-        var metadata = RPCFieldMetadata.fromField(field);
-        var previous = this.fields.putIfAbsent(field.getName(), metadata);
-        if (previous != null) {
-          // require each field name to be unique within the tree
-          throw new IllegalStateException("detected duplicate field in tree: " + field.getName());
-        }
-      }
-    }
-
-    // introspect fields from super classes/interfaces
-    this.introspectSuper(target, this::introspectFields);
-  }
-
   private void introspectMethods(@NonNull Class<?> target) {
     for (var method : target.getDeclaredMethods()) {
+      if (method.isSynthetic()) {
+        // skip compiler generated methods
+        continue;
+      }
+
       // ignore members that cannot be overridden anyway
       if (this.methodVisibleToRoot(method)) {
         var metadata = RPCMethodMetadata.fromMethod(method);
@@ -91,6 +85,10 @@ public final class RPCClassMetadata {
           // only register each method once, starting at the highest point in the tree
           this.methods.put(metadata.name(), methodDescriptor, metadata);
         }
+      } else if (Modifier.isAbstract(method.getModifiers())) {
+        throw new IllegalStateException(String.format(
+          "Detected abstract method %s in %s that is not visible to root type %s",
+          method.getName(), method.getDeclaringClass().getName(), this.target.getName()));
       }
     }
 
@@ -108,6 +106,11 @@ public final class RPCClassMetadata {
     if (Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers)) {
       // the method is always accessible to the target class in case it's public or protected
       return true;
+    }
+
+    if (Modifier.isPrivate(modifiers)) {
+      // private members in other classes are never visible to our root
+      return false;
     }
 
     // check if the method and introspecting class are in the same package
@@ -137,8 +140,9 @@ public final class RPCClassMetadata {
     return this.rpcTimeout;
   }
 
-  public @Nullable RPCFieldMetadata findField(@NonNull String name) {
-    return this.fields.get(name);
+  // @throws UnsupportedOperationException
+  public void unregisterMethod(@NonNull String name, @NonNull TypeDescriptor typeDescriptor) {
+    this.methods.remove(name, typeDescriptor.descriptorString());
   }
 
   public @Nullable RPCMethodMetadata findMethod(@NonNull String name, @NonNull TypeDescriptor typeDescriptor) {
@@ -147,5 +151,10 @@ public final class RPCClassMetadata {
 
   public @NonNull List<RPCMethodMetadata> findMethods(@NonNull Predicate<RPCMethodMetadata> filter) {
     return this.methods.values().stream().filter(filter).toList();
+  }
+
+  public @NonNull RPCClassMetadata freeze() {
+    var frozenMethods = ImmutableTable.copyOf(this.methods);
+    return new RPCClassMetadata(this.target, this.rpcTimeout, frozenMethods);
   }
 }

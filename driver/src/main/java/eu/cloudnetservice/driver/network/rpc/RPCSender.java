@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.network.rpc;
 
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkComponent;
-import java.lang.invoke.MethodType;
+import java.lang.invoke.TypeDescriptor;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
@@ -43,7 +43,7 @@ public interface RPCSender extends RPCProvider {
   RPC invokeMethod(@NonNull String methodName, Object... args);
 
   @NonNull
-  RPC invokeMethod(@NonNull String methodName, @NonNull MethodType methodDesc, Object... args);
+  RPC invokeMethod(@NonNull String methodName, @NonNull TypeDescriptor methodDesc, Object... args);
 
   /**
    * A builder for an RPC sender which can be obtained from an RPC factory.
@@ -102,7 +102,7 @@ public interface RPCSender extends RPCProvider {
      */
     @NonNull
     @Contract("_, _ -> this")
-    Builder excludeMethod(@NonNull String name, @NonNull MethodType methodDescriptor);
+    Builder excludeMethod(@NonNull String name, @NonNull TypeDescriptor methodDescriptor);
 
     /**
      * Validates the options and target class provided to this builder and constructs the final sender instance in case

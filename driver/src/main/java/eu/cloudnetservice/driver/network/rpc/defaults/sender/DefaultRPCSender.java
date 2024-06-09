@@ -25,48 +25,54 @@ import eu.cloudnetservice.driver.network.rpc.defaults.rpc.DefaultRPC;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
-import java.lang.invoke.MethodType;
+import java.lang.invoke.TypeDescriptor;
 import java.util.function.Supplier;
 import lombok.NonNull;
 
 /**
- * The default implementation of a rpc sender.
+ * The default implementation of an RPC sender.
  *
  * @since 4.0
  */
-public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
+final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
-  protected static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+  private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
-  protected final RPCClassMetadata rpcTargetMeta;
-  protected final Supplier<NetworkChannel> channelSupplier;
+  private final RPCClassMetadata rpcTargetMeta;
+  private final Supplier<NetworkChannel> channelSupplier;
 
   /**
-   * Constructs a new default rpc provider instance.
+   * Constructs a new default rpc sender instance.
    *
-   * @param targetClass    the target class of method calls handled by this provider.
-   * @param objectMapper   the object mapper to use to write and read data from the buffers.
-   * @param dataBufFactory the buffer factory used for buffer allocations.
-   * @throws NullPointerException if the given class, object mapper or data buf factory is null.
+   * @param objectMapper    the object mapper to use to write and read data from the buffers.
+   * @param dataBufFactory  the buffer factory used for buffer allocations.
+   * @param rpcTargetMeta   the metadata of the target class handled by this sender.
+   * @param channelSupplier the channel supplier for RPCs without a specified target channel.
+   * @throws NullPointerException if one of the given parameters is null.
    */
-  protected DefaultRPCSender(
-    @NonNull Class<?> targetClass,
+  DefaultRPCSender(
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory,
     @NonNull RPCClassMetadata rpcTargetMeta,
     @NonNull Supplier<NetworkChannel> channelSupplier
   ) {
-    super(targetClass, objectMapper, dataBufFactory);
+    super(rpcTargetMeta.targetClass(), objectMapper, dataBufFactory);
     this.rpcTargetMeta = rpcTargetMeta;
     this.channelSupplier = channelSupplier;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPC invokeCaller(Object... args) {
     // offset must be 1 to skip this method
     return this.invokeCaller(1, args);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPC invokeCaller(int callerStackOffset, Object... args) {
     // offset + 1 to skip this method
@@ -76,6 +82,9 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
     return this.invokeMethod(callerFrame.getMethodName(), callerFrame.getMethodType(), args);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPC invokeMethod(@NonNull String methodName, Object... args) {
     // try to find a unique method with the given name and param count
@@ -84,38 +93,53 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
       return meta.name().equals(methodName) && methodType.parameterCount() == args.length;
     });
     if (matchingMethods.size() != 1) {
-      throw new IllegalArgumentException("Cannot find distinct method to call in "
-        + this.targetClass.getSimpleName()
-        + " " + methodName + " (" + args.length + " parameters)");
+      throw new IllegalArgumentException(String.format(
+        "Cannot find distinct method to call in %s [searched for %s(%d params)], found %d matches",
+        this.targetClass.getName(), methodName, args.length, matchingMethods.size()));
     }
 
     return this.invokeMethod(matchingMethods.getFirst(), args);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @NonNull RPC invokeMethod(@NonNull String methodName, @NonNull MethodType methodDesc, Object... args) {
+  public @NonNull RPC invokeMethod(@NonNull String methodName, @NonNull TypeDescriptor methodDesc, Object... args) {
     // try to find a valid method meta based on the given name & method descriptor
     var methodMeta = this.rpcTargetMeta.findMethod(methodName, methodDesc);
     if (methodMeta == null) {
-      throw new IllegalArgumentException(
-        "Cannot find method " + methodName + methodDesc + " in " + this.targetClass.getSimpleName());
+      throw new IllegalArgumentException(String.format(
+        "Cannot find a method matching %s%s in %s",
+        methodName, methodDesc.descriptorString(), this.targetClass.getName()));
     }
 
     return this.invokeMethod(methodMeta, args);
   }
 
+  /**
+   * Creates a new RPC to call the given target method with the given arguments.
+   *
+   * @param method the metadata of the method that should be called.
+   * @param args   the arguments of to supply to the target method.
+   * @return a new RPC instance targeting the given methods with the given arguments.
+   * @throws NullPointerException     if the given method metadata or argument array is null.
+   * @throws IllegalArgumentException if the given method is ignored or the parameter count mismatches.
+   */
   private @NonNull RPC invokeMethod(@NonNull RPCMethodMetadata method, Object... args) {
     if (method.ignored()) {
       // method was explicitly ignored, deny calling it
-      throw new IllegalArgumentException(
-        "Cannot invoke method method " + method.descriptorString() + " as it was explicitly ignored");
+      throw new IllegalArgumentException(String.format(
+        "Cannot invoke method method %s as it was explicitly ignored",
+        method.descriptorString()));
     }
 
     var expectedArgCount = method.methodType().parameterCount();
     if (expectedArgCount != args.length) {
       // argument count for invocation does not match
-      throw new IllegalArgumentException(
-        "Invalid argument count passed for method invocation. Expected " + expectedArgCount + ", got " + args.length);
+      throw new IllegalArgumentException(String.format(
+        "Invalid argument count passed for method invocation. Expected %d, got %d",
+        expectedArgCount, args.length));
     }
 
     // resolve execution timeout, if not present no timeout is applied

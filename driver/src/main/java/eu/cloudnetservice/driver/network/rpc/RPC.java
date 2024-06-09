@@ -17,7 +17,9 @@
 package eu.cloudnetservice.driver.network.rpc;
 
 import java.lang.reflect.Type;
+import java.time.Duration;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The basic rpc class. A rpc holds all information about what should be called on the receiver site of the rpc and
@@ -90,18 +92,37 @@ public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
   Type expectedResultType();
 
   /**
+   * Sets the timeout that should be applied to the RPC. The default value is derived from the target in the target
+   * class (using the {@link eu.cloudnetservice.driver.network.rpc.annotation.RPCTimeout} annotation). If no timeout is
+   * set, the fire methods will wait for a method result forever.
+   *
+   * @param timeout the timeout to apply to the method invocation.
+   * @return this RPC, for chaining.
+   */
+  @NonNull
+  RPC timeout(@Nullable Duration timeout);
+
+  /**
+   * Get the timeout that is applied to this RPC, if any.
+   *
+   * @return the timeout applied to this RPC.
+   */
+  @Nullable
+  Duration timeout();
+
+  /**
    * Disables that this rpc is waiting for a result from the target network component. By default, the current component
    * will always wait for the target method to be executed on the receiver site, event if the method returns void.
    *
    * @return the same instance used to call the method, for chaining.
    */
   @NonNull
-  RPC disableResultExpectation();
+  RPC dropResult();
 
   /**
-   * Get if this rpc expects a result from the network component the invoke request is sent to.
+   * Get whether the result of the method call is discarded and the execution of the method should not be waited for.
    *
-   * @return true if the current rpc expects a result from the target network component, false otherwise.
+   * @return true if the result of this RPC gets discarded, false otherwise.
    */
-  boolean expectsResult();
+  boolean resultDropped();
 }
