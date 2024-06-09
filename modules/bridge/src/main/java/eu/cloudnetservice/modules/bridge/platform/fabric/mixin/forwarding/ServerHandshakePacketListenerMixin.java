@@ -25,11 +25,13 @@ import java.net.InetSocketAddress;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
+import net.minecraft.network.protocol.login.LoginProtocols;
 import net.minecraft.server.network.ServerHandshakePacketListenerImpl;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,7 +49,8 @@ public final class ServerHandshakePacketListenerMixin {
   private static final Gson GSON = new Gson();
   @Unique
   private static final Component IP_INFO_MISSING = Component.literal(
-    "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!");
+      "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!")
+    .withStyle(ChatFormatting.RED);
 
   @Final
   @Shadow
@@ -71,6 +74,10 @@ public final class ServerHandshakePacketListenerMixin {
           bridged.forwardedProfile(GSON.fromJson(split[3], Property[].class));
         }
       } else {
+        // we want to disconnect the player, therefore we have to set the outbound protocol as this is usually
+        // happening later in the packet handling process
+        this.connection.setupOutboundProtocol(LoginProtocols.CLIENTBOUND);
+
         // disconnect will not send the packet - it will just close the channel and set the disconnect reason
         this.connection.send(new ClientboundLoginDisconnectPacket(IP_INFO_MISSING));
         this.connection.disconnect(IP_INFO_MISSING);
