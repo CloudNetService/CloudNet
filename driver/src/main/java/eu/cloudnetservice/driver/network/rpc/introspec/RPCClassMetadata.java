@@ -19,12 +19,15 @@ package eu.cloudnetservice.driver.network.rpc.introspec;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCIgnore;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCTimeout;
 import java.lang.invoke.TypeDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import lombok.NonNull;
@@ -54,23 +57,21 @@ public final class RPCClassMetadata {
   }
 
   static @Nullable Duration parseRPCTimeout(@Nullable RPCTimeout annotation) {
-    if (annotation == null) {
-      return null;
-    } else if (annotation.timeout() == 0L) {
-      return Duration.ZERO;
-    } else {
+    if (annotation != null && annotation.timeout() >= 1) {
       var timeoutUnit = annotation.unit().toChronoUnit();
       return Duration.of(annotation.timeout(), timeoutUnit);
+    } else {
+      return null;
     }
   }
 
   public static @NonNull RPCClassMetadata introspect(@NonNull Class<?> target) {
     var metadata = new RPCClassMetadata(target);
-    metadata.introspectMethods(target);
+    metadata.introspectMethods(target, new HashSet<>());
     return metadata;
   }
 
-  private void introspectMethods(@NonNull Class<?> target) {
+  private void introspectMethods(@NonNull Class<?> target, @NonNull Set<Class<?>> visitedClasses) {
     for (var method : target.getDeclaredMethods()) {
       if (method.isSynthetic()) {
         // skip compiler generated methods
@@ -78,7 +79,7 @@ public final class RPCClassMetadata {
       }
 
       // ignore members that cannot be overridden anyway
-      if (this.methodVisibleToRoot(method)) {
+      if (this.methodVisibleToRoot(method) && !method.isAnnotationPresent(RPCIgnore.class)) {
         var metadata = RPCMethodMetadata.fromMethod(method);
         var methodDescriptor = metadata.methodType().descriptorString();
         if (!this.methods.contains(metadata.name(), methodDescriptor)) {
@@ -93,15 +94,10 @@ public final class RPCClassMetadata {
     }
 
     // introspect methods from super classes/interfaces
-    this.introspectSuper(target, this::introspectMethods);
+    this.introspectSuper(target, visitedClasses, clazz -> this.introspectMethods(clazz, visitedClasses));
   }
 
   private boolean methodVisibleToRoot(@NonNull Method method) {
-    if (this.target == method.getDeclaringClass()) {
-      // methods that are defined in the same class as our target can always be accessed directly
-      return true;
-    }
-
     var modifiers = method.getModifiers();
     if (Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers)) {
       // the method is always accessible to the target class in case it's public or protected
@@ -119,16 +115,24 @@ public final class RPCClassMetadata {
     return introspectingPackage == declaringPackage;
   }
 
-  private void introspectSuper(@NonNull Class<?> target, @NonNull Consumer<Class<?>> introspectCallback) {
+  private void introspectSuper(
+    @NonNull Class<?> target,
+    @NonNull Set<Class<?>> visitedClasses,
+    @NonNull Consumer<Class<?>> introspectCallback
+  ) {
     // introspect superclass
     var superclass = target.getSuperclass();
     if (superclass != null && superclass != Object.class) {
-      introspectCallback.accept(superclass);
+      if (visitedClasses.add(superclass)) {
+        introspectCallback.accept(superclass);
+      }
     }
 
     // introspect super interfaces
     for (var superInterface : target.getInterfaces()) {
-      introspectCallback.accept(superInterface);
+      if (visitedClasses.add(superInterface)) {
+        introspectCallback.accept(superInterface);
+      }
     }
   }
 

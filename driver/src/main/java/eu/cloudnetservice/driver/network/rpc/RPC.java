@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc;
 
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import lombok.NonNull;
@@ -90,6 +91,14 @@ public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
    */
   @NonNull
   Type expectedResultType();
+
+  /**
+   * Get the full metadata of the target method.
+   *
+   * @return the full metadata of the target method.
+   */
+  @NonNull
+  RPCMethodMetadata targetMethod();
 
   /**
    * Sets the timeout that should be applied to the RPC. The default value is derived from the target in the target

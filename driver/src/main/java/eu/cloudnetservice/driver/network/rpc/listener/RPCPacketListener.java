@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc.listener;
 
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
@@ -27,6 +28,7 @@ import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationContext;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 @Singleton
-public class RPCPacketListener implements PacketListener {
+public final class RPCPacketListener implements PacketListener {
 
   private final RPCHandlerRegistry rpcHandlerRegistry;
 
@@ -74,56 +76,18 @@ public class RPCPacketListener implements PacketListener {
       }
 
       if (rpcDepth > 1) {
-        Object previousMethodReturnValue = null;
-        for (var index = 1; index <= rpcDepth; index++) {
-          // execute the target method based on the provided input
-          var targetClassName = content.readString();
-          var invocationContext = this.buildContext(content, previousMethodReturnValue);
-          var invocationResult = this.postRPCRequestToHandler(targetClassName, invocationContext);
-
-          // handle the invocation result:
-          //   -> continue invoking in case the invocation was successful and returned a non-null result
-          //   -> send back an error when "null" pops up in the middle of the chain
-          //   -> send back the result data in case it was the last invocation or an error occurred
-          var stillWorkTodo = index != rpcDepth;
-          switch (invocationResult) {
-            // set the previous result in case the result is non-null and is not the final invocation
-            case RPCInvocationResult.Success(var result, _, _)
-              when result != null && stillWorkTodo -> previousMethodReturnValue = result;
-            // remap a successful "null" invocation in the middle of the chain to an error
-            case RPCInvocationResult.Success(var result, var handler, var invokedMethod)
-              when result == null && stillWorkTodo -> {
-              if (resultExpected) {
-                var msg = String.format(
-                  "Cannot invoke next method in chain because the return value of %s%s is null",
-                  invokedMethod.name(), invokedMethod.methodType());
-                var exception = new NullPointerException(msg);
-                exception.setStackTrace(RPCExceptionUtil.UNASSIGNED_STACK); // stack of this method has no useful info
-
-                var remappedResult = new RPCInvocationResult.Failure(exception, handler, invokedMethod);
-                var resultContent = this.serializeHandlingResult(remappedResult);
-                this.sendResponseData(channel, packet, resultContent);
-              }
-              return;
-            }
-            // send back a response in case it's the final invocation or the invocation yielded an error
-            case null, default -> {
-              if (resultExpected) {
-                var resultContent = this.serializeHandlingResult(invocationResult);
-                this.sendResponseData(channel, packet, resultContent);
-              }
-              return;
-            }
-          }
-        }
+        // RPC chain, start executing the first step
+        this.executeRPCChainStep(rpcDepth, 1, resultExpected, content, packet, channel, null);
       } else {
         // single method rpc, execute & respond if requested
         var targetClassName = content.readString();
         var invocationContext = this.buildContext(content, null);
-        var handlingResult = this.postRPCRequestToHandler(targetClassName, invocationContext);
+        var handlingTask = this.postRPCRequestToHandler(targetClassName, invocationContext);
         if (resultExpected) {
-          var resultContent = this.serializeHandlingResult(handlingResult);
-          this.sendResponseData(channel, packet, resultContent);
+          this.waitForInvocationCompletion(handlingTask, result -> {
+            var resultContent = this.serializeHandlingResult(result);
+            this.sendResponseData(channel, packet, resultContent);
+          });
         }
       }
     } finally {
@@ -134,12 +98,96 @@ public class RPCPacketListener implements PacketListener {
   }
 
   /**
+   * Waits for the given invocation task to finish, calling the callback if that is the case. The given callback
+   * receives a null value if the given task is null, the task completes exceptionally or with a value of null.
+   *
+   * @param invocationTask the task representing a method invocation process.
+   * @param callback       the callback to call when the invocation finished.
+   * @throws NullPointerException if the given callback is null.
+   */
+  private void waitForInvocationCompletion(
+    @Nullable Task<RPCInvocationResult> invocationTask,
+    @NonNull Consumer<RPCInvocationResult> callback
+  ) {
+    if (invocationTask == null) {
+      // nothing to wait for
+      callback.accept(null);
+    } else {
+      // wait for the completion of the method
+      invocationTask.whenComplete((result, _) -> callback.accept(result));
+    }
+  }
+
+  /**
+   * Executes the next RPC chain step of the current RPC chain.
+   *
+   * @param chainDepth                the full depth of the RPC chain.
+   * @param currentDepth              the current depth the chain execution is at, starting at 1.
+   * @param resultExpected            if the RPC invocation expects a result to be sent back.
+   * @param content                   the data content of the RPC request.
+   * @param request                   the request packet.
+   * @param channel                   the network channel from which the request came.
+   * @param previousMethodReturnValue the chain step invocation return value.
+   * @throws NullPointerException if one of the required non-null arguments is null.
+   */
+  private void executeRPCChainStep(
+    int chainDepth,
+    int currentDepth,
+    boolean resultExpected,
+    @NonNull DataBuf content,
+    @NonNull Packet request,
+    @NonNull NetworkChannel channel,
+    @Nullable Object previousMethodReturnValue
+  ) {
+    // execute the target method based on the provided input
+    var targetClassName = content.readString();
+    var invocationContext = this.buildContext(content, previousMethodReturnValue);
+    var invocationTask = this.postRPCRequestToHandler(targetClassName, invocationContext);
+    this.waitForInvocationCompletion(invocationTask, invocationResult -> {
+      // handle the invocation result:
+      //   -> continue invoking in case the invocation was successful and returned a non-null result
+      //   -> send back an error when "null" pops up in the middle of the chain
+      //   -> send back the result data in case it was the last invocation or an error occurred
+      var stillWorkTodo = currentDepth != chainDepth;
+      switch (invocationResult) {
+        // set the previous result in case the result is non-null and is not the final invocation
+        case RPCInvocationResult.Success(var result, _, _) when result != null && stillWorkTodo -> {
+          var nextChainDepth = currentDepth + 1;
+          this.executeRPCChainStep(chainDepth, nextChainDepth, resultExpected, content, request, channel, result);
+        }
+        // remap a successful "null" invocation in the middle of the chain to an error
+        case RPCInvocationResult.Success(var result, var handler, var invokedMethod)
+          when result == null && stillWorkTodo -> {
+          if (resultExpected) {
+            var msg = String.format(
+              "Cannot invoke next method in chain because the return value of %s%s is null",
+              invokedMethod.name(), invokedMethod.methodType());
+            var exception = new NullPointerException(msg);
+            exception.setStackTrace(RPCExceptionUtil.UNASSIGNED_STACK); // stack of this method has no useful info
+
+            var remappedResult = new RPCInvocationResult.Failure(exception, handler, invokedMethod);
+            var resultContent = this.serializeHandlingResult(remappedResult);
+            this.sendResponseData(channel, request, resultContent);
+          }
+        }
+        // send back a response in case it's the final invocation or the invocation yielded an error
+        case null, default -> {
+          if (resultExpected) {
+            var resultContent = this.serializeHandlingResult(invocationResult);
+            this.sendResponseData(channel, request, resultContent);
+          }
+        }
+      }
+    });
+  }
+
+  /**
    * Serializes the result of the RPC handling process into a data buffer.
    *
    * @param invocationResult the handling result to serialize.
    * @return a buffer containing the response content for the handling result.
    */
-  protected @NonNull DataBuf serializeHandlingResult(@Nullable RPCInvocationResult invocationResult) {
+  private @NonNull DataBuf serializeHandlingResult(@Nullable RPCInvocationResult invocationResult) {
     return switch (invocationResult) {
       // the method invocation cannot be handled because the handler to call is not present
       case null -> DataBuf.empty()
@@ -175,7 +223,7 @@ public class RPCPacketListener implements PacketListener {
    * @param response the encoded response data to send.
    * @throws NullPointerException if the given channel, request packet or response is null.
    */
-  protected void sendResponseData(@NonNull NetworkChannel channel, @NonNull Packet request, @NonNull DataBuf response) {
+  private void sendResponseData(@NonNull NetworkChannel channel, @NonNull Packet request, @NonNull DataBuf response) {
     var responsePacket = request.constructResponse(response);
     channel.sendPacket(responsePacket);
   }
@@ -191,7 +239,7 @@ public class RPCPacketListener implements PacketListener {
    */
   // note: do not change this method name, it's used by RPCExceptionUtil.serializeHandlingException
   // to determine where the internal handling frame cutoff should be
-  private @Nullable RPCInvocationResult postRPCRequestToHandler(
+  private @Nullable Task<RPCInvocationResult> postRPCRequestToHandler(
     @NonNull String targetClassName,
     @NonNull RPCInvocationContext context
   ) {
@@ -213,7 +261,7 @@ public class RPCPacketListener implements PacketListener {
    * @return a generated invocation context based on the given information.
    * @throws NullPointerException if the given content buffer is null.
    */
-  protected @NonNull RPCInvocationContext buildContext(@NonNull DataBuf content, @Nullable Object workingInstance) {
+  private @NonNull RPCInvocationContext buildContext(@NonNull DataBuf content, @Nullable Object workingInstance) {
     // read data from buffer, this must be in order it's written to the buffer
     var methodName = content.readString();
     var methodDescriptor = content.readString();

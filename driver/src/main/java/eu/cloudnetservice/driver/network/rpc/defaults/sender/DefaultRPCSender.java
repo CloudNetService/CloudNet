@@ -124,16 +124,9 @@ final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
    * @param args   the arguments of to supply to the target method.
    * @return a new RPC instance targeting the given methods with the given arguments.
    * @throws NullPointerException     if the given method metadata or argument array is null.
-   * @throws IllegalArgumentException if the given method is ignored or the parameter count mismatches.
+   * @throws IllegalArgumentException if the parameter count mismatches.
    */
   private @NonNull RPC invokeMethod(@NonNull RPCMethodMetadata method, Object... args) {
-    if (method.ignored()) {
-      // method was explicitly ignored, deny calling it
-      throw new IllegalArgumentException(String.format(
-        "Cannot invoke method method %s as it was explicitly ignored",
-        method.descriptorString()));
-    }
-
     var expectedArgCount = method.methodType().parameterCount();
     if (expectedArgCount != args.length) {
       // argument count for invocation does not match

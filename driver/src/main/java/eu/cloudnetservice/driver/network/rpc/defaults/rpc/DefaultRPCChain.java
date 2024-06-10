@@ -145,7 +145,15 @@ public final class DefaultRPCChain extends DefaultRPCProvider implements RPCChai
   public <T> @NonNull T fireSync(@NonNull NetworkChannel component) {
     try {
       Task<T> queryTask = this.fire(component);
-      return queryTask.get();
+      var invocationResult = queryTask.get();
+      if (this.chainTail.targetMethod().asyncReturnType()) {
+        // for async methods the fire method does not return the result wrapped in a Future, it returns the raw
+        // result. therefore for sync invocation we need re-wrap the result into a future as it is the expected type
+        //noinspection unchecked
+        return (T) Task.completedTask(invocationResult);
+      } else {
+        return invocationResult;
+      }
     } catch (ExecutionException exception) {
       if (exception.getCause() instanceof RPCExecutionException rpcExecutionException) {
         // may be thrown when the handler did throw an exception, just rethrow that one

@@ -130,7 +130,15 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull Type expectedResultType() {
-    return this.targetMethod.returnType();
+    return this.targetMethod.unwrappedReturnType();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull RPCMethodMetadata targetMethod() {
+    return this.targetMethod;
   }
 
   /**
@@ -212,7 +220,15 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
   public <T> @Nullable T fireSync(@NonNull NetworkChannel component) {
     try {
       Task<T> queryTask = this.fire(component);
-      return queryTask.get();
+      var invocationResult = queryTask.get();
+      if (this.targetMethod.asyncReturnType()) {
+        // for async methods the fire method does not return the result wrapped in a Future, it returns the raw
+        // result. therefore for sync invocation we need re-wrap the result into a future as it is the expected type
+        //noinspection unchecked
+        return (T) Task.completedTask(invocationResult);
+      } else {
+        return invocationResult;
+      }
     } catch (ExecutionException | CancellationException exception) {
       if (exception.getCause() instanceof RPCExecutionException executionException) {
         // may be thrown when the handler did throw an exception, just rethrow that one
