@@ -35,7 +35,9 @@ public final class PatternObjectSerializer implements ObjectSerializer<Pattern> 
    */
   @Override
   public @NonNull Object read(@NonNull DataBuf source, @NonNull Type type, @NonNull ObjectMapper caller) {
-    return Pattern.compile(source.readString());
+    var flags = source.readInt();
+    var pattern = source.readString();
+    return Pattern.compile(pattern, flags);
   }
 
   /**
@@ -48,6 +50,8 @@ public final class PatternObjectSerializer implements ObjectSerializer<Pattern> 
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    dataBuf.writeString(object.pattern());
+    var flags = object.flags();
+    var pattern = object.pattern();
+    dataBuf.writeInt(flags).writeString(pattern);
   }
 }
