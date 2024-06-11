@@ -118,15 +118,15 @@ public sealed class RPCInternalInstanceFactory {
           constructorHandle);
       } else {
         // construct the parameter types array & insert the static 4 types
-        var pTypeCount = 4 + additionalInstanceFactories.length;
-        var pTypesArray = new Class<?>[pTypeCount];
+        var instanceFactoryCount = additionalInstanceFactories.length;
+        var pTypesArray = new Class<?>[4 + instanceFactoryCount];
         pTypesArray[0] = Supplier.class;
         pTypesArray[1] = RPCSender.class;
         pTypesArray[2] = ChainableRPC.class;
-        pTypesArray[pTypeCount - 1] = Object[].class;
+        pTypesArray[pTypesArray.length - 1] = Object[].class;
 
         // insert the static instance factories parameters N times
-        for (var index = 0; index < pTypeCount; index++) {
+        for (var index = 0; index < instanceFactoryCount; index++) {
           pTypesArray[3 + index] = RPCInternalInstanceFactory.class;
         }
 
