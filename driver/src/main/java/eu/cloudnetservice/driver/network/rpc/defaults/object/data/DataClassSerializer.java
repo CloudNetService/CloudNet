@@ -52,7 +52,12 @@ public final class DataClassSerializer implements ObjectSerializer<Object> {
    * @throws NullPointerException     if the given class is null.
    */
   private static void ensureClassIsInstantiable(@NonNull Class<?> clazz) {
-    var notInstantiable = clazz.isPrimitive() || clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
+    var notInstantiable = clazz.isPrimitive()
+      || clazz.isHidden()
+      || clazz.isInterface()
+      || clazz.isLocalClass()
+      || clazz.isAnonymousClass()
+      || Modifier.isAbstract(clazz.getModifiers());
     if (notInstantiable) {
       throw new IllegalArgumentException(String.format("class %s is not instantiable", clazz.getName()));
     }

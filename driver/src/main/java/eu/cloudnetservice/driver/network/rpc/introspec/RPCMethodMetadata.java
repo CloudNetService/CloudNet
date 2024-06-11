@@ -143,19 +143,11 @@ public record RPCMethodMetadata(
     if (chainBaseImpl != null) {
       // base impl will be used for generation, validate that instead of the raw return type
       RPCClassMetadata.validateTargetClass(chainBaseImpl);
-      if (chainBaseImpl.isSealed() || chainBaseImpl.isRecord()) {
-        throw new IllegalStateException(String.format(
-          "cannot implement class %s returned from %s in %s for chained rpc invocations: class is a record or sealed",
-          method.getName(), method.getDeclaringClass().getName(), chainBaseImpl.getName()));
-      }
+      validateChainBaseClass(method, chainBaseImpl);
     } else {
       // base impl not present, validate the raw return type
       RPCClassMetadata.validateTargetClass(rawReturnType);
-      if (rawReturnType.isSealed() || rawReturnType.isRecord()) {
-        throw new IllegalStateException(String.format(
-          "cannot implement class %s returned from %s in %s for chained rpc invocations: class is a record or sealed",
-          method.getName(), method.getDeclaringClass().getName(), rawReturnType.getName()));
-      }
+      validateChainBaseClass(method, rawReturnType);
     }
 
     // partly validate the chain parameter mappings
@@ -204,6 +196,30 @@ public record RPCMethodMetadata(
 
     var generationFlags = chainAnnotation.generationFlags();
     return new MethodChainMetadata(generationFlags, parameterMappings, chainBaseImpl);
+  }
+
+  /**
+   * Validates that the given chain base class is valid and can be implemented by code generation.
+   *
+   * @param method        the method on which the chain annotation is located.
+   * @param chainBaseImpl the chain base type which should be implemented.
+   * @throws NullPointerException  if the given method or class is null.
+   * @throws IllegalStateException if a validation error occurs.
+   */
+  private static void validateChainBaseClass(@NonNull Method method, @NonNull Class<?> chainBaseImpl) {
+    if (chainBaseImpl.isSealed() || chainBaseImpl.isRecord()) {
+      // record or sealed classes cannot be extended
+      throw new IllegalStateException(String.format(
+        "cannot implement class %s returned from %s in %s for chained rpc invocations: class is a record or sealed",
+        method.getName(), method.getDeclaringClass().getName(), chainBaseImpl.getName()));
+    }
+
+    if (chainBaseImpl.getPackageName().startsWith("java.")) {
+      // don't want to define classes in java core package, this is only meant for user code
+      throw new IllegalStateException(String.format(
+        "cannot implemented %s returned from %s in %s for chained rpc invocation: class is from java namespace",
+        method.getName(), method.getDeclaringClass().getName(), chainBaseImpl.getName()));
+    }
   }
 
   /**
