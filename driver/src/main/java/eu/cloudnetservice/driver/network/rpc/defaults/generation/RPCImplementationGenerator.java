@@ -303,19 +303,14 @@ final class RPCImplementationGenerator {
   ) {
     // get the param types & assign the static types directly
     var instanceFactoryCount = this.context.additionalInstanceFactoryCount();
-    var paramTypes = new ClassDesc[4 + instanceFactoryCount];
-    paramTypes[0] = RPCGenerationConstants.CD_SUPPLIER;
-    paramTypes[1] = RPCGenerationConstants.CD_RPC_SENDER;
-    paramTypes[2] = RPCGenerationConstants.CD_CHAINABLE_RPC;
-    paramTypes[paramTypes.length - 1] = ConstantDescs.CD_Object.arrayType();
-
-    // add the variable amount of instance factories
-    for (var index = 0; index < instanceFactoryCount; index++) {
-      paramTypes[3 + index] = RPCGenerationConstants.CD_INT_INSTANCE_FACTORY;
-    }
+    var instanceFactoryParamTypes = new ClassDesc[instanceFactoryCount];
+    Arrays.fill(instanceFactoryParamTypes, RPCGenerationConstants.CD_INT_INSTANCE_FACTORY);
 
     // generate the constructor code
-    var constructorMethodType = MethodTypeDesc.of(ConstantDescs.CD_void, paramTypes);
+    var baseConstructorMethodType = RPCInternalInstanceFactory.MTD_BASIC_IMPLEMENTATION_CONSTRUCTOR;
+    var constructorMethodType = baseConstructorMethodType.insertParameterTypes(
+      baseConstructorMethodType.parameterCount(),
+      instanceFactoryParamTypes);
     classBuilder.withMethodBody(
       ConstantDescs.INIT_NAME,
       constructorMethodType,
@@ -352,7 +347,7 @@ final class RPCImplementationGenerator {
         var superConstructorParamCount = superConstructorDesc.parameterCount();
         for (var index = 0; index < superConstructorParamCount; index++) {
           // load the index from the object arg array
-          code.aload(paramTypes.length).ldc(index).aaload();
+          code.aload(4).ldc(index).aaload();
 
           var superConstructorParamType = superConstructorDesc.parameterType(index);
           if (superConstructorParamType.isPrimitive()) {

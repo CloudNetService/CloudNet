@@ -20,9 +20,11 @@ import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.ChainableRPC;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -37,6 +39,16 @@ import org.jetbrains.annotations.Nullable;
  */
 @ApiStatus.Internal
 public sealed class RPCInternalInstanceFactory {
+
+  // ImplementationClass(Supplier, RPCSender, ChainableRPC, Object[])
+  static final MethodType MT_BASIC_IMPLEMENTATION_CONSTRUCTOR = MethodType.methodType(
+    void.class,
+    Supplier.class,
+    RPCSender.class,
+    ChainableRPC.class,
+    Object[].class);
+  static final MethodTypeDesc MTD_BASIC_IMPLEMENTATION_CONSTRUCTOR =
+    MethodTypeDesc.ofDescriptor(MT_BASIC_IMPLEMENTATION_CONSTRUCTOR.descriptorString());
 
   private final Runnable allocationNotifier;
 
@@ -103,13 +115,7 @@ public sealed class RPCInternalInstanceFactory {
     try {
       if (additionalInstanceFactories.length == 0) {
         // no additional instance factories required
-        var methodType = MethodType.methodType(
-          void.class,
-          Supplier.class,
-          RPCSender.class,
-          ChainableRPC.class,
-          Object[].class);
-        var constructorHandle = lookup.findConstructor(lookup.lookupClass(), methodType);
+        var constructorHandle = lookup.findConstructor(lookup.lookupClass(), MT_BASIC_IMPLEMENTATION_CONSTRUCTOR);
         return new RPCInternalInstanceFactory(
           userArgCount,
           allocationNotifier,
@@ -117,24 +123,15 @@ public sealed class RPCInternalInstanceFactory {
           additionalInstanceFactories,
           constructorHandle);
       } else {
-        // construct the parameter types array & insert the static 4 types
-        var instanceFactoryCount = additionalInstanceFactories.length;
-        var pTypesArray = new Class<?>[4 + instanceFactoryCount];
-        pTypesArray[0] = Supplier.class;
-        pTypesArray[1] = RPCSender.class;
-        pTypesArray[2] = ChainableRPC.class;
-        pTypesArray[pTypesArray.length - 1] = Object[].class;
-
-        // insert the static instance factories parameters N times
-        for (var index = 0; index < instanceFactoryCount; index++) {
-          pTypesArray[3 + index] = RPCInternalInstanceFactory.class;
-        }
+        // construct an array with the amount of instance factories that is required by the constructor
+        var instanceFactoryParamTypes = new Class<?>[additionalInstanceFactories.length];
+        Arrays.fill(instanceFactoryParamTypes, RPCInternalInstanceFactory.class);
 
         // resolve the constructor handle for the
-        var methodType = MethodType.methodType(void.class, pTypesArray);
+        var methodType = MT_BASIC_IMPLEMENTATION_CONSTRUCTOR.appendParameterTypes(instanceFactoryParamTypes);
         var directConstructorHandle = lookup.findConstructor(lookup.lookupClass(), methodType);
         var spreadingConstructorHandle = directConstructorHandle.asSpreader(
-          3,
+          MT_BASIC_IMPLEMENTATION_CONSTRUCTOR.parameterCount(),
           RPCInternalInstanceFactory[].class,
           additionalInstanceFactories.length);
         return new RPCInternalInstanceFactory(
@@ -195,8 +192,8 @@ public sealed class RPCInternalInstanceFactory {
           channelSupplier,
           this.classRPCSender,
           baseRPC,
-          this.additionalInstanceFactories,
-          additionalConstructorArgs);
+          additionalConstructorArgs,
+          this.additionalInstanceFactories);
       }
     } catch (Throwable throwable) {
       throw new IllegalStateException("unable to construct instance of generated rpc class", throwable);

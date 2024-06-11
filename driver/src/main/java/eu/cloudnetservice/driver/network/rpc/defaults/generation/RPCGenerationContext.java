@@ -139,7 +139,7 @@ final class RPCGenerationContext {
     }
 
     // add additional instance factory fields
-    var currentFactoryIndex = 0;
+    var currentFactoryIndex = 1;
     for (var factoryField : this.additionalInstanceFactoriesFields) {
       factoryField.applyToClassAndConstructor(currentFactoryIndex++, generatingClass, classBuilder, constructorCode);
     }
@@ -237,6 +237,7 @@ final class RPCGenerationContext {
      * This method uses a deterministic way to generate the field name, so each invocation leads to the same field name
      * result.
      *
+     * @param fieldIndex      the index of the current field that is being added to the class (1-based).
      * @param generatingClass the descriptor of the class that is being generated.
      * @param classBuilder    the builder of the class being generated.
      * @param constructorCode the builder of the constructor code for the current class.
@@ -255,9 +256,10 @@ final class RPCGenerationContext {
         RPCGenerationConstants.AFM_FIELD_PF);
 
       // add code to the constructor that assigns the parameter to the field
+      var otherParamsCount = RPCInternalInstanceFactory.MTD_BASIC_IMPLEMENTATION_CONSTRUCTOR.parameterCount();
       constructorCode
         .aload(0)
-        .aload(4 + fieldIndex)
+        .aload(otherParamsCount + fieldIndex)
         .putfield(generatingClass, this.name, RPCGenerationConstants.CD_INT_INSTANCE_FACTORY);
     }
 
