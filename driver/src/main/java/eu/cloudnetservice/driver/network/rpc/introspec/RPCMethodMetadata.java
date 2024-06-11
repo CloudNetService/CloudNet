@@ -27,6 +27,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Duration;
+import java.util.BitSet;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -35,7 +36,6 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record RPCMethodMetadata(
-  boolean chained,
   boolean concrete,
   boolean asyncReturnType,
   boolean compilerGenerated,
@@ -46,12 +46,13 @@ public record RPCMethodMetadata(
   @NonNull Type[] parameterTypes,
   @NonNull MethodType methodType,
   @NonNull Class<?> definingClass,
-  @Nullable Duration executionTimeout
+  @Nullable Duration executionTimeout,
+  @Nullable MethodChainMetadata chainMetadata
 ) {
 
   static @NonNull RPCMethodMetadata fromMethod(@NonNull Method method) {
     // interpret rpc annotations
-    var chained = method.isAnnotationPresent(RPCChained.class);
+    var chainedAnnotation = method.getAnnotation(RPCChained.class);
     var executionResultIgnored = method.isAnnotationPresent(RPCNoResult.class);
     var rpcTimeout = RPCClassMetadata.parseRPCTimeout(method.getAnnotation(RPCTimeout.class));
 
@@ -59,6 +60,7 @@ public record RPCMethodMetadata(
     var genericReturnType = method.getGenericReturnType();
     var unwrappedFutureReturnType = unwrapWrappedFutureType(method, genericReturnType);
     var unwrappedReturnType = Objects.requireNonNullElse(unwrappedFutureReturnType, genericReturnType);
+    var rawUnwrappedReturnType = GenericTypeReflector.erase(unwrappedReturnType);
 
     // ensure (at least a bit) that the types are specific enough to be properly transferred through the network
     validateBounds(method, unwrappedReturnType);
@@ -67,10 +69,12 @@ public record RPCMethodMetadata(
       validateBounds(method, paramType);
     }
 
+    // extract chain rpc information
+    var chainMetadata = extractAndValidateChainMeta(method, rawUnwrappedReturnType, chainedAnnotation);
+
     var concrete = !Modifier.isAbstract(method.getModifiers());
     var methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
     return new RPCMethodMetadata(
-      chained,
       concrete,
       unwrappedFutureReturnType != null,
       method.isSynthetic(),
@@ -81,7 +85,8 @@ public record RPCMethodMetadata(
       paramTypes,
       methodType,
       method.getDeclaringClass(),
-      rpcTimeout);
+      rpcTimeout,
+      chainMetadata);
   }
 
   /**
@@ -100,6 +105,105 @@ public record RPCMethodMetadata(
         "method %s in %s has too lose bounds to be properly functional with RPC",
         method.getName(), method.getDeclaringClass().getName()));
     }
+  }
+
+  /**
+   * Extract and validate the metadata of the chain annotation information. Returns null if the given chain annotation
+   * is null.
+   *
+   * @param method          the method on which the chain annotation is located.
+   * @param rawReturnType   the raw return type of the method.
+   * @param chainAnnotation the chain annotation instance located on the method.
+   * @return the extracted method chain metadata.
+   * @throws NullPointerException  if the given method or raw return type is null.
+   * @throws IllegalStateException if chain annotation has invalid data provided.
+   */
+  private static @Nullable MethodChainMetadata extractAndValidateChainMeta(
+    @NonNull Method method,
+    @NonNull Class<?> rawReturnType,
+    @Nullable RPCChained chainAnnotation
+  ) {
+    if (chainAnnotation == null) {
+      // method is not annotated with chain metadata
+      return null;
+    }
+
+    var givenChainBaseType = chainAnnotation.baseImplementation();
+    var chainBaseImpl = givenChainBaseType == Object.class ? null : givenChainBaseType;
+    if (chainBaseImpl != null && !rawReturnType.isAssignableFrom(chainBaseImpl)) {
+      // base impl is not a valid subtype of the actual return type
+      throw new IllegalStateException(String.format(
+        "chain annotation for method %s in %s declared base type %s which is not a subtype of %s",
+        method.getName(),
+        method.getDeclaringClass().getName(),
+        chainBaseImpl.getName(),
+        rawReturnType.getName()));
+    }
+
+    if (chainBaseImpl != null) {
+      // base impl will be used for generation, validate that instead of the raw return type
+      RPCClassMetadata.validateTargetClass(chainBaseImpl);
+      if (chainBaseImpl.isSealed() || chainBaseImpl.isRecord()) {
+        throw new IllegalStateException(String.format(
+          "cannot implement class %s returned from %s in %s for chained rpc invocations: class is a record or sealed",
+          method.getName(), method.getDeclaringClass().getName(), chainBaseImpl.getName()));
+      }
+    } else {
+      // base impl not present, validate the raw return type
+      RPCClassMetadata.validateTargetClass(rawReturnType);
+      if (rawReturnType.isSealed() || rawReturnType.isRecord()) {
+        throw new IllegalStateException(String.format(
+          "cannot implement class %s returned from %s in %s for chained rpc invocations: class is a record or sealed",
+          method.getName(), method.getDeclaringClass().getName(), rawReturnType.getName()));
+      }
+    }
+
+    // partly validate the chain parameter mappings
+    var parameterMappings = chainAnnotation.parameterMapping();
+    if (parameterMappings.length != 0) {
+      if (parameterMappings.length % 2 != 0) {
+        // as all entries must be mapped to a constructor index, so there are 2 entries for each parameter
+        throw new IllegalStateException(String.format(
+          "chain parameter mapping on method %s in %s must have a divisible by 2 mapping, got %d mappings",
+          method.getName(), method.getDeclaringClass().getName(), parameterMappings.length));
+      }
+
+      if ((parameterMappings.length / 2) > method.getParameterCount()) {
+        throw new IllegalStateException(String.format(
+          "chain parameter mapping on method %s in %s defines more mapping than parameters, got %d mappings and %d params",
+          method.getName(),
+          method.getDeclaringClass().getName(),
+          parameterMappings.length / 2,
+          method.getParameterCount()));
+      }
+
+      var seenParamIndexes = new BitSet(parameterMappings.length / 2);
+      var seenConstructorIndexes = new BitSet(parameterMappings.length / 2);
+      for (var index = 0; index < parameterMappings.length; index += 2) {
+        var paramIndex = parameterMappings[index];
+        var constructorIndex = parameterMappings[index + 1];
+        if (paramIndex >= method.getParameterCount() || paramIndex < 0 || constructorIndex < 0) {
+          // invalid parameter or constructor index provided
+          throw new IllegalStateException(String.format(
+            "chain parameter of method %s in %s mapped incorrectly, param index: %d, constructor index: %d",
+            method.getName(), method.getDeclaringClass().getName(), paramIndex, constructorIndex));
+        }
+
+        if (seenParamIndexes.get(paramIndex) || seenConstructorIndexes.get(constructorIndex)) {
+          // either the param index or constructor index was already used
+          throw new IllegalStateException(String.format(
+            "chain parameter on method %s in %s mapped twice, either from param %d or to constructor param %d",
+            method.getName(), method.getDeclaringClass().getName(), paramIndex, constructorIndex));
+        }
+
+        // mark both indexes as used
+        seenParamIndexes.set(paramIndex);
+        seenConstructorIndexes.set(constructorIndex);
+      }
+    }
+
+    var generationFlags = chainAnnotation.generationFlags();
+    return new MethodChainMetadata(generationFlags, parameterMappings, chainBaseImpl);
   }
 
   /**
@@ -146,5 +250,22 @@ public record RPCMethodMetadata(
 
     // use the first type argument (Future<ReturnType>)
     return typeArguments[0];
+  }
+
+  /**
+   * Metadata information for a chained invocation. Only present if the target method is annotated with
+   * {@link RPCChained}. Note that the parameter mapping target constructor indexes are not validated.
+   *
+   * @param generationFlags        the flags to pass when generating the class implementation.
+   * @param parameterMappings      the index mapping of method parameter to constructor parameter index.
+   * @param baseImplementationType the base implementation type for the generation of the method.
+   * @since 4.0
+   */
+  public record MethodChainMetadata(
+    int generationFlags,
+    int[] parameterMappings,
+    @Nullable Class<?> baseImplementationType
+  ) {
+
   }
 }

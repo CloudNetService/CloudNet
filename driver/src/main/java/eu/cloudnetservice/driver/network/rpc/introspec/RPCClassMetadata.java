@@ -25,6 +25,7 @@ import java.lang.invoke.TypeDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,7 +66,19 @@ public final class RPCClassMetadata {
     }
   }
 
+  static void validateTargetClass(@NonNull Class<?> target) {
+    if (target.isHidden()
+      || target.isPrimitive()
+      || target.isLocalClass()
+      || target.isAnonymousClass()) {
+      throw new IllegalArgumentException(String.format(
+        "class %s cannot be used with rpc: must not be hidden, primitive, local or anonymous",
+        target.getName()));
+    }
+  }
+
   public static @NonNull RPCClassMetadata introspect(@NonNull Class<?> target) {
+    validateTargetClass(target);
     var metadata = new RPCClassMetadata(target);
     metadata.introspectMethods(target, new HashSet<>());
     return metadata;
@@ -142,6 +155,10 @@ public final class RPCClassMetadata {
 
   public @Nullable Duration defaultRPCTimeout() {
     return this.rpcTimeout;
+  }
+
+  public @NonNull Collection<RPCMethodMetadata> methods() {
+    return this.methods.values();
   }
 
   // @throws UnsupportedOperationException

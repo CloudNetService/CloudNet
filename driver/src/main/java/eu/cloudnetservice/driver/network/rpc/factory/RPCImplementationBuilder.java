@@ -22,12 +22,10 @@ import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCProvider;
 import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.InstanceFactory;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A builder for an implementation of a class that will use RPC for all method calls.
@@ -85,19 +83,6 @@ public interface RPCImplementationBuilder<T, B extends RPCImplementationBuilder<
   @NonNull
   @Contract("-> this")
   B implementConcreteMethods();
-
-  /**
-   * Sets the method handle lookup that should be used to define the generated class as a nest mate in the target class.
-   * Note that this method handle needs full privileged access to the target class in order to be able to define the
-   * class.
-   *
-   * @param lookup the lookup to use to define the generated class, can be null to use the fallback lookup.
-   * @return this builder, for chaining.
-   * @throws IllegalArgumentException if the given lookup does not have full access to the target class.
-   */
-  @NonNull
-  @Contract("_ -> this")
-  B defineUsingLookup(@Nullable MethodHandles.Lookup lookup);
 
   /**
    * Returns a configuration step for a specific method in the build process. This can be used to specifically configure

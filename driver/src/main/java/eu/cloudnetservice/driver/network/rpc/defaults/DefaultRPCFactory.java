@@ -29,6 +29,7 @@ import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The default factory implementation for everything related to rpc.
@@ -61,6 +62,11 @@ public final class DefaultRPCFactory implements RPCFactory {
   @Override
   public @NonNull RPCSender.Builder newRPCSenderBuilder(@NonNull Class<?> target) {
     var classMetadata = RPCClassMetadata.introspect(target);
+    return this.newRPCSenderBuilder(classMetadata);
+  }
+
+  @ApiStatus.Internal
+  public @NonNull RPCSender.Builder newRPCSenderBuilder(@NonNull RPCClassMetadata classMetadata) {
     return new DefaultRPCSenderBuilder(classMetadata, this.defaultDataBufFactory, this.defaultObjectMapper);
   }
 
