@@ -27,7 +27,8 @@ import org.jetbrains.annotations.Range;
 
 /**
  * Defines the timeout to apply to an RPC execution, either for an entire class or a specific RPC method. If the
- * annotation is not explicitly provided, a default timeout is applied to all RPCs in a class.
+ * annotation is not explicitly provided, a default timeout is applied to all RPCs in a class. Note: if a method is
+ * inherited, the class-level rpc timeout is inherited from the root class that was introspected.
  *
  * @since 4.0
  */

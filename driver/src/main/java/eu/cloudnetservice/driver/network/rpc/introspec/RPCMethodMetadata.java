@@ -35,6 +35,23 @@ import java.util.concurrent.Future;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Metadata information about a method that can be used with RPC.
+ *
+ * @param concrete               if the method is concretely implemented, false if the method is abstract.
+ * @param asyncReturnType        if the method has an async return type (returns a supported future subtype).
+ * @param compilerGenerated      if the method was inserted into the class by the compiler.
+ * @param executionResultIgnored if the method was specifically annotated to not wait for the rpc execution.
+ * @param name                   the name of the method.
+ * @param returnType             the full generic return type of the method.
+ * @param unwrappedReturnType    the return type of the method after unwrapping, e.g. if the returning an async type.
+ * @param parameterTypes         the fully generic parameter types.
+ * @param methodType             the method type of the method.
+ * @param definingClass          the class in which the method is defined.
+ * @param executionTimeout       the execution timeout of the method, null if not defined.
+ * @param chainMetadata          the metadata for chain implementation, if annotated with {@link RPCChained}.
+ * @since 4.0
+ */
 public record RPCMethodMetadata(
   boolean concrete,
   boolean asyncReturnType,
@@ -50,6 +67,14 @@ public record RPCMethodMetadata(
   @Nullable MethodChainMetadata chainMetadata
 ) {
 
+  /**
+   * Constructs and validates a rpc method metadata based on the properties of the given method.
+   *
+   * @param method the method to construct the rpc method metadata for.
+   * @return the constructed rpc method metadata.
+   * @throws NullPointerException  if the given method is null.
+   * @throws IllegalStateException if some precondition, to ensure functionality with rpc, fails.
+   */
   static @NonNull RPCMethodMetadata fromMethod(@NonNull Method method) {
     // interpret rpc annotations
     var chainedAnnotation = method.getAnnotation(RPCChained.class);
@@ -100,7 +125,10 @@ public record RPCMethodMetadata(
    */
   private static void validateBounds(@NonNull Method method, @NonNull Type type) {
     var rawType = GenericTypeReflector.erase(type);
-    if (!GenericTypeReflector.isFullyBound(type) || rawType == Object.class || rawType == Future.class) {
+    if (!GenericTypeReflector.isFullyBound(type)
+      || rawType == Object.class
+      || rawType == CompletionStage.class
+      || Future.class.isAssignableFrom(rawType)) {
       throw new IllegalStateException(String.format(
         "method %s in %s has too lose bounds to be properly functional with RPC",
         method.getName(), method.getDeclaringClass().getName()));
@@ -240,9 +268,9 @@ public record RPCMethodMetadata(
     }
 
     if (rawType != Task.class
-      && rawType != CompletableFuture.class
+      && rawType != Future.class
       && rawType != CompletionStage.class
-      && rawType != Future.class) {
+      && rawType != CompletableFuture.class) {
       // unsupported future type
       throw new IllegalStateException(String.format(
         "method %s in %s has unsupported future return type %s; must be Task, CompletableFuture, CompletionStage or Future",
