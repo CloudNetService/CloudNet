@@ -70,6 +70,8 @@ final class RPCGenerationConstants {
     MethodTypeDesc.of(CD_RPC, ConstantDescs.CD_String, CD_TYPE_DESC, ConstantDescs.CD_Object.arrayType());
   static final MethodTypeDesc MTD_BRIDGE_RPC_INVOKE =
     MethodTypeDesc.of(CD_CHAINABLE_RPC, ConstantDescs.CD_String, CD_TYPE_DESC, ConstantDescs.CD_Object.arrayType());
+  static final MethodTypeDesc MTD_INT_INSTANCE_FACTORY_CONSTRUCT =
+    MethodTypeDesc.of(ConstantDescs.CD_Object, CD_CHAINABLE_RPC, CD_SUPPLIER, ConstantDescs.CD_Object.arrayType());
 
   // ==== Access Flag Masks =====
   static final int AFM_FIELD_PF = AccessFlags.ofField(AccessFlag.PRIVATE, AccessFlag.FINAL).flagsMask();
