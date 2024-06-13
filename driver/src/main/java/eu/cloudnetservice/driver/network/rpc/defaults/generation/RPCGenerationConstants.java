@@ -57,7 +57,6 @@ final class RPCGenerationConstants {
   static final ClassDesc CD_CHAINABLE_RPC = ClassDesc.of(ChainableRPC.class.getName());
   static final ClassDesc CD_RPC_EXECUTABLE = ClassDesc.of(RPCExecutable.class.getName());
   static final ClassDesc CD_NETWORK_CHANNEL = ClassDesc.of(NetworkChannel.class.getName());
-  static final ClassDesc CD_METHOD_TYPE_DESC = ClassDesc.of(MethodTypeDesc.class.getName());
   static final ClassDesc CD_INT_INSTANCE_FACTORY = ClassDesc.of(RPCInternalInstanceFactory.class.getName());
 
   // ==== Method Descriptors ====
@@ -65,7 +64,8 @@ final class RPCGenerationConstants {
   static final MethodTypeDesc MTD_SUPPLIER_GET = MethodTypeDesc.of(ConstantDescs.CD_Object);
   static final MethodTypeDesc MTD_BRIDGE_GET_CHANNEL = MethodTypeDesc.of(CD_NETWORK_CHANNEL);
   static final MethodTypeDesc MTD_NO_ARGS_CONSTRUCTOR = MethodTypeDesc.of(ConstantDescs.CD_void);
-  static final MethodTypeDesc MTD_MTD_OF_DESCRIPTOR = MethodTypeDesc.of(CD_METHOD_TYPE_DESC, ConstantDescs.CD_String);
+  static final MethodTypeDesc MTD_MTD_OF_DESCRIPTOR =
+    MethodTypeDesc.of(ConstantDescs.CD_MethodTypeDesc, ConstantDescs.CD_String);
   static final MethodTypeDesc MTD_RPC_INVOKE =
     MethodTypeDesc.of(CD_RPC, ConstantDescs.CD_String, CD_TYPE_DESC, ConstantDescs.CD_Object.arrayType());
   static final MethodTypeDesc MTD_BRIDGE_RPC_INVOKE =

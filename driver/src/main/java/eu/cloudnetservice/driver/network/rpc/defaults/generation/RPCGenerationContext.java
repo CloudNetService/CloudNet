@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import java.lang.classfile.ClassBuilder;
 import java.lang.classfile.CodeBuilder;
 import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashSet;
@@ -194,7 +195,7 @@ final class RPCGenerationContext {
         .aload(0)
         .ldc(this.descriptor)
         .invokestatic(
-          RPCGenerationConstants.CD_METHOD_TYPE_DESC,
+          ConstantDescs.CD_MethodTypeDesc,
           "ofDescriptor",
           RPCGenerationConstants.MTD_MTD_OF_DESCRIPTOR)
         .putfield(generatingClass, this.name, RPCGenerationConstants.CD_TYPE_DESC);
