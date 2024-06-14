@@ -37,12 +37,6 @@ tasks.withType<Test> {
   dependsOn(":common:jar")
 }
 
-extensions.configure<JavaPluginExtension> {
-  sourceSets {
-    create("ap")
-  }
-}
-
 dependencies {
   "api"(projects.common)
   "api"(projects.ext.updater)
@@ -66,9 +60,6 @@ dependencies {
   "implementation"(libs.nettyNativeKqueue)
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
-
-  // hack - depend on the output of the ap output to apply the annotation process to this project too
-  "annotationProcessor"(project.sourceSets()["ap"].output)
 
   "testImplementation"(projects.common.dependencyProject.sourceSets()["main"].output)
 }
