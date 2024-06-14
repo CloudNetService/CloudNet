@@ -19,6 +19,8 @@ package eu.cloudnetservice.driver.network.rpc.defaults;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.defaults.generation.DefaultRPCImplementationBuilder;
+import eu.cloudnetservice.driver.network.rpc.defaults.generation.RPCGenerationCache;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.DefaultRPCHandlerBuilder;
 import eu.cloudnetservice.driver.network.rpc.defaults.sender.DefaultRPCSenderBuilder;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
@@ -42,6 +44,7 @@ public final class DefaultRPCFactory implements RPCFactory {
 
   private final ObjectMapper defaultObjectMapper;
   private final DataBufFactory defaultDataBufFactory;
+  private final RPCGenerationCache rpcGenerationCache;
 
   /**
    * Constructs a new default rpc provider factory instance.
@@ -57,6 +60,7 @@ public final class DefaultRPCFactory implements RPCFactory {
   ) {
     this.defaultObjectMapper = defaultObjectMapper;
     this.defaultDataBufFactory = defaultDataBufFactory;
+    this.rpcGenerationCache = new RPCGenerationCache(this);
   }
 
   @Override
@@ -77,16 +81,9 @@ public final class DefaultRPCFactory implements RPCFactory {
   }
 
   @Override
-  public <T> RPCImplementationBuilder.@NonNull ForBasic<T> newBasicRPCBasedImplementationBuilder(
-    @NonNull Class<T> baseClass
-  ) {
-    return null;
-  }
-
-  @Override
-  public <T> RPCImplementationBuilder.@NonNull ForChained<T> newChainedRPCBasedImplementationBuilder(
-    @NonNull Class<T> baseClass
-  ) {
-    return null;
+  public @NonNull <T> RPCImplementationBuilder<T> newPCBasedImplementationBuilder(@NonNull Class<T> baseClass) {
+    var classMeta = RPCClassMetadata.introspect(baseClass);
+    var baseClassSenderBuilder = this.newRPCSenderBuilder(classMeta);
+    return new DefaultRPCImplementationBuilder<>(classMeta, baseClassSenderBuilder, this.rpcGenerationCache);
   }
 }
