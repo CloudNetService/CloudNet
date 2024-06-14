@@ -58,6 +58,7 @@ final class RPCGenerationConstants {
   static final ClassDesc CD_RPC_EXECUTABLE = ClassDesc.of(RPCExecutable.class.getName());
   static final ClassDesc CD_NETWORK_CHANNEL = ClassDesc.of(NetworkChannel.class.getName());
   static final ClassDesc CD_INT_INSTANCE_FACTORY = ClassDesc.of(RPCInternalInstanceFactory.class.getName());
+  static final ClassDesc CD_INT_FACTORY_SPECIAL_ARG = CD_INT_INSTANCE_FACTORY.nested("SpecialArg");
 
   // ==== Method Descriptors ====
   static final MethodTypeDesc MTD_RPC_JOIN = MethodTypeDesc.of(CD_RPC_CHAIN, CD_RPC);

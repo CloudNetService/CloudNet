@@ -20,6 +20,7 @@ import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCChained;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCNoResult;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCTimeout;
+import eu.cloudnetservice.driver.network.rpc.defaults.generation.RPCInternalInstanceFactory;
 import io.leangen.geantyref.GenericTypeReflector;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
@@ -202,7 +203,9 @@ public record RPCMethodMetadata(
       for (var index = 0; index < parameterMappings.length; index += 2) {
         var paramIndex = parameterMappings[index];
         var constructorIndex = parameterMappings[index + 1];
-        if (paramIndex >= method.getParameterCount() || paramIndex < 0 || constructorIndex < 0) {
+        if (paramIndex >= method.getParameterCount()
+          || constructorIndex < 0
+          || paramIndex < RPCInternalInstanceFactory.SpecialArg.SPECIAL_ARG_MAX_INDEX) {
           // invalid parameter or constructor index provided
           throw new IllegalStateException(String.format(
             "chain parameter of method %s in %s mapped incorrectly, param index: %d, constructor index: %d",

@@ -146,17 +146,29 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
       // load the array & push the target array index
       codeBuilder.aload(extraArgsArrayStoreSlot).ldc(constructorParamIndex);
 
-      var paramType = methodType.parameterType(methodParamIndex);
-      var paramSlot = codeBuilder.parameterSlot(methodParamIndex);
-      if (paramType.isPrimitive()) {
-        // box primitive type before storing
-        var typeKind = TypeKind.fromDescriptor(paramType.descriptorString());
-        codeBuilder.loadInstruction(typeKind, paramSlot);
-        CodeGenerationUtil.boxPrimitive(codeBuilder, paramType.descriptorString());
-        codeBuilder.aastore();
+      if (methodParamIndex >= 0) {
+        // actual parameter from method requested
+        var paramType = methodType.parameterType(methodParamIndex);
+        var paramSlot = codeBuilder.parameterSlot(methodParamIndex);
+        if (paramType.isPrimitive()) {
+          // box primitive type before storing
+          var typeKind = TypeKind.fromDescriptor(paramType.descriptorString());
+          codeBuilder.loadInstruction(typeKind, paramSlot);
+          CodeGenerationUtil.boxPrimitive(codeBuilder, paramType.descriptorString());
+          codeBuilder.aastore();
+        } else {
+          // just load the type and store it
+          codeBuilder.aload(paramSlot).aastore();
+        }
       } else {
-        // just load the type and store it
-        codeBuilder.aload(paramSlot).aastore();
+        // special argument requested
+        var specialArg = RPCInternalInstanceFactory.SpecialArg.fromParamMappingIndex(methodParamIndex);
+        codeBuilder
+          .getstatic(
+            RPCGenerationConstants.CD_INT_FACTORY_SPECIAL_ARG,
+            specialArg.name(),
+            RPCGenerationConstants.CD_INT_FACTORY_SPECIAL_ARG)
+          .aastore();
       }
     }
 
@@ -242,18 +254,34 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
       }
 
       var constructorParamType = constructorParamTypes[constructorParamIndex];
-      var methodParamType = targetMethod.methodType().parameterType(methodParamIndex);
-      if (!constructorParamType.isAssignableFrom(methodParamType)) {
-        // constructor defines a param at the index which is not assignable
-        throw new IllegalStateException(String.format(
-          "target constructor in %s defines param type %s at index %d, but method %s in %s tried to map param type %s (index %d)",
-          targetConstructor.getDeclaringClass().getName(),
-          constructorParamType.getName(),
-          constructorParamIndex,
-          targetMethod.name(),
-          targetMethod.definingClass().getName(),
-          methodParamType.getName(),
-          methodParamIndex));
+      if (methodParamIndex >= 0) {
+        var methodParamType = targetMethod.methodType().parameterType(methodParamIndex);
+        if (!constructorParamType.isAssignableFrom(methodParamType)) {
+          // constructor defines a param at the index which is not assignable
+          throw new IllegalStateException(String.format(
+            "target constructor in %s defines param type %s at index %d, but method %s in %s tried to map param type %s (index %d)",
+            targetConstructor.getDeclaringClass().getName(),
+            constructorParamType.getName(),
+            constructorParamIndex,
+            targetMethod.name(),
+            targetMethod.definingClass().getName(),
+            methodParamType.getName(),
+            methodParamIndex));
+        }
+      } else {
+        // special parameter was requested
+        var specialArg = RPCInternalInstanceFactory.SpecialArg.fromParamMappingIndex(methodParamIndex);
+        if (!constructorParamType.isAssignableFrom(specialArg.argType())) {
+          // constructor defines a param at the index which is not assignable
+          throw new IllegalStateException(String.format(
+            "target constructor in %s defines param type %s at index %d, but method %s in %s tried to map special type %s",
+            targetConstructor.getDeclaringClass().getName(),
+            constructorParamType.getName(),
+            constructorParamIndex,
+            targetMethod.name(),
+            targetMethod.definingClass().getName(),
+            specialArg.argType().getName()));
+        }
       }
     }
   }

@@ -179,6 +179,7 @@ public sealed class RPCInternalInstanceFactory {
     this.allocationNotifier.run();
 
     try {
+      this.replaceSpecialArgs(additionalConstructorArgs, baseRPC, channelSupplier);
       if (this.additionalInstanceFactories.length == 0) {
         // no additional instance factories present, skip that parameter completely
         return this.constructorMethodHandle.invoke(
@@ -197,6 +198,96 @@ public sealed class RPCInternalInstanceFactory {
       }
     } catch (Throwable throwable) {
       throw new IllegalStateException("unable to construct instance of generated rpc class", throwable);
+    }
+  }
+
+  /**
+   * Replaces all requests for special arguments in the given target array.
+   *
+   * @param args            the argument to array to replace the special values in.
+   * @param baseRPC         the base RPC to use for chained api calls.
+   * @param channelSupplier the channel supplier to which all network requests should be sent.
+   * @throws NullPointerException if the given args array or base rpc is null.
+   */
+  private void replaceSpecialArgs(
+    Object[] args,
+    @Nullable ChainableRPC baseRPC,
+    @NonNull Supplier<NetworkChannel> channelSupplier
+  ) {
+    for (var index = 0; index < args.length; index++) {
+      var element = args[index];
+      if (element instanceof SpecialArg specialArg) {
+        switch (specialArg) {
+          case RPC_SENDER -> args[index] = this.classRPCSender;
+          case RPC_CHAIN_BASE -> args[index] = baseRPC;
+          case CHANNEL_SUPPLIER -> args[index] = channelSupplier;
+        }
+      }
+    }
+  }
+
+  /**
+   * A collection of special args that can be passed to a super constructor when invoking. If the extra argument array
+   * on an instance construct call contains this enum, the value is replaced with the value passed to the instance
+   * factory.
+   *
+   * @since 4.0
+   */
+  public enum SpecialArg {
+
+    /**
+     * Special pointer that will be replaced with the rpc sender responsible for the target class.
+     */
+    RPC_SENDER(RPCSender.class),
+    /**
+     * The base rpc used for the class invocation, can be null.
+     */
+    RPC_CHAIN_BASE(ChainableRPC.class),
+    /**
+     * The channel supplier to get the channel into which the rpc calls should be sent.
+     */
+    CHANNEL_SUPPLIER(Supplier.class);
+
+    private static final SpecialArg[] VALUES = values();
+    public static final int SPECIAL_ARG_MAX_INDEX = -(VALUES.length);
+
+    private final Class<?> argType;
+
+    /**
+     * Constructs a new special arg.
+     *
+     * @param argType the type that will be injected in the final step.
+     * @throws NullPointerException if the given arg type is null.
+     */
+    SpecialArg(@NonNull Class<?> argType) {
+      this.argType = argType;
+    }
+
+    /**
+     * Get the special argument represented by the given param mapping index or throws an exception if the param mapping
+     * index is invalid.
+     *
+     * @param paramMappingIndex the param mapping index to get the special arg for.
+     * @return the special arg mapped to the given param mapping index.
+     * @throws IllegalStateException if the given param mapping value is invalid.
+     */
+    static @NonNull SpecialArg fromParamMappingIndex(int paramMappingIndex) {
+      var index = -paramMappingIndex - 1;
+      if (index >= 0 && index < VALUES.length) {
+        return VALUES[index];
+      } else {
+        throw new IllegalStateException(String.format("illegal special param mapping index %d", paramMappingIndex));
+      }
+    }
+
+    /**
+     * Get the argument type that will be injected into the constructor.
+     *
+     * @return the argument type that will be injected into the constructor.
+     */
+    @NonNull
+    Class<?> argType() {
+      return this.argType;
     }
   }
 
