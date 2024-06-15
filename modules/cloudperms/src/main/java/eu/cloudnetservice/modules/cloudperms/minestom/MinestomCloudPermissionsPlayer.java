@@ -46,7 +46,7 @@ public class MinestomCloudPermissionsPlayer extends Player {
 
   @Override
   public boolean hasPermission(@NonNull String permissionName) {
-    var user = this.permissionManagement.user(this.uuid);
+    var user = this.permissionManagement.user(this.getUuid());
     return user != null && this.permissionManagement.hasPermission(user, Permission.of(permissionName));
   }
 
