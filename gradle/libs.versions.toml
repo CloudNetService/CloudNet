@@ -6,10 +6,10 @@ juppiter = "0.4.0"
 spotless = "6.25.0"
 fabricLoom = "1.6.11"
 nexusPublish = "2.0.0-rc-2"
-checkstyleTools = "10.16.0"
+checkstyleTools = "10.17.0"
 
 # google libs
-gson = "2.10.1"
+gson = "2.11.0"
 guava = "33.2.0-jre"
 
 # testing
@@ -63,6 +63,7 @@ nukkitX = "1.0-SNAPSHOT"
 minestom = "2cdb3911b0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.20-R0.3-SNAPSHOT"
+limboloohp = "0.7.9-ALPHA"
 
 # platform extensions
 vault = "1.7.1"
@@ -72,6 +73,7 @@ npcLib = "3.0.0-beta6"
 placeholderApi = "2.11.5"
 adventure-serializer-bungee = "4.3.2"
 adventure-platform-bukkit = "4.3.2"
+luckPermsApi = "5.4"
 
 # fabric platform special dependencies
 minecraft = "1.20.4"
@@ -167,6 +169,7 @@ bungeecord = { group = "net.md-5", name = "bungeecord-api", version.ref = "bunge
 minestom = { group = "com.github.Minestom", name = "Minestom", version.ref = "minestom" }
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 waterdogpe = { group = "dev.waterdog.waterdogpe", name = "waterdog", version.ref = "waterdogpe" }
+limboloohp = { group = "com.loohp", name = "Limbo", version.ref = "limboloohp" }
 
 # adventure
 adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
@@ -184,6 +187,7 @@ placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "pl
 
 npcLib = { group = "io.github.juliarn", name = "npc-lib-bukkit", version.ref = "npcLib" }
 npcLibLabymod = { group = "io.github.juliarn", name = "npc-lib-labymod", version.ref = "npcLib" }
+luckPermsApi = { group = "net.luckperms", name = "api", version.ref = "luckPermsApi" }
 
 # fabric platform special dependencies
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
@@ -209,7 +213,7 @@ nightConfig = ["nightConfigToml", "nightConfigYaml", "nightConfigJson"]
 adventure = ["adventureApi", "adventureSerializerGson", "adventureSerializerLegacy"]
 
 proxyPlatform = ["bungeecord", "velocity", "waterdogpe"]
-serverPlatform = ["spigot", "sponge", "nukkitX", "minestom"]
+serverPlatform = ["spigot", "sponge", "nukkitX", "minestom", "limboloohp"]
 
 
 [plugins]
