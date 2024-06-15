@@ -350,6 +350,29 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
+  public boolean deleteDirectory(@NonNull ServiceTemplate template, @NonNull String path) {
+    try {
+      // get the contents we want to delete
+      Set<ObjectIdentifier> toDelete = new HashSet<>();
+      this.listAllObjects(
+        this.getBucketPath(template, path),
+        null,
+        object -> toDelete.add(ObjectIdentifier.builder().key(object.key()).build()));
+
+      // build the delete request
+      var deleteRequest = DeleteObjectsRequest.builder()
+        .bucket(this.config().bucket())
+        .delete(Delete.builder().quiet(true).objects(toDelete).build())
+        .build();
+      this.client.deleteObjects(deleteRequest);
+      // success
+      return true;
+    } catch (Exception exception) {
+      return false;
+    }
+  }
+
+  @Override
   public @Nullable InputStream newInputStream(@NonNull ServiceTemplate template, @NonNull String path) {
     try {
       var request = GetObjectRequest.builder()

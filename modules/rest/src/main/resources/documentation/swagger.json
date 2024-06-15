@@ -3235,6 +3235,55 @@
         }
       }
     },
+    "/template/{storage}/{prefix}/{name}/directory" : {
+      "delete" : {
+        "parameters" : [ {
+          "name" : "storage",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "prefix",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "name",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "path",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "tags" : [ "Templates" ],
+        "summary" : "Deletes a directory and all its contents recursively from a template",
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/Success"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/BadRequest"
+          },
+          "401" : {
+            "$ref" : "#/components/responses/Unauthorized"
+          },
+          "403" : {
+            "$ref" : "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/serviceversion" : {
       "get" : {
         "tags" : [ "Service Versions" ],

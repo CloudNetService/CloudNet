@@ -239,6 +239,25 @@ public final class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @BearerAuth
+  @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}/directory", methods = "DELETE")
+  private void handleDirectoryDeleteRequest(
+    @NonNull HttpContext context,
+    @NonNull @RequestPathParam("storage") String storageName,
+    @NonNull @RequestPathParam("prefix") String prefix,
+    @NonNull @RequestPathParam("name") String templateName,
+    @NonNull @FirstRequestQueryParam("path") String path
+  ) {
+    this.handleWithTemplateContext(context, storageName, prefix, templateName, (template, storage) -> {
+      var status = storage.deleteDirectory(template, path);
+      this.ok(context)
+        .body(status ? this.success().toString() : this.failure().toString())
+        .context()
+        .closeAfter(true)
+        .cancelNext(true);
+    });
+  }
+
+  @BearerAuth
   @HttpRequestHandler(paths = "/api/v2/template/{storage}/{prefix}/{name}", methods = "DELETE")
   private void handleTemplateDeleteRequest(
     @NonNull HttpContext context,
