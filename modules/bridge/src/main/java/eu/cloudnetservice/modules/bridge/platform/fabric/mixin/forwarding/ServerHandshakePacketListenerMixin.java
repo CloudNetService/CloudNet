@@ -31,7 +31,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
-import net.minecraft.network.protocol.login.LoginProtocols;
 import net.minecraft.server.network.ServerHandshakePacketListenerImpl;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,8 +55,13 @@ public final class ServerHandshakePacketListenerMixin {
   @Shadow
   private Connection connection;
 
-  @Inject(at = @At("HEAD"), method = "handleIntention")
-  public void onHandshake(@NonNull ClientIntentionPacket packet, @NonNull CallbackInfo info) {
+  @Inject(at = @At(
+    value = "INVOKE_ASSIGN",
+    target =
+      "Lnet/minecraft/network/Connection;setupInboundProtocol"
+        + "(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V"),
+    method = "beginLogin")
+  public void onHandshake(@NonNull ClientIntentionPacket packet, boolean transfer, @NonNull CallbackInfo info) {
     // do not try this for pings
     if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING && packet.intention() == ClientIntent.LOGIN) {
       var bridged = (BridgedClientConnection) this.connection;
@@ -74,10 +78,6 @@ public final class ServerHandshakePacketListenerMixin {
           bridged.forwardedProfile(GSON.fromJson(split[3], Property[].class));
         }
       } else {
-        // we want to disconnect the player, therefore we have to set the outbound protocol as this is usually
-        // happening later in the packet handling process
-        this.connection.setupOutboundProtocol(LoginProtocols.CLIENTBOUND);
-
         // disconnect will not send the packet - it will just close the channel and set the disconnect reason
         this.connection.send(new ClientboundLoginDisconnectPacket(IP_INFO_MISSING));
         this.connection.disconnect(IP_INFO_MISSING);
