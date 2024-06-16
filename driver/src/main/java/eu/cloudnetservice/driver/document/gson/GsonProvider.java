@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
 
@@ -60,6 +61,10 @@ final class GsonProvider {
       TimeTypeAdapter.of(OffsetTime::from, DateTimeFormatter.ISO_OFFSET_TIME, gson)))
     .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(OffsetDateTime.class, gson ->
       TimeTypeAdapter.of(OffsetDateTime::from, DateTimeFormatter.ISO_OFFSET_DATE_TIME, gson)))
+
+    // zoned date time
+    .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(ZonedDateTime.class, gson ->
+      TimeTypeAdapter.of(ZonedDateTime::from, DateTimeFormatter.ISO_ZONED_DATE_TIME, gson)))
 
     // instant & duration
     .registerTypeAdapterFactory(DelegateTypeAdapterFactory.standardFactory(Instant.class, gson ->
