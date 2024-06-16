@@ -18,15 +18,11 @@ package eu.cloudnetservice.driver.network.rpc.generation.api;
 
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 
-public abstract class SenderNeedingManagement extends BasePermissionManagement {
+public abstract class SenderNeedingDatabase extends BaseDatabase {
 
-  public final RPCSender sender;
+  public final RPCSender rpcSender;
 
-  public SenderNeedingManagement() {
-    this(null);
-  }
-
-  public SenderNeedingManagement(RPCSender sender) {
-    this.sender = sender;
+  public SenderNeedingDatabase(RPCSender rpcSender) {
+    this.rpcSender = rpcSender;
   }
 }

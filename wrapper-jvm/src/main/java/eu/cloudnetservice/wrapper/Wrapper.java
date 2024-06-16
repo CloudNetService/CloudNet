@@ -31,7 +31,6 @@ import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.chunk.defaults.factory.EventChunkHandlerFactory;
 import eu.cloudnetservice.driver.network.chunk.network.ChunkedPacketListener;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ApplicationPostStartEvent;
 import eu.cloudnetservice.wrapper.event.ApplicationPreStartEvent;
@@ -204,12 +203,6 @@ public final class Wrapper {
     eventManager.registerListener(GroupChannelMessageListener.class);
     eventManager.registerListener(ServiceChannelMessageListener.class);
     eventManager.registerListener(TemplateStorageCallbackListener.class);
-  }
-
-  @Inject
-  @Order(350)
-  private void initPermissionManagement(@NonNull PermissionManagement permissionManagement) {
-    permissionManagement.init();
   }
 
   @Inject

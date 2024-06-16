@@ -46,16 +46,14 @@ initializePrefixedSubProjects(
   "platform-inject",
   "api", "loader", "processor", "runtime")
 // plugins
-initializeSubProjects("plugins", "chat", "simplenametags", "papi-expansion", "luckperms")
+initializeSubProjects("plugins", "papi-expansion", "luckperms")
 // modules
 initializeSubProjects("modules",
   "bridge",
   "report",
   "cloudflare",
-  "rest",
   "database-mongodb",
   "database-mysql",
-  "cloudperms",
   "signs",
   "storage-sftp",
   "syncproxy",

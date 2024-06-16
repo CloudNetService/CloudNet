@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-plugins {
-  alias(libs.plugins.shadow)
-}
+package eu.cloudnetservice.driver.network.rpc.generation.api;
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.simpleNameTagsPlugin)
-}
+import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.document.Document;
+import org.jetbrains.annotations.Nullable;
 
-dependencies {
-  "compileOnly"(projects.wrapperJvm)
-  "compileOnly"(libs.bundles.serverPlatform)
+public abstract class BaseDatabase implements Database {
 
-  "implementation"(projects.ext.adventureHelper)
+  public static final Document TEST_DOCUMENT = Document.newJsonDocument().append("hello", "world");
+
+  @Override
+  public @Nullable Document get(String key) {
+    return TEST_DOCUMENT;
+  }
+
+  @Override
+  public Task<Document> getAsync(String key) {
+    return Task.completedTask(TEST_DOCUMENT);
+  }
 }
