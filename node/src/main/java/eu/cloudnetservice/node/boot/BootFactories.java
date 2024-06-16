@@ -23,9 +23,7 @@ import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
-import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.network.netty.client.NettyNetworkClient;
-import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
 import eu.cloudnetservice.driver.network.netty.server.NettyNetworkServer;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.DefaultNetworkClientChannelHandler;
@@ -41,12 +39,6 @@ final class BootFactories {
 
   private BootFactories() {
     throw new UnsupportedOperationException();
-  }
-
-  @Factory
-  @Singleton
-  public static @NonNull HttpServer provideHttpServer(@NonNull Configuration configuration) {
-    return new NettyHttpServer(configuration.webSSLConfig());
   }
 
   @Factory
