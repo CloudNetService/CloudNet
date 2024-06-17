@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.command.source;
 
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
-import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,7 +29,6 @@ import lombok.NonNull;
  * network, see {@link ClusterNodeProvider#sendCommandLine(String)}
  *
  * @see CommandSource
- * @see PermissionUserCommandSource
  * @since 4.0
  */
 public class DriverCommandSource implements CommandSource {

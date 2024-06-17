@@ -21,7 +21,6 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.component.ComponentFormats;
@@ -51,8 +50,7 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull CloudServiceProvider serviceProvider,
-    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService,
-    @NonNull PermissionManagement permissionManagement
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
   ) {
     super(
       rpcFactory,
@@ -61,8 +59,7 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
       wrapperConfig,
       serviceInfoHolder,
       serviceProvider,
-      executorService,
-      permissionManagement);
+      executorService);
 
     this.proxyServer = proxyServer;
     this.init();

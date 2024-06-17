@@ -27,14 +27,12 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
 import eu.cloudnetservice.modules.bridge.node.command.BridgeCommand;
-import eu.cloudnetservice.modules.bridge.node.http.V2HttpHandlerBridge;
 import eu.cloudnetservice.modules.bridge.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
@@ -176,7 +174,6 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STARTED)
   public void initModule(
-    @NonNull HttpServer httpServer,
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull @Named("module") InjectionLayer<?> injectionLayer
@@ -200,8 +197,6 @@ public final class CloudNetBridgeModule extends DriverModule {
       .singletonCollector(management::configuration)
       .currentGetter($ -> management.configuration())
       .build());
-    // register the bridge rest handler
-    httpServer.annotationParser().parseAndRegister(V2HttpHandlerBridge.class);
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)

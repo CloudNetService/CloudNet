@@ -36,7 +36,6 @@ import eu.cloudnetservice.driver.module.DefaultModuleDependencyLoader;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkServer;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
@@ -63,8 +62,6 @@ import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
 import eu.cloudnetservice.node.module.updater.ModuleUpdater;
 import eu.cloudnetservice.node.module.updater.ModuleUpdaterRegistry;
 import eu.cloudnetservice.node.network.chunk.FileDeployCallbackListener;
-import eu.cloudnetservice.node.permission.DefaultPermissionManagementHandler;
-import eu.cloudnetservice.node.permission.NodePermissionManagement;
 import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.template.LocalTemplateStorage;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
@@ -272,14 +269,8 @@ public final class Node {
   @Inject
   @Order(450)
   private void executeSetupIfRequired(
-    @NonNull DefaultInstallation installation,
-    @NonNull NodePermissionManagement permissionManagement,
-    @NonNull DefaultPermissionManagementHandler permissionHandler
+    @NonNull DefaultInstallation installation
   ) {
-    // init the permission management before the setup
-    permissionManagement.init();
-    permissionManagement.permissionManagementHandler(permissionHandler);
-
     // execute the setup if needed
     installation.executeFirstStartSetup();
   }
@@ -299,7 +290,6 @@ public final class Node {
   @Inject
   @Order(550)
   private void bindNetworkListeners(
-    @NonNull HttpServer httpServer,
     @NonNull Configuration configuration,
     @NonNull NetworkServer networkServer
   ) throws InterruptedException {
@@ -332,21 +322,6 @@ public final class Node {
       // wait a bit, then stop
       Thread.sleep(5000);
       System.exit(1);
-    }
-
-    // http server init
-    for (var listener : configuration.httpListeners()) {
-      httpServer.addListener(listener).handle(($, exception) -> {
-        // check if the bind failed
-        if (exception != null) {
-          LOGGER.info(I18n.trans("http-listener-bound-exceptionally", listener, exception.getMessage()));
-        } else {
-          LOGGER.info(I18n.trans("http-listener-bound", listener));
-        }
-
-        // prevent the exception from being thrown
-        return null;
-      }).join();
     }
   }
 
