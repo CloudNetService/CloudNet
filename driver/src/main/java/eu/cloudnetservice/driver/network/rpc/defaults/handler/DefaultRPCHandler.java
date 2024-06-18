@@ -27,7 +27,6 @@ import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvoker;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandler;
-import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationContext;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
@@ -88,14 +87,6 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
     } catch (IllegalArgumentException _) {
       return null;
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void registerTo(@NonNull RPCHandlerRegistry registry) {
-    registry.registerHandler(this);
   }
 
   /**

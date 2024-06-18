@@ -63,23 +63,39 @@ public final class DefaultRPCFactory implements RPCFactory {
     this.rpcGenerationCache = new RPCGenerationCache(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCSender.Builder newRPCSenderBuilder(@NonNull Class<?> target) {
     var classMetadata = RPCClassMetadata.introspect(target);
     return this.newRPCSenderBuilder(classMetadata);
   }
 
+  /**
+   * Internal util to construct a new rpc sender builder from the given resolved class metadata.
+   *
+   * @param classMetadata the class metadata to use as a base for the builder.
+   * @return a new rpc sender builder using the given class metadata.
+   * @throws NullPointerException if the given class metadata is null.
+   */
   @ApiStatus.Internal
   public @NonNull RPCSender.Builder newRPCSenderBuilder(@NonNull RPCClassMetadata classMetadata) {
     return new DefaultRPCSenderBuilder(classMetadata, this.defaultDataBufFactory, this.defaultObjectMapper);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> RPCHandler.@NonNull Builder<T> newRPCHandlerBuilder(@NonNull Class<T> target) {
     var classMetadata = RPCClassMetadata.introspect(target);
     return new DefaultRPCHandlerBuilder<>(classMetadata, this.defaultObjectMapper, this.defaultDataBufFactory);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull <T> RPCImplementationBuilder<T> newPCBasedImplementationBuilder(@NonNull Class<T> baseClass) {
     var classMeta = RPCClassMetadata.introspect(baseClass);

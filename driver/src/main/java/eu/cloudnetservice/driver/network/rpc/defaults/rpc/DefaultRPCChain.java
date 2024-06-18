@@ -48,6 +48,16 @@ public final class DefaultRPCChain extends DefaultRPCProvider implements RPCChai
   private final List<RPC> fullChain;
   private final Supplier<NetworkChannel> channelSupplier;
 
+  /**
+   * Constructs a new rpc chain instance.
+   *
+   * @param chainHead       the first rpc in the execution chain.
+   * @param chainTail       the last rpc in the execution chain.
+   * @param fullChain       the full chain of rpc to invoke.
+   * @param channelSupplier the target channel supplier to use for method invocation if no channel is provided.
+   * @throws NullPointerException if one of the given parameters is null.
+   */
+  // trusted constructor as changes to the full chain list will reflect into this instance - do not expose
   private DefaultRPCChain(
     @NonNull RPC chainHead,
     @NonNull RPC chainTail,
@@ -58,10 +68,19 @@ public final class DefaultRPCChain extends DefaultRPCProvider implements RPCChai
 
     this.chainHead = chainHead;
     this.chainTail = chainTail;
-    this.fullChain = Collections.unmodifiableList(new LinkedList<>(fullChain));
+    this.fullChain = Collections.unmodifiableList(fullChain);
     this.channelSupplier = channelSupplier;
   }
 
+  /**
+   * Constructs a new rpc chain using the given root and tail rpc.
+   *
+   * @param root            the root rpc for the chain.
+   * @param next            the tail rpc for the chain.
+   * @param channelSupplier the target channel supplier to use for method invocation if no channel is provided.
+   * @return the constructed rpc chain.
+   * @throws NullPointerException if the given root rpc, tail rpc or channel supplier is null.
+   */
   public static @NonNull DefaultRPCChain of(
     @NonNull RPC root,
     @NonNull RPC next,

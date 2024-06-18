@@ -21,18 +21,48 @@ import eu.cloudnetservice.driver.network.rpc.handler.RPCHandler;
 import lombok.NonNull;
 
 /**
- * A factory which can provide anything which is related to rpc.
+ * A factory for the root RPC types.
  *
  * @since 4.0
  */
 public interface RPCFactory {
 
+  /**
+   * Constructs a new builder for an RPC sender which can provide RPCs for the given target class and all subclasses in
+   * the tree.
+   *
+   * @param target the target class for which the rpc sender should be constructed.
+   * @return a builder for an RPC sender that targets the given target class.
+   * @throws NullPointerException     if the given target class is null.
+   * @throws IllegalArgumentException if some precondition, to ensure functionality with rpc, fails.
+   * @throws IllegalStateException    if some precondition, to ensure functionality with rpc, fails.
+   */
   @NonNull
   RPCSender.Builder newRPCSenderBuilder(@NonNull Class<?> target);
 
+  /**
+   * Constructs a new rpc handler builder which can handle RPC requests for the given target class.
+   *
+   * @param target the target class that should be handled by the RPC handler.
+   * @param <T>    the target type.
+   * @return a new builder for an RPC handler which can handle RPC requests for the given target class.
+   * @throws NullPointerException     if the given target class is null.
+   * @throws IllegalArgumentException if some precondition, to ensure functionality with rpc, fails.
+   * @throws IllegalStateException    if some precondition, to ensure functionality with rpc, fails.
+   */
   @NonNull
   <T> RPCHandler.Builder<T> newRPCHandlerBuilder(@NonNull Class<T> target);
 
+  /**
+   * Constructs a builder for an RPC-based api implementation for all non-static methods in the given base class.
+   *
+   * @param baseClass the base class which should be implemented.
+   * @param <T>       the type being implemented.
+   * @return a builder for a base implementation of the given base class.
+   * @throws NullPointerException     if the given base class is null.
+   * @throws IllegalArgumentException if some precondition, to ensure functionality with rpc, fails.
+   * @throws IllegalStateException    if some precondition, to ensure functionality with rpc, fails.
+   */
   @NonNull
   <T> RPCImplementationBuilder<T> newPCBasedImplementationBuilder(@NonNull Class<T> baseClass);
 }

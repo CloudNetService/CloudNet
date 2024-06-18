@@ -32,14 +32,6 @@ import org.jetbrains.annotations.Nullable;
 public interface RPCHandler extends RPCProvider {
 
   /**
-   * Registers this rpc handler to the given rpc handler registry.
-   *
-   * @param registry the registry to register to.
-   * @throws NullPointerException if the given registry is null.
-   */
-  void registerTo(@NonNull RPCHandlerRegistry registry);
-
-  /**
    * Handles the given rpc context using the information of this handler. A handler must respect all settings set in the
    * context. The handler decides whether it can handle the request based on the information provided through the
    * context. If the instance use is set to strict in the context (or this handler has no instance set since

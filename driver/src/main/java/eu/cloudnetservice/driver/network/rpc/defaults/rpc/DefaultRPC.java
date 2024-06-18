@@ -56,6 +56,19 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
   private boolean dropResult;
   private Duration executionTimeout;
 
+  /**
+   * Constructs a new default rpc instance.
+   *
+   * @param targetClass      the class targeted by the RPC.
+   * @param objectMapper     the object mapper used for data serialization during rpc execution.
+   * @param dataBufFactory   the data buffer factory to use for buffer allocations during rpc execution.
+   * @param sender           the sender that constructed this rpc.
+   * @param channelSupplier  the default channel supplier to use during execution if none is provided.
+   * @param executionTimeout the timeout for the execution of this rpc.
+   * @param targetMethod     the target method that should be invoked.
+   * @param arguments        the arguments to supply for execution.
+   * @throws NullPointerException if one of the given arguments, except the timeout, is null.
+   */
   public DefaultRPC(
     @NonNull Class<?> targetClass,
     @NonNull ObjectMapper objectMapper,

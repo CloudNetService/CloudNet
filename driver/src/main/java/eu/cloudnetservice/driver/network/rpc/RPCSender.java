@@ -30,18 +30,52 @@ import org.jetbrains.annotations.Contract;
  */
 public interface RPCSender extends RPCProvider {
 
-  // @throws IllegalStateException if the caller cannot be resolved
+  /**
+   * Returns a new RPC that can invoke the calling method with the provided arguments.
+   *
+   * @param args the arguments to supply when invoking the method.
+   * @return an RPC that calls the caller method on a remote component with the provided arguments.
+   * @throws IllegalStateException    if the calling method cannot be resolved.
+   * @throws IllegalArgumentException if the calling method is not known in the target class.
+   */
   @NonNull
   RPC invokeCaller(Object... args);
 
-  // @throws IllegalStateException if the caller cannot be resolved
+  /**
+   * Returns a new RPC that can invoke the calling method with the provided arguments.
+   *
+   * @param callerStackOffset the offset on the stack where the target method is located.
+   * @param args              the arguments to supply when invoking the method.
+   * @return an RPC that calls the caller method on a remote component with the provided arguments.
+   * @throws IllegalStateException    if the calling method cannot be resolved.
+   * @throws IllegalArgumentException if the calling method is not known in the target class.
+   */
   @NonNull
   RPC invokeCaller(int callerStackOffset, Object... args);
 
-  // @throws IllegalArgumentException if there cannot be a distinct method found to invoke
+  /**
+   * Tries to resolve a distinct method with the given name and argument count in the target class and returns a new RPC
+   * that can invoke the resolved method with the provided arguments.
+   *
+   * @param methodName the name of the method to invoke.
+   * @param args       the arguments to supply when invoking the method.
+   * @return an RPC to invoke the resolved method with the given name and parameter count on the remote.
+   * @throws NullPointerException     if the given method name or arguments array is null.
+   * @throws IllegalArgumentException if the method to call cannot be resolved in the target class.
+   */
   @NonNull
   RPC invokeMethod(@NonNull String methodName, Object... args);
 
+  /**
+   * Returns a new RPC that can invoke the method with the given name and descriptor.
+   *
+   * @param methodName the name of the method to invoke.
+   * @param methodDesc the descriptor of the method to invoke.
+   * @param args       the arguments to supply for the method invocation.
+   * @return an RPC to invoke the resolved method with the given parameters on a remote.
+   * @throws NullPointerException     if the given method name, method descriptor or argument array is null.
+   * @throws IllegalArgumentException if the method to call cannot be resolved in the target class.
+   */
   @NonNull
   RPC invokeMethod(@NonNull String methodName, @NonNull TypeDescriptor methodDesc, Object... args);
 
