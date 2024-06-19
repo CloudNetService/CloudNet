@@ -33,7 +33,7 @@ import lombok.NonNull;
   version = "@version@",
   description = "CloudNet extension which serves proxy utils with CloudNet support",
   authors = "CloudNetService",
-  dependencies = {@Dependency(name = "CloudNet-Bridge"), @Dependency(name = "CloudNet-CloudPerms", optional = true)}
+  dependencies = @Dependency(name = "CloudNet-Bridge")
 )
 public final class VelocitySyncProxyPlugin implements PlatformEntrypoint {
 

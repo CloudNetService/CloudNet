@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.syncproxy;
+package eu.cloudnetservice.driver.network.rpc.generation.api;
 
-public final class SyncProxyConstants {
+import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.document.Document;
+import org.jetbrains.annotations.Nullable;
 
-  public static final String SYNC_PROXY_CHANNEL = "sync_proxy_internal";
-  public static final String SYNC_PROXY_UPDATE_CONFIG = "update_syncproxy_config";
-  public static final String SYNC_PROXY_CONFIG_REQUEST = "request_syncproxy_config";
+public abstract class BaseDatabase implements Database {
 
-  private SyncProxyConstants() {
-    throw new UnsupportedOperationException();
+  public static final Document TEST_DOCUMENT = Document.newJsonDocument().append("hello", "world");
+
+  @Override
+  public @Nullable Document get(String key) {
+    return TEST_DOCUMENT;
+  }
+
+  @Override
+  public Task<Document> getAsync(String key) {
+    return Task.completedTask(TEST_DOCUMENT);
   }
 }
