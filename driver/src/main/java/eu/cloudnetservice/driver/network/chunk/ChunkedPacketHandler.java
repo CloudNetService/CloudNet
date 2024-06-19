@@ -37,13 +37,6 @@ import lombok.NonNull;
 public interface ChunkedPacketHandler extends ChunkedPacketProvider {
 
   /**
-   * Get the callback which will be called when the full data is received and available for further processing.
-   *
-   * @return the callback which will be called when the full data is received.
-   */
-  @NonNull Callback callback();
-
-  /**
    * Handles a part of chunked data which gets supplied to the current component. The data chunk is required to be from
    * the same size as announced in the initial transfer information, unless the packet is the last packet of the chunked
    * data stream.

@@ -51,16 +51,15 @@ public class ChunkedPacketListener implements PacketListener {
    */
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
-    // read the chunk information from the buffer
-    var information = packet.content().readObject(ChunkSessionInformation.class);
-    // read the chunk index
-    var chunkIndex = packet.content().readInt();
-    // get or create the session associated with the packet
-    var handler = this.runningSessions.computeIfAbsent(information, this.handlerFactory);
-    // post the packet and check if the session is done
-    if (handler.handleChunkPart(chunkIndex, packet.content())) {
-      // done, remove the session
-      this.runningSessions.remove(information);
+    var packetContent = packet.content();
+    var sessionInfo = packetContent.readObject(ChunkSessionInformation.class);
+    var chunkIndex = packetContent.readInt();
+
+    // get or create a new local session for the transfer
+    var sessionHandler = this.runningSessions.computeIfAbsent(sessionInfo, this.handlerFactory);
+    var transferComplete = sessionHandler.handleChunkPart(chunkIndex, packetContent);
+    if (transferComplete) {
+      this.runningSessions.remove(sessionInfo);
     }
   }
 }

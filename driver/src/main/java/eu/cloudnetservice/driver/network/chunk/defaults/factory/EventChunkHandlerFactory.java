@@ -67,13 +67,11 @@ public class EventChunkHandlerFactory implements Function<ChunkSessionInformatio
    */
   @Override
   public @NonNull ChunkedPacketHandler apply(@NonNull ChunkSessionInformation info) {
-    // get the chunked packet handler for the session
     var handler = this.eventManager.callEvent(new ChunkedPacketSessionOpenEvent(info)).handler();
-    // check if there was a handler supplied
     if (handler == null) {
       throw new IllegalStateException("No chunked handler for " + info);
     }
-    // return the created handler
+
     return handler;
   }
 }

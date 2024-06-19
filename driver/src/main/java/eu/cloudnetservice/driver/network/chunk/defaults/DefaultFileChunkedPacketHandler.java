@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.chunk.defaults;
 
-import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
@@ -42,10 +41,10 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   protected final Path tempFilePath;
   protected final RandomAccessFile targetFile;
   protected final Callback writeCompleteHandler;
-  protected final Lock lock = new ReentrantLock(true);
+  protected final Lock lock = new ReentrantLock();
 
   protected int writtenFileParts = -1;
-  protected Integer expectedFileParts;
+  protected int expectedFileParts = -1;
 
   /**
    * Creates the session handler initially. Sessions should be manged by some sort of handler which is responsible for
@@ -78,19 +77,29 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   ) {
     super(sessionInformation);
 
-    // general information
     this.tempFilePath = tempFilePath;
     this.writeCompleteHandler = completeHandler;
-    // open the temp file raf access
+    this.targetFile = this.openTempFile();
+  }
+
+  /**
+   * Opens a random access file at the provided temp path, creating the file if it does not exist. Note that this method
+   * does not create the parent directory of the file, it must exist prior to invocation.
+   *
+   * @return the opened temp file for random access.
+   * @throws IllegalStateException if the temp file cannot be opened or created.
+   */
+  private @NonNull RandomAccessFile openTempFile() {
     try {
-      // create the file
-      if (Files.notExists(tempFilePath)) {
-        Files.createFile(tempFilePath);
+      // create the file in case it does not exist
+      if (Files.notExists(this.tempFilePath)) {
+        Files.createFile(this.tempFilePath);
       }
-      // open the file
-      this.targetFile = new RandomAccessFile(this.tempFilePath.toFile(), "rwd");
+
+      var pathAsFile = this.tempFilePath.toFile();
+      return new RandomAccessFile(pathAsFile, "rwd");
     } catch (IOException exception) {
-      throw new AssertionError("Unable to open raf to temp file, this should not happen", exception);
+      throw new IllegalStateException("cannot open chunk transfer temp file for writing", exception);
     }
   }
 
@@ -103,37 +112,41 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     if (this.transferStatus == TransferStatus.FAILURE) {
       return false;
     }
-    // validate that this is still in the running state when receiving the packet
-    Preconditions.checkState(this.transferStatus == TransferStatus.RUNNING, "Received transfer part after success");
-    // extract some information from the body
+
+    // check if the given chunk is the last chunk in the transfer, set the amount of chunks to expect
+    // this is used in case not all file parts were received when the final packet arrives
     var isFinalPacket = dataBuf.readBoolean();
     if (isFinalPacket) {
       this.expectedFileParts = dataBuf.readInt();
     }
-    // execute the write operation with the content of the packet
+
+    this.lock.lock();
     try {
-      // we can only perform one write operation at a time
-      this.lock.lock();
-      // execute
-      this.writePacketContent(chunkPosition, dataBuf);
-      // update the data transfer status
-      this.updateStatus();
-      // check if the expected ending is reached
-      if (this.transferStatus == TransferStatus.SUCCESS) {
-        // the file was written completely
-        this.targetFile.close();
-        // post the result to the complete handler
-        if (this.writeCompleteHandler == null) {
-          // no handler - will be handled otherwise
-          return true;
-        }
-        // delete the file after posting
-        try (var inputStream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE)) {
-          this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, inputStream);
-          return true;
-        }
+      // check if the data transfer is still running
+      if (this.transferStatus != TransferStatus.RUNNING) {
+        throw new IllegalStateException("chunked transfer received data after completion");
       }
-      // not completed yet
+
+      // write the packet content to disk
+      this.writePacketContent(chunkPosition, dataBuf);
+      this.writtenFileParts++;
+
+      // clean up in case the last chunk was just received
+      if (this.expectedFileParts != -1 && this.expectedFileParts == this.writtenFileParts) {
+        this.transferStatus = TransferStatus.SUCCESS;
+        this.targetFile.close();
+
+        // call the write completion handler, if present
+        if (this.writeCompleteHandler != null) {
+          try (var inputStream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE)) {
+            this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, inputStream);
+          }
+        }
+
+        return true;
+      }
+
+      // not the last chunk, continue processing
       return false;
     } catch (IOException exception) {
       this.transferStatus = TransferStatus.FAILURE;
@@ -141,14 +154,6 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     } finally {
       this.lock.unlock();
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull Callback callback() {
-    return this.writeCompleteHandler;
   }
 
   /**
@@ -160,31 +165,8 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
    * @throws NullPointerException if the given buffer is null.
    */
   protected void writePacketContent(int chunkPosition, @NonNull DataBuf dataBuf) throws IOException {
-    // calculate the index of to which we need to sink in order to write
-    var targetIndex = chunkPosition * this.chunkSessionInformation.chunkSize();
-    // sink to the index of the chunk position we need to write to
-    this.targetFile.seek(targetIndex);
-    // write the content into the file at the current offset we sunk to
+    var filePosition = Math.multiplyFull(chunkPosition, this.chunkSessionInformation.chunkSize());
+    this.targetFile.seek(filePosition);
     this.targetFile.write(dataBuf.readByteArray());
-    // notify our index about the write operation
-    this.writtenFileParts++;
-  }
-
-  /**
-   * Updates the status of the file transfer. This method will set the status to completed when:
-   * <ol>
-   *   <li>The current status is {@code RUNNING}.
-   *   <li>The amount of chunk parts of the transfer is known.
-   *   <li>The amount of written chunk parts matches the amount of expected chunk parts.
-   * </ol>
-   */
-  protected void updateStatus() {
-    // we only need to update the status when the transfer is running but the whole content was written
-    if (this.transferStatus == TransferStatus.RUNNING
-      && this.expectedFileParts != null
-      && this.expectedFileParts == this.writtenFileParts
-    ) {
-      this.transferStatus = TransferStatus.SUCCESS;
-    }
   }
 }

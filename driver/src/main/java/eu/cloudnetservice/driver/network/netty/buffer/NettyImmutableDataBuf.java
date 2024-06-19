@@ -333,13 +333,12 @@ public class NettyImmutableDataBuf implements DataBuf {
    * @throws NullPointerException if the given reader function is null.
    */
   protected @NonNull <T> T hotRead(@NonNull Function<Buffer, T> reader) {
-    // get the result
     var result = reader.apply(this.buffer);
-    // check if the reader index reached the end and try to release the message then
     if (this.buffer.readableBytes() <= 0) {
+      // try to release the buffer in case the end of the data was reached
       this.release();
     }
-    // return the read result
+
     return result;
   }
 }

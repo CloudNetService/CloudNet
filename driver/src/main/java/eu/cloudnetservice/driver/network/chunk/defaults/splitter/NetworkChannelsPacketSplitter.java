@@ -37,19 +37,20 @@ public record NetworkChannelsPacketSplitter(@NonNull Collection<NetworkChannel> 
    */
   @Override
   public void accept(@NonNull Packet packet) {
-    // write to all channels
+    var packetContent = packet.content();
     for (var channel : this.channels) {
       try {
-        // acquire the packet content and start a transaction, then send the data
-        packet.content().acquire().startTransaction();
+        // acquire the packet here to prevent releasing of the content when the packet gets serialized
+        // for actual sending into the network. this also implicitly removes our need to release the packet
+        // in the finally block - it's already done at that point
+        packetContent.acquire().startTransaction();
         channel.sendPacketSync(packet);
       } finally {
-        // redo the transaction to allow further writes
-        packet.content().redoTransaction();
+        packetContent.redoTransaction();
       }
     }
 
-    // release the packet content
-    packet.content().release();
+    // force release the packet content, in case something went wrong
+    packetContent.forceRelease();
   }
 }
