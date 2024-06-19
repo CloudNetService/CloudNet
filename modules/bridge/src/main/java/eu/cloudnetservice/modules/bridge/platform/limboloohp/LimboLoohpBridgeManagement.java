@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.platform.limboloohp;
 
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
-
 import com.loohp.limbo.Limbo;
 import com.loohp.limbo.player.Player;
 import com.loohp.limbo.plugins.LimboPlugin;
@@ -29,6 +27,7 @@ import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -89,7 +88,7 @@ final class LimboLoohpBridgeManagement extends PlatformBridgeManagement<Player, 
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       limbo::getPlayers);
     // init the bridge properties
-    serviceHelper.motd().set(legacySection().serialize(limbo.getServerProperties().getMotd()));
+    serviceHelper.motd().set(ComponentFormats.ADVENTURE.toAdventure(limbo.getServerProperties().getMotd()));
     serviceHelper.maxPlayers().set(limbo.getServerProperties().getMaxPlayers());
   }
 
