@@ -40,7 +40,6 @@ asm = "9.7"
 oshi = "6.6.0"
 vavr = "0.10.4"
 sshj = "0.38.0"
-jjwt = "0.12.5"
 slf4j = "2.0.12"
 aerogel = "2.1.0"
 awsSdk = "2.25.3"
@@ -104,11 +103,6 @@ nightConfigJson = { group = "com.electronwill.night-config", name = "json", vers
 cloudCore = { group = "com.github.CloudNetService.cloud-command-framework", name = "cloud-core", version.ref = "cloud" }
 cloudAnnotations = { group = "com.github.CloudNetService.cloud-command-framework", name = "cloud-annotations", version.ref = "cloud" }
 
-# jjwt
-jjwtApi = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" }
-jjwtImpl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt" }
-jjwtGson = { group = "io.jsonwebtoken", name = "jjwt-gson", version.ref = "jjwt" }
-
 # junit
 junitApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
 junitParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
@@ -132,7 +126,6 @@ dockerJavaHttpclient5 = { group = "com.github.docker-java", name = "docker-java-
 
 # netty
 nettyHandler = { group = "io.netty", name = "netty5-handler", version.ref = "netty" }
-nettyCodecHttp = { group = "io.netty", name = "netty5-codec-http", version.ref = "netty" }
 nettyNativeEpoll = { group = "io.netty", name = "netty5-transport-native-epoll", version.ref = "netty" }
 nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue", version.ref = "netty" }
 
@@ -204,8 +197,7 @@ npcLib = ["npcLib", "npcLibLabymod"]
 unirest = ["unirest", "unirestGson"]
 mysql = ["mysqlConnector", "hikariCp"]
 cloud = ["cloudCore", "cloudAnnotations"]
-netty = ["nettyHandler", "nettyCodecHttp"]
-jjwt = ["jjwtApi", "jjwtImpl", "jjwtGson"]
+netty = ["nettyHandler"]
 junit = ["junitApi", "junitParams", "junitEngine"]
 dockerJava = ["dockerJavaApi", "dockerJavaHttpclient5"]
 testContainers = ["testContainers", "testContainersJunit"]

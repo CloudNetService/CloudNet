@@ -20,14 +20,12 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConfigurationUpdateEvent;
-import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyLoginConfiguration;
@@ -64,7 +62,6 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   protected final ServiceInfoHolder serviceInfoHolder;
   protected final CloudServiceProvider serviceProvider;
   protected final ScheduledExecutorService executorService;
-  protected final PermissionManagement permissionManagement;
 
   protected SyncProxyConfiguration configuration;
   protected SyncProxyLoginConfiguration currentLoginConfiguration;
@@ -78,8 +75,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull CloudServiceProvider serviceProvider,
-    @NonNull ScheduledExecutorService executorService,
-    @NonNull PermissionManagement permissionManagement
+    @NonNull ScheduledExecutorService executorService
   ) {
     this.rpcFactory = rpcFactory;
     this.eventManager = eventManager;
@@ -88,7 +84,6 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     this.serviceInfoHolder = serviceInfoHolder;
     this.serviceProvider = serviceProvider;
     this.executorService = executorService;
-    this.permissionManagement = permissionManagement;
 
     this.rpcSender = rpcFactory.providerForClass(networkClient, SyncProxyManagement.class);
   }
@@ -298,21 +293,5 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     input.put("syncproxy_max_players", Component.text(String.valueOf(maxPlayers)));
     input.put("player_name", Component.text(this.playerName(player)));
     BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
-
-    if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
-      var permissionUser = this.permissionManagement.user(this.playerUniqueId(player));
-
-      if (permissionUser != null) {
-        var group = this.permissionManagement.highestPermissionGroup(permissionUser);
-
-        if (group != null) {
-          input.put("perms_group_prefix", Component.text(group.prefix()));
-          input.put("perms_group_suffix", Component.text(group.suffix()));
-          input.put("perms_group_display", Component.text(group.display()));
-          input.put("perms_group_color", Component.text(group.color()));
-          input.put("perms_group_name", Component.text(group.name()));
-        }
-      }
-    }
-  }
+ }
 }
