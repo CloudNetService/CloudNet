@@ -4,7 +4,7 @@
 shadow = "8.1.7"
 juppiter = "0.4.0"
 spotless = "6.25.0"
-fabricLoom = "1.6.11"
+fabricLoom = "1.7.1"
 nexusPublish = "2.0.0-rc-2"
 checkstyleTools = "10.17.0"
 
@@ -59,10 +59,10 @@ sponge = "9.0.0"
 velocity = "3.1.1"
 waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
-minestom = "0f81bc31ff"
+minestom = "f1d5940855"
 minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
-bungeecord = "1.20-R0.3-SNAPSHOT"
+bungeecord = "1.21-R0.1-SNAPSHOT"
 limboloohp = "0.7.9-ALPHA"
 
 # platform extensions
@@ -75,8 +75,8 @@ adventure-serializer-bungee = "4.3.2"
 luckPermsApi = "5.4"
 
 # fabric platform special dependencies
-minecraft = "1.20.6"
-fabricLoader = "0.15.10"
+minecraft = "1.21"
+fabricLoader = "0.15.11"
 
 
 [libraries]
