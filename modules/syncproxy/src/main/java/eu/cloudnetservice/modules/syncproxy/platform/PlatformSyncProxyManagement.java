@@ -293,5 +293,5 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     input.put("syncproxy_max_players", Component.text(String.valueOf(maxPlayers)));
     input.put("player_name", Component.text(this.playerName(player)));
     BridgeServiceHelper.fillCommonPlaceholders(input, null, this.serviceInfoHolder.serviceInfo());
- }
+  }
 }
