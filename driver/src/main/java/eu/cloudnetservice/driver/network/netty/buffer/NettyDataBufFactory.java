@@ -36,7 +36,6 @@ import lombok.NonNull;
 public class NettyDataBufFactory implements DataBufFactory {
 
   public static final NettyDataBufFactory INSTANCE = new NettyDataBufFactory();
-  // we always use off-heap as this is the preferred allocator on Java 9+ (and we required Java 17)
   protected static final BufferAllocator ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
 
   /**

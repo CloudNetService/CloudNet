@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@Deprecated // todo: no longer needed as abstraction since http server is gone
 @ApiStatus.Internal
 public abstract class NettySslServer {
 

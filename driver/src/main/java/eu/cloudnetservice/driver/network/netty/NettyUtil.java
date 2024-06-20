@@ -48,27 +48,24 @@ import org.jetbrains.annotations.Range;
 @ApiStatus.Internal
 public final class NettyUtil {
 
-  // pre-computed var int byte lengths
-  private static final int[] VAR_INT_BYTE_LENGTHS = new int[33];
   // transport
   private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudnet.no-native");
   private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
+
   // packet thread handling
   private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
   static {
-    // check if the leak detection level is set before overriding it
-    // may be useful for debugging of the network
-    if (System.getProperty("io.netty5.leakDetection.level") == null) {
+    // check if resource leak detection should be enabled for debugging purposes
+    // if that is not the case leak detection will be disabled completely
+    var enableLeakDetection = Boolean.getBoolean("cloudnet.network.leak-detection-enabled");
+    if (enableLeakDetection) {
+      ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
+      System.setProperty("io.netty5.buffer.leakDetectionEnabled", "true");
+    } else {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+      System.setProperty("io.netty5.buffer.leakDetectionEnabled", "false");
     }
-
-    // pre-compute all var int byte lengths
-    for (var i = 0; i <= 32; ++i) {
-      VAR_INT_BYTE_LENGTHS[i] = (int) Math.ceil((31d - (i - 1)) / 7d);
-    }
-    // 0 is always one byte long
-    VAR_INT_BYTE_LENGTHS[32] = 1;
   }
 
   private NettyUtil() {
@@ -197,11 +194,21 @@ public final class NettyUtil {
   /**
    * Gets the number of bytes that writing the given content length as a var int will take in the underlying buffer.
    *
-   * @param contentLength the number to get the amount of bytes for.
+   * @param value the number to get the amount of bytes for.
    * @return the number of bytes writing the given number as a var int will take.
    */
-  public static int varIntBytes(int contentLength) {
-    return VAR_INT_BYTE_LENGTHS[Integer.numberOfLeadingZeros(contentLength)];
+  public static int varIntBytes(int value) {
+    if (value < 0 || value >= 268_435_456) {
+      return 5;
+    } else if (value < 128) {
+      return 1;
+    } else if (value < 16_384) {
+      return 2;
+    } else if (value < 2_097_152) {
+      return 3;
+    } else {
+      return 4;
+    }
   }
 
   /**
