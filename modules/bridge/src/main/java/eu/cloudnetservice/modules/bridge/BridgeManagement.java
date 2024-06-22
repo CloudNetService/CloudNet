@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import lombok.NonNull;
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.ApiStatus;
  *
  * @since 4.0
  */
-@RPCValidation
 public interface BridgeManagement {
 
   String BRIDGE_PLAYER_DB_NAME = "cloudnet_cloud_players";
@@ -41,7 +39,8 @@ public interface BridgeManagement {
    *
    * @return the currently loaded configuration.
    */
-  @NonNull BridgeConfiguration configuration();
+  @NonNull
+  BridgeConfiguration configuration();
 
   /**
    * Sets the bridge configuration for every connected component in the cluster that is running the bridge.

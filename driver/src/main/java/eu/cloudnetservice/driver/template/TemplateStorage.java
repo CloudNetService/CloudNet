@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.template;
 
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@RPCValidation("deployDirectory.*")
 public interface TemplateStorage extends AutoCloseable, Named {
 
   /**
@@ -253,7 +251,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return all files which are located in the given directory.
    * @throws NullPointerException if the given template or directory is null.
    */
-  @NonNull Collection<FileInfo> listFiles(@NonNull ServiceTemplate template, @NonNull String dir, boolean deep);
+  @NonNull
+  Collection<FileInfo> listFiles(@NonNull ServiceTemplate template, @NonNull String dir, boolean deep);
 
   /**
    * Gets a list of all templates that exist in this storage. Modifications to the collection won't have any effect.
@@ -267,7 +266,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    *
    * @return all templates which are located in this storage.
    */
-  @NonNull Collection<ServiceTemplate> templates();
+  @NonNull
+  Collection<ServiceTemplate> templates();
 
   /**
    * Closes this storage and releases all resources which are associated with it (if any). Calls which are made to this

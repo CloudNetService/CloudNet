@@ -16,18 +16,17 @@
 
 package eu.cloudnetservice.modules.labymod;
 
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import lombok.NonNull;
 
-@RPCValidation
 public interface LabyModManagement {
 
   String LABYMOD_CLIENT_CHANNEL = "labymod3:main";
   String LABYMOD_MODULE_CHANNEL = "labymod_internal";
   String LABYMOD_UPDATE_CONFIG = "update_labymod_config";
 
-  @NonNull LabyModConfiguration configuration();
+  @NonNull
+  LabyModConfiguration configuration();
 
   void configuration(@NonNull LabyModConfiguration configuration);
 }
