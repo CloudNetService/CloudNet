@@ -19,13 +19,11 @@ package eu.cloudnetservice.driver.network.netty.server;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.network.DefaultNetworkComponent;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.NetworkServer;
 import eu.cloudnetservice.driver.network.netty.NettyOptionSettingChannelInitializer;
-import eu.cloudnetservice.driver.network.netty.NettySslServer;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
@@ -36,14 +34,24 @@ import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.WriteBufferWaterMark;
 import io.netty5.channel.unix.UnixChannelOption;
+import io.netty5.handler.ssl.ClientAuth;
+import io.netty5.handler.ssl.IdentityCipherSuiteFilter;
+import io.netty5.handler.ssl.SslContext;
+import io.netty5.handler.ssl.SslContextBuilder;
+import io.netty5.handler.ssl.util.SelfSignedCertificate;
 import io.netty5.util.concurrent.Future;
 import jakarta.inject.Singleton;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import javax.net.ssl.SSLException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,12 +61,13 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 @Singleton
-public class NettyNetworkServer extends NettySslServer implements DefaultNetworkComponent, NetworkServer {
+public class NettyNetworkServer implements NetworkServer {
 
   protected static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
 
-  protected final EventLoopGroup bossEventLoopGroup = NettyUtil.newEventLoopGroup(1);
-  protected final EventLoopGroup workerEventLoopGroup = NettyUtil.newEventLoopGroup(0);
+  protected final SslContext sslContext;
+  protected final EventLoopGroup bossEventLoopGroup;
+  protected final EventLoopGroup workerEventLoopGroup;
 
   protected final Collection<NetworkChannel> channels = ConcurrentHashMap.newKeySet();
   protected final Map<HostAndPort, Future<Void>> channelFutures = new ConcurrentHashMap<>();
@@ -100,15 +109,71 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
     @NonNull Callable<NetworkChannelHandler> handlerFactory,
     @Nullable SSLConfiguration sslConfiguration
   ) {
-    super(sslConfiguration);
     this.eventManager = eventManager;
     this.handlerFactory = handlerFactory;
-    this.packetDispatcher = NettyUtil.newPacketDispatcher(componentInfo.environment());
+
+    this.sslContext = initializeSslContext(sslConfiguration);
+    this.bossEventLoopGroup = NettyUtil.createBossEventLoopGroup();
+    this.workerEventLoopGroup = NettyUtil.createWorkerEventLoopGroup(componentInfo.environment());
+
+    this.packetDispatcher = NettyUtil.createPacketDispatcher(componentInfo.environment());
+  }
+
+  /**
+   * Builds the ssl context for this server if a ssl configuration was supplied and is active.
+   *
+   * @param sslConfig the supplied ssl configuration to build the ssl context based on, can be null.
+   * @return the constructed ssl context based on the given configuration.
+   * @throws IllegalStateException    if an error occurs during construction of the ssl context.
+   * @throws IllegalArgumentException if the trust certificate chain or private key file is invalid.
+   */
+  private static @Nullable SslContext initializeSslContext(@Nullable SSLConfiguration sslConfig) {
+    if (sslConfig == null || !sslConfig.enabled()) {
+      return null;
+    }
+
+    // if client auth is enabled the server will require authorization from the server,
+    // in all other cases we can just skip that step
+    var clientAuthMode = sslConfig.clientAuth() ? ClientAuth.REQUIRE : ClientAuth.NONE;
 
     try {
-      this.init();
-    } catch (Exception exception) {
-      LOGGER.severe("Exception while initializing the netty network server", exception);
+      var keyPath = sslConfig.privateKeyPath();
+      var keyCertificatePath = sslConfig.certificatePath();
+      if (keyPath != null
+        && keyCertificatePath != null
+        && Files.isRegularFile(keyPath)
+        && Files.isRegularFile(keyCertificatePath)) {
+        // use the keys provided in the ssl configuration
+        try (
+          var keyStream = Files.newInputStream(keyPath, StandardOpenOption.READ);
+          var keyCertChainStream = Files.newInputStream(keyCertificatePath, StandardOpenOption.READ)
+        ) {
+          return SslContextBuilder.forServer(keyCertChainStream, keyStream, sslConfig.privateKeyPassword())
+            .clientAuth(clientAuthMode)
+            .applicationProtocolConfig(null)
+            .sslProvider(NettyUtil.selectedSslProvider())
+            .ciphers(null, IdentityCipherSuiteFilter.INSTANCE)
+            .build();
+        }
+      } else {
+        // provided paths are not given or invalid, use a self-signed certificate instead
+        var selfSignedCertificate = new SelfSignedCertificate();
+        return SslContextBuilder.forServer(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())
+          .clientAuth(clientAuthMode)
+          .applicationProtocolConfig(null)
+          .sslProvider(NettyUtil.selectedSslProvider())
+          .ciphers(null, IdentityCipherSuiteFilter.INSTANCE)
+          .build();
+      }
+    } catch (SSLException exception) {
+      var errorMessage = String.format("Unable to build server ssl provider from configuration %s", sslConfig);
+      throw new IllegalStateException(errorMessage, exception);
+    } catch (CertificateException exception) {
+      var errorMessage = String.format("Unable to generated self-signed certificate; ssl-config: %s", sslConfig);
+      throw new IllegalStateException(errorMessage, exception);
+    } catch (IOException exception) {
+      var errorMessage = String.format("Unable to open cert chain or private key for server ssl config %s", sslConfig);
+      throw new IllegalStateException(errorMessage, exception);
     }
   }
 
@@ -153,11 +218,9 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
       .bind(hostAndPort.host(), hostAndPort.port())
       .addListener(future -> {
         if (future.isSuccess()) {
-          // ok, we bound successfully
           result.complete(null);
           this.channelFutures.put(hostAndPort, future.getNow().closeFuture());
         } else {
-          // something went wrong
           result.completeExceptionally(future.cause());
         }
       });
@@ -200,8 +263,28 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Collection<NetworkChannel> modifiableChannels() {
-    return this.channels;
+  public @NonNull PacketListenerRegistry packetRegistry() {
+    return this.packetRegistry;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void sendPacket(@NonNull Packet packet) {
+    for (var channel : this.channels) {
+      channel.sendPacket(packet);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void sendPacketSync(@NonNull Packet packet) {
+    for (var channel : this.channels) {
+      channel.sendPacketSync(packet);
+    }
   }
 
   /**
@@ -218,7 +301,11 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
    * {@inheritDoc}
    */
   @Override
-  public @NonNull PacketListenerRegistry packetRegistry() {
-    return this.packetRegistry;
+  public void closeChannels() {
+    var iterator = this.channels.iterator();
+    while (iterator.hasNext()) {
+      iterator.next().close();
+      iterator.remove();
+    }
   }
 }

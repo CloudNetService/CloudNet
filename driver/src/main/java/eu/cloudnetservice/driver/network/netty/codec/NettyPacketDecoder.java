@@ -52,8 +52,8 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
    */
   @Override
   protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer in) {
-    // validates that the channel associated to this decoder call is still active and actually transferred data before
-    // beginning to read.
+    // validates that the channel associated to this decoder call is still active and actually
+    // transferred data before beginning to read.
     if (!ctx.channel().isActive() || in.readableBytes() <= 0) {
       return;
     }
