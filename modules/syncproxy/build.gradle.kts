@@ -25,7 +25,7 @@ tasks.withType<Jar> {
 }
 
 tasks.withType<JavaCompile> {
-  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/syncproxy.aero")
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/syncproxy.aero")
 }
 
 dependencies {

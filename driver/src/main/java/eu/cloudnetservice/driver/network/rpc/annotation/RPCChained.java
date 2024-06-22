@@ -49,6 +49,7 @@ public @interface RPCChained {
    */
   Class<?> baseImplementation() default Object.class;
 
+  // CHECKSTYLE.OFF: CheckStyle has a bug with annotations inside snippets in JD, see CHECKSTYLE-14446
   /**
    * A mapping that defines how parameters should be passed into the constructor of the implemented class. If the array
    * is empty no parameters will be passed to the constructor. The array has a format of index to index mappings. The
@@ -65,5 +66,6 @@ public @interface RPCChained {
    *
    * @return the mapping for the parameter of the method to the constructor parameters.
    */
+  // CHECKSTYLE.ON
   int[] parameterMapping() default {};
 }

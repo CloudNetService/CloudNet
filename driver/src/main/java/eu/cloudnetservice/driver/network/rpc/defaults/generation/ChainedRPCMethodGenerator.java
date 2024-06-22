@@ -52,7 +52,7 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
     var paramMappings = rpcChainMeta.parameterMappings();
     var targetReturnType = targetMethod.methodType().returnType();
     var chainBaseType = Objects.requireNonNullElse(rpcChainMeta.baseImplementationType(), targetReturnType);
-    validateConstructorArgumentMapping(paramMappings, chainBaseType, targetMethod);
+    this.validateConstructorArgumentMapping(paramMappings, chainBaseType, targetMethod);
 
     // register the instance factory, construct the chain base & push the extra constructor parameters
     var additionalGenFlags = rpcChainMeta.generationFlags();
@@ -194,7 +194,7 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
     for (var constructor : constructors) {
       if (constructor.isAnnotationPresent(RPCInvocationTarget.class)) {
         // found rpc invocation target, validate the constructor arguments
-        validateConstructorArgumentMapping(paramMappings, targetMethod, constructor);
+        this.validateConstructorArgumentMapping(paramMappings, targetMethod, constructor);
         return;
       }
     }

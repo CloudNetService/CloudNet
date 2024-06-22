@@ -224,7 +224,7 @@
     <module name="CatchParameterName">
       <message key="name.invalidPattern"
         value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[a-z_]([a-z0-9][a-zA-Z0-9]*)?$"/>
     </module>
     <module name="LocalVariableName">
       <message key="name.invalidPattern"

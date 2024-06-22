@@ -107,8 +107,10 @@ subprojects {
     options.encoding = "UTF-8"
     options.isIncremental = true
 
-    options.compilerArgs.add("--enable-preview")
-    options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
+    if (project.path != ":launcher:java8") {
+      options.compilerArgs.add("--enable-preview")
+      options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
+    }
   }
 
   tasks.withType<Checkstyle> {

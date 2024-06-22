@@ -30,7 +30,7 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<JavaCompile> {
-  options.compilerArgs = listOf("-AaerogelAutoFileName=autoconfigure/driver.aero")
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/driver.aero")
 }
 
 tasks.withType<Test> {
