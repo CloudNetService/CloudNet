@@ -100,9 +100,21 @@ public final class VelocityPlayerManagementListener {
   @Subscribe(order = PostOrder.FIRST)
   public void handleInitialServerChoose(@NonNull PlayerChooseInitialServerEvent event) {
     // filter the next fallback
-    event.setInitialServer(this.management.fallback(event.getPlayer())
+    this.management.fallback(event.getPlayer())
       .flatMap(service -> this.proxyServer.getServer(service.name()))
-      .orElse(null));
+      .ifPresentOrElse(event::setInitialServer, () -> {
+        var kickMessage = this.management.configuration().findMessage(
+          event.getPlayer().getEffectiveLocale(),
+          "proxy-join-disconnect-because-no-hub",
+          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+          null,
+          true);
+        // kick the player if a kick message is set. By setting a kick message there is no possibility for other plugins
+        // to overwrite this decision
+        if (kickMessage != null) {
+          event.getPlayer().disconnect(kickMessage);
+        }
+      });
   }
 
   @Subscribe(order = PostOrder.FIRST)
@@ -124,12 +136,22 @@ public final class VelocityPlayerManagementListener {
             return KickedFromServerEvent.RedirectPlayer.create(server, this.extractReasonComponent(event));
           }
         })
-        .orElse(KickedFromServerEvent.DisconnectPlayer.create(this.management.configuration().findMessage(
-          event.getPlayer().getEffectiveLocale(),
-          "proxy-join-disconnect-because-no-hub",
-          ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
-          Component.empty(),
-          true))));
+        .orElseGet(() -> {
+          var serverKickReason = event.getServerKickReason();
+          var fallbackConfig = this.management.currentFallbackConfiguration();
+          // use the server kick reason if present & enabled in the configuration
+          if (serverKickReason.isPresent() && fallbackConfig != null && fallbackConfig.showDownstreamKickMessage()) {
+            return KickedFromServerEvent.DisconnectPlayer.create(serverKickReason.get());
+          }
+
+          // just fallback to the configuration message
+          return KickedFromServerEvent.DisconnectPlayer.create(this.management.configuration().findMessage(
+            event.getPlayer().getEffectiveLocale(),
+            "server-kick-no-other-hub",
+            ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+            Component.empty(),
+            true));
+        }));
     }
   }
 

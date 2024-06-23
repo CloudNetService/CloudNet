@@ -142,6 +142,19 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       } else {
         // no lobby server - cancel the event; another plugin might be able to override that decision
         event.setCancelled(true);
+
+        var kickMessage = this.management.configuration().findMessage(
+          event.getPlayer().getLocale(),
+          "proxy-join-disconnect-because-no-hub",
+          this.bungeeHelper::translateToComponent,
+          null,
+          true);
+
+        // if there is a kick message specified, we will kick the player. No other plugin can override in that case
+        // otherwise we just do nothing.
+        if (kickMessage != null) {
+          player.disconnect(kickMessage);
+        }
       }
     }
   }
@@ -181,12 +194,15 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         event.setCancelled(false);
         event.setCancelServer(null);
 
-        // set the cancel reason
-        this.management.configuration().handleMessage(
-          event.getPlayer().getLocale(),
-          "proxy-join-disconnect-because-no-hub",
-          this.bungeeHelper::translateToComponent,
-          event::setKickReasonComponent);
+        var fallbackConfig = this.management.currentFallbackConfiguration();
+        if (event.getReason() == null || (fallbackConfig != null && !fallbackConfig.showDownstreamKickMessage())) {
+          // set the cancel reason if there is no reason from the downstream service
+          this.management.configuration().handleMessage(
+            event.getPlayer().getLocale(),
+            "server-kick-no-other-hub",
+            this.bungeeHelper::translateToComponent,
+            event::setKickReasonComponent);
+        }
       }
     }
   }

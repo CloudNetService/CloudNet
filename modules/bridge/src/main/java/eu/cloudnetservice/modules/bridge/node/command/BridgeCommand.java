@@ -94,6 +94,7 @@ public class BridgeCommand {
     // create a new configuration for the given target group
     var fallbackConfiguration = new ProxyFallbackConfiguration(
       group.name(),
+      false,
       "Lobby",
       Collections.emptyList());
     var configuration = this.bridgeManagement.configuration();
