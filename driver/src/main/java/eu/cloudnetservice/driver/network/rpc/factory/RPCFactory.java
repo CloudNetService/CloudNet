@@ -64,5 +64,5 @@ public interface RPCFactory {
    * @throws IllegalStateException    if some precondition, to ensure functionality with rpc, fails.
    */
   @NonNull
-  <T> RPCImplementationBuilder<T> newPCBasedImplementationBuilder(@NonNull Class<T> baseClass);
+  <T> RPCImplementationBuilder<T> newRPCBasedImplementationBuilder(@NonNull Class<T> baseClass);
 }

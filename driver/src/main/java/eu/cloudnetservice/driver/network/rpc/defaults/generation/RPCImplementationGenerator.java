@@ -122,10 +122,11 @@ final class RPCImplementationGenerator {
     var classFileBytes = ClassFile.of().build(this.generatingClass, classBuilder -> {
       // set the superclass and optional the superinterface
       var targetClass = this.targetClassMeta.targetClass();
-      classBuilder.withSuperclass(baseConstructorInformation.first());
+      var superDesc = ClassDesc.of(targetClass.getName());
       if (targetClass.isInterface()) {
-        var superinterfaceDesc = ClassDesc.of(targetClass.getName());
-        classBuilder.withInterfaceSymbols(superinterfaceDesc);
+        classBuilder.withInterfaceSymbols(superDesc);
+      } else {
+        classBuilder.withSuperclass(superDesc);
       }
 
       // add base rpc fields
@@ -197,20 +198,19 @@ final class RPCImplementationGenerator {
    */
   private @NonNull Tuple2<ClassDesc, MethodTypeDesc> resolveBaseConstructorInformation() {
     var targetClass = this.targetClassMeta.targetClass();
-    var superClass = targetClass.getSuperclass();
-    if (targetClass.isInterface() || superClass == Object.class) {
-      // either extends object or is an interface - no constructor args needed
+    if (targetClass.isInterface()) {
+      // is an interface - no constructor args needed
       return new Tuple2<>(ConstantDescs.CD_Object, RPCGenerationConstants.MTD_NO_ARGS_CONSTRUCTOR);
     }
 
     // try to find a constructor that is explicitly annotated with @RPCInvocationTarget
-    var superClassDesc = ClassDesc.of(superClass.getName());
-    var constructors = superClass.getDeclaredConstructors();
+    var superClassDesc = ClassDesc.of(targetClass.getName());
+    var constructors = targetClass.getDeclaredConstructors();
     for (var constructor : constructors) {
       if (constructor.isAnnotationPresent(RPCInvocationTarget.class)) {
         var constructorParamTypes = constructor.getParameterTypes();
         var paramTypeDescriptors = Arrays.stream(constructorParamTypes)
-          .map(paramType -> ClassDesc.of(paramType.getName()))
+          .map(paramType -> ClassDesc.ofDescriptor(paramType.descriptorString()))
           .toList();
         var constructorMethodDescriptor = MethodTypeDesc.of(ConstantDescs.CD_void, paramTypeDescriptors);
         return new Tuple2<>(superClassDesc, constructorMethodDescriptor);
@@ -224,7 +224,7 @@ final class RPCImplementationGenerator {
       }
     }
 
-    throw new IllegalStateException(String.format("no target constructor for rpc found in %s", superClass.getName()));
+    throw new IllegalStateException(String.format("no target constructor for rpc found in %s", targetClass.getName()));
   }
 
   /**
@@ -254,7 +254,7 @@ final class RPCImplementationGenerator {
           .aload(0)
           .getfield(this.generatingClass, RPCGenerationConstants.FN_BASE_RPC, RPCGenerationConstants.CD_CHAINABLE_RPC)
           .ifThenElse(
-            Opcode.IFNONNULL,
+            Opcode.IFNULL,
             ifNullCode -> ifNullCode.aload(baseRPCStoreSlot).areturn(),
             ifNonNullCode -> ifNonNullCode
               .aload(0)

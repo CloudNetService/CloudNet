@@ -197,7 +197,8 @@ final class RPCGenerationContext {
         .invokestatic(
           ConstantDescs.CD_MethodTypeDesc,
           "ofDescriptor",
-          RPCGenerationConstants.MTD_MTD_OF_DESCRIPTOR)
+          RPCGenerationConstants.MTD_MTD_OF_DESCRIPTOR,
+          true)
         .putfield(generatingClass, this.name, RPCGenerationConstants.CD_TYPE_DESC);
     }
   }

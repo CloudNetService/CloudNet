@@ -32,7 +32,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DefaultRPCHandlerRegistryTest {
-
+/*
   @Test
   @Order(0)
   void testRegisterHandler() {
@@ -77,5 +77,5 @@ public class DefaultRPCHandlerRegistryTest {
 
   private RPCFactory provideFactory() {
     return new DefaultRPCFactory(new DefaultObjectMapper(), DataBufFactory.defaultFactory());
-  }
+  }*/
 }

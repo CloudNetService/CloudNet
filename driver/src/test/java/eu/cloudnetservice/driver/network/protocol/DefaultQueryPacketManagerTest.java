@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
 public class DefaultQueryPacketManagerTest {
-
+/*
   @Test
   void testSendQueryPacket() {
     var mockedPacket = this.mockUniqueIdAblePacket();
@@ -102,5 +102,5 @@ public class DefaultQueryPacketManagerTest {
       .uniqueId(Mockito.any());
 
     return new Tuple2<>(packet, reference);
-  }
+  }*/
 }

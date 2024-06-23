@@ -62,13 +62,16 @@ final class DataClassCodecGenerator {
   private static final ClassDesc CD_FIELD_ARRAY = CD_FIELD.arrayType();
   private static final String FIELD_GET_TYPE_NAME = "getGenericType";
   private static final MethodTypeDesc MT_FIELD_GET_TYPE = MethodTypeDesc.of(CD_TYPE);
-
   // data codec descriptors
   private static final ClassDesc CD_DATA_BUF = ClassDesc.of(DataBuf.class.getName());
   private static final ClassDesc CD_DATA_BUF_MUT = ClassDesc.of(DataBuf.Mutable.class.getName());
   private static final ClassDesc CD_OBJECT_MAPPER = ClassDesc.of(ObjectMapper.class.getName());
   private static final ClassDesc CD_DATA_CLASS_CODEC = ClassDesc.of(DataClassCodec.class.getName());
-
+  // method descriptors in generated class
+  private static final MethodTypeDesc MT_CONSTRUCTOR = MethodTypeDesc.of(
+    ConstantDescs.CD_void,
+    CD_FIELD_ARRAY,
+    CD_DATA_CLASS_CODEC);
   // constants for invoking methods in object mapper
   private static final String OBJECT_MAPPER_READ_NAME = "readObject";
   private static final String OBJECT_MAPPER_WRITE_NAME = "writeObject";
@@ -80,12 +83,6 @@ final class DataClassCodecGenerator {
     CD_DATA_BUF_MUT,
     CD_DATA_BUF_MUT,
     ConstantDescs.CD_Object);
-
-  // method descriptors in generated class
-  private static final MethodTypeDesc MT_CONSTRUCTOR = MethodTypeDesc.of(
-    ConstantDescs.CD_void,
-    CD_FIELD_ARRAY,
-    CD_DATA_CLASS_CODEC);
   private static final MethodTypeDesc MT_DESERIALIZE = MethodTypeDesc.of(
     ConstantDescs.CD_Object,
     CD_DATA_BUF,
@@ -144,14 +141,14 @@ final class DataClassCodecGenerator {
         continue;
       }
 
-      // fields might be null here if we're on the root type, and it has no fields
-      var typeFieldsAsArray = fieldsOfType == null ? EMPTY_FIELD_ARRAY : fieldsOfType.toArray(EMPTY_FIELD_ARRAY);
+      // only provide all fields to deserialize to the root type deserializer
+      var fieldsToDeserialize = root ? allFields.toArray(EMPTY_FIELD_ARRAY) : EMPTY_FIELD_ARRAY;
 
       try {
         // generate & instantiate the class
         var lookup = generateClassCodecClass(hierarchyEntry, allFields, root);
         var constructor = lookup.findConstructor(lookup.lookupClass(), MTR_CONSTRUCTOR);
-        previousCodec = (DataClassCodec) constructor.invokeExact(typeFieldsAsArray, previousCodec);
+        previousCodec = (DataClassCodec) constructor.invoke(fieldsToDeserialize, previousCodec);
       } catch (Throwable throwable) {
         throw new IllegalStateException(
           String.format("unable to instantiate generated codec class for %s", hierarchyEntry.getName()),
@@ -260,20 +257,31 @@ final class DataClassCodecGenerator {
         continue;
       }
 
-      var fieldTypeDesc = ClassDesc.of(field.getType().getName());
+      var fieldTypeDesc = ClassDesc.ofDescriptor(field.getType().descriptorString());
       var getterMethod = getAndValidateGetterMethod(field);
       if (getterMethod != null) {
         // get the field value from the specified getter method
         var getterMethodType = MethodTypeDesc.of(fieldTypeDesc);
+        var getterInInterface = getterMethod.getDeclaringClass().isInterface();
+        var invocationOpcode = getterInInterface ? Opcode.INVOKEINTERFACE : Opcode.INVOKEVIRTUAL;
         code
           .aload(2)
           .aload(1)
-          .invokevirtual(targetClassDesc, getterMethod.getName(), getterMethodType);
+          .aload(3)
+          .checkcast(targetClassDesc)
+          .invokeInstruction(
+            invocationOpcode,
+            targetClassDesc,
+            getterMethod.getName(),
+            getterMethodType,
+            getterInInterface);
       } else {
         // get the field value directly
         code
           .aload(2)
           .aload(1)
+          .aload(3)
+          .checkcast(targetClassDesc)
           .getfield(targetClassDesc, field.getName(), fieldTypeDesc);
       }
 
@@ -292,7 +300,7 @@ final class DataClassCodecGenerator {
     code
       .aload(0)
       .getfield(generatingClassDesc, SUPER_CODEC_NAME, CD_DATA_CLASS_CODEC)
-      .ifThen(Opcode.IFNULL, ifGuardedCode -> ifGuardedCode
+      .ifThen(Opcode.IFNONNULL, ifGuardedCode -> ifGuardedCode
         .aload(0)
         .getfield(generatingClassDesc, SUPER_CODEC_NAME, CD_DATA_CLASS_CODEC)
         .aload(1)
@@ -324,7 +332,7 @@ final class DataClassCodecGenerator {
     var constructorParamTypes = new ClassDesc[fieldCount]; // keeps track of the parameter types of the constructor
     for (var index = 0; index < fieldCount; index++) {
       var field = allFields.get(index);
-      var fieldType = ClassDesc.of(field.getType().getName());
+      var fieldType = ClassDesc.ofDescriptor(field.getType().descriptorString());
 
       code
         .aload(2)
@@ -355,6 +363,9 @@ final class DataClassCodecGenerator {
       constructorParamTypes[index] = fieldType;
       parameterTypesStoreSlots[index] = parameterSlot;
     }
+
+    // begin the target class construction
+    code.new_(targetClassDesc).dup();
 
     // build the method type for the constructor to call & load all parameters
     var constructorMethodType = MethodTypeDesc.of(ConstantDescs.CD_void, constructorParamTypes);

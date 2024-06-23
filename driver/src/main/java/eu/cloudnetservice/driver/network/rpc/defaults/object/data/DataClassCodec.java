@@ -27,7 +27,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @since 4.0
  */
 @ApiStatus.Internal
-interface DataClassCodec {
+public interface DataClassCodec {
 
   /**
    * Deserializes the target object of this codec from the given buffer using the given object mapper to deserialize the

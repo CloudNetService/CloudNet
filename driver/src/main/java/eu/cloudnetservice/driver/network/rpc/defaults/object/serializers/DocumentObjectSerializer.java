@@ -32,14 +32,7 @@ import lombok.NonNull;
  */
 public final class DocumentObjectSerializer implements ObjectSerializer<Document> {
 
-  private final DocumentFactoryRegistry documentFactoryRegistry;
-
-  /**
-   * Constructs a new document object serializer instance.
-   */
-  public DocumentObjectSerializer() {
-    this.documentFactoryRegistry = InjectionLayer.boot().instance(DocumentFactoryRegistry.class);
-  }
+  private DocumentFactoryRegistry documentFactoryRegistry;
 
   /**
    * {@inheritDoc}
@@ -51,7 +44,7 @@ public final class DocumentObjectSerializer implements ObjectSerializer<Document
     @NonNull ObjectMapper caller
   ) {
     var documentFactoryName = source.readString();
-    var documentFactory = this.documentFactoryRegistry.documentFactory(documentFactoryName);
+    var documentFactory = this.documentFactoryRegistry().documentFactory(documentFactoryName);
     return documentFactory.parse(source);
   }
 
@@ -67,5 +60,20 @@ public final class DocumentObjectSerializer implements ObjectSerializer<Document
   ) {
     dataBuf.writeString(object.factoryName());
     object.writeTo(dataBuf);
+  }
+
+  /**
+   * Lazy initializes the document factory registry field if not done previously, returning the initialized field value.
+   * Note that the obtaining of the document factory cannot be done in the constructor due to it being called before all
+   * bindings were set up.
+   *
+   * @return the initialized document factory registry field.
+   */
+  private @NonNull DocumentFactoryRegistry documentFactoryRegistry() {
+    if (this.documentFactoryRegistry == null) {
+      this.documentFactoryRegistry = InjectionLayer.boot().instance(DocumentFactoryRegistry.class);
+    }
+
+    return this.documentFactoryRegistry;
   }
 }

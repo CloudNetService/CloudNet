@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.network.rpc.annotation.RPCTimeout;
 import eu.cloudnetservice.driver.network.rpc.defaults.generation.RPCInternalInstanceFactory;
 import io.leangen.geantyref.GenericTypeReflector;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -133,6 +134,13 @@ public record RPCMethodMetadata(
       throw new IllegalStateException(String.format(
         "method %s in %s has too lose bounds to be properly functional with RPC",
         method.getName(), method.getDeclaringClass().getName()));
+    }
+
+    // validate array bounds
+    if (rawType.isArray()) {
+      validateBounds(method, rawType.getComponentType());
+    } else if (type instanceof GenericArrayType genericArrayType) {
+      validateBounds(method, genericArrayType.getGenericComponentType());
     }
   }
 

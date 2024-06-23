@@ -97,7 +97,7 @@ public final class DefaultRPCFactory implements RPCFactory {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull <T> RPCImplementationBuilder<T> newPCBasedImplementationBuilder(@NonNull Class<T> baseClass) {
+  public @NonNull <T> RPCImplementationBuilder<T> newRPCBasedImplementationBuilder(@NonNull Class<T> baseClass) {
     var classMeta = RPCClassMetadata.introspect(baseClass);
     var baseClassSenderBuilder = this.newRPCSenderBuilder(classMeta);
     return new DefaultRPCImplementationBuilder<>(classMeta, baseClassSenderBuilder, this.rpcGenerationCache);

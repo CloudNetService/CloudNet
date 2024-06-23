@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
@@ -372,5 +373,22 @@ public class DefaultObjectMapperTest {
 
     Assertions.assertNotNull(result);
     Assertions.assertEquals(timeInstance, result);
+  }
+
+  @Test
+  @Order(90)
+  void testObjectWithSpecialGetter() {
+    var id = UUID.fromString("62b37d32-3305-475a-bf26-9abee4b0b90f");
+    var objWithGetter = new ObjectWithSpecialGetter(id, "0utplayyyy");
+
+    var mapper = new DefaultObjectMapper();
+    var buf = DataBuf.empty();
+
+    mapper.writeObject(buf, objWithGetter);
+    ObjectWithSpecialGetter result = mapper.readObject(buf, ObjectWithSpecialGetter.class);
+
+    var changedId = UUID.fromString("bcc582ed-494d-4b93-86cb-b58564651a26");
+    Assertions.assertEquals(changedId, result.id());
+    Assertions.assertEquals("0utplayyyy", result.username());
   }
 }

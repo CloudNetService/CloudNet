@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.network.rpc.generation.api;
+package eu.cloudnetservice.driver.network.rpc.object;
 
-import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCFieldGetter;
+import java.util.UUID;
 
-public abstract class SenderNeedingDatabase extends BaseDatabase {
+public record ObjectWithSpecialGetter(
+  @RPCFieldGetter("reallyNoAGetterIDontKnowWhatThisIsId") UUID id,
+  String username
+) {
 
-  public final RPCSender rpcSender;
-
-  @RPCInvocationTarget
-  public SenderNeedingDatabase(RPCSender rpcSender) {
-    this.rpcSender = rpcSender;
+  public UUID reallyNoAGetterIDontKnowWhatThisIsId() {
+    return UUID.fromString("bcc582ed-494d-4b93-86cb-b58564651a26");
   }
 }

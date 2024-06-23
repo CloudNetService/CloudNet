@@ -17,13 +17,16 @@
 package eu.cloudnetservice.driver.network.rpc.generation.chain;
 
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.rpc.RPC;
-import eu.cloudnetservice.driver.network.rpc.RPCChain;
-import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.protocol.BasePacket;
+import eu.cloudnetservice.driver.network.protocol.Packet;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCChained;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCFactory;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,67 +34,86 @@ import org.mockito.Mockito;
 public class RPCChainImplementationGeneratorTest {
 
   @Test
-  public void testGeneration() {
-    var rpcChain = Mockito.mock(RPCChain.class);
-    Mockito.when(rpcChain.fireSync(Mockito.any())).thenAnswer(invocation -> {
-      Assertions.assertNull(invocation.getArgument(0));
-      return "Hello World!";
-    });
+  public void testChainedImplementationGeneration() {
+    var mockedChannel = Mockito.mock(NetworkChannel.class);
+    Mockito.doAnswer(_ -> {
+        var rpcResponse = DataBuf.empty()
+          .writeByte(RPCInvocationResult.STATUS_OK)
+          .writeObject("hello world!");
+        return Task.completedTask(new BasePacket(-1, rpcResponse));
+      })
+      .when(mockedChannel)
+      .sendQueryAsync(Mockito.any(Packet.class));
 
-    var rpc = Mockito.mock(RPC.class);
-    Mockito.when(rpc.join(Mockito.any())).thenAnswer(invocation -> {
-      RPC argument = invocation.getArgument(0);
+    var rpcFactory = new DefaultRPCFactory(DefaultObjectMapper.DEFAULT_MAPPER, DataBufFactory.defaultFactory());
+    var databaseImplementationFactory = rpcFactory.newRPCBasedImplementationBuilder(RootDatabase.class)
+      .targetChannel(mockedChannel)
+      .generateImplementation();
 
-      Assertions.assertEquals("bar", argument.methodName());
-      Assertions.assertEquals(String.class, argument.expectedResultType());
+    var rootDatabase = databaseImplementationFactory.allocate();
+    Assertions.assertEquals("hello world!", rootDatabase.bar("test", 123));
+    Assertions.assertEquals("hello world!", rootDatabase.foo(123456L).join());
 
-      Assertions.assertEquals(2, argument.arguments().length);
-      Assertions.assertEquals("123", argument.arguments()[0]);
-      Assertions.assertEquals(456, argument.arguments()[1]);
+    var subDatabase = rootDatabase.getSubDatabase("test", 2048L);
+    Assertions.assertEquals("test", subDatabase.name);
+    Assertions.assertEquals(2048L, subDatabase.documentCount);
+    Assertions.assertEquals("hello world!", subDatabase.getName());
 
-      return rpcChain;
-    });
+    var subSubDatabase = subDatabase.subSubDatabase();
+    Assertions.assertEquals("<hidden in the depths>", subSubDatabase.getName());
 
-    var sender = Mockito.mock(RPCSender.class);
-    Mockito.when(sender.invokeMethod(Mockito.any(), Mockito.any())).thenAnswer(invocation -> {
-      String method = invocation.getArgument(0);
-      String arg = invocation.getArgument(1);
-
-      Assertions.assertEquals("chrome", method);
-      Assertions.assertEquals("world!", arg);
-
-      return rpc;
-    });
-
-    var factory = new DefaultRPCFactory(new DefaultObjectMapper(), DataBufFactory.defaultFactory());
-    var generatedImpl = factory.generateRPCChainBasedApi(
-      sender,
-      "chrome",
-      Test123.class,
-      GenerationContext.forClass(Test123.class).channelSupplier(() -> null).build()
-    ).newInstance(new Object[]{"test", 123, "xdd"}, new Object[]{"world!"});
-
-    Assertions.assertEquals("test", generatedImpl.name);
-    Assertions.assertEquals(123, generatedImpl.google);
-    Assertions.assertEquals("xdd", generatedImpl.test);
-
-    Assertions.assertEquals("Hello World!", generatedImpl.bar("123", 456));
+    Mockito.verify(mockedChannel, Mockito.times(3)).sendQueryAsync(Mockito.any(Packet.class));
   }
 
-  public abstract static class Test123 {
+  // ============ Testing Class Definitions
 
-    private final String name;
-    private final int google;
-    private final String test;
+  public interface SubSubDatabase {
 
-    public Test123(String name, int google, String test) {
-      this.name = name;
-      this.google = google;
-      this.test = test;
-    }
+    String getName();
+
+    String subDocumentCount();
+  }
+
+  public abstract static class RootDatabase {
 
     public abstract String bar(String a, int b);
 
-    public abstract Task<String> foo();
+    public abstract Task<String> foo(long xyz);
+
+    @RPCChained(parameterMapping = {
+      0, 1, // map name parameter to seconds constructor arg
+      1, 0, // map document count param to first constructor arg
+    })
+    public abstract SubDatabase getSubDatabase(String name, long documentCount);
+  }
+
+  public abstract static class SubDatabase {
+
+    private final String name;
+    private final long documentCount;
+
+    @RPCInvocationTarget
+    public SubDatabase(long documentCount, String name) {
+      this.name = name;
+      this.documentCount = documentCount;
+    }
+
+    public String getName() {
+      return "testing";
+    }
+
+    @RPCChained(
+      generationFlags = 0x00, // instruction to not implement all methods
+      baseImplementation = SubSubDatabaseImplBase.class
+    )
+    public abstract SubSubDatabase subSubDatabase();
+  }
+
+  public abstract static class SubSubDatabaseImplBase implements SubSubDatabase {
+
+    @Override
+    public String getName() {
+      return "<hidden in the depths>";
+    }
   }
 }

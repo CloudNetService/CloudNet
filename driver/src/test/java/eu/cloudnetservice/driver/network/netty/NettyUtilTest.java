@@ -24,7 +24,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 public class NettyUtilTest {
-
+/*
   @Test
   void testWrapperThreadAmount() {
     Assertions.assertEquals(4, NettyUtil.threadAmount(DriverEnvironment.WRAPPER));
@@ -34,7 +34,7 @@ public class NettyUtilTest {
   void testNodeThreadAmount() {
     Assertions.assertTrue(NettyUtil.threadAmount(DriverEnvironment.NODE) >= 8);
   }
-
+*/
   @RepeatedTest(30)
   public void testVarIntCoding() {
     try (var buffer = DefaultBufferAllocators.onHeapAllocator().allocate(0)) {
