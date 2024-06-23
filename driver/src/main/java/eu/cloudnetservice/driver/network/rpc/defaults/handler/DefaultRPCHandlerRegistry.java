@@ -51,7 +51,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
    */
   @Override
   public boolean hasHandler(@NonNull Class<?> targetClass) {
-    return this.hasHandler(targetClass.getCanonicalName());
+    return this.hasHandler(targetClass.getName());
   }
 
   /**
@@ -67,7 +67,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
    */
   @Override
   public @Nullable RPCHandler handler(@NonNull Class<?> targetClass) {
-    return this.handler(targetClass.getCanonicalName());
+    return this.handler(targetClass.getName());
   }
 
   /**
@@ -83,7 +83,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
    */
   @Override
   public boolean registerHandler(@NonNull RPCHandler rpcHandler) {
-    return this.handlers.put(rpcHandler.targetClass().getCanonicalName(), rpcHandler) == null;
+    return this.handlers.put(rpcHandler.targetClass().getName(), rpcHandler) == null;
   }
 
   /**
@@ -94,7 +94,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
     // get the previous handler for the class and validate that they equal
     var handler = this.handler(rpcHandler.targetClass());
     if (handler == rpcHandler) {
-      this.handlers.remove(handler.targetClass().getCanonicalName());
+      this.handlers.remove(handler.targetClass().getName());
       return true;
     }
     // the handlers did not match and was no unregistered
@@ -106,7 +106,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
    */
   @Override
   public boolean unregisterHandler(@NonNull Class<?> rpcHandlerTargetClass) {
-    return this.unregisterHandler(rpcHandlerTargetClass.getCanonicalName());
+    return this.unregisterHandler(rpcHandlerTargetClass.getName());
   }
 
   /**

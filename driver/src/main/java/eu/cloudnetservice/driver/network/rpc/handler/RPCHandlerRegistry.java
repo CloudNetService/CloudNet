@@ -36,11 +36,11 @@ public interface RPCHandlerRegistry {
    * @return all handlers which are registered to this registry.
    */
   @NonNull
-  @UnmodifiableView Map<String, RPCHandler> registeredHandlers();
+  @UnmodifiableView
+  Map<String, RPCHandler> registeredHandlers();
 
   /**
-   * Checks if this registry has a handler for the given target class. This method call should always be equivalent to
-   * {@code registry.hasHandler(targetClass.getCanonicalName())}.
+   * Checks if this registry has a handler for the given target class.
    *
    * @param targetClass the class to check for.
    * @return true if this registry has a handler for the given class, false otherwise.
@@ -59,7 +59,6 @@ public interface RPCHandlerRegistry {
 
   /**
    * Get the handler which is registered for the given target class or null if no handler for the class is registered.
-   * Equivalent to {@code registry.handler(targetClass.getCanonicalName())}.
    *
    * @param targetClass the class to get the rpc handler for.
    * @return the registered rpc handler for the class or null if no handler is registered.
@@ -98,7 +97,6 @@ public interface RPCHandlerRegistry {
 
   /**
    * Unregisters the rpc handler associated with the given target class from this registry if registered previously.
-   * Equivalent to {@code registry.unregisterHandler(rpcHandlerTargetClass.getCanonicalName())}.
    *
    * @param rpcHandlerTargetClass the class to unregister the rpc handler of.
    * @return true if the handler was removed from this registry, false otherwise.

@@ -33,7 +33,7 @@ public final class RPCExecutionException extends RuntimeException {
    * @throws NullPointerException if the given message is null.
    */
   public RPCExecutionException(@NonNull String message) {
-    super(message);
+    super(message, null);
   }
 
   /**

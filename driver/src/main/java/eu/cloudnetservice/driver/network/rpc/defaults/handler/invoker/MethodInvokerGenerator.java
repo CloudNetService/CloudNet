@@ -34,8 +34,9 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class MethodInvokerGenerator {
 
-  // method name of MethodInvoker.callMethod
+  // constants for use with method invoker
   private static final String MI_CALL_METHOD_NAME = "callMethod";
+  private static final ClassDesc CD_METHOD_INVOKER = ClassDesc.of(MethodInvoker.class.getName());
 
   // method descriptor for MethodInvoker.callMethod(Object, Object[]): Object
   private static final MethodTypeDesc MTD_MI_CALL_METHOD = MethodTypeDesc.of(
@@ -52,6 +53,9 @@ public final class MethodInvokerGenerator {
     var classDesc = ownerClassDesc.nested("RPCInvoker", targetMethod.name());
 
     var classFileBytes = ClassFile.of().build(classDesc, classBuilder -> {
+      // implements the method invoker interface
+      classBuilder.withInterfaceSymbols(CD_METHOD_INVOKER);
+
       // generate no-args super constructor call
       classBuilder.withMethodBody(
         ConstantDescs.INIT_NAME,
@@ -112,7 +116,7 @@ public final class MethodInvokerGenerator {
       // define the class as a nest mate in the class defining the method
       var classLookup = CodeGenerationUtil.defineNestedClass(targetMethod.definingClass(), classFileBytes);
       var noArgsConstructor = classLookup.findConstructor(classLookup.lookupClass(), MI_CONSTRUCTOR_TYPE);
-      return (MethodInvoker) noArgsConstructor.invokeExact();
+      return (MethodInvoker) noArgsConstructor.invoke();
     } catch (Throwable throwable) {
       throw new AssertionError("unable to define or constructor method accessor", throwable);
     }
