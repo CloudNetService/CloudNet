@@ -18,8 +18,6 @@ package eu.cloudnetservice.driver.util;
 
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.resource.ResourceResolver;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -34,6 +32,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This module helper class provides helper methods for cloudnet modules that also operate as a plugin on the services.
@@ -43,7 +43,7 @@ import lombok.NonNull;
 @Singleton
 public final class ModuleHelper {
 
-  private static final Logger LOGGER = LogManager.logger(ModuleHelper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ModuleHelper.class);
 
   private final EventManager eventManager;
   private final NetworkClient networkClient;
@@ -81,7 +81,7 @@ public final class ModuleHelper {
         return true;
       }
     } catch (IOException exception) {
-      LOGGER.severe("Unable to copy class path entry of " + clazz + " to " + target, exception);
+      LOGGER.error("Unable to copy class path entry of {} to {}", clazz, target, exception);
       return false;
     }
   }
@@ -116,7 +116,7 @@ public final class ModuleHelper {
       }
       // select the input stream to copy the file from
       var in = clazz.getClassLoader().getResourceAsStream(String.format(
-        "plugin.%s.yml",
+        "plugin.{}.yml",
         StringUtil.toLower(type.name())));
       // copy the file if the file exists
       if (in != null) {

@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.command.source;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import java.util.Collection;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@inheritDoc}
@@ -27,7 +27,7 @@ import lombok.NonNull;
 public class ConsoleCommandSource implements CommandSource {
 
   public static final ConsoleCommandSource INSTANCE = new ConsoleCommandSource();
-  private static final Logger LOGGER = LogManager.logger(ConsoleCommandSource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleCommandSource.class);
 
   /**
    * {@inheritDoc}

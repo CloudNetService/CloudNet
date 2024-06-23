@@ -18,8 +18,6 @@ package eu.cloudnetservice.modules.cloudflare.cloudflare;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
@@ -38,6 +36,8 @@ import kong.unirest.core.HttpRequestWithBody;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class CloudFlareRecordManager {
@@ -48,7 +48,7 @@ public class CloudFlareRecordManager {
 
   protected static final Type LIST_DNS_RECORD_TYPE = TypeFactory.parameterizedClass(List.class, DnsRecord.class);
 
-  protected static final Logger LOGGER = LogManager.logger(CloudFlareRecordManager.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(CloudFlareRecordManager.class);
 
   protected final Multimap<UUID, DnsRecordDetail> createdRecords = Multimaps.newMultimap(
     new ConcurrentHashMap<>(),
@@ -66,7 +66,7 @@ public class CloudFlareRecordManager {
       // check if the response is valid
       List<DnsRecord> result = response.readObject("result", LIST_DNS_RECORD_TYPE, null);
       if (result == null || !response.getBoolean("success")) {
-        LOGGER.fine("Unable to list records for config %s; response was %s", null, configuration, response);
+        LOGGER.debug("Unable to list records for config %s; response was %s", null, configuration, response);
         return List.of();
       }
 
@@ -91,7 +91,8 @@ public class CloudFlareRecordManager {
       // check if the response is valid
       var result = response.readDocument("result", null);
       if (result == null || !response.getBoolean("success")) {
-        LOGGER.fine("Unable to create record %s for config %s; response was %s", null, record, configuration, response);
+        LOGGER.debug("Unable to create record %s for config %s; response was %s", null, record, configuration,
+          response);
         return null;
       }
 
@@ -103,7 +104,7 @@ public class CloudFlareRecordManager {
       this.createdRecords.put(serviceUniqueId, recordDetail);
       return recordDetail;
     }).exceptionally(ex -> {
-      LOGGER.severe("Unable to create cloudflare dns record from %s for config %s", ex, record, configuration);
+      LOGGER.error("Unable to create cloudflare dns record from {} for config {}", record, configuration, ex);
       return null;
     });
   }
@@ -125,7 +126,7 @@ public class CloudFlareRecordManager {
       // check if the response is valid
       var result = response.readDocument("result", null);
       if (result == null || !response.getBoolean("success")) {
-        LOGGER.fine(
+        LOGGER.debug(
           "Unable to patch record %s to %s for config %s; response was %s",
           null,
           oldRecord.id(), record, configuration, response);
@@ -140,10 +141,12 @@ public class CloudFlareRecordManager {
       this.createdRecords.put(serviceUniqueId, recordDetail);
       return recordDetail;
     }).exceptionally(ex -> {
-      LOGGER.severe(
-        "Unable to patch cloudflare dns record %s to %s for config %s",
-        ex,
-        oldRecord.id(), record, configuration);
+      LOGGER.error(
+        "Unable to patch cloudflare dns record {} to {} for config {}",
+        oldRecord.id(),
+        record,
+        configuration,
+        ex);
       return null;
     });
   }
@@ -167,14 +170,14 @@ public class CloudFlareRecordManager {
       // check if the response is valid
       var deletedRecordId = response.readDocument("result").getString("id");
       if (deletedRecordId == null) {
-        LOGGER.fine("Unable to delete record %s (configuration: %s); response: %s", null, id, configuration, response);
+        LOGGER.debug("Unable to delete record %s (configuration: %s); response: %s", null, id, configuration, response);
         return false;
       }
 
       // record was deleted successfully
       return true;
     }).exceptionally(ex -> {
-      LOGGER.fine("Unable to delete record %s (configuration: %s)", ex, id, configuration);
+      LOGGER.debug("Unable to delete record %s (configuration: %s)", ex, id, configuration);
       return false;
     });
   }

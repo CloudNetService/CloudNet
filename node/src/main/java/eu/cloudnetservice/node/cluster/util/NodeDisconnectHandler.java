@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.cluster.util;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -35,11 +33,13 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class NodeDisconnectHandler {
 
-  private static final Logger LOGGER = LogManager.logger(NodeDisconnectHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NodeDisconnectHandler.class);
 
   private final EventManager eventManager;
   private final CloudServiceManager serviceManager;

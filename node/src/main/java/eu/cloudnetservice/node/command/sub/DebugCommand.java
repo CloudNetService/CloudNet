@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.node.command.sub;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.LoggingUtil;
 import eu.cloudnetservice.node.command.annotation.Description;
 import jakarta.inject.Singleton;
-import java.util.logging.Level;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Description("command-debug-description")
@@ -31,11 +31,14 @@ public final class DebugCommand {
 
   @CommandMethod("debug")
   public void debug() {
-    var rootLogger = LogManager.rootLogger();
-    if (rootLogger.isLoggable(Level.FINEST)) {
-      rootLogger.setLevel(LoggingUtil.defaultLogLevel());
-    } else {
-      rootLogger.setLevel(Level.FINEST);
+    var rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    if (rootLogger instanceof Logger logbackLogger) {
+      if (rootLogger.isDebugEnabled()) {
+        // TODO: where do we get the level from?
+        logbackLogger.setLevel(ch.qos.logback.classic.Level.INFO);
+      } else {
+        logbackLogger.setLevel(Level.TRACE);
+      }
     }
   }
 }

@@ -19,12 +19,12 @@ package eu.cloudnetservice.driver.event;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.inject.InjectUtil;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import java.lang.reflect.Method;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The default implementation of a registered event listener.
@@ -33,7 +33,7 @@ import lombok.NonNull;
  */
 final class DefaultRegisteredEventListener implements RegisteredEventListener {
 
-  private static final Logger LOGGER = LogManager.logger(DefaultRegisteredEventListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRegisteredEventListener.class);
 
   private final Object instance;
   private final Class<?> eventClass;
@@ -82,7 +82,7 @@ final class DefaultRegisteredEventListener implements RegisteredEventListener {
    */
   @Override
   public void fireEvent(@NonNull Event event) {
-    LOGGER.fine(
+    LOGGER.debug(
       "Calling event %s on listener %s",
       null,
       event.getClass().getName(),

@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.event.log;
+package eu.cloudnetservice.node.console.log;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import eu.cloudnetservice.driver.event.Event;
-import lombok.NonNull;
+import ch.qos.logback.core.AppenderBase;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.node.console.Console;
 
-public final class LoggingEntryEvent extends Event {
+public class ConsoleLogAppender extends AppenderBase<ILoggingEvent> {
 
-  private final ILoggingEvent record;
+  private final Console console;
 
-  public LoggingEntryEvent(@NonNull ILoggingEvent record) {
-    this.record = record;
+  public ConsoleLogAppender() {
+    this.console = InjectionLayer.boot().instance(Console.class);
   }
 
-  public @NonNull ILoggingEvent logEntry() {
-    return this.record;
+  @Override
+  protected void append(ILoggingEvent event) {
+    // TODO: apply formatting here
+    this.console.writeLine(event.getFormattedMessage());
   }
 }

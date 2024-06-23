@@ -28,8 +28,6 @@ import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.io.ZipUtil;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.resource.ResourceFormatter;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -65,6 +63,8 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @CommandAlias("clu")
@@ -91,7 +91,7 @@ public final class ClusterCommand {
     })
     .build();
 
-  private static final Logger LOGGER = LogManager.logger(ClusterCommand.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ClusterCommand.class);
   private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
   private final Configuration configuration;
@@ -364,7 +364,7 @@ public final class ClusterCommand {
 
             // print the detailed exception, if available
             if (ex != null) {
-              LOGGER.severe("Unable to push template %s to cluster", ex, template);
+              LOGGER.error("Unable to push template {} to cluster", template, ex);
             }
           } else {
             // the transfer was successful
@@ -375,7 +375,7 @@ public final class ClusterCommand {
         source.sendMessage(I18n.trans("command-template-not-found", templateName));
       }
     } catch (IOException exception) {
-      LOGGER.severe("An exception occurred while compressing template %s", exception, templateName);
+      LOGGER.error("An exception occurred while compressing template {}", templateName, exception);
     }
   }
 

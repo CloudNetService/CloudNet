@@ -109,7 +109,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
     try {
       this.init();
     } catch (Exception exception) {
-      LOGGER.severe("Exception while initializing the netty network client", exception);
+      LOGGER.error("Exception while initializing the netty network client", exception);
     }
   }
 

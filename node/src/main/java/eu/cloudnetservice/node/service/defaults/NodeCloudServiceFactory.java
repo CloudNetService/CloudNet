@@ -18,8 +18,6 @@ package eu.cloudnetservice.node.service.defaults;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -50,12 +48,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Provides(CloudServiceFactory.class)
 public class NodeCloudServiceFactory implements CloudServiceFactory {
 
-  private static final Logger LOGGER = LogManager.logger(NodeCloudServiceFactory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NodeCloudServiceFactory.class);
 
   private final EventManager eventManager;
   private final CloudServiceManager serviceManager;
@@ -183,7 +183,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // check if the node is still connected
     var nodeChannel = associatedNode.channel();
     if (nodeChannel == null || !associatedNode.available()) {
-      LOGGER.fine(
+      LOGGER.debug(
         "Unable to register service on node %s as the node is no longer connected",
         null,
         associatedNode.info().uniqueId());

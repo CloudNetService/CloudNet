@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.common.log.io;
 
-import eu.cloudnetservice.common.log.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -24,8 +23,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.event.Level;
 
 /**
  * A special implementation of an output stream specifically made to log all the written content to it to a provided
@@ -63,7 +63,7 @@ public final class LogOutputStream extends ByteArrayOutputStream {
    * @throws NullPointerException if the given logger is null.
    */
   public static @NonNull LogOutputStream forSevere(@NonNull Logger logger) {
-    return LogOutputStream.newInstance(logger, Level.SEVERE);
+    return LogOutputStream.newInstance(logger, Level.WARN);
   }
 
   /**
@@ -123,7 +123,7 @@ public final class LogOutputStream extends ByteArrayOutputStream {
       super.reset();
 
       if (!content.isEmpty() && !content.equals(System.lineSeparator())) {
-        this.logger.log(this.level, content);
+        this.logger.atLevel(this.level).log(content);
       }
     } finally {
       this.flushLock.unlock();

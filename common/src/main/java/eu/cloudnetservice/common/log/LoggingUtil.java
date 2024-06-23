@@ -16,11 +16,10 @@
 
 package eu.cloudnetservice.common.log;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import ch.qos.logback.classic.spi.IThrowableProxy;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Holds some utility methods to work with loggers.
@@ -54,31 +53,21 @@ public final class LoggingUtil {
     }
   }
 
-  /**
-   * Removes all registered handlers from the given logger.
-   *
-   * @param logger the logger to remove the handlers of.
-   * @throws NullPointerException if the given logger is null.
-   */
-  public static void removeHandlers(@NonNull Logger logger) {
-    for (var handler : logger.getHandlers()) {
-      logger.removeHandler(handler);
-    }
-  }
-
+  // TODO: docs
   /**
    * Prints the throwable of the log record into the given string builder. If the given record has no associated
    * exception set this method does nothing.
    *
    * @param stringBuilder the string builder to print the exception to.
-   * @param record        the record of which the exception should get printed into the builder.
+   * @param throwable        the record of which the exception should get printed into the builder.
    * @throws NullPointerException if the given string builder or log record is null.
    */
-  public static void printStackTraceInto(@NonNull StringBuilder stringBuilder, @NonNull LogRecord record) {
-    if (record.getThrown() != null) {
-      var writer = new StringWriter();
-      record.getThrown().printStackTrace(new PrintWriter(writer));
-      stringBuilder.append('\n').append(writer);
+  public static void printStackTraceInto(@NonNull StringBuilder stringBuilder, @Nullable IThrowableProxy throwable) {
+    if (throwable != null) {
+      stringBuilder.append('\n');
+      for (var stackElement : throwable.getStackTraceElementProxyArray()) {
+        stringBuilder.append(stackElement.getSTEAsString());
+      }
     }
   }
 }

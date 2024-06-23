@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.database.sql;
 
 import com.github.benmanes.caffeine.cache.RemovalListener;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import io.vavr.CheckedFunction1;
@@ -28,13 +26,15 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Deprecated
 @ApiStatus.ScheduledForRemoval(inVersion = "4.1")
 public abstract class SQLDatabaseProvider extends NodeDatabaseProvider {
 
   protected static final String[] TABLE_TYPE = new String[]{"TABLE"};
-  protected static final Logger LOGGER = LogManager.logger(SQLDatabaseProvider.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(SQLDatabaseProvider.class);
 
   protected SQLDatabaseProvider(@NonNull RemovalListener<String, LocalDatabase> removalListener) {
     super(removalListener);

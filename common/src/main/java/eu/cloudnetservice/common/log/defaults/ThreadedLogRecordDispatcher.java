@@ -17,11 +17,11 @@
 package eu.cloudnetservice.common.log.defaults;
 
 import eu.cloudnetservice.common.log.LogRecordDispatcher;
-import eu.cloudnetservice.common.log.Logger;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.LogRecord;
 import lombok.NonNull;
+import org.slf4j.Logger;
 
 /**
  * A log record dispatcher which dispatches requested log records on a single thread one at a time.
@@ -96,14 +96,16 @@ public final class ThreadedLogRecordDispatcher extends Thread implements LogReco
     while (!super.isInterrupted()) {
       try {
         var logRecord = this.queue.take();
-        this.logger.forceLog(logRecord);
+        // TODO: what
+        this.logger.error(logRecord.getMessage());
       } catch (InterruptedException exception) {
         break;
       }
     }
     // log all waiting records now
     for (var logRecord : this.queue) {
-      this.logger.forceLog(logRecord);
+      // TODO: yek
+      this.logger.error(logRecord.getMessage());
     }
     // reset the interrupted state of the thread
     Thread.currentThread().interrupt();

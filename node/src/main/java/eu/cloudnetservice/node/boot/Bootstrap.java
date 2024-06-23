@@ -21,7 +21,6 @@ import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.Node;
 import io.leangen.geantyref.TypeFactory;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
+import org.slf4j.Logger;
 
 public final class Bootstrap {
 

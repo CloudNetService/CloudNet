@@ -30,8 +30,6 @@ import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.resource.ResourceFormatter;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.common.util.WildcardUtil;
@@ -66,6 +64,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @CommandAlias("ser")
@@ -73,7 +73,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("command-service-description")
 public final class ServiceCommand {
 
-  private static final Logger LOGGER = LogManager.logger(ServiceCommand.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceCommand.class);
   private static final Splitter SEMICOLON_SPLITTER = Splitter.on(';').omitEmptyStrings().trimResults();
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 

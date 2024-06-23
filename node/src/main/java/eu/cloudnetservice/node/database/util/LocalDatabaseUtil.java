@@ -16,25 +16,25 @@
 
 package eu.cloudnetservice.node.database.util;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class LocalDatabaseUtil {
 
-  private static final Logger LOGGER = LogManager.logger(LocalDatabaseUtil.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(LocalDatabaseUtil.class);
 
   private LocalDatabaseUtil() {
     throw new UnsupportedOperationException();
   }
 
   public static void bigWarningThatEveryoneCanSee(@NonNull String warning) {
-    LOGGER.warning("╔══════════════════════════════════════════════════════════════════╗");
-    LOGGER.warning("║                               WARNING                             ");
-    LOGGER.warning("║   " + warning);
-    LOGGER.warning("║                                                                   ");
-    LOGGER.warning("║                                                                   ");
-    LOGGER.warning("║        https://cloudnetservice.eu/docs/3.4/setup/cluster          ");
-    LOGGER.warning("╚══════════════════════════════════════════════════════════════════╝");
+    LOGGER.warn("╔══════════════════════════════════════════════════════════════════╗");
+    LOGGER.warn("║                               WARNING                             ");
+    LOGGER.warn("║   " + warning);
+    LOGGER.warn("║                                                                   ");
+    LOGGER.warn("║                                                                   ");
+    LOGGER.warn("║        https://cloudnetservice.eu/docs/3.4/setup/cluster          ");
+    LOGGER.warn("╚══════════════════════════════════════════════════════════════════╝");
   }
 }

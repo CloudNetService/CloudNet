@@ -40,7 +40,6 @@ asm = "9.7"
 oshi = "6.6.0"
 vavr = "0.10.4"
 sshj = "0.38.0"
-slf4j = "2.0.12"
 aerogel = "2.1.0"
 awsSdk = "2.25.3"
 unirest = "4.4.0"
@@ -53,6 +52,10 @@ annotations = "24.1.0"
 influxClient = "7.1.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
+
+# logback
+slf4j = "2.0.12"
+logback = "1.5.6"
 
 # platform api versions
 sponge = "9.0.0"
@@ -130,7 +133,8 @@ nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue
 
 # logging
 slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
-slf4jJdk = { group = "org.slf4j", name = "slf4j-jdk14", version.ref = "slf4j" }
+logbackCore = { group = "ch.qos.logback", name = "logback-core", version.ref = "logback" }
+logbackClassic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
 
 # general
 vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }

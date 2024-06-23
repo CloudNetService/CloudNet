@@ -29,8 +29,6 @@ import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
@@ -57,6 +55,8 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @CommandAlias("module")
@@ -64,7 +64,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("command-modules-description")
 public final class ModulesCommand {
 
-  private static final Logger LOGGER = LogManager.logger(ModulesCommand.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ModulesCommand.class);
 
   private static final RowedFormatter<ModuleWrapper> MODULES_FORMATTER = RowedFormatter.<ModuleWrapper>builder()
     .defaultFormatter(ColumnFormatter.builder()
@@ -415,7 +415,7 @@ public final class ModulesCommand {
       source.sendMessage(I18n.trans("command-modules-module-uninstall", wrapper.module().name()));
     } catch (IOException exception) {
       source.sendMessage(I18n.trans("command-modules-module-uninstall-failed", wrapper.module().name()));
-      LOGGER.severe("Exception while uninstalling module %s", exception, wrapper.module().name());
+      LOGGER.warn("Exception while uninstalling module {}", wrapper.module().name(), exception);
     }
   }
 

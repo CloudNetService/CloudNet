@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.common.log.defaults;
 
-import eu.cloudnetservice.common.log.LoggingUtil;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Formatter;
@@ -66,7 +65,7 @@ public final class DefaultLogFormatter extends Formatter {
       .append(": ")
       .append(super.formatMessage(record))
       .append(this.closeWithLineSeparator ? System.lineSeparator() : "");
-    LoggingUtil.printStackTraceInto(builder, record);
+    // LoggingUtil.printStackTraceInto(builder, record);
 
     return builder.toString();
   }

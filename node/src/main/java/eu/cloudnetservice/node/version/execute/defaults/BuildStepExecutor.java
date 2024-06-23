@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
@@ -43,11 +41,13 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class BuildStepExecutor implements InstallStepExecutor {
 
-  private static final Logger LOGGER = LogManager.logger(BuildStepExecutor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(BuildStepExecutor.class);
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
   private static final Type STRING_LIST_TYPE = TypeFactory.parameterizedClass(List.class, String.class);
 
@@ -110,7 +110,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
       arguments,
       workingDir,
       (line, $) -> LOGGER.info(String.format("[Template Installer]: %s", line)),
-      (line, $) -> LOGGER.warning(String.format("[Template Installer]: %s", line)));
+      (line, $) -> LOGGER.warn(String.format("[Template Installer]: %s", line)));
   }
 
   protected int buildProcessAndWait(
@@ -135,7 +135,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
       return exitCode;
     } catch (IOException | InterruptedException exception) {
-      LOGGER.severe("Exception while awaiting build process", exception);
+      LOGGER.error("Exception while awaiting build process", exception);
     }
     return -1;
   }
@@ -154,7 +154,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
           this.handler.accept(line, this.process);
         }
       } catch (IOException exception) {
-        LOGGER.severe("Exception while reading output", exception);
+        LOGGER.error("Exception while reading output", exception);
       }
     }
   }

@@ -18,12 +18,6 @@ package eu.cloudnetservice.wrapper;
 
 import dev.derklaro.aerogel.Order;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.log.LoggingUtil;
-import eu.cloudnetservice.common.log.defaults.DefaultFileHandler;
-import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
-import eu.cloudnetservice.common.log.defaults.ThreadedLogRecordDispatcher;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.DefaultModuleProviderHandler;
 import eu.cloudnetservice.driver.module.ModuleProvider;
@@ -35,7 +29,6 @@ import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ApplicationPostStartEvent;
 import eu.cloudnetservice.wrapper.event.ApplicationPreStartEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
-import eu.cloudnetservice.wrapper.log.InternalPrintStreamLogHandler;
 import eu.cloudnetservice.wrapper.network.chunk.TemplateStorageCallbackListener;
 import eu.cloudnetservice.wrapper.network.listener.PacketAuthorizationResponseListener;
 import eu.cloudnetservice.wrapper.network.listener.PacketServerChannelMessageListener;
@@ -63,6 +56,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.jar.JarFile;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is the main api point when trying to interact with CloudNet from a running service within the CloudNet
@@ -72,13 +67,19 @@ import lombok.NonNull;
  */
 public final class Wrapper {
 
-  private static final Logger LOGGER = LogManager.logger(Wrapper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Wrapper.class);
 
   @Inject
   @Order(50)
   private void setupLogger(@NonNull @Named("root") Logger logger) {
-    LoggingUtil.removeHandlers(logger);
+    // TODO: what ever to do here
+    /*LoggingUtil.removeHandlers(logger);
     var logFilePattern = Path.of(".wrapper", "logs", "wrapper.%g.log");
+
+    if(logger instanceof ch.qos.logback.classic.Logger logbackLogger) {
+      logbackLogger.setLevel(Level.INFO);
+      logbackLogger.addAppender();
+    }
 
     logger.setLevel(LoggingUtil.defaultLogLevel());
     logger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
@@ -86,7 +87,7 @@ public final class Wrapper {
     logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
     logger.addHandler(DefaultFileHandler
       .newInstance(logFilePattern, false)
-      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
+      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));*/
   }
 
   @Inject
@@ -128,7 +129,7 @@ public final class Wrapper {
       .connect(configuration.targetListener())
       .exceptionally(ex -> {
         // log and exit, we're not connected
-        LOGGER.severe("Unable to establish a connection to the target node listener", ex);
+        LOGGER.error("Unable to establish a connection to the target node listener", ex);
         System.exit(-1);
         // returns void
         return null;
@@ -259,7 +260,7 @@ public final class Wrapper {
         // start the application
         method.invoke(null, new Object[]{arguments.toArray(new String[0])});
       } catch (Exception exception) {
-        LOGGER.severe("Exception while starting application", exception);
+        LOGGER.error("Exception while starting application", exception);
       }
     }, "Application-Thread");
     applicationThread.setContextClassLoader(loader);

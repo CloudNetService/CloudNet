@@ -18,8 +18,6 @@ package eu.cloudnetservice.modules.sftp;
 
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.io.ZipUtil;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.FileInfo;
 import eu.cloudnetservice.driver.template.TemplateStorage;
@@ -38,7 +36,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.logging.Level;
 import lombok.NonNull;
 import net.schmizz.sshj.Config;
 import net.schmizz.sshj.DefaultConfig;
@@ -51,11 +48,13 @@ import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.xfer.FileSystemFile;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SFTPTemplateStorage implements TemplateStorage {
 
   protected static final String REMOTE_DIR_FORMAT = "%s/%s/%s";
-  protected static final Logger LOGGER = LogManager.logger(SFTPTemplateStorage.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(SFTPTemplateStorage.class);
 
   private final Config config;
   private final SFTPClientPool pool;
@@ -65,7 +64,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
 
   public SFTPTemplateStorage(@NonNull SFTPTemplateStorageConfig config) {
     // we do not need this information
-    Logger.getLogger("net.schmizz.sshj").setLevel(Level.WARNING);
+    // TODO: Logger.getLogger("net.schmizz.sshj").setLevel(Level.WARNING);
 
     this.storageConfig = config;
     // init the config
@@ -405,13 +404,10 @@ public class SFTPTemplateStorage implements TemplateStorage {
         return handler.apply(client);
       } catch (IllegalStateException exception) {
         if (exception.getCause() instanceof SSHException sshException) {
-          LOGGER.severe(
-            "Failed to retrieve a new client from the SFTP client pool: %s",
-            null,
-            sshException.getMessage());
+          LOGGER.error("Failed to retrieve a new client from the SFTP client pool: {}", sshException.getMessage());
         }
       } catch (Throwable exception) {
-        LOGGER.fine("Exception executing sftp task", exception);
+        LOGGER.debug("Exception executing sftp task", exception);
       }
     }
 

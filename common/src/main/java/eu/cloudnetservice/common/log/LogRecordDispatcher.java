@@ -18,6 +18,7 @@ package eu.cloudnetservice.common.log;
 
 import java.util.logging.LogRecord;
 import lombok.NonNull;
+import org.slf4j.Logger;
 
 /**
  * Represents a dispatcher for log records. This dispatcher is meant to pre-process log records if needed and then post

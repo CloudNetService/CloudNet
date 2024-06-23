@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.common.log;
 
-import java.util.ServiceLoader;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The log manager provides static access to underlying api to shortcut logger creation methods for easier
@@ -26,8 +27,6 @@ import lombok.NonNull;
  * @since 4.0
  */
 public final class LogManager {
-
-  private static final LoggerFactory LOGGER_FACTORY = loadLoggerFactory();
 
   private LogManager() {
     throw new UnsupportedOperationException();
@@ -39,7 +38,7 @@ public final class LogManager {
    * @return the root logger.
    */
   public static @NonNull Logger rootLogger() {
-    return LogManager.logger(LoggerFactory.ROOT_LOGGER_NAME);
+    return LoggerFactory.getLogger("");
   }
 
   /**
@@ -50,7 +49,7 @@ public final class LogManager {
    * @throws NullPointerException if the given class is null.
    */
   public static @NonNull Logger logger(@NonNull Class<?> caller) {
-    return LogManager.logger(caller.getName());
+    return LoggerFactory.getLogger(caller.getName());
   }
 
   /**
@@ -61,35 +60,6 @@ public final class LogManager {
    * @throws NullPointerException if the given name is null.
    */
   public static @NonNull Logger logger(@NonNull String name) {
-    return LogManager.loggerFactory().logger(name);
-  }
-
-  /**
-   * Gets the current logger factory which the system uses. The factory is statically initialized with the class and
-   * will never change once initialized.
-   *
-   * @return the current selected logger factory.
-   */
-  public static @NonNull LoggerFactory loggerFactory() {
-    return LOGGER_FACTORY;
-  }
-
-  /**
-   * Selects the logger factory use. This method tries to load all providers for the logger factory class and uses the
-   * first one which is available (if any) and uses it as the factory for loggers. If no logger factory service is
-   * available on the class path this method falls back to the fallback logger factory which creates loggers wrapping
-   * java.util.logging loggers.
-   *
-   * @return the logger factory to use in the runtime.
-   * @throws java.util.ServiceConfigurationError if something went wrong during the service loading or instantiation.
-   */
-  private static @NonNull LoggerFactory loadLoggerFactory() {
-    var factories = ServiceLoader.load(LoggerFactory.class).iterator();
-    // check if a logger service is registered
-    if (factories.hasNext()) {
-      return factories.next();
-    } else {
-      return new FallbackLoggerFactory();
-    }
+    return LoggerFactory.getLogger(name);
   }
 }

@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.node.log;
 
-import eu.cloudnetservice.common.log.AbstractHandler;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.event.log.LoggingEntryEvent;
 import jakarta.inject.Inject;
@@ -24,7 +25,6 @@ import jakarta.inject.Singleton;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
@@ -32,37 +32,38 @@ import lombok.NonNull;
  * A logging handler for developers, that can easy handle and get the logging outputs from this node instance
  */
 @Singleton
-public final class QueuedConsoleLogHandler extends AbstractHandler {
+public final class QueuedConsoleLogHandler extends AppenderBase<ILoggingEvent> {
 
   private final EventManager eventManager;
 
   /**
    * A queue that contain the last 128 logging output as LogEntries that should print into the console
    */
-  private final Queue<LogRecord> cachedQueuedLogEntries = new ConcurrentLinkedQueue<>();
+  private final Queue<ILoggingEvent> cachedQueuedLogEntries = new ConcurrentLinkedQueue<>();
 
   @Inject
   public QueuedConsoleLogHandler(@NonNull EventManager eventManager) {
     this.eventManager = eventManager;
   }
 
-  @Override
-  public void publish(@NonNull LogRecord record) {
-    this.cachedQueuedLogEntries.offer(record);
-    while (this.cachedQueuedLogEntries.size() > 128) {
-      this.cachedQueuedLogEntries.poll();
-    }
-
-    this.eventManager.callEvent(new LoggingEntryEvent(record));
-  }
-
-  public @NonNull Queue<LogRecord> cachedLogEntries() {
+  public @NonNull Queue<ILoggingEvent> cachedLogEntries() {
     return this.cachedQueuedLogEntries;
   }
 
   public @NonNull Queue<String> formattedCachedLogLines() {
     return this.cachedQueuedLogEntries.stream()
-      .map(this.getFormatter()::format)
+      // TODO: formatter?
+      .map(ILoggingEvent::getFormattedMessage)
       .collect(Collectors.toCollection(LinkedList::new));
+  }
+
+  @Override
+  protected void append(ILoggingEvent event) {
+    this.cachedQueuedLogEntries.offer(event);
+    while (this.cachedQueuedLogEntries.size() > 128) {
+      this.cachedQueuedLogEntries.poll();
+    }
+
+    this.eventManager.callEvent(new LoggingEntryEvent(event));
   }
 }

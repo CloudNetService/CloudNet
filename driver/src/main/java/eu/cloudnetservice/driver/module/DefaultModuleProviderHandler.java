@@ -17,8 +17,6 @@
 package eu.cloudnetservice.driver.module;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.module.ModulePostInstallDependencyEvent;
@@ -37,6 +35,8 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the default implementation of the module provider handler.
@@ -47,7 +47,7 @@ import lombok.NonNull;
 @Singleton
 public class DefaultModuleProviderHandler implements ModuleProviderHandler {
 
-  private static final Logger LOGGER = LogManager.logger(DefaultModuleProviderHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultModuleProviderHandler.class);
 
   protected final EventManager eventManager;
   protected final ModuleProvider moduleProvider;
@@ -176,7 +176,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
     @NonNull ModuleDependency dependency
   ) {
     this.callEvent(new ModulePostInstallDependencyEvent(this.moduleProvider, configuration, dependency));
-    LOGGER.fine(I18n.trans("cloudnet-post-install-dependency-module",
+    LOGGER.debug(I18n.trans("cloudnet-post-install-dependency-module",
       this.moduleArguments(configuration),
       dependency.group(),
       dependency.name(),
