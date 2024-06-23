@@ -23,6 +23,7 @@ import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.modules.report.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.emitter.ReportDataWriter;
 import jakarta.inject.Singleton;
+import java.lang.constant.ClassDesc;
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -31,7 +32,6 @@ import javax.management.JMX;
 import javax.management.ObjectName;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.objectweb.asm.Type;
 
 @Singleton
 public final class HeapDumpDataEmitter implements ReportDataEmitter {
@@ -123,9 +123,8 @@ public final class HeapDumpDataEmitter implements ReportDataEmitter {
     private static @NonNull String formatTypeName(@NonNull String type) {
       try {
         // try to format the type, this does not work for objects as they are not in a descriptor form
-        return Type.getType(type).getClassName();
+        return ClassDesc.ofDescriptor(type).displayName();
       } catch (IllegalArgumentException exception) {
-        // yep, already formatted
         return type;
       }
     }
