@@ -390,7 +390,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
     try {
       PlatformSign<P, C> bestChoice = null;
       for (var platformSign : this.platformSigns.values()) {
-        if (!platformSign.exists()) {
+        if (!platformSign.needsUpdates() || !platformSign.exists()) {
           continue;
         }
 

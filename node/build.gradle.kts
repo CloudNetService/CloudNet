@@ -56,7 +56,6 @@ dependencies {
   "implementation"(libs.jline)
   "implementation"(libs.jansi)
   "implementation"(libs.slf4jApi)
-  "implementation"(libs.slf4jJdk)
   "implementation"(libs.bundles.jjwt)
   "implementation"(libs.stringSimilarity)
   "implementation"(libs.bundles.nightConfig)

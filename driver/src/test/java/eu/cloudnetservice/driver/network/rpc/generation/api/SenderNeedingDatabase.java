@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.syncproxy;
+package eu.cloudnetservice.driver.network.rpc.generation.api;
 
-public final class SyncProxyConstants {
+import eu.cloudnetservice.driver.network.rpc.RPCSender;
 
-  public static final String SYNC_PROXY_CHANNEL = "sync_proxy_internal";
-  public static final String SYNC_PROXY_UPDATE_CONFIG = "update_syncproxy_config";
-  public static final String SYNC_PROXY_CONFIG_REQUEST = "request_syncproxy_config";
+public abstract class SenderNeedingDatabase extends BaseDatabase {
 
-  private SyncProxyConstants() {
-    throw new UnsupportedOperationException();
+  public final RPCSender rpcSender;
+
+  public SenderNeedingDatabase(RPCSender rpcSender) {
+    this.rpcSender = rpcSender;
   }
 }
