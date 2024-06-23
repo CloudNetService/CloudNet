@@ -62,16 +62,13 @@ final class DataClassCodecGenerator {
   private static final ClassDesc CD_FIELD_ARRAY = CD_FIELD.arrayType();
   private static final String FIELD_GET_TYPE_NAME = "getGenericType";
   private static final MethodTypeDesc MT_FIELD_GET_TYPE = MethodTypeDesc.of(CD_TYPE);
+
   // data codec descriptors
   private static final ClassDesc CD_DATA_BUF = ClassDesc.of(DataBuf.class.getName());
   private static final ClassDesc CD_DATA_BUF_MUT = ClassDesc.of(DataBuf.Mutable.class.getName());
   private static final ClassDesc CD_OBJECT_MAPPER = ClassDesc.of(ObjectMapper.class.getName());
   private static final ClassDesc CD_DATA_CLASS_CODEC = ClassDesc.of(DataClassCodec.class.getName());
-  // method descriptors in generated class
-  private static final MethodTypeDesc MT_CONSTRUCTOR = MethodTypeDesc.of(
-    ConstantDescs.CD_void,
-    CD_FIELD_ARRAY,
-    CD_DATA_CLASS_CODEC);
+
   // constants for invoking methods in object mapper
   private static final String OBJECT_MAPPER_READ_NAME = "readObject";
   private static final String OBJECT_MAPPER_WRITE_NAME = "writeObject";
@@ -83,6 +80,12 @@ final class DataClassCodecGenerator {
     CD_DATA_BUF_MUT,
     CD_DATA_BUF_MUT,
     ConstantDescs.CD_Object);
+
+  // method descriptors in generated class
+  private static final MethodTypeDesc MT_CONSTRUCTOR = MethodTypeDesc.of(
+    ConstantDescs.CD_void,
+    CD_FIELD_ARRAY,
+    CD_DATA_CLASS_CODEC);
   private static final MethodTypeDesc MT_DESERIALIZE = MethodTypeDesc.of(
     ConstantDescs.CD_Object,
     CD_DATA_BUF,
