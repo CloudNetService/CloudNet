@@ -69,7 +69,8 @@ public final class RPCPacketListener implements PacketListener {
         if (resultExpected) {
           var resultContent = DataBufFactory.defaultFactory()
             .createWithExpectedSize(1)
-            .writeByte(RPCInvocationResult.STATUS_BAD_REQUEST);
+            .writeByte(RPCInvocationResult.STATUS_BAD_REQUEST)
+            .writeString("invalid chain length");
           this.sendResponseData(channel, packet, resultContent);
         }
         return;
