@@ -18,8 +18,11 @@ package eu.cloudnetservice.driver.network.netty;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
+import eu.cloudnetservice.driver.network.netty.buffer.NettyNioBufferReleasingAllocator;
 import io.netty5.buffer.Buffer;
+import io.netty5.buffer.BufferAllocator;
 import io.netty5.buffer.BufferUtil;
+import io.netty5.buffer.DefaultBufferAllocators;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFactory;
 import io.netty5.channel.EventLoopGroup;
@@ -56,6 +59,7 @@ public final class NettyUtil {
 
   private static final SslProvider SELECTED_SSL_PROVIDER;
   private static final NettyTransport SELECTED_NETTY_TRANSPORT;
+  private static final BufferAllocator SELECTED_BUFFER_ALLOCATOR;
   private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
   static {
@@ -77,6 +81,16 @@ public final class NettyUtil {
       SELECTED_SSL_PROVIDER = SslProvider.JDK;
     } else {
       SELECTED_SSL_PROVIDER = SslProvider.OPENSSL;
+    }
+
+    // select the buffer allocator to use. our internal allocator will free all buffers provided to it directly
+    // which significantly reduces the native memory usage. however, this might not be the designated behaviour for
+    // some users, therefore we leave it to their choice which allocator should be used.
+    var preferredBufferAllocator = System.getProperty("cloudnet.net.preferred-buffer-allocator");
+    if ("netty-default".equals(preferredBufferAllocator) || NettyNioBufferReleasingAllocator.notAbleToFreeBuffers()) {
+      SELECTED_BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
+    } else {
+      SELECTED_BUFFER_ALLOCATOR = new NettyNioBufferReleasingAllocator();
     }
 
     // select the transport type to use for netty
@@ -303,5 +317,14 @@ public final class NettyUtil {
    */
   public static @NonNull SslProvider selectedSslProvider() {
     return SELECTED_SSL_PROVIDER;
+  }
+
+  /**
+   * Get the selected allocator for buffers that should be used for all buffer allocations.
+   *
+   * @return the selected allocator for buffers that should be used for all buffer allocations.
+   */
+  public static @NonNull BufferAllocator selectedBufferAllocator() {
+    return SELECTED_BUFFER_ALLOCATOR;
   }
 }

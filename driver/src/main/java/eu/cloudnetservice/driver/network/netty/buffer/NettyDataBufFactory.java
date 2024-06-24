@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import io.netty5.buffer.BufferAllocator;
-import io.netty5.buffer.DefaultBufferAllocators;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 
@@ -36,7 +36,7 @@ import lombok.NonNull;
 public class NettyDataBufFactory implements DataBufFactory {
 
   public static final NettyDataBufFactory INSTANCE = new NettyDataBufFactory();
-  protected static final BufferAllocator ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
+  protected static final BufferAllocator ALLOCATOR = NettyUtil.selectedBufferAllocator();
 
   /**
    * Creates a new instance of this factory. This method is protected to allow developers to create their own variant of

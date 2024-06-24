@@ -206,14 +206,16 @@ public class NettyNetworkServer implements NetworkServer {
       .handler(new NettyOptionSettingChannelInitializer()
         .option(ChannelOption.TCP_FASTOPEN, 3)
         .option(ChannelOption.SO_REUSEADDR, true)
-        .option(UnixChannelOption.SO_REUSEPORT, true))
+        .option(UnixChannelOption.SO_REUSEPORT, true)
+        .option(ChannelOption.BUFFER_ALLOCATOR, NettyUtil.selectedBufferAllocator()))
       .childHandler(new NettyNetworkServerInitializer(this.eventManager, this, hostAndPort)
         .option(ChannelOption.IP_TOS, 0x18)
         .option(ChannelOption.AUTO_READ, true)
         .option(ChannelOption.TCP_NODELAY, true)
         .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.SO_KEEPALIVE, true)
-        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK))
+        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+        .option(ChannelOption.BUFFER_ALLOCATOR, NettyUtil.selectedBufferAllocator()))
 
       .bind(hostAndPort.host(), hostAndPort.port())
       .addListener(future -> {

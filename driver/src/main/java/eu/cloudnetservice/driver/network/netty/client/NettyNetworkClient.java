@@ -179,7 +179,8 @@ public class NettyNetworkClient implements NetworkClient {
         .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.TCP_FASTOPEN_CONNECT, true)
         .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS))
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
+        .option(ChannelOption.BUFFER_ALLOCATOR, NettyUtil.selectedBufferAllocator()))
 
       .connect(hostAndPort.host(), hostAndPort.port())
       .addListener(future -> {
