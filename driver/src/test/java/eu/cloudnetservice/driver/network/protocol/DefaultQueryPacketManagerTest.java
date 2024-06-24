@@ -16,91 +16,56 @@
 
 package eu.cloudnetservice.driver.network.protocol;
 
-import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultQueryPacketManager;
-import java.time.Duration;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
 public class DefaultQueryPacketManagerTest {
-/*
+
   @Test
   void testSendQueryPacket() {
-    var mockedPacket = this.mockUniqueIdAblePacket();
-    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class));
+    var queryRequest = new BasePacket(-1, DataBuf.empty());
+    var manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class));
 
-    manager.sendQueryPacket(mockedPacket.first());
+    var responseTask = manager.sendQueryPacket(queryRequest);
+    Assertions.assertNotNull(responseTask);
+    Assertions.assertEquals(Future.State.RUNNING, responseTask.state());
 
-    Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.second().get()));
-    Assertions.assertNotNull(manager.waitingHandlers().get(mockedPacket.second().get()));
+    var assignedId = queryRequest.uniqueId();
+    Assertions.assertNotNull(assignedId);
+    Assertions.assertTrue(manager.hasWaitingHandler(assignedId));
+    Assertions.assertEquals(1, manager.waitingHandlerCount());
 
-    Assertions.assertTrue(manager.unregisterWaitingHandler(mockedPacket.second().get()));
-    Assertions.assertFalse(manager.hasWaitingHandler(mockedPacket.second().get()));
+    var registeredResponseTask = manager.waitingHandler(assignedId);
+    Assertions.assertNotNull(registeredResponseTask);
+    Assertions.assertSame(responseTask, registeredResponseTask);
+    Assertions.assertFalse(manager.hasWaitingHandler(assignedId));
+    Assertions.assertEquals(0, manager.waitingHandlerCount());
+    Assertions.assertEquals(Future.State.RUNNING, registeredResponseTask.state());
   }
 
   @Test
   void testSendQueryPacketWithFixedId() {
-    var uniqueId = UUID.randomUUID();
-    var mockedPacket = this.mockUniqueIdAblePacket();
-    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class));
+    var id = UUID.randomUUID();
+    var queryRequest = new BasePacket(-1, DataBuf.empty());
+    queryRequest.uniqueId(id);
 
-    manager.sendQueryPacket(mockedPacket.first(), uniqueId);
+    var manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class));
+    var firstResponseTask = manager.sendQueryPacket(queryRequest);
+    Assertions.assertNotNull(firstResponseTask);
+    Assertions.assertEquals(Future.State.RUNNING, firstResponseTask.state());
+    Assertions.assertEquals(id, queryRequest.uniqueId());
 
-    Assertions.assertEquals(uniqueId, mockedPacket.second().get());
-    Assertions.assertTrue(manager.hasWaitingHandler(uniqueId));
-    Assertions.assertNotNull(manager.waitingHandlers().get(uniqueId));
-
-    Assertions.assertTrue(manager.unregisterWaitingHandler(uniqueId));
-    Assertions.assertFalse(manager.hasWaitingHandler(uniqueId));
+    var secondResponseTask = manager.sendQueryPacket(queryRequest);
+    Assertions.assertNotNull(secondResponseTask);
+    Assertions.assertEquals(Future.State.RUNNING, secondResponseTask.state());
+    Assertions.assertEquals(Future.State.FAILED, firstResponseTask.state());
+    Assertions.assertInstanceOf(TimeoutException.class, firstResponseTask.exceptionNow());
   }
-
-  @Test
-  void testGetAndRemoveHandler() {
-    var mockedPacket = this.mockUniqueIdAblePacket();
-    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class));
-
-    var task = manager.sendQueryPacket(mockedPacket.first());
-
-    Assertions.assertEquals(task, manager.waitingHandler(mockedPacket.second().get()));
-    Assertions.assertFalse(manager.hasWaitingHandler(mockedPacket.second().get()));
-  }
-
-  @Test
-  @Timeout(10)
-  void testHandlerTimeout() throws InterruptedException {
-    var mockedPacket = this.mockUniqueIdAblePacket();
-    QueryPacketManager manager = new DefaultQueryPacketManager(
-      Mockito.mock(NetworkChannel.class),
-      Duration.ofSeconds(2));
-
-    var task = manager.sendQueryPacket(mockedPacket.first());
-    Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.second().get()));
-
-    Thread.sleep(2500);
-
-    Assertions.assertNull(manager.waitingHandler(mockedPacket.second().get()));
-    manager.sendQueryPacket(mockedPacket.first());
-
-    Assertions.assertTrue(task.isDone());
-  }
-
-  private Tuple2<Packet, AtomicReference<UUID>> mockUniqueIdAblePacket() {
-    var reference = new AtomicReference<UUID>();
-
-    var packet = Mockito.mock(Packet.class);
-    Mockito
-      .doAnswer(invocation -> {
-        reference.set(invocation.getArgument(0));
-        return null;
-      })
-      .when(packet)
-      .uniqueId(Mockito.any());
-
-    return new Tuple2<>(packet, reference);
-  }*/
 }

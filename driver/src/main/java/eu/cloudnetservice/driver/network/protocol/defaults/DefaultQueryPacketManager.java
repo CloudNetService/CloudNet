@@ -24,6 +24,7 @@ import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import lombok.NonNull;
@@ -98,7 +99,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
     // happening in the cache, the eviction listener is called and the previous future is automatically
     // cancelled, therefore there is no need to explicitly check for that here.
     var responseTask = new Task<Packet>();
-    var queryUniqueId = UUID.randomUUID();
+    var queryUniqueId = Objects.requireNonNullElseGet(packet.uniqueId(), UUID::randomUUID);
     this.waitingHandlers.put(queryUniqueId, responseTask);
 
     packet.uniqueId(queryUniqueId);
