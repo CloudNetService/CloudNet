@@ -51,7 +51,7 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf.Mutable createEmpty() {
-    return new NettyMutableDataBuf(ALLOCATOR.allocate(0));
+    return this.createWithExpectedSize(128);
   }
 
   /**

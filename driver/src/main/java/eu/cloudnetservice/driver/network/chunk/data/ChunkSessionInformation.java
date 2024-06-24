@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.chunk.data;
 
+import com.google.common.base.Utf8;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import java.util.UUID;
 import lombok.NonNull;
@@ -37,6 +38,17 @@ public record ChunkSessionInformation(
   @NonNull String transferChannel,
   @NonNull DataBuf transferInformation
 ) {
+
+  /**
+   *
+   *
+   * @return
+   */
+  public int packetSizeBytes() {
+    var channelBytes = Utf8.encodedLength(this.transferChannel);
+    var transferBytes = this.transferInformation.readableBytes();
+    return Integer.BYTES + (Long.BYTES * 2) + channelBytes + transferBytes;
+  }
 
   /**
    * {@inheritDoc}

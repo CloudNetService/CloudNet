@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.network.chunk.network;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
@@ -55,7 +56,8 @@ public final class ChunkedPacket extends BasePacket {
     byte[] sourceData,
     @NonNull ChunkSessionInformation sessionInfo
   ) {
-    var informationBuffer = DataBuf.empty()
+    var transferBytes = Byte.BYTES + Integer.BYTES + sourceData.length + sessionInfo.packetSizeBytes();
+    var informationBuffer = DataBufFactory.defaultFactory().createWithExpectedSize(transferBytes)
       .writeObject(sessionInfo)
       .writeInt(chunkIndex)
       .writeBoolean(false) // not the final chunk
@@ -83,7 +85,8 @@ public final class ChunkedPacket extends BasePacket {
     byte[] sourceData,
     @NonNull ChunkSessionInformation sessionInfo
   ) {
-    var informationBuffer = DataBuf.empty()
+    var transferBytes = Byte.BYTES + Integer.BYTES + Integer.BYTES + sourceData.length + sessionInfo.packetSizeBytes();
+    var informationBuffer = DataBufFactory.defaultFactory().createWithExpectedSize(transferBytes)
       .writeObject(sessionInfo)
       .writeInt(chunkIndex)
       .writeBoolean(true) // final chunk
