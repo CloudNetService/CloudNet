@@ -15,14 +15,18 @@
   -->
 
 <configuration>
-  <property name="CONSOLE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) - %msg%n"/>
+  <conversionRule conversionWord="levelColor"
+    converterClass="eu.cloudnetservice.node.console.log.ConsoleLevelConversion"/>
+  <property name="CONSOLE_PATTERN"
+    value="%gray([)%white(%d{dd.MM HH:mm:ss})%gray(]) %levelColor(%-5level): %msg%n"/>
   <appender name="ConsoleLogAppender" class="eu.cloudnetservice.node.console.log.ConsoleLogAppender">
-    <encoder>
+    <withJansi>true</withJansi>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>${CONSOLE_PATTERN}</pattern>
     </encoder>
   </appender>
 
   <root level="debug">
-    <appender-ref ref="ConsoleLogAppender" />
+    <appender-ref ref="ConsoleLogAppender"/>
   </root>
 </configuration>

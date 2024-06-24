@@ -18,20 +18,51 @@ package eu.cloudnetservice.node.console.log;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import ch.qos.logback.core.encoder.Encoder;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.console.Console;
+import lombok.NonNull;
 
 public class ConsoleLogAppender extends AppenderBase<ILoggingEvent> {
 
-  private final Console console;
+  private Console console;
+  private Encoder<ILoggingEvent> encoder;
 
   public ConsoleLogAppender() {
-    this.console = InjectionLayer.boot().instance(Console.class);
+  }
+
+  public void setEncoder(Encoder<ILoggingEvent> encoder) {
+    this.encoder = encoder;
   }
 
   @Override
   protected void append(ILoggingEvent event) {
-    // TODO: apply formatting here
-    this.console.writeLine(event.getFormattedMessage());
+    this.console().writeLine(new String(this.encoder.encode(event)));
+  }
+
+  @Override
+  public void start() {
+    if (this.encoder != null) {
+      this.encoder.start();
+    }
+
+    super.start();
+  }
+
+  @Override
+  public void stop() {
+    if (this.encoder != null) {
+      this.encoder.stop();
+    }
+
+    super.stop();
+  }
+
+  private @NonNull Console console() {
+    if (this.console == null) {
+      this.console = InjectionLayer.boot().instance(Console.class);
+    }
+
+    return this.console;
   }
 }
