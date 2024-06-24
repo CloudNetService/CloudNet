@@ -156,14 +156,14 @@ public final class RPCClassMetadata {
       }
 
       // ignore members that cannot be overridden anyway
-      if (this.methodVisibleToRoot(method)
-        && !method.isAnnotationPresent(RPCIgnore.class)
-        && !STANDARD_IGNORED_METHOD_FILTER.test(method)) {
-        var metadata = RPCMethodMetadata.fromMethod(method);
-        var methodDescriptor = metadata.methodType().descriptorString();
-        if (!this.methods.contains(metadata.name(), methodDescriptor)) {
-          // only register each method once, starting at the highest point in the tree
-          this.methods.put(metadata.name(), methodDescriptor, metadata);
+      if (this.methodVisibleToRoot(method)) {
+        if (!method.isAnnotationPresent(RPCIgnore.class) && !STANDARD_IGNORED_METHOD_FILTER.test(method)) {
+          var metadata = RPCMethodMetadata.fromMethod(method);
+          var methodDescriptor = metadata.methodType().descriptorString();
+          if (!this.methods.contains(metadata.name(), methodDescriptor)) {
+            // only register each method once, starting at the highest point in the tree
+            this.methods.put(metadata.name(), methodDescriptor, metadata);
+          }
         }
       } else if (Modifier.isAbstract(method.getModifiers())) {
         throw new IllegalStateException(String.format(
