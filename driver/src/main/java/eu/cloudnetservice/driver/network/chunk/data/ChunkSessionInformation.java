@@ -20,6 +20,7 @@ import com.google.common.base.Utf8;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import java.util.UUID;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Contains all needed information for a chunked data transfer to be initialized. The transfer information in this
@@ -40,10 +41,11 @@ public record ChunkSessionInformation(
 ) {
 
   /**
+   * Returns the bytes required to write this session information into a buffer.
    *
-   *
-   * @return
+   * @return the bytes required to write this session information into a buffer.
    */
+  @ApiStatus.Internal
   public int packetSizeBytes() {
     var channelBytes = Utf8.encodedLength(this.transferChannel);
     var transferBytes = this.transferInformation.readableBytes();
