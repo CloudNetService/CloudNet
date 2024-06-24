@@ -17,31 +17,104 @@
 package eu.cloudnetservice.driver.network.netty;
 
 import eu.cloudnetservice.driver.DriverEnvironment;
-import io.netty5.buffer.DefaultBufferAllocators;
-import java.util.concurrent.ThreadLocalRandom;
+import io.netty5.buffer.BufferAllocator;
+import io.netty5.channel.MultithreadEventLoopGroup;
+import io.netty5.handler.ssl.OpenSsl;
+import io.netty5.handler.ssl.SslProvider;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 public class NettyUtilTest {
-/*
+
   @Test
-  void testWrapperThreadAmount() {
-    Assertions.assertEquals(4, NettyUtil.threadAmount(DriverEnvironment.WRAPPER));
+  void testPacketDispatcherThreadCount() {
+    {
+      // test node dispatcher
+      var packetDispatcher = NettyUtil.createPacketDispatcher(DriverEnvironment.NODE);
+      var tpe = Assertions.assertInstanceOf(ThreadPoolExecutor.class, packetDispatcher);
+      Assertions.assertEquals(12, tpe.getMaximumPoolSize());
+      Assertions.assertEquals(6, tpe.getCorePoolSize());
+      Assertions.assertEquals(30, tpe.getKeepAliveTime(TimeUnit.SECONDS));
+      Assertions.assertDoesNotThrow(() -> tpe.getRejectedExecutionHandler().rejectedExecution(() -> {
+      }, tpe));
+
+      var dispatchQueue = Assertions.assertInstanceOf(LinkedBlockingQueue.class, tpe.getQueue());
+      Assertions.assertEquals(150, dispatchQueue.remainingCapacity());
+    }
+
+    {
+      // test wrapper dispatcher
+      var packetDispatcher = NettyUtil.createPacketDispatcher(DriverEnvironment.WRAPPER);
+      var tpe = Assertions.assertInstanceOf(ThreadPoolExecutor.class, packetDispatcher);
+      Assertions.assertEquals(4, tpe.getMaximumPoolSize());
+      Assertions.assertEquals(2, tpe.getCorePoolSize());
+      Assertions.assertEquals(30, tpe.getKeepAliveTime(TimeUnit.SECONDS));
+      Assertions.assertDoesNotThrow(() -> tpe.getRejectedExecutionHandler().rejectedExecution(() -> {
+      }, tpe));
+
+      var dispatchQueue = Assertions.assertInstanceOf(LinkedBlockingQueue.class, tpe.getQueue());
+      Assertions.assertEquals(150, dispatchQueue.remainingCapacity());
+    }
   }
 
   @Test
-  void testNodeThreadAmount() {
-    Assertions.assertTrue(NettyUtil.threadAmount(DriverEnvironment.NODE) >= 8);
+  void testBossEventLoopGroupCreation() {
+    var bossEventLoopGroup = NettyUtil.createBossEventLoopGroup();
+    var threadedGroup = Assertions.assertInstanceOf(MultithreadEventLoopGroup.class, bossEventLoopGroup);
+    Assertions.assertEquals(1, threadedGroup.executorCount());
   }
-*/
-  @RepeatedTest(30)
-  public void testVarIntCoding() {
-    try (var buffer = DefaultBufferAllocators.onHeapAllocator().allocate(0)) {
-      var i = ThreadLocalRandom.current().nextInt();
 
-      Assertions.assertNotNull(NettyUtil.writeVarInt(buffer, i));
-      Assertions.assertEquals(i, NettyUtil.readVarInt(buffer));
+  @Test
+  void testWorkerEventLoopGroupCreation() {
+    {
+      // test node event loop group
+      var workerEventLoopGroup = NettyUtil.createWorkerEventLoopGroup(DriverEnvironment.NODE);
+      var threadedGroup = Assertions.assertInstanceOf(MultithreadEventLoopGroup.class, workerEventLoopGroup);
+      Assertions.assertEquals(6, threadedGroup.executorCount());
+    }
+
+    {
+      // test wrapper event loop group
+      var workerEventLoopGroup = NettyUtil.createWorkerEventLoopGroup(DriverEnvironment.WRAPPER);
+      var threadedGroup = Assertions.assertInstanceOf(MultithreadEventLoopGroup.class, workerEventLoopGroup);
+      Assertions.assertEquals(2, threadedGroup.executorCount());
+    }
+  }
+
+  @Test
+  void testSslProviderSelection() {
+    var selectedSslProvider = NettyUtil.selectedSslProvider();
+    if (OpenSsl.isAvailable()) {
+      Assertions.assertEquals(SslProvider.OPENSSL, selectedSslProvider);
+    } else {
+      Assertions.assertEquals(SslProvider.JDK, selectedSslProvider);
+    }
+  }
+
+  @Test
+  void testVarIntBytes() {
+    Assertions.assertEquals(1, NettyUtil.varIntBytes(0));
+    Assertions.assertEquals(1, NettyUtil.varIntBytes(1));
+    Assertions.assertEquals(5, NettyUtil.varIntBytes(-1));
+    Assertions.assertEquals(5, NettyUtil.varIntBytes(-2048));
+    Assertions.assertEquals(5, NettyUtil.varIntBytes(Integer.MIN_VALUE));
+  }
+
+  @Test
+  void testVarIntBytesAndCodec() {
+    try (var buffer = BufferAllocator.onHeapUnpooled().allocate(5)) {
+      for (var num = Integer.MIN_VALUE; num < Integer.MAX_VALUE; num += Byte.MAX_VALUE) {
+        // write var int, validate written bytes were as expected, read var int
+        NettyUtil.writeVarInt(buffer, num);
+        Assertions.assertEquals(buffer.writerOffset(), NettyUtil.varIntBytes(num));
+        Assertions.assertEquals(num, NettyUtil.readVarInt(buffer));
+
+        // reset the buffer indexes and fill the buffer with 0 for the next run
+        buffer.resetOffsets().fill((byte) 0);
+      }
     }
   }
 }
