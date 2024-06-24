@@ -17,65 +17,79 @@
 package eu.cloudnetservice.driver.network.rpc.registry;
 
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCFactory;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.DefaultRPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import eu.cloudnetservice.driver.network.rpc.handler.DefaultRPCHandlerTest;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.IntSummaryStatistics;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DefaultRPCHandlerRegistryTest {
-/*
-  @Test
-  @Order(0)
-  void testRegisterHandler() {
-    var factory = this.provideFactory();
-    RPCHandlerRegistry registry = new DefaultRPCHandlerRegistry();
 
-    registry.registerHandler(factory.newHandler(
-      DefaultRPCHandlerTest.TestApiClass.class,
-      new DefaultRPCHandlerTest.TestApiClass(new AtomicLong())));
+  @ParameterizedTest
+  @ValueSource(classes = {IntSummaryStatistics.class, Math.class})
+  void testBasicRegisterAndUnregister(Class<?> targetClass) {
+    var registry = new DefaultRPCHandlerRegistry();
+    var factory = new DefaultRPCFactory(DefaultObjectMapper.DEFAULT_MAPPER, DataBufFactory.defaultFactory());
 
-    Assertions.assertEquals(1, registry.registeredHandlers().size());
-    Assertions.assertNotNull(
-      registry.registeredHandlers().get(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
+    Assertions.assertFalse(registry.hasHandler(targetClass));
+    Assertions.assertFalse(registry.hasHandler(targetClass.getName()));
+    Assertions.assertNull(registry.handler(targetClass));
+    Assertions.assertNull(registry.handler(targetClass.getName()));
 
-    Assertions.assertTrue(registry.hasHandler(DefaultRPCHandlerTest.TestApiClass.class));
-    Assertions.assertTrue(registry.hasHandler(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
+    var handler = factory.newRPCHandlerBuilder(targetClass).build();
+    Assertions.assertTrue(registry.registerHandler(handler));
+    Assertions.assertTrue(registry.hasHandler(targetClass));
+    Assertions.assertTrue(registry.hasHandler(targetClass.getName()));
+    Assertions.assertNotNull(registry.handler(targetClass));
+    Assertions.assertNotNull(registry.handler(targetClass.getName()));
 
-    Assertions.assertNotNull(registry.handler(DefaultRPCHandlerTest.TestApiClass.class));
-    Assertions.assertNotNull(registry.handler(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
+    Assertions.assertTrue(registry.unregisterHandler(targetClass));
+    Assertions.assertFalse(registry.hasHandler(targetClass));
+    Assertions.assertNull(registry.handler(targetClass));
   }
 
   @Test
-  @Order(10)
-  void testUnregisterHandler() {
-    var factory = this.provideFactory();
-    RPCHandlerRegistry registry = new DefaultRPCHandlerRegistry();
+  void testRegisterMultipleHandlers() {
+    var registry = new DefaultRPCHandlerRegistry();
+    var factory = new DefaultRPCFactory(DefaultObjectMapper.DEFAULT_MAPPER, DataBufFactory.defaultFactory());
 
-    registry.registerHandler(factory.newHandler(
-      DefaultRPCHandlerTest.TestApiClass.class,
-      new DefaultRPCHandlerTest.TestApiClass(new AtomicLong())));
+    var handlerMath = factory.newRPCHandlerBuilder(Math.class).build();
+    var handlerSummary = factory.newRPCHandlerBuilder(IntSummaryStatistics.class).build();
 
-    Assertions.assertEquals(1, registry.registeredHandlers().size());
-    Assertions.assertNotNull(
-      registry.registeredHandlers().get(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
+    Assertions.assertTrue(registry.registerHandler(handlerMath));
+    Assertions.assertTrue(registry.registerHandler(handlerSummary));
+    Assertions.assertTrue(registry.hasHandler(Math.class));
+    Assertions.assertTrue(registry.hasHandler(IntSummaryStatistics.class));
+    Assertions.assertSame(handlerMath, registry.handler(Math.class));
+    Assertions.assertSame(handlerSummary, registry.handler(IntSummaryStatistics.class));
 
-    registry.unregisterHandler(DefaultRPCHandlerTest.TestApiClass.class);
+    Assertions.assertTrue(registry.unregisterHandler(Math.class));
+    Assertions.assertFalse(registry.hasHandler(Math.class));
+    Assertions.assertTrue(registry.registerHandler(handlerMath));
+    Assertions.assertFalse(registry.registerHandler(handlerMath));
 
-    Assertions.assertEquals(0, registry.registeredHandlers().size());
-    Assertions.assertNull(
-      registry.registeredHandlers().get(DefaultRPCHandlerTest.TestApiClass.class.getCanonicalName()));
+    Assertions.assertTrue(registry.unregisterHandler(handlerMath));
+    Assertions.assertFalse(registry.hasHandler(Math.class));
+    Assertions.assertTrue(registry.registerHandler(handlerMath));
+
+    Assertions.assertTrue(registry.unregisterHandler("java.lang.Math"));
+    Assertions.assertFalse(registry.hasHandler(Math.class));
+    Assertions.assertTrue(registry.registerHandler(handlerMath));
+
+    var handlerPattern = factory.newRPCHandlerBuilder(Pattern.class).build();
+    Assertions.assertFalse(registry.unregisterHandler(handlerPattern));
+    Assertions.assertFalse(registry.unregisterHandler(Pattern.class));
+    Assertions.assertFalse(registry.unregisterHandler("java.util.regex.Pattern"));
+
+    registry.unregisterHandlers(handlerMath.getClass().getClassLoader());
+    Assertions.assertFalse(registry.hasHandler(Math.class));
+    Assertions.assertFalse(registry.hasHandler(IntSummaryStatistics.class));
   }
-
-  private RPCFactory provideFactory() {
-    return new DefaultRPCFactory(new DefaultObjectMapper(), DataBufFactory.defaultFactory());
-  }*/
 }
