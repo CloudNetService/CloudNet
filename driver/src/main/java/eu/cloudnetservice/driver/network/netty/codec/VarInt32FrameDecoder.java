@@ -56,7 +56,7 @@ public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
     // check if the packet data supplied in the buffer is actually at least the transmitted size
     if (in.readableBytes() >= length) {
       // fire the channel read
-      ctx.fireChannelRead(in.copy(in.readerOffset(), length, true));
+      ctx.fireChannelRead(in.copy(in.readerOffset(), length));
       in.skipReadableBytes(length);
     } else {
       // reset the reader index, there is still data missing

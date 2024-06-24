@@ -143,10 +143,8 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public @NonNull String readString() {
-    return this.hotRead(buf -> {
-      var length = NettyUtil.readVarInt(buf);
-      return buf.readCharSequence(length, StandardCharsets.UTF_8).toString();
-    });
+    var stringBytes = this.readByteArray();
+    return new String(stringBytes, StandardCharsets.UTF_8);
   }
 
   /**
@@ -156,8 +154,8 @@ public class NettyImmutableDataBuf implements DataBuf {
   public @NonNull DataBuf readDataBuf() {
     return this.hotRead(buf -> {
       // copy out the data
-      var length = buf.readInt();
-      var content = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), length, true));
+      var length = NettyUtil.readVarInt(buf);
+      var content = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), length));
 
       // skip the amount of bytes we're read and return the content
       buf.skipReadableBytes(length);
