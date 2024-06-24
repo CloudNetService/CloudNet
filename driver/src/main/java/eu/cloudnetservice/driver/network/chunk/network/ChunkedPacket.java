@@ -85,12 +85,11 @@ public final class ChunkedPacket extends BasePacket {
     byte[] sourceData,
     @NonNull ChunkSessionInformation sessionInfo
   ) {
-    var transferBytes = Byte.BYTES + Integer.BYTES + Integer.BYTES + sourceData.length + sessionInfo.packetSizeBytes();
+    var transferBytes = Byte.BYTES + Integer.BYTES + sourceData.length + sessionInfo.packetSizeBytes();
     var informationBuffer = DataBufFactory.defaultFactory().createWithExpectedSize(transferBytes)
       .writeObject(sessionInfo)
       .writeInt(chunkIndex)
       .writeBoolean(true) // final chunk
-      .writeInt(chunkIndex + 1) // final chunk additionally includes the amount of chunks that were read
       .writeByteArray(sourceData, readBytes);
     return new ChunkedPacket(informationBuffer);
   }

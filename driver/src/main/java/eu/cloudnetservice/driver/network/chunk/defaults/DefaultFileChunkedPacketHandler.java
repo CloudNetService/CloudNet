@@ -117,7 +117,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     // this is used in case not all file parts were received when the final packet arrives
     var isFinalPacket = dataBuf.readBoolean();
     if (isFinalPacket) {
-      this.expectedFileParts = dataBuf.readInt();
+      this.expectedFileParts = chunkPosition;
     }
 
     this.lock.lock();
