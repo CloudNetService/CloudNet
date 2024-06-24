@@ -136,6 +136,13 @@ public class RPCNetworkHandlingTest {
     var printCounterChain = chainTestRPC.join(printCounterRPC);
     var printCounterResult = Assertions.assertDoesNotThrow(() -> (String) printCounterChain.fire().join());
     Assertions.assertEquals("X240null", printCounterResult);
+
+    // if a method call returns null in the middle of a chain, then an exceptional result with a null pointer
+    // exception as the cause is sent back to the calling component
+    var chainTestNegativeRPC = handlingTestSender.invokeMethod("chainedTest", chainedTestDesc, (short) -55);
+    var printCounterChain2 = chainTestNegativeRPC.join(printCounterRPC);
+    var printCounterResult2 = Assertions.assertThrows(RPCExecutionException.class, printCounterChain2::fireSync);
+    Assertions.assertTrue(printCounterResult2.getMessage().startsWith("NullPointerException:"));
   }
 
   public interface RPCHandlingTest {
@@ -177,7 +184,7 @@ public class RPCNetworkHandlingTest {
 
     @Override
     public RPCHandlingTestChained chainedTest(short someCounter) {
-      return new HandlingTestChainedImpl(someCounter + 5);
+      return someCounter <= 0 ? null : new HandlingTestChainedImpl(someCounter + 5);
     }
   }
 
