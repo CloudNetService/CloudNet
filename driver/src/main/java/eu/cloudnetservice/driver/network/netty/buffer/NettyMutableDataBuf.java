@@ -196,6 +196,15 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    * {@inheritDoc}
    */
   @Override
+  public @NonNull DataBuf.Mutable ensureWriteable(int bytes) {
+    this.buffer.ensureWritable(bytes);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @NonNull DataBuf asImmutable() {
     return new NettyImmutableDataBuf(this.buffer);
   }

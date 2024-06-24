@@ -18,6 +18,7 @@ package eu.cloudnetservice.driver.network.rpc.defaults.object.data;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCIgnore;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
@@ -39,7 +40,7 @@ import lombok.NonNull;
  */
 public final class DataClassSerializer implements ObjectSerializer<Object> {
 
-  private final Cache<Class<?>, DataClassCodec> dataClassCodecCache = Caffeine.newBuilder()
+  private final Cache<Class<?>, Tuple2<DataClassCodec, AllocationStatistic>> dataClassCodecCache = Caffeine.newBuilder()
     .expireAfterAccess(Duration.ofHours(8)) // release generated classes for GC if not needed
     .build();
 
@@ -90,7 +91,10 @@ public final class DataClassSerializer implements ObjectSerializer<Object> {
     } else {
       // not an array, deserialize if possible
       ensureClassIsInstantiable(clazz);
-      var dataClassCodec = this.dataClassCodecCache.get(clazz, this::createDataClassCodec);
+      var dataClassCodec = this.dataClassCodecCache.get(clazz, target -> {
+        var createdCodec = this.createDataClassCodec(target);
+        return new Tuple2<>(createdCodec, new AllocationStatistic());
+      }).first();
       return dataClassCodec.deserialize(source, caller);
     }
   }
@@ -120,8 +124,23 @@ public final class DataClassSerializer implements ObjectSerializer<Object> {
     } else {
       // not an array, serialize if possible
       ensureClassIsInstantiable(clazz);
-      var dataClassCodec = this.dataClassCodecCache.get(clazz, this::createDataClassCodec);
-      dataClassCodec.serialize(dataBuf, caller, object);
+      var codecInfo = this.dataClassCodecCache.get(clazz, target -> {
+        var createdCodec = this.createDataClassCodec(target);
+        return new Tuple2<>(createdCodec, new AllocationStatistic());
+      });
+      var dataClassCodec = codecInfo.first();
+      var allocStatistic = codecInfo.second();
+
+      // keep track of the bytes written into the buffer during the serialization
+      // to prevent many resizes while writing of the data into the buffer
+      var prevByteCount = dataBuf.readableBytes();
+      try {
+        dataBuf.ensureWriteable(allocStatistic.average());
+        dataClassCodec.serialize(dataBuf, caller, object);
+      } finally {
+        var newByteCount = dataBuf.readableBytes();
+        allocStatistic.add(newByteCount - prevByteCount);
+      }
     }
   }
 

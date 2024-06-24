@@ -243,8 +243,7 @@ public interface DataBuf extends AutoCloseable {
    * @throws IndexOutOfBoundsException if there are no more bytes to read.
    * @throws IllegalStateException     if this buffer was released.
    */
-  @Nullable
-  <T> T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull);
+  @Nullable <T> T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull);
 
   /**
    * Reads the next requested data from the buffer. To determine whether the given reader for further reading should be
@@ -498,8 +497,20 @@ public interface DataBuf extends AutoCloseable {
      * @return the same buffer used to call the method, for chaining.
      */
     @NonNull
-    <T> DataBuf.Mutable writeNullable(@Nullable T object,
+    <T> DataBuf.Mutable writeNullable(
+      @Nullable T object,
       @NonNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);
+
+    /**
+     * Ensures that this buffer has at least the given amount of bytes unused for writing data. If the buffer already
+     * has the amount of bytes present, this method returns immediately.
+     *
+     * @param bytes the bytes that must be available in the buffer.
+     * @return this buffer, for chaining.
+     * @throws IllegalArgumentException if the given byte count is negative.
+     */
+    @NonNull
+    DataBuf.Mutable ensureWriteable(int bytes);
 
     // utility for reading
 
