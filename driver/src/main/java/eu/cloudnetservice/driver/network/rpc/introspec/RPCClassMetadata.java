@@ -43,6 +43,14 @@ import org.jetbrains.annotations.UnmodifiableView;
  */
 public final class RPCClassMetadata {
 
+  // filter to ignore all methods that can be overridden from java.lang.Object
+  private static final Predicate<Method> STANDARD_IGNORED_METHOD_FILTER = m ->
+    (m.getName().equals("clone") && m.getParameterCount() == 0)
+      || (m.getName().equals("hashCode") && m.getParameterCount() == 0 && m.getReturnType() == int.class)
+      || (m.getName().equals("finalize") && m.getParameterCount() == 0 && m.getReturnType() == void.class)
+      || (m.getName().equals("toString") && m.getParameterCount() == 0 && m.getReturnType() == String.class)
+      || (m.getName().equals("equals") && m.getParameterCount() == 1 && m.getParameterTypes()[0] == Object.class);
+
   private final Class<?> target;
   private final Duration rpcTimeout;
 
@@ -148,7 +156,9 @@ public final class RPCClassMetadata {
       }
 
       // ignore members that cannot be overridden anyway
-      if (this.methodVisibleToRoot(method) && !method.isAnnotationPresent(RPCIgnore.class)) {
+      if (this.methodVisibleToRoot(method)
+        && !method.isAnnotationPresent(RPCIgnore.class)
+        && !STANDARD_IGNORED_METHOD_FILTER.test(method)) {
         var metadata = RPCMethodMetadata.fromMethod(method);
         var methodDescriptor = metadata.methodType().descriptorString();
         if (!this.methods.contains(metadata.name(), methodDescriptor)) {
