@@ -23,7 +23,6 @@ import io.netty5.buffer.AllocatorControl;
 import io.netty5.buffer.Buffer;
 import io.netty5.buffer.BufferAllocator;
 import io.netty5.buffer.Drop;
-import io.netty5.buffer.MemoryManager;
 import io.netty5.buffer.StandardAllocationTypes;
 import io.netty5.buffer.bytebuffer.ByteBufferMemoryManager;
 import io.netty5.buffer.internal.ArcDrop;
@@ -45,7 +44,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class NettyNioBufferReleasingAllocator implements BufferAllocator, AllocatorControl {
 
-  private final MemoryManager manager;
+  private final ByteBufferMemoryManager manager;
   private volatile boolean closed;
 
   /**
@@ -136,7 +135,7 @@ public final class NettyNioBufferReleasingAllocator implements BufferAllocator, 
    * @param memoryManager the memory manager that is responsible for allocation.
    * @since 4.0
    */
-  private record DirectBufferFreeDrop(@NonNull MemoryManager memoryManager) implements Drop<Buffer> {
+  private record DirectBufferFreeDrop(@NonNull ByteBufferMemoryManager memoryManager) implements Drop<Buffer> {
 
     private static final MethodHandle DIRECT_BUFFER_CLEANER;
     private static final Logger LOGGER = LogManager.logger(DirectBufferFreeDrop.class);
