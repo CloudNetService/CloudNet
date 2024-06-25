@@ -34,10 +34,9 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
-import net.minestom.server.MinecraftServer;
+import net.minestom.server.ServerFlag;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceManager;
@@ -75,7 +74,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
 
   @Override
   protected int tps() {
-    return MinecraftServer.TICK_PER_SECOND;
+    return ServerFlag.SERVER_TICKS_PER_SECOND;
   }
 
   @Override
@@ -93,7 +92,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
               if (location != null) {
                 var vec = location.first().asVec();
                 for (var entity : location.second().getNearbyEntities(location.first(), distance)) {
-                  if (entity instanceof Player player && !(entity instanceof FakePlayer)
+                  if (entity instanceof Player player
                     && (conf.bypassPermission() == null || !player.hasPermission(conf.bypassPermission()))) {
                     entity.setVelocity(entity.getPosition().asVec()
                       .sub(vec)

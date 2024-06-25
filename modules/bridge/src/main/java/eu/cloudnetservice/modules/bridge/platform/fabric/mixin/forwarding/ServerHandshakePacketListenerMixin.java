@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntent;
@@ -47,14 +48,20 @@ public final class ServerHandshakePacketListenerMixin {
   private static final Gson GSON = new Gson();
   @Unique
   private static final Component IP_INFO_MISSING = Component.literal(
-    "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!");
+      "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!")
+    .withStyle(ChatFormatting.RED);
 
   @Final
   @Shadow
   private Connection connection;
 
-  @Inject(at = @At("HEAD"), method = "handleIntention")
-  public void onHandshake(@NonNull ClientIntentionPacket packet, @NonNull CallbackInfo info) {
+  @Inject(at = @At(
+    value = "INVOKE_ASSIGN",
+    target =
+      "Lnet/minecraft/network/Connection;setupInboundProtocol"
+        + "(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V"),
+    method = "beginLogin")
+  public void onHandshake(@NonNull ClientIntentionPacket packet, boolean transfer, @NonNull CallbackInfo info) {
     // do not try this for pings
     if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING && packet.intention() == ClientIntent.LOGIN) {
       var bridged = (BridgedClientConnection) this.connection;

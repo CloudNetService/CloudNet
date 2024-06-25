@@ -161,7 +161,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
       : new MinestomDirectPlayerExecutor(
         this.commandManager,
         uniqueId,
-        () -> Collections.singleton(this.connectionManager.getPlayer(uniqueId)));
+        () -> Collections.singleton(this.connectionManager.getOnlinePlayerByUuid(uniqueId)));
   }
 
   @Override

@@ -62,6 +62,7 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   private final CommandManager commandManager;
   private final ChannelManager channelManager;
   private final PlayerExecutor directGlobalExecutor;
+  private final SpongeAddressAccessor spongeAddressAccessor;
 
   @Inject
   public SpongeBridgeManagement(
@@ -76,7 +77,8 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
     @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull CloudServiceProvider serviceProvider,
-    @NonNull WrapperConfiguration wrapperConfiguration
+    @NonNull WrapperConfiguration wrapperConfiguration,
+    @NonNull SpongeAddressAccessor spongeAddressAccessor
   ) {
     super(
       rpcFactory,
@@ -92,6 +94,7 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
     this.platform = platform;
     this.commandManager = commandManager;
     this.channelManager = channelManager;
+    this.spongeAddressAccessor = spongeAddressAccessor;
     this.directGlobalExecutor = new SpongeDirectPlayerExecutor(
       channelManager,
       commandManager,
@@ -119,7 +122,7 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
       player.uniqueId(),
       player.name(),
       null,
-      BridgeHostAndPortUtil.fromSocketAddress(player.connection().address()),
+      BridgeHostAndPortUtil.fromSocketAddress(this.spongeAddressAccessor.playerHostAddress(player)),
       this.ownNetworkServiceInfo);
   }
 
