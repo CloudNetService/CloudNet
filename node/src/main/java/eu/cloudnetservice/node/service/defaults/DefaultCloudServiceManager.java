@@ -156,11 +156,11 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
           // detect dead services and stop them
           if (service.alive()) {
             service.serviceConsoleLogCache().update();
-            LOGGER.debug("Updated service log cache of %s", null, service.serviceId().name());
+            LOGGER.debug("Updated service log cache of {}", service.serviceId().name());
           } else {
             eventManager.callEvent(new CloudServicePreForceStopEvent(service));
             service.stop();
-            LOGGER.debug("Stopped dead service %s", null, service.serviceId().name());
+            LOGGER.debug("Stopped dead service {}", service.serviceId().name());
           }
         }
       }
