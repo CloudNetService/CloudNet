@@ -633,26 +633,6 @@
       ]
     },
     {
-      "name": "waterfall",
-      "environmentType": "BUNGEECORD",
-      "website": "https://papermc.io",
-      "installSteps": [
-        "PAPER_API",
-        "DOWNLOAD"
-      ],
-      "versions": [
-        {
-          "name": "latest",
-          "cacheFiles": false,
-          "deprecated": true,
-          "properties": {
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.20"
-          }
-        }
-      ]
-    },
-    {
       "name": "nukkit",
       "environmentType": "NUKKIT",
       "website": "https://nukkitx.com",
