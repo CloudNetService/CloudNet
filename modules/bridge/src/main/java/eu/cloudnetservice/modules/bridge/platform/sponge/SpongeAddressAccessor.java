@@ -55,5 +55,4 @@ public final class SpongeAddressAccessor {
 
     return GET_CONNECT_ACCESSOR.<RemoteConnection>invoke(serverPlayer).getOrThrow().address();
   }
-
 }

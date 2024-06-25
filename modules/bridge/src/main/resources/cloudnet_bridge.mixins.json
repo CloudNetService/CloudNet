@@ -9,7 +9,8 @@
     "forwarding.ServerHandshakePacketListenerMixin",
     "forwarding.ServerLoginPacketListenerMixin",
     "handling.MinecraftServerMixin",
-    "handling.PlayerListMixin"
+    "handling.PlayerListMixin",
+    "payload.CustomPayloadMixin"
   ],
   "injectors": {
     "defaultRequire": 1

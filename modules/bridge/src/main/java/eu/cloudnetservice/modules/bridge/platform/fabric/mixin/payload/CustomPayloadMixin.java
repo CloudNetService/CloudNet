@@ -39,19 +39,23 @@ public class CustomPayloadMixin implements CustomPayloadAccessor {
   public ByteBuf dataBuf;
 
   /**
-   * @author
-   * @reason
+   * Overwrites the codec implementation of the custom packet payload.
+   *
+   * @author CloudNetService
+   * @reason the usual implementation does not allow to send any custom payload data to the client anymore. This reverts
+   * that change.
    */
   @Overwrite
   public static <T extends FriendlyByteBuf> StreamCodec<T, DiscardedPayload> codec(ResourceLocation id, int maxBytes) {
-    return CustomPacketPayload.codec((discardedpayload, packetdataserializer) -> {
-      packetdataserializer.writeBytes(((CustomPayloadAccessor) (Object) discardedpayload).getData()); // CraftBukkit - serialize
-    }, (packetdataserializer) -> {
-      int j = packetdataserializer.readableBytes();
+    return CustomPacketPayload.codec((discardedPayload, packetSerializer) -> {
+      packetSerializer.writeBytes(
+        ((CustomPayloadAccessor) (Object) discardedPayload).getData());
+    }, (packetSerializer) -> {
+      int readableBytes = packetSerializer.readableBytes();
 
-      if (j >= 0 && j <= maxBytes) {
+      if (readableBytes >= 0 && readableBytes <= maxBytes) {
         var payload = new DiscardedPayload(id);
-        ((CustomPayloadAccessor) (Object) payload).setData(packetdataserializer.readBytes(j));
+        ((CustomPayloadAccessor) (Object) payload).setData(packetSerializer.readBytes(readableBytes));
         return payload;
       } else {
         throw new IllegalArgumentException("Payload may not be larger than " + maxBytes + " bytes");
