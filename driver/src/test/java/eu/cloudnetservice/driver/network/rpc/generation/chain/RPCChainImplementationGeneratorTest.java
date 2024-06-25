@@ -36,7 +36,8 @@ public class RPCChainImplementationGeneratorTest {
   @Test
   public void testChainedImplementationGeneration() {
     var mockedChannel = Mockito.mock(NetworkChannel.class);
-    Mockito.doAnswer(_ -> {
+    Mockito
+      .doAnswer(_ -> {
         var rpcResponse = DataBuf.empty()
           .writeByte(RPCInvocationResult.STATUS_OK)
           .writeObject("hello world!");

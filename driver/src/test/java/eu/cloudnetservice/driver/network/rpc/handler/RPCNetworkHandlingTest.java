@@ -50,7 +50,8 @@ public class RPCNetworkHandlingTest {
     var mockedChannel = Mockito.mock(NetworkChannel.class);
     var lastRPCRequest = new AtomicReference<Packet>();
     var responseQueue = new LinkedBlockingQueue<Packet>(1);
-    Mockito.doAnswer(invocation -> {
+    Mockito
+      .doAnswer(invocation -> {
         Packet rpcRequest = invocation.getArgument(0);
         rpcRequest.uniqueId(UUID.randomUUID()); // usually QueryManager would take over this job
         Assertions.assertEquals(NetworkConstants.INTERNAL_RPC_COM_CHANNEL, rpcRequest.channel());
@@ -60,7 +61,8 @@ public class RPCNetworkHandlingTest {
       })
       .when(mockedChannel)
       .sendQueryAsync(Mockito.any(Packet.class));
-    Mockito.doAnswer(invocation -> {
+    Mockito
+      .doAnswer(invocation -> {
         var lastRequest = lastRPCRequest.getAndSet(null);
         if (lastRequest != null) {
           Packet rpcResponse = invocation.getArgument(0);
