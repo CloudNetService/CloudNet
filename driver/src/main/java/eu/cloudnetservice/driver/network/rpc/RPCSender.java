@@ -31,6 +31,14 @@ import org.jetbrains.annotations.Contract;
 public interface RPCSender extends RPCProvider {
 
   /**
+   * Get the channel supplier that gets used if no specific network channel was provided to an execute method.
+   *
+   * @return the fallback channel supplier.
+   */
+  @NonNull
+  Supplier<NetworkChannel> defaultChannelSupplier();
+
+  /**
    * Returns a new RPC that can invoke the calling method with the provided arguments.
    *
    * @param args the arguments to supply when invoking the method.

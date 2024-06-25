@@ -195,6 +195,14 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
    * {@inheritDoc}
    */
   @Override
+  public @NonNull Supplier<NetworkChannel> defaultChannelSupplier() {
+    return this.channelSupplier;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void fireAndForget() {
     var targetNetworkChannel = this.channelSupplier.get();
     Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
