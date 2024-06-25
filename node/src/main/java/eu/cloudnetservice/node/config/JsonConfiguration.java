@@ -96,12 +96,8 @@ public final class JsonConfiguration implements Configuration {
   private String hostAddress;
   private Map<String, String> ipAliases;
 
-  private RestConfiguration restConfiguration;
-  private Collection<HostAndPort> httpListeners;
-
   private SSLConfiguration clientSslConfig;
   private SSLConfiguration serverSslConfig;
-  private SSLConfiguration webSslConfig;
 
   private Document properties;
 
@@ -253,32 +249,6 @@ public final class JsonConfiguration implements Configuration {
       this.ipAliases = ConfigurationUtil.get("cloudnet.config.ipAliases", new HashMap<>(), MAP_PARSER);
     }
 
-    if (this.httpListeners == null) {
-      this.httpListeners = ConfigurationUtil.get(
-        "cloudnet.config.httpListeners",
-        Lists.newArrayList(new HostAndPort("0.0.0.0", 2812)),
-        ConfigurationUtil.HOST_AND_PORT_PARSER);
-    }
-
-    if (this.restConfiguration == null) {
-      this.restConfiguration = ConfigurationUtil.get(
-        "cloudnet.config.accessControlConfiguration",
-        new RestConfiguration("*", "*", "Content-Encoding", 3600, 60),
-        value -> {
-          var parts = value.split(";");
-          if (parts.length == 5) {
-            return new RestConfiguration(
-              parts[0],
-              parts[1],
-              parts[2],
-              Integer.parseInt(parts[3]),
-              Integer.parseInt(parts[4]));
-          }
-          // unable to parse
-          return null;
-        });
-    }
-
     if (this.clientSslConfig == null) {
       this.clientSslConfig = ConfigurationUtil.get(
         "cloudnet.config.clientSslConfig",
@@ -294,18 +264,6 @@ public final class JsonConfiguration implements Configuration {
     if (this.serverSslConfig == null) {
       this.serverSslConfig = ConfigurationUtil.get(
         "cloudnet.config.serverSslConfig",
-        new SSLConfiguration(
-          false,
-          false,
-          null,
-          Path.of("cert.pem"),
-          Path.of("private.pem")),
-        SSL_CONFIG_PARSER);
-    }
-
-    if (this.webSslConfig == null) {
-      this.webSslConfig = ConfigurationUtil.get(
-        "cloudnet.config.webSslConfig",
         new SSLConfiguration(
           false,
           false,
@@ -359,7 +317,6 @@ public final class JsonConfiguration implements Configuration {
     this.ipAliases = configuration.ipAliases();
 
     this.properties = configuration.properties();
-    this.restConfiguration = configuration.restConfiguration();
   }
 
   @Override
@@ -463,26 +420,6 @@ public final class JsonConfiguration implements Configuration {
   }
 
   @Override
-  public @NonNull Collection<HostAndPort> httpListeners() {
-    return this.httpListeners;
-  }
-
-  @Override
-  public void httpListeners(@NonNull Collection<HostAndPort> httpListeners) {
-    this.httpListeners = httpListeners;
-  }
-
-  @Override
-  public @NonNull RestConfiguration restConfiguration() {
-    return this.restConfiguration;
-  }
-
-  @Override
-  public void restConfiguration(@NonNull RestConfiguration configuration) {
-    this.restConfiguration = configuration;
-  }
-
-  @Override
   public @NonNull Map<String, String> ipAliases() {
     return this.ipAliases;
   }
@@ -510,16 +447,6 @@ public final class JsonConfiguration implements Configuration {
   @Override
   public void serverSSLConfig(@NonNull SSLConfiguration serverSslConfig) {
     this.serverSslConfig = serverSslConfig;
-  }
-
-  @Override
-  public @NonNull SSLConfiguration webSSLConfig() {
-    return this.webSslConfig;
-  }
-
-  @Override
-  public void webSSLConfig(@NonNull SSLConfiguration webSslConfig) {
-    this.webSslConfig = webSslConfig;
   }
 
   @Override
