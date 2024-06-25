@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.network.protocol.defaults.DefaultQueryPacketMan
 import java.util.UUID;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -66,5 +67,6 @@ public class DefaultQueryPacketManagerTest {
     Assertions.assertNotNull(secondResponseTask);
     Assertions.assertEquals(Future.State.RUNNING, secondResponseTask.state());
     Assertions.assertThrows(CompletionException.class, firstResponseTask::join);
+    Assertions.assertInstanceOf(TimeoutException.class, firstResponseTask.exceptionNow());
   }
 }
