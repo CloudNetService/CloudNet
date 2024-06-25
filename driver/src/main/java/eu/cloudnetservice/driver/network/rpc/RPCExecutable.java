@@ -112,5 +112,5 @@ public interface RPCExecutable {
    * @return the fallback channel supplier.
    */
   @NonNull
-  Supplier<NetworkChannel> defaultChannelSupplier();
+  Supplier<NetworkChannel> fallbackChannelSupplier();
 }

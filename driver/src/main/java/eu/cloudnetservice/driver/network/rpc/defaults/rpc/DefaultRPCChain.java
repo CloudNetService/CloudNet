@@ -122,7 +122,7 @@ public final class DefaultRPCChain extends DefaultRPCProvider implements RPCChai
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Supplier<NetworkChannel> defaultChannelSupplier() {
+  public @NonNull Supplier<NetworkChannel> fallbackChannelSupplier() {
     return this.channelSupplier;
   }
 

@@ -68,7 +68,7 @@ final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Supplier<NetworkChannel> defaultChannelSupplier() {
+  public @NonNull Supplier<NetworkChannel> fallbackChannelSupplier() {
     return this.channelSupplier;
   }
 

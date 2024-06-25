@@ -36,7 +36,7 @@ public interface RPCSender extends RPCProvider {
    * @return the fallback channel supplier.
    */
   @NonNull
-  Supplier<NetworkChannel> defaultChannelSupplier();
+  Supplier<NetworkChannel> fallbackChannelSupplier();
 
   /**
    * Returns a new RPC that can invoke the calling method with the provided arguments.
