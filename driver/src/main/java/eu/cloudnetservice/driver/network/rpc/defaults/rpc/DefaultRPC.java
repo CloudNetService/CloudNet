@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.packet.RPCRequestPacket;
@@ -60,6 +61,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
    * Constructs a new default rpc instance.
    *
    * @param targetClass      the class targeted by the RPC.
+   * @param sourceFactory    the rpc factory that constructed this object.
    * @param objectMapper     the object mapper used for data serialization during rpc execution.
    * @param dataBufFactory   the data buffer factory to use for buffer allocations during rpc execution.
    * @param sender           the sender that constructed this rpc.
@@ -71,6 +73,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   public DefaultRPC(
     @NonNull Class<?> targetClass,
+    @NonNull RPCFactory sourceFactory,
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory,
     @NonNull RPCSender sender,
@@ -79,7 +82,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
     @NonNull RPCMethodMetadata targetMethod,
     @NonNull Object[] arguments
   ) {
-    super(targetClass, objectMapper, dataBufFactory);
+    super(targetClass, sourceFactory, objectMapper, dataBufFactory);
     this.sender = sender;
     this.channelSupplier = channelSupplier;
 

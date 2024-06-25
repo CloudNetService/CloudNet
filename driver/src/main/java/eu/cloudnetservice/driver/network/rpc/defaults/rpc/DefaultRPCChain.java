@@ -64,7 +64,7 @@ public final class DefaultRPCChain extends DefaultRPCProvider implements RPCChai
     @NonNull List<RPC> fullChain,
     @NonNull Supplier<NetworkChannel> channelSupplier
   ) {
-    super(chainHead.targetClass(), chainHead.objectMapper(), chainHead.dataBufFactory());
+    super(chainHead.targetClass(), chainHead.sourceFactory(), chainHead.objectMapper(), chainHead.dataBufFactory());
 
     this.chainHead = chainHead;
     this.chainTail = chainTail;

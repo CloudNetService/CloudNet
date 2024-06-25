@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvoker;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationContext;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
@@ -57,13 +58,24 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
   private final RPCClassMetadata targetClassMeta;
   private final Cache<RPCMethodMetadata, MethodInvoker> methodInvokerCache;
 
+  /**
+   * Constructs a new rpc handler instance.
+   *
+   * @param sourceFactory   the rpc factory that constructed this object.
+   * @param objectMapper    the object mapper to use to write and read data from the buffers.
+   * @param dataBufFactory  the buffer factory used for buffer allocations.
+   * @param boundInstance   the instance to which this handler is bound, can be null.
+   * @param targetClassMeta the metadata of the target class in which this handler should call methods.
+   * @throws NullPointerException if any parameter, except the bound instance, is null.
+   */
   DefaultRPCHandler(
+    @NonNull RPCFactory sourceFactory,
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory,
     @Nullable Object boundInstance,
     @NonNull RPCClassMetadata targetClassMeta
   ) {
-    super(targetClassMeta.targetClass(), objectMapper, dataBufFactory);
+    super(targetClassMeta.targetClass(), sourceFactory, objectMapper, dataBufFactory);
     this.boundInstance = boundInstance;
     this.targetClassMeta = targetClassMeta;
     this.methodInvokerCache = Caffeine.newBuilder()

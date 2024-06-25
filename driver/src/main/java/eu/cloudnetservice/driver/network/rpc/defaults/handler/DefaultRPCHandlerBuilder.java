@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class DefaultRPCHandlerBuilder<T> implements RPCHandler.Builder<T> {
 
+  private final RPCFactory sourceFactory;
   private final RPCClassMetadata classMetadata;
 
   private Object boundInstance;
@@ -41,16 +43,19 @@ public final class DefaultRPCHandlerBuilder<T> implements RPCHandler.Builder<T> 
    * Constructs a new builder instance for the target class (given by the class metadata) and the default data buf
    * factory / object mapper from the source RPC factory.
    *
+   * @param sourceFactory  the rpc factory that constructed this object.
    * @param classMetadata  the metadata for the target class.
    * @param dataBufFactory the default data buf factory of the source RPC factory.
    * @param objectMapper   the default object mapper of the source RPC factory.
    * @throws NullPointerException if the given class meta, data buf factory or object mapper is null.
    */
   public DefaultRPCHandlerBuilder(
+    @NonNull RPCFactory sourceFactory,
     @NonNull RPCClassMetadata classMetadata,
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory
   ) {
+    this.sourceFactory = sourceFactory;
     this.classMetadata = classMetadata;
     this.objectMapper = objectMapper;
     this.dataBufFactory = dataBufFactory;
@@ -89,6 +94,11 @@ public final class DefaultRPCHandlerBuilder<T> implements RPCHandler.Builder<T> 
   @Override
   public @NonNull RPCHandler build() {
     var classMetadata = this.classMetadata.freeze(); // immutable & copied - changes no longer reflect into it
-    return new DefaultRPCHandler(this.objectMapper, this.dataBufFactory, this.boundInstance, classMetadata);
+    return new DefaultRPCHandler(
+      this.sourceFactory,
+      this.objectMapper,
+      this.dataBufFactory,
+      this.boundInstance,
+      classMetadata);
   }
 }

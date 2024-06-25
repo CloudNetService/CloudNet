@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.driver.network.rpc.defaults.rpc.DefaultRPC;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
@@ -44,6 +45,7 @@ final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   /**
    * Constructs a new default rpc sender instance.
    *
+   * @param sourceFactory   the rpc factory that constructed this object.
    * @param objectMapper    the object mapper to use to write and read data from the buffers.
    * @param dataBufFactory  the buffer factory used for buffer allocations.
    * @param rpcTargetMeta   the metadata of the target class handled by this sender.
@@ -51,12 +53,13 @@ final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
    * @throws NullPointerException if one of the given parameters is null.
    */
   DefaultRPCSender(
+    @NonNull RPCFactory sourceFactory,
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory,
     @NonNull RPCClassMetadata rpcTargetMeta,
     @NonNull Supplier<NetworkChannel> channelSupplier
   ) {
-    super(rpcTargetMeta.targetClass(), objectMapper, dataBufFactory);
+    super(rpcTargetMeta.targetClass(), sourceFactory, objectMapper, dataBufFactory);
     this.rpcTargetMeta = rpcTargetMeta;
     this.channelSupplier = channelSupplier;
   }
@@ -141,6 +144,7 @@ final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
     return new DefaultRPC(
       this.targetClass,
+      this.sourceFactory,
       this.objectMapper,
       this.dataBufFactory,
       this,

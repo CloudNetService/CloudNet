@@ -81,7 +81,7 @@ public final class DefaultRPCFactory implements RPCFactory {
    */
   @ApiStatus.Internal
   public @NonNull RPCSender.Builder newRPCSenderBuilder(@NonNull RPCClassMetadata classMetadata) {
-    return new DefaultRPCSenderBuilder(classMetadata, this.defaultDataBufFactory, this.defaultObjectMapper);
+    return new DefaultRPCSenderBuilder(this, classMetadata, this.defaultDataBufFactory, this.defaultObjectMapper);
   }
 
   /**
@@ -90,7 +90,7 @@ public final class DefaultRPCFactory implements RPCFactory {
   @Override
   public <T> RPCHandler.@NonNull Builder<T> newRPCHandlerBuilder(@NonNull Class<T> target) {
     var classMetadata = RPCClassMetadata.introspect(target);
-    return new DefaultRPCHandlerBuilder<>(classMetadata, this.defaultObjectMapper, this.defaultDataBufFactory);
+    return new DefaultRPCHandlerBuilder<>(this, classMetadata, this.defaultObjectMapper, this.defaultDataBufFactory);
   }
 
   /**

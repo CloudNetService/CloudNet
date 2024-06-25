@@ -21,6 +21,7 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.lang.invoke.TypeDescriptor;
@@ -34,6 +35,7 @@ import lombok.NonNull;
  */
 public final class DefaultRPCSenderBuilder implements RPCSender.Builder {
 
+  private final RPCFactory sourceFactory;
   private final RPCClassMetadata classMetadata;
 
   private ObjectMapper objectMapper;
@@ -44,16 +46,19 @@ public final class DefaultRPCSenderBuilder implements RPCSender.Builder {
    * Constructs a new builder instance for the target class (given by the class metadata) and the default data buf
    * factory / object mapper from the source RPC factory.
    *
+   * @param sourceFactory  the rpc factory that constructed this object.
    * @param classMetadata  the metadata for the target class.
    * @param dataBufFactory the default data buf factory of the source RPC factory.
    * @param objectMapper   the default object mapper of the source RPC factory.
    * @throws NullPointerException if the given class meta, data buf factory or object mapper is null.
    */
   public DefaultRPCSenderBuilder(
+    @NonNull RPCFactory sourceFactory,
     @NonNull RPCClassMetadata classMetadata,
     @NonNull DataBufFactory dataBufFactory,
     @NonNull ObjectMapper objectMapper
   ) {
+    this.sourceFactory = sourceFactory;
     this.classMetadata = classMetadata;
     this.dataBufFactory = dataBufFactory;
     this.objectMapper = objectMapper;
@@ -119,6 +124,11 @@ public final class DefaultRPCSenderBuilder implements RPCSender.Builder {
     Preconditions.checkArgument(this.channelSupplier != null, "channel supplier must be given");
 
     var classMetadata = this.classMetadata.freeze(); // immutable & copied - changes no longer reflect into it
-    return new DefaultRPCSender(this.objectMapper, this.dataBufFactory, classMetadata, this.channelSupplier);
+    return new DefaultRPCSender(
+      this.sourceFactory,
+      this.objectMapper,
+      this.dataBufFactory,
+      classMetadata,
+      this.channelSupplier);
   }
 }

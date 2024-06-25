@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.network.rpc;
 
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
@@ -51,6 +52,14 @@ public interface RPCProvider {
    */
   @NonNull
   DataBufFactory dataBufFactory();
+
+  /**
+   * Get the rpc factory that constructed this rpc provider object.
+   *
+   * @return the rpc factory that constructed this rpc provider object.
+   */
+  @NonNull
+  RPCFactory sourceFactory();
 
   /**
    * A base builder that can be used for everything that implements RPC provider.
