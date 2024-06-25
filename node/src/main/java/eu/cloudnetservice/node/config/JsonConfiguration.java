@@ -212,7 +212,7 @@ public final class JsonConfiguration implements Configuration {
     if (this.processTerminationTimeoutSeconds <= 0) {
       this.processTerminationTimeoutSeconds = ConfigurationUtil.get(
         "cloudnet.config.processTerminationTimeoutSeconds",
-        5,
+        60,
         Integer::parseInt);
     }
 
