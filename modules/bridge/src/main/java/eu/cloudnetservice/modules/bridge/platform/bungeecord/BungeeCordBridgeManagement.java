@@ -39,7 +39,6 @@ import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,7 +46,6 @@ import java.util.function.BiFunction;
 import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
@@ -67,6 +65,7 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
     @NonNull ProxyServer proxyServer,
     @NonNull EventManager eventManager,
     @NonNull NetworkClient networkClient,
+    @NonNull BungeeCordHelper bungeeHelper,
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
@@ -95,12 +94,9 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
     this.cacheTester = CONNECTED_SERVICE_TESTER
       .and(service -> service.serviceId().environment().readProperty(ServiceEnvironmentType.JAVA_SERVER));
     // register each service matching the service cache tester
-    this.cacheRegisterListener = serviceInfoSnapshot -> {
-      var serverInfo = this.constructServerInfo(serviceInfoSnapshot);
-      proxyServer.getServers().put(serviceInfoSnapshot.name(), serverInfo);
-    };
+    this.cacheRegisterListener = bungeeHelper.serverRegisterHandler();
     // unregister each service matching the service cache tester
-    this.cacheUnregisterListener = serviceInfoSnapshot -> proxyServer.getServers().remove(serviceInfoSnapshot.name());
+    this.cacheUnregisterListener = bungeeHelper.serverUnregisterHandler();
   }
 
   @Override
@@ -193,13 +189,5 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
 
   private @Nullable String getVirtualHostString(@NonNull PendingConnection connection) {
     return connection.getVirtualHost() == null ? null : connection.getVirtualHost().getHostString();
-  }
-
-  private @NonNull ServerInfo constructServerInfo(@NonNull ServiceInfoSnapshot snapshot) {
-    return this.proxyServer.constructServerInfo(
-      snapshot.name(),
-      new InetSocketAddress(snapshot.address().host(), snapshot.address().port()),
-      "Just another CloudNet provided service info",
-      false);
   }
 }
