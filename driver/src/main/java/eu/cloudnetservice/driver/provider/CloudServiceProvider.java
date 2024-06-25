@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.provider;
 
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCChained;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
 import java.util.UUID;
@@ -57,6 +58,7 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given service unique id is null.
    */
   @NonNull
+  @RPCChained
   SpecificCloudServiceProvider serviceProvider(@NonNull UUID serviceUniqueId);
 
   /**
@@ -78,6 +80,7 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the service name is null.
    */
   @NonNull
+  @RPCChained
   SpecificCloudServiceProvider serviceProviderByName(@NonNull String serviceName);
 
   /**

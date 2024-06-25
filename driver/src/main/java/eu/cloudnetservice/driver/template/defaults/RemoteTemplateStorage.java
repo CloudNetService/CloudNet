@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import java.io.IOException;
@@ -59,6 +60,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
    * @param networkClient the network client of the current component.
    * @throws NullPointerException if the given name, component info or network client is null.
    */
+  @RPCInvocationTarget
   public RemoteTemplateStorage(
     @NonNull String name,
     @NonNull ComponentInfo componentInfo,

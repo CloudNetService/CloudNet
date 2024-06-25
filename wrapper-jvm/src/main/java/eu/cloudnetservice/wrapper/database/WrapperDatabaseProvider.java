@@ -19,23 +19,31 @@ package eu.cloudnetservice.wrapper.database;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
 import lombok.NonNull;
 
 public abstract class WrapperDatabaseProvider implements DatabaseProvider {
 
-  private final RPCSender rpcSender;
+  private final RPCSender providerRPCSender;
+  private final RPCImplementationBuilder.InstanceAllocator<? extends Database> databaseImplAllocator;
 
+  @RPCInvocationTarget
   public WrapperDatabaseProvider(@NonNull RPCSender sender) {
-    this.rpcSender = sender;
+    this.providerRPCSender = sender;
+
+    var rpcFactory = sender.sourceFactory();
+    this.databaseImplAllocator = rpcFactory.newRPCBasedImplementationBuilder(WrapperDatabase.class)
+      .targetChannel(sender.fallbackChannelSupplier())
+      .generateImplementation();
   }
 
   @Override
   public @NonNull Database database(@NonNull String name) {
-    return this.rpcSender.factory().generateRPCChainBasedApi(
-      this.rpcSender,
-      Database.class,
-      GenerationContext.forClass(WrapperDatabase.class).build()
-    ).newInstance(name);
+    var baseRPC = this.providerRPCSender.invokeCaller(name);
+    return this.databaseImplAllocator
+      .withBaseRPC(baseRPC)
+      .withAdditionalConstructorParameters(name)
+      .allocate();
   }
 }

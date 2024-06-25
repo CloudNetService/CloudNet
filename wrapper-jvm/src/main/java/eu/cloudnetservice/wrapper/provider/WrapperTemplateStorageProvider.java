@@ -19,7 +19,8 @@ package eu.cloudnetservice.wrapper.provider;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
@@ -29,18 +30,22 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class WrapperTemplateStorageProvider implements TemplateStorageProvider {
 
-  private final RPCSender rpcSender;
-  private final ComponentInfo componentInfo;
-  private final NetworkClient networkClient;
+  private final RPCSender providerRPCSender;
+  private final RPCImplementationBuilder.InstanceAllocator<? extends TemplateStorage> templateStorageAllocator;
 
+  @RPCInvocationTarget
   public WrapperTemplateStorageProvider(
     @NonNull RPCSender sender,
     @NonNull ComponentInfo componentInfo,
     @NonNull NetworkClient networkClient
   ) {
-    this.rpcSender = sender;
-    this.componentInfo = componentInfo;
-    this.networkClient = networkClient;
+    this.providerRPCSender = sender;
+
+    var rpcFactory = sender.sourceFactory();
+    this.templateStorageAllocator = rpcFactory.newRPCBasedImplementationBuilder(RemoteTemplateStorage.class)
+      .targetChannel(sender.fallbackChannelSupplier())
+      .generateImplementation()
+      .withAdditionalConstructorParameters(null, componentInfo, networkClient); // first null param is the storage name
   }
 
   @Override
@@ -55,10 +60,10 @@ public abstract class WrapperTemplateStorageProvider implements TemplateStorageP
 
   @Override
   public @Nullable TemplateStorage templateStorage(@NonNull String storage) {
-    return this.rpcSender.factory().generateRPCChainBasedApi(
-      this.rpcSender,
-      TemplateStorage.class,
-      GenerationContext.forClass(RemoteTemplateStorage.class).build()
-    ).newInstance(new Object[]{storage, this.componentInfo, this.networkClient}, new Object[]{storage});
+    var baseRPC = this.providerRPCSender.invokeCaller(storage);
+    return this.templateStorageAllocator
+      .withBaseRPC(baseRPC)
+      .changeConstructorParameter(0, storage)
+      .allocate();
   }
 }
