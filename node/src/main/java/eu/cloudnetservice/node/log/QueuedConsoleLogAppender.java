@@ -18,9 +18,10 @@ package eu.cloudnetservice.node.log;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import ch.qos.logback.core.encoder.Encoder;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.event.log.LoggingEntryEvent;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -32,7 +33,7 @@ import lombok.NonNull;
  * A logging handler for developers, that can easy handle and get the logging outputs from this node instance
  */
 @Singleton
-public final class QueuedConsoleLogHandler extends AppenderBase<ILoggingEvent> {
+public final class QueuedConsoleLogAppender extends AppenderBase<ILoggingEvent> {
 
   private final EventManager eventManager;
 
@@ -41,9 +42,10 @@ public final class QueuedConsoleLogHandler extends AppenderBase<ILoggingEvent> {
    */
   private final Queue<ILoggingEvent> cachedQueuedLogEntries = new ConcurrentLinkedQueue<>();
 
-  @Inject
-  public QueuedConsoleLogHandler(@NonNull EventManager eventManager) {
-    this.eventManager = eventManager;
+  private Encoder<ILoggingEvent> encoder;
+
+  public QueuedConsoleLogAppender() {
+    this.eventManager = InjectionLayer.boot().instance(EventManager.class);
   }
 
   public @NonNull Queue<ILoggingEvent> cachedLogEntries() {
@@ -52,9 +54,12 @@ public final class QueuedConsoleLogHandler extends AppenderBase<ILoggingEvent> {
 
   public @NonNull Queue<String> formattedCachedLogLines() {
     return this.cachedQueuedLogEntries.stream()
-      // TODO: formatter?
-      .map(ILoggingEvent::getFormattedMessage)
+      .map(event -> new String(this.encoder.encode(event)))
       .collect(Collectors.toCollection(LinkedList::new));
+  }
+
+  public void setEncoder(@NonNull Encoder<ILoggingEvent> encoder) {
+    this.encoder = encoder;
   }
 
   @Override
@@ -65,5 +70,23 @@ public final class QueuedConsoleLogHandler extends AppenderBase<ILoggingEvent> {
     }
 
     this.eventManager.callEvent(new LoggingEntryEvent(event));
+  }
+
+  @Override
+  public void start() {
+    if (this.encoder != null) {
+      this.encoder.start();
+    }
+
+    super.start();
+  }
+
+  @Override
+  public void stop() {
+    if (this.encoder != null) {
+      this.encoder.stop();
+    }
+
+    super.stop();
   }
 }

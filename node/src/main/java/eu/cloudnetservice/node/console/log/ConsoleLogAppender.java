@@ -25,19 +25,21 @@ import lombok.NonNull;
 
 public class ConsoleLogAppender extends AppenderBase<ILoggingEvent> {
 
-  private Console console;
+  private final Console console;
+
   private Encoder<ILoggingEvent> encoder;
 
   public ConsoleLogAppender() {
+    this.console = InjectionLayer.boot().instance(Console.class);
   }
 
-  public void setEncoder(Encoder<ILoggingEvent> encoder) {
+  public void setEncoder(@NonNull Encoder<ILoggingEvent> encoder) {
     this.encoder = encoder;
   }
 
   @Override
   protected void append(ILoggingEvent event) {
-    this.console().writeLine(new String(this.encoder.encode(event)));
+    this.console.writeLine(new String(this.encoder.encode(event)));
   }
 
   @Override
@@ -56,13 +58,5 @@ public class ConsoleLogAppender extends AppenderBase<ILoggingEvent> {
     }
 
     super.stop();
-  }
-
-  private @NonNull Console console() {
-    if (this.console == null) {
-      this.console = InjectionLayer.boot().instance(Console.class);
-    }
-
-    return this.console;
   }
 }

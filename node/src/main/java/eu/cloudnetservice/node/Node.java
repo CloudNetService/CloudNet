@@ -48,7 +48,7 @@ import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.database.h2.H2DatabaseProvider;
 import eu.cloudnetservice.node.database.xodus.XodusDatabaseProvider;
 import eu.cloudnetservice.node.event.CloudNetNodePostInitializationEvent;
-import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
+import eu.cloudnetservice.node.log.QueuedConsoleLogAppender;
 import eu.cloudnetservice.node.module.ModulesHolder;
 import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
 import eu.cloudnetservice.node.module.updater.ModuleUpdater;
@@ -88,7 +88,7 @@ public final class Node {
   private void initializeLogging(
     @NonNull Console console,
     @NonNull @Named("root") Logger rootLogger,
-    @NonNull QueuedConsoleLogHandler queuedConsoleLogHandler
+    @NonNull QueuedConsoleLogAppender queuedConsoleLogAppender
   ) {
     /*
     var consoleFormatter = console.hasColorSupport() ? new ColoredLogFormatter() : DefaultLogFormatter.END_CLEAN;

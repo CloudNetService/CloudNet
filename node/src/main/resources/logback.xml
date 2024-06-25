@@ -18,6 +18,7 @@
   <import class="ch.qos.logback.classic.filter.ThresholdFilter"/>
   <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
   <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
+  <import class="eu.cloudnetservice.node.log.QueuedConsoleLogAppender"/>
   <import class="eu.cloudnetservice.node.console.log.ConsoleLogAppender"/>
   <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
 
@@ -29,6 +30,14 @@
   <property name="CONSOLE_PATTERN"
     value="%gray([%boldWhite(%d{dd.MM HH:mm:ss.SSS}%gray(]))) %gray(%levelColor(%-5level%gray(:))) %msg%n"/>
   <appender name="ConsoleLogAppender" class="ConsoleLogAppender">
+    <filter class="ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+    <encoder class="PatternLayoutEncoder">
+      <pattern>${CONSOLE_PATTERN}</pattern>
+    </encoder>
+  </appender>
+  <appender name="QueuedConsoleLogAppender" class="QueuedConsoleLogAppender">
     <filter class="ThresholdFilter">
       <level>INFO</level>
     </filter>
@@ -52,6 +61,7 @@
   <root level="DEBUG">
     <appender-ref ref="ConsoleLogAppender"/>
     <appender-ref ref="Rolling"/>
+    <appender-ref ref="QueuedConsoleLogAppender"/>
   </root>
 
   <!-- loggers that print information we can't do anything about -->
