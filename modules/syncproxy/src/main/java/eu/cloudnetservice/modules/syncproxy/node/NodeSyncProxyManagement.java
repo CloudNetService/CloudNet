@@ -50,7 +50,8 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
     this.configuration = configuration;
     this.eventManager = eventManager;
 
-    rpcFactory.newHandler(SyncProxyManagement.class, this).registerTo(rpcRegistry);
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(SyncProxyManagement.class).targetInstance(this).build();
+    rpcRegistry.registerHandler(rpcHandler);
   }
 
   @Override

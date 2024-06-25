@@ -79,7 +79,8 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     this.nodeServerProvider = nodeServerProvider;
     this.groupProvider = groupProvider;
 
-    rpcFactory.newHandler(CloudServiceFactory.class, this).registerTo(handlerRegistry);
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(CloudServiceFactory.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
   }
 
   @PostConstruct

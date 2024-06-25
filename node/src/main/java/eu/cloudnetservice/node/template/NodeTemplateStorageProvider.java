@@ -43,7 +43,9 @@ public class NodeTemplateStorageProvider implements TemplateStorageProvider {
     @NonNull RPCHandlerRegistry handlerRegistry
   ) {
     this.serviceRegistry = serviceRegistry;
-    rpcFactory.newHandler(TemplateStorageProvider.class, this).registerTo(handlerRegistry);
+
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(TemplateStorageProvider.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
   }
 
   @Override

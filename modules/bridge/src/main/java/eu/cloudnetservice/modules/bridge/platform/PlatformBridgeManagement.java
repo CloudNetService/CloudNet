@@ -21,10 +21,10 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.defaults.generation.RPCInternalInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -117,15 +117,20 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     this.cacheTester = $ -> false;
     this.cacheRegisterListener = this.cacheUnregisterListener = $ -> {
     };
+
     // init the rpc handler
     DefaultObjectMapper.DEFAULT_MAPPER
       .registerBinding(Title.class, new TitleObjectSerializer(), false)
       .registerBinding(Component.class, new ComponentObjectSerializer(), false);
+
     // init the player manager once
-    this.playerManager = rpcFactory.generateRPCBasedApi(
-      PlayerManager.class,
-      GenerationContext.forClass(PlatformPlayerManager.class).component(networkClient).build()).newInstance();
-    this.sender = rpcFactory.providerForClass(networkClient, BridgeManagement.class);
+    this.sender = rpcFactory.newRPCSenderBuilder(BridgeManagement.class).targetComponent(networkClient).build();
+    this.playerManager = rpcFactory.newRPCBasedImplementationBuilder(PlatformPlayerManager.class)
+      .targetComponent(networkClient)
+      .generateImplementation()
+      .withAdditionalConstructorParameters(RPCInternalInstanceFactory.SpecialArg.RPC_SENDER)
+      .allocate();
+
     // create the network service info of this service
     this.ownNetworkServiceInfo = NetworkServiceInfo.fromServiceInfoSnapshot(wrapperConfig.serviceInfoSnapshot());
     // load the configuration using rpc - all updates will be received from the channel message
@@ -142,7 +147,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   @Override
   public void configuration(@NonNull BridgeConfiguration configuration) {
-    this.sender.invokeMethod("configuration", configuration).fireSync();
+    this.sender.invokeCaller(configuration).fireSync();
   }
 
   public void configurationSilently(@NonNull BridgeConfiguration configuration) {

@@ -75,7 +75,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     this.eventManager = eventManager;
 
     // rpc
-    rpcFactory.newHandler(GroupConfigurationProvider.class, this).registerTo(handlerRegistry);
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(GroupConfigurationProvider.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
 
     // cluster data sync
     syncRegistry.registerHandler(

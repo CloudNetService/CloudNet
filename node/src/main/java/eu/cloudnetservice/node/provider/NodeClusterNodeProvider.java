@@ -60,7 +60,8 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
     this.clusterNodeServerProvider = nodeServerProvider;
 
     // add the rpc handler
-    rpcFactory.newHandler(ClusterNodeProvider.class, this).registerTo(handlerRegistry);
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(ClusterNodeProvider.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
   }
 
   @Override

@@ -58,7 +58,8 @@ public final class JsonConfiguration implements Configuration {
         Boolean.parseBoolean(values[1]),
         values.length == 5 ? Path.of(values[2]) : null,
         Path.of(values[values.length - 2]),
-        Path.of(values[values.length - 1]));
+        Path.of(values[values.length - 1]),
+        null);
     }
     // unable to parse
     return null;
@@ -257,7 +258,8 @@ public final class JsonConfiguration implements Configuration {
           false,
           null,
           Path.of("cert.pem"),
-          Path.of("private.pem")),
+          Path.of("private.pem"),
+          null),
         SSL_CONFIG_PARSER);
     }
 
@@ -269,7 +271,8 @@ public final class JsonConfiguration implements Configuration {
           false,
           null,
           Path.of("cert.pem"),
-          Path.of("private.pem")),
+          Path.of("private.pem"),
+          null),
         SSL_CONFIG_PARSER);
     }
 

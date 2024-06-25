@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.bridge.platform;
 
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerProvider;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
@@ -27,19 +27,29 @@ import lombok.NonNull;
 abstract class PlatformPlayerManager implements PlayerManager {
 
   private final RPCSender sender;
+  private final RPCImplementationBuilder.InstanceAllocator<PlayerProvider> playerProviderAllocator;
+  private final RPCImplementationBuilder.InstanceAllocator<PlayerExecutor> playerExecutorAllocator;
+
   private final PlayerProvider allPlayers;
   private final PlayerExecutor globalPlayerExecutor;
 
   public PlatformPlayerManager(@NonNull RPCSender sender) {
     this.sender = sender;
+
+    // init rpc allocators
+    var rpcFactory = sender.sourceFactory();
+    this.playerProviderAllocator = rpcFactory.newRPCBasedImplementationBuilder(PlayerProvider.class)
+      .implementConcreteMethods()
+      .targetChannel(sender.fallbackChannelSupplier())
+      .generateImplementation();
+    this.playerExecutorAllocator = rpcFactory.newRPCBasedImplementationBuilder(PlayerExecutor.class)
+      .targetChannel(sender.fallbackChannelSupplier())
+      .generateImplementation();
+
     // init the static player utils
+    var allPlayerBaseRPC = this.sender.invokeMethod("onlinePlayers");
+    this.allPlayers = this.playerProviderAllocator.withBaseRPC(allPlayerBaseRPC).allocate();
     this.globalPlayerExecutor = this.playerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID);
-    this.allPlayers = sender.factory().generateRPCChainBasedApi(
-      sender,
-      "onlinePlayers",
-      PlayerProvider.class,
-      GenerationContext.forClass(PlayerProvider.class).build()
-    ).newInstance();
   }
 
   @Override
@@ -49,20 +59,14 @@ abstract class PlatformPlayerManager implements PlayerManager {
 
   @Override
   public @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task) {
-    return this.sender.factory().generateRPCChainBasedApi(
-      this.sender,
-      PlayerProvider.class,
-      GenerationContext.forClass(PlayerProvider.class).build()
-    ).newRPCOnlyInstance(task);
+    var baseRPC = this.sender.invokeCaller(task);
+    return this.playerProviderAllocator.withBaseRPC(baseRPC).allocate();
   }
 
   @Override
   public @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group) {
-    return this.sender.factory().generateRPCChainBasedApi(
-      this.sender,
-      PlayerProvider.class,
-      GenerationContext.forClass(PlayerProvider.class).build()
-    ).newRPCOnlyInstance(group);
+    var baseRPC = this.sender.invokeCaller(group);
+    return this.playerProviderAllocator.withBaseRPC(baseRPC).allocate();
   }
 
   @Override
@@ -72,10 +76,10 @@ abstract class PlatformPlayerManager implements PlayerManager {
 
   @Override
   public @NonNull PlayerExecutor playerExecutor(@NonNull UUID uniqueId) {
-    return this.sender.factory().generateRPCChainBasedApi(
-      this.sender,
-      PlayerExecutor.class,
-      GenerationContext.forClass(PlatformPlayerExecutor.class).build()
-    ).newInstance(uniqueId);
+    var baseRPC = this.sender.invokeCaller(uniqueId);
+    return this.playerExecutorAllocator
+      .withBaseRPC(baseRPC)
+      .withAdditionalConstructorParameters(uniqueId)
+      .allocate();
   }
 }

@@ -77,7 +77,8 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     this.eventManager = eventManager;
 
     // rpc
-    rpcFactory.newHandler(ServiceTaskProvider.class, this).registerTo(handlerRegistry);
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(ServiceTaskProvider.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
 
     // cluster data sync
     syncRegistry.registerHandler(

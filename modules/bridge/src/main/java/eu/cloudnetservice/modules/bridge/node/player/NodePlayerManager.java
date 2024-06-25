@@ -103,10 +103,17 @@ public class NodePlayerManager implements PlayerManager {
     this.eventManager = eventManager;
     this.commandProvider = commandProvider;
     this.nodeDatabaseProvider = nodeDatabaseProvider;
-    // register the rpc listeners
-    providerFactory.newHandler(PlayerManager.class, this).registerTo(handlerRegistry);
-    providerFactory.newHandler(PlayerExecutor.class, null).registerTo(handlerRegistry);
-    providerFactory.newHandler(PlayerProvider.class, null).registerTo(handlerRegistry);
+
+    // register the rpc handlers
+    var playerManagerHandler = providerFactory.newRPCHandlerBuilder(PlayerManager.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(playerManagerHandler);
+
+    var playerExecutorHandler = providerFactory.newRPCHandlerBuilder(PlayerExecutor.class).build();
+    handlerRegistry.registerHandler(playerExecutorHandler);
+
+    var playerProviderHandler = providerFactory.newRPCHandlerBuilder(PlayerProvider.class).build();
+    handlerRegistry.registerHandler(playerProviderHandler);
+
     // register the data sync handler
     dataSyncRegistry.registerHandler(DataSyncHandler.<CloudPlayer>builder()
       .alwaysForce()

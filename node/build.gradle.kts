@@ -57,6 +57,8 @@ dependencies {
   "implementation"(libs.jansi)
   "implementation"(libs.slf4jNop)
   "implementation"(libs.stringSimilarity)
+
+  "compileOnly"(libs.bundles.netty)
   "implementation"(libs.bundles.nightConfig)
 }
 

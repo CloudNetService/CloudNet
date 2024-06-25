@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform;
 
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import java.util.UUID;
 import lombok.NonNull;
@@ -24,6 +25,7 @@ abstract class PlatformPlayerExecutor implements PlayerExecutor {
 
   private final UUID targetUniqueId;
 
+  @RPCInvocationTarget
   public PlatformPlayerExecutor(@NonNull UUID targetUniqueId) {
     this.targetUniqueId = targetUniqueId;
   }

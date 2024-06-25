@@ -42,7 +42,9 @@ public class NodeLabyModManagement implements LabyModManagement {
   ) {
     this.labyModModule = labyModModule;
     this.configuration = configuration;
-    rpcFactory.newHandler(LabyModManagement.class, this).registerTo(rpcHandlerRegistry);
+
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(LabyModManagement.class).targetInstance(this).build();
+    rpcHandlerRegistry.registerHandler(rpcHandler);
   }
 
   @Override

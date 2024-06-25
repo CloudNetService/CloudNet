@@ -74,8 +74,10 @@ public class NodeBridgeManagement implements BridgeManagement {
       NodeBridgeManagement.class,
       moduleHelper,
       service -> Collections.disjoint(this.configuration.excludedGroups(), service.serviceConfiguration().groups())));
+
     // register the rpc handler
-    providerFactory.newHandler(BridgeManagement.class, this).registerTo(rpcHandlerRegistry);
+    var rpcHandler = providerFactory.newRPCHandlerBuilder(BridgeManagement.class).targetInstance(this).build();
+    rpcHandlerRegistry.registerHandler(rpcHandler);
   }
 
   @PostConstruct
