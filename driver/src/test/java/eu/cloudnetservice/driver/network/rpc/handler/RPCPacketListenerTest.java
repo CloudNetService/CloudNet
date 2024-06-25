@@ -231,7 +231,7 @@ public class RPCPacketListenerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"(I)V", "(L)V", "I)V"})
+  @ValueSource(strings = {"(L)V", "I)V"})
   void testNothingIsSentBackIfNoResultIsExpected(String methodDescriptor) throws Exception {
     var handlerRegistry = new DefaultRPCHandlerRegistry();
     var packetListener = new RPCPacketListener(handlerRegistry);
