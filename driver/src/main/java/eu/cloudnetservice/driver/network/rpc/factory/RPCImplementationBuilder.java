@@ -150,6 +150,42 @@ public interface RPCImplementationBuilder<T> extends RPCProvider.Builder<RPCImpl
     InstanceAllocator<T> withAdditionalConstructorParameters(Object... additionalConstructorParameters);
 
     /**
+     * Changes the parameter value at the given index to use the given parameter type instead.
+     *
+     * @param index                   the index of the parameter to change.
+     * @param newConstructorParameter the new parameter value to use.
+     * @return a new instance allocator with the parameter value changed at the given index.
+     * @throws IndexOutOfBoundsException if the given index is out of bounds of the current parameter array.
+     */
+    @NonNull
+    @Contract("_, _ -> new")
+    InstanceAllocator<T> changeConstructorParameter(int index, Object newConstructorParameter);
+
+    /**
+     * Adds the parameters from the given starting index into the constructor parameter array.
+     *
+     * @param index      the index where to start the parameter insertion.
+     * @param parameters the parameters to insert.
+     * @return a new instance allocator with the given parameters added.
+     * @throws NullPointerException      if the given parameter array is null.
+     * @throws IndexOutOfBoundsException if the given start index is out of bounds of the current parameter array.
+     */
+    @NonNull
+    @Contract("_, _ -> new")
+    InstanceAllocator<T> insertConstructorParameters(int index, Object... parameters);
+
+    /**
+     * Appends the given parameters to the current parameter array.
+     *
+     * @param parameters the parameter values to append.
+     * @return a new instance allocator with the given parameters appended.
+     * @throws NullPointerException if the given parameter array is null.
+     */
+    @NonNull
+    @Contract("_ -> new")
+    InstanceAllocator<T> appendConstructorParameters(Object... parameters);
+
+    /**
      * Allocates an instance of the generated implementation based on the provided arguments.
      *
      * @return an allocated instance of the implemented target class.

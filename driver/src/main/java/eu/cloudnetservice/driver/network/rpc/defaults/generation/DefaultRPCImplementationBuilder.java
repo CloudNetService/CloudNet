@@ -203,6 +203,76 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
      * {@inheritDoc}
      */
     @Override
+    public @NonNull InstanceAllocator<T> changeConstructorParameter(int index, Object newConstructorParameter) {
+      // don't do anything if the parameter type is already the same
+      if (this.additionalConstructorParameters[index] == newConstructorParameter) {
+        return this;
+      }
+
+      var constructorParams = this.additionalConstructorParameters.clone();
+      constructorParams[index] = newConstructorParameter;
+      return new DefaultInstanceAllocator<>(
+        this.baseRPC,
+        this.channelSupplier,
+        constructorParams,
+        this.internalInstanceFactory);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NonNull InstanceAllocator<T> insertConstructorParameters(int index, Object... parameters) {
+      // validate the index where the insertion should begin
+      var currentParamCount = this.additionalConstructorParameters.length;
+      if (index < 0 || index > currentParamCount) {
+        throw new IndexOutOfBoundsException(index);
+      }
+
+      // no need to do anything if nothing should be inserted into the array
+      var paramCountToInsert = parameters.length;
+      if (paramCountToInsert == 0) {
+        return this;
+      }
+
+      // copy over the old parameters from the start to the given start index
+      var newParams = new Object[currentParamCount + paramCountToInsert];
+      if (index > 0) {
+        System.arraycopy(this.additionalConstructorParameters, 0, newParams, 0, index);
+      }
+
+      // copy over the new parameters
+      System.arraycopy(parameters, 0, newParams, index, paramCountToInsert);
+
+      // copy over the old parameters if the index does not exceed the length of the current array
+      if (index < currentParamCount) {
+        System.arraycopy(
+          this.additionalConstructorParameters,
+          index,
+          newParams,
+          index + paramCountToInsert,
+          currentParamCount - index);
+      }
+
+      return new DefaultInstanceAllocator<>(
+        this.baseRPC,
+        this.channelSupplier,
+        newParams,
+        this.internalInstanceFactory);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NonNull InstanceAllocator<T> appendConstructorParameters(Object... parameters) {
+      return this.insertConstructorParameters(this.additionalConstructorParameters.length, parameters);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @SuppressWarnings("unchecked")
     public @NonNull T allocate() {
       return (T) this.internalInstanceFactory.constructInstance(
