@@ -156,11 +156,11 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
           // detect dead services and stop them
           if (service.alive()) {
             service.serviceConsoleLogCache().update();
-            LOGGER.debug("Updated service log cache of {}", service.serviceId().name());
+            LOGGER.trace("Updated service log cache of {}", service.serviceId().name());
           } else {
             eventManager.callEvent(new CloudServicePreForceStopEvent(service));
             service.stop();
-            LOGGER.debug("Stopped dead service {}", service.serviceId().name());
+            LOGGER.trace("Stopped dead service {}", service.serviceId().name());
           }
         }
       }
@@ -492,7 +492,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     // deleted services were removed on the other node - remove it here too
     if (snapshot.lifeCycle() == ServiceLifeCycle.DELETED) {
       this.knownServices.remove(snapshot.serviceId().uniqueId());
-      LOGGER.debug("Deleted cloud service %s after lifecycle change to deleted", null, snapshot.serviceId());
+      LOGGER.debug("Deleted cloud service {} after lifecycle change to deleted", snapshot.serviceId());
     } else {
       // register the service if the provider is available
       var provider = this.knownServices.get(snapshot.serviceId().uniqueId());
@@ -500,12 +500,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         // this is the only point where the channel has to be present
         Objects.requireNonNull(source, "Node Network Channel has to be present to register service");
         this.registerService(snapshot, source);
-        LOGGER.debug("Registered remote service %s", null, snapshot.serviceId());
+        LOGGER.debug("Registered remote service {}", snapshot.serviceId());
       } else if (provider instanceof RemoteNodeCloudServiceProvider remoteProvider) {
         // update the provider if possible - we need only to handle remote node providers as local providers will update
         // the snapshot directly "in" them
         remoteProvider.snapshot(snapshot);
-        LOGGER.debug("Updated service snapshot of %s to %s", null, snapshot.serviceId(), snapshot);
+        LOGGER.debug("Updated service snapshot of {} to {}", snapshot.serviceId(), snapshot);
       } else if (provider instanceof CloudService localService) {
         // just set the service information locally - no further processing
         localService.updateServiceInfoSnapshot(snapshot);

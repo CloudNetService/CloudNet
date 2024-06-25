@@ -15,18 +15,46 @@
   -->
 
 <configuration>
+  <import class="ch.qos.logback.classic.filter.ThresholdFilter"/>
+  <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
+  <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
+  <import class="eu.cloudnetservice.node.console.log.ConsoleLogAppender"/>
+  <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
+
+  <!-- variables used in the logback configuration. Can be set using system properties. -->
+  <variable name="cloudnet.log.path" value="local/logs"/>
+
   <conversionRule conversionWord="levelColor"
     converterClass="eu.cloudnetservice.node.console.log.ConsoleLevelConversion"/>
   <property name="CONSOLE_PATTERN"
-    value="%gray([)%white(%d{dd.MM HH:mm:ss})%gray(]) %levelColor(%-5level): %msg%n"/>
-  <appender name="ConsoleLogAppender" class="eu.cloudnetservice.node.console.log.ConsoleLogAppender">
-    <withJansi>true</withJansi>
-    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+    value="%gray([%boldWhite(%d{dd.MM HH:mm:ss.SSS}%gray(]))) %gray(%levelColor(%-5level%gray(:))) %msg%n"/>
+  <appender name="ConsoleLogAppender" class="ConsoleLogAppender">
+    <filter class="ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+    <encoder class="PatternLayoutEncoder">
       <pattern>${CONSOLE_PATTERN}</pattern>
     </encoder>
   </appender>
+  <appender name="Rolling" class="RollingFileAppender">
+    <file>${cloudnet.log.path}/latest.log</file>
+    <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${cloudnet.log.path}/cloudnet-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxFileSize>15MB</maxFileSize>
+      <maxHistory>5</maxHistory>
+      <totalSizeCap>5GB</totalSizeCap>
+    </rollingPolicy>
+    <encoder class="PatternLayoutEncoder">
+      <pattern>[%d{dd.MM HH:mm:ss.SSS}] %-5level: %msg%n</pattern>
+    </encoder>
+  </appender>
 
-  <root level="debug">
+  <root level="DEBUG">
     <appender-ref ref="ConsoleLogAppender"/>
+    <appender-ref ref="Rolling"/>
   </root>
+
+  <!-- loggers that print information we can't do anything about -->
+  <logger name="jetbrains.exodus" level="WARN"/>
+  <logger name="net.schmizz.sshj" level="WARN"/>
 </configuration>

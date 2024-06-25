@@ -85,7 +85,7 @@ public final class I18n {
           var lang = sub.getFileName().toString().replace(".properties", "");
           addLanguageFile(lang, stream, clazzSource.getClassLoader());
         } catch (IOException exception) {
-          LOGGER.error("Unable to open language file for reading @ %s", exception, sub);
+          LOGGER.error("Unable to open language file for reading @ {}", sub, exception);
         }
       }, false, "*.properties");
     });
@@ -147,7 +147,7 @@ public final class I18n {
 
     // register all translations for the language
     REGISTERED_ENTRIES.put(lang, new Entry(source, messageFormats.build()));
-    LOGGER.debug("Registering language file %s with %d translations", null, lang, entries.size());
+    LOGGER.debug("Registering language file {} with {} translations", lang, entries.size());
   }
 
   /**

@@ -127,7 +127,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
       // release the packet content now, there are no handlers that are accepting the message
       packet.content().forceRelease();
     } catch (Exception exception) {
-      LOGGER.error("Exception whilst handling packet %s", exception, packet);
+      LOGGER.error("Exception whilst handling packet {}", packet, exception);
     }
   }
 

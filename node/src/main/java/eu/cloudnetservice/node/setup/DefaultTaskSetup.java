@@ -276,9 +276,9 @@ public class DefaultTaskSetup implements DefaultSetup {
       this.storageUtil.createAndPrepareTemplate(template, template.storage(), environment, installDefaultFiles);
     } catch (IOException exception) {
       LOGGER.error("Exception while initializing local template {} with environment {}",
-        exception,
         template,
-        environment);
+        environment,
+        exception);
     }
   }
 

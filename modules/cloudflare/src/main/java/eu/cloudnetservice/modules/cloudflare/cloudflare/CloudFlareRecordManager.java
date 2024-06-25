@@ -66,7 +66,7 @@ public class CloudFlareRecordManager {
       // check if the response is valid
       List<DnsRecord> result = response.readObject("result", LIST_DNS_RECORD_TYPE, null);
       if (result == null || !response.getBoolean("success")) {
-        LOGGER.debug("Unable to list records for config %s; response was %s", null, configuration, response);
+        LOGGER.debug("Unable to list records for config {}; response was {}", configuration, response);
         return List.of();
       }
 
@@ -91,8 +91,7 @@ public class CloudFlareRecordManager {
       // check if the response is valid
       var result = response.readDocument("result", null);
       if (result == null || !response.getBoolean("success")) {
-        LOGGER.debug("Unable to create record %s for config %s; response was %s", null, record, configuration,
-          response);
+        LOGGER.debug("Unable to create record %s for config {}; response was {}", record, configuration, response);
         return null;
       }
 
@@ -170,14 +169,14 @@ public class CloudFlareRecordManager {
       // check if the response is valid
       var deletedRecordId = response.readDocument("result").getString("id");
       if (deletedRecordId == null) {
-        LOGGER.debug("Unable to delete record %s (configuration: %s); response: %s", null, id, configuration, response);
+        LOGGER.debug("Unable to delete record {} (configuration: {}); response: {}", id, configuration, response);
         return false;
       }
 
       // record was deleted successfully
       return true;
     }).exceptionally(ex -> {
-      LOGGER.debug("Unable to delete record %s (configuration: %s)", ex, id, configuration);
+      LOGGER.debug("Unable to delete record {} (configuration: {})", id, configuration, ex);
       return false;
     });
   }

@@ -265,7 +265,7 @@ public final class ServiceCommand {
     for (var matchedService : matchedServices) {
       if (matchedService.provider().toggleScreenEvents(ChannelMessageSender.self(), "service:screen")) {
         for (var cachedLogMessage : matchedService.provider().cachedLogMessages()) {
-          LOGGER.info(String.format("&b[%s] %s", matchedService.name(), cachedLogMessage));
+          LOGGER.info("&b[{}] {}", matchedService.name(), cachedLogMessage);
         }
         source.sendMessage(I18n.trans("command-service-toggle-enabled", matchedService.name()));
       } else {
@@ -367,7 +367,7 @@ public final class ServiceCommand {
 
   @EventListener(channel = "service:screen")
   public void handleLogEntry(@NonNull CloudServiceLogEntryEvent event) {
-    LOGGER.info(String.format("&b[%s] %s", event.serviceInfo().name(), event.line()));
+    LOGGER.info("&b[{}] {}", event.serviceInfo().name(), event.line());
   }
 
   private void displayServiceInfo(

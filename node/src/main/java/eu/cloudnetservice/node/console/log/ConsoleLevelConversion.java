@@ -26,7 +26,7 @@ public class ConsoleLevelConversion extends CompositeConverter<ILoggingEvent> {
 
   @Override
   public String transform(@NonNull ILoggingEvent event, @NonNull String input) {
-    return this.color(event.getLevel()) + input + ConsoleColor.DEFAULT;
+    return this.color(event.getLevel()) + input;
   }
 
   private @NonNull String color(@NonNull Level level) {

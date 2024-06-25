@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node;
 
-import ch.qos.logback.classic.Level;
 import dev.derklaro.aerogel.Order;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.common.language.I18n;
@@ -112,10 +111,6 @@ public final class Node {
     rootLogger.addHandler(DefaultFileHandler
       .newInstance(logFilePattern, true)
       .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));*/
-
-    if (rootLogger instanceof ch.qos.logback.classic.Logger logger) {
-      logger.setLevel(Level.INFO);
-    }
 
     // override the system output streams, this isn't strictly required, but some modules might use them which
     // could look out of place in the normal logging context

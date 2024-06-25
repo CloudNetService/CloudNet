@@ -51,7 +51,7 @@ public record PluginIncludeListener(
   @EventListener
   public void handle(@NonNull CloudServicePreProcessStartEvent event) {
     if (this.includeChecker.apply(event.service())) {
-      LOGGER.debug("Including the module %s to service %s", null, this.moduleName, event.service().serviceId());
+      LOGGER.debug("Including the module {} to service {}", this.moduleName, event.service().serviceId());
       // remove the old plugin file if it exists
       var pluginFile = event.service().pluginDirectory().resolve(this.moduleName + ".jar");
       FileUtil.delete(pluginFile);

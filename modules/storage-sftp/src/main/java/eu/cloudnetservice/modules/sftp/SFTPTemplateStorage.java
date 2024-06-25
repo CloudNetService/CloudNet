@@ -63,9 +63,6 @@ public class SFTPTemplateStorage implements TemplateStorage {
   private volatile SSHClient sshClient;
 
   public SFTPTemplateStorage(@NonNull SFTPTemplateStorageConfig config) {
-    // we do not need this information
-    // TODO: Logger.getLogger("net.schmizz.sshj").setLevel(Level.WARNING);
-
     this.storageConfig = config;
     // init the config
     this.config = new DefaultConfig();

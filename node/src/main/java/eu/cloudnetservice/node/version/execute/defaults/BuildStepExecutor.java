@@ -109,8 +109,8 @@ public class BuildStepExecutor implements InstallStepExecutor {
     return this.buildProcessAndWait(
       arguments,
       workingDir,
-      (line, $) -> LOGGER.info(String.format("[Template Installer]: %s", line)),
-      (line, $) -> LOGGER.warn(String.format("[Template Installer]: %s", line)));
+      (line, $) -> LOGGER.info("[Template Installer]: {}", line),
+      (line, $) -> LOGGER.warn("[Template Installer]: {}", line));
   }
 
   protected int buildProcessAndWait(

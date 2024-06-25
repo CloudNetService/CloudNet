@@ -81,7 +81,7 @@ public final class FileUtil {
     try (var fs = JAR_FILE_SYSTEM_PROVIDER.newFileSystem(zip, ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.accept(fs);
     } catch (Throwable throwable) {
-      LOGGER.error("Exception opening zip file system on %s", throwable, zip);
+      LOGGER.error("Exception opening zip file system on {}", zip, throwable);
     }
   }
 
@@ -122,7 +122,7 @@ public final class FileUtil {
     try {
       Files.move(from, to, options);
     } catch (IOException exception) {
-      LOGGER.error("Exception moving file from %s to %s", exception, from, to);
+      LOGGER.error("Exception moving file from {} to {}", from, to, exception);
     }
   }
 
@@ -158,7 +158,7 @@ public final class FileUtil {
       try (var out = Files.newOutputStream(target)) {
         FileUtil.copy(inputStream, out);
       } catch (IOException exception) {
-        LOGGER.error("Exception copying input stream to %s", exception, target);
+        LOGGER.error("Exception copying input stream to {}", target, exception);
       }
     }
   }
@@ -178,7 +178,7 @@ public final class FileUtil {
       createDirectory(to.getParent());
       Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException exception) {
-      LOGGER.error("Exception copying file from %s to %s", exception, from, to);
+      LOGGER.error("Exception copying file from {} to {}", from, to, exception);
     }
   }
 
@@ -334,7 +334,7 @@ public final class FileUtil {
           consumer.accept(root, path);
         }
       } catch (IOException exception) {
-        LOGGER.error("Exception walking down directory tree starting at %s", exception, root);
+        LOGGER.error("Exception walking down directory tree starting at {}", root, exception);
       }
     }
   }
@@ -351,7 +351,7 @@ public final class FileUtil {
       try {
         Files.createDirectories(directoryPath);
       } catch (IOException exception) {
-        LOGGER.error("Exception creating directory at %s", exception, directoryPath);
+        LOGGER.error("Exception creating directory at {}", directoryPath, exception);
       }
     }
   }

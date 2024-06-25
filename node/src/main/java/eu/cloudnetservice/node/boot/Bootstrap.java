@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.boot;
 
+import ch.qos.logback.classic.Logger;
 import com.google.common.collect.Lists;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
-import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.Node;
 import io.leangen.geantyref.TypeFactory;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
-import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Bootstrap {
 
@@ -45,10 +45,12 @@ public final class Bootstrap {
     bootInjectLayer.installAutoConfigureBindings(Bootstrap.class.getClassLoader(), "node");
     bootInjectLayer.installAutoConfigureBindings(Bootstrap.class.getClassLoader(), "driver");
 
+    var rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+
     // initial bindings which we cannot (or it makes no sense to) construct
     bootInjectLayer.install(BindingBuilder.create()
-      .bind(Element.forType(Logger.class).requireAnnotation(Qualifiers.named("root")))
-      .toInstance(LogManager.rootLogger()));
+      .bind(Element.forType(org.slf4j.Logger.class).requireAnnotation(Qualifiers.named("root")))
+      .toInstance(rootLogger));
     bootInjectLayer.install(BindingBuilder.create()
       .bind(Element.forType(Instant.class).requireAnnotation(Qualifiers.named("startInstant")))
       .toInstance(startInstant));

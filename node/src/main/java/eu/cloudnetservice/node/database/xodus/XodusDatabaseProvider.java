@@ -22,8 +22,6 @@ import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.database.util.LocalDatabaseUtil;
 import java.io.File;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.EnvironmentConfig;
 import jetbrains.exodus.env.Environments;
@@ -44,11 +42,6 @@ public class XodusDatabaseProvider extends NodeDatabaseProvider {
 
     this.runsInCluster = runsInCluster;
     this.databaseDirectory = databaseDirectory;
-
-    // todo: remove with Xodus > 2.0.1
-    // while introducing a slf4j impl (JUL) this logger started printing infos we dont need.
-    // Ignore the messages from the logger to ensure a clean console.
-    Logger.getLogger("jetbrains.exodus").setLevel(Level.SEVERE);
 
     this.environmentConfig = new EnvironmentConfig()
       .setLogCacheShared(true)
