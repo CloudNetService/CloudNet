@@ -38,7 +38,7 @@ public class ConsoleLogAppender extends AppenderBase<ILoggingEvent> {
   }
 
   @Override
-  protected void append(ILoggingEvent event) {
+  protected void append(@NonNull ILoggingEvent event) {
     this.console.writeLine(new String(this.encoder.encode(event)));
   }
 

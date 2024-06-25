@@ -19,10 +19,10 @@ package eu.cloudnetservice.node.log;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.encoder.Encoder;
+import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.event.log.LoggingEntryEvent;
-import jakarta.inject.Singleton;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -32,7 +32,6 @@ import lombok.NonNull;
 /**
  * A logging handler for developers, that can easy handle and get the logging outputs from this node instance
  */
-@Singleton
 public final class QueuedConsoleLogAppender extends AppenderBase<ILoggingEvent> {
 
   private final EventManager eventManager;
@@ -46,6 +45,10 @@ public final class QueuedConsoleLogAppender extends AppenderBase<ILoggingEvent> 
 
   public QueuedConsoleLogAppender() {
     this.eventManager = InjectionLayer.boot().instance(EventManager.class);
+
+    // we have to install the binding for the log appender ourselves because this class gets constructed by logback,
+    // but we need the access in other classes
+    InjectionLayer.boot().install(BindingBuilder.create().bind(QueuedConsoleLogAppender.class).toInstance(this));
   }
 
   public @NonNull Queue<ILoggingEvent> cachedLogEntries() {
@@ -63,7 +66,7 @@ public final class QueuedConsoleLogAppender extends AppenderBase<ILoggingEvent> 
   }
 
   @Override
-  protected void append(ILoggingEvent event) {
+  protected void append(@NonNull ILoggingEvent event) {
     this.cachedQueuedLogEntries.offer(event);
     while (this.cachedQueuedLogEntries.size() > 128) {
       this.cachedQueuedLogEntries.poll();
