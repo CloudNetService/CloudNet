@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.bridge.platform.bungeecord.command;
 
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
-import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -30,18 +30,15 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 @Singleton
 public final class BungeeCordCloudCommand extends Command implements TabExecutor {
 
-  private final BungeeCordHelper bungeeHelper;
   private final ClusterNodeProvider clusterNodeProvider;
   private final PlatformBridgeManagement<?, ?> management;
 
   @Inject
   public BungeeCordCloudCommand(
-    @NonNull BungeeCordHelper bungeeHelper,
     @NonNull ClusterNodeProvider clusterNodeProvider,
     @NonNull PlatformBridgeManagement<?, ?> management
   ) {
     super("cloudnet", "cloudnet.command.cloudnet", "cloud");
-    this.bungeeHelper = bungeeHelper;
     this.clusterNodeProvider = clusterNodeProvider;
     this.management = management;
   }
@@ -52,7 +49,7 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
       sender.sendMessage(
-        this.bungeeHelper.translateToComponent(this.management.configuration().prefix() + "/cloudnet <command>"));
+        ComponentFormats.ADVENTURE_TO_BUNGEE.convert(this.management.configuration().prefix() + "/cloudnet <command>"));
       return;
     }
     // get the full command line
@@ -66,7 +63,7 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
           this.management.configuration().handleMessage(
             player.getLocale(),
             "command-cloud-sub-command-no-permission",
-            message -> this.bungeeHelper.translateToComponent(message.replace("%command%", args[0])),
+            message -> ComponentFormats.ADVENTURE_TO_BUNGEE.convert(message.replace("%command%", args[0])),
             sender::sendMessage);
         } else {
           // execute command
@@ -81,7 +78,7 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
 
   private void executeNow(@NonNull CommandSender sender, @NonNull String commandLine) {
     for (var output : this.clusterNodeProvider.sendCommandLine(commandLine)) {
-      sender.sendMessage(this.bungeeHelper.translateToComponent(this.management.configuration().prefix() + output));
+      sender.sendMessage(ComponentFormats.ADVENTURE_TO_BUNGEE.convert(this.management.configuration().prefix() + output));
     }
   }
 

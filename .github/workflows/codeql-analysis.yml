@@ -22,7 +22,7 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: 21
           check-latest: true
           distribution: 'zulu'
 

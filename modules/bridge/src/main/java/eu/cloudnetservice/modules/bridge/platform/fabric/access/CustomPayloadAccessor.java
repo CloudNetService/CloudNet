@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.bridge.platform.fabric;
+package eu.cloudnetservice.modules.bridge.platform.fabric.access;
 
-import lombok.NonNull;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import io.netty.buffer.ByteBuf;
 
-record FabricCustomPacketPayload(@NonNull ResourceLocation id, byte[] payload) implements CustomPacketPayload {
+public interface CustomPayloadAccessor {
 
-  @Override
-  public void write(@NonNull FriendlyByteBuf buf) {
-    buf.writeBytes(this.payload);
-  }
+  void setData(ByteBuf data);
+
+  ByteBuf getData();
+
 }
