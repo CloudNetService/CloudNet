@@ -90,28 +90,6 @@ public final class Node {
     @NonNull @Named("root") Logger rootLogger,
     @NonNull QueuedConsoleLogAppender queuedConsoleLogAppender
   ) {
-    /*
-    var consoleFormatter = console.hasColorSupport() ? new ColoredLogFormatter() : DefaultLogFormatter.END_CLEAN;
-    var logFilePattern = Path.of(System.getProperty("cloudnet.log.path", "local/logs"), "cloudnet.%g.log");
-
-    // prepare the queued log handler
-    var apiFormatter = console.hasColorSupport() ? new ColoredLogFormatter() : DefaultLogFormatter.END_LINE_SEPARATOR;
-    queuedConsoleLogHandler.setFormatter(apiFormatter);
-
-    // remove all initial handlers from the root logger
-    LoggingUtil.removeHandlers(rootLogger);
-
-    // set the default values for log record dispatches
-    rootLogger.setLevel(LoggingUtil.defaultLogLevel());
-    rootLogger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(rootLogger));
-
-    // add the default logging handlers
-    rootLogger.addHandler(queuedConsoleLogHandler);
-    rootLogger.addHandler(AcceptingLogHandler.newInstance(console::writeLine).withFormatter(consoleFormatter));
-    rootLogger.addHandler(DefaultFileHandler
-      .newInstance(logFilePattern, true)
-      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));*/
-
     // override the system output streams, this isn't strictly required, but some modules might use them which
     // could look out of place in the normal logging context
     System.setErr(LogOutputStream.forSevere(rootLogger).toPrintStream());

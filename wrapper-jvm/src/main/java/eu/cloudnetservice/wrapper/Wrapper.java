@@ -73,21 +73,8 @@ public final class Wrapper {
   @Order(50)
   private void setupLogger(@NonNull @Named("root") Logger logger) {
     // TODO: what ever to do here
-    /*LoggingUtil.removeHandlers(logger);
-    var logFilePattern = Path.of(".wrapper", "logs", "wrapper.%g.log");
+    // logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
 
-    if(logger instanceof ch.qos.logback.classic.Logger logbackLogger) {
-      logbackLogger.setLevel(Level.INFO);
-      logbackLogger.addAppender();
-    }
-
-    logger.setLevel(LoggingUtil.defaultLogLevel());
-    logger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
-
-    logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
-    logger.addHandler(DefaultFileHandler
-      .newInstance(logFilePattern, false)
-      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));*/
   }
 
   @Inject
