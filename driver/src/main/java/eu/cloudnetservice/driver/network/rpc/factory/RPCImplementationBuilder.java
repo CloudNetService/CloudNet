@@ -35,6 +35,20 @@ import org.jetbrains.annotations.Nullable;
 public interface RPCImplementationBuilder<T> extends RPCProvider.Builder<RPCImplementationBuilder<T>> {
 
   /**
+   * Sets the superclass to use for rpc executions. The given class must be the superclass of the actual target of this
+   * builder and will be used when invoking methods on the remote. Handlers on the remote must be bound to this class
+   * rather than the target class of this builder.
+   *
+   * @param superclass the actual superclass to use as the target for rpc invocations.
+   * @return this builder, for chaining.
+   * @throws NullPointerException     if the given superclass is null.
+   * @throws IllegalArgumentException if the given superclass is not assignable from the target of this builder.
+   */
+  @NonNull
+  @Contract("_ -> this")
+  RPCImplementationBuilder<T> superclass(@NonNull Class<? super T> superclass);
+
+  /**
    * Sets the network component to use for obtaining the network channel to send RPCs to. For that purpose the first
    * channel of the given component is always used. An exception during RPC execution will be thrown if the first
    * channel of the component every becomes null or closed.
@@ -84,8 +98,8 @@ public interface RPCImplementationBuilder<T> extends RPCProvider.Builder<RPCImpl
   RPCImplementationBuilder<T> implementConcreteMethods();
 
   /**
-   * Excludes the method in the target class that has the given name and method descriptor from being discovered for RPC
-   * execution. The method will not be callable using the sender and will not be introspected during build.
+   * Excludes the method in the target class that has the given name and method descriptor from being available for RPC
+   * execution. It does not mean that the method will not be implemented in the generated class.
    *
    * @param name             the name of the method to exclude.
    * @param methodDescriptor the descriptor of the method to exclude.

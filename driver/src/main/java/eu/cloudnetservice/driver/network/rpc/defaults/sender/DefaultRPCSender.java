@@ -29,13 +29,15 @@ import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.lang.invoke.TypeDescriptor;
 import java.util.function.Supplier;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The default implementation of an RPC sender.
  *
  * @since 4.0
  */
-final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
+@ApiStatus.Internal
+public final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
   private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
@@ -45,6 +47,7 @@ final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   /**
    * Constructs a new default rpc sender instance.
    *
+   * @param targetClass     the class in which this sender can call methods.
    * @param sourceFactory   the rpc factory that constructed this object.
    * @param objectMapper    the object mapper to use to write and read data from the buffers.
    * @param dataBufFactory  the buffer factory used for buffer allocations.
@@ -52,14 +55,15 @@ final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
    * @param channelSupplier the channel supplier for RPCs without a specified target channel.
    * @throws NullPointerException if one of the given parameters is null.
    */
-  DefaultRPCSender(
+  public DefaultRPCSender(
+    @NonNull Class<?> targetClass,
     @NonNull RPCFactory sourceFactory,
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory,
     @NonNull RPCClassMetadata rpcTargetMeta,
     @NonNull Supplier<NetworkChannel> channelSupplier
   ) {
-    super(rpcTargetMeta.targetClass(), sourceFactory, objectMapper, dataBufFactory);
+    super(targetClass, sourceFactory, objectMapper, dataBufFactory);
     this.rpcTargetMeta = rpcTargetMeta;
     this.channelSupplier = channelSupplier;
   }

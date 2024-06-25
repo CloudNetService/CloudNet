@@ -125,6 +125,7 @@ public final class DefaultRPCSenderBuilder implements RPCSender.Builder {
 
     var classMetadata = this.classMetadata.freeze(); // immutable & copied - changes no longer reflect into it
     return new DefaultRPCSender(
+      classMetadata.targetClass(),
       this.sourceFactory,
       this.objectMapper,
       this.dataBufFactory,

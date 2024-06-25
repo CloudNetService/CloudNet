@@ -22,6 +22,8 @@ import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.ChainableRPC;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.defaults.sender.DefaultRPCSender;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
@@ -39,32 +41,48 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class DefaultRPCImplementationBuilder<T> implements RPCImplementationBuilder<T> {
 
+  private final RPCFactory sourceFactory;
   private final RPCClassMetadata classMetadata;
-  private final RPCSender.Builder senderBuilder;
+  private final RPCClassMetadata fullClasMetadata;
   private final RPCGenerationCache generationCache;
 
   private int generationFlags = 0x00;
+
+  private ObjectMapper objectMapper;
+  private Class<?> senderTargetClass;
+  private DataBufFactory dataBufFactory;
   private Supplier<NetworkChannel> channelSupplier;
 
   /**
    * Constructs a new default implementation builder instance.
    *
    * @param classMetadata   the metadata of class that is being implemented.
-   * @param senderBuilder   the builder for a rpc sender targeting the class.
    * @param generationCache the cache for all generated implementations.
    * @throws NullPointerException if the given class meta, sender builder or generation cache is null.
    */
   public DefaultRPCImplementationBuilder(
+    @NonNull RPCFactory sourceFactory,
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory,
     @NonNull RPCClassMetadata classMetadata,
-    @NonNull RPCSender.Builder senderBuilder,
     @NonNull RPCGenerationCache generationCache
   ) {
+    this.sourceFactory = sourceFactory;
     this.classMetadata = classMetadata;
+    this.fullClasMetadata = classMetadata.freeze(); // copy as immutable to not reflect changes into this
     this.generationCache = generationCache;
+    this.objectMapper = objectMapper;
+    this.dataBufFactory = dataBufFactory;
+  }
 
-    // note: channel supplier must be set, but we always use the directly provided supplier anyway
-    // so there is no need to actually configure it in the sender builder
-    this.senderBuilder = senderBuilder.targetChannel(() -> null);
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull RPCImplementationBuilder<T> superclass(@NonNull Class<? super T> superclass) {
+    Preconditions.checkArgument(superclass.isAssignableFrom(this.classMetadata.targetClass()));
+    this.senderTargetClass = superclass;
+    return this;
   }
 
   /**
@@ -110,7 +128,6 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
     @NonNull TypeDescriptor methodDescriptor
   ) {
     // unregister from sender & our target meta
-    this.senderBuilder.excludeMethod(name, methodDescriptor);
     this.classMetadata.unregisterMethod(name, methodDescriptor);
     return this;
   }
@@ -120,7 +137,7 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
    */
   @Override
   public @NonNull RPCImplementationBuilder<T> objectMapper(@NonNull ObjectMapper objectMapper) {
-    this.senderBuilder.objectMapper(objectMapper);
+    this.objectMapper = objectMapper;
     return this;
   }
 
@@ -129,7 +146,7 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
    */
   @Override
   public @NonNull RPCImplementationBuilder<T> dataBufFactory(@NonNull DataBufFactory dataBufFactory) {
-    this.senderBuilder.dataBufFactory(dataBufFactory);
+    this.dataBufFactory = dataBufFactory;
     return this;
   }
 
@@ -140,15 +157,27 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
   public @NonNull InstanceAllocator<T> generateImplementation() {
     Preconditions.checkState(this.channelSupplier != null, "channel supplier must be given");
 
-    var sender = this.senderBuilder.build();
-    var factory = this.generationCache.getOrGenerateImplementation(this.generationFlags, sender, this.classMetadata);
-    return new DefaultInstanceAllocator<>(null, this.channelSupplier, new Object[0], factory);
+    // build the rpc sender to use for the generated implementation
+    var classMeta = this.classMetadata.freeze(); // immutable & copied - changes no longer reflect into it
+    var senderTarget = Objects.requireNonNullElse(this.senderTargetClass, classMeta.targetClass());
+    var sender = new DefaultRPCSender(
+      senderTarget,
+      this.sourceFactory,
+      this.objectMapper,
+      this.dataBufFactory,
+      classMeta,
+      () -> null);
+
+    // generate the implementation
+    var factory = this.generationCache.getOrGenerateImplementation(this.generationFlags, sender, this.fullClasMetadata);
+    return new DefaultInstanceAllocator<>(null, sender, this.channelSupplier, new Object[0], factory);
   }
 
   /**
    * The default implementation of an instance allocator using an internal instance factory as delegation.
    *
    * @param baseRPC                         the base rpc to use for the constructed rpc implementation.
+   * @param classRPCSender                  the rpc sender to use for the generated class.
    * @param channelSupplier                 thw channel supplier to use for rpc executions.
    * @param additionalConstructorParameters the additional super constructor parameters.
    * @param internalInstanceFactory         the internal instance factory to delegate to.
@@ -157,6 +186,7 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
    */
   private record DefaultInstanceAllocator<T>(
     @Nullable ChainableRPC baseRPC,
+    @NonNull RPCSender classRPCSender,
     @NonNull Supplier<NetworkChannel> channelSupplier,
     @NonNull Object[] additionalConstructorParameters,
     @NonNull RPCInternalInstanceFactory internalInstanceFactory
@@ -169,6 +199,7 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
     public @NonNull InstanceAllocator<T> withBaseRPC(@Nullable ChainableRPC baseRPC) {
       return new DefaultInstanceAllocator<>(
         baseRPC,
+        this.classRPCSender,
         this.channelSupplier,
         this.additionalConstructorParameters,
         this.internalInstanceFactory);
@@ -181,6 +212,7 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
     public @NonNull InstanceAllocator<T> withTargetChannel(@NonNull Supplier<NetworkChannel> channelSupplier) {
       return new DefaultInstanceAllocator<>(
         this.baseRPC,
+        this.classRPCSender,
         channelSupplier,
         this.additionalConstructorParameters,
         this.internalInstanceFactory);
@@ -194,6 +226,7 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
       Objects.requireNonNull(additionalConstructorParams, "additionalConstructorParams");
       return new DefaultInstanceAllocator<>(
         this.baseRPC,
+        this.classRPCSender,
         this.channelSupplier,
         additionalConstructorParams.clone(),
         this.internalInstanceFactory);
@@ -213,6 +246,7 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
       constructorParams[index] = newConstructorParameter;
       return new DefaultInstanceAllocator<>(
         this.baseRPC,
+        this.classRPCSender,
         this.channelSupplier,
         constructorParams,
         this.internalInstanceFactory);
@@ -256,6 +290,7 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
 
       return new DefaultInstanceAllocator<>(
         this.baseRPC,
+        this.classRPCSender,
         this.channelSupplier,
         newParams,
         this.internalInstanceFactory);
@@ -277,6 +312,7 @@ public final class DefaultRPCImplementationBuilder<T> implements RPCImplementati
     public @NonNull T allocate() {
       return (T) this.internalInstanceFactory.constructInstance(
         this.baseRPC,
+        this.classRPCSender,
         this.channelSupplier,
         this.additionalConstructorParameters);
     }

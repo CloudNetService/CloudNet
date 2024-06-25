@@ -20,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCFactory;
+import eu.cloudnetservice.driver.network.rpc.defaults.sender.DefaultRPCSender;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
 import java.time.Duration;
 import lombok.NonNull;
@@ -59,10 +60,18 @@ public final class RPCGenerationCache {
    * @throws NullPointerException if the given base class meta is null.
    */
   @NonNull
-  RPCInternalInstanceFactory getOrGenerateImplementation(int generationFlags, @NonNull RPCClassMetadata baseClassMeta) {
-    var sender = this.rpcFactory.newRPCSenderBuilder(baseClassMeta)
-      .targetChannel(() -> null) // target channel is always explicitly provided
-      .build();
+  RPCInternalInstanceFactory getOrGenerateImplementation(
+    int generationFlags,
+    @NonNull Class<?> senderTargetType,
+    @NonNull RPCClassMetadata baseClassMeta
+  ) {
+    var sender = new DefaultRPCSender(
+      senderTargetType,
+      this.rpcFactory,
+      this.rpcFactory.defaultObjectMapper(),
+      this.rpcFactory.defaultDataBufFactory(),
+      baseClassMeta,
+      () -> null);
     return this.getOrGenerateImplementation(generationFlags, sender, baseClassMeta);
   }
 

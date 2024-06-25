@@ -79,15 +79,23 @@ final class RPCGenerationContext {
   /**
    * Registers an additional instance factory that will be injected into the generated class during instantiation.
    *
-   * @param generationFlags the options to apply during class generation.
-   * @param targetType      the target type that is constructed by the instance factory.
+   * @param generationFlags    the options to apply during class generation.
+   * @param superType          the target type that is constructed by the instance factory.
+   * @param baseImplementation the base implementation class for the super type, can be the same as the super type.
    * @return the name of the final factory field to access it.
-   * @throws NullPointerException if the given target type is null.
+   * @throws NullPointerException if the given super type or base implementation is null.
    */
-  public @NonNull String registerAdditionalInstanceFactory(int generationFlags, @NonNull Class<?> targetType) {
-    var targetClassMeta = RPCClassMetadata.introspect(targetType);
-    var generatedInstanceFactory = this.generationCache.getOrGenerateImplementation(generationFlags, targetClassMeta);
-    return this.registerAdditionalInstanceFactory(targetType, generatedInstanceFactory);
+  public @NonNull String registerAdditionalInstanceFactory(
+    int generationFlags,
+    @NonNull Class<?> superType,
+    @NonNull Class<?> baseImplementation
+  ) {
+    var targetClassMeta = RPCClassMetadata.introspect(baseImplementation);
+    var generatedInstanceFactory = this.generationCache.getOrGenerateImplementation(
+      generationFlags,
+      superType,
+      targetClassMeta);
+    return this.registerAdditionalInstanceFactory(superType, generatedInstanceFactory);
   }
 
   /**

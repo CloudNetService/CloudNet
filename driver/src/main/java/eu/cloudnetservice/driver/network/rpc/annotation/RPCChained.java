@@ -43,7 +43,8 @@ public @interface RPCChained {
   /**
    * Sets the base implementation class to use when generating the implementation for the chained RPC. If not given then
    * the class that is returned from the method is used as a base. Note that the value of this method must be a subtype
-   * of the type returned by the annotated method.
+   * of the type returned by the annotated method, and handlers must be registered to the return type of the annotated
+   * method, not the base implementation type.
    *
    * @return the base implementation class to use when generating an api implementation.
    */

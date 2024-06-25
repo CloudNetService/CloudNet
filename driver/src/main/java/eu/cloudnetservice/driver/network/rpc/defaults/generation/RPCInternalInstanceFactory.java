@@ -53,7 +53,7 @@ public sealed class RPCInternalInstanceFactory {
   private final Runnable allocationNotifier;
 
   private final int userArgCount;
-  private final RPCSender classRPCSender;
+  private final RPCSender fallbackClassRPCSender;
   private final RPCInternalInstanceFactory[] additionalInstanceFactories;
 
   private final MethodHandle constructorMethodHandle;
@@ -64,7 +64,7 @@ public sealed class RPCInternalInstanceFactory {
   private RPCInternalInstanceFactory() {
     this.allocationNotifier = null;
     this.userArgCount = 0;
-    this.classRPCSender = null;
+    this.fallbackClassRPCSender = null;
     this.additionalInstanceFactories = null;
     this.constructorMethodHandle = null;
   }
@@ -74,7 +74,7 @@ public sealed class RPCInternalInstanceFactory {
    *
    * @param userArgCount                the count of arguments that are additionally supplied by the user.
    * @param allocationNotifier          a runnable to run every time an instance of the class is allocated.
-   * @param classRPCSender              the rpc sender instance to use for rpc lookups in the target class.
+   * @param fallbackClassRPCSender      the rpc sender instance to use for rpc lookups in the target class.
    * @param additionalInstanceFactories additional instance factories required for chained rpc constructions.
    * @param constructorMethodHandle     the method handle for the constructor to invoke for construction requests.
    * @throws NullPointerException if one of the given parameters is null.
@@ -82,13 +82,13 @@ public sealed class RPCInternalInstanceFactory {
   private RPCInternalInstanceFactory(
     int userArgCount,
     @NonNull Runnable allocationNotifier,
-    @NonNull RPCSender classRPCSender,
+    @NonNull RPCSender fallbackClassRPCSender,
     @NonNull RPCInternalInstanceFactory[] additionalInstanceFactories,
     @NonNull MethodHandle constructorMethodHandle
   ) {
     this.allocationNotifier = allocationNotifier;
     this.userArgCount = userArgCount;
-    this.classRPCSender = classRPCSender;
+    this.fallbackClassRPCSender = fallbackClassRPCSender;
     this.additionalInstanceFactories = additionalInstanceFactories;
     this.constructorMethodHandle = constructorMethodHandle;
   }
@@ -162,6 +162,27 @@ public sealed class RPCInternalInstanceFactory {
     @NonNull Supplier<NetworkChannel> channelSupplier,
     @NonNull Object[] additionalConstructorArgs
   ) {
+    return this.constructInstance(baseRPC, null, channelSupplier, additionalConstructorArgs);
+  }
+
+  /**
+   * Constructs a new instance of the generated rpc class.
+   *
+   * @param baseRPC                   the base RPC to use for chained api calls.
+   * @param classRPCSender            the rpc sender to use instead of the fallback one given to this factory.
+   * @param channelSupplier           the channel supplier to which all network requests should be sent.
+   * @param additionalConstructorArgs the array of additional constructor args to supply to the generated class.
+   * @return a constructed instance of the generated rpc class implementation.
+   * @throws NullPointerException     if the given channel supplier or additional args is null.
+   * @throws IllegalArgumentException if the given additional constructor args mismatch the expected count.
+   * @throws IllegalStateException    if the construction of the generated class is not possible.
+   */
+  public @NonNull Object constructInstance(
+    @Nullable ChainableRPC baseRPC,
+    @Nullable RPCSender classRPCSender,
+    @NonNull Supplier<NetworkChannel> channelSupplier,
+    @NonNull Object[] additionalConstructorArgs
+  ) {
     // sanity check to suppress ide warnings, but this can only happen it called from
     // TempRPCInternalInstanceFactory which should never be the case
     Objects.requireNonNull(this.allocationNotifier, "call to super from TempRPCInternalInstanceFactory");
@@ -180,18 +201,19 @@ public sealed class RPCInternalInstanceFactory {
 
     try {
       this.replaceSpecialArgs(additionalConstructorArgs, baseRPC, channelSupplier);
+      var rpcSender = Objects.requireNonNullElse(classRPCSender, this.fallbackClassRPCSender);
       if (this.additionalInstanceFactories.length == 0) {
         // no additional instance factories present, skip that parameter completely
         return this.constructorMethodHandle.invoke(
           channelSupplier,
-          this.classRPCSender,
+          rpcSender,
           baseRPC,
           additionalConstructorArgs);
       } else {
         // additional instance factories present, insert the parameter
         return this.constructorMethodHandle.invoke(
           channelSupplier,
-          this.classRPCSender,
+          rpcSender,
           baseRPC,
           additionalConstructorArgs,
           this.additionalInstanceFactories);
@@ -218,7 +240,7 @@ public sealed class RPCInternalInstanceFactory {
       var element = args[index];
       if (element instanceof SpecialArg specialArg) {
         switch (specialArg) {
-          case RPC_SENDER -> args[index] = this.classRPCSender;
+          case RPC_SENDER -> args[index] = this.fallbackClassRPCSender;
           case RPC_CHAIN_BASE -> args[index] = baseRPC;
           case CHANNEL_SUPPLIER -> args[index] = channelSupplier;
         }
@@ -330,9 +352,31 @@ public sealed class RPCInternalInstanceFactory {
       @NonNull Supplier<NetworkChannel> channelSupplier,
       @NonNull Object[] additionalConstructorArgs
     ) {
+      return this.constructInstance(baseRPC, null, channelSupplier, additionalConstructorArgs);
+    }
+
+    /**
+     * Uses the delegate instance of this temp factory to construct the target rpc implementation class.
+     *
+     * @param baseRPC                   the base RPC to use for chained api calls.
+     * @param classRPCSender            the rpc sender to use instead of the fallback one given to this factory.
+     * @param channelSupplier           the channel supplier to which all network requests should be sent.
+     * @param additionalConstructorArgs the array of additional constructor args to supply to the generated class.
+     * @return a constructed instance of the generated rpc class implementation.
+     * @throws NullPointerException     if the given channel supplier or additional args is null.
+     * @throws IllegalArgumentException if the given additional constructor args mismatch the expected count.
+     * @throws IllegalStateException    if this factory is not yet delegated or the construction fails.
+     */
+    @Override
+    public @NonNull Object constructInstance(
+      @Nullable ChainableRPC baseRPC,
+      @Nullable RPCSender classRPCSender,
+      @NonNull Supplier<NetworkChannel> channelSupplier,
+      @NonNull Object[] additionalConstructorArgs
+    ) {
       var delegate = this.delegate;
       Preconditions.checkState(delegate != null, "delegate not yet set");
-      return delegate.constructInstance(baseRPC, channelSupplier, additionalConstructorArgs);
+      return delegate.constructInstance(baseRPC, classRPCSender, channelSupplier, additionalConstructorArgs);
     }
   }
 }

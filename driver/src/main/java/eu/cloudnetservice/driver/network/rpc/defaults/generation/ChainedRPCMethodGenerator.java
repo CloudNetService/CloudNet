@@ -56,7 +56,10 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
 
     // register the instance factory, construct the chain base & push the extra constructor parameters
     var additionalGenFlags = rpcChainMeta.generationFlags();
-    var instanceFactoryFieldName = context.registerAdditionalInstanceFactory(additionalGenFlags, chainBaseType);
+    var instanceFactoryFieldName = context.registerAdditionalInstanceFactory(
+      additionalGenFlags,
+      targetReturnType,
+      chainBaseType);
     var chainBaseStoreSlot = this.storeRPCChainBase(codeBuilder, generatingClass, context, targetMethod);
     var extraArgsArrayStoreSlot = this.storeExtraParameterArray(paramMappings, targetMethod.methodType(), codeBuilder);
 

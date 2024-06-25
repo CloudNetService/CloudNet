@@ -69,18 +69,6 @@ public final class DefaultRPCFactory implements RPCFactory {
   @Override
   public @NonNull RPCSender.Builder newRPCSenderBuilder(@NonNull Class<?> target) {
     var classMetadata = RPCClassMetadata.introspect(target);
-    return this.newRPCSenderBuilder(classMetadata);
-  }
-
-  /**
-   * Internal util to construct a new rpc sender builder from the given resolved class metadata.
-   *
-   * @param classMetadata the class metadata to use as a base for the builder.
-   * @return a new rpc sender builder using the given class metadata.
-   * @throws NullPointerException if the given class metadata is null.
-   */
-  @ApiStatus.Internal
-  public @NonNull RPCSender.Builder newRPCSenderBuilder(@NonNull RPCClassMetadata classMetadata) {
     return new DefaultRPCSenderBuilder(this, classMetadata, this.defaultDataBufFactory, this.defaultObjectMapper);
   }
 
@@ -99,7 +87,31 @@ public final class DefaultRPCFactory implements RPCFactory {
   @Override
   public @NonNull <T> RPCImplementationBuilder<T> newRPCBasedImplementationBuilder(@NonNull Class<T> baseClass) {
     var classMeta = RPCClassMetadata.introspect(baseClass);
-    var baseClassSenderBuilder = this.newRPCSenderBuilder(classMeta);
-    return new DefaultRPCImplementationBuilder<>(classMeta, baseClassSenderBuilder, this.rpcGenerationCache);
+    return new DefaultRPCImplementationBuilder<>(
+      this,
+      this.defaultObjectMapper,
+      this.defaultDataBufFactory,
+      classMeta,
+      this.rpcGenerationCache);
+  }
+
+  /**
+   * Get the default object mapper used by this factory.
+   *
+   * @return the default object mapper.
+   */
+  @ApiStatus.Internal
+  public @NonNull ObjectMapper defaultObjectMapper() {
+    return this.defaultObjectMapper;
+  }
+
+  /**
+   * Get the default data buf factory used by this mapper.
+   *
+   * @return the default data buf factory.
+   */
+  @ApiStatus.Internal
+  public @NonNull DataBufFactory defaultDataBufFactory() {
+    return this.defaultDataBufFactory;
   }
 }
