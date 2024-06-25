@@ -173,7 +173,7 @@ public final class NettyNioBufferReleasingAllocator implements BufferAllocator, 
         try {
           DIRECT_BUFFER_CLEANER.invokeExact(recoverableMemory);
         } catch (Throwable exception) {
-          throw new IllegalStateException(exception);
+          LOGGER.fine("Unable to free direct ByteBuf using Unsafe.invokeCleaner", null, exception.getMessage());
         }
       }
     }
@@ -191,7 +191,6 @@ public final class NettyNioBufferReleasingAllocator implements BufferAllocator, 
      */
     @Override
     public void attach(@NonNull Buffer obj) {
-      // no-op
     }
   }
 }
