@@ -127,6 +127,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     this.sender = rpcFactory.newRPCSenderBuilder(BridgeManagement.class).targetComponent(networkClient).build();
     this.playerManager = rpcFactory.newRPCBasedImplementationBuilder(PlatformPlayerManager.class)
       .targetComponent(networkClient)
+      .superclass(PlayerManager.class)
       .generateImplementation()
       .withAdditionalConstructorParameters(RPCInternalInstanceFactory.SpecialArg.RPC_SENDER)
       .allocate();

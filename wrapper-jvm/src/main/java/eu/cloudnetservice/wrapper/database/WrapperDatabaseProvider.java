@@ -34,6 +34,7 @@ public abstract class WrapperDatabaseProvider implements DatabaseProvider {
 
     var rpcFactory = sender.sourceFactory();
     this.databaseImplAllocator = rpcFactory.newRPCBasedImplementationBuilder(WrapperDatabase.class)
+      .superclass(Database.class)
       .targetChannel(sender.fallbackChannelSupplier())
       .generateImplementation();
   }

@@ -138,6 +138,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     handlerRegistry.registerHandler(specificProviderHandler);
 
     this.specificProviderAllocator = rpcFactory.newRPCBasedImplementationBuilder(RemoteNodeCloudServiceProvider.class)
+      .superclass(SpecificCloudServiceProvider.class)
       .targetChannel(() -> null)
       .generateImplementation();
 

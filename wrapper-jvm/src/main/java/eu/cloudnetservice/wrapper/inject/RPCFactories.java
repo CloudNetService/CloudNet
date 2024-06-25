@@ -113,6 +113,7 @@ final class RPCFactories {
     @NonNull ComponentInfo componentInfo
   ) {
     return factory.newRPCBasedImplementationBuilder(WrapperTemplateStorageProvider.class)
+      .superclass(TemplateStorageProvider.class)
       .targetComponent(networkClient)
       .generateImplementation()
       .withAdditionalConstructorParameters(
@@ -129,6 +130,7 @@ final class RPCFactories {
     @NonNull NetworkClient networkClient
   ) {
     return factory.newRPCBasedImplementationBuilder(WrapperDatabaseProvider.class)
+      .superclass(DatabaseProvider.class)
       .targetComponent(networkClient)
       .generateImplementation()
       .withAdditionalConstructorParameters(RPCInternalInstanceFactory.SpecialArg.RPC_SENDER)

@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.bridge.platform;
 
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerProvider;
@@ -28,11 +29,12 @@ abstract class PlatformPlayerManager implements PlayerManager {
 
   private final RPCSender sender;
   private final RPCImplementationBuilder.InstanceAllocator<PlayerProvider> playerProviderAllocator;
-  private final RPCImplementationBuilder.InstanceAllocator<PlayerExecutor> playerExecutorAllocator;
+  private final RPCImplementationBuilder.InstanceAllocator<? extends PlayerExecutor> playerExecutorAllocator;
 
   private final PlayerProvider allPlayers;
   private final PlayerExecutor globalPlayerExecutor;
 
+  @RPCInvocationTarget
   public PlatformPlayerManager(@NonNull RPCSender sender) {
     this.sender = sender;
 
@@ -42,7 +44,8 @@ abstract class PlatformPlayerManager implements PlayerManager {
       .implementConcreteMethods()
       .targetChannel(sender.fallbackChannelSupplier())
       .generateImplementation();
-    this.playerExecutorAllocator = rpcFactory.newRPCBasedImplementationBuilder(PlayerExecutor.class)
+    this.playerExecutorAllocator = rpcFactory.newRPCBasedImplementationBuilder(PlatformPlayerExecutor.class)
+      .superclass(PlayerExecutor.class)
       .targetChannel(sender.fallbackChannelSupplier())
       .generateImplementation();
 

@@ -43,6 +43,7 @@ public abstract class WrapperTemplateStorageProvider implements TemplateStorageP
 
     var rpcFactory = sender.sourceFactory();
     this.templateStorageAllocator = rpcFactory.newRPCBasedImplementationBuilder(RemoteTemplateStorage.class)
+      .superclass(TemplateStorage.class)
       .targetChannel(sender.fallbackChannelSupplier())
       .generateImplementation()
       .withAdditionalConstructorParameters(null, componentInfo, networkClient); // first null param is the storage name
