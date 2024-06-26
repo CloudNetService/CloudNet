@@ -70,14 +70,6 @@ public final class Wrapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(Wrapper.class);
 
   @Inject
-  @Order(50)
-  private void setupLogger(@NonNull @Named("root") Logger logger) {
-    // TODO: what ever to do here
-    // logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
-
-  }
-
-  @Inject
   @Order(100)
   private void initI18n() {
     I18n.loadFromLangPath(Wrapper.class);

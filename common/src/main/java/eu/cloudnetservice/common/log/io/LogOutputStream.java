@@ -62,7 +62,7 @@ public final class LogOutputStream extends ByteArrayOutputStream {
    * @return a new log output stream instance for the given logger.
    * @throws NullPointerException if the given logger is null.
    */
-  public static @NonNull LogOutputStream forSevere(@NonNull Logger logger) {
+  public static @NonNull LogOutputStream forWarn(@NonNull Logger logger) {
     return LogOutputStream.newInstance(logger, Level.WARN);
   }
 
@@ -73,7 +73,7 @@ public final class LogOutputStream extends ByteArrayOutputStream {
    * @return a new log output stream instance for the given logger.
    * @throws NullPointerException if the given logger is null.
    */
-  public static @NonNull LogOutputStream forInformative(@NonNull Logger logger) {
+  public static @NonNull LogOutputStream forInfo(@NonNull Logger logger) {
     return LogOutputStream.newInstance(logger, Level.INFO);
   }
 
@@ -119,10 +119,10 @@ public final class LogOutputStream extends ByteArrayOutputStream {
     this.flushLock.lock();
     try {
       super.flush();
-      var content = this.toString(StandardCharsets.UTF_8);
+      var content = this.toString(StandardCharsets.UTF_8).stripTrailing();
       super.reset();
 
-      if (!content.isEmpty() && !content.equals(System.lineSeparator())) {
+      if (!content.isEmpty()) {
         this.logger.atLevel(this.level).log(content);
       }
     } finally {

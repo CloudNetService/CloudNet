@@ -48,7 +48,6 @@ import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.database.h2.H2DatabaseProvider;
 import eu.cloudnetservice.node.database.xodus.XodusDatabaseProvider;
 import eu.cloudnetservice.node.event.CloudNetNodePostInitializationEvent;
-import eu.cloudnetservice.node.log.QueuedConsoleLogAppender;
 import eu.cloudnetservice.node.module.ModulesHolder;
 import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
 import eu.cloudnetservice.node.module.updater.ModuleUpdater;
@@ -85,15 +84,11 @@ public final class Node {
 
   @Inject
   @Order(0)
-  private void initializeLogging(
-    @NonNull Console console,
-    @NonNull @Named("root") Logger rootLogger,
-    @NonNull QueuedConsoleLogAppender queuedConsoleLogAppender
-  ) {
+  private void initializeLogging(@NonNull @Named("root") Logger rootLogger) {
     // override the system output streams, this isn't strictly required, but some modules might use them which
     // could look out of place in the normal logging context
-    System.setErr(LogOutputStream.forSevere(rootLogger).toPrintStream());
-    System.setOut(LogOutputStream.forInformative(rootLogger).toPrintStream());
+    System.setErr(LogOutputStream.forWarn(rootLogger).toPrintStream());
+    System.setOut(LogOutputStream.forInfo(rootLogger).toPrintStream());
   }
 
   @Inject
