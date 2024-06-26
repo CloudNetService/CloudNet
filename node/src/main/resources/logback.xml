@@ -67,4 +67,5 @@
   <!-- loggers that print information we can't do anything about -->
   <logger name="jetbrains.exodus" level="WARN"/>
   <logger name="net.schmizz.sshj" level="WARN"/>
+  <logger name="jetbrains.exodus.io.FileDataWriter" level="OFF"/>
 </configuration>
