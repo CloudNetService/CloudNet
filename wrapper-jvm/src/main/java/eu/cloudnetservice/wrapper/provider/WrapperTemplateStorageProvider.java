@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper.provider;
 
 import eu.cloudnetservice.driver.ComponentInfo;
+import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
@@ -25,6 +26,7 @@ import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
 import eu.cloudnetservice.driver.template.defaults.RemoteTemplateStorage;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,14 +39,15 @@ public abstract class WrapperTemplateStorageProvider implements TemplateStorageP
   public WrapperTemplateStorageProvider(
     @NonNull RPCSender sender,
     @NonNull ComponentInfo componentInfo,
-    @NonNull NetworkClient networkClient
+    @NonNull NetworkClient networkClient,
+    @NonNull Supplier<NetworkChannel> channelSupplier
   ) {
     this.providerRPCSender = sender;
 
     var rpcFactory = sender.sourceFactory();
     this.templateStorageAllocator = rpcFactory.newRPCBasedImplementationBuilder(RemoteTemplateStorage.class)
       .superclass(TemplateStorage.class)
-      .targetChannel(sender.fallbackChannelSupplier())
+      .targetChannel(channelSupplier)
       .generateImplementation()
       .withAdditionalConstructorParameters(null, componentInfo, networkClient); // first null param is the storage name
   }

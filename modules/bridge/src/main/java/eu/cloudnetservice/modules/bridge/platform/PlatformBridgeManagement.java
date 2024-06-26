@@ -129,7 +129,9 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .targetComponent(networkClient)
       .superclass(PlayerManager.class)
       .generateImplementation()
-      .withAdditionalConstructorParameters(RPCInternalInstanceFactory.SpecialArg.RPC_SENDER)
+      .withAdditionalConstructorParameters(
+        RPCInternalInstanceFactory.SpecialArg.RPC_SENDER,
+        RPCInternalInstanceFactory.SpecialArg.CHANNEL_SUPPLIER)
       .allocate();
 
     // create the network service info of this service

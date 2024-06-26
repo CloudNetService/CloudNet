@@ -122,14 +122,6 @@ public final class DefaultRPCChain extends DefaultRPCProvider implements RPCChai
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Supplier<NetworkChannel> fallbackChannelSupplier() {
-    return this.channelSupplier;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void fireAndForget() {
     var targetNetworkChannel = this.channelSupplier.get();
     Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");

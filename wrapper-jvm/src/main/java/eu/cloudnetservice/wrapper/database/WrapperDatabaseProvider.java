@@ -18,9 +18,11 @@ package eu.cloudnetservice.wrapper.database;
 
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
+import java.util.function.Supplier;
 import lombok.NonNull;
 
 public abstract class WrapperDatabaseProvider implements DatabaseProvider {
@@ -29,13 +31,13 @@ public abstract class WrapperDatabaseProvider implements DatabaseProvider {
   private final RPCImplementationBuilder.InstanceAllocator<? extends Database> databaseImplAllocator;
 
   @RPCInvocationTarget
-  public WrapperDatabaseProvider(@NonNull RPCSender sender) {
+  public WrapperDatabaseProvider(@NonNull RPCSender sender, @NonNull Supplier<NetworkChannel> channelSupplier) {
     this.providerRPCSender = sender;
 
     var rpcFactory = sender.sourceFactory();
     this.databaseImplAllocator = rpcFactory.newRPCBasedImplementationBuilder(WrapperDatabase.class)
       .superclass(Database.class)
-      .targetChannel(sender.fallbackChannelSupplier())
+      .targetChannel(channelSupplier)
       .generateImplementation();
   }
 

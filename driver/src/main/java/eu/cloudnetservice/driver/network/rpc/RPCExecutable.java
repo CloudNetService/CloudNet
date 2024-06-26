@@ -20,7 +20,6 @@ import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
-import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NonBlocking;
@@ -105,12 +104,4 @@ public interface RPCExecutable {
    */
   @NonNull
   <T> Task<T> fire(@NonNull NetworkChannel component);
-
-  /**
-   * Get the channel supplier that gets used if no specific network channel was provided to an execute method.
-   *
-   * @return the fallback channel supplier.
-   */
-  @NonNull
-  Supplier<NetworkChannel> fallbackChannelSupplier();
 }

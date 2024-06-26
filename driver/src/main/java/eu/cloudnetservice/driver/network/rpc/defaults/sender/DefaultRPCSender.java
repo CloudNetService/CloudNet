@@ -72,14 +72,6 @@ public final class DefaultRPCSender extends DefaultRPCProvider implements RPCSen
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Supplier<NetworkChannel> fallbackChannelSupplier() {
-    return this.channelSupplier;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public @NonNull RPC invokeCaller(Object... args) {
     // offset must be 1 to skip this method
     return this.invokeCaller(1, args);

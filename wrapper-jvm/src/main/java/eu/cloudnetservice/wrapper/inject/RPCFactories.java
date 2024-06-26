@@ -119,7 +119,8 @@ final class RPCFactories {
       .withAdditionalConstructorParameters(
         RPCInternalInstanceFactory.SpecialArg.RPC_SENDER,
         componentInfo,
-        networkClient)
+        networkClient,
+        RPCInternalInstanceFactory.SpecialArg.CHANNEL_SUPPLIER)
       .allocate();
   }
 
@@ -133,7 +134,9 @@ final class RPCFactories {
       .superclass(DatabaseProvider.class)
       .targetComponent(networkClient)
       .generateImplementation()
-      .withAdditionalConstructorParameters(RPCInternalInstanceFactory.SpecialArg.RPC_SENDER)
+      .withAdditionalConstructorParameters(
+        RPCInternalInstanceFactory.SpecialArg.RPC_SENDER,
+        RPCInternalInstanceFactory.SpecialArg.CHANNEL_SUPPLIER)
       .allocate();
   }
 }
