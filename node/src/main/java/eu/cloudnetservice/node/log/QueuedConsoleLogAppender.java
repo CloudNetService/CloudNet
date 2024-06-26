@@ -17,8 +17,7 @@
 package eu.cloudnetservice.node.log;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
-import ch.qos.logback.core.encoder.Encoder;
+import ch.qos.logback.core.ConsoleAppender;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -32,7 +31,7 @@ import lombok.NonNull;
 /**
  * A logging handler for developers, that can easy handle and get the logging outputs from this node instance
  */
-public final class QueuedConsoleLogAppender extends AppenderBase<ILoggingEvent> {
+public final class QueuedConsoleLogAppender extends ConsoleAppender<ILoggingEvent> {
 
   private final EventManager eventManager;
 
@@ -40,8 +39,6 @@ public final class QueuedConsoleLogAppender extends AppenderBase<ILoggingEvent> 
    * A queue that contain the last 128 logging output as LogEntries that should print into the console
    */
   private final Queue<ILoggingEvent> cachedQueuedLogEntries = new ConcurrentLinkedQueue<>();
-
-  private Encoder<ILoggingEvent> encoder;
 
   public QueuedConsoleLogAppender() {
     this.eventManager = InjectionLayer.boot().instance(EventManager.class);
@@ -57,12 +54,8 @@ public final class QueuedConsoleLogAppender extends AppenderBase<ILoggingEvent> 
 
   public @NonNull Queue<String> formattedCachedLogLines() {
     return this.cachedQueuedLogEntries.stream()
-      .map(event -> new String(this.encoder.encode(event)))
+      .map(event -> new String(super.encoder.encode(event)))
       .collect(Collectors.toCollection(LinkedList::new));
-  }
-
-  public void setEncoder(@NonNull Encoder<ILoggingEvent> encoder) {
-    this.encoder = encoder;
   }
 
   @Override
@@ -73,23 +66,5 @@ public final class QueuedConsoleLogAppender extends AppenderBase<ILoggingEvent> 
     }
 
     this.eventManager.callEvent(new LoggingEntryEvent(event));
-  }
-
-  @Override
-  public void start() {
-    if (this.encoder != null) {
-      this.encoder.start();
-    }
-
-    super.start();
-  }
-
-  @Override
-  public void stop() {
-    if (this.encoder != null) {
-      this.encoder.stop();
-    }
-
-    super.stop();
   }
 }
