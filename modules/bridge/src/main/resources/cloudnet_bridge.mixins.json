@@ -5,12 +5,10 @@
   "server": [
     "forwarding.ClientIntentionPacketMixin",
     "forwarding.CompressionThresholdMixin",
-    "forwarding.ConnectionMixin",
     "forwarding.ServerHandshakePacketListenerMixin",
     "forwarding.ServerLoginPacketListenerMixin",
     "handling.MinecraftServerMixin",
     "handling.PlayerListMixin",
-    "handling.ServerCommonPacketListenerImplMixin",
     "payload.CustomPayloadMixin"
   ],
   "injectors": {

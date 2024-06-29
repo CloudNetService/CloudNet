@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.mojang.authlib.properties.Property;
 import com.mojang.util.UndashedUuid;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
-import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
 import java.net.InetSocketAddress;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
@@ -67,8 +66,8 @@ public abstract class ServerHandshakePacketListenerMixin {
     @NonNull CallbackInfo callbackInfo
   ) {
     if (packet.intention() == ClientIntent.LOGIN) {
-      var bridged = (BridgedClientConnection) this.connection;
-      bridged.cloudnet_bridge$markIntentionPacketSeen();
+      var channel = this.connection.channel;
+      channel.attr(FabricBridgeManagement.PLAYER_INTENTION_PACKET_SEEN_KEY).set(null);
 
       if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
         // decode the bungee handshake
@@ -77,11 +76,12 @@ public abstract class ServerHandshakePacketListenerMixin {
           packet.hostName = split[0];
           // set bridged properties for later use
           var port = ((InetSocketAddress) this.connection.getRemoteAddress()).getPort();
-          bridged.cloudnet_bridge$forwardedUniqueId(UndashedUuid.fromStringLenient(split[2]));
-          bridged.cloudnet_bridge$addr(new InetSocketAddress(split[1], port));
+          this.connection.address = new InetSocketAddress(split[1], port);
+          channel.attr(FabricBridgeManagement.PLAYER_FORWARDED_UUID_KEY).set(UndashedUuid.fromStringLenient(split[2]));
           // check if properties were supplied
           if (split.length == 4) {
-            bridged.cloudnet_bridge$forwardedProfile(cloudnet_bridge$GSON.fromJson(split[3], Property[].class));
+            var properties = cloudnet_bridge$GSON.fromJson(split[3], Property[].class);
+            channel.attr(FabricBridgeManagement.PLAYER_PROFILE_PROPERTIES_KEY).set(properties);
           }
         } else {
           // disconnect will not send the packet - it will just close the channel and set the disconnect reason

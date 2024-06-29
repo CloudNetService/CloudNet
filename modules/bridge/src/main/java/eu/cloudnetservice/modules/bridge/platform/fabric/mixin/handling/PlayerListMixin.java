@@ -16,9 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.handling;
 
-import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
+import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
-import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServerCommonPacketListener;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -56,7 +55,7 @@ public abstract class PlayerListMixin {
     @NonNull CallbackInfo callbackInfo
   ) {
     var bridgedServer = (BridgedServer) this.server;
-    if (((BridgedClientConnection) connection).cloudnet_bridge$intentionPacketSeen()) {
+    if (connection.channel.hasAttr(FabricBridgeManagement.PLAYER_INTENTION_PACKET_SEEN_KEY)) {
       bridgedServer.cloudnet_bridge$injectionHolder().serverPlatformHelper().sendChannelMessageLoginSuccess(
         serverPlayer.getUUID(),
         bridgedServer.cloudnet_bridge$management().createPlayerInformation(serverPlayer));
@@ -68,8 +67,8 @@ public abstract class PlayerListMixin {
   @Inject(at = @At("TAIL"), method = "remove")
   public void cloudnet_bridge$onDisconnect(@NonNull ServerPlayer player, @NonNull CallbackInfo info) {
     var bridgedServer = (BridgedServer) this.server;
-    var connection = ((BridgedServerCommonPacketListener) player.connection).cloudnet_bridge$connection();
-    if (((BridgedClientConnection) connection).cloudnet_bridge$intentionPacketSeen()) {
+    var channel = player.connection.connection.channel;
+    if (channel.hasAttr(FabricBridgeManagement.PLAYER_INTENTION_PACKET_SEEN_KEY)) {
       bridgedServer.cloudnet_bridge$injectionHolder().serverPlatformHelper().sendChannelMessageDisconnected(
         player.getUUID(),
         bridgedServer.cloudnet_bridge$management().ownNetworkServiceInfo());

@@ -19,9 +19,7 @@ package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.handling;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
-import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
-import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServerCommonPacketListener;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.FabricInjectionHolder;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import java.util.Collection;
@@ -46,9 +44,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftServerMixin implements BridgedServer {
 
   @Unique
-  private PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management;
+  private PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> cloudnet_bridge$management;
   @Unique
-  private FabricInjectionHolder injectionHolder;
+  private FabricInjectionHolder cloudnet_bridge$injectionHolder;
 
   @Shadow
   public abstract PlayerList getPlayerList();
@@ -65,20 +63,20 @@ public abstract class MinecraftServerMixin implements BridgedServer {
   )
   public void cloudnet_bridge$beforeTickLoopStart(CallbackInfo callbackInfo) {
     // the server now booted completely
-    this.injectionHolder = InjectionLayer.ext().instance(FabricInjectionHolder.class);
+    this.cloudnet_bridge$injectionHolder = InjectionLayer.ext().instance(FabricInjectionHolder.class);
     // we have to create the management ourselves as we can't inject the server
-    this.management = new FabricBridgeManagement(
+    this.cloudnet_bridge$management = new FabricBridgeManagement(
       this,
-      this.injectionHolder.rpcFactory(),
-      this.injectionHolder.eventManager(),
-      this.injectionHolder.networkClient(),
-      this.injectionHolder.taskProvider(),
-      this.injectionHolder.serviceHelper(),
-      this.injectionHolder.serviceInfoHolder(),
-      this.injectionHolder.serviceProvider(),
-      this.injectionHolder.wrapperConfiguration());
-    this.management.registerServices(this.injectionHolder.serviceRegistry());
-    this.management.postInit();
+      this.cloudnet_bridge$injectionHolder.rpcFactory(),
+      this.cloudnet_bridge$injectionHolder.eventManager(),
+      this.cloudnet_bridge$injectionHolder.networkClient(),
+      this.cloudnet_bridge$injectionHolder.taskProvider(),
+      this.cloudnet_bridge$injectionHolder.serviceHelper(),
+      this.cloudnet_bridge$injectionHolder.serviceInfoHolder(),
+      this.cloudnet_bridge$injectionHolder.serviceProvider(),
+      this.cloudnet_bridge$injectionHolder.wrapperConfiguration());
+    this.cloudnet_bridge$management.registerServices(this.cloudnet_bridge$injectionHolder.serviceRegistry());
+    this.cloudnet_bridge$management.postInit();
   }
 
   @Override
@@ -111,18 +109,17 @@ public abstract class MinecraftServerMixin implements BridgedServer {
       return null;
     }
 
-    var connection = (BridgedServerCommonPacketListener) player.connection;
-    var bridgeConnection = (BridgedClientConnection) connection.cloudnet_bridge$connection();
-    return bridgeConnection.cloudnet_bridge$intentionPacketSeen() ? player : null;
+    var channel = player.connection.connection.channel;
+    return channel.hasAttr(FabricBridgeManagement.PLAYER_INTENTION_PACKET_SEEN_KEY) ? player : null;
   }
 
   @Override
   public @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> cloudnet_bridge$management() {
-    return this.management;
+    return this.cloudnet_bridge$management;
   }
 
   @Override
   public @NonNull FabricInjectionHolder cloudnet_bridge$injectionHolder() {
-    return this.injectionHolder;
+    return this.cloudnet_bridge$injectionHolder;
   }
 }

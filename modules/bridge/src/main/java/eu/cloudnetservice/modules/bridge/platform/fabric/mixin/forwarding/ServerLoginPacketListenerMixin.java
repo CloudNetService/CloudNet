@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.forwarding;
 
 import com.mojang.authlib.GameProfile;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
-import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -45,12 +44,16 @@ public abstract class ServerLoginPacketListenerMixin {
   @Inject(at = @At("TAIL"), method = "startClientVerification")
   private void cloudnet_bridge$onAcceptedLogin(@NonNull CallbackInfo callbackInfo) {
     if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
-      var bridged = (BridgedClientConnection) this.connection;
+      var channel = this.connection.channel;
       this.authenticatedProfile = new GameProfile(
-        bridged.cloudnet_bridge$forwardedUniqueId(),
+        channel.attr(FabricBridgeManagement.PLAYER_FORWARDED_UUID_KEY).getAndSet(null),
         this.authenticatedProfile.getName());
-      for (var property : bridged.cloudnet_bridge$forwardedProfile()) {
-        this.authenticatedProfile.getProperties().put(property.name(), property);
+
+      var properties = channel.attr(FabricBridgeManagement.PLAYER_PROFILE_PROPERTIES_KEY).getAndSet(null);
+      if (properties != null) {
+        for (var property : properties) {
+          this.authenticatedProfile.getProperties().put(property.name(), property);
+        }
       }
     }
   }
