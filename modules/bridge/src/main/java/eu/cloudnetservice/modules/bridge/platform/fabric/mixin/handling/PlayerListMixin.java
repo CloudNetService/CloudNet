@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.handling;
 
+import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
@@ -34,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.SERVER)
 @Mixin(PlayerList.class)
-public final class PlayerListMixin {
+public abstract class PlayerListMixin {
 
   @Final
   @Shadow
@@ -47,29 +48,31 @@ public final class PlayerListMixin {
     ),
     method = "placeNewPlayer"
   )
-  public void onJoin(
+  public void cloudnet_bridge$onJoin(
     @NonNull Connection connection,
     @NonNull ServerPlayer serverPlayer,
     @NonNull CommonListenerCookie commonListenerCookie,
     @NonNull CallbackInfo callbackInfo
   ) {
-    if (this.server instanceof BridgedServer bridgedServer) {
-      bridgedServer.injectionHolder().serverPlatformHelper().sendChannelMessageLoginSuccess(
+    var bridgedServer = (BridgedServer) this.server;
+    if (connection.channel.hasAttr(FabricBridgeManagement.PLAYER_INTENTION_PACKET_SEEN_KEY)) {
+      bridgedServer.cloudnet_bridge$injectionHolder().serverPlatformHelper().sendChannelMessageLoginSuccess(
         serverPlayer.getUUID(),
-        bridgedServer.management().createPlayerInformation(serverPlayer));
+        bridgedServer.cloudnet_bridge$management().createPlayerInformation(serverPlayer));
       // update the service info instantly as the player is registered now
-      bridgedServer.injectionHolder().serviceInfoHolder().publishServiceInfoUpdate();
+      bridgedServer.cloudnet_bridge$injectionHolder().serviceInfoHolder().publishServiceInfoUpdate();
     }
   }
 
   @Inject(at = @At("TAIL"), method = "remove")
-  public void onDisconnect(@NonNull ServerPlayer player, @NonNull CallbackInfo info) {
-    if (this.server instanceof BridgedServer bridgedServer) {
-      bridgedServer.injectionHolder().serverPlatformHelper().sendChannelMessageDisconnected(
+  public void cloudnet_bridge$onDisconnect(@NonNull ServerPlayer player, @NonNull CallbackInfo info) {
+    var bridgedServer = (BridgedServer) this.server;
+    var channel = player.connection.connection.channel;
+    if (channel.hasAttr(FabricBridgeManagement.PLAYER_INTENTION_PACKET_SEEN_KEY)) {
+      bridgedServer.cloudnet_bridge$injectionHolder().serverPlatformHelper().sendChannelMessageDisconnected(
         player.getUUID(),
-        bridgedServer.management().ownNetworkServiceInfo());
-      // update the service info instantly as the player is unregistered now
-      bridgedServer.injectionHolder().serviceInfoHolder().publishServiceInfoUpdate();
+        bridgedServer.cloudnet_bridge$management().ownNetworkServiceInfo());
+      bridgedServer.cloudnet_bridge$injectionHolder().serviceInfoHolder().publishServiceInfoUpdate();
     }
   }
 }

@@ -20,8 +20,7 @@ import io.netty.buffer.ByteBuf;
 
 public interface CustomPayloadAccessor {
 
-  void setData(ByteBuf data);
+  void cloudnet_bridge$setData(ByteBuf data);
 
-  ByteBuf getData();
-
+  ByteBuf cloudnet_bridge$getData();
 }

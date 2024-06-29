@@ -26,17 +26,17 @@ import org.jetbrains.annotations.Nullable;
 
 public interface BridgedServer {
 
-  int maxPlayers();
+  int cloudnet_bridge$maxPlayers();
 
-  int playerCount();
+  int cloudnet_bridge$playerCount();
 
-  @NonNull String motd();
+  @NonNull String cloudnet_bridge$motd();
 
-  @NonNull Collection<ServerPlayer> players();
+  @NonNull Collection<ServerPlayer> cloudnet_bridge$players();
 
-  @Nullable ServerPlayer player(@NonNull UUID uniqueId);
+  @Nullable ServerPlayer cloudnet_bridge$player(@NonNull UUID uniqueId);
 
-  @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management();
+  @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> cloudnet_bridge$management();
 
-  @NonNull FabricInjectionHolder injectionHolder();
+  @NonNull FabricInjectionHolder cloudnet_bridge$injectionHolder();
 }
