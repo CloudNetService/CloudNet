@@ -48,7 +48,7 @@ public abstract class ServerHandshakePacketListenerMixin {
   private static final Gson cloudnet_bridge$GSON = new Gson();
   @Unique
   private static final Component cloudnet_bridge$IP_INFO_MISSING = Component.literal(
-    "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!")
+      "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!")
     .withStyle(ChatFormatting.RED);
 
   @Final
@@ -56,12 +56,12 @@ public abstract class ServerHandshakePacketListenerMixin {
   private Connection connection;
 
   @Inject(at = @At(
-    value = "INVOKE_ASSIGN",
+    value = "INVOKE",
     target =
       "Lnet/minecraft/network/Connection;setupInboundProtocol"
         + "(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V"),
     method = "beginLogin")
-  public void cloudnet_bridge$onHandShake(
+  public void cloudnet_bridge$onHandshake(
     @NonNull ClientIntentionPacket packet,
     boolean transfer,
     @NonNull CallbackInfo callbackInfo
