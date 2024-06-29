@@ -61,7 +61,11 @@ public abstract class ServerHandshakePacketListenerMixin {
       "Lnet/minecraft/network/Connection;setupInboundProtocol"
         + "(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V"),
     method = "beginLogin")
-  public void cloudnet_bridge$onHandShake(@NonNull ClientIntentionPacket packet, @NonNull CallbackInfo info) {
+  public void cloudnet_bridge$onHandShake(
+    @NonNull ClientIntentionPacket packet,
+    boolean transfer,
+    @NonNull CallbackInfo callbackInfo
+  ) {
     if (packet.intention() == ClientIntent.LOGIN) {
       var bridged = (BridgedClientConnection) this.connection;
       bridged.cloudnet_bridge$markIntentionPacketSeen();
