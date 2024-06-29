@@ -19,10 +19,13 @@ package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.handling;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
+import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
+import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServerCommonPacketListener;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.FabricInjectionHolder;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
@@ -60,7 +63,7 @@ public abstract class MinecraftServerMixin implements BridgedServer {
     ),
     method = "runServer"
   )
-  public void beforeTickLoopStart(CallbackInfo callbackInfo) {
+  public void cloudnet_bridge$beforeTickLoopStart(CallbackInfo callbackInfo) {
     // the server now booted completely
     this.injectionHolder = InjectionLayer.ext().instance(FabricInjectionHolder.class);
     // we have to create the management ourselves as we can't inject the server
@@ -79,37 +82,47 @@ public abstract class MinecraftServerMixin implements BridgedServer {
   }
 
   @Override
-  public int maxPlayers() {
+  public int cloudnet_bridge$maxPlayers() {
     return this.getPlayerList().getMaxPlayers();
   }
 
   @Override
-  public int playerCount() {
-    return this.getPlayerList().getPlayerCount();
+  public int cloudnet_bridge$playerCount() {
+    return this.cloudnet_bridge$players().size();
   }
 
   @Override
-  public @NonNull String motd() {
+  public @NonNull String cloudnet_bridge$motd() {
     return this.getMotd();
   }
 
   @Override
-  public @NonNull Collection<ServerPlayer> players() {
-    return this.getPlayerList().getPlayers();
+  public @NonNull Collection<ServerPlayer> cloudnet_bridge$players() {
+    return this.getPlayerList().getPlayers().stream()
+      .map(player -> this.cloudnet_bridge$player(player.getUUID()))
+      .filter(Objects::nonNull)
+      .toList();
   }
 
   @Override
-  public @Nullable ServerPlayer player(@NonNull UUID uniqueId) {
-    return this.getPlayerList().getPlayer(uniqueId);
+  public @Nullable ServerPlayer cloudnet_bridge$player(@NonNull UUID uniqueId) {
+    var player = this.getPlayerList().getPlayer(uniqueId);
+    if (player == null) {
+      return null;
+    }
+
+    var connection = (BridgedServerCommonPacketListener) player.connection;
+    var bridgeConnection = (BridgedClientConnection) connection.cloudnet_bridge$connection();
+    return bridgeConnection.cloudnet_bridge$intentionPacketSeen() ? player : null;
   }
 
   @Override
-  public @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management() {
+  public @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> cloudnet_bridge$management() {
     return this.management;
   }
 
   @Override
-  public @NonNull FabricInjectionHolder injectionHolder() {
+  public @NonNull FabricInjectionHolder cloudnet_bridge$injectionHolder() {
     return this.injectionHolder;
   }
 }

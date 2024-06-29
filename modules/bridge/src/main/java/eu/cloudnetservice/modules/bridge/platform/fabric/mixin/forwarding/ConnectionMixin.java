@@ -26,39 +26,55 @@ import net.fabricmc.api.Environment;
 import net.minecraft.network.Connection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
-@Environment(EnvType.SERVER)
 @Mixin(Connection.class)
-public final class ConnectionMixin implements BridgedClientConnection {
+@Environment(EnvType.SERVER)
+public abstract class ConnectionMixin implements BridgedClientConnection {
 
   @Shadow
   private SocketAddress address;
 
-  private UUID forwardedUniqueId;
-  private Property[] forwardedProperties;
+  @Unique
+  private UUID cloudnet_bridge$forwardedUniqueId;
+  @Unique
+  private Property[] cloudnet_bridge$forwardedProperties;
+
+  @Unique
+  private boolean cloudnet_bridge$intentionPacketSeen;
 
   @Override
-  public void addr(@NonNull SocketAddress address) {
+  public void cloudnet_bridge$addr(@NonNull SocketAddress address) {
     this.address = address;
   }
 
   @Override
-  public @NonNull UUID forwardedUniqueId() {
-    return this.forwardedUniqueId;
+  public @NonNull UUID cloudnet_bridge$forwardedUniqueId() {
+    return this.cloudnet_bridge$forwardedUniqueId;
   }
 
   @Override
-  public void forwardedUniqueId(@NonNull UUID uuid) {
-    this.forwardedUniqueId = uuid;
+  public void cloudnet_bridge$forwardedUniqueId(@NonNull UUID uuid) {
+    this.cloudnet_bridge$forwardedUniqueId = uuid;
   }
 
   @Override
-  public @NonNull Property[] forwardedProfile() {
-    return this.forwardedProperties;
+  public @NonNull Property[] cloudnet_bridge$forwardedProfile() {
+    return this.cloudnet_bridge$forwardedProperties;
   }
 
   @Override
-  public void forwardedProfile(@NonNull Property[] profile) {
-    this.forwardedProperties = profile;
+  public void cloudnet_bridge$forwardedProfile(@NonNull Property[] profile) {
+    this.cloudnet_bridge$forwardedProperties = profile;
+  }
+
+  @Override
+  public boolean cloudnet_bridge$intentionPacketSeen() {
+    return this.cloudnet_bridge$intentionPacketSeen;
+  }
+
+  @Override
+  public void cloudnet_bridge$markIntentionPacketSeen() {
+    this.cloudnet_bridge$intentionPacketSeen = true;
   }
 }

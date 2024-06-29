@@ -72,10 +72,10 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
       wrapperConfiguration);
     // field init
     this.server = server;
-    this.directGlobalExecutor = new FabricDirectPlayerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID, server::players);
+    this.directGlobalExecutor = new FabricDirectPlayerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID, server::cloudnet_bridge$players);
     // init the bridge properties
-    serviceHelper.motd().set(server.motd());
-    serviceHelper.maxPlayers().set(server.maxPlayers());
+    serviceHelper.motd().set(server.cloudnet_bridge$motd());
+    serviceHelper.maxPlayers().set(server.cloudnet_bridge$maxPlayers());
   }
 
   @Override
@@ -136,7 +136,7 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
   public @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
-      : new FabricDirectPlayerExecutor(uniqueId, () -> Collections.singleton(this.server.player(uniqueId)));
+      : new FabricDirectPlayerExecutor(uniqueId, () -> Collections.singleton(this.server.cloudnet_bridge$player(uniqueId)));
   }
 
   @Override
@@ -144,10 +144,10 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
     super.appendServiceInformation(configureEvent);
 
     // append the fabric specific information
-    configureEvent.propertyHolder().append("Online-Count", this.server.playerCount());
+    configureEvent.propertyHolder().append("Online-Count", this.server.cloudnet_bridge$playerCount());
     configureEvent.propertyHolder().append("Version", SharedConstants.getCurrentVersion().getName());
     // players
-    configureEvent.propertyHolder().append("Players", this.server.players().stream()
+    configureEvent.propertyHolder().append("Players", this.server.cloudnet_bridge$players().stream()
       .map(this::createPlayerInformation)
       .toList());
   }

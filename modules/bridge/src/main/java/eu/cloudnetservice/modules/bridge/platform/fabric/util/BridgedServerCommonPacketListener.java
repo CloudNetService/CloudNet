@@ -16,26 +16,10 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric.util;
 
-import com.mojang.authlib.properties.Property;
-import java.net.SocketAddress;
-import java.util.UUID;
-import lombok.NonNull;
+import net.minecraft.network.Connection;
 
-public interface BridgedClientConnection {
+public interface BridgedServerCommonPacketListener {
 
-  void cloudnet_bridge$addr(@NonNull SocketAddress address);
+  Connection cloudnet_bridge$connection();
 
-  @NonNull
-  UUID cloudnet_bridge$forwardedUniqueId();
-
-  void cloudnet_bridge$forwardedUniqueId(@NonNull UUID uuid);
-
-  @NonNull
-  Property[] cloudnet_bridge$forwardedProfile();
-
-  void cloudnet_bridge$forwardedProfile(@NonNull Property[] profile);
-
-  void cloudnet_bridge$markIntentionPacketSeen();
-
-  boolean cloudnet_bridge$intentionPacketSeen();
 }

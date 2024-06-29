@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.SERVER)
 @Mixin(ServerLoginPacketListenerImpl.class)
-public final class ServerLoginPacketListenerMixin {
+public abstract class ServerLoginPacketListenerMixin {
 
   @Final
   @Shadow
@@ -43,11 +43,13 @@ public final class ServerLoginPacketListenerMixin {
   private GameProfile authenticatedProfile;
 
   @Inject(at = @At("TAIL"), method = "startClientVerification")
-  private void onAcceptedLogin(@NonNull CallbackInfo callbackInfo) {
+  private void cloudnet_bridge$onAcceptedLogin(@NonNull CallbackInfo callbackInfo) {
     if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
       var bridged = (BridgedClientConnection) this.connection;
-      this.authenticatedProfile = new GameProfile(bridged.forwardedUniqueId(), this.authenticatedProfile.getName());
-      for (var property : bridged.forwardedProfile()) {
+      this.authenticatedProfile = new GameProfile(
+        bridged.cloudnet_bridge$forwardedUniqueId(),
+        this.authenticatedProfile.getName());
+      for (var property : bridged.cloudnet_bridge$forwardedProfile()) {
         this.authenticatedProfile.getProperties().put(property.name(), property);
       }
     }

@@ -3,9 +3,9 @@
   "compatibilityLevel": "JAVA_16",
   "package": "eu.cloudnetservice.modules.bridge.platform.fabric.mixin",
   "server": [
-    "forwarding.ClientIntentionPacketMixin",
-    "forwarding.CompressionThresholdMixin",
     "forwarding.ConnectionMixin",
+    "forwarding.CompressionThresholdMixin",
+    "forwarding.ClientIntentionPacketMixin",
     "forwarding.ServerHandshakePacketListenerMixin",
     "forwarding.ServerLoginPacketListenerMixin",
     "handling.MinecraftServerMixin",

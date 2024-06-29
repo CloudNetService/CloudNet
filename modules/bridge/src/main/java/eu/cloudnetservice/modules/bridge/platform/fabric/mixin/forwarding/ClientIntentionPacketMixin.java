@@ -28,13 +28,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Environment(EnvType.SERVER)
 @Mixin(ClientIntentionPacket.class)
-public final class ClientIntentionPacketMixin {
+public abstract class ClientIntentionPacketMixin {
 
   @Redirect(
     at = @At(value = "INVOKE", target = "Lnet/minecraft/network/FriendlyByteBuf;readUtf(I)Ljava/lang/String;"),
     method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V"
   )
-  private static String read(@NonNull FriendlyByteBuf buf, int amount) {
+  private static String cloudnet_bridge$read(@NonNull FriendlyByteBuf buf, int amount) {
     if (FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
       // default behaviour
       return buf.readUtf(255);
