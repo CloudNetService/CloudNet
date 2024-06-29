@@ -16,16 +16,13 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
-import static eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil.findMethod;
-import static eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil.staticFieldValue;
-
-import com.google.errorprone.annotations.concurrent.LazyInit;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.bukkit.Material;
@@ -47,23 +44,44 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   protected static final Function<LivingEntity, Double> FALLBACK_HEIGHT_GETTER =
     entity -> entity.getEyeHeight() - ARMOR_STAND_HEIGHT + 0.45;
 
-  protected static final PotionEffectType GLOWING = staticFieldValue(PotionEffectType.class, "GLOWING");
+  protected static final Consumer<LivingEntity> ENTITY_SILENT_NO_AI;
 
-  protected static final Class<?> ENTITY = ReflectionUtil.findNmsClass("world.entity.Entity", "Entity");
-  protected static final Class<?> NBT = ReflectionUtil.findNmsClass("nbt.NBTTagCompound", "NBTTagCompound");
-  protected static final Class<?> CRAFT_ENTITY = ReflectionUtil.findCraftBukkitClass("entity.CraftEntity");
-
-  protected static final MethodAccessor<?> GET_HANDLE = findMethod(CRAFT_ENTITY, "getHandle");
-  protected static final MethodAccessor<?> LOAD = findMethod(ENTITY, new Class[]{NBT}, "g", "f", "load");
-  protected static final MethodAccessor<?> SAVE = findMethod(ENTITY, new Class[]{NBT}, "e", "save");
-  protected static final MethodAccessor<?> SET = findMethod(NBT, new Class[]{String.class, int.class}, "setInt", "a");
-
-  protected static final MethodAccessor<?> NEW_NBT = ReflectionUtil.findConstructor(NBT);
-
-  @LazyInit
-  protected static PotionEffect glowingEffect;
+  protected static final PotionEffect GLOWING_EFFECT;
 
   static {
+    var modernAiSetter = Reflexion.on(LivingEntity.class)
+      .findMethod("setAI", boolean.class)
+      .orElse(null);
+    var modernSilentSetter = Reflexion.on(Entity.class)
+      .findMethod("setSilent", boolean.class)
+      .orElse(null);
+
+    if (modernAiSetter != null && modernSilentSetter != null) {
+      ENTITY_SILENT_NO_AI = entity -> {
+        modernAiSetter.invoke(entity, false);
+        modernSilentSetter.invoke(entity, true);
+      };
+    } else {
+      var nbt = ReflectionUtil.findNmsClass("nbt.NBTTagCompound", "NBTTagCompound");
+      var load = ReflectionUtil.findMethod(LazyLegacyNmsReflection.ENTITY, new Class[]{nbt}, "g", "f", "load");
+      var save = ReflectionUtil.findMethod(LazyLegacyNmsReflection.ENTITY, new Class[]{nbt}, "e", "save");
+      var set = ReflectionUtil.findMethod(nbt, new Class[]{String.class, int.class}, "setInt", "a");
+      var newNbt = ReflectionUtil.findConstructor(nbt);
+
+      ENTITY_SILENT_NO_AI = entity -> {
+        if (LazyLegacyNmsReflection.GET_HANDLE != null) {
+          var compound = newNbt.invoke().getOrElse(null);
+          var nmsEntity = LazyLegacyNmsReflection.GET_HANDLE.invoke(entity).getOrElse(null);
+          if (compound != null && nmsEntity != null) {
+            save.invoke(nmsEntity, compound);
+            set.invoke(compound, "NoAI", 1);
+            set.invoke(compound, "Silent", 1);
+            load.invoke(nmsEntity, compound);
+          }
+        }
+      };
+    }
+
     ENTITY_HEIGHT_GETTER = Reflexion.on(Entity.class).findMethod("getHeight")
       // use the modern "getHeight" method (1.11+) to get the entity height
       .map(accessor -> (Function<LivingEntity, Double>) entity -> accessor.<Double>invoke(entity)
@@ -71,15 +89,21 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
         .getOrElse(FALLBACK_HEIGHT_GETTER.apply(entity)))
       // height method is not present, fall back to use the "height" field which is present in 1.8 - 1.10
       .orElseGet(() -> {
-        var lengthFieldAccessor = Reflexion.on(ENTITY).findField("length");
+        var lengthFieldAccessor = Reflexion.on(LazyLegacyNmsReflection.ENTITY).findField("length");
         return entity -> lengthFieldAccessor
-          .map(accessor -> GET_HANDLE.invoke(entity)
+          .map(accessor -> LazyLegacyNmsReflection.GET_HANDLE.invoke(entity)
             .flatMap(accessor::<Float>getValue)
             .map(height -> height - ARMOR_STAND_HEIGHT)
             .map(Float::doubleValue)
             .getOrElse(FALLBACK_HEIGHT_GETTER.apply(entity)))
           .orElse(FALLBACK_HEIGHT_GETTER.apply(entity));
       });
+
+    GLOWING_EFFECT = Reflexion.on(PotionEffectType.class)
+      .findField("GLOWING")
+      .map(acc -> acc.<PotionEffectType>getValue().getOrElse(null))
+      .map(glowingEffect -> new PotionEffect(glowingEffect, Integer.MAX_VALUE, 1, false, false))
+      .orElse(null);
   }
 
   protected double entityHeight;
@@ -146,20 +170,7 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
       }
     }
 
-    // uhhh nms reflection :(
-    // create a new nbt tag compound
-    var compound = NEW_NBT.invoke().getOrElse(null);
-    // get the nms entity
-    var nmsEntity = GET_HANDLE.invoke(this.entity).getOrElse(null);
-    // save the entity data to the compound
-    if (compound != null && nmsEntity != null) {
-      SAVE.invoke(nmsEntity, compound);
-      // rewrite NoAi and Silent values
-      SET.invoke(compound, "NoAI", 1);
-      SET.invoke(compound, "Silent", 1);
-      // load the entity data from the compound again
-      LOAD.invoke(nmsEntity, compound);
-    }
+    ENTITY_SILENT_NO_AI.accept(this.entity);
   }
 
   @Override
@@ -170,13 +181,8 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
 
   @Override
   protected void addGlowingEffect() {
-    if (GLOWING != null) {
-      // init the potion effect if needed
-      if (glowingEffect == null) {
-        glowingEffect = new PotionEffect(GLOWING, Integer.MAX_VALUE, 1, false, false);
-      }
-      // apply to the entity
-      this.entity.addPotionEffect(glowingEffect);
+    if (GLOWING_EFFECT != null) {
+      this.entity.addPotionEffect(GLOWING_EFFECT);
     }
   }
 
@@ -184,5 +190,13 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   protected double heightAddition(int lineNumber) {
     var initialAddition = super.heightAddition(lineNumber);
     return this.entityHeight + initialAddition;
+  }
+
+  private static final class LazyLegacyNmsReflection {
+
+    static final Class<?> ENTITY = ReflectionUtil.findNmsClass("world.entity.Entity", "Entity");
+    static final Class<?> CRAFT_ENTITY = ReflectionUtil.findCraftBukkitClass("entity.CraftEntity");
+
+    static final MethodAccessor<?> GET_HANDLE = ReflectionUtil.findMethod(CRAFT_ENTITY, "getHandle");
   }
 }

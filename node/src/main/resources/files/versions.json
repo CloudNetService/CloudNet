@@ -514,7 +514,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.20.6",
+          "name": "1.21",
           "cacheFiles": false,
           "properties": {
             "copy": {
