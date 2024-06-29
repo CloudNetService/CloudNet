@@ -20,7 +20,6 @@ import eu.cloudnetservice.modules.signs.platform.minestom.MinestomSignManagement
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerBlockInteractEvent;
 
@@ -40,11 +39,6 @@ public class SignInteractListener {
   }
 
   private void handleSignInteract(@NonNull PlayerBlockInteractEvent event) {
-    // ignore fake players
-    if (event.getPlayer() instanceof FakePlayer) {
-      return;
-    }
-
     var block = event.getBlock();
     var instance = event.getPlayer().getInstance();
     if (block.name().contains("sign") && instance != null) {

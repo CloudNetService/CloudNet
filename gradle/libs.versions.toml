@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-shadow = "8.1.1"
+shadow = "8.1.7"
 juppiter = "0.4.0"
 spotless = "6.25.0"
 fabricLoom = "1.6.11"
@@ -62,7 +62,8 @@ sponge = "9.0.0"
 velocity = "3.1.1"
 waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
-minestom = "2cdb3911b0"
+minestom = "0f81bc31ff"
+minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.20-R0.3-SNAPSHOT"
 limboloohp = "0.7.9-ALPHA"
@@ -77,8 +78,8 @@ adventure-serializer-bungee = "4.3.2"
 luckPermsApi = "5.4"
 
 # fabric platform special dependencies
-minecraft = "1.20.4"
-fabricLoader = "0.15.7"
+minecraft = "1.20.6"
+fabricLoader = "0.15.10"
 
 
 [libraries]
@@ -165,7 +166,8 @@ nukkitX = { group = "cn.nukkit", name = "nukkit", version.ref = "nukkitX" }
 spigot = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
 sponge = { group = "org.spongepowered", name = "spongeapi", version.ref = "sponge" }
 bungeecord = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord" }
-minestom = { group = "com.github.Minestom", name = "Minestom", version.ref = "minestom" }
+minestom = { group = "net.minestom", name = "minestom-snapshots", version.ref = "minestom" }
+minestomExtensions = { group = "dev.hollowcube", name = "minestom-ce-extensions", version.ref = "minestomExtensions"}
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 waterdogpe = { group = "dev.waterdog.waterdogpe", name = "waterdog", version.ref = "waterdogpe" }
 limboloohp = { group = "com.loohp", name = "Limbo", version.ref = "limboloohp" }
@@ -209,13 +211,13 @@ nightConfig = ["nightConfigToml", "nightConfigYaml", "nightConfigJson"]
 adventure = ["adventureApi", "adventureSerializerGson", "adventureSerializerLegacy"]
 
 proxyPlatform = ["bungeecord", "velocity", "waterdogpe"]
-serverPlatform = ["spigot", "sponge", "nukkitX", "minestom", "limboloohp"]
+serverPlatform = ["spigot", "sponge", "nukkitX", "minestom", "minestomExtensions", "limboloohp"]
 
 
 [plugins]
 
 fabricLoom = { id = "fabric-loom", version.ref = "fabricLoom" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+shadow = { id = "io.github.goooler.shadow", version.ref = "shadow" }
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }
 nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }

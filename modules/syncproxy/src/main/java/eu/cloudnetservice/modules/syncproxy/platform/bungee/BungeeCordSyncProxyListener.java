@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
@@ -41,17 +40,14 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
   private static final PlayerInfo[] EMPTY_PLAYER_INFO = new PlayerInfo[0];
 
-  private final BungeeCordHelper bungeeCordHelper;
   private final ServiceInfoHolder serviceInfoHolder;
   private final BungeeCordSyncProxyManagement syncProxyManagement;
 
   @Inject
   public BungeeCordSyncProxyListener(
-    @NonNull BungeeCordHelper bungeeCordHelper,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull BungeeCordSyncProxyManagement syncProxyManagement
   ) {
-    this.bungeeCordHelper = bungeeCordHelper;
     this.serviceInfoHolder = serviceInfoHolder;
     this.syncProxyManagement = syncProxyManagement;
   }
@@ -111,7 +107,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
         maxPlayers);
 
       // thanks bungeecord - convert the component array into a single component
-      response.setDescriptionComponent(new TextComponent(this.bungeeCordHelper.translateToComponent(description)));
+      response.setDescriptionComponent(new TextComponent(ComponentFormats.ADVENTURE_TO_BUNGEE.convert(description)));
 
       event.setResponse(response);
     }
@@ -133,7 +129,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
-        player.disconnect(this.bungeeCordHelper.translateToComponent(
+        player.disconnect(ComponentFormats.ADVENTURE_TO_BUNGEE.convert(
           this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null)));
         event.setCancelled(true);
       }
@@ -141,7 +137,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
       // check if the proxy is full and if the player is allowed to join or not
       if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
         && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-        player.disconnect(this.bungeeCordHelper.translateToComponent(
+        player.disconnect(ComponentFormats.ADVENTURE_TO_BUNGEE.convert(
           this.syncProxyManagement.configuration().message("player-login-full-server", null)));
         event.setCancelled(true);
       }
