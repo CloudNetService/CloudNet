@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
 import lombok.NonNull;
 
@@ -56,7 +57,12 @@ public final class ChunkedPacket extends BasePacket {
     byte[] sourceData,
     @NonNull ChunkSessionInformation sessionInfo
   ) {
-    var transferBytes = Byte.BYTES + Integer.BYTES + sourceData.length + sessionInfo.packetSizeBytes();
+    var sourceDataLengthSize = NettyUtil.varIntBytes(sourceData.length);
+    var transferBytes = Byte.BYTES
+      + Integer.BYTES
+      + sourceDataLengthSize
+      + sourceData.length
+      + sessionInfo.packetSizeBytes();
     var informationBuffer = DataBufFactory.defaultFactory().createWithExpectedSize(transferBytes)
       .writeObject(sessionInfo)
       .writeInt(chunkIndex)
@@ -85,7 +91,12 @@ public final class ChunkedPacket extends BasePacket {
     byte[] sourceData,
     @NonNull ChunkSessionInformation sessionInfo
   ) {
-    var transferBytes = Byte.BYTES + Integer.BYTES + sourceData.length + sessionInfo.packetSizeBytes();
+    var sourceDataLengthSize = NettyUtil.varIntBytes(readBytes);
+    var transferBytes = Byte.BYTES
+      + Integer.BYTES
+      + sourceDataLengthSize
+      + readBytes
+      + sessionInfo.packetSizeBytes();
     var informationBuffer = DataBufFactory.defaultFactory().createWithExpectedSize(transferBytes)
       .writeObject(sessionInfo)
       .writeInt(chunkIndex)
