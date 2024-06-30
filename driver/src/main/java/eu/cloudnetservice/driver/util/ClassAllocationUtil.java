@@ -103,9 +103,10 @@ public final class ClassAllocationUtil {
     return targetClass -> {
       try {
         // try to find a no-args constructor that can be invoked
-        var noArgsConstructor = lookup.findConstructor(targetClass, NO_ARGS_CONSTRUCTOR_TYPE);
+        var targetClassLookup = lookup.in(targetClass);
+        var noArgsConstructor = targetClassLookup.findConstructor(targetClass, NO_ARGS_CONSTRUCTOR_TYPE);
         var callSite = LambdaMetafactory.metafactory(
-          lookup,
+          targetClassLookup,
           "get",
           SUPPLIER_FACTORY_SIGNATURE,
           SUPPLIER_GET_SIGNATURE,
