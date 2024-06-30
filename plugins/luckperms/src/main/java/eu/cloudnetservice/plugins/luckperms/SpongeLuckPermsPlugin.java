@@ -30,7 +30,7 @@ import net.luckperms.api.LuckPermsProvider;
   name = "CloudNet-LuckPerms",
   version = "@version@",
   dependencies = {
-    @Dependency(name = "spongeapi", version = "9.0.0"),
+    @Dependency(name = "spongeapi", version = "8.0.0"),
     @Dependency(name = "LuckPerms")
   },
   authors = "CloudNetService",

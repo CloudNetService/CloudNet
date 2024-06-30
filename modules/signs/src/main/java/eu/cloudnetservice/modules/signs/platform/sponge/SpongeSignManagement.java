@@ -23,12 +23,15 @@ import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
+import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -123,6 +126,13 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
         }
       }
     }, 0, 5 * 50, TimeUnit.MILLISECONDS);
+  }
+
+  @Override
+  protected void tick(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<ServerPlayer, Component>>> signsNeedingTicking) {
+    this.mainThreadExecutor.execute(() -> {
+      super.tick(signsNeedingTicking);
+    });
   }
 
   @Override
