@@ -37,7 +37,7 @@ import org.spongepowered.plugin.PluginContainer;
   description = "Sponge extension for the CloudNet runtime which adds sign connector support",
   authors = "CloudNetService",
   dependencies = {
-    @Dependency(name = "spongeapi", version = "8.0.0"),
+    @Dependency(name = "spongeapi", version = "[8.0.0,)"),
     @Dependency(name = "CloudNet-Bridge", version = "@version@")
   }
 )
