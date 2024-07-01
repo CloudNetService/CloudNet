@@ -19,10 +19,9 @@ package eu.cloudnetservice.driver.network.chunk.network;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
+import eu.cloudnetservice.driver.network.chunk.defaults.ChunkedSessionRegistry;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import lombok.NonNull;
 
@@ -33,8 +32,8 @@ import lombok.NonNull;
  */
 public class ChunkedPacketListener implements PacketListener {
 
+  private final ChunkedSessionRegistry sessionRegistry;
   private final Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory;
-  private final Map<ChunkSessionInformation, ChunkedPacketHandler> runningSessions = new ConcurrentHashMap<>();
 
   /**
    * Creates a new packet listener instance.
@@ -42,7 +41,11 @@ public class ChunkedPacketListener implements PacketListener {
    * @param handlerFactory the factory to create the chunked packet handlers when receiving the initial request.
    * @throws NullPointerException if the given factory is null.
    */
-  public ChunkedPacketListener(@NonNull Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory) {
+  public ChunkedPacketListener(
+    @NonNull ChunkedSessionRegistry sessionRegistry,
+    @NonNull Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory
+  ) {
+    this.sessionRegistry = sessionRegistry;
     this.handlerFactory = handlerFactory;
   }
 
@@ -56,10 +59,10 @@ public class ChunkedPacketListener implements PacketListener {
     var chunkIndex = packetContent.readInt();
 
     // get or create a new local session for the transfer
-    var sessionHandler = this.runningSessions.computeIfAbsent(sessionInfo, this.handlerFactory);
+    var sessionHandler = this.sessionRegistry.getOrCreateSession(sessionInfo, this.handlerFactory);
     var transferComplete = sessionHandler.handleChunkPart(chunkIndex, packetContent);
     if (transferComplete) {
-      this.runningSessions.remove(sessionInfo);
+      this.sessionRegistry.completeSession(sessionInfo.sessionUniqueId());
     }
   }
 }
