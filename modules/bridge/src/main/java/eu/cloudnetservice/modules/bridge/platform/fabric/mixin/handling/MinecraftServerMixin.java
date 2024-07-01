@@ -23,6 +23,7 @@ import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.FabricInjectionHolder;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
@@ -43,9 +44,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftServerMixin implements BridgedServer {
 
   @Unique
-  private PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management;
+  private PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> cloudnet_bridge$management;
   @Unique
-  private FabricInjectionHolder injectionHolder;
+  private FabricInjectionHolder cloudnet_bridge$injectionHolder;
 
   @Shadow
   public abstract PlayerList getPlayerList();
@@ -60,56 +61,65 @@ public abstract class MinecraftServerMixin implements BridgedServer {
     ),
     method = "runServer"
   )
-  public void beforeTickLoopStart(CallbackInfo callbackInfo) {
+  public void cloudnet_bridge$beforeTickLoopStart(CallbackInfo callbackInfo) {
     // the server now booted completely
-    this.injectionHolder = InjectionLayer.ext().instance(FabricInjectionHolder.class);
+    this.cloudnet_bridge$injectionHolder = InjectionLayer.ext().instance(FabricInjectionHolder.class);
     // we have to create the management ourselves as we can't inject the server
-    this.management = new FabricBridgeManagement(
+    this.cloudnet_bridge$management = new FabricBridgeManagement(
       this,
-      this.injectionHolder.rpcFactory(),
-      this.injectionHolder.eventManager(),
-      this.injectionHolder.networkClient(),
-      this.injectionHolder.taskProvider(),
-      this.injectionHolder.serviceHelper(),
-      this.injectionHolder.serviceInfoHolder(),
-      this.injectionHolder.serviceProvider(),
-      this.injectionHolder.wrapperConfiguration());
-    this.management.registerServices(this.injectionHolder.serviceRegistry());
-    this.management.postInit();
+      this.cloudnet_bridge$injectionHolder.rpcFactory(),
+      this.cloudnet_bridge$injectionHolder.eventManager(),
+      this.cloudnet_bridge$injectionHolder.networkClient(),
+      this.cloudnet_bridge$injectionHolder.taskProvider(),
+      this.cloudnet_bridge$injectionHolder.serviceHelper(),
+      this.cloudnet_bridge$injectionHolder.serviceInfoHolder(),
+      this.cloudnet_bridge$injectionHolder.serviceProvider(),
+      this.cloudnet_bridge$injectionHolder.wrapperConfiguration());
+    this.cloudnet_bridge$management.registerServices(this.cloudnet_bridge$injectionHolder.serviceRegistry());
+    this.cloudnet_bridge$management.postInit();
   }
 
   @Override
-  public int maxPlayers() {
+  public int cloudnet_bridge$maxPlayers() {
     return this.getPlayerList().getMaxPlayers();
   }
 
   @Override
-  public int playerCount() {
-    return this.getPlayerList().getPlayerCount();
+  public int cloudnet_bridge$playerCount() {
+    return this.cloudnet_bridge$players().size();
   }
 
   @Override
-  public @NonNull String motd() {
+  public @NonNull String cloudnet_bridge$motd() {
     return this.getMotd();
   }
 
   @Override
-  public @NonNull Collection<ServerPlayer> players() {
-    return this.getPlayerList().getPlayers();
+  public @NonNull Collection<ServerPlayer> cloudnet_bridge$players() {
+    return this.getPlayerList().getPlayers().stream()
+      .map(player -> this.cloudnet_bridge$player(player.getUUID()))
+      .filter(Objects::nonNull)
+      .toList();
   }
 
   @Override
-  public @Nullable ServerPlayer player(@NonNull UUID uniqueId) {
-    return this.getPlayerList().getPlayer(uniqueId);
+  public @Nullable ServerPlayer cloudnet_bridge$player(@NonNull UUID uniqueId) {
+    var player = this.getPlayerList().getPlayer(uniqueId);
+    if (player == null) {
+      return null;
+    }
+
+    var channel = player.connection.connection.channel;
+    return channel.hasAttr(FabricBridgeManagement.PLAYER_INTENTION_PACKET_SEEN_KEY) ? player : null;
   }
 
   @Override
-  public @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management() {
-    return this.management;
+  public @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> cloudnet_bridge$management() {
+    return this.cloudnet_bridge$management;
   }
 
   @Override
-  public @NonNull FabricInjectionHolder injectionHolder() {
-    return this.injectionHolder;
+  public @NonNull FabricInjectionHolder cloudnet_bridge$injectionHolder() {
+    return this.cloudnet_bridge$injectionHolder;
   }
 }
