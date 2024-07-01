@@ -77,7 +77,7 @@
     {
       "description": "Disabled because we don't want to pin our versions",
       "matchPackagePrefixes": [
-        "azul/zulu-openjdk:"
+        "azul/zulu-openjdk"
       ],
       "enabled": false
     },
