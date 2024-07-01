@@ -184,8 +184,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     var nodeChannel = associatedNode.channel();
     if (nodeChannel == null || !associatedNode.available()) {
       LOGGER.debug(
-        "Unable to register service on node %s as the node is no longer connected",
-        null,
+        "Unable to register service on node {} as the node is no longer connected",
         associatedNode.info().uniqueId());
       return ServiceCreateResult.FAILED;
     }

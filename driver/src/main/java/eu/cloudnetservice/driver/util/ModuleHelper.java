@@ -116,7 +116,7 @@ public final class ModuleHelper {
       }
       // select the input stream to copy the file from
       var in = clazz.getClassLoader().getResourceAsStream(String.format(
-        "plugin.{}.yml",
+        "plugin.%s.yml",
         StringUtil.toLower(type.name())));
       // copy the file if the file exists
       if (in != null) {

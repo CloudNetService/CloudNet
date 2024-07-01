@@ -91,7 +91,7 @@ public class CloudFlareRecordManager {
       // check if the response is valid
       var result = response.readDocument("result", null);
       if (result == null || !response.getBoolean("success")) {
-        LOGGER.debug("Unable to create record %s for config {}; response was {}", record, configuration, response);
+        LOGGER.debug("Unable to create record {} for config {}; response was {}", record, configuration, response);
         return null;
       }
 
@@ -126,9 +126,11 @@ public class CloudFlareRecordManager {
       var result = response.readDocument("result", null);
       if (result == null || !response.getBoolean("success")) {
         LOGGER.debug(
-          "Unable to patch record %s to %s for config %s; response was %s",
-          null,
-          oldRecord.id(), record, configuration, response);
+          "Unable to patch record {} to {} for config {}; response was {}",
+          oldRecord.id(),
+          record,
+          configuration,
+          response);
         return null;
       }
 

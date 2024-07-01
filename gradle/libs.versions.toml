@@ -53,7 +53,7 @@ influxClient = "7.1.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
 
-# logback
+# logging
 slf4j = "2.0.12"
 logback = "1.5.6"
 

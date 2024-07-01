@@ -29,18 +29,13 @@ public class ConsoleLevelConversion extends CompositeConverter<ILoggingEvent> {
     return this.color(event.getLevel()) + input;
   }
 
-  private @NonNull String color(@NonNull Level level) {
-    var color = ConsoleColor.DARK_GRAY;
-    if (level == Level.INFO) {
-      color = ConsoleColor.GREEN;
-    } else if (level == Level.WARN) {
-      color = ConsoleColor.YELLOW;
-    } else if (level == Level.ERROR) {
-      color = ConsoleColor.RED;
-    } else if (level.toInt() >= Level.TRACE_INT && level.toInt() <= Level.DEBUG_INT) {
-      color = ConsoleColor.BLUE;
-    }
-
-    return color.toString();
+  private @NonNull ConsoleColor color(@NonNull Level level) {
+    return switch (level.toInt()) {
+      case Level.INFO_INT -> ConsoleColor.GREEN;
+      case Level.WARN_INT -> ConsoleColor.YELLOW;
+      case Level.ERROR_INT -> ConsoleColor.RED;
+      case Level.TRACE_INT, Level.DEBUG_INT -> ConsoleColor.BLUE;
+      default -> ConsoleColor.DARK_GRAY;
+    };
   }
 }

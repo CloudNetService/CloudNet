@@ -235,7 +235,7 @@ public final class Wrapper {
     // start the application
     var applicationThread = new Thread(() -> {
       try {
-        LOGGER.info(String.format("Starting application using class %s (pre-main: %s)", mainClass, premainClass));
+        LOGGER.info("Starting application using class {} (pre-main: {})", mainClass, premainClass);
         // start the application
         method.invoke(null, new Object[]{arguments.toArray(new String[0])});
       } catch (Exception exception) {

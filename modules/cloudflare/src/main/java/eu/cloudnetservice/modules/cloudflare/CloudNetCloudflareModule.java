@@ -115,7 +115,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
               Document.newJsonDocument()));
           } else {
             // mark the record as created
-            LOGGER.debug("Skipping creation of record for %s because the record %s exists", null, entry, existingRecord);
+            LOGGER.debug("Skipping creation of record for {} because the record {} exists", entry, existingRecord);
             recordManager.trackedRecords().put(
               NODE_RECORDS_ID,
               new DnsRecordDetail(existingRecord.id(), existingRecord, entry));

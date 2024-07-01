@@ -31,7 +31,7 @@ public final class LocalDatabaseUtil {
   public static void bigWarningThatEveryoneCanSee(@NonNull String warning) {
     LOGGER.warn("╔══════════════════════════════════════════════════════════════════╗");
     LOGGER.warn("║                               WARNING                             ");
-    LOGGER.warn("║   " + warning);
+    LOGGER.warn("║   {}", warning);
     LOGGER.warn("║                                                                   ");
     LOGGER.warn("║                                                                   ");
     LOGGER.warn("║        https://cloudnetservice.eu/docs/3.4/setup/cluster          ");

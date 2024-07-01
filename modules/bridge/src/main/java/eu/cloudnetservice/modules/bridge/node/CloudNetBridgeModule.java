@@ -133,7 +133,7 @@ public final class CloudNetBridgeModule extends DriverModule {
         }
 
         // notify about the completion
-        LOGGER.info("Successfully converted %d entries", null, convertedPlayers);
+        LOGGER.info("Successfully converted {} entries", convertedPlayers);
       }
     }
   }
