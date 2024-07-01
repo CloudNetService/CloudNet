@@ -54,16 +54,44 @@
       "enabled": false
     },
     {
-      "description": "Breaks old databases so we don't need updates",
+      "description": "Disabled because we support sponge >=8",
       "matchPackagePrefixes": [
-        "com.h2database:"
+        "org.spongepowered"
       ],
       "enabled": false
     },
     {
-      "description": "Version is based on the latest push to a git repo and never needs updates",
+      "description": "Disabled because renovate does not understand minestom versioning",
       "matchPackagePrefixes": [
-        "com.github.juliarn:"
+        "net.minestom:"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Disabled because we cannot support waterdog v2 for now",
+      "matchPackagePrefixes": [
+        "dev.waterdog.waterdogpe:"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Disabled because we don't want to pin our versions",
+      "matchPackagePrefixes": [
+        "azul/zulu-openjdk"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Disabled because renovate is incapable of updating npc-lib",
+      "matchPackagePrefixes": [
+        "io.github.juliarn:"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Breaks old databases so we don't need updates",
+      "matchPackagePrefixes": [
+        "com.h2database:"
       ],
       "enabled": false
     }
