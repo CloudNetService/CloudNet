@@ -176,11 +176,11 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
     @NonNull ModuleDependency dependency
   ) {
     this.callEvent(new ModulePostInstallDependencyEvent(this.moduleProvider, configuration, dependency));
-    LOGGER.debug(I18n.trans("cloudnet-post-install-dependency-module",
-      this.moduleArguments(configuration),
+    LOGGER.debug(I18n.trans("Dependency {}:{}:{} for module {}:{}:{} was successfully installed",
       dependency.group(),
       dependency.name(),
-      dependency.version()));
+      dependency.version(),
+      this.moduleArguments(configuration)));
   }
 
   /**
