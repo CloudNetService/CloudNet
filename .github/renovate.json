@@ -82,6 +82,13 @@
       "enabled": false
     },
     {
+      "description": "Disabled because renovate is incapable of updating npc-lib",
+      "matchPackagePrefixes": [
+        "io.github.juliarn:"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Breaks old databases so we don't need updates",
       "matchPackagePrefixes": [
         "com.h2database:"
