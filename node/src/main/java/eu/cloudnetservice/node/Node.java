@@ -35,6 +35,7 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.DefaultModuleDependencyLoader;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkServer;
+import eu.cloudnetservice.driver.network.chunk.event.FileQueryChannelMessageListener;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
@@ -454,6 +455,7 @@ public final class Node {
     // register listeners & post node startup finish
     eventManager.registerListener(callbackListener);
     eventManager.callEvent(new CloudNetNodePostInitializationEvent());
+    eventManager.registerListener(FileQueryChannelMessageListener.class);
 
     // notify that we are done & start the main tick loop
     LOGGER.info(I18n.trans("start-done", Duration.between(startInstant, Instant.now()).toMillis()));

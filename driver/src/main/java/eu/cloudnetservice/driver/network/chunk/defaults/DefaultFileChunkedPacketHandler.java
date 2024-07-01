@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -138,8 +139,16 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
 
         // call the write completion handler, if present
         if (this.writeCompleteHandler != null) {
-          try (var inputStream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE)) {
-            this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, inputStream);
+          var closeStream = true;
+          var stream = InputStream.nullInputStream();
+          try {
+            // open the stream to the data and post it to the write handler
+            stream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE);
+            closeStream = this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, stream);
+          } finally {
+            if (closeStream) {
+              stream.close();
+            }
           }
         }
 

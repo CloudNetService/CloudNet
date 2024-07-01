@@ -60,9 +60,10 @@ public interface ChunkedPacketHandler extends ChunkedPacketProvider {
      *
      * @param information the information about the chunk session which were sent initially.
      * @param dataInput   the stream of data sent to this component in this chunked session.
+     * @return true if the full data was consumed and the given stream can be closed, false otherwise.
      * @throws IOException in case an i/o exception happens during result handling.
      */
-    void handleSessionComplete(
+    boolean handleSessionComplete(
       @NonNull ChunkSessionInformation information,
       @NonNull InputStream dataInput) throws IOException;
   }
