@@ -36,7 +36,7 @@ public class CustomPayloadMixin implements CustomPayloadAccessor {
   @Final
   private ResourceLocation id;
   @Unique
-  public ByteBuf dataBuf;
+  public ByteBuf cloudnet_bridge$dataBuf;
 
   /**
    * Overwrites the codec implementation of the custom packet payload.
@@ -48,14 +48,18 @@ public class CustomPayloadMixin implements CustomPayloadAccessor {
   @Overwrite
   public static <T extends FriendlyByteBuf> StreamCodec<T, DiscardedPayload> codec(ResourceLocation id, int maxBytes) {
     return CustomPacketPayload.codec((discardedPayload, packetSerializer) -> {
-      packetSerializer.writeBytes(
-        ((CustomPayloadAccessor) (Object) discardedPayload).getData());
+      var byteBuf = ((CustomPayloadAccessor) (Object) discardedPayload).cloudnet_bridge$getData();
+      try {
+        packetSerializer.writeBytes(byteBuf);
+      } finally {
+        byteBuf.release();
+      }
     }, (packetSerializer) -> {
       int readableBytes = packetSerializer.readableBytes();
 
       if (readableBytes >= 0 && readableBytes <= maxBytes) {
         var payload = new DiscardedPayload(id);
-        ((CustomPayloadAccessor) (Object) payload).setData(packetSerializer.readBytes(readableBytes));
+        ((CustomPayloadAccessor) (Object) payload).cloudnet_bridge$setData(packetSerializer.readBytes(readableBytes));
         return payload;
       } else {
         throw new IllegalArgumentException("Payload may not be larger than " + maxBytes + " bytes");
@@ -64,12 +68,12 @@ public class CustomPayloadMixin implements CustomPayloadAccessor {
   }
 
   @Override
-  public void setData(ByteBuf data) {
-    this.dataBuf = data;
+  public void cloudnet_bridge$setData(ByteBuf data) {
+    this.cloudnet_bridge$dataBuf = data;
   }
 
   @Override
-  public ByteBuf getData() {
-    return this.dataBuf;
+  public ByteBuf cloudnet_bridge$getData() {
+    return this.cloudnet_bridge$dataBuf;
   }
 }

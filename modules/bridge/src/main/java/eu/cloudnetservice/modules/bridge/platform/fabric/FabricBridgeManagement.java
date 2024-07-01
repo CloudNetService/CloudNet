@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric;
 
+import com.mojang.authlib.properties.Property;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
@@ -34,6 +35,7 @@ import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import io.netty.util.AttributeKey;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,6 +48,13 @@ import org.jetbrains.annotations.Nullable;
 public final class FabricBridgeManagement extends PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> {
 
   public static final boolean DISABLE_CLOUDNET_FORWARDING = Boolean.getBoolean("cloudnet.ipforward.disabled");
+
+  public static final AttributeKey<UUID> PLAYER_FORWARDED_UUID_KEY =
+    AttributeKey.newInstance("cloudnet_bridge$forwardedUniqueId");
+  public static final AttributeKey<Void> PLAYER_INTENTION_PACKET_SEEN_KEY =
+    AttributeKey.newInstance("cloudnet_bridge$intentionPacketSeen");
+  public static final AttributeKey<Property[]> PLAYER_PROFILE_PROPERTIES_KEY =
+    AttributeKey.newInstance("cloudnet_bridge$forwardedProperties");
 
   private final BridgedServer server;
   private final PlayerExecutor directGlobalExecutor;
@@ -72,10 +81,12 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
       wrapperConfiguration);
     // field init
     this.server = server;
-    this.directGlobalExecutor = new FabricDirectPlayerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID, server::players);
+    this.directGlobalExecutor = new FabricDirectPlayerExecutor(
+      PlayerExecutor.GLOBAL_UNIQUE_ID,
+      server::cloudnet_bridge$players);
     // init the bridge properties
-    serviceHelper.motd().set(server.motd());
-    serviceHelper.maxPlayers().set(server.maxPlayers());
+    serviceHelper.motd().set(server.cloudnet_bridge$motd());
+    serviceHelper.maxPlayers().set(server.cloudnet_bridge$maxPlayers());
   }
 
   @Override
@@ -136,18 +147,19 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
   public @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
-      : new FabricDirectPlayerExecutor(uniqueId, () -> Collections.singleton(this.server.player(uniqueId)));
+      : new FabricDirectPlayerExecutor(
+        uniqueId,
+        () -> Collections.singleton(this.server.cloudnet_bridge$player(uniqueId)));
   }
 
   @Override
   public void appendServiceInformation(@NonNull ServiceInfoPropertiesConfigureEvent configureEvent) {
     super.appendServiceInformation(configureEvent);
 
-    // append the fabric specific information
-    configureEvent.propertyHolder().append("Online-Count", this.server.playerCount());
+    configureEvent.propertyHolder().append("Online-Count", this.server.cloudnet_bridge$playerCount());
     configureEvent.propertyHolder().append("Version", SharedConstants.getCurrentVersion().getName());
     // players
-    configureEvent.propertyHolder().append("Players", this.server.players().stream()
+    configureEvent.propertyHolder().append("Players", this.server.cloudnet_bridge$players().stream()
       .map(this::createPlayerInformation)
       .toList());
   }
