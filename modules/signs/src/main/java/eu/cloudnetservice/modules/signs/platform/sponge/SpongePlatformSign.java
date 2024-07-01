@@ -23,6 +23,8 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
@@ -99,8 +101,10 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
       // set the glowing status if needed
       sign.glowingText().set(layout.glowingColor() != null);
 
+      List<Component> lines = new ArrayList<>(4);
       // set the sign lines
-      this.changeSignLines(layout, sign.lines()::set);
+      this.changeSignLines(layout, lines::add);
+      sign.offer(Keys.SIGN_LINES, lines);
 
       // change the block behind the sign
       var type = this.game
