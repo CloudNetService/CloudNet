@@ -48,6 +48,12 @@ dependencies {
   "mappings"(loom.officialMojangMappings())
 }
 
+tasks.withType<Jar> {
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
+}
+
 tasks.withType<RemapJarTask> {
   // depend on adventure helper jar task
   dependsOn(":ext:adventure-helper:jar")
