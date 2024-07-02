@@ -35,7 +35,6 @@ import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import io.vavr.control.Try;
 import java.lang.constant.MethodTypeDesc;
-import java.lang.invoke.TypeDescriptor;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -93,7 +92,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
    * @return the parsed method descriptor or null if the given descriptor is invalíd.
    * @throws NullPointerException if the given descriptor is null.
    */
-  private static @Nullable TypeDescriptor parseTypeDescriptor(@NonNull String descriptor) {
+  private static @Nullable MethodTypeDesc parseMethodDescriptor(@NonNull String descriptor) {
     try {
       return MethodTypeDesc.ofDescriptor(descriptor);
     } catch (IllegalArgumentException _) {
@@ -114,7 +113,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
     }
 
     // parse the method type to validate it
-    var targetMethodType = parseTypeDescriptor(context.methodDescriptor());
+    var targetMethodType = parseMethodDescriptor(context.methodDescriptor());
     if (targetMethodType == null) {
       return Task.completedTask(new RPCInvocationResult.BadRequest("invalid target method descriptor", this));
     }
