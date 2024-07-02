@@ -52,7 +52,7 @@ public class NukkitConfigurationPreparer extends AbstractServiceConfigurationPre
           properties.store(out, "Properties Config file - edited by CloudNet");
         }
       } catch (IOException exception) {
-        LOGGER.severe("Unable to edit server.properties in %s", exception, cloudService.directory());
+        LOGGER.error("Unable to edit server.properties in {}", cloudService.directory(), exception);
       }
     }
   }

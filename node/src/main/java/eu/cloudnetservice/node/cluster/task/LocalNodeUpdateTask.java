@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.node.cluster.task;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -27,6 +25,8 @@ import eu.cloudnetservice.node.cluster.NodeServerState;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public record LocalNodeUpdateTask(
@@ -34,7 +34,7 @@ public record LocalNodeUpdateTask(
   @NonNull Provider<TickLoop> mainThreadProvider
 ) implements Runnable {
 
-  private static final Logger LOGGER = LogManager.logger(LocalNodeUpdateTask.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(LocalNodeUpdateTask.class);
 
   @Override
   public void run() {
@@ -70,7 +70,7 @@ public record LocalNodeUpdateTask(
         }
       }
     } catch (Exception exception) {
-      LOGGER.severe("Exception updating local node info to the cluster", exception);
+      LOGGER.error("Exception updating local node info to the cluster", exception);
     }
   }
 }

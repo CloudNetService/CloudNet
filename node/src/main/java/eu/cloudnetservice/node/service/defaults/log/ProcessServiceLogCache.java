@@ -50,9 +50,9 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
         this.readStream(process.getInputStream(), false);
         this.readStream(process.getErrorStream(), true);
       } catch (IOException exception) {
-        LOGGER.severe("Exception updating content of console for service %s",
-          exception,
-          this.service.serviceId().name());
+        LOGGER.error("Exception updating content of console for service {}",
+          this.service.serviceId().name(),
+          exception);
         // reset the string buffer
         this.stringBuffer.setLength(0);
       }

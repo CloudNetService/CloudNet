@@ -19,8 +19,6 @@ package eu.cloudnetservice.node.service.defaults.config;
 import com.electronwill.nightconfig.core.ConfigFormat;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
@@ -28,10 +26,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractServiceConfigurationPreparer implements ServiceConfigurationPreparer {
 
-  protected static final Logger LOGGER = LogManager.logger(ServiceConfigurationPreparer.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(ServiceConfigurationPreparer.class);
 
   protected final ServiceTaskProvider taskProvider;
 
@@ -52,7 +52,7 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
           Files.copy(stream, targetLocation);
         }
       } catch (IOException exception) {
-        LOGGER.severe("Unable to copy compiled file %s to %s:", exception, fileName, targetLocation);
+        LOGGER.error("Unable to copy compiled file {} to {}:", fileName, targetLocation, exception);
       }
     }
   }

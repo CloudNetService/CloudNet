@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.sftp;
+package eu.cloudnetservice.node.console.log;
 
-import net.schmizz.sshj.common.LoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.helpers.NOPLogger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.node.console.Console;
+import lombok.NonNull;
 
-final class NopLoggerFactory implements LoggerFactory {
+public class ConsoleLogAppender extends ConsoleAppender<ILoggingEvent> {
 
-  public static final LoggerFactory INSTANCE = new NopLoggerFactory();
+  private final Console console;
 
-  private NopLoggerFactory() {
+  public ConsoleLogAppender() {
+    this.console = InjectionLayer.boot().instance(Console.class);
   }
 
   @Override
-  public Logger getLogger(String name) {
-    return NOPLogger.NOP_LOGGER;
-  }
-
-  @Override
-  public Logger getLogger(Class<?> clazz) {
-    return NOPLogger.NOP_LOGGER;
+  protected void append(@NonNull ILoggingEvent event) {
+    this.console.writeLine(new String(super.encoder.encode(event)));
   }
 }

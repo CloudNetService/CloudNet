@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.network.listener;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -41,11 +39,13 @@ import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class PacketClientAuthorizationListener implements PacketListener {
 
-  private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PacketServerAuthorizationResponseListener.class);
 
   private final EventManager eventManager;
   private final Configuration configuration;

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.common.log.io;
 
-import eu.cloudnetservice.common.log.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -24,8 +23,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.event.Level;
 
 /**
  * A special implementation of an output stream specifically made to log all the written content to it to a provided
@@ -62,8 +62,8 @@ public final class LogOutputStream extends ByteArrayOutputStream {
    * @return a new log output stream instance for the given logger.
    * @throws NullPointerException if the given logger is null.
    */
-  public static @NonNull LogOutputStream forSevere(@NonNull Logger logger) {
-    return LogOutputStream.newInstance(logger, Level.SEVERE);
+  public static @NonNull LogOutputStream forWarn(@NonNull Logger logger) {
+    return LogOutputStream.newInstance(logger, Level.WARN);
   }
 
   /**
@@ -73,7 +73,7 @@ public final class LogOutputStream extends ByteArrayOutputStream {
    * @return a new log output stream instance for the given logger.
    * @throws NullPointerException if the given logger is null.
    */
-  public static @NonNull LogOutputStream forInformative(@NonNull Logger logger) {
+  public static @NonNull LogOutputStream forInfo(@NonNull Logger logger) {
     return LogOutputStream.newInstance(logger, Level.INFO);
   }
 
@@ -119,11 +119,11 @@ public final class LogOutputStream extends ByteArrayOutputStream {
     this.flushLock.lock();
     try {
       super.flush();
-      var content = this.toString(StandardCharsets.UTF_8);
+      var content = this.toString(StandardCharsets.UTF_8).stripTrailing();
       super.reset();
 
-      if (!content.isEmpty() && !content.equals(System.lineSeparator())) {
-        this.logger.log(this.level, content);
+      if (!content.isEmpty()) {
+        this.logger.atLevel(this.level).log(content);
       }
     } finally {
       this.flushLock.unlock();

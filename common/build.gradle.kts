@@ -22,4 +22,8 @@ dependencies {
   "api"(libs.vavr)
   "implementation"(libs.gson)
   "implementation"(libs.guava)
+
+  "api"(libs.slf4jApi)
+  "api"(libs.logbackClassic)
+  "api"(libs.logbackCore)
 }

@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.network.listener;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
@@ -35,11 +33,13 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Objects;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class PacketServerAuthorizationResponseListener implements PacketListener {
 
-  private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PacketServerAuthorizationResponseListener.class);
 
   private final Configuration configuration;
   private final NodeNetworkUtil networkUtil;
@@ -109,6 +109,6 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
     }
 
     channel.close();
-    LOGGER.warning(I18n.trans("cluster-server-networking-authorization-failed", channel.serverAddress()));
+    LOGGER.warn(I18n.trans("cluster-server-networking-authorization-failed", channel.serverAddress()));
   }
 }

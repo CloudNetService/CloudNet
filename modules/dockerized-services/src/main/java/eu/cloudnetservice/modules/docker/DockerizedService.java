@@ -120,7 +120,7 @@ public class DockerizedService extends JVMService {
         this.stdOut.write((command + "\n").getBytes(StandardCharsets.UTF_8));
         this.stdOut.flush();
       } catch (IOException exception) {
-        LOGGER.fine("Unable to send command to docker container", exception);
+        LOGGER.debug("Unable to send command to docker container", exception);
       }
     }
   }
@@ -140,7 +140,7 @@ public class DockerizedService extends JVMService {
         var result = this.dockerClient.inspectContainerCmd(this.containerId).withSize(false).exec().getState();
         return result.getRunning() != null && result.getRunning();
       } catch (NotFoundException exception) {
-        LOGGER.fine("Unable to query status of container", exception);
+        LOGGER.debug("Unable to query status of container", exception);
         return false;
       }
     }
@@ -188,7 +188,7 @@ public class DockerizedService extends JVMService {
           // pull the requested image
           this.buildPullCommand(image).start().awaitCompletion();
         } catch (Exception exception) {
-          LOGGER.severe("Unable to pull image " + image.imageName() + " from docker registry", exception);
+          LOGGER.error("Unable to pull image {} from docker registry", image.imageName(), exception);
           return;
         }
       }
@@ -246,7 +246,7 @@ public class DockerizedService extends JVMService {
       this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this));
     } catch (NotModifiedException | IOException exception) {
       // the container might be running already
-      LOGGER.fine("Unable to start container", exception);
+      LOGGER.debug("Unable to start container", exception);
     }
   }
 
@@ -257,7 +257,7 @@ public class DockerizedService extends JVMService {
         // try to stop the container - we can safely ignore exceptions when the container is not running anymore
         this.dockerClient.stopContainerCmd(this.containerId).withTimeout(10).exec();
       } catch (NotFoundException | NotModifiedException exception) {
-        LOGGER.fine("Unable to stop service in docker container", exception);
+        LOGGER.debug("Unable to stop service in docker container", exception);
       }
 
       try {
@@ -266,7 +266,7 @@ public class DockerizedService extends JVMService {
         this.stdIn.close();
         this.stdOut.close();
       } catch (IOException exception) {
-        LOGGER.fine("Unable to close std stream", exception);
+        LOGGER.debug("Unable to close std stream", exception);
       }
     }
   }
@@ -283,7 +283,7 @@ public class DockerizedService extends JVMService {
         // remove the container id to prevent further unnecessary calls
         this.containerId = null;
       } catch (NotFoundException exception) {
-        LOGGER.fine("Unable to remove docker container", exception);
+        LOGGER.debug("Unable to remove docker container", exception);
       }
     }
   }

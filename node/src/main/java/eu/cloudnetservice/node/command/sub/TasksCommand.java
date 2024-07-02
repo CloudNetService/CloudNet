@@ -53,7 +53,7 @@ import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
-import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
+import eu.cloudnetservice.node.log.QueuedConsoleLogAppender;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.setup.SpecificTaskSetup;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
@@ -107,7 +107,7 @@ public final class TasksCommand {
     @NonNull EventManager eventManager,
     @NonNull Configuration configuration,
     @NonNull ServiceTaskProvider taskProvider,
-    @NonNull QueuedConsoleLogHandler logHandler,
+    @NonNull QueuedConsoleLogAppender logHandler,
     @NonNull CloudServiceManager serviceManager,
     @NonNull ClusterNodeProvider clusterNodeProvider
   ) {

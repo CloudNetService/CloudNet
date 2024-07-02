@@ -23,8 +23,6 @@ import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.jvm.JavaVersion;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -49,6 +47,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the default implementation of the module provider.
@@ -62,7 +62,7 @@ public class DefaultModuleProvider implements ModuleProvider {
   public static final Path DEFAULT_LIB_DIR = Path.of(".libs");
   public static final Path DEFAULT_MODULE_DIR = Path.of("modules");
 
-  protected static final Logger LOGGER = LogManager.logger(DefaultModuleProvider.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultModuleProvider.class);
   protected static final ModuleDependencyLoader DEFAULT_DEP_LOADER = new DefaultModuleDependencyLoader(DEFAULT_LIB_DIR);
 
   private static final Element MODULE_CONFIGURATION_ELEMENT = Element.forType(ModuleConfiguration.class);
@@ -192,8 +192,11 @@ public class DefaultModuleProvider implements ModuleProvider {
       }
       // check if the module can run on the current java version release.
       if (!moduleConfiguration.canRunOn(JavaVersion.runtimeVersion())) {
-        LOGGER.warning(String.format("Unable to load module %s:%s because it only supports Java %d+",
-          moduleConfiguration.group(), moduleConfiguration.name(), moduleConfiguration.minJavaVersionId()));
+        LOGGER.warn(
+          "Unable to load module {}:{} because it only supports Java {}+",
+          moduleConfiguration.group(),
+          moduleConfiguration.name(),
+          moduleConfiguration.minJavaVersionId());
         return null;
       }
 
@@ -249,7 +252,7 @@ public class DefaultModuleProvider implements ModuleProvider {
     try {
       return this.loadModule(path.toUri().toURL());
     } catch (MalformedURLException exception) {
-      LOGGER.severe("Unable to resolve url of module path", exception);
+      LOGGER.error("Unable to resolve url of module path", exception);
       return null;
     }
   }

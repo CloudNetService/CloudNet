@@ -19,8 +19,6 @@ package eu.cloudnetservice.node.network.chunk;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.io.ZipUtil;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.node.service.CloudServiceManager;
@@ -29,11 +27,13 @@ import jakarta.inject.Singleton;
 import java.io.InputStream;
 import java.nio.file.Files;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback {
 
-  private static final Logger LOGGER = LogManager.logger(StaticServiceDeployCallback.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(StaticServiceDeployCallback.class);
 
   private final CloudServiceManager cloudServiceManager;
 
@@ -56,7 +56,7 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
       var servicePath = this.cloudServiceManager.persistentServicesDirectory().resolve(service);
       // check if the service path exists, and we can overwrite it
       if (Files.exists(servicePath) && !overwriteService) {
-        LOGGER.severe(I18n.trans("command-cluster-push-static-service-existing", service));
+        LOGGER.error(I18n.trans("command-cluster-push-static-service-existing", service));
         return;
       }
 
@@ -68,7 +68,7 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
       ZipUtil.extract(dataInput, servicePath);
       LOGGER.info(I18n.trans("command-cluster-push-static-service-received-success", service));
     } else {
-      LOGGER.severe(I18n.trans("command-cluster-push-static-service-running-remote", service));
+      LOGGER.error(I18n.trans("command-cluster-push-static-service-running-remote", service));
     }
   }
 }

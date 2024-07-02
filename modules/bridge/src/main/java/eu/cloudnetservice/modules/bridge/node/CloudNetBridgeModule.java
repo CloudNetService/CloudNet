@@ -19,8 +19,6 @@ package eu.cloudnetservice.modules.bridge.node;
 import static eu.cloudnetservice.modules.bridge.BridgeManagement.BRIDGE_PLAYER_DB_NAME;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -51,11 +49,13 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class CloudNetBridgeModule extends DriverModule {
 
-  private static final Logger LOGGER = LogManager.logger(CloudNetBridgeModule.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CloudNetBridgeModule.class);
 
   @Inject
   public CloudNetBridgeModule(@NonNull @Named("module") InjectionLayer<?> layer) {
@@ -85,7 +85,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
       // check if the document is empty, if so it indicates an old database format
       if (lastNetworkPlayerProxyInfo.empty()) {
-        LOGGER.warning("Converting the offline player database, this may take a bit! DO NOT STOP CLOUDNET!");
+        LOGGER.warn("Converting the offline player database, this may take a bit! DO NOT STOP CLOUDNET!");
 
         // invalid player data - convert the database
         var convertedPlayers = 0;
@@ -133,7 +133,7 @@ public final class CloudNetBridgeModule extends DriverModule {
         }
 
         // notify about the completion
-        LOGGER.info("Successfully converted %d entries", null, convertedPlayers);
+        LOGGER.info("Successfully converted {} entries", convertedPlayers);
       }
     }
   }

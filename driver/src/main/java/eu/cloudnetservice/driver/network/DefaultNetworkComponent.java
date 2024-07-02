@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.driver.network;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A delegate default interface for a network component implementation.
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.ApiStatus;
  */
 public interface DefaultNetworkComponent extends NetworkComponent {
 
-  Logger LOGGER = LogManager.logger(DefaultNetworkComponent.class);
+  Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkComponent.class);
 
   /**
    * Get the collection of channels which are connected to this network component. The returned collection is

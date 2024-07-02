@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.s3.config;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import java.net.URI;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public record S3TemplateStorageConfig(
   @NonNull String name,
@@ -36,7 +36,7 @@ public record S3TemplateStorageConfig(
   boolean dualstackEndpointEnabled
 ) {
 
-  private static final Logger LOGGER = LogManager.logger(S3TemplateStorageConfig.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(S3TemplateStorageConfig.class);
 
   public @Nullable URI resolveEndpointOverride() {
     if (this.endpointOverride != null) {
@@ -46,9 +46,9 @@ public record S3TemplateStorageConfig(
         if (uri.getScheme() != null) {
           return uri;
         }
-        LOGGER.severe("Endpoint override for s3 config must contain a valid scheme: %s", null, this.endpointOverride);
+        LOGGER.error("Endpoint override for s3 config must contain a valid scheme: {}", this.endpointOverride);
       } catch (IllegalArgumentException exception) {
-        LOGGER.severe("Unable to parse uri for s3 endpoint override: %s", null, this.endpointOverride);
+        LOGGER.error("Unable to parse uri for s3 endpoint override: {}", this.endpointOverride);
       }
     }
     // illegal uri or not given

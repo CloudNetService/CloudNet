@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.node.configuration;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.modules.signs._deprecated.configuration.SignConfigurationReaderAndWriter;
@@ -31,10 +29,12 @@ import java.nio.file.Path;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class NodeSignsConfigurationHelper {
 
-  private static final Logger LOGGER = LogManager.logger(NodeSignsConfigurationHelper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NodeSignsConfigurationHelper.class);
 
   private NodeSignsConfigurationHelper() {
     throw new UnsupportedOperationException();

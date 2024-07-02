@@ -17,8 +17,6 @@
 package eu.cloudnetservice.driver.module;
 
 import dev.derklaro.aerogel.SpecifiedInjector;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.util.ModuleDependencyUtil;
 import java.io.IOException;
@@ -40,6 +38,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the default implementation of the module wrapper.
@@ -49,7 +49,7 @@ import org.jetbrains.annotations.Unmodifiable;
  */
 public class DefaultModuleWrapper implements ModuleWrapper {
 
-  protected static final Logger LOGGER = LogManager.logger(DefaultModuleWrapper.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultModuleWrapper.class);
   // This looks strange in the first place but is the only way to go as java generics are a bit strange.
   // When using Comparator.comparingInt(...).reverse() the type is now a Comparator<Object> which leads to problems
   // extracting the key of the task entry... And yes, reversing is necessary as the module task with the highest order
@@ -242,10 +242,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
       try {
         this.classLoader.close();
       } catch (IOException exception) {
-        LOGGER.severe(
-          String.format("Exception closing class loader of module %s", this.moduleConfiguration.name()),
-          exception
-        );
+        LOGGER.error("Exception closing class loader of module {}", this.moduleConfiguration.name(), exception);
       }
       // set the state to unusable
       this.lifeCycle.set(ModuleLifeCycle.UNUSABLE);
@@ -308,7 +305,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
           entries.sort(TASK_COMPARATOR);
         } catch (IllegalAccessException exception) {
           // this should not happen as we had successfully overridden the java lang access flag earlier
-          LOGGER.severe("Unable to access module task entry to unreflect method", exception);
+          LOGGER.error("Unable to access module task entry to unreflect method", exception);
         }
       }
     }
@@ -334,10 +331,11 @@ public class DefaultModuleWrapper implements ModuleWrapper {
             for (var task : tasks) {
               if (this.fireModuleTaskEntry(task)) {
                 // we couldn't complete firing all tasks as one failed, so we break here and warn the user about that.
-                LOGGER.warning(String.format(
-                  "Stopping lifecycle update to %s for %s because the task %s failed. See console log for more details.",
-                  lifeCycle, this.moduleConfiguration.name(), task.fullMethodSignature()
-                ));
+                LOGGER.warn(
+                  "Stopping lifecycle update to {} for {} because the task {} failed. See console log for more details.",
+                  lifeCycle,
+                  this.moduleConfiguration.name(),
+                  task.fullMethodSignature());
                 return;
               }
             }
@@ -366,7 +364,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
       entry.fire();
       return false;
     } catch (Throwable exception) {
-      LOGGER.severe("Exception firing module task entry %s", exception, entry);
+      LOGGER.error("Exception firing module task entry {}", entry, exception);
       return true;
     }
   }
