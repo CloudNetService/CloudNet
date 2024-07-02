@@ -101,8 +101,8 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
       // set the glowing status if needed
       sign.glowingText().set(layout.glowingColor() != null);
 
-      List<Component> lines = new ArrayList<>(4);
       // set the sign lines
+      List<Component> lines = new ArrayList<>(4);
       this.changeSignLines(layout, lines::add);
       sign.offer(Keys.SIGN_LINES, lines);
 
