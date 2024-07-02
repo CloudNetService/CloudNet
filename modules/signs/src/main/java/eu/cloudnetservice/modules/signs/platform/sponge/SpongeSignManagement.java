@@ -17,10 +17,9 @@
 package eu.cloudnetservice.modules.signs.platform.sponge;
 
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.registry.injection.Service;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
@@ -56,7 +55,7 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
 
   private final Game game;
   private final WorldManager worldManager;
-  private final PlayerManager playerManager;
+  private final ServiceRegistry serviceRegistry;
   private final TaskExecutorService syncExecutor;
   private final EventManager eventManager;
 
@@ -65,7 +64,7 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
     @NonNull Game game,
     @NonNull Server server,
     @NonNull WorldManager worldManager,
-    @NonNull @Service PlayerManager playerManager,
+    @NonNull ServiceRegistry serviceRegistry,
     @NonNull EventManager spongeEventManager,
     @NonNull PluginContainer pluginContainer,
     @NonNull WrapperConfiguration wrapperConfig,
@@ -85,7 +84,7 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
 
     this.game = game;
     this.worldManager = worldManager;
-    this.playerManager = playerManager;
+    this.serviceRegistry = serviceRegistry;
     this.eventManager = spongeEventManager;
     this.syncExecutor = syncScheduler.executor(pluginContainer);
   }
@@ -154,6 +153,6 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
 
   @Override
   protected @NonNull PlatformSign<ServerPlayer, Component> createPlatformSign(@NonNull Sign base) {
-    return new SpongePlatformSign(base, this.game, this.eventManager, this.worldManager, this.playerManager);
+    return new SpongePlatformSign(base, this.game, this.eventManager, this.worldManager, this.serviceRegistry);
   }
 }
