@@ -74,14 +74,14 @@ public final class DefaultRPCSender extends DefaultRPCProvider implements RPCSen
   @Override
   public @NonNull RPC invokeCaller(Object... args) {
     // offset must be 1 to skip this method
-    return this.invokeCaller(1, args);
+    return this.invokeCallerWithOffset(1, args);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull RPC invokeCaller(int callerStackOffset, Object... args) {
+  public @NonNull RPC invokeCallerWithOffset(int callerStackOffset, Object... args) {
     // offset + 1 to skip this method
     var callerFrame = STACK_WALKER
       .walk(frameStream -> frameStream.skip(callerStackOffset + 1).findFirst())

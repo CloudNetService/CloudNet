@@ -51,7 +51,7 @@ public interface RPCSender extends RPCProvider {
    * @throws IllegalArgumentException if the calling method is not known in the target class.
    */
   @NonNull
-  RPC invokeCaller(int callerStackOffset, Object... args);
+  RPC invokeCallerWithOffset(int callerStackOffset, Object... args);
 
   /**
    * Tries to resolve a distinct method with the given name and argument count in the target class and returns a new RPC
