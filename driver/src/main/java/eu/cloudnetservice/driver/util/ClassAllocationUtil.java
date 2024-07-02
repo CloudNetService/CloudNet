@@ -84,12 +84,8 @@ public final class ClassAllocationUtil {
    * @throws NullPointerException   if the given field is null.
    */
   private static @NonNull Object getInaccessibleFieldValue(@NonNull Field field) throws IllegalAccessException {
-    try {
-      field.setAccessible(true);
-      return field.get(null);
-    } finally {
-      field.setAccessible(false);
-    }
+    field.setAccessible(true);
+    return field.get(null);
   }
 
   /**

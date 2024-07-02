@@ -64,7 +64,6 @@ public final class CodeGenerationUtil {
       var trustedLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
       trustedLookupField.setAccessible(true);
       TRUSTED_LOOKUP = (MethodHandles.Lookup) trustedLookupField.get(null);
-      trustedLookupField.setAccessible(false); // specifically reset the access override flag
     } catch (ReflectiveOperationException exception) {
       throw new ExceptionInInitializerError(exception);
     }
@@ -182,6 +181,17 @@ public final class CodeGenerationUtil {
     }
   }
 
+  /**
+   * Holds all information required to generate code to box or unbox a primitive type.
+   *
+   * @param wrapperType       the descriptor of the wrapper type.
+   * @param primitiveType     the descriptor of the primitive type.
+   * @param toWrapperMethod   the method to call to convert from primitive to wrapper on the wrapper type.
+   * @param fromWrapperMethod the method to call to convert from the wrapper to the primitive type.
+   * @param toWrapperDesc     the descriptor of the method used to box the primitive.
+   * @param fromWrapperDesc   the descriptor of the method used to unbox the primitive.
+   * @since 4.0
+   */
   private record PrimitiveWrapperConverter(
     @NonNull ClassDesc wrapperType,
     @NonNull ClassDesc primitiveType,
@@ -191,6 +201,13 @@ public final class CodeGenerationUtil {
     @NonNull MethodTypeDesc fromWrapperDesc
   ) {
 
+    /**
+     * Constructs a new converter instance for the given wrapper and primitive type.
+     *
+     * @param wrapperTypeDesc   the type descriptor of the wrapper type.
+     * @param primitiveTypeDesc the type descriptor of the primitive type.
+     * @throws NullPointerException if the given wrapper or primitive type is null.
+     */
     private PrimitiveWrapperConverter(
       @NonNull ClassDesc wrapperTypeDesc,
       @NonNull ClassDesc primitiveTypeDesc
