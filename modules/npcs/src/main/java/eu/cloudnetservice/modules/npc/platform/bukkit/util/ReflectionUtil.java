@@ -108,9 +108,4 @@ public final class ReflectionUtil {
   ) {
     return Reflexion.on(clazz).findMethod(name, pts).orElse(null);
   }
-
-  @SuppressWarnings("unchecked")
-  public static @Nullable <T> T staticFieldValue(@NonNull Class<?> origin, @NonNull String name) {
-    return (T) Reflexion.on(origin).findField(name).map(acc -> acc.getValue().getOrElse(null)).orElse(null);
-  }
 }

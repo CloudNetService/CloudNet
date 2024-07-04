@@ -559,8 +559,13 @@ public final class NPCCommand extends BaseTabExecutor {
           if (entityType == null) {
             sender.sendMessage(String.format("§cNo such entity type: §6%s§c.", StringUtil.toUpper(args[2])));
             return true;
-          } else {
+          }
+
+          if (entityType.isAlive() && entityType.isSpawnable() && entityType != EntityType.PLAYER) {
             updatedNpc = NPC.builder(npc).entityType(entityType.name()).build();
+          } else {
+            sender.sendMessage(String.format("$cEntity type §6%s§c can not be spawned.", entityType));
+            return true;
           }
         }
 
@@ -678,7 +683,8 @@ public final class NPCCommand extends BaseTabExecutor {
         return switch (StringUtil.toLower(args[1])) {
           // true-false options
           case "lap", "lookatplayer", "ip", "imitateplayer", "ups", "useplayerskin",
-            "fwe", "flyingwithelytra", "burning", "sis", "showingameservices", "sfs", "showfullservices" -> TRUE_FALSE;
+               "fwe", "flyingwithelytra", "burning", "sis", "showingameservices", "sfs", "showfullservices" ->
+            TRUE_FALSE;
           // click action options
           case "lca", "leftclickaction", "rca", "rightclickaction" -> CLICK_ACTIONS;
           // color options

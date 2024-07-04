@@ -82,7 +82,7 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   @Override
   public void sendPluginMessage(@NonNull String key, byte[] data) {
-    var payload = new DiscardedPayload(new ResourceLocation(key));
+    var payload = new DiscardedPayload(ResourceLocation.parse(key));
     ((CustomPayloadAccessor) (Object) payload).cloudnet_bridge$setData(Unpooled.wrappedBuffer(data));
     this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(payload)));
   }
