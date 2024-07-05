@@ -95,7 +95,8 @@ public final class HeapDumpDataEmitter implements ReportDataEmitter {
 
   public interface DiagnosticCommandMBean {
 
-    @NonNull String gcClassHistogram(@NonNull String[] args);
+    @NonNull
+    String gcClassHistogram(@NonNull String[] args);
   }
 
   private record HeapDumpEntry(@NonNull String type, int order, int instances, long bytes) {
@@ -111,7 +112,7 @@ public final class HeapDumpDataEmitter implements ReportDataEmitter {
         // check if we were able to parse all 3 entries
         if (order != null && instances != null && bytes != null) {
           // get a nice type name for the type of the entry
-          var type = formatTypeName(matcher.group(4));
+          var type = prettyPrintDescriptor(matcher.group(4));
           return new HeapDumpEntry(type, order, instances, bytes);
         }
       }
@@ -120,12 +121,45 @@ public final class HeapDumpDataEmitter implements ReportDataEmitter {
       return null;
     }
 
-    private static @NonNull String formatTypeName(@NonNull String type) {
+    private static @NonNull String prettyPrintDescriptor(@NonNull String descriptor) {
       try {
-        // try to format the type, this does not work for objects as they are not in a descriptor form
-        return ClassDesc.ofDescriptor(type).displayName();
-      } catch (IllegalArgumentException exception) {
-        return type;
+        var parseableDescriptor = descriptor;
+        if (parseableDescriptor.contains(".")) {
+          // some class descriptors seem to be somewhat pre-formatted, but not quite...
+          // the package name already contains dots, but the name is still prefixed with
+          // descriptor elements, like: "[Ljdk.internal.vm.FillerElement;"
+          parseableDescriptor = parseableDescriptor.replace('.', '/');
+        }
+
+        var parsedDescriptor = ClassDesc.ofDescriptor(parseableDescriptor);
+        return prettyPrintClassDesc(parsedDescriptor);
+      } catch (IllegalArgumentException ignored) {
+        // type is not a valid descriptor, assume it's already a binary class name
+        return descriptor;
+      }
+    }
+
+    private static @NonNull String prettyPrintClassDesc(@NonNull ClassDesc classDesc) {
+      if (classDesc.isArray()) {
+        // pretty print the component type of the array and append a [] suffix to indicate the array
+        var componentType = classDesc.componentType();
+        var prettyPrintedComponentType = prettyPrintClassDesc(componentType);
+        return prettyPrintedComponentType + "[]";
+      }
+
+      if (classDesc.isPrimitive()) {
+        // just display the name of the primitive type
+        return classDesc.displayName();
+      } else {
+        var packageName = classDesc.packageName();
+        var className = classDesc.displayName();
+        if (packageName.isBlank()) {
+          // class is located in unnamed package, just return the class name
+          return className;
+        } else {
+          // class is in named, prefix the class name with the package name
+          return packageName + '.' + className;
+        }
       }
     }
   }
