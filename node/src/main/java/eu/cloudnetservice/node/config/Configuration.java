@@ -19,7 +19,6 @@ package eu.cloudnetservice.node.config;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import jakarta.inject.Singleton;
 import java.util.Collection;
@@ -61,14 +60,6 @@ public interface Configuration {
 
   void ipWhitelist(@NonNull Collection<String> whitelist);
 
-  @NonNull Collection<HostAndPort> httpListeners();
-
-  void httpListeners(@NonNull Collection<HostAndPort> httpListeners);
-
-  @NonNull RestConfiguration restConfiguration();
-
-  void restConfiguration(@NonNull RestConfiguration configuration);
-
   @NonNull SSLConfiguration clientSSLConfig();
 
   void clientSSLConfig(@NonNull SSLConfiguration clientSslConfig);
@@ -76,10 +67,6 @@ public interface Configuration {
   @NonNull SSLConfiguration serverSSLConfig();
 
   void serverSSLConfig(@NonNull SSLConfiguration serverSslConfig);
-
-  @NonNull SSLConfiguration webSSLConfig();
-
-  void webSSLConfig(@NonNull SSLConfiguration webSslConfig);
 
   double maxCPUUsageToStartServices();
 

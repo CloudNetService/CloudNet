@@ -77,7 +77,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
       }
       return names;
     } catch (SQLException exception) {
-      LOGGER.severe("Exception listing tables", exception);
+      LOGGER.error("Exception listing tables", exception);
       return Set.of();
     }
   }
@@ -110,7 +110,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
       return preparedStatement.executeUpdate();
     } catch (SQLException exception) {
-      LOGGER.severe("Exception while executing database update", exception);
+      LOGGER.error("Exception while executing database update", exception);
       return -1;
     }
   }
@@ -131,7 +131,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
         return callback.apply(resultSet);
       }
     } catch (Throwable throwable) {
-      LOGGER.severe("Exception while executing database query", throwable);
+      LOGGER.error("Exception while executing database query", throwable);
       return null;
     }
   }

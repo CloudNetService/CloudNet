@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.sftp;
+package eu.cloudnetservice.modules.bridge.platform.fabric.access;
 
-import net.schmizz.sshj.common.LoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.helpers.NOPLogger;
+import io.netty.buffer.ByteBuf;
 
-final class NopLoggerFactory implements LoggerFactory {
+public interface CustomPayloadAccessor {
 
-  public static final LoggerFactory INSTANCE = new NopLoggerFactory();
+  void cloudnet_bridge$setData(ByteBuf data);
 
-  private NopLoggerFactory() {
-  }
-
-  @Override
-  public Logger getLogger(String name) {
-    return NOPLogger.NOP_LOGGER;
-  }
-
-  @Override
-  public Logger getLogger(Class<?> clazz) {
-    return NOPLogger.NOP_LOGGER;
-  }
+  ByteBuf cloudnet_bridge$getData();
 }

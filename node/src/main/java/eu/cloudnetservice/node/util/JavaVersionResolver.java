@@ -18,19 +18,19 @@ package eu.cloudnetservice.node.util;
 
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.common.jvm.JavaVersion;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An util class for resolving the java version for a given path.
  */
 public final class JavaVersionResolver {
 
-  private static final Logger LOGGER = LogManager.logger(JavaVersionResolver.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(JavaVersionResolver.class);
 
   // https://regex101.com/r/VO0bsk/1
   private static final Pattern JAVA_REGEX = Pattern.compile(
@@ -77,7 +77,7 @@ public final class JavaVersionResolver {
         process.destroyForcibly();
       }
     } catch (IOException exception) {
-      LOGGER.warning("Unable to read input from process", exception);
+      LOGGER.warn("Unable to read input from process", exception);
     }
 
     return null;

@@ -108,7 +108,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
     try {
       this.init();
     } catch (Exception exception) {
-      LOGGER.severe("Exception while initializing the netty network server", exception);
+      LOGGER.error("Exception while initializing the netty network server", exception);
     }
   }
 

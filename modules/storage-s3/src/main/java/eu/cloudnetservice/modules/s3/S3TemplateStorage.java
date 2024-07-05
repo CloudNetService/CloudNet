@@ -19,8 +19,6 @@ package eu.cloudnetservice.modules.s3;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.io.ListenableOutputStream;
 import eu.cloudnetservice.common.io.ZipUtil;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.FileInfo;
 import eu.cloudnetservice.driver.template.TemplateStorage;
@@ -41,6 +39,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -65,7 +65,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 public class S3TemplateStorage implements TemplateStorage {
 
-  private static final Logger LOGGER = LogManager.logger(S3TemplateStorage.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(S3TemplateStorage.class);
 
   private final S3Client client;
   private final S3TemplateStorageModule module;
@@ -124,10 +124,10 @@ public class S3TemplateStorage implements TemplateStorage {
             .build();
           this.client.putObject(request, RequestBody.fromFile(file));
         } catch (Exception exception) {
-          LOGGER.severe("Exception putting file %s into s3 bucket %s",
-            exception,
+          LOGGER.error("Exception putting file {} into s3 bucket {}",
             file.toAbsolutePath(),
-            this.config().bucket());
+            this.config().bucket(),
+            exception);
           result.set(false);
         }
       }
@@ -190,7 +190,7 @@ public class S3TemplateStorage implements TemplateStorage {
         }
       });
     } catch (Exception exception) {
-      LOGGER.severe("Exception requesting object list from bucket for downloading", exception);
+      LOGGER.error("Exception requesting object list from bucket for downloading", exception);
       return false;
     }
   }
@@ -224,7 +224,7 @@ public class S3TemplateStorage implements TemplateStorage {
       // success
       return true;
     } catch (Exception exception) {
-      LOGGER.severe("Exception deleting files template files", exception);
+      LOGGER.error("Exception deleting files template files", exception);
       return false;
     }
   }
@@ -462,10 +462,11 @@ public class S3TemplateStorage implements TemplateStorage {
         return true;
       }
     } catch (Throwable exception) {
-      LOGGER.severe("Exception listing content of bucket %s with prefix %s",
-        exception,
+      LOGGER.error(
+        "Exception listing content of bucket {} with prefix {}",
         this.config().bucket(),
-        prefix);
+        prefix,
+        exception);
       return false;
     }
   }

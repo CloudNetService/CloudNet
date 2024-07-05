@@ -18,8 +18,6 @@ package eu.cloudnetservice.modules.sftp;
 
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.io.ZipUtil;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.FileInfo;
 import eu.cloudnetservice.driver.template.TemplateStorage;
@@ -50,11 +48,13 @@ import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.xfer.FileSystemFile;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SFTPTemplateStorage implements TemplateStorage {
 
   protected static final String REMOTE_DIR_FORMAT = "%s/%s/%s";
-  protected static final Logger LOGGER = LogManager.logger(SFTPTemplateStorage.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(SFTPTemplateStorage.class);
 
   private final Config config;
   private final SFTPClientPool pool;
@@ -66,7 +66,6 @@ public class SFTPTemplateStorage implements TemplateStorage {
     this.storageConfig = config;
     // init the config
     this.config = new DefaultConfig();
-    this.config.setLoggerFactory(NopLoggerFactory.INSTANCE);
     this.config.setKeepAliveProvider(ActiveHeartbeatKeepAliveProvider.INSTANCE);
     // init the pool
     this.pool = new SFTPClientPool(config.clientPoolSize(), () -> {
@@ -402,13 +401,10 @@ public class SFTPTemplateStorage implements TemplateStorage {
         return handler.apply(client);
       } catch (IllegalStateException exception) {
         if (exception.getCause() instanceof SSHException sshException) {
-          LOGGER.severe(
-            "Failed to retrieve a new client from the SFTP client pool: %s",
-            null,
-            sshException.getMessage());
+          LOGGER.error("Failed to retrieve a new client from the SFTP client pool: {}", sshException.getMessage());
         }
       } catch (Throwable exception) {
-        LOGGER.fine("Exception executing sftp task", exception);
+        LOGGER.debug("Exception executing sftp task", exception);
       }
     }
 

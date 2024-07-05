@@ -21,22 +21,22 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import eu.cloudnetservice.common.Named;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import java.time.Duration;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class NodeDatabaseProvider implements DatabaseProvider, Named, AutoCloseable {
 
-  protected static final Logger LOGGER = LogManager.logger(NodeDatabaseProvider.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(NodeDatabaseProvider.class);
   protected static final RemovalListener<String, LocalDatabase> DEFAULT_REMOVAL_LISTENER = (key, value, cause) -> {
     // close the database instance that was removed, unless the database instance was garbage collected
     if (value != null) {
       try {
         value.close();
       } catch (Exception exception) {
-        LOGGER.severe("Exception closing removed database instance %s", exception, value.name());
+        LOGGER.error("Exception closing removed database instance {}", value.name(), exception);
       }
     }
   };

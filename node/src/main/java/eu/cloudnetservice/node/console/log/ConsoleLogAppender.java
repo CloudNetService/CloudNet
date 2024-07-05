@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.bridge.platform.fabric.util;
+package eu.cloudnetservice.node.console.log;
 
-import com.mojang.authlib.properties.Property;
-import java.net.SocketAddress;
-import java.util.UUID;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.node.console.Console;
 import lombok.NonNull;
 
-public interface BridgedClientConnection {
+public class ConsoleLogAppender extends ConsoleAppender<ILoggingEvent> {
 
-  void addr(@NonNull SocketAddress address);
+  private final Console console;
 
-  @NonNull UUID forwardedUniqueId();
+  public ConsoleLogAppender() {
+    this.console = InjectionLayer.boot().instance(Console.class);
+  }
 
-  void forwardedUniqueId(@NonNull UUID uuid);
-
-  @NonNull Property[] forwardedProfile();
-
-  void forwardedProfile(@NonNull Property[] profile);
+  @Override
+  protected void append(@NonNull ILoggingEvent event) {
+    this.console.writeLine(new String(super.encoder.encode(event)));
+  }
 }

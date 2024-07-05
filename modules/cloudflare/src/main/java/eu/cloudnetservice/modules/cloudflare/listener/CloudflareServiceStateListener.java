@@ -17,8 +17,6 @@
 package eu.cloudnetservice.modules.cloudflare.listener;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule;
@@ -32,11 +30,13 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class CloudflareServiceStateListener {
 
-  private static final Logger LOGGER = LogManager.logger(CloudflareServiceStateListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CloudflareServiceStateListener.class);
 
   private final CloudNetCloudflareModule module;
   private final CloudFlareRecordManager recordManager;

@@ -34,7 +34,7 @@ import org.spongepowered.plugin.PluginContainer;
   version = "@version@",
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development",
   authors = "CloudNetService",
-  dependencies = @Dependency(name = "spongeapi", version = "8.0.0")
+  dependencies = @Dependency(name = "spongeapi", version = "[8.0.0,)")
 )
 public final class SpongeBridgePlugin implements PlatformEntrypoint {
 

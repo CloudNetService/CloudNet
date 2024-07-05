@@ -20,8 +20,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.SetMultimap;
 import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.resource.ResourceResolver;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +36,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The main entry point for localization made in the CloudNet system. Language files can be registered in multiple ways
@@ -54,7 +54,7 @@ public final class I18n {
   // https://regex101.com/r/syFEig/1
   private static final Pattern MESSAGE_FORMAT = Pattern.compile("\\{(.+?)\\$.+?\\$}");
 
-  private static final Logger LOGGER = LogManager.logger(I18n.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(I18n.class);
   private static final SetMultimap<String, Entry> REGISTERED_ENTRIES = HashMultimap.create();
   private static final AtomicReference<String> CURRENT_LANGUAGE = new AtomicReference<>("en_US");
 
@@ -85,7 +85,7 @@ public final class I18n {
           var lang = sub.getFileName().toString().replace(".properties", "");
           addLanguageFile(lang, stream, clazzSource.getClassLoader());
         } catch (IOException exception) {
-          LOGGER.severe("Unable to open language file for reading @ %s", exception, sub);
+          LOGGER.error("Unable to open language file for reading @ {}", sub, exception);
         }
       }, false, "*.properties");
     });
@@ -103,7 +103,7 @@ public final class I18n {
     try (var inputStream = Files.newInputStream(file)) {
       addLanguageFile(lang, inputStream, source);
     } catch (IOException exception) {
-      LOGGER.severe("Exception while reading language file", exception);
+      LOGGER.error("Exception while reading language file", exception);
     }
   }
 
@@ -124,7 +124,7 @@ public final class I18n {
       // register all language keys
       addLanguageFile(lang, properties, source);
     } catch (IOException exception) {
-      LOGGER.severe("Exception while reading language file", exception);
+      LOGGER.error("Exception while reading language file", exception);
     }
   }
 
@@ -147,7 +147,7 @@ public final class I18n {
 
     // register all translations for the language
     REGISTERED_ENTRIES.put(lang, new Entry(source, messageFormats.build()));
-    LOGGER.fine("Registering language file %s with %d translations", null, lang, entries.size());
+    LOGGER.debug("Registering language file {} with {} translations", lang, entries.size());
   }
 
   /**

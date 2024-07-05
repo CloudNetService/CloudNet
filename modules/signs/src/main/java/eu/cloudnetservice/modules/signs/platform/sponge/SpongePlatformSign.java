@@ -16,13 +16,15 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge;
 
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
@@ -52,9 +54,9 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
     @NonNull Game game,
     @NonNull EventManager eventManager,
     @NonNull WorldManager worldManager,
-    @NonNull PlayerManager playerManager
+    @NonNull ServiceRegistry serviceRegistry
   ) {
-    super(base, playerManager, ComponentFormats.BUNGEE_TO_ADVENTURE::convert);
+    super(base, serviceRegistry, ComponentFormats.BUNGEE_TO_ADVENTURE::convert);
 
     this.game = game;
     this.eventManager = eventManager;
@@ -100,7 +102,9 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
       sign.glowingText().set(layout.glowingColor() != null);
 
       // set the sign lines
-      this.changeSignLines(layout, sign.lines()::set);
+      List<Component> lines = new ArrayList<>(4);
+      this.changeSignLines(layout, lines::add);
+      sign.offer(Keys.SIGN_LINES, lines);
 
       // change the block behind the sign
       var type = this.game

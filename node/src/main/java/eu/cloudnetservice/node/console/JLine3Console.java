@@ -18,8 +18,6 @@ package eu.cloudnetservice.node.console;
 
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
 import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
@@ -53,13 +51,15 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
 import org.jline.utils.StyleResolver;
 import org.jline.utils.WCWidth;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Provides(Console.class)
 public final class JLine3Console implements Console {
 
   private static final String USER = System.getProperty("user.name");
-  private static final Logger LOGGER = LogManager.logger(JLine3Console.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(JLine3Console.class);
   private static final String VERSION = Node.class.getPackage().getImplementationVersion();
   private static final String HISTORY_FILE = System.getProperty("cloudnet.history.file", "local/.consolehistory");
 
@@ -178,7 +178,7 @@ public final class JLine3Console implements Console {
     try {
       this.lineReader.getHistory().purge();
     } catch (IOException exception) {
-      LOGGER.severe("Exception while purging the console history", exception);
+      LOGGER.error("Exception while purging the console history", exception);
     }
 
     if (history != null) {

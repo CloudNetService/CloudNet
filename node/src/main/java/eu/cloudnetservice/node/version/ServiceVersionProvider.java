@@ -22,8 +22,6 @@ import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -53,11 +51,13 @@ import kong.unirest.core.Unirest;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ServiceVersionProvider {
 
-  private static final Logger LOGGER = LogManager.logger(ServiceVersionProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceVersionProvider.class);
   private static final Path VERSION_CACHE_PATH = Path.of(System.getProperty(
     "cloudnet.versioncache.path",
     "local/versioncache"));
@@ -169,14 +169,14 @@ public class ServiceVersionProvider {
     }
 
     if (installer.serviceVersion().deprecated()) {
-      LOGGER.warning(I18n.trans("versions-installer-deprecated-version"));
+      LOGGER.warn(I18n.trans("versions-installer-deprecated-version"));
     }
 
     try {
       // delete all old application files to prevent that they are used to start the service
       installer.removeServiceVersions(this.serviceVersionTypes.values());
     } catch (IOException exception) {
-      LOGGER.severe("Exception while deleting old application files", exception);
+      LOGGER.error("Exception while deleting old application files", exception);
     }
 
     var workingDirectory = FileUtil.createTempFile();
@@ -212,7 +212,7 @@ public class ServiceVersionProvider {
 
       return true;
     } catch (Exception exception) {
-      LOGGER.severe("Exception while installing application files", exception);
+      LOGGER.error("Exception while installing application files", exception);
     } finally {
       FileUtil.delete(workingDirectory);
     }

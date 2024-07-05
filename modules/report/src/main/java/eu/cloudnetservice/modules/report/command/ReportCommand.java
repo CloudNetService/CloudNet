@@ -25,8 +25,6 @@ import cloud.commandframework.context.CommandContext;
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.injection.Service;
@@ -51,6 +49,8 @@ import java.util.Objects;
 import java.util.Queue;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @CommandAlias("paste")
@@ -58,7 +58,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("module-report-command-description")
 public final class ReportCommand {
 
-  private static final Logger LOGGER = LogManager.logger(ReportCommand.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ReportCommand.class);
 
   private final EmitterRegistry emitterRegistry;
   private final CloudNetReportModule reportModule;
@@ -244,7 +244,7 @@ public final class ReportCommand {
     pasteServer.postData(content).whenComplete((pasteKey, exception) -> {
       if (exception != null) {
         // failed to upload data
-        LOGGER.severe("Unable to post paste data to %s (%s)", exception, pasteServer.baseUrl(), pasteServer.name());
+        LOGGER.error("Unable to post paste data to {} ({})", pasteServer.baseUrl(), pasteServer.name(), exception);
         source.sendMessage(I18n.trans("module-report-command-paste-failed", pasteServer.baseUrl()));
       } else {
         // successfully uploaded data

@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
@@ -28,6 +26,8 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The default netty inbound handler used to call downstream packet listeners when receiving a packet.
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<BasePacket> {
 
-  private static final Logger LOGGER = LogManager.logger(NettyNetworkHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NettyNetworkHandler.class);
 
   protected final EventManager eventManager;
   protected volatile NettyNetworkChannel channel;
@@ -71,7 +71,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
   @Override
   public void channelExceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
-      LOGGER.severe("Exception in network handler", cause);
+      LOGGER.error("Exception in network handler", cause);
     }
   }
 
@@ -127,7 +127,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
       // release the packet content now, there are no handlers that are accepting the message
       packet.content().forceRelease();
     } catch (Exception exception) {
-      LOGGER.severe("Exception whilst handling packet %s", exception, packet);
+      LOGGER.error("Exception whilst handling packet {}", packet, exception);
     }
   }
 

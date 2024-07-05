@@ -16,19 +16,19 @@
 
 package eu.cloudnetservice.node.event.log;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import eu.cloudnetservice.driver.event.Event;
-import java.util.logging.LogRecord;
 import lombok.NonNull;
 
 public final class LoggingEntryEvent extends Event {
 
-  private final LogRecord record;
+  private final ILoggingEvent record;
 
-  public LoggingEntryEvent(@NonNull LogRecord record) {
+  public LoggingEntryEvent(@NonNull ILoggingEvent record) {
     this.record = record;
   }
 
-  public @NonNull LogRecord logEntry() {
+  public @NonNull ILoggingEvent logEntry() {
     return this.record;
   }
 }

@@ -223,10 +223,6 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     HostAndPort hostAddress = animation.result("hostAddress");
     this.configuration.hostAddress(hostAddress.host());
 
-    // init the web host address
-    this.configuration.httpListeners().clear();
-    this.configuration.httpListeners().add(animation.result("webHost"));
-
     // set the maximum memory
     this.configuration.maxMemory(animation.result("memory"));
 

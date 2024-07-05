@@ -30,7 +30,7 @@ import lombok.NonNull;
 
 public class SpongeApiVersionFetchStepExecutor implements InstallStepExecutor {
 
-  private static final String VERSION_DOWNLOAD_URL = "https://repo.spongepowered.org/repository/maven-releases/%s/%s/%s/spongevanilla-%s-universal.jar";
+  private static final String VERSION_DOWNLOAD_URL = "https://repo.spongepowered.org/repository/maven-releases/%s/%s/%s/%s-%s-universal.jar";
   private static final String VERSION_FETCH_URL = "https://dl-api-new.spongepowered.org/api/v2/groups/%s/artifacts/%s/versions?tags=minecraft:%s&offset=0&limit=1";
 
   @Override
@@ -72,6 +72,7 @@ public class SpongeApiVersionFetchStepExecutor implements InstallStepExecutor {
             groupId.replace('.', '/'),
             artifact,
             versionKey,
+            artifact,
             versionKey);
           installer.serviceVersion().url(downloadUrl);
         }

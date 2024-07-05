@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.common.io;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.util.StringUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +34,8 @@ import java.util.zip.ZipOutputStream;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This zip utility class makes the process of zipping files and directories as well as extracting from zips easier and
@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 @ApiStatus.Internal
 public final class ZipUtil {
 
-  private static final Logger LOGGER = LogManager.logger(ZipUtil.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ZipUtil.class);
   private static final boolean IS_WINDOWS = StringUtil.toLower(System.getProperty("os.name")).contains("windows");
 
   private ZipUtil() {
@@ -118,7 +118,7 @@ public final class ZipUtil {
         zipDir(out, dir, filter);
         return target;
       } catch (IOException exception) {
-        LOGGER.fine("Exception while processing new zip entry from directory " + dir, exception);
+        LOGGER.debug("Exception while processing new zip entry from directory {}", dir, exception);
       }
     }
 
@@ -174,7 +174,7 @@ public final class ZipUtil {
       try (var inputStream = Files.newInputStream(zipPath)) {
         return extract(inputStream, targetDirectory);
       } catch (IOException exception) {
-        LOGGER.fine("Unable to extract zip from " + zipPath + " to " + targetDirectory, exception);
+        LOGGER.debug("Unable to extract zip from {} to {}", zipPath, targetDirectory, exception);
       }
     }
     return null;
@@ -216,7 +216,7 @@ public final class ZipUtil {
 
       return targetDirectory;
     } catch (IOException exception) {
-      LOGGER.fine("Exception unzipping zip file to " + targetDirectory, exception);
+      LOGGER.debug("Exception unzipping zip file to {}", targetDirectory, exception);
       return null;
     }
   }
