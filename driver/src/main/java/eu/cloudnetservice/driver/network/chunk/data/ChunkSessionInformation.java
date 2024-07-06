@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Contains all needed information for a chunked data transfer to be initialized. The transfer information in this
@@ -46,10 +47,13 @@ public final class ChunkSessionInformation implements DataBufable {
   }
 
   /**
+   * Constructs a new chunk session information.
+   *
    * @param chunkSize           the size of data transferred in each chunk, should always be the exact amount of bytes.
    * @param sessionUniqueId     the unique id of the transfer session, for identification reasons.
    * @param transferChannel     the name of the channel the data is transferred in, for identification reasons.
    * @param transferInformation additional information for the transfer handler to handle the chunks correctly.
+   * @throws NullPointerException if the given session id, transfer channel or transfer information buffer is null.
    */
   public ChunkSessionInformation(
     int chunkSize,
@@ -145,7 +149,7 @@ public final class ChunkSessionInformation implements DataBufable {
    * {@inheritDoc}
    */
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     } else if (!(o instanceof ChunkSessionInformation that)) {

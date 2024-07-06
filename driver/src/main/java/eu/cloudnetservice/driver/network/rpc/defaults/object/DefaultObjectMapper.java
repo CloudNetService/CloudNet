@@ -72,12 +72,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -160,8 +160,8 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(Stack.class, CollectionObjectSerializer.of(_ -> new Stack<>()))
     .put(Collection.class, CollectionObjectSerializer.of(ArrayList::new))
     .put(Queue.class, CollectionObjectSerializer.of(_ -> new LinkedList<>()))
+    .put(SortedSet.class, CollectionObjectSerializer.of(_ -> new TreeSet<>()))
     .put(PriorityQueue.class, CollectionObjectSerializer.of(PriorityQueue::new))
-    .put(NavigableSet.class, CollectionObjectSerializer.of(_ -> new TreeSet<>()))
     .put(BlockingQueue.class, CollectionObjectSerializer.of(ArrayBlockingQueue::new))
     .put(LinkedHashSet.class, CollectionObjectSerializer.of(LinkedHashSet::newLinkedHashSet))
     .put(TransferQueue.class, CollectionObjectSerializer.of(_ -> new LinkedTransferQueue<>()))

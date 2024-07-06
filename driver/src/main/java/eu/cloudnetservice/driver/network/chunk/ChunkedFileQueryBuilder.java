@@ -116,6 +116,7 @@ public interface ChunkedFileQueryBuilder {
    *
    * @param target the path to the file into which the response data should be written.
    * @return a future completed with the path to which the transmitted contents were written.
+   * @throws NullPointerException if the given target path is null.
    */
   @NonNull
   CompletableFuture<Path> queryToPath(@NonNull Path target);

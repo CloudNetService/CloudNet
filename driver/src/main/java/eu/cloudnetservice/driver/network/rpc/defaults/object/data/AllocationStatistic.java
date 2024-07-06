@@ -66,11 +66,7 @@ final class AllocationStatistic {
     var newAllocatedBytes = prevAllocatedBytes + allocatedBytes;
     if (newAllocatedBytes >= prevAllocatedBytes) {
       var newHolder = new long[]{newAllocatedBytes, ++prevAllocationCount};
-      if (!STATISTIC_HOLDER_UPDATER.compareAndSet(this, currentRef, newHolder)) {
-        // some other call updated the field while we tried to do so, just retry this until
-        // it's successful to not accidentally lose a written value
-        this.add(allocatedBytes);
-      }
+      STATISTIC_HOLDER_UPDATER.compareAndSet(this, currentRef, newHolder);
     }
   }
 

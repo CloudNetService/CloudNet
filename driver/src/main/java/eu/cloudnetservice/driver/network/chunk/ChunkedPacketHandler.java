@@ -44,6 +44,7 @@ public interface ChunkedPacketHandler extends ChunkedPacketProvider {
    * @param chunkPosition the position of the chunk, starting from 0.
    * @param dataBuf       the data in the chunk.
    * @return true, if the chunk was the last chunk and the callback was called, false otherwise or in case of a failure.
+   * @throws NullPointerException if the given data buf is null.
    */
   boolean handleChunkPart(int chunkPosition, @NonNull DataBuf dataBuf);
 
@@ -61,7 +62,8 @@ public interface ChunkedPacketHandler extends ChunkedPacketProvider {
      * @param information the information about the chunk session which were sent initially.
      * @param dataInput   the stream of data sent to this component in this chunked session.
      * @return true if the full data was consumed and the given stream can be closed, false otherwise.
-     * @throws IOException in case an i/o exception happens during result handling.
+     * @throws IOException          in case an i/o exception happens during result handling.
+     * @throws NullPointerException if the given session information or data input stream is null.
      */
     boolean handleSessionComplete(
       @NonNull ChunkSessionInformation information,

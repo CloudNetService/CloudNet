@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Contextual information that are available during the complete generation process. For example used to collect fields
@@ -277,7 +278,7 @@ final class RPCGenerationContext {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (this == o) {
         return true;
       }

@@ -94,7 +94,7 @@ public final class RPCPacketListener implements PacketListener {
     } finally {
       // specifically release the buffer here to prevent memory leaks, especially if we didn't consume
       // the whole buffer content (for example due to an exception during handling)
-      content.release();
+      content.forceRelease();
     }
   }
 

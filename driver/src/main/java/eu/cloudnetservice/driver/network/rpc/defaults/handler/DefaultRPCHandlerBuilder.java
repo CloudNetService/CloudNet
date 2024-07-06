@@ -47,7 +47,7 @@ public final class DefaultRPCHandlerBuilder<T> implements RPCHandler.Builder<T> 
    * @param classMetadata  the metadata for the target class.
    * @param dataBufFactory the default data buf factory of the source RPC factory.
    * @param objectMapper   the default object mapper of the source RPC factory.
-   * @throws NullPointerException if the given class meta, data buf factory or object mapper is null.
+   * @throws NullPointerException if one of the given parameters is null.
    */
   public DefaultRPCHandlerBuilder(
     @NonNull RPCFactory sourceFactory,
