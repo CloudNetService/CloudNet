@@ -20,8 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.resource.CpuUsageResolver;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.common.util.StringUtil;
@@ -83,10 +81,12 @@ import kong.unirest.core.Unirest;
 import kong.unirest.core.UnirestException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractService implements CloudService {
 
-  protected static final Logger LOGGER = LogManager.logger(AbstractService.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractService.class);
 
   protected static final Path INCLUSION_TEMP_DIR = FileUtil.TEMP_DIR.resolve("inclusions");
   protected static final Path WRAPPER_CONFIG_PATH = Path.of(".wrapper", "wrapper.json");
@@ -378,11 +378,11 @@ public abstract class AbstractService implements CloudService {
             FileUtil.createDirectory(INCLUSION_TEMP_DIR);
             req.asFile(destination.toString(), StandardCopyOption.REPLACE_EXISTING);
           } catch (UnirestException exception) {
-            LOGGER.severe(
-              "Unable to download inclusion from %s to %s",
-              exception.getCause(),
+            LOGGER.error(
+              "Unable to download inclusion from {} to {}",
               inclusion.url(),
-              destination);
+              destination,
+              exception.getCause());
             continue;
           }
         }

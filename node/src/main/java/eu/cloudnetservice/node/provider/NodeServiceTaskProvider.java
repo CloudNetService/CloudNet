@@ -22,8 +22,6 @@ import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
@@ -54,6 +52,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Provides(ServiceTaskProvider.class)
@@ -62,7 +62,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   private static final Path TASKS_DIRECTORY = Path.of(
     System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
 
-  private static final Logger LOGGER = LogManager.logger(NodeServiceTaskProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NodeServiceTaskProvider.class);
 
   private final EventManager eventManager;
   private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
@@ -228,7 +228,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
         if (javaVersion == null || !javaVersion.isNewerOrAt(JavaVersion.JAVA_17)) {
           task = ServiceTask.builder(task).javaCommand(null).build();
-          LOGGER.warning(I18n.trans("cloudnet-load-task-unsupported-java-version", taskName));
+          LOGGER.warn(I18n.trans("cloudnet-load-task-unsupported-java-version", taskName));
         }
       }
 

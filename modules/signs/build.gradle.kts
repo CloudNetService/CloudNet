@@ -22,6 +22,10 @@ plugins {
 
 tasks.withType<Jar> {
   archiveFileName.set(Files.signs)
+
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
 }
 
 tasks.withType<JavaCompile> {

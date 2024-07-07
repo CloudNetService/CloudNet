@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.network;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
@@ -37,12 +35,14 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class DefaultNetworkClientChannelHandler implements NetworkChannelHandler {
 
   private static final AtomicLong CONNECTION_COUNTER = new AtomicLong();
-  private static final Logger LOGGER = LogManager.logger(DefaultNetworkClientChannelHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkClientChannelHandler.class);
 
   private final EventManager eventManager;
   private final NodeNetworkUtil networkUtil;
@@ -76,7 +76,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
           .writeUniqueId(this.configuration.clusterConfig().clusterId())
           .writeObject(this.configuration.identity())));
 
-      LOGGER.fine(I18n.trans("client-network-channel-init",
+      LOGGER.debug(I18n.trans("client-network-channel-init",
         channel.serverAddress(),
         channel.clientAddress().host()));
     } else {
@@ -94,7 +94,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
     CONNECTION_COUNTER.decrementAndGet();
     this.eventManager.callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
 
-    LOGGER.fine(I18n.trans("client-network-channel-close",
+    LOGGER.debug(I18n.trans("client-network-channel-close",
       channel.serverAddress(),
       channel.clientAddress()));
 

@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.setup;
 
 import eu.cloudnetservice.common.jvm.JavaVersion;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -44,6 +42,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class DefaultTaskSetup implements DefaultSetup {
@@ -71,7 +71,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     "-Daikars.new.flags=true"
   );
 
-  protected static final Logger LOGGER = LogManager.logger(DefaultTaskSetup.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultTaskSetup.class);
 
   protected static final String PROXY_TASK_NAME = "Proxy";
   protected static final String LOBBY_TASK_NAME = "Lobby";
@@ -274,10 +274,10 @@ public class DefaultTaskSetup implements DefaultSetup {
     try {
       this.storageUtil.createAndPrepareTemplate(template, template.storage(), environment, installDefaultFiles);
     } catch (IOException exception) {
-      LOGGER.severe("Exception while initializing local template %s with environment %s",
-        exception,
+      LOGGER.error("Exception while initializing local template {} with environment {}",
         template,
-        environment);
+        environment,
+        exception);
     }
   }
 

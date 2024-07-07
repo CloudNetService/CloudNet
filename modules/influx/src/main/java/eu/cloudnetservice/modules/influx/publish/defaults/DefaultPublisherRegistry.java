@@ -19,8 +19,6 @@ package eu.cloudnetservice.modules.influx.publish.defaults;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.exceptions.InfluxException;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
@@ -30,10 +28,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Future;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultPublisherRegistry implements PublisherRegistry {
 
-  private static final Logger LOGGER = LogManager.logger(DefaultPublisherRegistry.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPublisherRegistry.class);
 
   private final TickLoop mainThread;
   private final WriteApiBlocking writeApi;
@@ -88,9 +88,8 @@ public class DefaultPublisherRegistry implements PublisherRegistry {
           try {
             this.writeApi.writePoint(point);
           } catch (InfluxException exception) {
-            LOGGER.warning(
-              "Unable to write point into influx db, possibly the config is invalid? %s",
-              null,
+            LOGGER.warn(
+              "Unable to write point into influx db, possibly the config is invalid? {}",
               exception.getMessage());
             break;
           }

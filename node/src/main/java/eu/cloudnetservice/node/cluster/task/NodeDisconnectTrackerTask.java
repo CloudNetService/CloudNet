@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.cluster.task;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
@@ -27,11 +25,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) implements Runnable {
 
-  private static final Logger LOGGER = LogManager.logger(NodeDisconnectTrackerTask.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NodeDisconnectTrackerTask.class);
 
   private static final long SOFT_DISCONNECT_MS_DELAY = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
   private static final long HARD_DISCONNECT_MS_DELAY = Long.getLong("cloudnet.max.node.disconnect.millis", 0);
@@ -60,7 +60,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
             this.provider.selectHeadNode();
           }
           // warn about that
-          LOGGER.warning(I18n.trans("cluster-server-soft-disconnect", server.name(), updateDelay));
+          LOGGER.warn(I18n.trans("cluster-server-soft-disconnect", server.name(), updateDelay));
         }
       }
 
@@ -76,7 +76,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
         if (disconnectMs >= HARD_DISCONNECT_MS_DELAY) {
           // close hard
           server.close();
-          LOGGER.warning(I18n.trans(
+          LOGGER.warn(I18n.trans(
             "cluster-server-hard-disconnect",
             server.name(),
             HARD_DISCONNECT_MS_DELAY,
@@ -90,7 +90,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
         }
       }
     } catch (Exception exception) {
-      LOGGER.severe("Exception ticking node disconnect tracker", exception);
+      LOGGER.error("Exception ticking node disconnect tracker", exception);
     }
   }
 }

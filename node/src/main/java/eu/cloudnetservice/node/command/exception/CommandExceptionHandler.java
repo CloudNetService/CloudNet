@@ -22,8 +22,6 @@ import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
 import eu.cloudnetservice.CaptionedCommandException;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.CommandProvider;
@@ -38,6 +36,8 @@ import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This exception handler provides a default handling of exceptions that can occur on command execution.
@@ -47,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
 @Singleton
 public class CommandExceptionHandler {
 
-  private static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CommandExceptionHandler.class);
 
   private final CommandProvider commandProvider;
   private final EventManager eventManager;
@@ -119,10 +119,10 @@ public class CommandExceptionHandler {
         }
         source.sendMessage(deepCause.getMessage());
       } else {
-        LOGGER.severe("Exception during command argument parsing", cause);
+        LOGGER.error("Exception during command argument parsing", cause);
       }
     } else {
-      LOGGER.severe("Exception during command execution", cause);
+      LOGGER.error("Exception during command execution", cause);
     }
   }
 

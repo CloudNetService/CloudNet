@@ -18,8 +18,6 @@ package eu.cloudnetservice.node;
 
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
@@ -33,12 +31,14 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class ShutdownHandler {
 
   public static final String SHUTDOWN_THREAD_NAME = "CloudNet Shutdown Thread";
-  private static final Logger LOGGER = LogManager.logger(ShutdownHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownHandler.class);
 
   private final Console console;
   private final ModuleProvider moduleProvider;
@@ -114,7 +114,7 @@ public final class ShutdownHandler {
         // close console
         this.console.close();
       } catch (Exception exception) {
-        LOGGER.severe("Caught exception while trying to cleanly stop CloudNet", exception);
+        LOGGER.error("Caught exception while trying to cleanly stop CloudNet", exception);
       }
 
       // exit if this was not called from a shutdown thread. We have to check this to prevent calling System.exit(0)

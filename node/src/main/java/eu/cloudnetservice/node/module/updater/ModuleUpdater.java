@@ -18,8 +18,6 @@ package eu.cloudnetservice.node.module.updater;
 
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.ext.updater.Updater;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
@@ -27,11 +25,13 @@ import jakarta.inject.Singleton;
 import java.nio.file.StandardCopyOption;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class ModuleUpdater implements Updater<ModuleUpdaterContext> {
 
-  private static final Logger LOGGER = LogManager.logger(ModuleUpdater.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ModuleUpdater.class);
 
   @Override
   public void executeUpdates(@NonNull ModuleUpdaterContext context, boolean onlyIfRequired) {
@@ -52,7 +52,7 @@ public final class ModuleUpdater implements Updater<ModuleUpdaterContext> {
               // validate the checksum now
               var newModuleChecksum = ChecksumUtil.fileShaSum(file);
               if (!moduleEntry.sha3256().equals(newModuleChecksum)) {
-                LOGGER.warning(I18n.trans("cloudnet-load-modules-invalid-checksum", moduleName));
+                LOGGER.warn(I18n.trans("cloudnet-load-modules-invalid-checksum", moduleName));
                 FileUtil.delete(file);
               }
             }

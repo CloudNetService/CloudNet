@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.sftp;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import java.io.Closeable;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -30,10 +28,12 @@ import lombok.NonNull;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.sftp.SFTPEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SFTPClientPool implements Closeable {
 
-  private static final Logger LOGGER = LogManager.logger(SFTPClientPool.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SFTPClientPool.class);
 
   private final int maxClients;
   private final Callable<SSHClient> clientFactory;
@@ -120,7 +120,7 @@ public class SFTPClientPool implements Closeable {
             return;
           } catch (Exception exception) {
             // unable to create the client - log the exception and return
-            LOGGER.severe("Unable to create new client to deliver waiting promise", exception);
+            LOGGER.error("Unable to create new client to deliver waiting promise", exception);
           }
         }
 

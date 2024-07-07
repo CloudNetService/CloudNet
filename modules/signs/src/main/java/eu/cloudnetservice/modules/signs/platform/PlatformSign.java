@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.platform;
 
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
@@ -33,17 +34,18 @@ import org.jetbrains.annotations.Nullable;
 public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C>> {
 
   protected final Sign base;
-  protected final PlayerManager playerManager;
+  protected final ServiceRegistry serviceRegistry;
   protected final Function<String, C> lineMapper;
   protected volatile ServiceInfoSnapshot target;
+  protected PlayerManager playerManager;
 
   public PlatformSign(
     @NonNull Sign base,
-    @NonNull PlayerManager playerManager,
+    @NonNull ServiceRegistry serviceRegistry,
     @NonNull Function<String, C> lineMapper
   ) {
     this.base = base;
-    this.playerManager = playerManager;
+    this.serviceRegistry = serviceRegistry;
     this.lineMapper = lineMapper;
   }
 
@@ -79,7 +81,7 @@ public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C
       return;
     }
 
-    this.playerManager.playerExecutor(playerUniqueId).connect(target.name());
+    this.playerManager().playerExecutor(playerUniqueId).connect(target.name());
   }
 
   public int priority() {
@@ -102,6 +104,14 @@ public abstract class PlatformSign<P, C> implements Comparable<PlatformSign<P, C
 
   protected void changeSignLines(@NonNull SignLayout layout, @NonNull BiConsumer<Integer, C> lineSetter) {
     LayoutUtil.updateSignLines(layout, this.base.targetGroup(), this.target, this.lineMapper, lineSetter);
+  }
+
+  protected @NonNull PlayerManager playerManager() {
+    if (this.playerManager == null) {
+      this.playerManager = this.serviceRegistry.firstProvider(PlayerManager.class);
+    }
+
+    return this.playerManager;
   }
 
   @Override

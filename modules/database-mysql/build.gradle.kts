@@ -19,7 +19,6 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "moduleLibrary"(libs.slf4jNop)
   "moduleLibrary"(libs.bundles.mysql) {
     exclude("com.google.protobuf")
   }

@@ -40,7 +40,7 @@ import eu.cloudnetservice.node.command.sub.ClearCommand;
 import eu.cloudnetservice.node.command.sub.ClusterCommand;
 import eu.cloudnetservice.node.command.sub.ConfigCommand;
 import eu.cloudnetservice.node.command.sub.CreateCommand;
-import eu.cloudnetservice.node.command.sub.DebugCommand;
+import eu.cloudnetservice.node.command.sub.DevCommand;
 import eu.cloudnetservice.node.command.sub.ExitCommand;
 import eu.cloudnetservice.node.command.sub.GroupsCommand;
 import eu.cloudnetservice.node.command.sub.HelpCommand;
@@ -277,7 +277,7 @@ public final class DefaultCommandProvider implements CommandProvider {
     this.register(MeCommand.class);
     this.register(ServiceCommand.class);
     this.register(ClearCommand.class);
-    this.register(DebugCommand.class);
+    this.register(DevCommand.class);
     this.register(MigrateCommand.class);
     this.register(ClusterCommand.class);
     this.register(ConfigCommand.class);

@@ -56,7 +56,7 @@ public class LimboLoohpServiceConfigurationPreparer extends AbstractServiceConfi
       }
       properties.clear();
     } catch (IOException exception) {
-      LOGGER.severe("Unable to edit server.properties in %s", exception, cloudService.directory());
+      LOGGER.error("Unable to edit server.properties in {}", cloudService.directory(), exception);
     }
   }
 }

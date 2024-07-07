@@ -24,6 +24,8 @@ import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.NonNull;
 
 public class MongoDBDatabaseProvider extends NodeDatabaseProvider {
@@ -40,6 +42,9 @@ public class MongoDBDatabaseProvider extends NodeDatabaseProvider {
 
   @Override
   public boolean init() {
+    // mongo db prints some information about the created client. We don't want that information
+    Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
+
     this.mongoClient = MongoClients.create(this.config.buildConnectionUri());
     this.mongoDatabase = this.mongoClient.getDatabase(this.config.database());
 

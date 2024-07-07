@@ -19,13 +19,6 @@ package eu.cloudnetservice.node;
 import dev.derklaro.aerogel.Order;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.log.LoggingUtil;
-import eu.cloudnetservice.common.log.defaults.AcceptingLogHandler;
-import eu.cloudnetservice.common.log.defaults.DefaultFileHandler;
-import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
-import eu.cloudnetservice.common.log.defaults.ThreadedLogRecordDispatcher;
 import eu.cloudnetservice.common.log.io.LogOutputStream;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.database.Database;
@@ -50,13 +43,11 @@ import eu.cloudnetservice.node.cluster.task.NodeDisconnectTrackerTask;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
-import eu.cloudnetservice.node.console.log.ColoredLogFormatter;
 import eu.cloudnetservice.node.console.util.HeaderReader;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.database.h2.H2DatabaseProvider;
 import eu.cloudnetservice.node.database.xodus.XodusDatabaseProvider;
 import eu.cloudnetservice.node.event.CloudNetNodePostInitializationEvent;
-import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
 import eu.cloudnetservice.node.module.ModulesHolder;
 import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
 import eu.cloudnetservice.node.module.updater.ModuleUpdater;
@@ -81,46 +72,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class Node {
 
   public static final boolean DEV_MODE = Boolean.getBoolean("cloudnet.dev");
   public static final boolean AUTO_UPDATE = Boolean.getBoolean("cloudnet.auto.update");
-  private static final Logger LOGGER = LogManager.logger(Node.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
   @Inject
   @Order(0)
-  private void initializeLogging(
-    @NonNull Console console,
-    @NonNull @Named("root") Logger rootLogger,
-    @NonNull QueuedConsoleLogHandler queuedConsoleLogHandler
-  ) {
-    var consoleFormatter = console.hasColorSupport() ? new ColoredLogFormatter() : DefaultLogFormatter.END_CLEAN;
-    var logFilePattern = Path.of(System.getProperty("cloudnet.log.path", "local/logs"), "cloudnet.%g.log");
-
-    // prepare the queued log handler
-    var apiFormatter = console.hasColorSupport() ? new ColoredLogFormatter() : DefaultLogFormatter.END_LINE_SEPARATOR;
-    queuedConsoleLogHandler.setFormatter(apiFormatter);
-
-    // remove all initial handlers from the root logger
-    LoggingUtil.removeHandlers(rootLogger);
-
-    // set the default values for log record dispatches
-    rootLogger.setLevel(LoggingUtil.defaultLogLevel());
-    rootLogger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(rootLogger));
-
-    // add the default logging handlers
-    rootLogger.addHandler(queuedConsoleLogHandler);
-    rootLogger.addHandler(AcceptingLogHandler.newInstance(console::writeLine).withFormatter(consoleFormatter));
-    rootLogger.addHandler(DefaultFileHandler
-      .newInstance(logFilePattern, true)
-      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
-
+  private void initializeLogging(@NonNull @Named("root") Logger rootLogger) {
     // override the system output streams, this isn't strictly required, but some modules might use them which
     // could look out of place in the normal logging context
-    System.setErr(LogOutputStream.forSevere(rootLogger).toPrintStream());
-    System.setOut(LogOutputStream.forInformative(rootLogger).toPrintStream());
+    System.setErr(LogOutputStream.forWarn(rootLogger).toPrintStream());
+    System.setOut(LogOutputStream.forInfo(rootLogger).toPrintStream());
   }
 
   @Inject
@@ -319,7 +287,7 @@ public final class Node {
 
     // we can hard stop here if no network listener was bound - the wrappers will not be able to connect to the node
     if (connectionCounter.get() == 0) {
-      LOGGER.severe(I18n.trans("startup-failed-no-network-listener-bound"));
+      LOGGER.error(I18n.trans("startup-failed-no-network-listener-bound"));
       // wait a bit, then stop
       Thread.sleep(5000);
       System.exit(1);
@@ -346,7 +314,7 @@ public final class Node {
       node.connect().whenComplete(($, exception) -> {
         if (exception != null) {
           // the connection couldn't be established
-          LOGGER.warning(I18n.trans("start-node-connection-failure", node.info().uniqueId(), exception.getMessage()));
+          LOGGER.warn(I18n.trans("start-node-connection-failure", node.info().uniqueId(), exception.getMessage()));
         } else {
           // wait for the node connection to become available
           waitingNodeAvailableSuppliers.add(node::available);

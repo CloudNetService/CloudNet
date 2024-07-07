@@ -62,7 +62,7 @@ public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigur
         properties.store(outputStream, "CloudNet auto eula (https://account.mojang.com/documents/minecraft_eula)");
       }
     } catch (IOException exception) {
-      LOGGER.severe("Unable to edit server.properties or eula.txt in %s", exception, cloudService.directory());
+      LOGGER.error("Unable to edit server.properties or eula.txt in {}", cloudService.directory(), exception);
     }
   }
 }

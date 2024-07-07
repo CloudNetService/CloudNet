@@ -25,10 +25,9 @@ import cn.nukkit.plugin.PluginManager;
 import cn.nukkit.scheduler.ServerScheduler;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.registry.injection.Service;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -49,7 +48,7 @@ public class NukkitSignManagement extends PlatformSignManagement<Player, Locatio
   private final Plugin plugin;
   private final ServerScheduler scheduler;
   private final PluginManager pluginManager;
-  private final PlayerManager playerManager;
+  private final ServiceRegistry serviceRegistry;
 
   @Inject
   protected NukkitSignManagement(
@@ -58,7 +57,7 @@ public class NukkitSignManagement extends PlatformSignManagement<Player, Locatio
     @NonNull ServerScheduler scheduler,
     @NonNull EventManager eventManager,
     @NonNull PluginManager pluginManager,
-    @NonNull @Service PlayerManager playerManager,
+    @NonNull ServiceRegistry serviceRegistry,
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull CloudServiceProvider serviceProvider,
     @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
@@ -80,7 +79,7 @@ public class NukkitSignManagement extends PlatformSignManagement<Player, Locatio
     this.server = server;
     this.scheduler = scheduler;
     this.pluginManager = pluginManager;
-    this.playerManager = playerManager;
+    this.serviceRegistry = serviceRegistry;
   }
 
   @Override
@@ -139,6 +138,6 @@ public class NukkitSignManagement extends PlatformSignManagement<Player, Locatio
 
   @Override
   protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
-    return new NukkitPlatformSign(base, this.server, this.pluginManager, this.playerManager);
+    return new NukkitPlatformSign(base, this.server, this.pluginManager, this.serviceRegistry);
   }
 }

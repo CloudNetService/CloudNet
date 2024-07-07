@@ -25,8 +25,6 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -40,6 +38,8 @@ import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @CommandPermission("cloudnet.command.migrate")
@@ -47,7 +47,7 @@ import lombok.NonNull;
 public final class MigrateCommand {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;
-  private static final Logger LOGGER = LogManager.logger(MigrateCommand.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MigrateCommand.class);
 
   private final ServiceRegistry serviceRegistry;
   private final DatabaseProvider databaseProvider;
@@ -111,7 +111,7 @@ public final class MigrateCommand {
         sourceDatabase.iterate(targetDatabase::insert, chunkSize);
       }
     } catch (Exception exception) {
-      LOGGER.severe(I18n.trans("command-migrate-database-connection-failed"), exception);
+      LOGGER.error(I18n.trans("command-migrate-database-connection-failed"), exception);
       return;
     }
 
@@ -131,7 +131,7 @@ public final class MigrateCommand {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {
-        LOGGER.severe(I18n.trans("command-migrate-database-connection-failed"), throwable);
+        LOGGER.error(I18n.trans("command-migrate-database-connection-failed"), throwable);
         return false;
       }
     }

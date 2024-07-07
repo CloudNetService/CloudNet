@@ -4,7 +4,7 @@
 shadow = "8.1.8"
 juppiter = "0.4.0"
 spotless = "6.25.0"
-fabricLoom = "1.6.11"
+fabricLoom = "1.7.2"
 nexusPublish = "2.0.0"
 checkstyleTools = "10.17.0"
 
@@ -33,16 +33,15 @@ h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "5.1.1"
 hikariCp = "5.1.0"
-mysqlConnector = "8.4.0"
+mysqlConnector = "9.0.0"
 
 # general
 asm = "9.7"
 oshi = "6.6.1"
 vavr = "0.10.4"
 sshj = "0.38.0"
-slf4j = "2.0.13"
 aerogel = "2.1.0"
-awsSdk = "2.26.12"
+awsSdk = "2.26.16"
 unirest = "4.4.0"
 caffeine = "3.1.8"
 reflexion = "1.8.0"
@@ -54,15 +53,19 @@ influxClient = "7.1.0"
 netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
 
+# logging
+slf4j = "2.0.13"
+logback = "1.5.6"
+
 # platform api versions
 sponge = "9.0.0"
 velocity = "3.1.1"
 waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
-minestom = "0f81bc31ff"
+minestom = "d5c6126a6b"
 minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
-bungeecord = "1.20-R0.3-SNAPSHOT"
+bungeecord = "1.21-R0.1-SNAPSHOT"
 limboloohp = "0.7.9-ALPHA"
 
 # platform extensions
@@ -75,7 +78,7 @@ adventure-serializer-bungee = "4.3.3"
 luckPermsApi = "5.4"
 
 # fabric platform special dependencies
-minecraft = "1.20.6"
+minecraft = "1.21"
 fabricLoader = "0.15.11"
 
 
@@ -129,12 +132,16 @@ nettyHandler = { group = "io.netty", name = "netty5-handler", version.ref = "net
 nettyNativeEpoll = { group = "io.netty", name = "netty5-transport-native-epoll", version.ref = "netty" }
 nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue", version.ref = "netty" }
 
+# logging
+slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+logbackCore = { group = "ch.qos.logback", name = "logback-core", version.ref = "logback" }
+logbackClassic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+
 # general
 vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }
 asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }
-slf4jNop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
 oshi = { group = "com.github.oshi", name = "oshi-core-java11", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }

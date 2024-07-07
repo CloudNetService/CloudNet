@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.network.listener.message;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -38,11 +36,13 @@ import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class ServiceChannelMessageListener {
 
-  private static final Logger LOGGER = LogManager.logger(ServiceChannelMessageListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceChannelMessageListener.class);
 
   private final EventManager eventManager;
   private final CloudServiceManager serviceManager;
