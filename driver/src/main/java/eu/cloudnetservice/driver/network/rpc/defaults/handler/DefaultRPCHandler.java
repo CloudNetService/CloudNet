@@ -19,8 +19,6 @@ package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
@@ -43,6 +41,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the default implementation of a rpc handler.
@@ -51,7 +51,7 @@ import org.jetbrains.annotations.Nullable;
  */
 final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
 
-  private static final Logger LOGGER = LogManager.logger(DefaultRPCHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRPCHandler.class);
 
   private final Object boundInstance;
   private final RPCClassMetadata targetClassMeta;
@@ -137,7 +137,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
     var maybeMethodInvoker = this.getOrCreateMethodInvoker(targetMethod);
     if (maybeMethodInvoker.isFailure()) {
       var constructionException = maybeMethodInvoker.getCause();
-      LOGGER.severe("unable to create method invoker for %s", constructionException, targetMethod);
+      LOGGER.error("unable to create method invoker for {}", targetMethod, constructionException);
       return Task.completedTask(new RPCInvocationResult.ServerError("unable to create method invoker", this));
     }
 

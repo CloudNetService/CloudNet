@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty.buffer;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import io.netty5.buffer.AllocationType;
 import io.netty5.buffer.AllocatorControl;
 import io.netty5.buffer.Buffer;
@@ -35,6 +33,8 @@ import java.nio.ByteBuffer;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A buffer allocator that is allocating nio buffers and frees them directly when they are closed.
@@ -138,7 +138,7 @@ public final class NettyNioBufferReleasingAllocator implements BufferAllocator, 
   private record DirectBufferFreeDrop(@NonNull ByteBufferMemoryManager memoryManager) implements Drop<Buffer> {
 
     private static final MethodHandle DIRECT_BUFFER_CLEANER;
-    private static final Logger LOGGER = LogManager.logger(DirectBufferFreeDrop.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DirectBufferFreeDrop.class);
 
     static {
       MethodHandle directBufferCleaner;
@@ -154,9 +154,8 @@ public final class NettyNioBufferReleasingAllocator implements BufferAllocator, 
         var icMethodType = MethodType.methodType(void.class, ByteBuffer.class);
         directBufferCleaner = lookup.findVirtual(unsafeClass, "invokeCleaner", icMethodType).bindTo(theUnsafe);
       } catch (ClassNotFoundException | NoSuchFieldException | NoSuchMethodException | IllegalAccessException ex) {
-        LOGGER.warning(
-          "Unable to get access to Unsafe.invokeCleaner which could result in higher memory consumption: %s",
-          null,
+        LOGGER.warn(
+          "Unable to get access to Unsafe.invokeCleaner which could result in higher memory consumption: {}",
           ex.getMessage());
         directBufferCleaner = null;
       }
@@ -173,7 +172,7 @@ public final class NettyNioBufferReleasingAllocator implements BufferAllocator, 
         try {
           DIRECT_BUFFER_CLEANER.invokeExact(recoverableMemory);
         } catch (Throwable exception) {
-          LOGGER.fine("Unable to free direct ByteBuf using Unsafe.invokeCleaner", null, exception.getMessage());
+          LOGGER.debug("Unable to free direct ByteBuf using Unsafe.invokeCleaner: {}", exception.getMessage());
         }
       }
     }
