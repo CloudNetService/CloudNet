@@ -20,27 +20,28 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.nio.file.Path;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An object serializer which can write and read a path from/to a buffer.
  *
  * @since 4.0
  */
-public class PathObjectSerializer implements ObjectSerializer<Path> {
+public final class PathObjectSerializer implements ObjectSerializer<Path> {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Object read(
+  public @NonNull Object read(
     @NonNull DataBuf source,
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    return Path.of(source.readString());
+    var pathUri = URI.create(source.readString());
+    return Path.of(pathUri);
   }
 
   /**
@@ -53,6 +54,7 @@ public class PathObjectSerializer implements ObjectSerializer<Path> {
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    dataBuf.writeString(object.toString());
+    var pathUri = object.toUri().toString();
+    dataBuf.writeString(pathUri);
   }
 }

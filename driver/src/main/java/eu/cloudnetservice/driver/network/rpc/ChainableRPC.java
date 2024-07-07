@@ -21,9 +21,9 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * A chainable rpc is a powerful extension to the normal rpc system which allows a developer to execute code on the
- * result of the previous method call. For example, the first rpc call might return an integer from the method {@code
- * availableDiskSpace}, you can then join on the integer of the method result and call {@code toString} directly on the
- * result of that method.
+ * result of the previous method call. For example, the first rpc call might return an integer from the method
+ * {@code availableDiskSpace}, you can then join on the integer of the method result and call {@code toString} directly
+ * on the result of that method.
  * <p>
  * A rpc chain is completely null aware, you can call a method in the chain which returns null and the handler will
  * ensure that the result send back to the network component matches the expected method result, either returning null
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Contract;
  *
  * @since 4.0
  */
-public interface ChainableRPC extends RPCProvider {
+public interface ChainableRPC extends RPCExecutable, RPCProvider {
 
   /**
    * Adds a join statement to the current rpc chain. This method always returns a new rpc chain with the given rpc as
@@ -50,6 +50,7 @@ public interface ChainableRPC extends RPCProvider {
    * @return a new rpc chain instance with the given rpc as its head rpc.
    * @throws NullPointerException if the given rpc is null.
    */
+  @NonNull
   @Contract("_ -> new")
-  @NonNull RPCChain join(@NonNull RPC rpc);
+  RPCChain join(@NonNull RPC rpc);
 }

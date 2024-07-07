@@ -58,28 +58,49 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.Optional;
+import java.util.PriorityQueue;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.WeakHashMap;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TransferQueue;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -132,18 +153,37 @@ public class DefaultObjectMapper implements ObjectMapper {
     // optional
     .put(Optional.class, new OptionalObjectSerializer())
     // some collection types, collection is always mapped to list
-    .put(Collection.class, CollectionObjectSerializer.of(ArrayList::new))
-    .put(List.class, CollectionObjectSerializer.of(ArrayList::new))
-    .put(Set.class, CollectionObjectSerializer.of(HashSet::new))
-    .put(NavigableSet.class, CollectionObjectSerializer.of(TreeSet::new))
     .put(Vector.class, CollectionObjectSerializer.of(Vector::new))
-    .put(Queue.class, CollectionObjectSerializer.of(LinkedList::new))
-    .put(BlockingQueue.class, CollectionObjectSerializer.of(LinkedBlockingDeque::new))
+    .put(List.class, CollectionObjectSerializer.of(ArrayList::new))
+    .put(Deque.class, CollectionObjectSerializer.of(ArrayDeque::new))
+    .put(Set.class, CollectionObjectSerializer.of(HashSet::newHashSet))
+    .put(Stack.class, CollectionObjectSerializer.of(_ -> new Stack<>()))
+    .put(Collection.class, CollectionObjectSerializer.of(ArrayList::new))
+    .put(Queue.class, CollectionObjectSerializer.of(_ -> new LinkedList<>()))
+    .put(SortedSet.class, CollectionObjectSerializer.of(_ -> new TreeSet<>()))
+    .put(PriorityQueue.class, CollectionObjectSerializer.of(PriorityQueue::new))
+    .put(BlockingQueue.class, CollectionObjectSerializer.of(ArrayBlockingQueue::new))
+    .put(LinkedHashSet.class, CollectionObjectSerializer.of(LinkedHashSet::newLinkedHashSet))
+    .put(TransferQueue.class, CollectionObjectSerializer.of(_ -> new LinkedTransferQueue<>()))
+    .put(SynchronousQueue.class, CollectionObjectSerializer.of(_ -> new SynchronousQueue<>()))
+    .put(PriorityBlockingQueue.class, CollectionObjectSerializer.of(PriorityBlockingQueue::new))
+    .put(LinkedBlockingQueue.class, CollectionObjectSerializer.of(_ -> new LinkedBlockingQueue<>()))
+    .put(LinkedBlockingDeque.class, CollectionObjectSerializer.of(_ -> new LinkedBlockingDeque<>()))
+    .put(CopyOnWriteArraySet.class, CollectionObjectSerializer.of(_ -> new CopyOnWriteArraySet<>()))
+    .put(CopyOnWriteArrayList.class, CollectionObjectSerializer.of(_ -> new CopyOnWriteArrayList<>()))
+    .put(ConcurrentSkipListSet.class, CollectionObjectSerializer.of(_ -> new ConcurrentSkipListSet<>()))
+    .put(ConcurrentLinkedDeque.class, CollectionObjectSerializer.of(_ -> new ConcurrentLinkedDeque<>()))
+    .put(ConcurrentLinkedQueue.class, CollectionObjectSerializer.of(_ -> new ConcurrentLinkedQueue<>()))
     // some map types, map is always mapped to HashMap
-    .put(Map.class, MapObjectSerializer.of(HashMap::new))
+    .put(Map.class, MapObjectSerializer.of(HashMap::newHashMap))
+    .put(Hashtable.class, MapObjectSerializer.of(Hashtable::new))
+    .put(Properties.class, MapObjectSerializer.of(Properties::new))
+    .put(NavigableMap.class, MapObjectSerializer.of(_ -> new TreeMap<>()))
     .put(ConcurrentMap.class, MapObjectSerializer.of(ConcurrentHashMap::new))
-    .put(NavigableMap.class, MapObjectSerializer.of(TreeMap::new))
-    .put(ConcurrentNavigableMap.class, MapObjectSerializer.of(ConcurrentSkipListMap::new))
+    .put(IdentityHashMap.class, MapObjectSerializer.of(IdentityHashMap::new))
+    .put(WeakHashMap.class, MapObjectSerializer.of(WeakHashMap::newWeakHashMap))
+    .put(LinkedHashMap.class, MapObjectSerializer.of(LinkedHashMap::newLinkedHashMap))
+    .put(ConcurrentNavigableMap.class, MapObjectSerializer.of(_ -> new ConcurrentSkipListMap<>()))
     //    ==== object data class types ====
     // java.time classes
     .put(Year.class, TimeObjectSerializer.YEAR_SERIALIZER)
@@ -179,7 +219,7 @@ public class DefaultObjectMapper implements ObjectMapper {
     .scheduler(Scheduler.systemScheduler())
     .build(key -> {
       // extract all types from the given key, map them to the actual and raw type
-      Collection<Tuple2<Type, Type>> types = new LinkedList<>();
+      Collection<Tuple2<Type, Type>> types = new ArrayList<>();
       for (var type : TypeToken.of(key).getTypes()) {
         types.add(new Tuple2<>(type.getType(), type.getRawType()));
       }
@@ -212,15 +252,14 @@ public class DefaultObjectMapper implements ObjectMapper {
   public @NonNull ObjectMapper unregisterBinding(@NonNull Type type, boolean superTypes) {
     if (superTypes) {
       var subTypes = this.typeCache.get(type);
-      // unregister all subtypes of the type
       for (var subType : subTypes) {
         this.registeredSerializers.remove(subType.first());
         this.registeredSerializers.remove(subType.second());
       }
     } else {
-      // we don't need to unregister the subtypes of the type, skip the lookup
       this.registeredSerializers.remove(type);
     }
+
     return this;
   }
 
@@ -234,7 +273,7 @@ public class DefaultObjectMapper implements ObjectMapper {
         this.registeredSerializers.remove(entry.getKey(), entry.getValue());
       }
     }
-    // for chaining
+
     return this;
   }
 
@@ -249,15 +288,14 @@ public class DefaultObjectMapper implements ObjectMapper {
   ) {
     if (superTypes) {
       var subTypes = this.typeCache.get(type);
-      // register all subtypes of the type
       for (var subType : subTypes) {
         this.registeredSerializers.putIfAbsent(subType.first(), serializer);
         this.registeredSerializers.putIfAbsent(subType.second(), serializer);
       }
     } else {
-      // we don't need to register the subtypes of the type, skip the lookup
       this.registeredSerializers.putIfAbsent(type, serializer);
     }
+
     return this;
   }
 
@@ -267,9 +305,8 @@ public class DefaultObjectMapper implements ObjectMapper {
   @Override
   public @NonNull <T> DataBuf.Mutable writeObject(@NonNull DataBuf.Mutable dataBuf, @Nullable T object) {
     return dataBuf.writeNullable(object, (buffer, obj) -> {
-      // Get the type token of the type
-      var subTypes = this.typeCache.get(obj.getClass());
       // get the registered serializer for the type
+      var subTypes = this.typeCache.get(obj.getClass());
       ObjectSerializer<T> serializer = null;
       for (var subType : subTypes) {
         serializer = this.serializerForType(subType);
@@ -277,10 +314,12 @@ public class DefaultObjectMapper implements ObjectMapper {
           break;
         }
       }
+
       // check if a serializer was found
       if (serializer == null || !serializer.preWriteCheckAccepts(obj, this)) {
         throw new MissingObjectSerializerException(obj.getClass());
       }
+
       // serialize the object into the buffer
       serializer.write(buffer, obj, obj.getClass(), this);
     });
@@ -293,9 +332,8 @@ public class DefaultObjectMapper implements ObjectMapper {
   @SuppressWarnings("unchecked")
   public <T> @Nullable T readObject(@NonNull DataBuf dataBuf, @NonNull Type type) {
     return dataBuf.readNullable(buffer -> {
-      // Get the type token of the type
-      var subTypes = this.typeCache.get(type);
       // get the registered serializer for the type
+      var subTypes = this.typeCache.get(type);
       ObjectSerializer<?> serializer = null;
       for (var subType : subTypes) {
         serializer = this.serializerForType(subType);
@@ -303,10 +341,12 @@ public class DefaultObjectMapper implements ObjectMapper {
           break;
         }
       }
+
       // check if a serializer was found
       if (serializer == null || !serializer.preReadCheckAccepts(type, this)) {
         throw new MissingObjectSerializerException(type);
       }
+
       // read the object from the buffer
       return (T) serializer.read(buffer, type, this);
     });

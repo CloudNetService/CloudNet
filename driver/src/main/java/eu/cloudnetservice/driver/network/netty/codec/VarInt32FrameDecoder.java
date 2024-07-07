@@ -36,9 +36,8 @@ public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
       return;
     }
 
-    var readerIndex = in.readerOffset();
-
     // try to read the full message length from the buffer, reset the buffer if we've read nothing
+    var readerIndex = in.readerOffset();
     var length = NettyUtil.readVarIntOrNull(in);
     if (length == null || readerIndex == in.readerOffset()) {
       in.readerOffset(readerIndex);
@@ -57,7 +56,7 @@ public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
     // check if the packet data supplied in the buffer is actually at least the transmitted size
     if (in.readableBytes() >= length) {
       // fire the channel read
-      ctx.fireChannelRead(in.copy(in.readerOffset(), length, true));
+      ctx.fireChannelRead(in.copy(in.readerOffset(), length));
       in.skipReadableBytes(length);
     } else {
       // reset the reader index, there is still data missing

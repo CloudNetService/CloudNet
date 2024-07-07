@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelInitEvent;
 import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.chunk.defaults.ChunkedSessionRegistry;
 import eu.cloudnetservice.driver.network.chunk.defaults.factory.EventChunkHandlerFactory;
 import eu.cloudnetservice.driver.network.chunk.network.ChunkedPacketListener;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -34,10 +35,12 @@ import lombok.NonNull;
 public final class NodeNetworkUtil {
 
   private final EventManager eventManager;
+  private final ChunkedSessionRegistry chunkedSessionRegistry;
 
   @Inject
-  public NodeNetworkUtil(@NonNull EventManager eventManager) {
+  public NodeNetworkUtil(@NonNull EventManager eventManager, @NonNull ChunkedSessionRegistry chunkedSessionRegistry) {
     this.eventManager = eventManager;
+    this.chunkedSessionRegistry = chunkedSessionRegistry;
   }
 
   boolean shouldInitializeChannel(@NonNull NetworkChannel channel, @NonNull ChannelType type) {
@@ -47,8 +50,10 @@ public final class NodeNetworkUtil {
   public void addDefaultPacketListeners(@NonNull PacketListenerRegistry registry) {
     registry.addListener(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, PacketServerChannelMessageListener.class);
     registry.addListener(NetworkConstants.INTERNAL_RPC_COM_CHANNEL, RPCPacketListener.class);
-    registry.addListener(
-      NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
-      new ChunkedPacketListener(EventChunkHandlerFactory.withEventManager(this.eventManager)));
+
+    var chunkedListener = new ChunkedPacketListener(
+      this.chunkedSessionRegistry,
+      new EventChunkHandlerFactory(this.eventManager));
+    registry.addListener(NetworkConstants.CHUNKED_PACKET_COM_CHANNEL, chunkedListener);
   }
 }

@@ -18,8 +18,8 @@ package eu.cloudnetservice.node.template;
 
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.Named;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
@@ -43,7 +43,9 @@ public class NodeTemplateStorageProvider implements TemplateStorageProvider {
     @NonNull RPCHandlerRegistry handlerRegistry
   ) {
     this.serviceRegistry = serviceRegistry;
-    rpcFactory.newHandler(TemplateStorageProvider.class, this).registerTo(handlerRegistry);
+
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(TemplateStorageProvider.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
   }
 
   @Override

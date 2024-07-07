@@ -68,7 +68,8 @@ public interface Packet {
    * @return a new packet representing a response to this packet.
    * @throws NullPointerException if the given content is null.
    */
-  @NonNull Packet constructResponse(@NonNull DataBuf content);
+  @NonNull
+  Packet constructResponse(@NonNull DataBuf content);
 
   /**
    * Get the unique id of this packet. The unique id of the packet is only set when this packet is a query packet and
@@ -124,7 +125,8 @@ public interface Packet {
    *
    * @return the content of this packet.
    */
-  @NonNull DataBuf content();
+  @NonNull
+  DataBuf content();
 
   /**
    * Get an epoch timestamp of the creation time of this packet. When the packet is created by a decoder, the time will
@@ -133,5 +135,6 @@ public interface Packet {
    *
    * @return the creation timestamp of this packet.
    */
-  @NonNull Instant creation();
+  @NonNull
+  Instant creation();
 }

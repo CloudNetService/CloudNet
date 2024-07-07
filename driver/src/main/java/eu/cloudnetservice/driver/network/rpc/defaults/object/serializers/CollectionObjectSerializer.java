@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.object.serializers;
 
-import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
+import io.leangen.geantyref.GenericTypeReflector;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.function.Supplier;
+import java.util.function.IntFunction;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,9 +32,9 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class CollectionObjectSerializer implements ObjectSerializer<Collection<?>> {
+public final class CollectionObjectSerializer implements ObjectSerializer<Collection<?>> {
 
-  private final Supplier<Collection<?>> collectionFactory;
+  private final IntFunction<Collection<Object>> collectionFactory;
 
   /**
    * Constructs a new collection object serializer instance.
@@ -42,18 +42,18 @@ public class CollectionObjectSerializer implements ObjectSerializer<Collection<?
    * @param collectionFactory the factory to create the underlying collection instance.
    * @throws NullPointerException if the given factory is null.
    */
-  protected CollectionObjectSerializer(@NonNull Supplier<Collection<?>> collectionFactory) {
+  private CollectionObjectSerializer(@NonNull IntFunction<Collection<Object>> collectionFactory) {
     this.collectionFactory = collectionFactory;
   }
 
   /**
    * Constructs a new collection object serializer instance.
    *
-   * @param collectionFactory the factory to create the underlying collection instance.
+   * @param collectionFactory the factory to create the collection instance, receiving the site as parameter.
    * @return the collection factory instance.
    * @throws NullPointerException if the given factory is null.
    */
-  public static @NonNull CollectionObjectSerializer of(@NonNull Supplier<Collection<?>> collectionFactory) {
+  public static @NonNull CollectionObjectSerializer of(@NonNull IntFunction<Collection<Object>> collectionFactory) {
     return new CollectionObjectSerializer(collectionFactory);
   }
 
@@ -66,24 +66,27 @@ public class CollectionObjectSerializer implements ObjectSerializer<Collection<?
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    // create a new instance of the collection
-    var collection = this.collectionFactory.get();
-    // read the size of the collection
+    if (!(type instanceof ParameterizedType pt) || !GenericTypeReflector.isFullyBound(pt)) {
+      // not a parameterized type or bounds are not tight enough to deserialize (e.g. Collection<?>)
+      throw new IllegalArgumentException(
+        String.format("expected fully bound parameterized type to deserialize Collection, got %s", type));
+    }
+
+    var typeArguments = pt.getActualTypeArguments();
+    if (typeArguments.length != 1) {
+      // must have one type argument to deserialize
+      throw new IllegalArgumentException(
+        String.format("expected 1 type argument to deserialize Collection, got %d", typeArguments.length));
+    }
+
+    // reconstruct the map data
     var collectionSize = source.readInt();
-    // if the collection is empty, break
-    if (collectionSize == 0) {
-      return collection;
+    var collection = this.collectionFactory.apply(collectionSize);
+    for (var index = 0; index < collectionSize; index++) {
+      var entry = caller.readObject(source, typeArguments[0]);
+      collection.add(entry);
     }
-    // ensure that the type is parameterized
-    Preconditions.checkState(type instanceof ParameterizedType,
-      "Collection rpc read called without parameterized type");
-    // read the parameter type of the collection
-    var parameterType = ((ParameterizedType) type).getActualTypeArguments()[0];
-    // read the collection content
-    for (var i = 0; i < collectionSize; i++) {
-      collection.add(caller.readObject(source, parameterType));
-    }
-    // read done
+
     return collection;
   }
 
@@ -93,15 +96,13 @@ public class CollectionObjectSerializer implements ObjectSerializer<Collection<?
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,
-    @Nullable Collection<?> object,
+    @NonNull Collection<?> object,
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    dataBuf.writeInt(object == null ? 0 : object.size());
-    if (object != null) {
-      for (Object o : object) {
-        caller.writeObject(dataBuf, o);
-      }
+    dataBuf.writeInt(object.size());
+    for (var entry : object) {
+      caller.writeObject(dataBuf, entry);
     }
   }
 }

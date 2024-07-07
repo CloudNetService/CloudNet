@@ -28,8 +28,8 @@ import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
@@ -77,7 +77,8 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     this.eventManager = eventManager;
 
     // rpc
-    rpcFactory.newHandler(ServiceTaskProvider.class, this).registerTo(handlerRegistry);
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(ServiceTaskProvider.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
 
     // cluster data sync
     syncRegistry.registerHandler(

@@ -31,12 +31,14 @@ public interface ChunkedPacketProvider {
    *
    * @return the current transfer status
    */
-  @NonNull TransferStatus transferStatus();
+  @NonNull
+  TransferStatus transferStatus();
 
   /**
    * Get the session information which is associated with this provider.
    *
    * @return the session information.
    */
-  @NonNull ChunkSessionInformation sessionInformation();
+  @NonNull
+  ChunkSessionInformation sessionInformation();
 }

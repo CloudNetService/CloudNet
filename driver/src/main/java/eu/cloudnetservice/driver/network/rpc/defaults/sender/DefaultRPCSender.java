@@ -16,85 +16,77 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.sender;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import eu.cloudnetservice.driver.network.NetworkComponent;
+import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPC;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
-import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
 import eu.cloudnetservice.driver.network.rpc.defaults.rpc.DefaultRPC;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
+import java.lang.invoke.TypeDescriptor;
+import java.util.function.Supplier;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
- * The default implementation of a rpc sender.
+ * The default implementation of an RPC sender.
  *
  * @since 4.0
  */
-public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
+@ApiStatus.Internal
+public final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
-  protected static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+  private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
-  protected final Class<?> targetClass;
-  protected final RPCFactory factory;
-  protected final NetworkComponent networkComponent;
-  protected final Cache<String, MethodInformation> cachedMethodInformation;
+  private final RPCClassMetadata rpcTargetMeta;
+  private final Supplier<NetworkChannel> channelSupplier;
 
   /**
    * Constructs a new default rpc sender instance.
    *
-   * @param factory        the factory used to create this instance.
-   * @param component      the network component which is associated with this component, might be null.
-   * @param targetClass    the target call for method invocations sent by this sender.
-   * @param objectMapper   the object mapper to use to write and read data from the buffers.
-   * @param dataBufFactory the buffer factory used for buffer allocations.
-   * @throws NullPointerException if one of the required constructor parameters is null.
+   * @param targetClass     the class in which this sender can call methods.
+   * @param sourceFactory   the rpc factory that constructed this object.
+   * @param objectMapper    the object mapper to use to write and read data from the buffers.
+   * @param dataBufFactory  the buffer factory used for buffer allocations.
+   * @param rpcTargetMeta   the metadata of the target class handled by this sender.
+   * @param channelSupplier the channel supplier for RPCs without a specified target channel.
+   * @throws NullPointerException if one of the given parameters is null.
    */
   public DefaultRPCSender(
-    @NonNull RPCFactory factory,
-    @Nullable NetworkComponent component,
     @NonNull Class<?> targetClass,
+    @NonNull RPCFactory sourceFactory,
     @NonNull ObjectMapper objectMapper,
-    @NonNull DataBufFactory dataBufFactory
+    @NonNull DataBufFactory dataBufFactory,
+    @NonNull RPCClassMetadata rpcTargetMeta,
+    @NonNull Supplier<NetworkChannel> channelSupplier
   ) {
-    super(targetClass, objectMapper, dataBufFactory);
-
-    this.factory = factory;
-    this.targetClass = targetClass;
-    this.networkComponent = component;
-    this.cachedMethodInformation = Caffeine.newBuilder().build();
+    super(targetClass, sourceFactory, objectMapper, dataBufFactory);
+    this.rpcTargetMeta = rpcTargetMeta;
+    this.channelSupplier = channelSupplier;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull RPCFactory factory() {
-    return this.factory;
+  public @NonNull RPC invokeCaller(Object... args) {
+    // offset must be 1 to skip this method
+    return this.invokeCallerWithOffset(1, args);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull NetworkComponent associatedComponent() {
-    // possible to create without an associated component - throw an exception if so
-    if (this.networkComponent == null) {
-      throw new UnsupportedOperationException("Sender has no associated component");
-    }
-    return this.networkComponent;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull RPC invokeMethod(@NonNull String methodName) {
-    return this.invokeMethod(methodName, EMPTY_OBJECT_ARRAY);
+  public @NonNull RPC invokeCallerWithOffset(int callerStackOffset, Object... args) {
+    // offset + 1 to skip this method
+    var callerFrame = STACK_WALKER
+      .walk(frameStream -> frameStream.skip(callerStackOffset + 1).findFirst())
+      .orElseThrow(() -> new IllegalStateException("unable to resolve caller of method"));
+    return this.invokeMethod(callerFrame.getMethodName(), callerFrame.getMethodType(), args);
   }
 
   /**
@@ -102,18 +94,67 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
    */
   @Override
   public @NonNull RPC invokeMethod(@NonNull String methodName, Object... args) {
-    // find the method information of the method we want to invoke
-    var information = this.cachedMethodInformation.get(
-      String.format("%s@%d", methodName, args.length),
-      $ -> MethodInformation.find(null, this.targetClass, methodName, null, args.length));
-    // generate the rpc from this information
+    // try to find a unique method with the given name and param count
+    var matchingMethods = this.rpcTargetMeta.findMethods(meta -> {
+      var methodType = meta.methodType();
+      return meta.name().equals(methodName) && methodType.parameterCount() == args.length;
+    });
+    if (matchingMethods.size() != 1) {
+      throw new IllegalArgumentException(String.format(
+        "Cannot find distinct method to call in %s [searched for %s(%d params)], found %d matches",
+        this.targetClass.getName(), methodName, args.length, matchingMethods.size()));
+    }
+
+    return this.invokeMethod(matchingMethods.getFirst(), args);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull RPC invokeMethod(@NonNull String methodName, @NonNull TypeDescriptor methodDesc, Object... args) {
+    // try to find a valid method meta based on the given name & method descriptor
+    var methodMeta = this.rpcTargetMeta.findMethod(methodName, methodDesc);
+    if (methodMeta == null) {
+      throw new IllegalArgumentException(String.format(
+        "Cannot find a method matching %s%s in %s",
+        methodName, methodDesc.descriptorString(), this.targetClass.getName()));
+    }
+
+    return this.invokeMethod(methodMeta, args);
+  }
+
+  /**
+   * Creates a new RPC to call the given target method with the given arguments.
+   *
+   * @param method the metadata of the method that should be called.
+   * @param args   the arguments of to supply to the target method.
+   * @return a new RPC instance targeting the given methods with the given arguments.
+   * @throws NullPointerException     if the given method metadata or argument array is null.
+   * @throws IllegalArgumentException if the parameter count mismatches.
+   */
+  private @NonNull RPC invokeMethod(@NonNull RPCMethodMetadata method, Object... args) {
+    var expectedArgCount = method.methodType().parameterCount();
+    if (expectedArgCount != args.length) {
+      // argument count for invocation does not match
+      throw new IllegalArgumentException(String.format(
+        "Invalid argument count passed for method invocation. Expected %d, got %d",
+        expectedArgCount, args.length));
+    }
+
+    // resolve execution timeout, if not present no timeout is applied
+    var methodExecutionTimeout = method.executionTimeout();
+    var timeout = methodExecutionTimeout != null ? methodExecutionTimeout : this.rpcTargetMeta.defaultRPCTimeout();
+
     return new DefaultRPC(
-      this,
       this.targetClass,
-      methodName,
-      args,
+      this.sourceFactory,
       this.objectMapper,
-      information.returnType(),
-      this.dataBufFactory);
+      this.dataBufFactory,
+      this,
+      this.channelSupplier,
+      timeout,
+      method,
+      args);
   }
 }

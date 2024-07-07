@@ -33,5 +33,6 @@ public interface NetworkClient extends NetworkComponent, AutoCloseable {
    * @return a task completed successfully, or with the exception thrown during the connection process.
    * @throws NullPointerException if the given host and port is null.
    */
-  @NonNull Task<Void> connect(@NonNull HostAndPort hostAndPort);
+  @NonNull
+  Task<Void> connect(@NonNull HostAndPort hostAndPort);
 }

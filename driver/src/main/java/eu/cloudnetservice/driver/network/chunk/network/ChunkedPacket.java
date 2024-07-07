@@ -17,85 +17,91 @@
 package eu.cloudnetservice.driver.network.chunk.network;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * A chunked packet which gets transferred from the sender to the target each time holding necessary information for
- * packet processing on the other side.
+ * A transfer packet that holds data about a chunk of data to transfer.
  *
  * @since 4.0
  */
-public class ChunkedPacket extends BasePacket {
+public final class ChunkedPacket extends BasePacket {
 
   /**
-   * Creates a new chunk part. The given buffer must contain all needed information for the receiver.
-   * <p>
-   * Using this constructor is not recommended, better use {@link #createChunk(ChunkSessionInformation, int, byte[])} or
-   * {@link #createChunk(ChunkSessionInformation, Integer, int, int, byte[])}, based on the state of the transfer.
+   * Constructs a new chunked transfer part packet.
    *
-   * @param dataBuf the backing buffer.
+   * @param dataBuf the data for the handling process of the chunk part.
    * @throws NullPointerException if the given buffer is null.
    */
-  public ChunkedPacket(@NonNull DataBuf dataBuf) {
+  private ChunkedPacket(@NonNull DataBuf dataBuf) {
     super(NetworkConstants.CHUNKED_PACKET_COM_CHANNEL, dataBuf);
   }
 
   /**
-   * Creates a new chunk part. This method is used when the full chunk data is not yet known. It gives no information
-   * about the amount of chunks in the full transfer and uses the length of the given array as the data length.
-   * <p>
-   * This call is equivalent to {@code ChunkedPacket.createChunk(information, null, chunkIndex, data.length, data)}.
+   * Creates a new full chunk in the middle of a transfer. This method assumes that tbe amount of bytes that were read
+   * from the underlying source is the same as the chunk size of the transfer, only the last chunk is allowed to contain
+   * less or no data.
    *
-   * @param information the session information this chunk belongs to.
-   * @param chunkIndex  the index of the written chunk.
-   * @param data        the data of the chunk.
-   * @return the created chunk packet based on the information.
-   * @throws NullPointerException if the given chunk information is null.
+   * @param chunkIndex  the 0-based index of the chunk that is being sent.
+   * @param sourceData  the data that was read from the underlying source.
+   * @param sessionInfo the information about the transfer session that this packet is related to.
+   * @return a full chunk packet containing all the information provided to this method.
+   * @throws NullPointerException if the given source data or chunk information is null.
    */
-  public static @NonNull ChunkedPacket createChunk(
-    @NonNull ChunkSessionInformation information,
+  public static @NonNull ChunkedPacket createFullChunk(
     int chunkIndex,
-    byte[] data
+    byte[] sourceData,
+    @NonNull ChunkSessionInformation sessionInfo
   ) {
-    return createChunk(information, null, chunkIndex, data.length, data);
+    var sourceDataLengthSize = NettyUtil.varIntBytes(sourceData.length);
+    var transferBytes = Byte.BYTES
+      + Integer.BYTES
+      + sourceDataLengthSize
+      + sourceData.length
+      + sessionInfo.packetSizeBytes();
+    var informationBuffer = DataBufFactory.defaultFactory().createWithExpectedSize(transferBytes)
+      .writeObject(sessionInfo)
+      .writeInt(chunkIndex)
+      .writeBoolean(false) // not the final chunk
+      .writeByteArray(sourceData);
+    return new ChunkedPacket(informationBuffer);
   }
 
   /**
-   * Creates a new chunk part based on the given information. This method is used primarily to create a chunk part when
-   * all information needed to complete the transfer are available (normally when the last chunk was read from the
-   * backing stream)
+   * Creates a new final chunk which must be sent to terminate a chunked data transfer on the remote side. Due to this
+   * the provided chunk index is assumed to be the last index, which means that the total amount of chunks will be set
+   * to {@code index + 1}. The final chunk of a transfer is allowed to contain fewer or no bytes than the chunk size of
+   * the session. To properly serialize the smaller chunk data which can be provided in a bigger data byte array, the
+   * given read bytes will be used to only serialize the chunk of bytes in the given array that are actually relevant.
    *
-   * @param information the session information this chunk belongs to.
-   * @param chunkAmount the amount of chunks which were read from the backing buffer.
-   * @param chunkIndex  the index of the written chunk.
-   * @param dataLength  the amount of bytes in the current packet chunk.
-   * @param data        the data of the chunk.
+   * @param chunkIndex  the 0-based index of the chunk that is being sent.
+   * @param readBytes   the amount of bytes that were read from the underlying source.
+   * @param sourceData  the data that was read from the underlying source.
+   * @param sessionInfo the information about the transfer session that this packet is related to.
    * @return the created chunk packet based on the information.
    * @throws NullPointerException if the given chunk information is null.
    */
-  public static @NonNull ChunkedPacket createChunk(
-    @NonNull ChunkSessionInformation information,
-    @Nullable Integer chunkAmount,
+  public static @NonNull ChunkedPacket createFinalChunk(
     int chunkIndex,
-    int dataLength,
-    byte[] data
+    int readBytes,
+    byte[] sourceData,
+    @NonNull ChunkSessionInformation sessionInfo
   ) {
-    var dataBuf = DataBuf.empty()
-      // transfer information
-      .writeObject(information)
-      // the index of the chunk we are sending
+    var sourceDataLengthSize = NettyUtil.varIntBytes(readBytes);
+    var transferBytes = Byte.BYTES
+      + Integer.BYTES
+      + sourceDataLengthSize
+      + readBytes
+      + sessionInfo.packetSizeBytes();
+    var informationBuffer = DataBufFactory.defaultFactory().createWithExpectedSize(transferBytes)
+      .writeObject(sessionInfo)
       .writeInt(chunkIndex)
-      // if the packet is the ending packet holding the information about the chunk amount
-      .writeBoolean(chunkAmount != null);
-    // if we know the chunk amount => write it
-    if (chunkAmount != null) {
-      dataBuf.writeInt(chunkAmount);
-    }
-    // write the actual content of the chunk
-    return new ChunkedPacket(dataBuf.writeByteArray(data, dataLength));
+      .writeBoolean(true) // final chunk
+      .writeByteArray(sourceData, readBytes);
+    return new ChunkedPacket(informationBuffer);
   }
 }

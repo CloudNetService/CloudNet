@@ -17,89 +17,101 @@
 package eu.cloudnetservice.driver.network.rpc.generation.api;
 
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.TestInjectionLayerConfigurator;
 import eu.cloudnetservice.driver.database.Database;
-import eu.cloudnetservice.driver.network.rpc.RPC;
-import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
-import java.util.UUID;
+import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.network.protocol.BasePacket;
+import eu.cloudnetservice.driver.network.protocol.Packet;
+import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCFactory;
+import eu.cloudnetservice.driver.network.rpc.defaults.generation.RPCInternalInstanceFactory;
+import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class RPCImplementationGeneratorTest {
 
+  @BeforeAll
+  static void setupBootInjectionLayer() {
+    TestInjectionLayerConfigurator.loadAutoconfigureBindings();
+  }
+
   @Test
   void testFullGeneration() {
-    var key = UUID.randomUUID().toString();
+    var mockedChannel = Mockito.mock(NetworkChannel.class);
+    Mockito
+      .doAnswer(_ -> {
+        var rpcResponse = DataBuf.empty()
+          .writeByte(RPCInvocationResult.STATUS_OK)
+          .writeObject(true);
+        return Task.completedTask(new BasePacket(-1, rpcResponse));
+      })
+      .when(mockedChannel)
+      .sendQueryAsync(Mockito.any(Packet.class));
 
-    var immediateRpc = Mockito.mock(RPC.class);
-    Mockito.when(immediateRpc.fireSync()).thenReturn(true);
-    Mockito.when(immediateRpc.fire()).thenReturn(Task.completedTask(true));
+    var rpcFactory = new DefaultRPCFactory(DefaultObjectMapper.DEFAULT_MAPPER, DataBufFactory.defaultFactory());
+    var databaseImplementationFactory = rpcFactory.newRPCBasedImplementationBuilder(Database.class)
+      .targetChannel(mockedChannel)
+      .implementConcreteMethods()
+      .generateImplementation();
 
-    var sender = Mockito.mock(RPCSender.class);
-    Mockito.when(sender.invokeMethod(Mockito.anyString(), Mockito.any())).then(invocation -> {
-      String method = invocation.getArgument(0);
-      var arg = invocation.getArgument(1);
+    var wrapperDatabase = databaseImplementationFactory.allocate();
+    Assertions.assertTrue(wrapperDatabase.contains("world"));
+    Assertions.assertTrue(wrapperDatabase.containsAsync("world").join());
 
-      Assertions.assertTrue(method.startsWith("contains"));
-      Assertions.assertNotNull(arg);
-      Assertions.assertEquals(key, arg);
-
-      return immediateRpc;
-    });
-
-    // we're using direct generation for easier testing with the sender
-    var wrapperDatabase = ApiImplementationGenerator.generateApiImplementation(
-      Database.class,
-      GenerationContext.forClass(Database.class).implementAllMethods(true).build(),
-      sender
-    ).newInstance();
-
-    var result = wrapperDatabase.contains(key);
-    Assertions.assertTrue(result);
-
-    var future = wrapperDatabase.containsAsync(key);
-    Assertions.assertTrue(future.isDone());
-    Assertions.assertTrue(future.getOrNull());
+    Mockito.verify(mockedChannel, Mockito.times(2)).sendQueryAsync(Mockito.any(Packet.class));
   }
 
   @Test
   void testExpectationOfExistingMethods() {
-    var database = ApiImplementationGenerator.generateApiImplementation(
-      Database.class,
-      GenerationContext.forClass(BaseDatabase.class).build(),
-      Mockito.mock(RPCSender.class)
-    ).newInstance();
+    var rpcFactory = new DefaultRPCFactory(DefaultObjectMapper.DEFAULT_MAPPER, DataBufFactory.defaultFactory());
+    var databaseImplementationFactory = rpcFactory.newRPCBasedImplementationBuilder(BaseDatabase.class)
+      .targetChannel(() -> null)
+      .generateImplementation();
+    var database = databaseImplementationFactory.allocate();
 
-    var document = database.get(UUID.randomUUID().toString());
+    var document = database.get("world");
     Assertions.assertSame(BaseDatabase.TEST_DOCUMENT, document);
 
-    var future = database.getAsync(UUID.randomUUID().toString());
+    var future = database.getAsync("hello");
     Assertions.assertTrue(future.isDone());
     Assertions.assertSame(BaseDatabase.TEST_DOCUMENT, future.getOrNull());
   }
 
   @Test
   void testDownPassingRPCSenderToExtendingClass() {
-    var sender = Mockito.mock(RPCSender.class);
-    var database = ApiImplementationGenerator.generateApiImplementation(
-      Database.class,
-      GenerationContext.forClass(SenderNeedingDatabase.class).build(),
-      sender
-    ).newInstance();
+    var rpcFactory = new DefaultRPCFactory(DefaultObjectMapper.DEFAULT_MAPPER, DataBufFactory.defaultFactory());
+    var databaseImplementationFactory = rpcFactory.newRPCBasedImplementationBuilder(SenderNeedingDatabase.class)
+      .targetChannel(() -> null)
+      .generateImplementation();
+    var database = databaseImplementationFactory
+      .withAdditionalConstructorParameters(RPCInternalInstanceFactory.SpecialArg.RPC_SENDER)
+      .allocate();
 
-    Assertions.assertInstanceOf(SenderNeedingDatabase.class, database);
-    Assertions.assertSame(((SenderNeedingDatabase) database).rpcSender, sender);
+    Assertions.assertNotNull(database.rpcSender);
   }
 
   @Test
-  void testGenerationOfMethods() {
-    var testInstance = ApiImplementationGenerator.generateApiImplementation(
-      TestRPCParameters.class,
-      GenerationContext.forClass(TestRPCParameters.class).implementAllMethods(true).build(),
-      Mockito.mock(RPCSender.class)
-    ).newInstance(1, 2L, "World", new int[0], new long[]{1L}, new String[]{"Hello"});
-    Assertions.assertNotNull(testInstance);
+  void testImplementationOfMethodsWithDifferentStackSize() {
+    var rpcFactory = new DefaultRPCFactory(DefaultObjectMapper.DEFAULT_MAPPER, DataBufFactory.defaultFactory());
+    var testFactory = rpcFactory.newRPCBasedImplementationBuilder(TestRPCParameters.class)
+      .targetChannel(() -> {
+        throw new IllegalStateException("expected illegal state ;^)");
+      })
+      .implementConcreteMethods()
+      .generateImplementation();
+
+    var instance = testFactory
+      .withAdditionalConstructorParameters(12, 45L, "789", new int[]{1, 5}, new long[]{89, 1290}, new String[]{"test"})
+      .allocate();
+
+    Assertions.assertNotNull(instance);
+    Assertions.assertThrows(
+      IllegalStateException.class, // due to the channel supplier above, at this point args were already loaded
+      () -> instance.testLongIntStringArray(123L, 123, "world", new String[]{"testing"}));
   }
 }

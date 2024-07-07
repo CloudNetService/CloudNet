@@ -20,7 +20,6 @@ import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.command.CommandInfo;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.UnmodifiableView;
  *
  * @since 4.0
  */
-@RPCValidation
 public interface ClusterNodeProvider {
 
   /**
@@ -48,7 +46,8 @@ public interface ClusterNodeProvider {
    * @return all registered commands.
    */
   @UnmodifiableView
-  @NonNull Collection<CommandInfo> consoleCommands();
+  @NonNull
+  Collection<CommandInfo> consoleCommands();
 
   /**
    * Get an information about a specific registered command on the current node. This method returns null if no command
@@ -71,7 +70,8 @@ public interface ClusterNodeProvider {
    * @return the suggestions for further input based on the current command line.
    * @throws NullPointerException if the given command line is null.
    */
-  @NonNull Collection<String> consoleTabCompleteResults(@NonNull String commandLine);
+  @NonNull
+  Collection<String> consoleTabCompleteResults(@NonNull String commandLine);
 
   /**
    * Sends the given command line to the current node and returns the output of the command from the execution. Only
@@ -82,7 +82,8 @@ public interface ClusterNodeProvider {
    * @return all lines send to the command sender associated with this method call.
    * @throws NullPointerException if the given command line is null.
    */
-  @NonNull Collection<String> sendCommandLine(@NonNull String commandLine);
+  @NonNull
+  Collection<String> sendCommandLine(@NonNull String commandLine);
 
   /**
    * Gets all nodes which are currently registered on the current node. As per the CloudNet cluster contract, each node
@@ -93,7 +94,8 @@ public interface ClusterNodeProvider {
    * @return all nodes which are registered on the current node.
    */
   @UnmodifiableView
-  @NonNull Collection<NetworkClusterNode> nodes();
+  @NonNull
+  Collection<NetworkClusterNode> nodes();
 
   /**
    * Get the network cluster node object association from the given node unique id registered on the current node. This
@@ -142,7 +144,8 @@ public interface ClusterNodeProvider {
    *
    * @return the snapshot information of all nodes which are currently connected to the current node.
    */
-  @NonNull Collection<NodeInfoSnapshot> nodeInfoSnapshots();
+  @NonNull
+  Collection<NodeInfoSnapshot> nodeInfoSnapshots();
 
   /**
    * Get the network cluster node snapshot of the node with the given unique id. This method returns null either if no

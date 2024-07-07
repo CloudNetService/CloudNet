@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.provider;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import java.util.Collection;
 import lombok.NonNull;
@@ -31,7 +30,6 @@ import org.jetbrains.annotations.UnmodifiableView;
  *
  * @since 4.0
  */
-@RPCValidation
 public interface GroupConfigurationProvider {
 
   /**
@@ -48,7 +46,8 @@ public interface GroupConfigurationProvider {
    * @return all registered group configurations within the cluster.
    */
   @NonNull
-  @UnmodifiableView Collection<GroupConfiguration> groupConfigurations();
+  @UnmodifiableView
+  Collection<GroupConfiguration> groupConfigurations();
 
   /**
    * Get a group configuration which has the given name and is registered within the cluster. This method returns null

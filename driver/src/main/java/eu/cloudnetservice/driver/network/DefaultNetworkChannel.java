@@ -82,14 +82,6 @@ public abstract class DefaultNetworkChannel implements NetworkChannel {
    * {@inheritDoc}
    */
   @Override
-  public Packet sendQuery(@NonNull Packet packet) {
-    return this.sendQueryAsync(packet).getOrNull();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public long channelId() {
     return this.channelId;
   }

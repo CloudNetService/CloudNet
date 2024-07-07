@@ -71,11 +71,14 @@ final class ApplicationBootstrap {
     // remove the xms and xmx options as we want to set them later on
     var filteredInputArguments = RUNTIME_MX_BEAN.getInputArguments().stream().filter(inputArgument -> {
       var lowerCaseInput = inputArgument.toLowerCase(Locale.ROOT);
-      return !lowerCaseInput.startsWith("-xmx") && !lowerCaseInput.startsWith("-xms");
+      return !lowerCaseInput.startsWith("-xmx")
+        && !lowerCaseInput.startsWith("-xms")
+        && !lowerCaseInput.equals("-xx:+disableexplicitgc");
     }).toList();
 
     // add the arguments supplied to the current process
     arguments.addAll(filteredInputArguments);
+    arguments.add("--enable-preview");
 
     // add the memory options for the node now
     arguments.add("-Xmx" + nodeProcessMemory + 'M');

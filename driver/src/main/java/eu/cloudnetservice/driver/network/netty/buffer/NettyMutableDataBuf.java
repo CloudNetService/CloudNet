@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty.buffer;
 
-import com.google.common.base.Utf8;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
@@ -129,6 +128,8 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeByteArray(byte[] b, int amount) {
+    var sizeBytes = NettyUtil.varIntBytes(amount);
+    this.buffer.ensureWritable(sizeBytes + amount);
     NettyUtil.writeVarInt(this.buffer, amount);
     this.buffer.writeBytes(b, 0, amount);
     return this;
@@ -139,6 +140,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeUniqueId(@NonNull UUID uuid) {
+    this.buffer.ensureWritable(Long.BYTES * 2);
     return this.writeLong(uuid.getMostSignificantBits()).writeLong(uuid.getLeastSignificantBits());
   }
 
@@ -147,9 +149,8 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    */
   @Override
   public @NonNull DataBuf.Mutable writeString(@NonNull String string) {
-    NettyUtil.writeVarInt(this.buffer, Utf8.encodedLength(string));
-    this.buffer.writeCharSequence(string, StandardCharsets.UTF_8);
-    return this;
+    var bytes = string.getBytes(StandardCharsets.UTF_8);
+    return this.writeByteArray(bytes);
   }
 
   /**
@@ -159,11 +160,12 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
   public @NonNull DataBuf.Mutable writeDataBuf(@NonNull DataBuf buf) {
     buf.startTransaction();
     try {
-      // write the content
-      this.writeInt(buf.readableBytes());
+      var readableBytes = buf.readableBytes();
+      var sizeBytes = NettyUtil.varIntBytes(readableBytes);
+      this.buffer.ensureWritable(sizeBytes + readableBytes);
+      NettyUtil.writeVarInt(this.buffer, readableBytes);
       this.buffer.writeBytes(((NettyImmutableDataBuf) buf).buffer);
     } finally {
-      // reset the data for later use & release the content if it isn't disabled
       buf.redoTransaction().release();
     }
 
@@ -187,6 +189,15 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
     if (object != null) {
       handlerWhenNonNull.accept(this, object);
     }
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull DataBuf.Mutable ensureWriteable(int bytes) {
+    this.buffer.ensureWritable(bytes);
     return this;
   }
 

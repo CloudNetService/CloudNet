@@ -40,7 +40,7 @@ public class NettyNetworkClientHandler extends NettyNetworkHandler {
   /**
    * Constructs a new network client handler instance.
    *
-   * @param eventManager the event manager of the current component.
+   * @param eventManager       the event manager of the current component.
    * @param nettyNetworkClient the client which connected to the endpoint.
    * @param connectedAddress   the server address to which the client connected.
    * @throws NullPointerException if either the given event manager, client or connect address is null.

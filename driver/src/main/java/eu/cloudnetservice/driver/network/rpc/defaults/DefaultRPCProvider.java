@@ -18,6 +18,7 @@ package eu.cloudnetservice.driver.network.rpc.defaults;
 
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCProvider;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 
@@ -29,6 +30,7 @@ import lombok.NonNull;
 public abstract class DefaultRPCProvider implements RPCProvider {
 
   protected final Class<?> targetClass;
+  protected final RPCFactory sourceFactory;
   protected final ObjectMapper objectMapper;
   protected final DataBufFactory dataBufFactory;
 
@@ -36,16 +38,19 @@ public abstract class DefaultRPCProvider implements RPCProvider {
    * Constructs a new default rpc provider instance.
    *
    * @param targetClass    the target class of method calls handled by this provider.
+   * @param sourceFactory  the rpc factory that constructed this object.
    * @param objectMapper   the object mapper to use to write and read data from the buffers.
    * @param dataBufFactory the buffer factory used for buffer allocations.
    * @throws NullPointerException if the given class, object mapper or data buf factory is null.
    */
   protected DefaultRPCProvider(
     @NonNull Class<?> targetClass,
+    @NonNull RPCFactory sourceFactory,
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory
   ) {
     this.targetClass = targetClass;
+    this.sourceFactory = sourceFactory;
     this.objectMapper = objectMapper;
     this.dataBufFactory = dataBufFactory;
   }
@@ -72,5 +77,13 @@ public abstract class DefaultRPCProvider implements RPCProvider {
   @Override
   public @NonNull DataBufFactory dataBufFactory() {
     return this.dataBufFactory;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull RPCFactory sourceFactory() {
+    return this.sourceFactory;
   }
 }

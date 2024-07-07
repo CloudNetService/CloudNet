@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.service.defaults.provider;
 
 import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
@@ -25,6 +26,7 @@ public abstract class RemoteNodeCloudServiceProvider implements SpecificCloudSer
 
   private volatile ServiceInfoSnapshot snapshot;
 
+  @RPCInvocationTarget
   public RemoteNodeCloudServiceProvider(@NonNull ServiceInfoSnapshot snapshot) {
     this.snapshot = snapshot;
   }

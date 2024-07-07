@@ -22,20 +22,19 @@ import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An object serializer which can write and read a unique id from/to a buffer.
  *
  * @since 4.0
  */
-public class UUIDObjectSerializer implements ObjectSerializer<UUID> {
+public final class UUIDObjectSerializer implements ObjectSerializer<UUID> {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Object read(
+  public @NonNull Object read(
     @NonNull DataBuf source,
     @NonNull Type type,
     @NonNull ObjectMapper caller
