@@ -92,7 +92,19 @@ public enum JavaVersion {
   /**
    * Java version 21 (LTS).
    */
-  JAVA_21(21, 65D, "Java 21");
+  JAVA_21(21, 65D, "Java 21"),
+  /**
+   * Java version 22.
+   */
+  JAVA_22(22, 66D, "Java 22"),
+  /**
+   * Java version 23.
+   */
+  JAVA_23(23, 67D, "Java 23"),
+  /**
+   * Java version 24.
+   */
+  JAVA_24(24, 68D, "Java 24");
 
   private static final JavaVersion[] JAVA_VERSIONS = resolveActualJavaVersions();
   private static final JavaVersion LATEST_VERSION = JAVA_VERSIONS[JAVA_VERSIONS.length - 1];
