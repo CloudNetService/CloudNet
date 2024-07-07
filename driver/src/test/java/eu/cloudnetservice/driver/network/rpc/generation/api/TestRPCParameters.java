@@ -16,8 +16,11 @@
 
 package eu.cloudnetservice.driver.network.rpc.generation.api;
 
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
+
 public abstract class TestRPCParameters {
 
+  @RPCInvocationTarget
   public TestRPCParameters(int a, long b, String c, int[] d, long[] e, String[] f) {
   }
 
@@ -41,8 +44,6 @@ public abstract class TestRPCParameters {
 
   public abstract void testShort(short s);
 
-  public abstract void testObject(Object o);
-
   public abstract void testStringArray(String[] strings);
 
   public abstract void testIntArray(int[] ints);
@@ -61,15 +62,11 @@ public abstract class TestRPCParameters {
 
   public abstract void testShortArray(short[] shorts);
 
-  public abstract void testObjectArray(Object[] objects);
-
   public abstract void testLongInt(long l, int i);
-
-  public abstract void testLongIntString(long l, int i, String s);
 
   public abstract void testLongIntStringArray(long l, int i, String[] s);
 
-  public abstract void testLongIntStringObject(long l, int i, String s, Object o);
+  public abstract void testLongIntString(long l, int i, String s);
 
-  public abstract void testLongIntStringObjectArray(long l, int i, String s, Object[] o);
+  public abstract void testLongIntStringArray(long l, int i, String s, String[] o);
 }

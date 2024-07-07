@@ -20,12 +20,12 @@ import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.io.ListenableOutputStream;
 import eu.cloudnetservice.common.io.ZipUtil;
 import eu.cloudnetservice.driver.ComponentInfo;
-import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.chunk.ChunkedFileQueryBuilder;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import java.io.IOException;
@@ -33,9 +33,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,6 +56,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
    * @param networkClient the network client of the current component.
    * @throws NullPointerException if the given name, component info or network client is null.
    */
+  @RPCInvocationTarget
   public RemoteTemplateStorage(
     @NonNull String name,
     @NonNull ComponentInfo componentInfo,
@@ -105,29 +103,21 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
       .toChannels(this.networkClient.firstChannel())
       .build()
       .transferChunkedData()
-      .get(5, TimeUnit.MINUTES, TransferStatus.FAILURE) == TransferStatus.SUCCESS;
+      .thenApply(status -> status == TransferStatus.SUCCESS)
+      .join();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) throws IOException {
-    // send a request for the template to the node
-    var responseId = UUID.randomUUID();
-    var response = ChannelMessage.builder()
-      .message("remote_templates_zip_template")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .targetNode(this.componentInfo.nodeUniqueId())
-      .buffer(DataBuf.empty().writeString(this.name).writeObject(template).writeUniqueId(responseId))
-      .build()
-      .sendSingleQuery();
-    // check if we got a response
-    if (response == null || !response.content().readBoolean()) {
-      return null;
-    }
-    // the file is transferred and should be readable
-    return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
+  public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) {
+    return ChunkedFileQueryBuilder.create()
+      .dataIdentifier("remote_templates_zip_template")
+      .requestFromNode(this.componentInfo.nodeUniqueId())
+      .configureMessageBuffer(buffer -> buffer.writeString(this.name).writeObject(template))
+      .query()
+      .join();
   }
 
   /**
@@ -172,15 +162,18 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
   ) throws IOException {
     return new ListenableOutputStream<>(
       Files.newOutputStream(localPath),
-      $ -> ChunkedPacketSender.forFileTransfer()
+      _ -> ChunkedPacketSender.forFileTransfer()
         .forFile(localPath)
         .transferChannel("deploy_single_file")
         .toChannels(this.networkClient.firstChannel())
-        .withExtraData(
-          DataBuf.empty().writeString(this.name).writeObject(template).writeString(path).writeBoolean(append))
+        .withExtraData(DataBuf.empty()
+          .writeString(this.name)
+          .writeObject(template)
+          .writeString(path)
+          .writeBoolean(append))
         .build()
         .transferChunkedData()
-        .get(5, TimeUnit.MINUTES, null));
+        .join());
   }
 
   /**
@@ -191,20 +184,11 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate template,
     @NonNull String path
   ) throws IOException {
-    // send a request for the file to the node
-    var responseId = UUID.randomUUID();
-    var response = ChannelMessage.builder()
-      .message("remote_templates_template_file")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .targetNode(this.componentInfo.nodeUniqueId())
-      .buffer(DataBuf.empty().writeString(path).writeString(this.name).writeObject(template).writeUniqueId(responseId))
-      .build()
-      .sendSingleQuery();
-    // check if we got a response
-    if (response == null || !response.content().readBoolean()) {
-      return null;
-    }
-    // the file is transferred and should be readable
-    return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
+    return ChunkedFileQueryBuilder.create()
+      .dataIdentifier("remote_templates_template_file")
+      .requestFromNode(this.componentInfo.nodeUniqueId())
+      .configureMessageBuffer(buffer -> buffer.writeString(this.name).writeObject(template).writeString(path))
+      .query()
+      .join();
   }
 }

@@ -51,7 +51,7 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<JavaCompile> {
-  options.compilerArgs = listOf("-AaerogelAutoFileName=autoconfigure/wrapper.aero")
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/wrapper.aero")
 }
 
 dependencies {

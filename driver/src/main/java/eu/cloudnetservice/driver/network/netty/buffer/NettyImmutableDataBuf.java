@@ -143,10 +143,8 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public @NonNull String readString() {
-    return this.hotRead(buf -> {
-      var length = NettyUtil.readVarInt(buf);
-      return buf.readCharSequence(length, StandardCharsets.UTF_8).toString();
-    });
+    var stringBytes = this.readByteArray();
+    return new String(stringBytes, StandardCharsets.UTF_8);
   }
 
   /**
@@ -156,8 +154,8 @@ public class NettyImmutableDataBuf implements DataBuf {
   public @NonNull DataBuf readDataBuf() {
     return this.hotRead(buf -> {
       // copy out the data
-      var length = buf.readInt();
-      var content = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), length, true));
+      var length = NettyUtil.readVarInt(buf);
+      var content = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), length));
 
       // skip the amount of bytes we're read and return the content
       buf.skipReadableBytes(length);
@@ -333,13 +331,12 @@ public class NettyImmutableDataBuf implements DataBuf {
    * @throws NullPointerException if the given reader function is null.
    */
   protected @NonNull <T> T hotRead(@NonNull Function<Buffer, T> reader) {
-    // get the result
     var result = reader.apply(this.buffer);
-    // check if the reader index reached the end and try to release the message then
     if (this.buffer.readableBytes() <= 0) {
+      // try to release the buffer in case the end of the data was reached
       this.release();
     }
-    // return the read result
+
     return result;
   }
 }

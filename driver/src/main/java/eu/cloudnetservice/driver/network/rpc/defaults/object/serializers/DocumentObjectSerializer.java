@@ -24,29 +24,27 @@ import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An object serializer which can write and read a json document to/from the buffer.
  *
  * @since 4.0
  */
-public class DocumentObjectSerializer implements ObjectSerializer<Document> {
+public final class DocumentObjectSerializer implements ObjectSerializer<Document> {
+
+  private DocumentFactoryRegistry documentFactoryRegistry;
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Object read(
+  public @NonNull Object read(
     @NonNull DataBuf source,
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
     var documentFactoryName = source.readString();
-    var documentFactoryRegistry = InjectionLayer.boot().instance(DocumentFactoryRegistry.class);
-
-    // get the document factory for the document and construct the document
-    var documentFactory = documentFactoryRegistry.documentFactory(documentFactoryName);
+    var documentFactory = this.documentFactoryRegistry().documentFactory(documentFactoryName);
     return documentFactory.parse(source);
   }
 
@@ -62,5 +60,20 @@ public class DocumentObjectSerializer implements ObjectSerializer<Document> {
   ) {
     dataBuf.writeString(object.factoryName());
     object.writeTo(dataBuf);
+  }
+
+  /**
+   * Lazy initializes the document factory registry field if not done previously, returning the initialized field value.
+   * Note that the obtaining of the document factory cannot be done in the constructor due to it being called before all
+   * bindings were set up.
+   *
+   * @return the initialized document factory registry field.
+   */
+  private @NonNull DocumentFactoryRegistry documentFactoryRegistry() {
+    if (this.documentFactoryRegistry == null) {
+      this.documentFactoryRegistry = InjectionLayer.boot().instance(DocumentFactoryRegistry.class);
+    }
+
+    return this.documentFactoryRegistry;
   }
 }

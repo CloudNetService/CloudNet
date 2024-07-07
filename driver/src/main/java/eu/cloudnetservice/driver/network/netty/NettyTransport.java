@@ -124,7 +124,7 @@ public enum NettyTransport {
         return transport;
       }
     }
-    // unable to find a transport?
+
     throw new IllegalStateException("Unable to select an available netty transport!");
   }
 

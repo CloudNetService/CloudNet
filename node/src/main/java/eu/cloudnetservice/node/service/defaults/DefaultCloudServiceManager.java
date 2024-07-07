@@ -28,10 +28,10 @@ import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
@@ -62,6 +62,8 @@ import eu.cloudnetservice.node.service.defaults.provider.EmptySpecificCloudServi
 import eu.cloudnetservice.node.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.lang.constant.ClassDesc;
+import java.lang.constant.MethodTypeDesc;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
@@ -92,10 +94,15 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
 
   private static final Logger LOGGER = LogManager.logger(CloudServiceManager.class);
 
+  private static final ClassDesc CD_UUID = ClassDesc.of(UUID.class.getName());
+  private static final ClassDesc CD_SPECIFIC_PROVIDER = ClassDesc.of(SpecificCloudServiceProvider.class.getName());
+  private static final MethodTypeDesc MTD_SERVICE_PROVIDER = MethodTypeDesc.of(CD_SPECIFIC_PROVIDER, CD_UUID);
+
   protected final RPCSender sender;
   protected final Collection<String> defaultJvmOptions;
   protected final NodeServerProvider nodeServerProvider;
   protected final CloudServiceFactory cloudServiceFactory;
+  protected final RPCImplementationBuilder.InstanceAllocator<? extends SpecificCloudServiceProvider> specificProviderAllocator;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
   protected final Cache<UUID, CloudService> localUnacceptedServices = Caffeine.newBuilder()
@@ -119,10 +126,22 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     this.nodeServerProvider = nodeServerProvider;
     this.cloudServiceFactory = cloudServiceFactory;
     this.defaultJvmOptions = Arrays.asList(args.remove(0).split(";;"));
-    // rpc init
-    this.sender = rpcFactory.providerForClass(null, CloudServiceProvider.class);
-    rpcFactory.newHandler(CloudServiceProvider.class, this).registerTo(handlerRegistry);
-    rpcFactory.newHandler(SpecificCloudServiceProvider.class, null).registerTo(handlerRegistry);
+
+    // init rpc
+    this.sender = rpcFactory.newRPCSenderBuilder(CloudServiceProvider.class).targetChannel(() -> null).build();
+    var cloudServiceProviderHandler = rpcFactory.newRPCHandlerBuilder(CloudServiceProvider.class)
+      .targetInstance(this)
+      .build();
+    handlerRegistry.registerHandler(cloudServiceProviderHandler);
+
+    var specificProviderHandler = rpcFactory.newRPCHandlerBuilder(SpecificCloudServiceProvider.class).build();
+    handlerRegistry.registerHandler(specificProviderHandler);
+
+    this.specificProviderAllocator = rpcFactory.newRPCBasedImplementationBuilder(RemoteNodeCloudServiceProvider.class)
+      .superclass(SpecificCloudServiceProvider.class)
+      .targetChannel(() -> null)
+      .generateImplementation();
+
     // register the default configuration preparers
     this.addServicePreparer(ServiceEnvironmentType.NUKKIT, NukkitConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.VELOCITY, VelocityConfigurationPreparer.class);
@@ -475,12 +494,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     }
 
     // build the service provider for the newly added service
-    var serviceProvider = this.sender.factory().generateRPCChainBasedApi(
-      this.sender,
-      "serviceProvider",
-      SpecificCloudServiceProvider.class,
-      GenerationContext.forClass(RemoteNodeCloudServiceProvider.class).channelSupplier(() -> source).build()
-    ).newInstance(new Object[]{snapshot}, new Object[]{snapshot.serviceId().uniqueId()});
+    var baseRPC = this.sender.invokeMethod("serviceProvider", MTD_SERVICE_PROVIDER, serviceUniqueId);
+    var serviceProvider = this.specificProviderAllocator
+      .withBaseRPC(baseRPC)
+      .withTargetChannel(() -> source)
+      .withAdditionalConstructorParameters(snapshot)
+      .allocate();
 
     // register the service and return the new provider, unless some other thread registered the service
     var knownProvider = this.knownServices.putIfAbsent(serviceUniqueId, serviceProvider);

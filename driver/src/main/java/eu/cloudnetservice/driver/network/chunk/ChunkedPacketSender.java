@@ -46,23 +46,6 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
   }
 
   /**
-   * Get the source of data to stream and transfer through the network. The stream gets closed automatically when the
-   * transfer succeeded.
-   *
-   * @return the source of data to stream and transfer.
-   */
-  @NonNull InputStream source();
-
-  /**
-   * Get the splitter of each packet which is sent through the network. The splitter is responsible to send the packet
-   * to the network component(s) which this sender is targeting. It's for example used to allow transfer of a single
-   * chunk packet to multiple network components by multiplying it.
-   *
-   * @return the packet splitter.
-   */
-  @NonNull Consumer<Packet> packetSplitter();
-
-  /**
    * Transfers the data from the data source to all targets of this sender. The returned future is completed when:
    * <ul>
    *   <li>The transfer completed successfully.
@@ -71,7 +54,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
    *
    * @return a future completed when the transfer finishes.
    */
-  @NonNull Task<TransferStatus> transferChunkedData();
+  @NonNull
+  Task<TransferStatus> transferChunkedData();
 
   /**
    * A builder for a chunked packet sender, holding all general options.
@@ -87,7 +71,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * @param chunkSize the size of each transferred chunk.
      * @return the same builder as used to call the method, for chaining.
      */
-    @NonNull Builder chunkSize(int chunkSize);
+    @NonNull
+    Builder chunkSize(int chunkSize);
 
     /**
      * Sets the unique id of the session. This defaults to a random id.
@@ -96,7 +81,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the given id is null.
      */
-    @NonNull Builder sessionUniqueId(@NonNull UUID uuid);
+    @NonNull
+    Builder sessionUniqueId(@NonNull UUID uuid);
 
     /**
      * Sets the name of the transfer channel. This option is required to be set by yourself. The channel role is just
@@ -106,7 +92,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the given channel name is null.
      */
-    @NonNull Builder transferChannel(@NonNull String transferChannel);
+    @NonNull
+    Builder transferChannel(@NonNull String transferChannel);
 
     /**
      * Sets the source of this data transfer. This option is required to be set by yourself. The source stream should
@@ -116,7 +103,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the given source is null.
      */
-    @NonNull Builder source(@NonNull InputStream source);
+    @NonNull
+    Builder source(@NonNull InputStream source);
 
     /**
      * Sends each chunk data packet to all the provided channels. You need to call one of these methods:
@@ -131,7 +119,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if one of the given channels is null.
      */
-    @NonNull Builder toChannels(NetworkChannel @NonNull ... channels);
+    @NonNull
+    Builder toChannels(NetworkChannel @NonNull ... channels);
 
     /**
      * Sends each chunk data packet to all the provided channels. You need to call one of these methods:
@@ -146,7 +135,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the given channel collection is null.
      */
-    @NonNull Builder toChannels(@NonNull Collection<NetworkChannel> channels);
+    @NonNull
+    Builder toChannels(@NonNull Collection<NetworkChannel> channels);
 
     /**
      * Sets the handler and processor of each packet which will be sent during the chunked data transfer. You need to
@@ -162,7 +152,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the given splitter is null.
      */
-    @NonNull Builder packetSplitter(@NonNull Consumer<Packet> splitter);
+    @NonNull
+    Builder packetSplitter(@NonNull Consumer<Packet> splitter);
 
     /**
      * Sets the extra information provided to each target component when opening a chunked session. The data is mainly
@@ -173,7 +164,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the data buffer is null.
      */
-    @NonNull Builder withExtraData(@NonNull DataBuf extraData);
+    @NonNull
+    Builder withExtraData(@NonNull DataBuf extraData);
 
     /**
      * Builds the chunked packet sender based on the supplied information in this builder.
@@ -182,6 +174,7 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * @throws NullPointerException     if no source, splitter or channel were given.
      * @throws IllegalArgumentException if the chunk size is not greater than 0.
      */
-    @NonNull ChunkedPacketSender build();
+    @NonNull
+    ChunkedPacketSender build();
   }
 }

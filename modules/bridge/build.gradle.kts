@@ -28,7 +28,7 @@ configurations {
 }
 
 tasks.withType<JavaCompile> {
-  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/bridge.aero")
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/bridge.aero")
 }
 
 dependencies {

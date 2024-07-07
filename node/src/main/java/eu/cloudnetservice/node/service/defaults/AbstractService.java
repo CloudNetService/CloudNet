@@ -692,11 +692,10 @@ public abstract class AbstractService implements CloudService {
     var firstStartup = Files.notExists(this.serviceDirectory);
     FileUtil.createDirectory(this.serviceDirectory);
     FileUtil.createDirectory(this.pluginDirectory);
+
     // load the ssl configuration if enabled
     var sslConfiguration = this.configuration.serverSSLConfig();
-    if (sslConfiguration.enabled()) {
-      sslConfiguration = this.prepareSslConfiguration(sslConfiguration);
-    }
+    var wrapperSslConfigDocument = this.prepareSslConfiguration(sslConfiguration);
 
     // add all components
     this.waitingTemplates.addAll(this.serviceConfiguration.templates());
@@ -719,7 +718,7 @@ public abstract class AbstractService implements CloudService {
       .append("connectionKey", this.connectionKey())
       .append("serviceInfoSnapshot", this.currentServiceInfo)
       .append("serviceConfiguration", this.serviceConfiguration())
-      .append("sslConfiguration", sslConfiguration)
+      .append("sslConfiguration", wrapperSslConfigDocument)
       .writeTo(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // finished the prepare process
     this.eventManager.callEvent(new CloudServicePostPrepareEvent(this));
@@ -742,28 +741,26 @@ public abstract class AbstractService implements CloudService {
     }
   }
 
-  protected @NonNull SSLConfiguration prepareSslConfiguration(@NonNull SSLConfiguration configuration) {
-    var wrapperDir = this.serviceDirectory.resolve(".wrapper");
-    // copy the certificate if available
-    if (configuration.certificatePath() != null && Files.exists(configuration.certificatePath())) {
-      FileUtil.copy(configuration.certificatePath(), wrapperDir.resolve("certificate"));
-    }
-    // copy the private key if available
-    if (configuration.privateKeyPath() != null && Files.exists(configuration.privateKeyPath())) {
-      FileUtil.copy(configuration.privateKeyPath(), wrapperDir.resolve("privateKey"));
-    }
-    // copy the trust certificate if available
-    if (configuration.trustCertificatePath() != null && Files.exists(configuration.trustCertificatePath())) {
-      FileUtil.copy(configuration.trustCertificatePath(), wrapperDir.resolve("trustCertificate"));
+  protected @NonNull Document prepareSslConfiguration(@NonNull SSLConfiguration configuration) {
+    // in case the trust certificate collection file path is not present, just put the enabled status
+    // into the file as the wrapper needs to use the insecure trust factory anyway.
+    var trustCertificateCollectionPath = configuration.trustCertificatePath();
+    if (!configuration.enabled()
+      || trustCertificateCollectionPath == null
+      || !Files.isRegularFile(trustCertificateCollectionPath)) {
+      return Document.newJsonDocument().append("enabled", configuration.enabled());
     }
 
-    // recreate the configuration object with the new paths
-    return new SSLConfiguration(
-      configuration.enabled(),
-      configuration.clientAuth(),
-      configuration.trustCertificatePath() == null ? null : wrapperDir.resolve("trustCertificate"),
-      configuration.certificatePath() == null ? null : wrapperDir.resolve("certificate"),
-      configuration.privateKeyPath() == null ? null : wrapperDir.resolve("privateKey"));
+    // copy the trust certificate collection file into the wrapper directory
+    var wrapperDir = this.serviceDirectory.resolve(".wrapper");
+    var wrapperTrustCertificateCollectionPath = wrapperDir.resolve("trustcertificatecollection.crt");
+    FileUtil.copy(trustCertificateCollectionPath, wrapperTrustCertificateCollectionPath);
+
+    // append the file location into ssl configuration document as a relative path
+    var relativeFilePath = wrapperDir.relativize(wrapperTrustCertificateCollectionPath);
+    return Document.newJsonDocument()
+      .append("enabled", true)
+      .append("trustCertificatePath", relativeFilePath.toString());
   }
 
   protected @NonNull Object[] serviceReplacement() {

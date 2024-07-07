@@ -18,15 +18,29 @@ package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.common.base.Defaults;
+import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandler;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
-import eu.cloudnetservice.driver.network.rpc.RPCInvocationContext;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
-import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
+import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvoker;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandler;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationContext;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCClassMetadata;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
+import io.vavr.control.Try;
+import java.lang.constant.MethodTypeDesc;
+import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,101 +49,182 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
+final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
 
-  protected final Class<?> bindingClass;
-  protected final Object bindingInstance;
-  protected final MethodInvokerGenerator generator;
+  private static final Logger LOGGER = LogManager.logger(DefaultRPCHandler.class);
 
-  protected final Cache<String, MethodInformation> methodCache = Caffeine.newBuilder().build();
+  private final Object boundInstance;
+  private final RPCClassMetadata targetClassMeta;
+  private final Cache<RPCMethodMetadata, MethodInvoker> methodInvokerCache;
 
   /**
-   * Constructs a new default rpc handler instance.
+   * Constructs a new rpc handler instance.
    *
-   * @param clazz          the raw clazz to which the handler is bound.
-   * @param binding        the instance to which the handler is bound, might be null if not needed.
-   * @param objectMapper   the object mapper used for reading / writing of arguments and return values.
-   * @param dataBufFactory the data buf factory used to allocate response buffers.
-   * @throws NullPointerException if either the given class, object mapper or buffer factory is null.
+   * @param sourceFactory   the rpc factory that constructed this object.
+   * @param objectMapper    the object mapper to use to write and read data from the buffers.
+   * @param dataBufFactory  the buffer factory used for buffer allocations.
+   * @param boundInstance   the instance to which this handler is bound, can be null.
+   * @param targetClassMeta the metadata of the target class in which this handler should call methods.
+   * @throws NullPointerException if any parameter, except the bound instance, is null.
    */
-  public DefaultRPCHandler(
-    @NonNull Class<?> clazz,
-    @Nullable Object binding,
+  DefaultRPCHandler(
+    @NonNull RPCFactory sourceFactory,
     @NonNull ObjectMapper objectMapper,
-    @NonNull DataBufFactory dataBufFactory
+    @NonNull DataBufFactory dataBufFactory,
+    @Nullable Object boundInstance,
+    @NonNull RPCClassMetadata targetClassMeta
   ) {
-    super(clazz, objectMapper, dataBufFactory);
+    super(targetClassMeta.targetClass(), sourceFactory, objectMapper, dataBufFactory);
+    this.boundInstance = boundInstance;
+    this.targetClassMeta = targetClassMeta;
+    this.methodInvokerCache = Caffeine.newBuilder()
+      // remove invokers from cache after idling some time as they are defined as nested classes
+      // which means that they can get garbage collected to free up some heap when there are
+      // no more strong references (like the cache) to them anymore
+      .expireAfterAccess(Duration.ofDays(1))
+      .build();
+  }
 
-    this.bindingClass = clazz;
-    this.bindingInstance = binding;
-    this.generator = new MethodInvokerGenerator();
+  /**
+   * Tries to parse the given method descriptor, returning null if the given method descriptor is invalid.
+   *
+   * @param descriptor the descriptor that should be parsed.
+   * @return the parsed method descriptor or null if the given descriptor is invalíd.
+   * @throws NullPointerException if the given descriptor is null.
+   */
+  private static @Nullable MethodTypeDesc parseMethodDescriptor(@NonNull String descriptor) {
+    try {
+      return MethodTypeDesc.ofDescriptor(descriptor);
+    } catch (IllegalArgumentException _) {
+      return null;
+    }
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void registerTo(@NonNull RPCHandlerRegistry registry) {
-    registry.registerHandler(this);
-  }
+  public @NonNull Task<RPCInvocationResult> handle(@NonNull RPCInvocationContext context) {
+    // get the instance we're working with
+    var contextualInstance = context.workingInstance();
+    var workingInstance = contextualInstance != null ? contextualInstance : this.boundInstance;
+    if (workingInstance == null) {
+      return Task.completedTask(new RPCInvocationResult.ServerError("no instance to invoke the method on", this));
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull HandlingResult handle(@NonNull RPCInvocationContext context) {
-    // get the working instance
-    var inst = context.workingInstance();
-    if (inst == null) {
-      inst = context.strictInstanceUsage() ? null : this.bindingInstance;
+    // parse the method type to validate it
+    var targetMethodType = parseMethodDescriptor(context.methodDescriptor());
+    if (targetMethodType == null) {
+      return Task.completedTask(new RPCInvocationResult.BadRequest("invalid target method descriptor", this));
     }
-    // now we try to find the associated method information to the given method name or try to read it
-    var instance = inst; // pail
-    var information = this.methodCache.get(
-      String.format(
-        "%d@%s@%s@%d",
-        inst == null ? -1 : inst.hashCode(),
-        this.bindingClass.getCanonicalName(),
-        context.methodName(),
-        context.argumentCount()),
-      $ -> MethodInformation.find(
-        instance,
-        this.bindingClass,
-        context.methodName(),
-        instance == null ? null : this.generator,
-        context.argumentCount()));
-    // now as we have the method info, try to read all arguments needed
-    var arguments = new Object[information.arguments().length];
-    for (var i = 0; i < arguments.length; i++) {
-      arguments[i] = this.objectMapper.readObject(context.argumentInformation(), information.arguments()[i]);
+
+    // find the associated method meta in the target class
+    var targetMethod = this.targetClassMeta.findMethod(context.methodName(), targetMethodType);
+    if (targetMethod == null) {
+      return Task.completedTask(new RPCInvocationResult.BadRequest("target method not found", this));
     }
-    // get the method invocation result
-    HandlingResult result;
-    if (instance == null) {
-      // no instance provided, no invocation we can make - just check if the result is primitive and return the default
-      // primitive value associated
-      if (information.rawReturnType().isPrimitive() && context.normalizePrimitives()) {
-        result = DefaultHandlingResult.success(
-          information,
-          this,
-          Defaults.defaultValue(information.rawReturnType()));
+
+    // deserialize the provided method arguments, returns null in case the arguments buffer
+    // has some invalid argument data at some position
+    var methodArguments = this.deserializeMethodArguments(targetMethod, context.argumentInformation());
+    if (methodArguments == null) {
+      var targetDescriptor = targetMethod.methodType().descriptorString();
+      var msg = String.format("provided arguments do not satisfy %s", targetDescriptor);
+      return Task.completedTask(new RPCInvocationResult.BadRequest(msg, this));
+    }
+
+    // get or create a method invoker for the target method
+    var maybeMethodInvoker = this.getOrCreateMethodInvoker(targetMethod);
+    if (maybeMethodInvoker.isFailure()) {
+      var constructionException = maybeMethodInvoker.getCause();
+      LOGGER.severe("unable to create method invoker for %s", constructionException, targetMethod);
+      return Task.completedTask(new RPCInvocationResult.ServerError("unable to create method invoker", this));
+    }
+
+    try {
+      var methodInvoker = maybeMethodInvoker.get();
+      var invocationResult = methodInvoker.callMethod(workingInstance, methodArguments);
+      if (invocationResult instanceof Future<?> future) {
+        // future needs special care as we need to wait for the result to become available
+        var futureCompletionStage = switch (future) {
+          case CompletionStage<?> stage -> stage;
+          case Future<?> rawFuture -> CompletableFuture.supplyAsync(() -> {
+            try {
+              return rawFuture.get();
+            } catch (InterruptedException exception) {
+              // reset interruption state
+              Thread.currentThread().interrupt();
+              throw new CompletionException("interrupt", exception);
+            } catch (ExecutionException exception) {
+              // wrap in completion exception, causes the future to complete with the raw exception
+              throw new CompletionException(exception);
+            }
+          });
+        };
+
+        Task<RPCInvocationResult> resultTask = new Task<>();
+        futureCompletionStage.whenComplete((futureResult, exception) -> {
+          if (exception != null) {
+            // method invocation failed with an exception
+            resultTask.complete(new RPCInvocationResult.Failure(exception, this, targetMethod));
+          } else {
+            // method invocation completed successfully
+            resultTask.complete(new RPCInvocationResult.Success(futureResult, this, targetMethod));
+          }
+        });
+        return resultTask;
       } else {
-        // no instance and not primitive means null
-        result = DefaultHandlingResult.success(information, this, null);
+        // result of method invocation is available immediately
+        return Task.completedTask(new RPCInvocationResult.Success(invocationResult, this, targetMethod));
       }
-    } else {
-      // there is an instance we can work on, do it!
-      try {
-        // spare the result allocation if the method invocation fails
-        var methodResult = information.methodInvoker().callMethod(arguments);
-        // now we can create the result as the method invocation succeeded
-        result = DefaultHandlingResult.success(information, this, methodResult);
-      } catch (Throwable throwable) {
-        // an exception occurred when invoking the method - not good
-        result = DefaultHandlingResult.failure(information, this, throwable);
-      }
+    } catch (Throwable throwable) {
+      return Task.completedTask(new RPCInvocationResult.Failure(throwable, this, targetMethod));
     }
-    // return the result
-    return result;
+  }
+
+  /**
+   * Gets an existing method invoker for the given target method from the cache or creates a new one. A failure is
+   * returned in case a method invoker couldn't be generated for some reason.
+   *
+   * @param methodMetadata the metadata of the method to get or create the method invoker for.
+   * @return a method invoker for the given target method.
+   * @throws NullPointerException if the given method metadata is null.
+   */
+  private @NonNull Try<MethodInvoker> getOrCreateMethodInvoker(@NonNull RPCMethodMetadata methodMetadata) {
+    return Try.of(() -> this.methodInvokerCache.get(methodMetadata, MethodInvokerGenerator::makeMethodInvoker));
+  }
+
+  /**
+   * Deserializes the method arguments provided in the given buffer based on the generic parameter types provided from
+   * the given target method metadata (in order). If an argument at a position is invalid (e.g. bad data or null for a
+   * primitive) this method returns null.
+   *
+   * @param targetMethod           the target method to deserialize the method arguments for.
+   * @param encodedArgumentsBuffer the buffer which holds the encoded method arguments to deserialize.
+   * @return an array containing the deserialized method arguments, null if the buffer contained bad argument data.
+   * @throws NullPointerException if the given target method or argument buffer is null.
+   */
+  private @Nullable Object[] deserializeMethodArguments(
+    @NonNull RPCMethodMetadata targetMethod,
+    @NonNull DataBuf encodedArgumentsBuffer
+  ) {
+    try {
+      var paramTypes = targetMethod.parameterTypes();
+      var methodArguments = new Object[paramTypes.length];
+      for (var index = 0; index < paramTypes.length; index++) {
+        var parameterType = paramTypes[index];
+        var parameterValue = this.objectMapper.readObject(encodedArgumentsBuffer, parameterType);
+        if (parameterType instanceof Class<?> clazz && clazz.isPrimitive() && parameterValue == null) {
+          // primitive value can't be null, method invocation will fail
+          return null;
+        }
+
+        methodArguments[index] = parameterValue;
+      }
+
+      return methodArguments;
+    } catch (Exception _) {
+      return null;
+    }
   }
 }

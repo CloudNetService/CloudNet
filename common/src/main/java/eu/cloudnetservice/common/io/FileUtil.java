@@ -63,6 +63,9 @@ public final class FileUtil {
       .filter(prov -> prov.getScheme().equalsIgnoreCase("jar"))
       .findFirst()
       .orElseThrow(() -> new ExceptionInInitializerError("Unable to find a file system provider supporting jars"));
+
+    // pre-create the temporary directory
+    FileUtil.createDirectory(TEMP_DIR);
   }
 
   private FileUtil() {

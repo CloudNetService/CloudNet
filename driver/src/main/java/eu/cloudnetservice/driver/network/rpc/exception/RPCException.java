@@ -50,7 +50,7 @@ public class RPCException extends RuntimeException {
   public RPCException(@NonNull RPCChain chain, @NonNull Exception root) {
     super(String.format(
       "Unable to get future result of chained rpc; stack: %s\n%s",
-      formatRPC(chain.head()),
+      formatRPC(chain.tail()),
       chain.joins().stream()
         .map(RPCException::formatChainedRPCEntry)
         .collect(Collectors.joining("\n"))), root);

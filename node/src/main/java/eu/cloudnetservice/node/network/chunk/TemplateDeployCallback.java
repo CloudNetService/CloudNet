@@ -42,7 +42,7 @@ final class TemplateDeployCallback implements ChunkedPacketHandler.Callback {
   }
 
   @Override
-  public void handleSessionComplete(
+  public boolean handleSessionComplete(
     @NonNull ChunkSessionInformation information,
     @NonNull InputStream dataInput
   ) {
@@ -68,5 +68,7 @@ final class TemplateDeployCallback implements ChunkedPacketHandler.Callback {
         this.mainThread.resume();
       }
     }
+
+    return true;
   }
 }

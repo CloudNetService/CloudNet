@@ -37,7 +37,8 @@ public interface PacketListenerRegistry {
    *
    * @return the parent listener registry of this registry.
    */
-  @Nullable PacketListenerRegistry parent();
+  @Nullable
+  PacketListenerRegistry parent();
 
   /**
    * Adds a packet listener for each packet that uses the provided channel id. Multiple listeners for a channel are
@@ -50,7 +51,7 @@ public interface PacketListenerRegistry {
    * Make sure that the given class supports the instantiation using dependency injection.
    *
    * @param channel       the channel the listener wants to listen to.
-   * @param listenerClass the listener class to instantiate and register afterwards.
+   * @param listenerClass the listener class to instantiate and register.
    * @throws NullPointerException     if the given listeners are null.
    * @throws IllegalArgumentException if the given channel id is invalid.
    */
@@ -113,7 +114,8 @@ public interface PacketListenerRegistry {
    * @return all channels which have a listener in this registry.
    */
   @NonNull
-  @UnmodifiableView Collection<Integer> channels();
+  @UnmodifiableView
+  Collection<Integer> channels();
 
   /**
    * Get all listener instances which are registered to any channel in this registry.
@@ -121,7 +123,8 @@ public interface PacketListenerRegistry {
    * @return all listener instances registered in this registry.
    */
   @NonNull
-  @UnmodifiableView Collection<PacketListener> listeners();
+  @UnmodifiableView
+  Collection<PacketListener> listeners();
 
   /**
    * Get a channel id - listeners mapping of listeners which were registered to this registry.
@@ -129,7 +132,8 @@ public interface PacketListenerRegistry {
    * @return all channel ids mapped to the listeners this registry has listeners for.
    */
   @NonNull
-  @UnmodifiableView Map<Integer, Collection<PacketListener>> packetListeners();
+  @UnmodifiableView
+  Map<Integer, Collection<PacketListener>> packetListeners();
 
   /**
    * Handles an incoming packets and post this to all listeners which are registered to the channel the packet was sent
