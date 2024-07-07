@@ -131,7 +131,7 @@ private fun resolveRepository(
   repositories: Iterable<MavenArtifactRepository>
 ): MavenArtifactRepository? {
   return repositories.firstOrNull {
-    val url = URL(it.url.toURL(), testUrlPath)
+    val url = it.url.resolve(testUrlPath).toURL()
     with(url.openConnection() as HttpURLConnection) {
       useCaches = false
       readTimeout = 30000

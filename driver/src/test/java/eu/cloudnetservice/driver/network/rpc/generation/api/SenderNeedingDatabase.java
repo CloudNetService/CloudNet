@@ -17,11 +17,13 @@
 package eu.cloudnetservice.driver.network.rpc.generation.api;
 
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 
 public abstract class SenderNeedingDatabase extends BaseDatabase {
 
   public final RPCSender rpcSender;
 
+  @RPCInvocationTarget
   public SenderNeedingDatabase(RPCSender rpcSender) {
     this.rpcSender = rpcSender;
   }

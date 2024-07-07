@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * @param trustCertificatePath the trusted certificate for remote certificate validation.
  * @param certificatePath      the path to an X509 certificate chain in the pem format.
  * @param privateKeyPath       the path to a PKCS#8 private key in PEM format.
+ * @param privateKeyPassword   the password of the private key file, null if not password protected.
  * @since 4.0
  */
 public record SSLConfiguration(
@@ -35,7 +36,8 @@ public record SSLConfiguration(
   boolean clientAuth,
   @Nullable Path trustCertificatePath,
   @Nullable Path certificatePath,
-  @Nullable Path privateKeyPath
+  @Nullable Path privateKeyPath,
+  @Nullable String privateKeyPassword
 ) {
 
 }

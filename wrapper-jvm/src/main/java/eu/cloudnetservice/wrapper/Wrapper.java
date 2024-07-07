@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.DefaultModuleProviderHandler;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.chunk.defaults.ChunkedSessionRegistry;
 import eu.cloudnetservice.driver.network.chunk.defaults.factory.EventChunkHandlerFactory;
 import eu.cloudnetservice.driver.network.chunk.network.ChunkedPacketListener;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -96,7 +97,8 @@ public final class Wrapper {
     @NonNull EventManager eventManager,
     @NonNull NetworkClient networkClient,
     @NonNull WrapperConfiguration configuration,
-    @NonNull ServiceInfoHolder serviceInfoHolder
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ChunkedSessionRegistry chunkedSessionRegistry
   ) {
     // create a new condition and the auth listener
     var currentThread = Thread.currentThread();
@@ -129,7 +131,7 @@ public final class Wrapper {
     // add the runtime packet listeners
     networkClient.packetRegistry().addListener(
       NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
-      new ChunkedPacketListener(EventChunkHandlerFactory.withEventManager(eventManager)));
+      new ChunkedPacketListener(chunkedSessionRegistry, new EventChunkHandlerFactory(eventManager)));
     networkClient.packetRegistry().addListener(
       NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
       PacketServerChannelMessageListener.class);

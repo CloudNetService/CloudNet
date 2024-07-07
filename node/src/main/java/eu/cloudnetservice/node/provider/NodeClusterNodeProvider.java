@@ -23,8 +23,8 @@ import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
@@ -60,7 +60,8 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
     this.clusterNodeServerProvider = nodeServerProvider;
 
     // add the rpc handler
-    rpcFactory.newHandler(ClusterNodeProvider.class, this).registerTo(handlerRegistry);
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(ClusterNodeProvider.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
   }
 
   @Override

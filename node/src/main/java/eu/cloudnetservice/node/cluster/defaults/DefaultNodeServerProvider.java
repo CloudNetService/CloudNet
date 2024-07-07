@@ -29,12 +29,16 @@ import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
+import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.network.listener.message.NodeChannelMessageListener;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.InputStream;
@@ -54,14 +58,23 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
 
   private final LocalNodeServer localNode;
   private final Collection<NodeServer> nodeServers;
+  private final RPCImplementationBuilder.InstanceAllocator<CloudServiceFactory> cloudServiceFactoryAllocator;
 
   private volatile NodeServer headNode;
 
   @Inject
-  public DefaultNodeServerProvider(@NonNull LocalNodeServer localNode, @NonNull DataSyncRegistry dataSyncRegistry) {
+  public DefaultNodeServerProvider(
+    @NonNull LocalNodeServer localNode,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull RPCFactory rpcFactory
+  ) {
     this.dataSyncRegistry = dataSyncRegistry;
     this.localNode = localNode;
     this.nodeServers = new HashSet<>();
+    this.cloudServiceFactoryAllocator = rpcFactory.newRPCBasedImplementationBuilder(CloudServiceFactory.class)
+      .targetChannel(() -> null) // will be set per allocation
+      .implementConcreteMethods()
+      .generateImplementation();
   }
 
   @Inject
@@ -133,7 +146,14 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
   public void registerNode(@NonNull NetworkClusterNode clusterNode) {
     var server = InjectionLayer.boot().instance(
       RemoteNodeServer.class,
-      builder -> builder.override(NetworkClusterNode.class, clusterNode));
+      builder -> {
+        var cloudServiceFactoryAllocatorType = TypeFactory.parameterizedClass(
+          RPCImplementationBuilder.InstanceAllocator.class,
+          CloudServiceFactory.class);
+        builder
+          .override(NetworkClusterNode.class, clusterNode)
+          .override(cloudServiceFactoryAllocatorType, this.cloudServiceFactoryAllocator);
+      });
     this.nodeServers.add(server);
   }
 

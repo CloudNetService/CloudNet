@@ -52,7 +52,8 @@ public interface RPCExecutable {
    * @throws RPCException          if any other exception occurs during the rpc processing.
    */
   @Blocking
-  @UnknownNullability <T> T fireSync();
+  @UnknownNullability
+  <T> T fireSync();
 
   /**
    * Fires the current rpc into the first channel of the associated network component and returns a future which will be
@@ -63,7 +64,8 @@ public interface RPCExecutable {
    * @return a task completed with the result of the method invocation, null if the remote method returned null.
    * @throws NullPointerException if the associated network component has no channels available.
    */
-  @NonNull <T> Task<T> fire();
+  @NonNull
+  <T> Task<T> fire();
 
   /**
    * Fires the current rpc into the given network channel and doesn't wait for the result of the rpc to become
@@ -92,12 +94,14 @@ public interface RPCExecutable {
   /**
    * Fires the current rpc into the given network channel and returns a future which will be completed with the return
    * value of the method execution when it's available or completed with a timeout exception when the query packet
-   * future times out.
+   * future times out. Note: if the target method return a task, this method does not return a task wrapping a task, but
+   * rather the return value in the task directly.
    *
    * @param component the network channel to which the rpc should be sent.
    * @param <T>       the expected return type.
    * @return a task completed with the result of the method invocation, null if the remote method returned null.
    * @throws NullPointerException if the given network channel is null.
    */
-  @NonNull <T> Task<T> fire(@NonNull NetworkChannel component);
+  @NonNull
+  <T> Task<T> fire(@NonNull NetworkChannel component);
 }

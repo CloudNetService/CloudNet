@@ -22,7 +22,6 @@ import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.PacketSender;
 import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A network channel represents an open connection from/to server.
@@ -43,35 +42,40 @@ public interface NetworkChannel extends PacketSender {
    *
    * @return the server address of the channel.
    */
-  @NonNull HostAndPort serverAddress();
+  @NonNull
+  HostAndPort serverAddress();
 
   /**
    * Get the client host from/to the channel is connected.
    *
    * @return the client address of the channel.
    */
-  @NonNull HostAndPort clientAddress();
+  @NonNull
+  HostAndPort clientAddress();
 
   /**
    * Get the handler of this channel listening to all kind of operations on this channel.
    *
    * @return the listener for channel operations.
    */
-  @NonNull NetworkChannelHandler handler();
+  @NonNull
+  NetworkChannelHandler handler();
 
   /**
    * Get the packet listener registry responsible for this channel.
    *
    * @return the packet listener registry responsible for this channel.
    */
-  @NonNull PacketListenerRegistry packetRegistry();
+  @NonNull
+  PacketListenerRegistry packetRegistry();
 
   /**
    * Get the query packet manager of this channel.
    *
    * @return the query packet manager of this channel.
    */
-  @NonNull QueryPacketManager queryPacketManager();
+  @NonNull
+  QueryPacketManager queryPacketManager();
 
   /**
    * Get if this client is opened by a client rather than a server.
@@ -81,16 +85,6 @@ public interface NetworkChannel extends PacketSender {
   boolean clientProvidedChannel();
 
   /**
-   * Converts and sends the given packet as a query into this channel, blocking the current thread until a response is
-   * available or a timeout of 30 seconds was reached.
-   *
-   * @param packet the packet to send as a query.
-   * @return the response to the query or null if no response was received in time.
-   * @throws NullPointerException if the given packet is null.
-   */
-  @Nullable Packet sendQuery(@NonNull Packet packet);
-
-  /**
    * Converts and sends the given packet as a query into this channel, returning a future either completed with the
    * response to the query or an exception if no response to the packet was received in time.
    *
@@ -98,7 +92,8 @@ public interface NetworkChannel extends PacketSender {
    * @return a future completed with the result of the query or an exception in case of a timeout.
    * @throws NullPointerException if the given packet is null.
    */
-  @NonNull Task<Packet> sendQueryAsync(@NonNull Packet packet);
+  @NonNull
+  Task<Packet> sendQueryAsync(@NonNull Packet packet);
 
   /**
    * Get if the underlying channel is currently writeable and will perform writes to the channel immediately.

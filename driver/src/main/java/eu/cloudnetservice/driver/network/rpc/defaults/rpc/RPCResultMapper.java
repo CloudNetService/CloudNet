@@ -16,9 +16,10 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.rpc;
 
-import com.google.common.util.concurrent.UncheckedTimeoutException;
 import eu.cloudnetservice.driver.network.protocol.Packet;
-import eu.cloudnetservice.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
+import eu.cloudnetservice.driver.network.rpc.defaults.handler.util.RPCExceptionUtil;
+import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.lang.reflect.Type;
 import java.util.function.Function;
@@ -42,21 +43,28 @@ record RPCResultMapper<T>(
    */
   @Override
   public @UnknownNullability T apply(@UnknownNullability Packet response) {
-    // check if the query timed out before trying to read from the buffer
-    if (response.readable()) {
-      // the remote execution responded - check if the execution was successful or resulted in an exception
-      var content = response.content();
-      if (content.readBoolean()) {
-        // the execution did not throw an exception
-        return this.objectMapper.readObject(content, this.expectedResultType);
-      } else {
-        // rethrow the execution exception
-        ExceptionalResultUtil.rethrowException(content);
-        return null; // ok fine, but this will never happen - no one was seen again after entering the rethrowException method
+    var responseData = response.content();
+    var status = responseData.readByte();
+    return switch (status) {
+      case RPCInvocationResult.STATUS_OK -> this.objectMapper.readObject(responseData, this.expectedResultType);
+      case RPCInvocationResult.STATUS_ERROR -> {
+        RPCExceptionUtil.rethrowHandlingException(responseData);
+        yield null; // never reached, but must be there for the compiler to be happy
       }
-    } else {
-      // the query timed out - just cover that case in a nice exception wrapper :(
-      throw new UncheckedTimeoutException("Query future was completed before rpc was able to respond");
-    }
+      case RPCInvocationResult.STATUS_BAD_REQUEST -> {
+        var detailMessage = responseData.readString();
+        var exceptionMessage = String.format("RPC couldn't be processed due to bad input data: %s", detailMessage);
+        throw new RPCExecutionException(exceptionMessage);
+      }
+      case RPCInvocationResult.STATUS_SERVER_ERROR -> {
+        var detailMessage = responseData.readString();
+        var exceptionMessage = String.format("RPC couldn't be processed due to a server error: %s", detailMessage);
+        throw new RPCExecutionException(exceptionMessage);
+      }
+      default -> {
+        var exceptionMessage = String.format("Server responded with unknown status code: %d", status);
+        throw new RPCExecutionException(exceptionMessage);
+      }
+    };
   }
 }

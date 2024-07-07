@@ -22,8 +22,8 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -74,8 +74,10 @@ public class NodeBridgeManagement implements BridgeManagement {
       NodeBridgeManagement.class,
       moduleHelper,
       service -> Collections.disjoint(this.configuration.excludedGroups(), service.serviceConfiguration().groups())));
+
     // register the rpc handler
-    providerFactory.newHandler(BridgeManagement.class, this).registerTo(rpcHandlerRegistry);
+    var rpcHandler = providerFactory.newRPCHandlerBuilder(BridgeManagement.class).targetInstance(this).build();
+    rpcHandlerRegistry.registerHandler(rpcHandler);
   }
 
   @PostConstruct

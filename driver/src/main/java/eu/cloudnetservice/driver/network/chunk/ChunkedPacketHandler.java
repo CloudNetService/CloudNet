@@ -37,13 +37,6 @@ import lombok.NonNull;
 public interface ChunkedPacketHandler extends ChunkedPacketProvider {
 
   /**
-   * Get the callback which will be called when the full data is received and available for further processing.
-   *
-   * @return the callback which will be called when the full data is received.
-   */
-  @NonNull Callback callback();
-
-  /**
    * Handles a part of chunked data which gets supplied to the current component. The data chunk is required to be from
    * the same size as announced in the initial transfer information, unless the packet is the last packet of the chunked
    * data stream.
@@ -51,6 +44,7 @@ public interface ChunkedPacketHandler extends ChunkedPacketProvider {
    * @param chunkPosition the position of the chunk, starting from 0.
    * @param dataBuf       the data in the chunk.
    * @return true, if the chunk was the last chunk and the callback was called, false otherwise or in case of a failure.
+   * @throws NullPointerException if the given data buf is null.
    */
   boolean handleChunkPart(int chunkPosition, @NonNull DataBuf dataBuf);
 
@@ -67,9 +61,11 @@ public interface ChunkedPacketHandler extends ChunkedPacketProvider {
      *
      * @param information the information about the chunk session which were sent initially.
      * @param dataInput   the stream of data sent to this component in this chunked session.
-     * @throws IOException in case an i/o exception happens during result handling.
+     * @return true if the full data was consumed and the given stream can be closed, false otherwise.
+     * @throws IOException          in case an i/o exception happens during result handling.
+     * @throws NullPointerException if the given session information or data input stream is null.
      */
-    void handleSessionComplete(
+    boolean handleSessionComplete(
       @NonNull ChunkSessionInformation information,
       @NonNull InputStream dataInput) throws IOException;
   }

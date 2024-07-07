@@ -26,8 +26,8 @@ import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
@@ -75,7 +75,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     this.eventManager = eventManager;
 
     // rpc
-    rpcFactory.newHandler(GroupConfigurationProvider.class, this).registerTo(handlerRegistry);
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(GroupConfigurationProvider.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
 
     // cluster data sync
     syncRegistry.registerHandler(

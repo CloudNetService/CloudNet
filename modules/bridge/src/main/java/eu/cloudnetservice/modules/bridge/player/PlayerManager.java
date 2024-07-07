@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.bridge.player;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import java.util.List;
@@ -33,7 +32,6 @@ import org.jetbrains.annotations.Range;
  *
  * @since 4.0
  */
-@RPCValidation
 public interface PlayerManager {
 
   /**
@@ -83,7 +81,8 @@ public interface PlayerManager {
    * @return a list of all online players with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  @NonNull List<CloudPlayer> onlinePlayers(@NonNull String name);
+  @NonNull
+  List<CloudPlayer> onlinePlayers(@NonNull String name);
 
   /**
    * Gets all online cloud players that are connected to a service of given service environment.
@@ -94,7 +93,8 @@ public interface PlayerManager {
    * @return a list of all cloud players connected to a service of the given service environment.
    * @throws NullPointerException if the given environment is null.
    */
-  @NonNull List<CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment);
+  @NonNull
+  List<CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment);
 
   /**
    * Gets the jvm static player executor for all players that are connected to the network. All methods account for all
@@ -102,7 +102,8 @@ public interface PlayerManager {
    *
    * @return the global player executor for all players.
    */
-  @NonNull PlayerExecutor globalPlayerExecutor();
+  @NonNull
+  PlayerExecutor globalPlayerExecutor();
 
   /**
    * Creates a new player executor for the player associated with the given unique id. The player executor is created
@@ -112,14 +113,16 @@ public interface PlayerManager {
    * @return the player executor for the given player.
    * @throws NullPointerException if the given unique id is null.
    */
-  @NonNull PlayerExecutor playerExecutor(@NonNull UUID uniqueId);
+  @NonNull
+  PlayerExecutor playerExecutor(@NonNull UUID uniqueId);
 
   /**
    * Gets a player provider that provides access to all players that are connected to the cloudnet network.
    *
    * @return the player provider for all online players.
    */
-  @NonNull PlayerProvider onlinePlayers();
+  @NonNull
+  PlayerProvider onlinePlayers();
 
   /**
    * Gets a player provider that provides access to all players that are connected to a service of the task with the
@@ -129,7 +132,8 @@ public interface PlayerManager {
    * @return the player provider for the given task.
    * @throws NullPointerException if the given task is null.
    */
-  @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task);
+  @NonNull
+  PlayerProvider taskOnlinePlayers(@NonNull String task);
 
   /**
    * Gets a player provider that provides access to all players that are connected to a service with the group with the
@@ -139,7 +143,8 @@ public interface PlayerManager {
    * @return the player provider for the given group.
    * @throws NullPointerException if the given group is null.
    */
-  @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group);
+  @NonNull
+  PlayerProvider groupOnlinePlayers(@NonNull String group);
 
   /**
    * Gets the offline player associated with the given unique id. The player must have been previously connected.
@@ -173,7 +178,8 @@ public interface PlayerManager {
    * @return a list of all registered players with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  @NonNull List<CloudOfflinePlayer> offlinePlayers(@NonNull String name);
+  @NonNull
+  List<CloudOfflinePlayer> offlinePlayers(@NonNull String name);
 
   /**
    * Gets a list with all registered players from the database.
@@ -183,7 +189,8 @@ public interface PlayerManager {
    *
    * @return a list of all registered players.
    */
-  @NonNull List<CloudOfflinePlayer> registeredPlayers();
+  @NonNull
+  List<CloudOfflinePlayer> registeredPlayers();
 
   /**
    * Updates the given cloud offline player in the database, in the local cache of the node and calls the update in the
@@ -311,8 +318,8 @@ public interface PlayerManager {
   }
 
   /**
-   * Gets all registered cloud players that have the given case-sensitive name asynchronously. The player must have
-   * been previously connected.
+   * Gets all registered cloud players that have the given case-sensitive name asynchronously. The player must have been
+   * previously connected.
    *
    * @param name the name of the registered cloud players.
    * @return a task containing a list of all registered players with the given name.

@@ -24,8 +24,7 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
@@ -69,13 +68,13 @@ public class RemoteNodeServer implements NodeServer {
 
   @Inject
   public RemoteNodeServer(
-    @NonNull RPCFactory rpcFactory,
     @NonNull NetworkClusterNode info,
     @NonNull NodeServerProvider provider,
     @NonNull NetworkClient networkClient,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull NodeDisconnectHandler disconnectHandler,
-    @NonNull CloudServiceProvider cloudServiceProvider
+    @NonNull CloudServiceProvider cloudServiceProvider,
+    @NonNull RPCImplementationBuilder.InstanceAllocator<CloudServiceFactory> serviceFactoryAllocator
   ) {
     this.info = info;
     this.provider = provider;
@@ -83,10 +82,7 @@ public class RemoteNodeServer implements NodeServer {
     this.dataSyncRegistry = dataSyncRegistry;
     this.disconnectHandler = disconnectHandler;
     this.cloudServiceProvider = cloudServiceProvider;
-    this.serviceFactory = rpcFactory.generateRPCBasedApi(
-      CloudServiceFactory.class,
-      GenerationContext.forClass(CloudServiceFactory.class).channelSupplier(this::channel).build()
-    ).newInstance();
+    this.serviceFactory = serviceFactoryAllocator.withTargetChannel(this::channel).allocate();
   }
 
   @Override

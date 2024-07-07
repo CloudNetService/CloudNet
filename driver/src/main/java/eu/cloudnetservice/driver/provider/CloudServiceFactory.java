@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.provider;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import lombok.NonNull;
@@ -47,7 +46,6 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-@RPCValidation
 public interface CloudServiceFactory {
 
   /**
@@ -71,7 +69,8 @@ public interface CloudServiceFactory {
    * @return a result representing the state of the service creation.
    * @throws NullPointerException if the given service configuration is null.
    */
-  @NonNull ServiceCreateResult createCloudService(@NonNull ServiceConfiguration serviceConfiguration);
+  @NonNull
+  ServiceCreateResult createCloudService(@NonNull ServiceConfiguration serviceConfiguration);
 
   /**
    * Creates and prepares a new cloud service based on the given configuration. This method can be called with the same

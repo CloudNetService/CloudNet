@@ -29,31 +29,18 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public class EventChunkHandlerFactory implements Function<ChunkSessionInformation, ChunkedPacketHandler> {
+public final class EventChunkHandlerFactory implements Function<ChunkSessionInformation, ChunkedPacketHandler> {
 
   private final EventManager eventManager;
 
   /**
-   * Constructs a new event chunk handler factory instance. This constructor should only be used when extending from the
-   * class, see {@link #withEventManager(EventManager)} instead.
+   * Constructs a new event chunk handler factory instance.
    *
    * @param eventManager the event manager to use to call events.
    * @throws NullPointerException if the given event manager is null.
    */
-  protected EventChunkHandlerFactory(@NonNull EventManager eventManager) {
+  public EventChunkHandlerFactory(@NonNull EventManager eventManager) {
     this.eventManager = eventManager;
-  }
-
-  /**
-   * Constructs a new instance of this factory using the given event manager. The given event manager will be used to
-   * call the event, therefore the event manager must also hold the listeners which are responsible to set the factory.
-   *
-   * @param manager the event manager to use for this factory.
-   * @return a new factory using the given event manager.
-   * @throws NullPointerException if the given event manager is null.
-   */
-  public static @NonNull EventChunkHandlerFactory withEventManager(@NonNull EventManager manager) {
-    return new EventChunkHandlerFactory(manager);
   }
 
   /**
@@ -67,13 +54,11 @@ public class EventChunkHandlerFactory implements Function<ChunkSessionInformatio
    */
   @Override
   public @NonNull ChunkedPacketHandler apply(@NonNull ChunkSessionInformation info) {
-    // get the chunked packet handler for the session
     var handler = this.eventManager.callEvent(new ChunkedPacketSessionOpenEvent(info)).handler();
-    // check if there was a handler supplied
     if (handler == null) {
       throw new IllegalStateException("No chunked handler for " + info);
     }
-    // return the created handler
+
     return handler;
   }
 }
