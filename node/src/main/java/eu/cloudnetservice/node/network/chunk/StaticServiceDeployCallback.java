@@ -43,7 +43,7 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
   }
 
   @Override
-  public void handleSessionComplete(
+  public boolean handleSessionComplete(
     @NonNull ChunkSessionInformation information,
     @NonNull InputStream dataInput
   ) {
@@ -57,7 +57,7 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
       // check if the service path exists, and we can overwrite it
       if (Files.exists(servicePath) && !overwriteService) {
         LOGGER.error(I18n.trans("command-cluster-push-static-service-existing", service));
-        return;
+        return true;
       }
 
       // delete the old contents
@@ -70,5 +70,7 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
     } else {
       LOGGER.error(I18n.trans("command-cluster-push-static-service-running-remote", service));
     }
+
+    return true;
   }
 }

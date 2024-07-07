@@ -19,8 +19,8 @@ package eu.cloudnetservice.modules.labymod.node;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import jakarta.inject.Inject;
@@ -42,7 +42,9 @@ public class NodeLabyModManagement implements LabyModManagement {
   ) {
     this.labyModModule = labyModModule;
     this.configuration = configuration;
-    rpcFactory.newHandler(LabyModManagement.class, this).registerTo(rpcHandlerRegistry);
+
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(LabyModManagement.class).targetInstance(this).build();
+    rpcHandlerRegistry.registerHandler(rpcHandler);
   }
 
   @Override

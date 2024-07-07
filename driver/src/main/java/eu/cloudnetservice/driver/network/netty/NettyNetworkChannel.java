@@ -75,7 +75,8 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
     for (var packet : packets) {
       this.writePacket(packet, false);
     }
-    this.channel.flush(); // reduces i/o load
+
+    this.channel.flush();
   }
 
   /**
@@ -89,7 +90,8 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
         NettyUtil.awaitFuture(future);
       }
     }
-    this.channel.flush(); // reduces i/o load
+
+    this.channel.flush();
   }
 
   /**

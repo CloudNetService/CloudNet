@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.provider;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +50,6 @@ import org.jetbrains.annotations.Nullable;
  * @see ChannelMessage
  * @since 4.0
  */
-@RPCValidation
 public interface CloudMessenger {
 
   /**
@@ -70,7 +68,8 @@ public interface CloudMessenger {
    * @return all responses from all network components which responded in time.
    * @throws NullPointerException if the given channel message is null.
    */
-  @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage);
+  @NonNull
+  Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage);
 
   /**
    * Sends the given channel message to all of its targets and waits for all responses to be present or the query to

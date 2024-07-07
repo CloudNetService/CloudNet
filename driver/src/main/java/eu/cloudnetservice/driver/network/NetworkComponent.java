@@ -45,7 +45,8 @@ public interface NetworkComponent extends PacketSender {
    * @return an immutable collection of all channels which are associated with this component.
    */
   @NonNull
-  @Unmodifiable Collection<NetworkChannel> channels();
+  @Unmodifiable
+  Collection<NetworkChannel> channels();
 
   /**
    * Get the first channel which is known to this component or null if no channel is present.
@@ -61,14 +62,16 @@ public interface NetworkComponent extends PacketSender {
    *
    * @return the dispatching executor for received packets.
    */
-  @NonNull Executor packetDispatcher();
+  @NonNull
+  Executor packetDispatcher();
 
   /**
    * Get the packet listener registry which will be the root registry for all channels initialized by this component.
    *
    * @return the root packet registry for all associated channels.
    */
-  @NonNull PacketListenerRegistry packetRegistry();
+  @NonNull
+  PacketListenerRegistry packetRegistry();
 
   /**
    * Closes all open connections associated with this network component.

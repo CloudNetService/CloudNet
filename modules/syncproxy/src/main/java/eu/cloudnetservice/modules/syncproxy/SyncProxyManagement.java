@@ -16,15 +16,14 @@
 
 package eu.cloudnetservice.modules.syncproxy;
 
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import lombok.NonNull;
 
-@RPCValidation
 public interface SyncProxyManagement {
 
-  @NonNull SyncProxyConfiguration configuration();
+  @NonNull
+  SyncProxyConfiguration configuration();
 
   void configuration(@NonNull SyncProxyConfiguration configuration);
 

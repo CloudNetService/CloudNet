@@ -26,7 +26,6 @@ import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class QueuedNetworkChannel implements NetworkChannel {
 
@@ -71,11 +70,6 @@ public final class QueuedNetworkChannel implements NetworkChannel {
   @Override
   public boolean clientProvidedChannel() {
     return this.wrappedChannel.clientProvidedChannel();
-  }
-
-  @Override
-  public @Nullable Packet sendQuery(@NonNull Packet packet) {
-    return this.wrappedChannel.sendQuery(packet);
   }
 
   @Override

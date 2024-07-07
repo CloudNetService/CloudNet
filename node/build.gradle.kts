@@ -33,7 +33,7 @@ tasks.withType<Jar> {
 }
 
 tasks.withType<JavaCompile> {
-  options.compilerArgs = listOf("-AaerogelAutoFileName=autoconfigure/node.aero")
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/node.aero")
 }
 
 dependencies {
@@ -56,6 +56,8 @@ dependencies {
   "implementation"(libs.jline)
   "implementation"(libs.jansi)
   "implementation"(libs.stringSimilarity)
+
+  "compileOnly"(libs.bundles.netty)
   "implementation"(libs.bundles.nightConfig)
 }
 

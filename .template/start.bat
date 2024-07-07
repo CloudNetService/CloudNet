@@ -7,5 +7,5 @@ IF %ERRORLEVEL% NEQ 0 (
   EXIT /b 1
 ) ELSE (
 :: DO NOT CHANGE THE SUPPLIED MEMORY HERE. THIS HAS NO EFFECT ON THE NODE INSTANCE. USE THE launcher.cnl INSTEAD
-  java -Xms128M -Xmx128M -XX:+UseZGC -XX:+PerfDisableSharedMem -XX:+DisableExplicitGC -jar launcher.jar
+  java -Xms128M -Xmx128M -XX:+UseZGC -XX:+PerfDisableSharedMem -jar launcher.jar
 )

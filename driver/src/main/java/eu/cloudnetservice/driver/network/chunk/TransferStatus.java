@@ -34,5 +34,5 @@ public enum TransferStatus {
   /**
    * The transfer failed for some reason.
    */
-  FAILURE
+  FAILURE,
 }

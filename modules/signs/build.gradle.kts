@@ -29,7 +29,7 @@ tasks.withType<Jar> {
 }
 
 tasks.withType<JavaCompile> {
-  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/signs.aero")
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/signs.aero")
 }
 
 dependencies {

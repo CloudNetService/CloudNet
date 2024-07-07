@@ -20,7 +20,7 @@ import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializ
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;

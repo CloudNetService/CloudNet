@@ -18,8 +18,8 @@ package eu.cloudnetservice.modules.syncproxy.platform;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -84,7 +84,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     this.serviceProvider = serviceProvider;
     this.executorService = executorService;
 
-    this.rpcSender = rpcFactory.providerForClass(networkClient, SyncProxyManagement.class);
+    this.rpcSender = rpcFactory.newRPCSenderBuilder(SyncProxyManagement.class).targetComponent(networkClient).build();
   }
 
   protected void init() {
@@ -127,7 +127,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   @Override
   public void configuration(@NonNull SyncProxyConfiguration configuration) {
-    this.rpcSender.invokeMethod("configuration", configuration).fireSync();
+    this.rpcSender.invokeCaller(configuration).fireSync();
   }
 
   public @Nullable SyncProxyMotd randomMotd() {

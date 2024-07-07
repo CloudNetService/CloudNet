@@ -18,12 +18,9 @@ package eu.cloudnetservice.driver.network.protocol;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import java.time.Duration;
-import java.util.Map;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * Represents the manager used by the cloud to manage incoming and outgoing query packets.
@@ -33,28 +30,21 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface QueryPacketManager {
 
   /**
-   * Get the duration before a query is marked as unanswered and the associated future gets completed with an empty
-   * packet.
-   *
-   * @return the timeout of a query.
-   */
-  @NonNull Duration queryTimeout();
-
-  /**
-   * Get the network channel this manager is associated with. Each network channel has its own query manager.
+   * Get the network channel this manager is associated with. This channel is used to transmit query packets to the
+   * receiver, therefore the network channel of the received must be known in advance.
    *
    * @return the network channel to which this manager belongs.
-   * @see NetworkChannel#queryPacketManager()
-   */
-  @NonNull NetworkChannel networkChannel();
-
-  /**
-   * Get all registered queries which are currently waiting for a response.
-   *
-   * @return all waiting queries.
    */
   @NonNull
-  @UnmodifiableView Map<UUID, Task<Packet>> waitingHandlers();
+  NetworkChannel networkChannel();
+
+  /**
+   * Returns the approximate number of query response handlers that are currently awaiting a response. The returned
+   * value is an estimate, as the real value might differ due to concurrent sends of queries or receive of responses.
+   *
+   * @return the estimated number of handlers that are awaiting a response.
+   */
+  long waitingHandlerCount();
 
   /**
    * Checks if a waiting handler is registered (and therefore still waiting for a result) for the given unique id.
@@ -66,23 +56,14 @@ public interface QueryPacketManager {
   boolean hasWaitingHandler(@NonNull UUID queryUniqueId);
 
   /**
-   * Unregisters the waiting handler by the given unique id.
-   *
-   * @param queryUniqueId the unique id of the handler to unregister.
-   * @return true if the handler was unregistered, false otherwise.
-   * @throws NullPointerException if the given handler unique id is null.
-   */
-  boolean unregisterWaitingHandler(@NonNull UUID queryUniqueId);
-
-  /**
-   * Gets, but does not remove the waiting handler for the given unique id. Null if no handler with the given unique id
-   * is still registered.
+   * Gets and removes the waiting handler for the given query unique id.
    *
    * @param queryUniqueId the unique id of the handler to get.
    * @return the waiting handler associated with the given unique id, null if no handler with that id is waiting.
    * @throws NullPointerException if the given unique id is null.
    */
-  @Nullable Task<Packet> waitingHandler(@NonNull UUID queryUniqueId);
+  @Nullable
+  Task<Packet> waitingHandler(@NonNull UUID queryUniqueId);
 
   /**
    * Sends a query packet to the associated network channel, automatically selecting a query id for the packet and
@@ -93,16 +74,6 @@ public interface QueryPacketManager {
    * @return a future completed with either the response to the packet or an empty packet if the waiting time expires.
    * @throws NullPointerException if the given packet is null.
    */
-  @NonNull Task<Packet> sendQueryPacket(@NonNull Packet packet);
-
-  /**
-   * Sends a query packet to the associated network channel, automatically setting the id in the packet. An existing
-   * query unique id in the packet will get overridden.
-   *
-   * @param packet        the packet to convert to a query packet and send to the channel.
-   * @param queryUniqueId the unique id to use when sending the packet.
-   * @return a future completed with either the response to the packet or an empty packet if the waiting time expires.
-   * @throws NullPointerException if either the given packet or unique id is null.
-   */
-  @NonNull Task<Packet> sendQueryPacket(@NonNull Packet packet, @NonNull UUID queryUniqueId);
+  @NonNull
+  Task<Packet> sendQueryPacket(@NonNull Packet packet);
 }

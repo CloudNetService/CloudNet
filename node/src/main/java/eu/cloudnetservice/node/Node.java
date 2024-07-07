@@ -28,14 +28,14 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.DefaultModuleDependencyLoader;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkServer;
+import eu.cloudnetservice.driver.network.chunk.event.FileQueryChannelMessageListener;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.template.TemplateStorage;
-import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.task.LocalNodeUpdateTask;
@@ -106,9 +106,12 @@ public final class Node {
 
   @Inject
   @Order(100)
-  private void registerDefaultRPCHandlers(@NonNull RPCFactory rpcFactory, @NonNull RPCHandlerRegistry handlerRegistry) {
-    rpcFactory.newHandler(Database.class, null).registerTo(handlerRegistry);
-    rpcFactory.newHandler(TemplateStorage.class, null).registerTo(handlerRegistry);
+  private void registerDummyRPCHandlers(@NonNull RPCFactory rpcFactory, @NonNull RPCHandlerRegistry handlerRegistry) {
+    var dbHandler = rpcFactory.newRPCHandlerBuilder(Database.class).build();
+    handlerRegistry.registerHandler(dbHandler);
+
+    var templateStorageHandler = rpcFactory.newRPCHandlerBuilder(TemplateStorage.class).build();
+    handlerRegistry.registerHandler(templateStorageHandler);
   }
 
   @Inject
@@ -228,7 +231,8 @@ public final class Node {
     bootLayer.install(binding);
 
     // register the rpc handler for the database provider
-    rpcFactory.newHandler(DatabaseProvider.class, provider).registerTo(rpcHandlerRegistry);
+    var dbProviderHandler = rpcFactory.newRPCHandlerBuilder(DatabaseProvider.class).targetInstance(provider).build();
+    rpcHandlerRegistry.registerHandler(dbProviderHandler);
 
     // notify the user about the selected database
     LOGGER.info(I18n.trans("start-connect-database", provider.name()));
@@ -263,9 +267,6 @@ public final class Node {
   ) throws InterruptedException {
     // print out some network information, more for debug reasons in normal cases
     LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
-    LOGGER.info(I18n.trans(
-      "network-selected-dispatch-thread-type",
-      ExecutorServiceUtil.virtualThreadsAvailable() ? "virtual" : "platform"));
 
     // network server init
     var connectionCounter = new AtomicInteger();
@@ -422,6 +423,7 @@ public final class Node {
     // register listeners & post node startup finish
     eventManager.registerListener(callbackListener);
     eventManager.callEvent(new CloudNetNodePostInitializationEvent());
+    eventManager.registerListener(FileQueryChannelMessageListener.class);
 
     // notify that we are done & start the main tick loop
     LOGGER.info(I18n.trans("start-done", Duration.between(startInstant, Instant.now()).toMillis()));

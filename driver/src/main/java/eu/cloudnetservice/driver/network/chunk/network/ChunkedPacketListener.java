@@ -19,10 +19,9 @@ package eu.cloudnetservice.driver.network.chunk.network;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
+import eu.cloudnetservice.driver.network.chunk.defaults.ChunkedSessionRegistry;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import lombok.NonNull;
 
@@ -33,8 +32,8 @@ import lombok.NonNull;
  */
 public class ChunkedPacketListener implements PacketListener {
 
+  private final ChunkedSessionRegistry sessionRegistry;
   private final Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory;
-  private final Map<ChunkSessionInformation, ChunkedPacketHandler> runningSessions = new ConcurrentHashMap<>();
 
   /**
    * Creates a new packet listener instance.
@@ -42,7 +41,11 @@ public class ChunkedPacketListener implements PacketListener {
    * @param handlerFactory the factory to create the chunked packet handlers when receiving the initial request.
    * @throws NullPointerException if the given factory is null.
    */
-  public ChunkedPacketListener(@NonNull Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory) {
+  public ChunkedPacketListener(
+    @NonNull ChunkedSessionRegistry sessionRegistry,
+    @NonNull Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory
+  ) {
+    this.sessionRegistry = sessionRegistry;
     this.handlerFactory = handlerFactory;
   }
 
@@ -51,16 +54,15 @@ public class ChunkedPacketListener implements PacketListener {
    */
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
-    // read the chunk information from the buffer
-    var information = packet.content().readObject(ChunkSessionInformation.class);
-    // read the chunk index
-    var chunkIndex = packet.content().readInt();
-    // get or create the session associated with the packet
-    var handler = this.runningSessions.computeIfAbsent(information, this.handlerFactory);
-    // post the packet and check if the session is done
-    if (handler.handleChunkPart(chunkIndex, packet.content())) {
-      // done, remove the session
-      this.runningSessions.remove(information);
+    var packetContent = packet.content();
+    var sessionInfo = packetContent.readObject(ChunkSessionInformation.class);
+    var chunkIndex = packetContent.readInt();
+
+    // get or create a new local session for the transfer
+    var sessionHandler = this.sessionRegistry.getOrCreateSession(sessionInfo, this.handlerFactory);
+    var transferComplete = sessionHandler.handleChunkPart(chunkIndex, packetContent);
+    if (transferComplete) {
+      this.sessionRegistry.completeSession(sessionInfo.sessionUniqueId());
     }
   }
 }

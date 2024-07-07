@@ -38,7 +38,7 @@ final class TemplateFileDeployCallback implements ChunkedPacketHandler.Callback 
   }
 
   @Override
-  public void handleSessionComplete(
+  public boolean handleSessionComplete(
     @NonNull ChunkSessionInformation information,
     @NonNull InputStream dataInput
   ) throws IOException {
@@ -59,5 +59,7 @@ final class TemplateFileDeployCallback implements ChunkedPacketHandler.Callback 
         FileUtil.copy(dataInput, out);
       }
     }
+
+    return true;
   }
 }

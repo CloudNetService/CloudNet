@@ -56,8 +56,7 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     Collection<ChannelMessage> response = this.networkClient.firstChannel()
-      .queryPacketManager()
-      .sendQueryPacket(new PacketServerChannelMessage(channelMessage, true))
+      .sendQueryAsync(new PacketServerChannelMessage(channelMessage, true))
       .join()
       .content()
       .readObject(MESSAGES);

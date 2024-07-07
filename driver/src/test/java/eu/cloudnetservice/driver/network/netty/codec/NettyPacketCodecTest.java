@@ -18,10 +18,10 @@ package eu.cloudnetservice.driver.network.netty.codec;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import io.netty5.buffer.Buffer;
-import io.netty5.buffer.DefaultBufferAllocators;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelHandlerContext;
 import java.util.concurrent.ThreadLocalRandom;
@@ -41,7 +41,7 @@ public class NettyPacketCodecTest {
       .writeDouble(5D);
 
     var outCtx = Mockito.mock(ChannelHandlerContext.class);
-    Mockito.when(outCtx.bufferAllocator()).thenReturn(DefaultBufferAllocators.onHeapAllocator());
+    Mockito.when(outCtx.bufferAllocator()).thenReturn(NettyUtil.selectedBufferAllocator());
     Mockito.when(outCtx.write(Mockito.any(Buffer.class))).then(invocation -> {
       // called from within the encoder call
       Buffer buffer = invocation.getArgument(0);

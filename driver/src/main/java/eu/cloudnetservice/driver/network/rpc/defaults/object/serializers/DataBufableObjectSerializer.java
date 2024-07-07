@@ -18,62 +18,45 @@ package eu.cloudnetservice.driver.network.rpc.defaults.object.serializers;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufable;
-import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvoker;
-import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
-import eu.cloudnetservice.driver.network.rpc.exception.MissingNoArgsConstructorException;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
+import eu.cloudnetservice.driver.util.ClassAllocationUtil;
 import java.lang.reflect.Type;
-import java.util.Objects;
+import java.time.Duration;
+import java.util.function.Supplier;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents an object serializer used to write subclasses of {@code DataBufable} into the outgoing buffer.
+ * An object codec implementation for all classes that implement {@link DataBufable}.
  *
  * @since 4.0
  */
-public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable> {
+public final class DataBufableObjectSerializer implements ObjectSerializer<DataBufable> {
 
-  private static final Object[] NO_ARGS = new Object[0];
-
-  private final MethodInvokerGenerator generator = new MethodInvokerGenerator();
-  private final Cache<Type, MethodInvoker> cachedConstructors = Caffeine.newBuilder().build();
+  private final Cache<Class<?>, Supplier<Object>> cachedClassAllocators = Caffeine.newBuilder()
+    .expireAfterAccess(Duration.ofHours(6))
+    .build();
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable DataBufable read(
+  public @NonNull DataBufable read(
     @NonNull DataBuf source,
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    // ensure that the type is a class
-    Preconditions.checkState(type instanceof Class<?>, "Call to data buf reader as non-class");
-    // try to read the data from into class
-    var clazz = (Class<?>) type;
-    // find a no-args constructor method invoker of the class
-    var invoker = this.cachedConstructors.get(
-      type,
-      $ -> {
-        try {
-          // lookup the no args constructor before generating
-          clazz.getDeclaredConstructor();
-          // constructor is there, generate
-          return this.generator.makeNoArgsConstructorInvoker(clazz);
-        } catch (NoSuchMethodException exception) {
-          throw new MissingNoArgsConstructorException(clazz);
-        }
-      });
-    // create an instance of the class and read the data of the buffer into it
-    // (just to suppress the warning the invoke method is wrapped into requireNonNull, it will never return null)
-    var object = Objects.requireNonNull((DataBufable) invoker.callMethod(NO_ARGS));
-    object.readData(source);
-    return object;
+    if (!(type instanceof Class<?> targetClass)) {
+      throw new IllegalArgumentException("target type must be class");
+    }
+
+    // allocate an instance of the class & read the data from the given data buf
+    var classAllocator = this.cachedClassAllocators.get(targetClass, ClassAllocationUtil::makeInstanceFactory);
+    var allocatedInstance = (DataBufable) classAllocator.get();
+    allocatedInstance.readData(source);
+    return allocatedInstance;
   }
 
   /**

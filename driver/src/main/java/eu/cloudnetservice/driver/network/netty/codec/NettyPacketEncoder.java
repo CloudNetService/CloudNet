@@ -57,7 +57,6 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
       bufferLength += 16;
     }
 
-    // allocate the buffer
     return ctx.bufferAllocator().allocate(bufferLength);
   }
 
@@ -66,11 +65,9 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
    */
   @Override
   protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull Packet msg, @NonNull Buffer out) {
-    // channel
     NettyUtil.writeVarInt(out, msg.channel());
-    // packet priority
     out.writeBoolean(msg.prioritized());
-    // query id (if present)
+
     var queryUniqueId = msg.uniqueId();
     out.writeBoolean(queryUniqueId != null);
     if (queryUniqueId != null) {
@@ -78,17 +75,15 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
         .writeLong(queryUniqueId.getMostSignificantBits())
         .writeLong(queryUniqueId.getLeastSignificantBits());
     }
-    // body
-    // we only support netty buf
+
+    // copy over the packet body into the output buffer
     var content = ((NettyImmutableDataBuf) msg.content()).buffer();
-    // write information to buffer
     var length = content.readableBytes();
     NettyUtil.writeVarInt(out, length);
-    // copy the content and move the cursor of the destination buffer
     content.copyInto(0, out, out.writerOffset(), length);
     out.skipWritableBytes(length);
-    // release the content of the packet now, don't use the local field to respect if releasing was disabled in the
-    // original buffer.
+
+    // release the packet content once
     msg.content().release();
   }
 

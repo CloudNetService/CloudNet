@@ -44,9 +44,9 @@ import org.jetbrains.annotations.Nullable;
  * and/or write operations will therefore produce (by default) different results when spread over threads.
  * <p>
  * Buffers should avoid memory leaks by ensuring to release their content after the last byte of the buffer was read.
- * This behaviour is toggleable by using {@link #disableReleasing()} and {@link #enableReleasing()}. However, direct
- * call to the {@link #release()} method will (when releasing is disabled) get discarded silently. The same behaviour
- * applies to the buffer when used in a try-with-resources block or {@code close()} is called directly.
+ * The behaviour can be influenced by acquiring them using {@link #acquire()}. The buffer will only be released if every
+ * place that acquired the buffer has released it using {@link #release()} or {@link #close()}. In rare cases it might
+ * be necessary to release a buffer even if it's acquired, use {@link #forceRelease()} in that case.
  * <p>
  * To prevent exceptions during reading, it's worth noting that using {@code readableBytes() > 0} it is possible to
  * verify that there are still bytes left in the buffer to read.
@@ -167,7 +167,8 @@ public interface DataBuf extends AutoCloseable {
    * @throws IndexOutOfBoundsException if there are less than sixteen bytes to read.
    * @throws IllegalStateException     if this buffer was released.
    */
-  @NonNull UUID readUniqueId();
+  @NonNull
+  UUID readUniqueId();
 
   /**
    * Reads the next UTF-8 encoded string from the buffer. A string during write is converted to a byte array containing
@@ -179,7 +180,8 @@ public interface DataBuf extends AutoCloseable {
    * @throws IndexOutOfBoundsException if there are fewer bytes than expected in the buffer.
    * @throws IllegalStateException     if this buffer was released.
    */
-  @NonNull String readString();
+  @NonNull
+  String readString();
 
   /**
    * Reads the next data buf from the buffer. A data buf write works like a byte array write operation because the
@@ -192,7 +194,8 @@ public interface DataBuf extends AutoCloseable {
    * @throws IndexOutOfBoundsException if there are fewer bytes than expected in the buffer.
    * @throws IllegalStateException     if this buffer was released.
    */
-  @NonNull DataBuf readDataBuf();
+  @NonNull
+  DataBuf readDataBuf();
 
   /**
    * Converts the remaining bytes in this buffer into a byte array. This operation moves the reader index to the end of
@@ -271,7 +274,8 @@ public interface DataBuf extends AutoCloseable {
    *
    * @return the same instance as used to call the method, for chaining.
    */
-  @NonNull DataBuf startTransaction();
+  @NonNull
+  DataBuf startTransaction();
 
   /**
    * Redoes the currently running transaction on the buffer. If no transaction was started before, the reader and writer
@@ -280,7 +284,8 @@ public interface DataBuf extends AutoCloseable {
    * @return the same instance as used to call the method, for chaining.
    * @throws IndexOutOfBoundsException if an illegal action was made to buffer moving the reader or writer index.
    */
-  @NonNull DataBuf redoTransaction();
+  @NonNull
+  DataBuf redoTransaction();
 
   /**
    * Converts this immutable buffer to a mutable one. There is no need to copy the underlying byte tracker, meaning that
@@ -288,7 +293,8 @@ public interface DataBuf extends AutoCloseable {
    *
    * @return a mutable variant of this buffer.
    */
-  @NonNull DataBuf.Mutable asMutable();
+  @NonNull
+  DataBuf.Mutable asMutable();
 
   // direct memory access
 
@@ -312,7 +318,8 @@ public interface DataBuf extends AutoCloseable {
    *
    * @return the same instance as used to call the method, for chaining.
    */
-  @NonNull DataBuf acquire();
+  @NonNull
+  DataBuf acquire();
 
   /**
    * Explicitly releases all data associated with this buffer making it unavailable for further reads. This method only
@@ -346,7 +353,8 @@ public interface DataBuf extends AutoCloseable {
      * @param b the boolean to write.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeBoolean(boolean b);
+    @NonNull
+    DataBuf.Mutable writeBoolean(boolean b);
 
     /**
      * Writes the given integer at the current writer index, increasing the index by four.
@@ -354,7 +362,8 @@ public interface DataBuf extends AutoCloseable {
      * @param integer the integer to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeInt(int integer);
+    @NonNull
+    DataBuf.Mutable writeInt(int integer);
 
     /**
      * Writes the given byte at the current writer index, increasing the index by one.
@@ -362,7 +371,8 @@ public interface DataBuf extends AutoCloseable {
      * @param b the byte to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeByte(byte b);
+    @NonNull
+    DataBuf.Mutable writeByte(byte b);
 
     /**
      * Writes the given short at the current writer index, increasing the index by two.
@@ -370,7 +380,8 @@ public interface DataBuf extends AutoCloseable {
      * @param s the short to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeShort(short s);
+    @NonNull
+    DataBuf.Mutable writeShort(short s);
 
     /**
      * Writes the given long at the current writer index, increasing the index by eight.
@@ -378,7 +389,8 @@ public interface DataBuf extends AutoCloseable {
      * @param l the long to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeLong(long l);
+    @NonNull
+    DataBuf.Mutable writeLong(long l);
 
     /**
      * Writes the given float at the current writer index, increasing the index by four.
@@ -386,7 +398,8 @@ public interface DataBuf extends AutoCloseable {
      * @param f the float to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeFloat(float f);
+    @NonNull
+    DataBuf.Mutable writeFloat(float f);
 
     /**
      * Writes the given double at the current writer index, increasing the index by eight.
@@ -394,7 +407,8 @@ public interface DataBuf extends AutoCloseable {
      * @param d the double to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeDouble(double d);
+    @NonNull
+    DataBuf.Mutable writeDouble(double d);
 
     /**
      * Writes the given UTF-16 char at the current writer index, increasing the index by two.
@@ -402,7 +416,8 @@ public interface DataBuf extends AutoCloseable {
      * @param c the char to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeChar(char c);
+    @NonNull
+    DataBuf.Mutable writeChar(char c);
 
     /**
      * Writes the given byte array into the buffer, prefixed by an integer containing the amount of bytes following in
@@ -413,7 +428,8 @@ public interface DataBuf extends AutoCloseable {
      * @param b the byte array to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeByteArray(byte[] b);
+    @NonNull
+    DataBuf.Mutable writeByteArray(byte[] b);
 
     /**
      * Writes the given byte array into the buffer, prefixed by an integer containing the amount of bytes following in
@@ -423,7 +439,8 @@ public interface DataBuf extends AutoCloseable {
      * @param amount the amount of bytes of the array to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeByteArray(byte[] b, int amount);
+    @NonNull
+    DataBuf.Mutable writeByteArray(byte[] b, int amount);
 
     /**
      * Writes the unique id into the buffer by first writing the most significant bits of the id followed by the last
@@ -432,7 +449,8 @@ public interface DataBuf extends AutoCloseable {
      * @param uuid the id to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeUniqueId(@NonNull UUID uuid);
+    @NonNull
+    DataBuf.Mutable writeUniqueId(@NonNull UUID uuid);
 
     /**
      * Writes the string into the buffer. This method does the same thing as {@link #writeByteArray(byte[])}. The string
@@ -441,7 +459,8 @@ public interface DataBuf extends AutoCloseable {
      * @param string the string to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeString(@NonNull String string);
+    @NonNull
+    DataBuf.Mutable writeString(@NonNull String string);
 
     /**
      * Writes all data of the given data buffer into this data buffer starting at the current reader index of the given
@@ -453,7 +472,8 @@ public interface DataBuf extends AutoCloseable {
      * @param buf the buffer to write into this buffer.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull DataBuf.Mutable writeDataBuf(@NonNull DataBuf buf);
+    @NonNull
+    DataBuf.Mutable writeDataBuf(@NonNull DataBuf buf);
 
     /**
      * Writes the given object into this buffer. The object is written using the default object mapper of the system.
@@ -462,7 +482,8 @@ public interface DataBuf extends AutoCloseable {
      * @return the same buffer used to call the method, for chaining.
      * @see ObjectMapper#writeObject(Mutable, Object)
      */
-    @NonNull DataBuf.Mutable writeObject(@Nullable Object obj);
+    @NonNull
+    DataBuf.Mutable writeObject(@Nullable Object obj);
 
     /**
      * Writes the given object null-safe into this buffer. It appends a boolean before the actual object data (if the
@@ -475,8 +496,21 @@ public interface DataBuf extends AutoCloseable {
      * @param <T>                the generic type of the object being written.
      * @return the same buffer used to call the method, for chaining.
      */
-    @NonNull <T> DataBuf.Mutable writeNullable(@Nullable T object,
+    @NonNull
+    <T> DataBuf.Mutable writeNullable(
+      @Nullable T object,
       @NonNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);
+
+    /**
+     * Ensures that this buffer has at least the given amount of bytes unused for writing data. If the buffer already
+     * has the amount of bytes present, this method returns immediately.
+     *
+     * @param bytes the bytes that must be available in the buffer.
+     * @return this buffer, for chaining.
+     * @throws IllegalArgumentException if the given byte count is negative.
+     */
+    @NonNull
+    DataBuf.Mutable ensureWriteable(int bytes);
 
     // utility for reading
 
@@ -486,6 +520,7 @@ public interface DataBuf extends AutoCloseable {
      *
      * @return an immutable version of this buffer.
      */
-    @NonNull DataBuf asImmutable();
+    @NonNull
+    DataBuf asImmutable();
   }
 }

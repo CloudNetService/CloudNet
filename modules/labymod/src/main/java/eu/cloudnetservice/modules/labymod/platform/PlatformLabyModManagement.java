@@ -20,8 +20,8 @@ import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
@@ -51,7 +51,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     @NonNull @Service PlayerManager playerManager,
     @NonNull @Service PlatformBridgeManagement<?, ?> bridgeManagement
   ) {
-    this.rpcSender = rpcFactory.providerForClass(networkClient, LabyModManagement.class);
+    this.rpcSender = rpcFactory.newRPCSenderBuilder(LabyModManagement.class).targetComponent(networkClient).build();
     this.playerManager = playerManager;
     this.bridgeManagement = bridgeManagement;
     this.setConfigurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
@@ -64,7 +64,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
 
   @Override
   public void configuration(@NonNull LabyModConfiguration configuration) {
-    this.rpcSender.invokeMethod("configuration", configuration).fireSync();
+    this.rpcSender.invokeCaller(configuration).fireSync();
   }
 
   public void setConfigurationSilently(@NonNull LabyModConfiguration configuration) {

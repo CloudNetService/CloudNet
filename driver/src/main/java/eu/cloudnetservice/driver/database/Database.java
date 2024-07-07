@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.database;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.Map;
 import lombok.NonNull;
@@ -52,7 +51,6 @@ import org.jetbrains.annotations.Nullable;
  * @see DatabaseProvider
  * @since 4.0
  */
-@RPCValidation
 public interface Database extends Named, AutoCloseable {
 
   /**
@@ -104,7 +102,8 @@ public interface Database extends Named, AutoCloseable {
    * @return all documents in the database which contain the given field mapped to the given field value.
    * @throws NullPointerException if fieldName is null.
    */
-  @NonNull Collection<Document> find(@NonNull String fieldName, @Nullable String fieldValue);
+  @NonNull
+  Collection<Document> find(@NonNull String fieldName, @Nullable String fieldValue);
 
   /**
    * Searches for all entries in the database which contain each entry of the provided map. Null as a field value is
@@ -115,7 +114,8 @@ public interface Database extends Named, AutoCloseable {
    * @return all documents in the database which contain all key-value mappings of the filter document.
    * @throws NullPointerException if filters is null.
    */
-  @NonNull Collection<Document> find(@NonNull Map<String, String> filters);
+  @NonNull
+  Collection<Document> find(@NonNull Map<String, String> filters);
 
   /**
    * Get all keys which are currently stored and mapped to a document in the database. This operation might be heavy
@@ -123,7 +123,8 @@ public interface Database extends Named, AutoCloseable {
    *
    * @return all keys stored in the database.
    */
-  @NonNull Collection<String> keys();
+  @NonNull
+  Collection<String> keys();
 
   /**
    * Get all values which are currently stored and mapped to a key in the database. This operation might be heavy when
@@ -131,7 +132,8 @@ public interface Database extends Named, AutoCloseable {
    *
    * @return all documents stored in the database.
    */
-  @NonNull Collection<Document> documents();
+  @NonNull
+  Collection<Document> documents();
 
   /**
    * Get all key-value pairs which are currently stored in the database. This operation might be heavy when querying a
@@ -139,7 +141,8 @@ public interface Database extends Named, AutoCloseable {
    *
    * @return all key-value pairs stored in the database.
    */
-  @NonNull Map<String, Document> entries();
+  @NonNull
+  Map<String, Document> entries();
 
   /**
    * Removes all key-value pairs which are currently stored in the database. This operation will not remove the

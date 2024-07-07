@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.network.rpc.defaults.rpc;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCChain;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
@@ -26,55 +25,71 @@ import eu.cloudnetservice.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
 import eu.cloudnetservice.driver.network.rpc.packet.RPCRequestPacket;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import lombok.NonNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * Represents the default implementation of a rpc chain.
  *
  * @since 4.0
  */
-public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
+public final class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
 
-  protected final RPC rootRPC;
-  protected final RPC headRPC;
-  protected final List<RPC> rpcChain;
+  private final RPC chainHead;
+  private final RPC chainTail;
+  private final List<RPC> fullChain;
+  private final Supplier<NetworkChannel> channelSupplier;
 
   /**
-   * Constructs a new default rpc chain instance.
+   * Constructs a new rpc chain instance.
    *
-   * @param rootRPC the root rpc of the chain, also known as the entry point.
-   * @param headRPC the next rpc to invoke after the root rpc.
-   * @throws NullPointerException if either the given root or head rpc is null.
+   * @param chainHead       the first rpc in the execution chain.
+   * @param chainTail       the last rpc in the execution chain.
+   * @param fullChain       the full chain of rpc to invoke.
+   * @param channelSupplier the target channel supplier to use for method invocation if no channel is provided.
+   * @throws NullPointerException if one of the given parameters is null.
    */
-  protected DefaultRPCChain(
-    @NonNull RPC rootRPC,
-    @NonNull RPC headRPC
+  // trusted constructor as changes to the full chain list will reflect into this instance - do not expose
+  private DefaultRPCChain(
+    @NonNull RPC chainHead,
+    @NonNull RPC chainTail,
+    @NonNull List<RPC> fullChain,
+    @NonNull Supplier<NetworkChannel> channelSupplier
   ) {
-    this(rootRPC, headRPC, List.of(headRPC));
+    super(chainHead.targetClass(), chainHead.sourceFactory(), chainHead.objectMapper(), chainHead.dataBufFactory());
+
+    this.chainHead = chainHead;
+    this.chainTail = chainTail;
+    this.fullChain = Collections.unmodifiableList(fullChain);
+    this.channelSupplier = channelSupplier;
   }
 
   /**
-   * Constructs a new default rpc chain instance.
+   * Constructs a new rpc chain using the given root and tail rpc.
    *
-   * @param rootRPC  the root rpc of the chain, also known as the entry point.
-   * @param headRPC  the next rpc to invoke after the root rpc.
-   * @param rpcChain the full chain of rpc invocations to call on top of the root rpc.
-   * @throws NullPointerException if either the given root or head rpc is null.
+   * @param root            the root rpc for the chain.
+   * @param next            the tail rpc for the chain.
+   * @param channelSupplier the target channel supplier to use for method invocation if no channel is provided.
+   * @return the constructed rpc chain.
+   * @throws NullPointerException if the given root rpc, tail rpc or channel supplier is null.
    */
-  protected DefaultRPCChain(
-    @NonNull RPC rootRPC,
-    @NonNull RPC headRPC,
-    @NonNull List<RPC> rpcChain
+  public static @NonNull DefaultRPCChain of(
+    @NonNull RPC root,
+    @NonNull RPC next,
+    @NonNull Supplier<NetworkChannel> channelSupplier
   ) {
-    super(headRPC.targetClass(), headRPC.objectMapper(), headRPC.dataBufFactory());
-
-    this.rootRPC = rootRPC;
-    this.headRPC = headRPC;
-    this.rpcChain = new LinkedList<>(rpcChain);
+    List<RPC> fullChain = new LinkedList<>();
+    fullChain.add(root);
+    fullChain.add(next);
+    return new DefaultRPCChain(root, next, fullChain, channelSupplier);
   }
 
   /**
@@ -82,19 +97,17 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
    */
   @Override
   public @NonNull RPCChain join(@NonNull RPC rpc) {
-    // add the rpc call to chain
-    var newChain = new LinkedList<>(this.rpcChain);
+    var newChain = new LinkedList<>(this.fullChain);
     newChain.add(rpc);
-    // create the new chain instance
-    return new DefaultRPCChain(this.rootRPC, rpc, newChain);
+    return new DefaultRPCChain(this.chainHead, rpc, newChain, this.channelSupplier);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull RPC head() {
-    return this.rootRPC;
+  public @NonNull RPC tail() {
+    return this.chainTail;
   }
 
   /**
@@ -102,7 +115,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
    */
   @Override
   public @NonNull Collection<RPC> joins() {
-    return this.rpcChain;
+    return this.fullChain;
   }
 
   /**
@@ -110,15 +123,19 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
    */
   @Override
   public void fireAndForget() {
-    this.fireAndForget(Objects.requireNonNull(this.rootRPC.sender().associatedComponent().firstChannel()));
+    var targetNetworkChannel = this.channelSupplier.get();
+    Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
+    this.fireAndForget(targetNetworkChannel);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public <T> @NonNull T fireSync() {
-    return this.fireSync(Objects.requireNonNull(this.rootRPC.sender().associatedComponent().firstChannel()));
+  public <T> @UnknownNullability T fireSync() {
+    var targetNetworkChannel = this.channelSupplier.get();
+    Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
+    return this.fireSync(targetNetworkChannel);
   }
 
   /**
@@ -126,7 +143,9 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
    */
   @Override
   public @NonNull <T> Task<T> fire() {
-    return this.fire(Objects.requireNonNull(this.rootRPC.sender().associatedComponent().firstChannel()));
+    var targetNetworkChannel = this.channelSupplier.get();
+    Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
+    return this.fire(targetNetworkChannel);
   }
 
   /**
@@ -134,7 +153,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
    */
   @Override
   public void fireAndForget(@NonNull NetworkChannel component) {
-    this.headRPC.disableResultExpectation();
+    this.chainTail.dropResult();
     this.fireSync(component);
   }
 
@@ -145,7 +164,15 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
   public <T> @NonNull T fireSync(@NonNull NetworkChannel component) {
     try {
       Task<T> queryTask = this.fire(component);
-      return queryTask.get();
+      var invocationResult = queryTask.get();
+      if (this.chainTail.targetMethod().asyncReturnType()) {
+        // for async methods the fire method does not return the result wrapped in a Future, it returns the raw
+        // result. therefore for sync invocation we need re-wrap the result into a future as it is the expected type
+        //noinspection unchecked
+        return (T) Task.completedTask(invocationResult);
+      } else {
+        return invocationResult;
+      }
     } catch (ExecutionException exception) {
       if (exception.getCause() instanceof RPCExecutionException rpcExecutionException) {
         // may be thrown when the handler did throw an exception, just rethrow that one
@@ -165,47 +192,37 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
    */
   @Override
   public @NonNull <T> Task<T> fire(@NonNull NetworkChannel component) {
-    // information about the root invocation
-    var dataBuf = this.dataBufFactory.createEmpty()
-      .writeBoolean(true) // method chain
-      .writeInt(this.rpcChain.size() + 1); // chain length (+1 because the root chain is not included)
-    // write the root rpc first
-    this.writeRPCInformation(dataBuf, this.rootRPC, false); // the root rpc can never the last
-    // write the full chain
-    for (var i = 0; i < this.rpcChain.size(); i++) {
-      this.writeRPCInformation(dataBuf, this.rpcChain.get(i), i < (this.rpcChain.size() - 1));
+    // write the chained RPC information
+    var buffer = this.dataBufFactory.createEmpty().writeInt(this.fullChain.size());
+    for (var chainEntry : this.fullChain) {
+      buffer
+        .writeString(chainEntry.className())
+        .writeString(chainEntry.methodName())
+        .writeString(chainEntry.methodDescriptor());
+      for (var argument : chainEntry.arguments()) {
+        this.objectMapper.writeObject(buffer, argument);
+      }
     }
-    // send query if result is needed
-    if (this.headRPC.expectsResult()) {
-      // now send the query and read the response
-      return Task.wrapFuture(component
-        .sendQueryAsync(new RPCRequestPacket(dataBuf))
-        .thenApply(new RPCResultMapper<>(this.headRPC.expectedResultType(), this.objectMapper)));
-    } else {
-      // just send the method invocation request
-      component.sendPacket(new RPCRequestPacket(dataBuf));
-      return Task.completedTask(null);
-    }
-  }
 
-  /**
-   * Writes the given rpc into the given buffer.
-   *
-   * @param dataBuf the data buffer to write the rpc to.
-   * @param rpc     the rpc to serialize.
-   * @param last    true if the given rpc is the last rpc in the call chain, false otherwise.
-   * @throws NullPointerException if either the given buffer or rpc is null.
-   */
-  protected void writeRPCInformation(@NonNull DataBuf.Mutable dataBuf, @NonNull RPC rpc, boolean last) {
-    // general information about the rpc invocation
-    dataBuf
-      .writeString(rpc.className())
-      .writeString(rpc.methodName())
-      .writeBoolean(!last || rpc.expectsResult())
-      .writeInt(rpc.arguments().length);
-    // write the arguments provided
-    for (var argument : rpc.arguments()) {
-      this.objectMapper.writeObject(dataBuf, argument);
+    if (this.chainTail.resultDropped()) {
+      // no result expected: send the RPC request (not a query) and just return a completed future after
+      component.sendPacket(new RPCRequestPacket(buffer));
+      return Task.completedTask(null);
+    } else {
+      // result is expected: send a query to the target network component and return the future so that
+      // the caller can decide how to wait for the result
+      CompletableFuture<T> queryFuture = component
+        .sendQueryAsync(new RPCRequestPacket(buffer))
+        .thenApply(new RPCResultMapper<>(this.chainTail.expectedResultType(), this.objectMapper));
+
+      var timeout = this.chainTail.timeout();
+      if (timeout != null) {
+        // apply the requested timeout
+        var timeoutMillis = timeout.toMillis();
+        queryFuture = queryFuture.orTimeout(timeoutMillis, TimeUnit.MILLISECONDS);
+      }
+
+      return Task.wrapFuture(queryFuture);
     }
   }
 }
