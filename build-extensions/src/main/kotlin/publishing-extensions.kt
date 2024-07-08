@@ -20,6 +20,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.external.javadoc.JavadocMemberLevel
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
+import org.gradle.internal.impldep.com.amazonaws.util.XpathUtils.asNode
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
@@ -119,10 +120,12 @@ fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions) {
   options.use()
   options.encoding = "UTF-8"
   options.memberLevel = JavadocMemberLevel.PRIVATE
+  options.addStringOption("source", "22")
+  options.addBooleanOption("-enable-preview", true)
   options.addBooleanOption("Xdoclint:-missing", true)
   options.links(
     "https://projectlombok.org/api/",
-    "https://jd.adventure.kyori.net/api/4.11.0/",
+    "https://jd.advntr.dev/api/latest/",
     "https://javadoc.io/doc/com.konghq/unirest-java/latest/",
     "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
     "https://javadoc.io/doc/cloud.commandframework/cloud-core/latest/"
