@@ -37,8 +37,8 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.locks.LockSupport;
 import lombok.NonNull;
-import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.Nullable;
+import org.jline.jansi.Ansi;
 
 public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
