@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.launcherPatcher)
-}
+package eu.cloudnetservice.launcher.java22.util;
 
-tasks.withType<JavaCompile> {
-  sourceCompatibility = JavaVersion.VERSION_17.toString()
-  targetCompatibility = JavaVersion.VERSION_17.toString()
-}
+import java.util.concurrent.TimeUnit;
 
-applyJarMetadata("eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher")
+public final class BootstrapUtil {
+
+  private BootstrapUtil() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static void waitAndExit() {
+    try {
+      TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException ignored) {
+    }
+
+    // goodbye!
+    System.exit(1);
+  }
+}

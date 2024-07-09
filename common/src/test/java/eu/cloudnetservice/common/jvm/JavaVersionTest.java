@@ -23,10 +23,10 @@ public class JavaVersionTest {
 
   @Test
   void testRuntimeVersion() {
-    // we require java 17 to build (atm)
+    // we require java 22 to build (atm)
     var runtimeVersion = JavaVersion.runtimeVersion();
-    Assertions.assertTrue(JavaVersion.JAVA_17.atOrAbove());
-    Assertions.assertTrue(runtimeVersion.isNewerOrAt(JavaVersion.JAVA_17));
+    Assertions.assertTrue(JavaVersion.JAVA_22.atOrAbove());
+    Assertions.assertTrue(runtimeVersion.isNewerOrAt(JavaVersion.JAVA_22));
   }
 
   @Test

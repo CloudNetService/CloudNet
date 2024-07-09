@@ -92,7 +92,7 @@ jobs:
 
           cp -r .template/* temp/;
           cp LICENSE temp/license.txt;
-          cp launcher/java17/build/libs/launcher.jar temp/launcher.jar;
+          cp launcher/java22/build/libs/launcher.jar temp/launcher.jar;
 
           find plugins/ -type f -regex '.*/build/libs/.*\.jar' ! -name '*-javadoc.jar' ! -name '*-sources.jar' -exec cp {} temp/plugins \;
 
