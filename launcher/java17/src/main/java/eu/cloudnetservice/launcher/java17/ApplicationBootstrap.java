@@ -36,12 +36,16 @@ import lombok.NonNull;
 final class ApplicationBootstrap {
 
   private static final List<String> DEFAULT_PROCESS_ARGUMENTS = Arrays.asList(
+    // Enables the usage of native access for all unnamed modules, which allows us to use the JLine FFM terminal.
+    // While enabling native access for modules is not a strict requirement yet (see JEP 472 for initial work),
+    // JLine has a check that specifically ensures that native access is enabled before allowing to use the impl.
+    "--enable-native-access=ALL-UNNAMED",
     // We currently require access to some jvm internals to allow us to build some pretty nice stuff
     // which is easier accessible for us than needing each data object which (for example) wants to use rpc
     // to give a method handle with private class access into the generator. While this breaks up the jvm
     // encapsulation partly, it is way better than trying even more hacky stuff like guice or graal do to
     // gain access into the internals.
-    "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED");
+    "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED");
   private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
 
   private ApplicationBootstrap() {
