@@ -23,7 +23,6 @@ lombok = "1.18.34"
 javapoet = "1.13.0"
 
 # console
-jansi = "2.4.1"
 jline = "3.26.2"
 cloud = "1.9.0-cn1"
 stringSimilarity = "2.0.0"
@@ -94,7 +93,7 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 # console
 jline = { group = "org.jline", name = "jline", version.ref = "jline" }
-jansi = { group = "org.fusesource.jansi", name = "jansi", version.ref = "jansi" }
+jansi = { group = "org.jline", name = "jansi-core", version.ref = "jline" }
 stringSimilarity = { group = "info.debatty", name = "java-string-similarity", version.ref = "stringSimilarity" }
 
 # night config
