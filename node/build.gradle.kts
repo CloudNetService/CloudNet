@@ -53,8 +53,8 @@ dependencies {
   "implementation"(libs.gson)
   "implementation"(libs.gulf)
   "implementation"(libs.xodus)
-  "implementation"(libs.jline)
   "implementation"(libs.jansi)
+  "implementation"(libs.bundles.jline)
   "implementation"(libs.stringSimilarity)
 
   "compileOnly"(libs.bundles.netty)

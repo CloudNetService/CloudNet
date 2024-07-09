@@ -92,8 +92,9 @@ guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 # console
-jline = { group = "org.jline", name = "jline", version.ref = "jline" }
 jansi = { group = "org.jline", name = "jansi-core", version.ref = "jline" }
+jlineReader = { group = "org.jline", name = "jline-reader", version.ref = "jline" }
+jlineTerminal = { group = "org.jline", name = "jline-terminal-ffm", version.ref = "jline" }
 stringSimilarity = { group = "info.debatty", name = "java-string-similarity", version.ref = "stringSimilarity" }
 
 # night config
@@ -201,6 +202,7 @@ aerogel = ["aerogel", "aerogelAuto"]
 npcLib = ["npcLib", "npcLibLabymod"]
 unirest = ["unirest", "unirestGson"]
 mysql = ["mysqlConnector", "hikariCp"]
+jline = ["jlineReader", "jlineTerminal"]
 cloud = ["cloudCore", "cloudAnnotations"]
 netty = ["nettyHandler"]
 junit = ["junitApi", "junitParams", "junitEngine"]

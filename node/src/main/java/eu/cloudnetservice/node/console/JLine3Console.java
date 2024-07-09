@@ -43,7 +43,6 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jline.jansi.Ansi;
-import org.jline.jansi.AnsiConsole;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
@@ -63,7 +62,6 @@ public final class JLine3Console implements Console {
   private static final String VERSION = Node.class.getPackage().getImplementationVersion();
   private static final String HISTORY_FILE = System.getProperty("cloudnet.history.file", "local/.consolehistory");
 
-  private final boolean ansiSupported;
   private final Lock printLock = new ReentrantLock(true);
 
   private final Map<UUID, ConsoleInputHandler> consoleInputHandler = new ConcurrentHashMap<>();
@@ -83,8 +81,6 @@ public final class JLine3Console implements Console {
   private boolean matchingHistorySearch = true;
 
   public JLine3Console() throws Exception {
-    this.ansiSupported = installAnsi();
-
     // disable the logging of jline, as log messages will be redirected into this console
     // which will trigger a log message (when debug is enabled) etc.
     // in short: it triggers a StackOverflow exception when enabling debug logging
@@ -113,17 +109,6 @@ public final class JLine3Console implements Console {
 
     this.updatePrompt();
     this.consoleReadThread.start();
-  }
-
-  private static boolean installAnsi() {
-    try {
-      // try to load the system libraries
-      AnsiConsole.systemInstall();
-      return true;
-    } catch (Throwable throwable) {
-      // something went wrong during loading - unable to install
-      return false;
-    }
   }
 
   @Override
@@ -276,13 +261,7 @@ public final class JLine3Console implements Console {
     try {
       // ensure that the given text is formatted properly
       var content = this.formatText(text, System.lineSeparator());
-
-      // use ansi only if supported
-      if (this.ansiSupported) {
-        this.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + content + Ansi.ansi().reset().toString());
-      } else {
-        this.print('\r' + content);
-      }
+      this.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + content + Ansi.ansi().reset().toString());
 
       // increases the amount of lines the running animations is off the current printed lines
       if (!this.runningAnimations.isEmpty()) {
@@ -295,11 +274,6 @@ public final class JLine3Console implements Console {
     }
 
     return this;
-  }
-
-  @Override
-  public boolean hasColorSupport() {
-    return this.ansiSupported;
   }
 
   @Override
@@ -344,8 +318,6 @@ public final class JLine3Console implements Console {
 
     this.terminal.flush();
     this.terminal.close();
-
-    AnsiConsole.systemUninstall();
   }
 
   @Override
@@ -406,7 +378,7 @@ public final class JLine3Console implements Console {
   }
 
   private @NonNull String formatText(@NonNull String input, @NonNull String ensureEndsWith) {
-    var content = this.ansiSupported ? ConsoleColor.toColoredString('&', input) : ConsoleColor.stripColor('&', input);
+    var content = ConsoleColor.toColoredString('&', input);
     if (!content.endsWith(ensureEndsWith)) {
       content += ensureEndsWith;
     }
