@@ -64,7 +64,7 @@ initializeSubProjects("modules",
   "dockerized-services",
   "influx")
 // launcher
-initializeSubProjects("launcher", "java8", "java17", "patcher")
+initializeSubProjects("launcher", "java8", "java22", "patcher")
 
 fun initializeSubProjects(rootProject: String, vararg names: String) {
   names.forEach {

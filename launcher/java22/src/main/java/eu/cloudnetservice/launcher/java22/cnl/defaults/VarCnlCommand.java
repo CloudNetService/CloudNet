@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.launcherPatcher)
-}
+package eu.cloudnetservice.launcher.java22.cnl.defaults;
 
-tasks.withType<JavaCompile> {
-  sourceCompatibility = JavaVersion.VERSION_17.toString()
-  targetCompatibility = JavaVersion.VERSION_17.toString()
-}
+import eu.cloudnetservice.launcher.java22.cnl.CnlCommand;
+import java.util.Queue;
+import lombok.NonNull;
 
-applyJarMetadata("eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher")
+public final class VarCnlCommand implements CnlCommand {
+
+  @Override
+  public void execute(@NonNull Queue<String> arguments) {
+    System.setProperty(arguments.remove(), String.join(" ", arguments));
+    // remove all arguments
+    arguments.clear();
+  }
+}

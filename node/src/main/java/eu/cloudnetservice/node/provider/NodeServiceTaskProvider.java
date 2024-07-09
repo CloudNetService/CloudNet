@@ -224,9 +224,9 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
           task = ServiceTask.builder(task).javaCommand(command).build();
         }
 
-        // remove all custom java paths that do not support Java 17
+        // remove all custom java paths that do not support Java 22
         var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
-        if (javaVersion == null || !javaVersion.isNewerOrAt(JavaVersion.JAVA_17)) {
+        if (javaVersion != JavaVersion.JAVA_22) {
           task = ServiceTask.builder(task).javaCommand(null).build();
           LOGGER.warn(I18n.trans("cloudnet-load-task-unsupported-java-version", taskName));
         }

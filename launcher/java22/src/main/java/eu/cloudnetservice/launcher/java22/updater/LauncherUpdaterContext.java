@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.launcherPatcher)
-}
+package eu.cloudnetservice.launcher.java22.updater;
 
-tasks.withType<JavaCompile> {
-  sourceCompatibility = JavaVersion.VERSION_17.toString()
-  targetCompatibility = JavaVersion.VERSION_17.toString()
-}
+import eu.cloudnetservice.launcher.java22.CloudNetLauncher;
+import java.util.Properties;
+import lombok.NonNull;
 
-applyJarMetadata("eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher")
+public record LauncherUpdaterContext(
+  @NonNull CloudNetLauncher launcher,
+  @NonNull String repo,
+  @NonNull String branch,
+  @NonNull Properties checksums
+) {
+
+}
