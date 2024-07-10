@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.transform.minestom;
 
-import eu.cloudnetservice.wrapper.transform.Transformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
@@ -28,7 +28,7 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public final class MinestomStopCleanlyTransformer implements Transformer {
+public final class MinestomStopCleanlyTransformer implements ClassTransformer {
 
   @Override
   public void transform(@NonNull String classname, @NonNull ClassNode classNode) {

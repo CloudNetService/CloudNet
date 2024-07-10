@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.transform.bukkit;
 
-import eu.cloudnetservice.wrapper.transform.Transformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import lombok.NonNull;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -31,7 +31,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public final class BukkitCommodoreTransformer implements Transformer {
+public final class BukkitCommodoreTransformer implements ClassTransformer {
 
   @Override
   public void transform(@NonNull String classname, @NonNull ClassNode classNode) {

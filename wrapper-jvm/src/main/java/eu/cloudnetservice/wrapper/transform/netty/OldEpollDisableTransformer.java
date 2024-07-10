@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.transform.netty;
 
-import eu.cloudnetservice.wrapper.transform.Transformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import lombok.NonNull;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -28,7 +28,7 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 
-public final class OldEpollDisableTransformer implements Transformer {
+public final class OldEpollDisableTransformer implements ClassTransformer {
 
   @Override
   public void transform(@NonNull String classname, @NonNull ClassNode classNode) {

@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.wrapper.transform.bukkit;
 
-import eu.cloudnetservice.wrapper.transform.Transformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import lombok.NonNull;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnNode;
 
-public final class PaperConfigTransformer implements Transformer {
+public final class PaperConfigTransformer implements ClassTransformer {
 
   @Override
   public void transform(@NonNull String classname, @NonNull ClassNode classNode) {

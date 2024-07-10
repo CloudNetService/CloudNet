@@ -36,7 +36,7 @@ import eu.cloudnetservice.wrapper.network.listener.PacketServerChannelMessageLis
 import eu.cloudnetservice.wrapper.network.listener.message.GroupChannelMessageListener;
 import eu.cloudnetservice.wrapper.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.wrapper.network.listener.message.TaskChannelMessageListener;
-import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
+import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
 import eu.cloudnetservice.wrapper.transform.bukkit.BukkitCommodoreTransformer;
 import eu.cloudnetservice.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
 import eu.cloudnetservice.wrapper.transform.bukkit.PaperConfigTransformer;
@@ -149,8 +149,9 @@ public final class Wrapper {
 
   @Inject
   @Order(250)
-  private void registerTransformer(@NonNull TransformerRegistry transformerRegistry) {
+  private void registerTransformer(@NonNull ClassTransformerRegistry transformerRegistry) {
     // register our default class transformers
+    // TODO: load the transformers here using SPI
     transformerRegistry.registerTransformer(
       "org/bukkit/craftbukkit",
       "Commodore",

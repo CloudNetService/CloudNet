@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.transform.bukkit;
 
-import eu.cloudnetservice.wrapper.transform.Transformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import lombok.NonNull;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -24,7 +24,7 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public final class BukkitJavaVersionCheckTransformer implements Transformer {
+public final class BukkitJavaVersionCheckTransformer implements ClassTransformer {
 
   @Override
   public void transform(@NonNull String classname, @NonNull ClassNode classNode) {

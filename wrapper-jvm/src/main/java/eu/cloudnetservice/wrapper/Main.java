@@ -21,7 +21,7 @@ import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
+import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
 import io.leangen.geantyref.TypeFactory;
 import java.time.Instant;
 import java.util.List;
@@ -60,7 +60,7 @@ public final class Main {
     // bind the transformer registry here - we *could* provided it by constructing, but we don't
     // want to expose the Instrumentation instance
     bootInjectLayer.install(BindingBuilder.create()
-      .bind(TransformerRegistry.class)
+      .bind(ClassTransformerRegistry.class)
       .toInstance(Premain.transformerRegistry));
 
     // console arguments
