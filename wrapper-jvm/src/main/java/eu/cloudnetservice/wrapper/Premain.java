@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.wrapper;
 
-import eu.cloudnetservice.wrapper.transform.DefaultClassTransformerRegistry;
 import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
+import eu.cloudnetservice.wrapper.transform.DefaultClassTransformerRegistry;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;

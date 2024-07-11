@@ -35,7 +35,6 @@ hikariCp = "5.1.0"
 mysqlConnector = "9.0.0"
 
 # general
-asm = "9.7"
 oshi = "6.6.1"
 vavr = "0.10.4"
 sshj = "0.38.0"
@@ -139,7 +138,6 @@ logbackClassic = { group = "ch.qos.logback", name = "logback-classic", version.r
 
 # general
 vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }
-asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }

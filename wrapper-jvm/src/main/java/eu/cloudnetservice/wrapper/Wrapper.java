@@ -36,13 +36,8 @@ import eu.cloudnetservice.wrapper.network.listener.PacketServerChannelMessageLis
 import eu.cloudnetservice.wrapper.network.listener.message.GroupChannelMessageListener;
 import eu.cloudnetservice.wrapper.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.wrapper.network.listener.message.TaskChannelMessageListener;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
-import eu.cloudnetservice.wrapper.transform.bukkit.BukkitCommodoreTransformer;
-import eu.cloudnetservice.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
-import eu.cloudnetservice.wrapper.transform.bukkit.PaperConfigTransformer;
-import eu.cloudnetservice.wrapper.transform.fabric.KnotClassDelegateTransformer;
-import eu.cloudnetservice.wrapper.transform.minestom.MinestomStopCleanlyTransformer;
-import eu.cloudnetservice.wrapper.transform.netty.OldEpollDisableTransformer;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
@@ -53,6 +48,9 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.jar.JarFile;
@@ -150,33 +148,19 @@ public final class Wrapper {
   @Inject
   @Order(250)
   private void registerTransformer(@NonNull ClassTransformerRegistry transformerRegistry) {
-    // register our default class transformers
-    // TODO: load the transformers here using SPI
-    transformerRegistry.registerTransformer(
-      "org/bukkit/craftbukkit",
-      "Commodore",
-      new BukkitCommodoreTransformer());
-    transformerRegistry.registerTransformer(
-      "org/bukkit/craftbukkit",
-      "Main",
-      new BukkitJavaVersionCheckTransformer());
-    transformerRegistry.registerTransformer(
-      "org/github/paperspigot",
-      "PaperSpigotConfig",
-      new PaperConfigTransformer());
-    transformerRegistry.registerTransformer(
-      "net/fabricmc/loader/impl/launch/knot",
-      "KnotClassDelegate",
-      new KnotClassDelegateTransformer());
-    // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
-    transformerRegistry.registerTransformer(
-      String.join("/", "io", "netty", "channel", "epoll"),
-      "Epoll",
-      new OldEpollDisableTransformer());
-    transformerRegistry.registerTransformer(
-      "net/minestom/server",
-      "ServerProcessImpl",
-      new MinestomStopCleanlyTransformer());
+    var serviceLoader = ServiceLoader.load(ClassTransformer.class);
+    serviceLoader.stream()
+      .map(provider -> {
+        try {
+          return provider.get();
+        } catch (ServiceConfigurationError error) {
+          var typeName = provider.type().getName();
+          LOGGER.debug("Skipping registration of class transformer {} due to spi configuration error", typeName, error);
+          return null;
+        }
+      })
+      .filter(Objects::nonNull)
+      .forEach(transformerRegistry::registerTransformer);
   }
 
   @Inject

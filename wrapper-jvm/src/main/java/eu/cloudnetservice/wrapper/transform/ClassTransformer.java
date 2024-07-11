@@ -23,7 +23,7 @@ public interface ClassTransformer {
   // TODO: fixup this shit naming...
 
   @NonNull
-  ClassTransform provideTransformer();
+  ClassTransform provideClassTransform();
 
   /**
    * Checks if this class transformer is willing to transform the class with the given name.

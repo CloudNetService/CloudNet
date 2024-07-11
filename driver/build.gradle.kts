@@ -51,7 +51,6 @@ dependencies {
   "annotationProcessor"(libs.aerogelAuto)
 
   // internal libraries
-  "implementation"(libs.asm)
   "implementation"(libs.gson)
   "implementation"(libs.guava)
 

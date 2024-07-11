@@ -74,6 +74,9 @@ public final class DefaultClassTransformerRegistry implements ClassTransformerRe
     @NonNull Instrumentation instrumentation
   ) implements ClassFileTransformer {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public byte[] transform(
       @Nullable ClassLoader loader,
@@ -103,13 +106,13 @@ public final class DefaultClassTransformerRegistry implements ClassTransformerRe
       }
 
       var transformerClassName = this.transformer.getClass().getName();
-      LOGGER.debug("Transforming class {} with transformer {}", className, transformerClassName);
+      LOGGER.debug("Transforming class {} using transformer {}", className, transformerClassName);
 
       try {
         // apply the transformation to the provided class file
         var classFile = ClassFile.of();
         var classModel = classFile.parse(classfileBuffer);
-        var classTransform = this.transformer.provideTransformer();
+        var classTransform = this.transformer.provideClassTransform();
         return classFile.transform(classModel, classTransform);
       } catch (Exception exception) {
         LOGGER.error("Failed to transform class {} using transformer {}", className, transformerClassName, exception);
