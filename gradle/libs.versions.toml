@@ -30,7 +30,7 @@ stringSimilarity = "2.0.0"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "5.1.1"
+mongodb = "5.1.2"
 hikariCp = "5.1.0"
 mysqlConnector = "9.0.0"
 
@@ -40,7 +40,7 @@ oshi = "6.6.1"
 vavr = "0.10.4"
 sshj = "0.38.0"
 aerogel = "2.1.0"
-awsSdk = "2.26.16"
+awsSdk = "2.26.19"
 unirest = "4.4.0"
 caffeine = "3.1.8"
 reflexion = "1.8.0"
