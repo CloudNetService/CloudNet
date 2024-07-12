@@ -62,7 +62,7 @@ public interface ClassTransformer {
      */
     ACCEPT,
     /**
-     * Indicates that the class transformer wants to transform the given target class and has doesn't want to transform
+     * Indicates that the class transformer wants to transform the given target class and has no intention to transform
      * other classes (meaning it will be unregistered and not called anymore).
      */
     ACCEPT_ONCE,
