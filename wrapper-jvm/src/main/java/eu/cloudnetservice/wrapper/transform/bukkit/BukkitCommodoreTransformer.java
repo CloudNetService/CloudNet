@@ -16,102 +16,97 @@
 
 package eu.cloudnetservice.wrapper.transform.bukkit;
 
-import eu.cloudnetservice.wrapper.transform.Transformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassTransform;
+import java.lang.classfile.CodeBuilder;
+import java.lang.classfile.CodeElement;
+import java.lang.classfile.CodeTransform;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import lombok.NonNull;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.TryCatchBlockNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.jetbrains.annotations.ApiStatus;
 
-public final class BukkitCommodoreTransformer implements Transformer {
+/**
+ * A transformer which adds a try-catch block around the {@code Commodore.convert} method content to prevent issues with
+ * older ASM versions on newer Java versions (f. ex. exceptions due to unsupported class file versions).
+ *
+ * @since 4.0
+ */
+@ApiStatus.Internal
+public final class BukkitCommodoreTransformer implements ClassTransformer {
 
+  private static final String MN_CONVERT = "convert";
+  private static final String CN_COMMODORE = "Commodore";
+  private static final String PNI_COMMODORE = "org/bukkit/craftbukkit/";
+
+  /**
+   * Constructs a new instance of this transformer, usually done via SPI.
+   */
+  public BukkitCommodoreTransformer() {
+    // used by SPI
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void transform(@NonNull String classname, @NonNull ClassNode classNode) {
-    for (var method : classNode.methods) {
-      // prevent bukkit from re-transforming modern api using plugins on older minecraft servers by just returning
-      if (method.name.equals("convert") && method.desc.equals("([BZ)[B")) {
-        // check if bukkit is using an outdated asm version
-        var asmVersion = -1;
-        for (var instruction : method.instructions) {
-          if (instruction.getOpcode() == Opcodes.LDC
-            && instruction instanceof LdcInsnNode ldcInsnNode
-            && ldcInsnNode.cst instanceof Integer integer) {
-            asmVersion = integer;
-            break;
-          }
-        }
+  public @NonNull ClassTransform provideClassTransform() {
+    var codeTransform = CodeTransform.ofStateful(ConvertMethodTryCatchWrapperCodeTransform::new);
+    return ClassTransform.transformingMethodBodies(
+      mm -> {
+        // the method descriptor itself changed, but it always takes the raw class byte array as the first argument
+        var descriptorString = mm.methodType().stringValue();
+        return descriptorString.startsWith("([B") && mm.methodName().equalsString(MN_CONVERT);
+      },
+      codeTransform
+    );
+  }
 
-        // we only need to prevent bukkit from doing stuff when they're using asm 7
-        if (asmVersion < Opcodes.ASM8) {
-          for (var instruction : method.instructions) {
-            // search for the init of the class reader
-            if (instruction.getOpcode() == Opcodes.INVOKESPECIAL
-              && instruction instanceof MethodInsnNode methodInsnNode
-              && methodInsnNode.name.equals("<init>")
-              && methodInsnNode.owner.endsWith("org/objectweb/asm/ClassReader")) {
-              // the next instruction will store the value to the stack
-              var next = instruction.getNext();
-              if (next != null && next.getOpcode() == Opcodes.ASTORE && next instanceof VarInsnNode varInsnNode) {
-                // we need two labels - one before the reader creation, one after
-                var beginLabel = new LabelNode();
-                var finishLabel = new LabelNode();
-                var handlerLabel = new LabelNode();
-                // insert the labels
-                method.instructions.insert(beginLabel);
-                method.instructions.insert(next, finishLabel);
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
+    var isCommodore = internalClassName.startsWith(PNI_COMMODORE) && internalClassName.endsWith(CN_COMMODORE);
+    return isCommodore ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
+  }
 
-                var catchDimension = new InsnList();
-                // begin the error handler
-                catchDimension.add(handlerLabel);
-                // on an IllegalArgumentException exception just return the input (indicates an unsupported class version)
-                catchDimension.add(new VarInsnNode(Opcodes.ALOAD, 0));
-                catchDimension.add(new InsnNode(Opcodes.ARETURN));
-                method.instructions.add(catchDimension);
-                // insert the try-catch block
-                method.tryCatchBlocks.add(new TryCatchBlockNode(
-                  beginLabel,
-                  finishLabel,
-                  handlerLabel,
-                  Type.getInternalName(IllegalArgumentException.class)));
+  /**
+   * A code transform for CraftBukkit {@code Commodore.transform} method that records all instructions in the method and
+   * wraps them into a try-catch block at the end, just returning the class input data if there is a failure.
+   *
+   * @since 4.0
+   */
+  private static final class ConvertMethodTryCatchWrapperCodeTransform implements CodeTransform {
 
-                var nonRecordValidateDimension = new InsnList();
-                // validate that the method is called using the correct asm version
-                var validationEnvironment = new Label();
-                // load the class reader again
-                nonRecordValidateDimension.add(new VarInsnNode(Opcodes.ALOAD, varInsnNode.var));
-                // get the accessors of the class
-                nonRecordValidateDimension.add(new MethodInsnNode(
-                  Opcodes.INVOKEVIRTUAL,
-                  methodInsnNode.owner,
-                  "getAccess",
-                  "()I",
-                  false));
-                // push the record offset to the stack and apply it to the previous accessors using &
-                // (from the code perspective: reader.getAccess() & Opcodes.ACC_RECORD
-                nonRecordValidateDimension.add(new LdcInsnNode(Opcodes.ACC_RECORD));
-                nonRecordValidateDimension.add(new InsnNode(Opcodes.IAND));
-                // check if the class is a record
-                nonRecordValidateDimension.add(new JumpInsnNode(Opcodes.IFEQ, new LabelNode(validationEnvironment)));
-                // if the class is a record just return the input class bytes
-                nonRecordValidateDimension.add(new VarInsnNode(Opcodes.ALOAD, 0));
-                nonRecordValidateDimension.add(new InsnNode(Opcodes.ARETURN));
-                nonRecordValidateDimension.add(new LabelNode(validationEnvironment));
-                // insert the instructions now
-                method.instructions.insert(next, nonRecordValidateDimension);
-                return;
-              }
-            }
-          }
-        }
-      }
+    private final Deque<CodeElement> methodElements = new ArrayDeque<>();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(@NonNull CodeBuilder builder, @NonNull CodeElement element) {
+      this.methodElements.add(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void atEnd(@NonNull CodeBuilder builder) {
+      // inserts a try block using the captured instructions that are in the original method
+      // inserts a no-op catch block & a return instruction after the catch block to return the raw input data
+      // this is needed as sometimes there are labels generated after the last return instruction in the
+      // original source code which let the code builder think that there is reachable code after the catch
+      // block, which is actually not the case. generating the return statement outside the catch block
+      // works around that issue (note that the labels are for some reason normalized *after* the checks
+      // which would prevent this issue from happening completely...)
+      builder
+        .trying(
+          this.methodElements::forEach,
+          catchBuilder -> catchBuilder.catchingAll(_ -> {
+          }))
+        .aload(0).areturn();
     }
   }
 }

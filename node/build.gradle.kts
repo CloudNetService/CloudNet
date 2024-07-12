@@ -49,7 +49,6 @@ dependencies {
 
   // internal libraries
   "implementation"(libs.h2)
-  "implementation"(libs.asm)
   "implementation"(libs.gson)
   "implementation"(libs.gulf)
   "implementation"(libs.xodus)

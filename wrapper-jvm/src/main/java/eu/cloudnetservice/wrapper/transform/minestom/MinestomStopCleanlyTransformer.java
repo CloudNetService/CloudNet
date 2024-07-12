@@ -16,60 +16,108 @@
 
 package eu.cloudnetservice.wrapper.transform.minestom;
 
-import eu.cloudnetservice.wrapper.transform.Transformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassTransform;
+import java.lang.classfile.CodeBuilder;
+import java.lang.classfile.CodeElement;
+import java.lang.classfile.CodeTransform;
+import java.lang.classfile.instruction.ReturnInstruction;
+import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDescs;
+import java.lang.constant.MethodTypeDesc;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.jetbrains.annotations.ApiStatus;
 
-public final class MinestomStopCleanlyTransformer implements Transformer {
+/**
+ * A transformer for the {@code ServerProcessImpl} class in Minestom which inserts a call to {@code System.exit} before
+ * the last return statement in the {@code stop} method to ensure a clean shutdown of the wrapper process.
+ *
+ * @since 4.0
+ */
+@ApiStatus.Internal
+public final class MinestomStopCleanlyTransformer implements ClassTransformer {
 
-  @Override
-  public void transform(@NonNull String classname, @NonNull ClassNode classNode) {
-    for (var method : classNode.methods) {
-      // Find the stop method that does not have any parameters and returns void
-      if (method.name.equals("stop")) {
-        var instructions = new InsnList();
+  private static final String MN_SYSTEM_EXIT = "exit";
+  private static final String MN_SERVER_PROCESS_STOP = "stop";
+  private static final ClassDesc CD_SYSTEM = ClassDesc.of(System.class.getName());
+  private static final String CNI_MINECRAFT_SERVER = "net/minestom/server/ServerProcessImpl";
+  private static final MethodTypeDesc MTD_EXIT = MethodTypeDesc.of(ConstantDescs.CD_void, ConstantDescs.CD_int);
 
-        // System.exit(0);
-        instructions.add(new InsnNode(Opcodes.ICONST_0));
-        instructions.add(new MethodInsnNode(
-          Opcodes.INVOKESTATIC,
-          Type.getInternalName(System.class),
-          "exit",
-          "(I)V"
-        ));
-
-        var lastReturnStatement = findLastReturn(method);
-        if (lastReturnStatement == null) {
-          // If no return statement was found, just add the instructions at the end of the method
-          method.instructions.add(instructions);
-        } else {
-          method.instructions.insertBefore(lastReturnStatement, instructions);
-        }
-      }
+  /**
+   * Constructs a new instance of this transformer, usually done via SPI.
+   *
+   * @throws UnsupportedOperationException if this transformer is explicitly disabled.
+   */
+  public MinestomStopCleanlyTransformer() {
+    var transformerDisabled = Boolean.getBoolean("cloudnet.wrapper.minestom-stop-transform-disabled");
+    if (transformerDisabled) {
+      throw new UnsupportedOperationException("transformer disabled via system property");
     }
   }
 
   /**
-   * Find the last return instruction in the method. This method is useful to skip instructions in the method that come
-   * after the return statement, such as a label node or a line number node.
-   *
-   * @param method The method to search in
-   * @return The last return instruction in the method, or null if no return instruction was found
-   * @throws NullPointerException if the given method node is null.
+   * {@inheritDoc}
    */
-  private static @Nullable AbstractInsnNode findLastReturn(@NonNull MethodNode method) {
-    var instruction = method.instructions.getLast();
-    while (instruction.getOpcode() != Opcodes.RETURN) {
-      instruction = instruction.getPrevious();
+  @Override
+  public @NonNull ClassTransform provideClassTransform() {
+    var codeTransform = CodeTransform.ofStateful(ServerProcessImplStopCodeTransform::new);
+    return ClassTransform.transformingMethodBodies(
+      mm -> mm.methodName().equalsString(MN_SERVER_PROCESS_STOP),
+      codeTransform);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
+    var isServerProcessImpl = internalClassName.equals(CNI_MINECRAFT_SERVER);
+    return isServerProcessImpl ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
+  }
+
+  /**
+   * A transform that resolves the last return statement in a method and inserts a call to {@code System.exit} before.
+   *
+   * @since 4.0
+   */
+  private static final class ServerProcessImplStopCodeTransform implements CodeTransform {
+
+    // Holds the resolved last return instruction in the method which will be
+    // resolved once before the method transformation actually begins. This
+    // instruction should never be null as each method must have a return instruction
+    private CodeElement lastReturnElement;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void atStart(@NonNull CodeBuilder builder) {
+      // Resolves the "original" code of the method, which must always be present as we're transforming
+      // (clearly stated in the javadoc). Therefore, the thrown exception should never occur.
+      var codeModel = builder.original().orElseThrow(() -> new IllegalStateException("original method code unknown"));
+
+      // find & assign the last return instructions of the method
+      // by iterating through a reversed view of the element list
+      var reversedElements = codeModel.elementList().reversed();
+      for (var element : reversedElements) {
+        if (element instanceof ReturnInstruction) {
+          this.lastReturnElement = element;
+          return;
+        }
+      }
     }
-    return instruction;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(@NonNull CodeBuilder builder, @NonNull CodeElement element) {
+      if (element == this.lastReturnElement) {
+        // current instruction will be the last return of the stop method, insert System.exit
+        // to force a clean stop of the wrapper at this point
+        builder.iconst_0().invokestatic(CD_SYSTEM, MN_SYSTEM_EXIT, MTD_EXIT);
+      }
+      builder.accept(element);
+    }
   }
 }

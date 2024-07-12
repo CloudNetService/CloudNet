@@ -16,21 +16,49 @@
 
 package eu.cloudnetservice.wrapper.transform.bukkit;
 
-import eu.cloudnetservice.wrapper.transform.Transformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassTransform;
+import java.lang.classfile.CodeTransform;
 import lombok.NonNull;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnNode;
+import org.jetbrains.annotations.ApiStatus;
 
-public final class PaperConfigTransformer implements Transformer {
+/**
+ * A transformer implementation that disables the {@code stackableBuckets} method on old Paper versions. This is due to
+ * the fact that the method uses illegal reflection in the attempt to set a final field which is not possible anymore on
+ * newer java versions.
+ *
+ * @since 4.0
+ */
+@ApiStatus.Internal
+public final class PaperConfigTransformer implements ClassTransformer {
 
+  private static final String MN_STACKABLE_BUCKETS = "stackableBuckets";
+  private static final String CNI_PAPER_CONFIG = "org/github/paperspigot/PaperSpigotConfig";
+
+  /**
+   * Constructs a new instance of this transformer, usually done via SPI.
+   */
+  public PaperConfigTransformer() {
+    // used by SPI
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void transform(@NonNull String classname, @NonNull ClassNode classNode) {
-    for (var method : classNode.methods) {
-      // this method tries to use reflections to modify the modifiers of a field. Stop that
-      if (method.name.equals("stackableBuckets")) {
-        method.instructions.insert(new InsnNode(Opcodes.RETURN));
-      }
-    }
+  public @NonNull ClassTransform provideClassTransform() {
+    CodeTransform codeTransform = (codebuilder, _) -> codebuilder.return_();
+    return ClassTransform.transformingMethodBodies(
+      mm -> mm.methodName().equalsString(MN_STACKABLE_BUCKETS),
+      codeTransform);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
+    var isPaperConfig = internalClassName.equals(CNI_PAPER_CONFIG);
+    return isPaperConfig ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
   }
 }

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.wrapper;
 
-import eu.cloudnetservice.wrapper.transform.DefaultTransformerRegistry;
-import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
+import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
+import eu.cloudnetservice.wrapper.transform.DefaultClassTransformerRegistry;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
@@ -31,11 +31,11 @@ import org.jetbrains.annotations.Nullable;
 final class Premain {
 
   static Instrumentation instrumentation;
-  static TransformerRegistry transformerRegistry;
+  static ClassTransformerRegistry transformerRegistry;
 
   public static void premain(@Nullable String agentArgs, @NonNull Instrumentation inst) {
     Premain.instrumentation = inst;
-    Premain.transformerRegistry = new DefaultTransformerRegistry(inst);
+    Premain.transformerRegistry = new DefaultClassTransformerRegistry(inst);
   }
 
   public static void preloadClasses(@NonNull Path file, @NonNull ClassLoader loader) {
