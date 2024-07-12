@@ -63,7 +63,7 @@ public final class DefaultClassTransformerRegistry implements ClassTransformerRe
    * An implementation of a class file transformer that parses and transforms class files using the given CloudNet
    * transformer. The transform call is ignored if the given transformer is rejecting the class, and this transformer
    * will be unregistered from the given instrumentation if the acceptance check returns
-   * {@link ClassTransformer.TransformAcceptance#ACCEPT_ONCE}.
+   * {@link ClassTransformer.TransformWillingness#ACCEPT_ONCE}.
    *
    * @param transformer     the transformer to obtain the class file transform instance from for accepted classes.
    * @param instrumentation the instrumentation to which this transformer is registered.
@@ -94,14 +94,14 @@ public final class DefaultClassTransformerRegistry implements ClassTransformerRe
 
       // check if the managed transformer has the intention to change the given class,
       // do nothing if that is not the case
-      var acceptance = this.transformer.checkClassAcceptance(className);
-      if (acceptance == ClassTransformer.TransformAcceptance.REJECT) {
+      var transformWillingness = this.transformer.classTransformWillingness(className);
+      if (transformWillingness == ClassTransformer.TransformWillingness.REJECT) {
         return null;
       }
 
       // unregister this transformer from the instrumentation to prevent calling it
       // again before actually starting the transformation process
-      if (acceptance == ClassTransformer.TransformAcceptance.ACCEPT_ONCE) {
+      if (transformWillingness == ClassTransformer.TransformWillingness.ACCEPT_ONCE) {
         this.instrumentation.removeTransformer(this);
       }
 

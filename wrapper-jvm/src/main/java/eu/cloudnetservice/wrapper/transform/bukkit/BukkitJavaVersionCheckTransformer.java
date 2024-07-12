@@ -65,9 +65,9 @@ public final class BukkitJavaVersionCheckTransformer implements ClassTransformer
    * {@inheritDoc}
    */
   @Override
-  public @NonNull TransformAcceptance checkClassAcceptance(@NonNull String internalClassName) {
+  public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
     var isCraftBukkitMain = internalClassName.equals(CNI_CRAFT_BUKKIT_MAIN);
-    return isCraftBukkitMain ? TransformAcceptance.ACCEPT_ONCE : TransformAcceptance.REJECT;
+    return isCraftBukkitMain ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
   }
 
   /**

@@ -78,8 +78,8 @@ public final class OldEpollDisableTransformer implements ClassTransformer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull TransformAcceptance checkClassAcceptance(@NonNull String internalClassName) {
+  public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
     var isEpollClass = internalClassName.equals(CNI_EPOLL);
-    return isEpollClass ? TransformAcceptance.ACCEPT_ONCE : TransformAcceptance.REJECT;
+    return isEpollClass ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
   }
 }

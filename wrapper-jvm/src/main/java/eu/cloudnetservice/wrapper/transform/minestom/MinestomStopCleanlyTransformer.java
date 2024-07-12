@@ -51,7 +51,7 @@ public final class MinestomStopCleanlyTransformer implements ClassTransformer {
   public MinestomStopCleanlyTransformer() {
     var transformerDisabled = Boolean.getBoolean("cloudnet.wrapper.minestom-stop-transform-disabled");
     if (transformerDisabled) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("transformer disabled via system property");
     }
   }
 
@@ -70,9 +70,9 @@ public final class MinestomStopCleanlyTransformer implements ClassTransformer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull TransformAcceptance checkClassAcceptance(@NonNull String internalClassName) {
+  public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
     var isServerProcessImpl = internalClassName.equals(CNI_MINECRAFT_SERVER);
-    return isServerProcessImpl ? TransformAcceptance.ACCEPT_ONCE : TransformAcceptance.REJECT;
+    return isServerProcessImpl ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
   }
 
   /**

@@ -19,11 +19,18 @@ package eu.cloudnetservice.wrapper.transform;
 import lombok.NonNull;
 
 /**
- * A registry to register class transformers to. Each registered transformer is only called once.
+ * A registry for class transformers that should be called when a new class gets loaded.
  *
  * @since 4.0
  */
 public interface ClassTransformerRegistry {
 
+  /**
+   * Registers the given transformer into this registry. There is no guarantee that calling this method with the same
+   * transformer twice will result in a single registration.
+   *
+   * @param transformer the transformer to register into this registry.
+   * @throws NullPointerException if the given transformer is null.
+   */
   void registerTransformer(@NonNull ClassTransformer transformer);
 }

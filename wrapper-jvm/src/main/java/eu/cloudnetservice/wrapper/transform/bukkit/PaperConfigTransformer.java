@@ -57,8 +57,8 @@ public final class PaperConfigTransformer implements ClassTransformer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull TransformAcceptance checkClassAcceptance(@NonNull String internalClassName) {
+  public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
     var isPaperConfig = internalClassName.equals(CNI_PAPER_CONFIG);
-    return isPaperConfig ? TransformAcceptance.ACCEPT_ONCE : TransformAcceptance.REJECT;
+    return isPaperConfig ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
   }
 }

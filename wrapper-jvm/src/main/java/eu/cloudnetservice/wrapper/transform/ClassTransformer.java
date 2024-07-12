@@ -19,20 +19,35 @@ package eu.cloudnetservice.wrapper.transform;
 import java.lang.classfile.ClassTransform;
 import lombok.NonNull;
 
+/**
+ * A transformer for a class which gets called before the class is actually put into usage. A transformer can
+ * dynamically decide if it wants to transform a class, and can be applied to multiple classes, depending on the return
+ * value of {@link #classTransformWillingness(String)}.
+ *
+ * @since 4.0
+ */
 public interface ClassTransformer {
-  // TODO: fixup this shit naming...
 
+  /**
+   * Provides the class transform that will be used to transform the class data. This method should only be called if a
+   * prior check to {@link #classTransformWillingness(String)} did not indicate a rejection of the class.
+   *
+   * @return the class transform to apply to the target class.
+   */
   @NonNull
   ClassTransform provideClassTransform();
 
   /**
-   * Checks if this class transformer is willing to transform the class with the given name.
+   * Checks if this class transformer is willing to transform the class with the given internal name. If this method is
+   * not returning a rejection status, the {@link #provideClassTransform()} method is called and the transform gets
+   * applied to the target class.
    *
-   * @param internalClassName
-   * @return
+   * @param internalClassName the internal class name of the class being checked for transformation.
+   * @return the willingness of transformation for the class with the given name.
+   * @throws NullPointerException if the given internal class name is null.
    */
   @NonNull
-  TransformAcceptance checkClassAcceptance(@NonNull String internalClassName);
+  TransformWillingness classTransformWillingness(@NonNull String internalClassName);
 
   /**
    * The acceptance states of a class transformer for a given class. A transformer can either accept the class to
@@ -40,7 +55,7 @@ public interface ClassTransformer {
    *
    * @since 4.0
    */
-  enum TransformAcceptance {
+  enum TransformWillingness {
 
     /**
      * Indicates that the class transformer wants to transform the given target class.

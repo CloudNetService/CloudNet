@@ -66,9 +66,9 @@ public final class BukkitCommodoreTransformer implements ClassTransformer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull TransformAcceptance checkClassAcceptance(@NonNull String internalClassName) {
+  public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
     var isCommodore = internalClassName.startsWith(PNI_COMMODORE) && internalClassName.endsWith(CN_COMMODORE);
-    return isCommodore ? TransformAcceptance.ACCEPT_ONCE : TransformAcceptance.REJECT;
+    return isCommodore ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
   }
 
   /**
