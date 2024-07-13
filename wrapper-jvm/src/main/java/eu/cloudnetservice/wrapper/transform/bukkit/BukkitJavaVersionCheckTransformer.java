@@ -92,7 +92,6 @@ public final class BukkitJavaVersionCheckTransformer implements ClassTransformer
     @Override
     public void accept(@NonNull CodeBuilder builder, @NonNull CodeElement element) {
       if (element instanceof ConstantInstruction.LoadConstantInstruction inst
-        && inst.opcode() == Opcode.LDC
         && inst.constantValue() instanceof String value) {
         if (value.equals("java.class.version") && this.dropState == DROP_STATE_IDLE) {
           // encountered the call get the java class version for the version check, start dropping all returns
