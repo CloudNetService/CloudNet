@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,6 +97,14 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
    */
   @Override
   public boolean deploy(@NonNull ServiceTemplate target, @NonNull InputStream inputStream) {
+    return this.deployAsync(target, inputStream).join();
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> deployAsync(
+    @NonNull ServiceTemplate target,
+    @NonNull InputStream inputStream
+  ) {
     return ChunkedPacketSender.forFileTransfer()
       .source(inputStream)
       .transferChannel("deploy_service_template")
@@ -103,8 +112,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
       .toChannels(this.networkClient.firstChannel())
       .build()
       .transferChunkedData()
-      .thenApply(status -> status == TransferStatus.SUCCESS)
-      .join();
+      .thenApply(status -> status == TransferStatus.SUCCESS);
   }
 
   /**
@@ -112,12 +120,16 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
    */
   @Override
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) {
+    return this.zipTemplateAsync(template).join();
+  }
+
+  @Override
+  public @NonNull CompletableFuture<InputStream> zipTemplateAsync(@NonNull ServiceTemplate template) {
     return ChunkedFileQueryBuilder.create()
       .dataIdentifier("remote_templates_zip_template")
       .requestFromNode(this.componentInfo.nodeUniqueId())
       .configureMessageBuffer(buffer -> buffer.writeString(this.name).writeObject(template))
-      .query()
-      .join();
+      .query();
   }
 
   /**
@@ -184,11 +196,18 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate template,
     @NonNull String path
   ) throws IOException {
+    return this.newInputStreamAsync(template, path).join();
+  }
+
+  @Override
+  public @NonNull CompletableFuture<InputStream> newInputStreamAsync(
+    @NonNull ServiceTemplate template,
+    @NonNull String path
+  ) {
     return ChunkedFileQueryBuilder.create()
       .dataIdentifier("remote_templates_template_file")
       .requestFromNode(this.componentInfo.nodeUniqueId())
       .configureMessageBuffer(buffer -> buffer.writeString(this.name).writeObject(template).writeString(path))
-      .query()
-      .join();
+      .query();
   }
 }
