@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.network.ChunkedPacket;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import java.io.InputStream;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
@@ -62,7 +63,7 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Task<TransferStatus> transferChunkedData() {
+  public @NonNull CompletableFuture<TransferStatus> transferChunkedData() {
     return Task.supply(() -> {
       var chunkIndex = 0;
       var backingArray = new byte[this.chunkSessionInformation.chunkSize()];

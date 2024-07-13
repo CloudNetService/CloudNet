@@ -36,7 +36,7 @@ public class ListenableTaskTest {
 
     task.run(true);
     Assertions.assertTrue(task.isDone());
-    Assertions.assertEquals("Hello World", task.getDef(null));
+    Assertions.assertEquals("Hello World", Task.getOrNull(task));
     Assertions.assertTrue(handlerCalled.get());
   }
 

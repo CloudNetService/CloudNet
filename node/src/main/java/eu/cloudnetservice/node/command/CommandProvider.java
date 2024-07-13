@@ -22,6 +22,7 @@ import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.console.Console;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -65,7 +66,8 @@ public interface CommandProvider {
    * @return a task wrapping the command execution.
    * @throws NullPointerException if source or input is null.
    */
-  @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input);
+  @NonNull
+  CompletableFuture<?> execute(@NonNull CommandSource source, @NonNull String input);
 
   /**
    * Registers a command on a per-class basis. All methods annotated with

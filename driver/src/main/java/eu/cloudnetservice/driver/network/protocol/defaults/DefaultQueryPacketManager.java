@@ -20,12 +20,12 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 public class DefaultQueryPacketManager implements QueryPacketManager {
 
   protected final NetworkChannel networkChannel;
-  protected final Cache<UUID, Task<Packet>> waitingHandlers;
+  protected final Cache<UUID, CompletableFuture<Packet>> waitingHandlers;
 
   /**
    * Constructs a new query manager for the given network with the provided query timeout.
@@ -82,7 +82,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Task<Packet> waitingHandler(@NonNull UUID queryUniqueId) {
+  public @Nullable CompletableFuture<Packet> waitingHandler(@NonNull UUID queryUniqueId) {
     var task = this.waitingHandlers.getIfPresent(queryUniqueId);
     if (task != null) {
       this.waitingHandlers.invalidate(queryUniqueId);
@@ -94,11 +94,11 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Task<Packet> sendQueryPacket(@NonNull Packet packet) {
+  public @NonNull CompletableFuture<Packet> sendQueryPacket(@NonNull Packet packet) {
     // constructs and register a task for the given query unique id. note that if a replacement by key is
     // happening in the cache, the eviction listener is called and the previous future is automatically
     // cancelled, therefore there is no need to explicitly check for that here.
-    var responseTask = new Task<Packet>();
+    var responseTask = new CompletableFuture<Packet>();
     var queryUniqueId = Objects.requireNonNullElseGet(packet.uniqueId(), UUID::randomUUID);
     this.waitingHandlers.put(queryUniqueId, responseTask);
 
@@ -113,7 +113,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
    *
    * @return a new removal listeners for unanswered packet future completion.
    */
-  protected @NonNull RemovalListener<UUID, Task<Packet>> newRemovalListener() {
+  protected @NonNull RemovalListener<UUID, CompletableFuture<Packet>> newRemovalListener() {
     return (_, value, cause) -> {
       if (cause != RemovalCause.EXPLICIT && value != null) {
         value.completeExceptionally(new TimeoutException());

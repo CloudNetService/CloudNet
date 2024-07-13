@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
@@ -26,6 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -446,7 +446,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
    * @return a task completed with a result representing the state of the service creation.
    * @see CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)
    */
-  public @NonNull Task<ServiceCreateResult> createNewServiceAsync() {
+  public @NonNull CompletableFuture<ServiceCreateResult> createNewServiceAsync() {
     var serviceFactory = InjectionLayer.boot().instance(CloudServiceFactory.class);
     return serviceFactory.createCloudServiceAsync(this);
   }

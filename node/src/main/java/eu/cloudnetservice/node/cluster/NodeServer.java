@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.cluster;
 
 import eu.cloudnetservice.common.Named;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -27,6 +26,7 @@ import java.io.Closeable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -39,7 +39,8 @@ public interface NodeServer extends Named, Closeable {
 
   void shutdown();
 
-  @NonNull Task<Void> connect();
+  @NonNull
+  CompletableFuture<Void> connect();
 
   boolean draining();
 

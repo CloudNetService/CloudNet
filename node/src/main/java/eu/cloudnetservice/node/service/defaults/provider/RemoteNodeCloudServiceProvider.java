@@ -20,6 +20,7 @@ import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 
 public abstract class RemoteNodeCloudServiceProvider implements SpecificCloudServiceProvider {
@@ -37,7 +38,7 @@ public abstract class RemoteNodeCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
-  public @NonNull Task<ServiceInfoSnapshot> serviceInfoAsync() {
+  public @NonNull CompletableFuture<ServiceInfoSnapshot> serviceInfoAsync() {
     return Task.completedTask(this.snapshot);
   }
 

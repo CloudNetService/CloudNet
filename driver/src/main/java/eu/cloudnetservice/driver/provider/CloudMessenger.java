@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.provider;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,7 +81,8 @@ public interface CloudMessenger {
    * @return the first response to the given channel message, can be null if no target responded.
    * @throws NullPointerException if the given channel message is null.
    */
-  @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage);
+  @Nullable
+  ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage);
 
   /**
    * Sends the given channel message to all of its targets without waiting for a response from them.
@@ -89,7 +91,7 @@ public interface CloudMessenger {
    * @return a task completed when all channel messages were sent.
    * @throws NullPointerException if the given channel message is null.
    */
-  default @NonNull Task<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
+  default @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
     return Task.supply(() -> this.sendChannelMessage(channelMessage));
   }
 
@@ -101,7 +103,9 @@ public interface CloudMessenger {
    * @return a task completed with all responses from all network components which responded in time.
    * @throws NullPointerException if the given channel message is null.
    */
-  default @NonNull Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage message) {
+  default @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
+    @NonNull ChannelMessage message
+  ) {
     return Task.supply(() -> this.sendChannelMessageQuery(message));
   }
 
@@ -114,7 +118,9 @@ public interface CloudMessenger {
    * @return a task completed with the first response to the given channel message, can be null if no target responded.
    * @throws NullPointerException if the given channel message is null.
    */
-  default @NonNull Task<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
+  default @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
+    @NonNull ChannelMessage channelMessage
+  ) {
     return Task.supply(() -> this.sendSingleChannelMessageQuery(channelMessage));
   }
 }

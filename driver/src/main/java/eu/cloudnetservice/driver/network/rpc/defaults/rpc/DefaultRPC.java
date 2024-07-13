@@ -215,7 +215,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull <T> Task<T> fire() {
+  public @NonNull <T> CompletableFuture<T> fire() {
     var targetNetworkChannel = this.channelSupplier.get();
     Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
     return this.fire(targetNetworkChannel);
@@ -235,7 +235,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
   @Override
   public <T> @Nullable T fireSync(@NonNull NetworkChannel component) {
     try {
-      Task<T> queryTask = this.fire(component);
+      CompletableFuture<T> queryTask = this.fire(component);
       var invocationResult = queryTask.get();
       if (this.targetMethod.asyncReturnType()) {
         // for async methods the fire method does not return the result wrapped in a Future, it returns the raw
@@ -263,7 +263,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull <T> Task<T> fire(@NonNull NetworkChannel component) {
+  public @NonNull <T> CompletableFuture<T> fire(@NonNull NetworkChannel component) {
     // write the information about the RPC into a buffer
     var dataBuf = this.dataBufFactory.createEmpty()
       .writeInt(1) // single RPC
@@ -290,7 +290,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
         queryFuture = queryFuture.orTimeout(timeoutMillis, TimeUnit.MILLISECONDS);
       }
 
-      return Task.wrapFuture(queryFuture);
+      return queryFuture;
     }
   }
 }

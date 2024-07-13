@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.rpc.introspec;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCChained;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCNoResult;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCTimeout;
@@ -278,13 +277,12 @@ public record RPCMethodMetadata(
       return null;
     }
 
-    if (rawType != Task.class
-      && rawType != Future.class
+    if (rawType != Future.class
       && rawType != CompletionStage.class
       && rawType != CompletableFuture.class) {
       // unsupported future type
       throw new IllegalStateException(String.format(
-        "method %s in %s has unsupported future return type %s; must be Task, CompletableFuture, CompletionStage or Future",
+        "method %s in %s has unsupported future return type %s; must be CompletableFuture, CompletionStage or Future",
         method.getName(), method.getDeclaringClass().getName(), rawType.getName()));
     }
 

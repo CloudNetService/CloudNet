@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.network.rpc.generation.api;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.document.Document;
+import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class BaseDatabase implements Database {
@@ -31,7 +32,7 @@ public abstract class BaseDatabase implements Database {
   }
 
   @Override
-  public Task<Document> getAsync(String key) {
+  public CompletableFuture<Document> getAsync(String key) {
     return Task.completedTask(TEST_DOCUMENT);
   }
 }

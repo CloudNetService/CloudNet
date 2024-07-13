@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.chunk;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.chunk.defaults.builder.FileChunkedPacketSenderBuilder;
@@ -24,6 +23,7 @@ import eu.cloudnetservice.driver.network.protocol.Packet;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
@@ -55,7 +55,7 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
    * @return a future completed when the transfer finishes.
    */
   @NonNull
-  Task<TransferStatus> transferChunkedData();
+  CompletableFuture<TransferStatus> transferChunkedData();
 
   /**
    * A builder for a chunked packet sender, holding all general options.

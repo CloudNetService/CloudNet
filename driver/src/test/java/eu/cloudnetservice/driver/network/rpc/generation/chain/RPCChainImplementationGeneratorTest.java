@@ -27,6 +27,7 @@ import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCFactory;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -79,7 +80,7 @@ public class RPCChainImplementationGeneratorTest {
 
     public abstract String bar(String a, int b);
 
-    public abstract Task<String> foo(long xyz);
+    public abstract CompletableFuture<String> foo(long xyz);
 
     @RPCChained(parameterMapping = {
       0, 1, // map name parameter to seconds constructor arg

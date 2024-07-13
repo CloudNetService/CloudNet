@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.provider;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -57,7 +58,8 @@ public interface GroupConfigurationProvider {
    * @return the group configuration which has the given name or null if no group with the given name is registered.
    * @throws NullPointerException if the given name is null.
    */
-  @Nullable GroupConfiguration groupConfiguration(@NonNull String name);
+  @Nullable
+  GroupConfiguration groupConfiguration(@NonNull String name);
 
   /**
    * Adds a new group configuration by caching the given object, creating the group file and syncing the change to all
@@ -98,7 +100,7 @@ public interface GroupConfigurationProvider {
    *
    * @return a task completed if the group configurations were reloaded.
    */
-  default @NonNull Task<Void> reloadAsync() {
+  default @NonNull CompletableFuture<Void> reloadAsync() {
     return Task.supply(this::reload);
   }
 
@@ -109,7 +111,7 @@ public interface GroupConfigurationProvider {
    *
    * @return a task completed with all registered group configurations within the cluster.
    */
-  default @NonNull Task<Collection<GroupConfiguration>> groupConfigurationsAsync() {
+  default @NonNull CompletableFuture<Collection<GroupConfiguration>> groupConfigurationsAsync() {
     return Task.supply(this::groupConfigurations);
   }
 
@@ -121,7 +123,7 @@ public interface GroupConfigurationProvider {
    * @return a task completed with the group which has the given name or null if no such group with is registered.
    * @throws NullPointerException if the given name is null.
    */
-  default @NonNull Task<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
+  default @NonNull CompletableFuture<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
     return Task.supply(() -> this.groupConfiguration(name));
   }
 
@@ -134,7 +136,9 @@ public interface GroupConfigurationProvider {
    * @return a task completed with true if the group configuration was added or updated, false otherwise.
    * @throws NullPointerException if the given group configuration is null.
    */
-  default @NonNull Task<Boolean> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
+  default @NonNull CompletableFuture<Boolean> addGroupConfigurationAsync(
+    @NonNull GroupConfiguration groupConfiguration
+  ) {
     return Task.supply(() -> this.addGroupConfiguration(groupConfiguration));
   }
 
@@ -148,7 +152,7 @@ public interface GroupConfigurationProvider {
    * @return a task completed when the group configuration with the given name was removed.
    * @throws NullPointerException if the given group name is null.
    */
-  default @NonNull Task<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
+  default @NonNull CompletableFuture<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
     return Task.supply(() -> this.removeGroupConfigurationByName(name));
   }
 
@@ -162,7 +166,9 @@ public interface GroupConfigurationProvider {
    * @return a task completed when the given group configuration was removed.
    * @throws NullPointerException if the given group configuration is null.
    */
-  default @NonNull Task<Void> removeGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
+  default @NonNull CompletableFuture<Void> removeGroupConfigurationAsync(
+    @NonNull GroupConfiguration groupConfiguration
+  ) {
     return Task.supply(() -> this.removeGroupConfiguration(groupConfiguration));
   }
 }

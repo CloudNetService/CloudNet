@@ -104,7 +104,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Task<RPCInvocationResult> handle(@NonNull RPCInvocationContext context) {
+  public @NonNull CompletableFuture<RPCInvocationResult> handle(@NonNull RPCInvocationContext context) {
     // get the instance we're working with
     var contextualInstance = context.workingInstance();
     var workingInstance = contextualInstance != null ? contextualInstance : this.boundInstance;
@@ -162,7 +162,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
           });
         };
 
-        Task<RPCInvocationResult> resultTask = new Task<>();
+        CompletableFuture<RPCInvocationResult> resultTask = new CompletableFuture<>();
         futureCompletionStage.whenComplete((futureResult, exception) -> {
           if (exception != null) {
             // method invocation failed with an exception

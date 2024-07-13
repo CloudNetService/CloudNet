@@ -33,10 +33,9 @@ import org.jetbrains.annotations.UnknownNullability;
  * This task is a {@link java.util.concurrent.Future} which can be completed at any time in the future and provides some
  * useful shortcuts for completable futures.
  *
- * @param <V> the generic type of the value to complete.
  * @since 4.0
  */
-public class Task<V> extends CompletableFuture<V> {
+public class Task {
 
   private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
 
@@ -48,7 +47,7 @@ public class Task<V> extends CompletableFuture<V> {
    * @return a new task containing the given runnable.
    * @throws NullPointerException if the given runnable is null.
    */
-  public static <V> @NonNull Task<V> supply(@NonNull Runnable runnable) {
+  public static <V> @NonNull CompletableFuture<V> supply(@NonNull Runnable runnable) {
     return supply(() -> {
       runnable.run();
       return null;
@@ -64,34 +63,12 @@ public class Task<V> extends CompletableFuture<V> {
    * @return the new task completing the value of the supplier.
    * @throws NullPointerException if the given supplier is null.
    */
-  public static <V> @NonNull Task<V> supply(@NonNull Callable<V> supplier) {
-    var task = new Task<V>();
+  public static <V> @NonNull CompletableFuture<V> supply(@NonNull Callable<V> supplier) {
+    var task = new CompletableFuture<V>();
     SERVICE.execute(() -> {
       try {
         task.complete(supplier.call());
       } catch (Exception exception) {
-        task.completeExceptionally(exception);
-      }
-    });
-    return task;
-  }
-
-  /**
-   * Wraps the given completable future into a cloudnet task. Exceptions thrown in the future are passed down to the
-   * task.
-   *
-   * @param future the future to wrap as to a task.
-   * @param <V>    the generic type of the completable future and the new task.
-   * @return the new task wrapping the completable future.
-   * @throws NullPointerException if the given future is null.
-   */
-  public static <V> @NonNull Task<V> wrapFuture(@NonNull CompletableFuture<V> future) {
-    var task = new Task<V>();
-    future.whenComplete((result, exception) -> {
-      // uni push either the exception or the result, the exception is unwrapped already
-      if (exception == null) {
-        task.complete(result);
-      } else {
         task.completeExceptionally(exception);
       }
     });
@@ -107,16 +84,13 @@ public class Task<V> extends CompletableFuture<V> {
    * @return the new task completed with the given result.
    */
   @SuppressWarnings("unchecked") // it's fine
-  public static <V> @NonNull Task<V> completedTask(@Nullable Object result) {
-    var future = new Task<V>();
+  public static <V> @NonNull CompletableFuture<V> completedTask(@Nullable Object result) {
     // complete exceptionally if an exception was given
     if (result instanceof Throwable throwable) {
-      future.completeExceptionally(throwable);
+      return CompletableFuture.failedFuture(throwable);
     } else {
-      future.complete((V) result);
+      return CompletableFuture.completedFuture((V) result);
     }
-    // instantly completed when returning
-    return future;
   }
 
   /**
@@ -126,8 +100,8 @@ public class Task<V> extends CompletableFuture<V> {
    *
    * @return the completed result of this task, null if any exception occurred.
    */
-  public @UnknownNullability V getOrNull() {
-    return this.getDef(null);
+  public static <V> @UnknownNullability V getOrNull(@NonNull CompletableFuture<V> future) {
+    return getDef(future, null);
   }
 
   /**
@@ -137,9 +111,9 @@ public class Task<V> extends CompletableFuture<V> {
    * @param def the default value returned on failure.
    * @return the completed result of this task or the default value if any exception occurred.
    */
-  public @UnknownNullability V getDef(@Nullable V def) {
+  public static <V> @UnknownNullability V getDef(@NonNull CompletableFuture<V> future, @Nullable V def) {
     try {
-      return this.join();
+      return future.join();
     } catch (CancellationException | CompletionException exception) {
       return def;
     }
@@ -156,9 +130,14 @@ public class Task<V> extends CompletableFuture<V> {
    * @return the completed result of this task or the default value if the task did not complete.
    * @throws NullPointerException if the given time unit is null.
    */
-  public @UnknownNullability V get(long time, @NonNull TimeUnit timeUnit, @Nullable V def) {
+  public static <V> @UnknownNullability V get(
+    @NonNull CompletableFuture<V> future,
+    long time,
+    @NonNull TimeUnit timeUnit,
+    @Nullable V def
+  ) {
     try {
-      return this.get(time, timeUnit);
+      return future.get(time, timeUnit);
     } catch (CancellationException | ExecutionException | InterruptedException | TimeoutException exception) {
       return def;
     }

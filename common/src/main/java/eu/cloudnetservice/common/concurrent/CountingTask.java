@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.common.concurrent;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
  * @param <V> the generic type of the task.
  * @since 4.0
  */
-public class CountingTask<V> extends Task<V> {
+public class CountingTask<V> extends CompletableFuture<V> {
 
   private final V resultValue;
   private final AtomicInteger count;

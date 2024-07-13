@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.driver.network.rpc;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NonBlocking;
@@ -65,7 +65,7 @@ public interface RPCExecutable {
    * @throws NullPointerException if the associated network component has no channels available.
    */
   @NonNull
-  <T> Task<T> fire();
+  <T> CompletableFuture<T> fire();
 
   /**
    * Fires the current rpc into the given network channel and doesn't wait for the result of the rpc to become
@@ -103,5 +103,5 @@ public interface RPCExecutable {
    * @throws NullPointerException if the given network channel is null.
    */
   @NonNull
-  <T> Task<T> fire(@NonNull NetworkChannel component);
+  <T> CompletableFuture<T> fire(@NonNull NetworkChannel component);
 }

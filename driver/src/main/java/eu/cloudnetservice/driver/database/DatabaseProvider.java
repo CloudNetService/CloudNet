@@ -18,6 +18,7 @@ package eu.cloudnetservice.driver.database;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 
 /**
@@ -95,7 +96,7 @@ public interface DatabaseProvider {
    * @return a future completed with the existence status of the database.
    * @throws NullPointerException if name is null.
    */
-  default @NonNull Task<Boolean> containsDatabaseAsync(@NonNull String name) {
+  default @NonNull CompletableFuture<Boolean> containsDatabaseAsync(@NonNull String name) {
     return Task.supply(() -> this.containsDatabase(name));
   }
 
@@ -110,7 +111,7 @@ public interface DatabaseProvider {
    * @return a future completed with the deletion result of the database.
    * @throws NullPointerException if name is null.
    */
-  default @NonNull Task<Boolean> deleteDatabaseAsync(@NonNull String name) {
+  default @NonNull CompletableFuture<Boolean> deleteDatabaseAsync(@NonNull String name) {
     return Task.supply(() -> this.deleteDatabase(name));
   }
 
@@ -123,7 +124,7 @@ public interface DatabaseProvider {
    *
    * @return a future completed with a collection of all database names.
    */
-  default @NonNull Task<Collection<String>> databaseNamesAsync() {
+  default @NonNull CompletableFuture<Collection<String>> databaseNamesAsync() {
     return Task.supply(this::databaseNames);
   }
 }

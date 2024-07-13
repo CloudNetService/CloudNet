@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.service.defaults;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -216,14 +217,14 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     @NonNull ServiceConfiguration configuration
   ) {
     // send a request to the node to start a service
-    var result = ChannelMessage.builder()
+    var future = ChannelMessage.builder()
       .target(ChannelMessageTarget.Type.NODE, targetNode)
       .message(message)
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBuf.empty().writeObject(configuration))
       .build()
-      .sendSingleQueryAsync()
-      .get(20, TimeUnit.SECONDS, null);
+      .sendSingleQueryAsync();
+    var result = Task.get(future, 20, TimeUnit.SECONDS, null);
 
     // read the result service info from the buffer, if the there was no response then we need to fail (only the head
     // node should queue start requests)

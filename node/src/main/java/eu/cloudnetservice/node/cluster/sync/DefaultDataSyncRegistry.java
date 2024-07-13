@@ -222,7 +222,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   protected int readMergeInput(@NonNull Console console) {
     while (true) {
       // wait for an input
-      var input = console.readLine().getDef(null);
+      var input = console.readLine().getNow(null);
       // check if an input was supplied
       if (input == null) {
         continue;

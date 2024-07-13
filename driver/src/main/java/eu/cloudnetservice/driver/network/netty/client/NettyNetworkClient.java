@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty.client;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -43,6 +42,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import javax.net.ssl.SSLException;
@@ -167,8 +167,8 @@ public class NettyNetworkClient implements NetworkClient {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Task<Void> connect(@NonNull HostAndPort hostAndPort) {
-    Task<Void> result = new Task<>();
+  public @NonNull CompletableFuture<Void> connect(@NonNull HostAndPort hostAndPort) {
+    CompletableFuture<Void> result = new CompletableFuture<>();
     new Bootstrap()
       .group(this.eventLoopGroup)
       .channelFactory(NettyUtil.clientChannelFactory())

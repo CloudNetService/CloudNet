@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.cluster.task;
 
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
@@ -85,7 +86,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
           // check if we need to reconnect or if the other node is responsible to reconnect
           if (local.nodeInfoSnapshot().startupMillis() > server.nodeInfoSnapshot().startupMillis()) {
             // try to connect to the node server
-            server.connect().get(5, TimeUnit.SECONDS, null);
+            Task.get(server.connect(), 5, TimeUnit.SECONDS, null);
           }
         }
       }

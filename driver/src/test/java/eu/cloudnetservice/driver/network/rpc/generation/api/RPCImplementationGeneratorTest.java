@@ -79,7 +79,7 @@ public class RPCImplementationGeneratorTest {
 
     var future = database.getAsync("hello");
     Assertions.assertTrue(future.isDone());
-    Assertions.assertSame(BaseDatabase.TEST_DOCUMENT, future.getOrNull());
+    Assertions.assertSame(BaseDatabase.TEST_DOCUMENT, Task.getOrNull(future));
   }
 
   @Test
