@@ -28,6 +28,14 @@ tasks.withType<Jar> {
   }
 }
 
+repositories {
+  maven("https://repo.codemc.io/repository/maven-releases/") {
+    mavenContent {
+      includeGroup("com.github.retrooper")
+    }
+  }
+}
+
 dependencies {
   "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.modules.bridge)
