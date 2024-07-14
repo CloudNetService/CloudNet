@@ -30,6 +30,13 @@ public class FAWEWorldEditDownloadURLTransformer implements ClassTransformer {
   private static final String NEW_DOWNLOAD_URL = "https://mediafilez.forgecdn.net/files/2431/372/worldedit-bukkit-6.1.7.2.jar";
   private static final String CNI_JARS = "com/boydti/fawe/util/Jars";
 
+  /**
+   * Constructs a new instance of this transformer, usually done via SPI.
+   */
+  public FAWEWorldEditDownloadURLTransformer() {
+    // used by SPI
+  }
+
   @Override
   public @NonNull ClassTransform provideClassTransform() {
     CodeTransform codeTransform = (builder, element) -> {

@@ -27,6 +27,13 @@ public class FAWEConfigTransformer implements ClassTransformer {
   private static final String MN_SET_ACCESSIBLE = "setAccessible";
 
   /**
+   * Constructs a new instance of this transformer, usually done via SPI.
+   */
+  public FAWEConfigTransformer() {
+    // used by SPI
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override

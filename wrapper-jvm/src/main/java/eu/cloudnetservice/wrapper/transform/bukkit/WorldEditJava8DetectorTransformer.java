@@ -26,6 +26,13 @@ public class WorldEditJava8DetectorTransformer implements ClassTransformer {
   private static final String CN_JAVA_8_DETECTOR = "com/sk89q/worldedit/util/Java8Detector";
   private static final String MN_NOTIFY_IF_NOT_8 = "notifyIfNot8";
 
+  /**
+   * Constructs a new instance of this transformer, usually done via SPI.
+   */
+  public WorldEditJava8DetectorTransformer() {
+    // used by SPI
+  }
+
   @Override
   public @NonNull ClassTransform provideClassTransform() {
     CodeTransform codeTransform = (builder, _) -> builder.return_();

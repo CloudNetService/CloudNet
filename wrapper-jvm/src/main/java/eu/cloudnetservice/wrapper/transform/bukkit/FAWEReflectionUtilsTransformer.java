@@ -37,6 +37,13 @@ public class FAWEReflectionUtilsTransformer implements ClassTransformer {
   private static final MethodTypeDesc MTD_SET = MethodTypeDesc.of(ConstantDescs.CD_void, ConstantDescs.CD_Object,
     ConstantDescs.CD_Object);
 
+  /**
+   * Constructs a new instance of this transformer, usually done via SPI.
+   */
+  public FAWEReflectionUtilsTransformer() {
+    // used by SPI
+  }
+
   @Override
   public @NonNull ClassTransform provideClassTransform() {
     CodeTransform codeTransform = (builder, e) -> {
