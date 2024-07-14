@@ -25,38 +25,30 @@ import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.node.template.TemplateStorageUtil;
-import eu.cloudnetservice.node.util.NetworkUtil;
 import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.information.TemplateVersionInstaller;
 import jakarta.inject.Inject;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
 
-  private final Configuration nodeConfig;
-
   @Inject
   public SpecificTaskSetup(
     @NonNull Parsers parsers,
-    @NonNull Configuration nodeConfig,
     @NonNull TemplateStorageUtil storageUtil,
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull GroupConfigurationProvider groupProvider,
     @NonNull ServiceVersionProvider serviceVersionProvider
   ) {
     super(parsers, storageUtil, taskProvider, groupProvider, serviceVersionProvider);
-
-    this.nodeConfig = nodeConfig;
   }
 
   @Override
@@ -113,19 +105,6 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
           .possibleResults("[0, 65535]")
           .recommendation(44955))
         .build(),
-      QuestionListEntry.<String>builder()
-        .key("taskHostAddress")
-        .translatedQuestion("command-tasks-setup-question-host-address")
-        .answerType(QuestionAnswerType.<String>builder()
-          .recommendation(this.nodeConfig.hostAddress())
-          .parser(this.parsers.assignableHostAndPortOrAlias())
-          .possibleResults(() -> NetworkUtil.availableIPAddresses()
-            .stream()
-            .collect(Collectors.collectingAndThen(Collectors.toSet(), ips -> {
-              ips.addAll(this.nodeConfig.ipAliases().keySet());
-              return ips;
-            }))))
-        .build(),
       QuestionListEntry.<Tuple2<String, JavaVersion>>builder()
         .key("taskJavaCommand")
         .translatedQuestion("command-tasks-setup-question-javacommand")
@@ -160,7 +139,6 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     Tuple2<ServiceVersionType, ServiceVersion> version = animation.result("taskServiceVersion");
     Tuple2<String, ?> javaVersion = animation.result("taskJavaCommand");
     var defaultTemplate = ServiceTemplate.builder().prefix(name).name("default").build();
-    String hostAddress = animation.result("taskHostAddress");
 
     var task = ServiceTask.builder()
       .name(name)
@@ -171,7 +149,6 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .minServiceCount(animation.result("taskMinServices"))
       .serviceEnvironmentType(environment)
       .startPort(animation.result("taskStartPort"))
-      .hostAddress(hostAddress)
       .javaCommand(javaVersion.first())
       .templates(Set.of(defaultTemplate))
       .nameSplitter(animation.result("taskNameSplitter"))
