@@ -105,7 +105,7 @@ public record CloudNetVersion(
    * @return the stringified, human-readable representation of this version.
    */
   @Override
-  public String toString() {
+  public @NonNull String toString() {
     // CloudNet Blizzard 3.5.0-SNAPSHOT
     var toString =
       "CloudNet " + this.versionTitle + ' ' + this.major + '.' + this.minor + '.' + this.patch + '-' + this.versionType;
