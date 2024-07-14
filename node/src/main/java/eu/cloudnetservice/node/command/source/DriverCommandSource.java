@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The driver command source represents a message receiving object for the driver api. All messages regarding command
@@ -96,7 +97,7 @@ public class DriverCommandSource implements CommandSource {
    * {@inheritDoc}
    */
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

@@ -39,7 +39,7 @@ public record Dependency(
   }
 
   @Override
-  public String toString() {
+  public @NonNull String toString() {
     return String.format("%s %s %s%s", this.group, this.name, this.originalVersion, this.classifier());
   }
 }
