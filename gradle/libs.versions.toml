@@ -77,7 +77,7 @@ luckPermsApi = "5.4"
 
 # fabric platform special dependencies
 minecraft = "1.21"
-fabricLoader = "0.15.11"
+fabricLoader = "0.16.0"
 
 
 [libraries]
