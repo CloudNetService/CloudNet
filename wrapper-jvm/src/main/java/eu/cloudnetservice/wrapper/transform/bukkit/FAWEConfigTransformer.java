@@ -20,8 +20,15 @@ import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeTransform;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
-public class FAWEConfigTransformer implements ClassTransformer {
+/**
+ * A transformer implementation that disables the {@code setAccessible} method in the FAWE Config on old FAWE versions.
+ * This is due to the fact that the method uses illegal reflection in the attempt to set a final field which is not
+ * possible anymore on newer java versions.
+ */
+@ApiStatus.Internal
+public final class FAWEConfigTransformer implements ClassTransformer {
 
   private static final String CNI_CONFIG = "com/boydti/fawe/config/Config";
   private static final String MN_SET_ACCESSIBLE = "setAccessible";

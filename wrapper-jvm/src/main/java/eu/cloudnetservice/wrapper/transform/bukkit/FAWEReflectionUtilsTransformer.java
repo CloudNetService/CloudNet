@@ -24,8 +24,15 @@ import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.reflect.Field;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
-public class FAWEReflectionUtilsTransformer implements ClassTransformer {
+/**
+ * A transformer implementation that rewrites the {@code setFailsafeFieldValue} method in the {@code ReflectionUtils}
+ * class on old FAWE versions. This is due to the fact that the method uses illegal reflection in the attempt to set a final field which is
+ * not possible anymore on newer java versions.
+ */
+@ApiStatus.Internal
+public final class FAWEReflectionUtilsTransformer implements ClassTransformer {
 
   private static final String CNI_REFLECTION_UTILS = "com/boydti/fawe/util/ReflectionUtils";
   private static final String MN_SET_FAILSAFE_FIELD_VALUE = "setFailsafeFieldValue";
@@ -44,10 +51,12 @@ public class FAWEReflectionUtilsTransformer implements ClassTransformer {
     // used by SPI
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ClassTransform provideClassTransform() {
-    CodeTransform codeTransform = (builder, e) -> {
-
+    CodeTransform codeTransform = (builder, _) -> {
       // field.setAccessible(true);
       builder.aload(0).iconst_1();
       builder.invokevirtual(CD_FIELD, MN_FIELD_SET_ACCESSIBLE, MTD_SET_ACCESSIBLE);
@@ -64,6 +73,9 @@ public class FAWEReflectionUtilsTransformer implements ClassTransformer {
       codeTransform);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
     var isFaweReflectionUtils = internalClassName.equals(CNI_REFLECTION_UTILS);

@@ -19,12 +19,17 @@ package eu.cloudnetservice.wrapper.transform.bukkit;
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeTransform;
-import java.lang.classfile.Opcode;
 import java.lang.classfile.instruction.ConstantInstruction;
 import java.lang.constant.ConstantDescs;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
-public class FAWEWorldEditDownloadURLTransformer implements ClassTransformer {
+/**
+ * A transformer implementation that allows FAWEs automatic downloading of WorldEdit on older versions. The URL has
+ * changed a while ago, this updates the download URL to work again.
+ */
+@ApiStatus.Internal
+public final class FAWEWorldEditDownloadURLTransformer implements ClassTransformer {
 
   private static final String OLD_DOWNLOAD_URL = "https://addons.cursecdn.com/files/2431/372/worldedit-bukkit-6.1.7.2.jar";
   private static final String NEW_DOWNLOAD_URL = "https://mediafilez.forgecdn.net/files/2431/372/worldedit-bukkit-6.1.7.2.jar";
@@ -37,16 +42,17 @@ public class FAWEWorldEditDownloadURLTransformer implements ClassTransformer {
     // used by SPI
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ClassTransform provideClassTransform() {
     CodeTransform codeTransform = (builder, element) -> {
-      if (element instanceof ConstantInstruction.LoadConstantInstruction loadConstant) {
-        if (loadConstant.opcode() == Opcode.LDC) {
-          if (loadConstant.constantValue().equals(OLD_DOWNLOAD_URL)) {
-            builder.ldc(NEW_DOWNLOAD_URL);
-            return;
-          }
-        }
+      if (element instanceof ConstantInstruction.LoadConstantInstruction inst
+        && inst.constantValue() instanceof String string
+        && string.equals(OLD_DOWNLOAD_URL)) {
+        builder.ldc(NEW_DOWNLOAD_URL);
+        return;
       }
       builder.with(element);
     };
@@ -55,6 +61,9 @@ public class FAWEWorldEditDownloadURLTransformer implements ClassTransformer {
       codeTransform);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
     var isJars = internalClassName.equals(CNI_JARS);

@@ -20,8 +20,14 @@ import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeTransform;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
-public class WorldEditJava8DetectorTransformer implements ClassTransformer {
+/**
+ * A transformer implementation that disables warnings produced by WorldEdit on older versions if the java version is
+ * not Java 8.
+ */
+@ApiStatus.Internal
+public final class WorldEditJava8DetectorTransformer implements ClassTransformer {
 
   private static final String CN_JAVA_8_DETECTOR = "com/sk89q/worldedit/util/Java8Detector";
   private static final String MN_NOTIFY_IF_NOT_8 = "notifyIfNot8";
@@ -33,6 +39,9 @@ public class WorldEditJava8DetectorTransformer implements ClassTransformer {
     // used by SPI
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ClassTransform provideClassTransform() {
     CodeTransform codeTransform = (builder, _) -> builder.return_();
@@ -41,6 +50,9 @@ public class WorldEditJava8DetectorTransformer implements ClassTransformer {
       codeTransform);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
     var isJava8Detector = internalClassName.equals(CN_JAVA_8_DETECTOR);
