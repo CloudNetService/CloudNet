@@ -72,7 +72,7 @@ public final class ConditionalOnPropertyProcessor implements ConditionProcessor 
           switch (element.name().stringValue()) {
             case "env" -> envKey = Strings.emptyToNull(stringValue);
             case "prop" -> systemProp = Strings.emptyToNull(stringValue);
-            case "requiredValue" -> expectedValue = stringValue;
+            case "expected" -> expectedValue = stringValue;
           }
         }
         case AnnotationValue.OfBoolean ofBoolean
