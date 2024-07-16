@@ -53,6 +53,7 @@ dependencies {
   // internal libraries
   "implementation"(libs.gson)
   "implementation"(libs.guava)
+  "implementation"(libs.semver4j)
 
   // netty
   "implementation"(libs.bundles.netty)
