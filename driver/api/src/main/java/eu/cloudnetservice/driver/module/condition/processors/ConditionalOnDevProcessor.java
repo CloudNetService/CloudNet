@@ -20,8 +20,8 @@ import eu.cloudnetservice.driver.module.condition.ConditionContext;
 import eu.cloudnetservice.driver.module.condition.ConditionProcessor;
 import jakarta.inject.Singleton;
 import java.lang.classfile.Annotation;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A condition processor for the {@code @ConditionalOnDev} annotation.
@@ -38,7 +38,7 @@ public final class ConditionalOnDevProcessor implements ConditionProcessor {
    * {@inheritDoc}
    */
   @Override
-  public boolean matches(@NotNull ConditionContext context, @NotNull Annotation matchedAnnotation) {
+  public boolean matches(@NonNull ConditionContext context, @NonNull Annotation matchedAnnotation) {
     return DEV_MODE;
   }
 }
