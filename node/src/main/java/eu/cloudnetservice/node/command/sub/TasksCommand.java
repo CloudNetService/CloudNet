@@ -394,7 +394,7 @@ public final class TasksCommand {
     this.applyChange(
       source,
       tasks,
-      ServiceTask.Builder::maintenance,
+      ServiceTask.Builder::autoDeleteOnStop,
       "command-tasks-set-property-success",
       "autoDeleteOnStop",
       enabled);
