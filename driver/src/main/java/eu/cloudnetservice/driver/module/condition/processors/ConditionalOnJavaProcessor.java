@@ -24,8 +24,8 @@ import jakarta.inject.Singleton;
 import java.lang.classfile.Annotation;
 import java.lang.classfile.AnnotationValue;
 import java.util.Objects;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A condition processor for the {@code @ConditionalOnJava} annotation.
@@ -42,7 +42,7 @@ public final class ConditionalOnJavaProcessor implements ConditionProcessor {
    * {@inheritDoc}
    */
   @Override
-  public boolean matches(@NotNull ConditionContext context, @NotNull Annotation matchedAnnotation) {
+  public boolean matches(@NonNull ConditionContext context, @NonNull Annotation matchedAnnotation) {
     return matchedAnnotation.elements()
       .stream()
       // get the value array

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.module.condition;
 
 import java.lang.classfile.Annotation;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A single condition that must match in order for a method to be kept in a class. Conditions are checked before loading
@@ -37,5 +37,5 @@ public interface ConditionProcessor {
    * @return true if the condition matches and the method should be kept and executed, false otherwise.
    * @throws NullPointerException if the given context or matched annotation is null.
    */
-  boolean matches(@NotNull ConditionContext context, @NotNull Annotation matchedAnnotation);
+  boolean matches(@NonNull ConditionContext context, @NonNull Annotation matchedAnnotation);
 }
