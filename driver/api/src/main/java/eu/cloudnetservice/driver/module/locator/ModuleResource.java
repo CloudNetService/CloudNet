@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-present CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,31 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.module;
+package eu.cloudnetservice.driver.module.locator;
+
+import java.nio.file.Path;
+import lombok.NonNull;
 
 /**
- * A manager and loader for modules.
+ * A resource from which a module can be potentially loaded.
  *
  * @since 4.0
  */
-public interface ModuleManager {
+public interface ModuleResource {
 
+  /**
+   * Get the name of the locator that located this module resource.
+   *
+   * @return the name of the locator that located this module resource.
+   */
+  @NonNull
+  String locator();
+
+  /**
+   * Get the path to the located resource.
+   *
+   * @return the path to the located resource.
+   */
+  @NonNull
+  Path path();
 }
