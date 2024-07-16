@@ -16,24 +16,30 @@
 
 package eu.cloudnetservice.driver.module;
 
+import eu.cloudnetservice.driver.module.locator.ModuleResource;
+import eu.cloudnetservice.driver.module.metadata.ModuleMetadata;
 import lombok.NonNull;
 
 /**
- * Represents an exception that is thrown when a module depends on another module which is not loaded.
+ * A candidate of a module that is not yet loaded, but passed the first checks if it could be loaded.
  *
- * @see ModuleDependency
  * @since 4.0
  */
-public class ModuleDependencyNotFoundException extends RuntimeException {
+public interface ModuleCandidate<R extends ModuleResource> {
 
   /**
-   * Constructs a new instance of this ModuleDependencyNotFoundException.
+   * Get the resource which is the basis of this candidate.
    *
-   * @param dependency      the name of the dependency which is missing.
-   * @param requiringModule the module which required the dependency to be present.
-   * @throws NullPointerException if dependency or requiringModule is null.
+   * @return the resource which is the basis of this candidate.
    */
-  public ModuleDependencyNotFoundException(@NonNull String dependency, @NonNull String requiringModule) {
-    super(String.format("Missing module dependency %s required by %s", dependency, requiringModule));
-  }
+  @NonNull
+  R resource();
+
+  /**
+   * Get the module metadata which was parsed from the resolved module resource.
+   *
+   * @return the module metadata which was parsed from the resolved module resource.
+   */
+  @NonNull
+  ModuleMetadata metadata();
 }

@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.module;
+package eu.cloudnetservice.driver.module.locator;
 
-import java.net.URL;
+import java.nio.file.Path;
 import lombok.NonNull;
 
 /**
- * Represents an exception thrown when the module configuration of a module cannot be found in the module file.
+ * A resource from which a module can be potentially loaded.
  *
- * @see ModuleConfiguration
  * @since 4.0
  */
-public class ModuleConfigurationNotFoundException extends RuntimeException {
+public interface ModuleResource {
 
   /**
-   * Creates a new instance of this class.
+   * Get the name of the locator that located this module resource.
    *
-   * @param url the url of the module which didn't contain a module.json file.
+   * @return the name of the locator that located this module resource.
    */
-  public ModuleConfigurationNotFoundException(@NonNull URL url) {
-    super("No module configuration found in " + url.toExternalForm());
-  }
+  @NonNull
+  String locator();
+
+  /**
+   * Get the path to the located resource.
+   *
+   * @return the path to the located resource.
+   */
+  @NonNull
+  Path path();
 }
