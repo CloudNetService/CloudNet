@@ -385,6 +385,21 @@ public final class TasksCommand {
     }
   }
 
+  @CommandMethod("tasks task <name> set autoDeleteOnStop <enabled>")
+  public void setAutoDeleteOnStop(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> tasks,
+    @Argument("enabled") @Liberal boolean enabled
+  ) {
+    this.applyChange(
+      source,
+      tasks,
+      ServiceTask.Builder::autoDeleteOnStop,
+      "command-tasks-set-property-success",
+      "autoDeleteOnStop",
+      enabled);
+  }
+
   @CommandMethod("tasks task <name> set runtime <runtime>")
   public void setRuntime(
     @NonNull CommandSource source,
