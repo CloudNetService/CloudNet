@@ -17,12 +17,14 @@
 package eu.cloudnetservice.wrapper.database;
 
 import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import lombok.NonNull;
 
 public abstract class WrapperDatabase implements Database {
 
   private final String name;
 
+  @RPCInvocationTarget
   public WrapperDatabase(@NonNull String name) {
     this.name = name;
   }
