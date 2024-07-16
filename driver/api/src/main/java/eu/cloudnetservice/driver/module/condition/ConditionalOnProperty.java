@@ -68,12 +68,12 @@ public @interface ConditionalOnProperty {
   String prop() default "";
 
   /**
-   * Get the required value of either the environment variable or system property.
+   * Get the expected value of either the environment variable or system property.
    *
-   * @return the required value of either the environment variable or system property.
+   * @return the expected value of either the environment variable or system property.
    */
   @NonNull
-  String requiredValue();
+  String expected();
 
   /**
    * Get if the value comparison between the provided value in runtime and the required value should be executed
