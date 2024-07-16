@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 public record SyncProxyLoginConfiguration(
@@ -73,7 +74,7 @@ public record SyncProxyLoginConfiguration(
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

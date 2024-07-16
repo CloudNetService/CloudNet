@@ -172,7 +172,7 @@ public class ModuleDependency {
    * {@inheritDoc}
    */
   @Override
-  public String toString() {
+  public @NonNull String toString() {
     return this.group + ':' + this.name + ':' + this.version;
   }
 }

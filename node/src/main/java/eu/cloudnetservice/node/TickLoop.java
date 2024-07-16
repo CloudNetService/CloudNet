@@ -124,6 +124,10 @@ public final class TickLoop {
     return task;
   }
 
+  public boolean running() {
+    return RUNNING.get();
+  }
+
   public void pause() {
     this.tickPauseRequests.incrementAndGet();
   }
