@@ -116,6 +116,13 @@ public interface ModuleMetadata {
   Collection<ModuleExternalDependency> externalDependencies();
 
   /**
+   * Indicates if this module wants to expose its external dependencies to other modules. Defaults to false.
+   *
+   * @return true if this module wants to expose its external dependencies to other modules, false otherwise.
+   */
+  boolean exposeExternalDependencies();
+
+  /**
    * Get the main authors of this module.
    *
    * @return the main authors of this module.
