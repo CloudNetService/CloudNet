@@ -100,11 +100,20 @@ final class GraphTopologicalSorter {
    */
   public static final class GraphCycleException extends IllegalStateException {
 
+    /**
+     * The singleton instance of this dependency, use this when throwing instead of construction a new instance.
+     */
     private static final GraphCycleException INSTANCE = new GraphCycleException();
 
+    /**
+     * Constructs a new instance of this exception, don't call directly - use the jvm-static instance instead.
+     */
     private GraphCycleException() {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Throwable fillInStackTrace() {
       return this;
