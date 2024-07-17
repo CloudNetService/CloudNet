@@ -32,9 +32,6 @@ import io.netty5.handler.codec.DecoderException;
 import io.netty5.handler.ssl.OpenSsl;
 import io.netty5.handler.ssl.SslProvider;
 import io.netty5.util.ResourceLeakDetector;
-import io.netty5.util.concurrent.Future;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -275,29 +272,6 @@ public final class NettyUtil {
       return 3;
     } else {
       return 4;
-    }
-  }
-
-  /**
-   * Waits for the given future to complete, either returning the same future instance as given (but completed) or
-   * rethrowing all exceptions that occurred during completion. This method throws an IllegalThreadStateException if the
-   * current thread was interrupted during the future computation.
-   *
-   * @param future the future to wait for.
-   * @param <T>    the type of data returned by the future.
-   * @return the same future as given to the method, but completed.
-   * @throws NullPointerException        if the given future is null.
-   * @throws CancellationException       if the computation was cancelled
-   * @throws CompletionException         if the computation threw an exception.
-   * @throws IllegalThreadStateException if the current thread was interrupted during computation.
-   */
-  public static @NonNull <T> Future<T> awaitFuture(@NonNull Future<T> future) {
-    try {
-      // await the future and rethrow exceptions if any occur
-      return future.asStage().sync().future();
-    } catch (InterruptedException exception) {
-      Thread.currentThread().interrupt(); // reset the interrupted state of the thread
-      throw new IllegalThreadStateException();
     }
   }
 

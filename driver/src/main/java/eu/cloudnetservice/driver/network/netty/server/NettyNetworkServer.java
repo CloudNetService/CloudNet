@@ -293,16 +293,6 @@ public class NettyNetworkServer implements NetworkServer {
    * {@inheritDoc}
    */
   @Override
-  public void sendPacketSync(@NonNull Packet... packets) {
-    for (var channel : this.channels) {
-      channel.sendPacketSync(packets);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void closeChannels() {
     var iterator = this.channels.iterator();
     while (iterator.hasNext()) {
