@@ -19,6 +19,8 @@ package eu.cloudnetservice.driver.network.netty;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.network.netty.buffer.NettyNioBufferReleasingAllocator;
+import eu.cloudnetservice.driver.network.scheduler.NetworkTaskScheduler;
+import eu.cloudnetservice.driver.network.scheduler.ScalingNetworkTaskScheduler;
 import io.netty5.buffer.Buffer;
 import io.netty5.buffer.BufferAllocator;
 import io.netty5.buffer.BufferUtil;
@@ -32,12 +34,7 @@ import io.netty5.handler.codec.DecoderException;
 import io.netty5.handler.ssl.OpenSsl;
 import io.netty5.handler.ssl.SslProvider;
 import io.netty5.util.ResourceLeakDetector;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -52,12 +49,10 @@ public final class NettyUtil {
 
   private static final int PACKET_DISPATCH_THREADS;
   private static final int NETTY_EVENT_LOOP_THREADS;
-  private static final int PACKET_DISPATCH_QUEUE_SIZE;
 
   private static final SslProvider SELECTED_SSL_PROVIDER;
   private static final NettyTransport SELECTED_NETTY_TRANSPORT;
   private static final BufferAllocator SELECTED_BUFFER_ALLOCATOR;
-  private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
   static {
     // check if resource leak detection should be enabled for debugging purposes
@@ -98,7 +93,6 @@ public final class NettyUtil {
     // actual values when the whole context for the allocation is known.
     PACKET_DISPATCH_THREADS = Integer.getInteger("cloudnet.net.packet-dispatch-threads", -1);
     NETTY_EVENT_LOOP_THREADS = Integer.getInteger("cloudnet.net.netty-event-loop-threads", -1);
-    PACKET_DISPATCH_QUEUE_SIZE = Integer.getInteger("cloudnet.net.packet-dispatch-queue-size", -1);
   }
 
   private NettyUtil() {
@@ -124,27 +118,17 @@ public final class NettyUtil {
    * @return a newly created executor for dispatching inbound packets.
    * @throws NullPointerException if the given driver environment is null.
    */
-  public static @NonNull Executor createPacketDispatcher(@NonNull DriverEnvironment driverEnvironment) {
+  public static @NonNull NetworkTaskScheduler createPacketDispatcher(@NonNull DriverEnvironment driverEnvironment) {
     // the maximum thread count that the pool will be allowed to use for packet processing
     // TODO: consider moving the default thread amount for an environment into the environment as a property
     var defaultEnvThreadCount = driverEnvironment.equals(DriverEnvironment.NODE) ? 12 : 4;
     var maximumPoolSize = overriddenCountOrDefault(PACKET_DISPATCH_THREADS, defaultEnvThreadCount);
 
-    // the queue size to use for all packets that cannot be processed due to no processing thread being available
-    // this is the hard limit for the queue, if reached the pool will reject execution of the provided task, which
-    // (in our case due to the setting), means that the netty event loop will take over the processing instead
-    var packetDispatchQueueSize = overriddenCountOrDefault(PACKET_DISPATCH_QUEUE_SIZE, 150);
-    return new ThreadPoolExecutor(
-      maximumPoolSize / 2,
-      maximumPoolSize,
-      30L,
-      TimeUnit.SECONDS,
-      new LinkedBlockingQueue<>(packetDispatchQueueSize),
-      new ThreadFactoryBuilder()
-        .setNameFormat("Packet-Dispatcher-%d")
-        .setThreadFactory(Executors.defaultThreadFactory())
-        .build(),
-      DEFAULT_REJECT_HANDLER);
+    var threadFactory = new ThreadFactoryBuilder()
+      .setNameFormat("Packet-Dispatcher-%d")
+      .setThreadFactory(Executors.defaultThreadFactory())
+      .build();
+    return new ScalingNetworkTaskScheduler(threadFactory, maximumPoolSize);
   }
 
   /**
