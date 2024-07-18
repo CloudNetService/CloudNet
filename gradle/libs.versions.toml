@@ -23,7 +23,7 @@ lombok = "1.18.34"
 javapoet = "1.13.0"
 
 # console
-jline = "3.26.2"
+jline = "3.26.3"
 cloud = "1.9.0-cn1"
 stringSimilarity = "2.0.0"
 
