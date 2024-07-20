@@ -37,9 +37,9 @@ import lombok.NonNull;
  */
 public final class ScalingNetworkTaskScheduler implements NetworkTaskScheduler {
 
-  private static final int BASE_QUEUE_TIMEOUT = 500;
-  private static final int MINIMUM_QUEUE_TIMEOUT = 100;
-  private static final double QUEUE_TIMOUT_DECAY_FACTOR = 0.99;
+  private static final int BASE_QUEUE_TIMEOUT = 150;
+  private static final int MINIMUM_QUEUE_TIMEOUT = 50;
+  private static final double QUEUE_TIMOUT_DECAY_FACTOR = 0.95;
 
   private final AtomicBoolean active;
   private final ThreadPoolExecutor coreExecutor;
