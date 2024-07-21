@@ -338,7 +338,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // if the npc should full services in the inventory
         case "sfs", "showfullservices" ->
-          updatedNpc = NPC.builder(npc).showIngameServices(this.parseBoolean(args[2])).build();
+          updatedNpc = NPC.builder(npc).showFullServices(this.parseBoolean(args[2])).build();
 
         // sets the glowing color
         case "gc", "glowingcolor" -> {
