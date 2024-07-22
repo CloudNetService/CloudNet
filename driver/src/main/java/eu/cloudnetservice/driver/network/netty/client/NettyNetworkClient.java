@@ -27,6 +27,7 @@ import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
+import eu.cloudnetservice.driver.network.scheduler.NetworkTaskScheduler;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import io.netty5.bootstrap.Bootstrap;
 import io.netty5.channel.ChannelOption;
@@ -67,7 +68,7 @@ public class NettyNetworkClient implements NetworkClient {
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
   protected final EventManager eventManager;
-  protected final Executor packetDispatcher;
+  protected final NetworkTaskScheduler packetDispatcher;
   protected final Callable<NetworkChannelHandler> handlerFactory;
 
   /**
@@ -202,6 +203,7 @@ public class NettyNetworkClient implements NetworkClient {
   @Override
   public void close() {
     this.closeChannels();
+    this.packetDispatcher.shutdown();
     this.eventLoopGroup.shutdownGracefully();
   }
 

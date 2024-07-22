@@ -28,6 +28,7 @@ import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
+import eu.cloudnetservice.driver.network.scheduler.NetworkTaskScheduler;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
@@ -75,7 +76,7 @@ public class NettyNetworkServer implements NetworkServer {
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
   protected final EventManager eventManager;
-  protected final Executor packetDispatcher;
+  protected final NetworkTaskScheduler packetDispatcher;
   protected final Callable<NetworkChannelHandler> handlerFactory;
 
   /**
@@ -236,11 +237,11 @@ public class NettyNetworkServer implements NetworkServer {
   @Override
   public void close() {
     this.closeChannels();
-
     for (var entry : this.channelFutures.values()) {
       entry.cancel();
     }
 
+    this.packetDispatcher.shutdown();
     this.bossEventLoopGroup.shutdownGracefully();
     this.workerEventLoopGroup.shutdownGracefully();
   }
@@ -286,16 +287,6 @@ public class NettyNetworkServer implements NetworkServer {
   public void sendPacketSync(@NonNull Packet packet) {
     for (var channel : this.channels) {
       channel.sendPacketSync(packet);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void sendPacketSync(@NonNull Packet... packets) {
-    for (var channel : this.channels) {
-      channel.sendPacketSync(packets);
     }
   }
 

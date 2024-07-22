@@ -21,44 +21,10 @@ import io.netty5.buffer.BufferAllocator;
 import io.netty5.channel.MultithreadEventLoopGroup;
 import io.netty5.handler.ssl.OpenSsl;
 import io.netty5.handler.ssl.SslProvider;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class NettyUtilTest {
-
-  @Test
-  void testPacketDispatcherThreadCount() {
-    {
-      // test node dispatcher
-      var packetDispatcher = NettyUtil.createPacketDispatcher(DriverEnvironment.NODE);
-      var tpe = Assertions.assertInstanceOf(ThreadPoolExecutor.class, packetDispatcher);
-      Assertions.assertEquals(12, tpe.getMaximumPoolSize());
-      Assertions.assertEquals(6, tpe.getCorePoolSize());
-      Assertions.assertEquals(30, tpe.getKeepAliveTime(TimeUnit.SECONDS));
-      Assertions.assertDoesNotThrow(() -> tpe.getRejectedExecutionHandler().rejectedExecution(() -> {
-      }, tpe));
-
-      var dispatchQueue = Assertions.assertInstanceOf(LinkedBlockingQueue.class, tpe.getQueue());
-      Assertions.assertEquals(150, dispatchQueue.remainingCapacity());
-    }
-
-    {
-      // test wrapper dispatcher
-      var packetDispatcher = NettyUtil.createPacketDispatcher(DriverEnvironment.WRAPPER);
-      var tpe = Assertions.assertInstanceOf(ThreadPoolExecutor.class, packetDispatcher);
-      Assertions.assertEquals(4, tpe.getMaximumPoolSize());
-      Assertions.assertEquals(2, tpe.getCorePoolSize());
-      Assertions.assertEquals(30, tpe.getKeepAliveTime(TimeUnit.SECONDS));
-      Assertions.assertDoesNotThrow(() -> tpe.getRejectedExecutionHandler().rejectedExecution(() -> {
-      }, tpe));
-
-      var dispatchQueue = Assertions.assertInstanceOf(LinkedBlockingQueue.class, tpe.getQueue());
-      Assertions.assertEquals(150, dispatchQueue.remainingCapacity());
-    }
-  }
 
   @Test
   void testBossEventLoopGroupCreation() {

@@ -83,21 +83,6 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    * {@inheritDoc}
    */
   @Override
-  public void sendPacketSync(@NonNull Packet... packets) {
-    for (var packet : packets) {
-      var future = this.writePacket(packet, false);
-      if (future != null) {
-        NettyUtil.awaitFuture(future);
-      }
-    }
-
-    this.channel.flush();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void sendPacket(@NonNull Packet packet) {
     if (this.channel.executor().inEventLoop()) {
       this.writePacket(packet, true);
@@ -112,8 +97,14 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   @Override
   public void sendPacketSync(@NonNull Packet packet) {
     var future = this.writePacket(packet, true);
-    if (future != null) {
-      NettyUtil.awaitFuture(future);
+    if (future != null && !future.executor().inEventLoop()) {
+      // only await the future if we're not currently in the event loop
+      // as this would deadlock the write operations triggered previously
+      try {
+        future.asStage().await();
+      } catch (InterruptedException _) {
+        Thread.currentThread().interrupt(); // reset interrupted state
+      }
     }
   }
 
