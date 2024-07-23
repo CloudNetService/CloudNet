@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
 import io.netty5.channel.ChannelHandlerContext;
@@ -39,18 +38,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NettyNetworkHandler.class);
 
-  protected final EventManager eventManager;
   protected volatile NettyNetworkChannel channel;
-
-  /**
-   * Constructs a new netty network handler instance.
-   *
-   * @param eventManager the event manager of the current component.
-   * @throws NullPointerException if the given event manager is null.
-   */
-  protected NettyNetworkHandler(@NonNull EventManager eventManager) {
-    this.eventManager = eventManager;
-  }
 
   /**
    * {@inheritDoc}

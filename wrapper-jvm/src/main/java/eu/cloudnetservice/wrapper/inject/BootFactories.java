@@ -19,7 +19,6 @@ package eu.cloudnetservice.wrapper.inject;
 import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.netty.client.NettyNetworkClient;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
@@ -45,11 +44,10 @@ final class BootFactories {
   @Factory
   @Singleton
   public static @NonNull NetworkClient provideNetworkClient(
-    @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo,
     @NonNull WrapperConfiguration configuration,
     @NonNull Provider<NetworkClientChannelHandler> handlerProvider
   ) {
-    return new NettyNetworkClient(eventManager, componentInfo, handlerProvider::get, configuration.sslConfiguration());
+    return new NettyNetworkClient(componentInfo, handlerProvider::get, configuration.sslConfiguration());
   }
 }

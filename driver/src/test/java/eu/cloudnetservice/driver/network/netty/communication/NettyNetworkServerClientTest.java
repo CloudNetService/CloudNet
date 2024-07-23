@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.network.netty.communication;
 
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.event.DefaultEventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.NetworkClient;
@@ -37,12 +36,10 @@ public class NettyNetworkServerClientTest extends NetworkTestCase {
   @Test
   void testNetworkServerClientCommunication() throws Exception {
     var networkPort = randomFreePort();
-
-    var eventManager = new DefaultEventManager();
     var componentInfo = new ComponentInfo(DriverEnvironment.WRAPPER, "Testing", "Testing-Node");
 
-    NetworkServer server = new NettyNetworkServer(eventManager, componentInfo, this::newDummyHandler);
-    NetworkClient client = new NettyNetworkClient(eventManager, componentInfo, this::newDummyHandler);
+    NetworkServer server = new NettyNetworkServer(componentInfo, this::newDummyHandler);
+    NetworkClient client = new NettyNetworkClient(componentInfo, this::newDummyHandler);
 
     Assertions.assertDoesNotThrow(() -> server.addListener(networkPort).join());
     Assertions.assertDoesNotThrow(() -> client.connect(

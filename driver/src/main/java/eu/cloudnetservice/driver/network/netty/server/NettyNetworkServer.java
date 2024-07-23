@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.network.netty.server;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.ComponentInfo;
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
@@ -75,42 +74,36 @@ public class NettyNetworkServer implements NetworkServer {
 
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
-  protected final EventManager eventManager;
   protected final NetworkTaskScheduler packetDispatcher;
   protected final Callable<NetworkChannelHandler> handlerFactory;
 
   /**
    * Constructs a new netty network server instance. Equivalent to {@code new NettyNetworkServer(factory, null)}.
    *
-   * @param eventManager   the event manager of the current component.
    * @param componentInfo  the component info of the current component the server is created for.
    * @param handlerFactory the handler factory to use.
    * @throws NullPointerException if the given event manager, component info or factory is null.
    */
   public NettyNetworkServer(
-    @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo,
     @NonNull Callable<NetworkChannelHandler> handlerFactory
   ) {
-    this(eventManager, componentInfo, handlerFactory, null);
+    this(componentInfo, handlerFactory, null);
   }
 
   /**
    * Constructs a new netty network server instance.
    *
-   * @param eventManager     the event manager of the current component.
    * @param componentInfo    the component info of the current component the server is created for.
    * @param handlerFactory   the handler factory to use.
    * @param sslConfiguration the ssl configuration to apply, or null if ssl should be disabled.
    * @throws NullPointerException if the given event manager, component info or factory is null.
    */
   public NettyNetworkServer(
-    @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo,
     @NonNull Callable<NetworkChannelHandler> handlerFactory,
     @Nullable SSLConfiguration sslConfiguration
   ) {
-    this.eventManager = eventManager;
     this.handlerFactory = handlerFactory;
 
     this.sslContext = initializeSslContext(sslConfiguration);
@@ -209,7 +202,7 @@ public class NettyNetworkServer implements NetworkServer {
         .option(ChannelOption.SO_REUSEADDR, true)
         .option(UnixChannelOption.SO_REUSEPORT, true)
         .option(ChannelOption.BUFFER_ALLOCATOR, NettyUtil.selectedBufferAllocator()))
-      .childHandler(new NettyNetworkServerInitializer(this.eventManager, this, hostAndPort)
+      .childHandler(new NettyNetworkServerInitializer(this, hostAndPort)
         .option(ChannelOption.IP_TOS, 0x18)
         .option(ChannelOption.AUTO_READ, true)
         .option(ChannelOption.TCP_NODELAY, true)

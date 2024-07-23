@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty.server;
 
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.netty.NettyNetworkChannel;
@@ -40,17 +39,11 @@ public class NettyNetworkServerHandler extends NettyNetworkHandler {
   /**
    * Constructs a new network server handler instance.
    *
-   * @param eventManager       the event manager of the current component.
    * @param networkServer      the network server associated with this handler.
    * @param serverLocalAddress the server address this handler is associated with.
    * @throws NullPointerException if either the given event manager, server or address is null.
    */
-  public NettyNetworkServerHandler(
-    @NonNull EventManager eventManager,
-    @NonNull NettyNetworkServer networkServer,
-    @NonNull HostAndPort serverLocalAddress
-  ) {
-    super(eventManager);
+  public NettyNetworkServerHandler(@NonNull NettyNetworkServer networkServer, @NonNull HostAndPort serverLocalAddress) {
     this.networkServer = networkServer;
     this.serverLocalAddress = serverLocalAddress;
   }
@@ -62,7 +55,6 @@ public class NettyNetworkServerHandler extends NettyNetworkHandler {
   public void channelActive(@NonNull ChannelHandlerContext ctx) throws Exception {
     this.networkServer.channels.add(this.channel = new NettyNetworkChannel(
       ctx.channel(),
-      this.eventManager,
       this.networkServer.packetRegistry(),
       this.networkServer.handlerFactory.call(),
       this.serverLocalAddress,
