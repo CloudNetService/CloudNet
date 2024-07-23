@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
-import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.event.events.network.NetworkChannelPacketSendEvent;
 import eu.cloudnetservice.driver.network.DefaultNetworkChannel;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -25,10 +23,10 @@ import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import io.netty5.channel.Channel;
-import io.netty5.util.concurrent.Future;
+import io.netty5.util.concurrent.Promise;
+import io.netty5.util.concurrent.PromiseCombiner;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The default netty based implementation of a network channel.
@@ -39,13 +37,11 @@ import org.jetbrains.annotations.Nullable;
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements NetworkChannel {
 
   private final Channel channel;
-  private final EventManager eventManager;
 
   /**
    * Constructs a new netty network channel instance.
    *
    * @param channel               the netty channel to wrap.
-   * @param eventManager          the event manager for the current component.
    * @param packetRegistry        the packet registry for this channel.
    * @param handler               the handler to post events to.
    * @param serverAddress         the server address to which the client connected.
@@ -55,7 +51,6 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    */
   public NettyNetworkChannel(
     @NonNull Channel channel,
-    @NonNull EventManager eventManager,
     @NonNull PacketListenerRegistry packetRegistry,
     @NonNull NetworkChannelHandler handler,
     @NonNull HostAndPort serverAddress,
@@ -64,7 +59,6 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   ) {
     super(packetRegistry, serverAddress, clientAddress, clientProvidedChannel, handler);
     this.channel = channel;
-    this.eventManager = eventManager;
   }
 
   /**
@@ -72,11 +66,23 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    */
   @Override
   public void sendPacket(@NonNull Packet... packets) {
-    for (var packet : packets) {
-      this.writePacket(packet, false);
-    }
+    var executor = this.channel.executor();
+    if (executor.inEventLoop()) {
+      // on event loop, start all write operations
+      var combiner = new PromiseCombiner(executor);
+      for (var packet : packets) {
+        var writeFuture = this.channel.write(packet);
+        combiner.add(writeFuture);
+      }
 
-    this.channel.flush();
+      // wait for all write operations to complete and flush the content afterwards
+      Promise<Void> promise = this.channel.newPromise();
+      combiner.finish(promise);
+      promise.asFuture().addListener(_ -> this.channel.flush());
+    } else {
+      // this has to be called from event loop as promise combiner is not thread safe
+      executor.execute(() -> this.sendPacket(packets));
+    }
   }
 
   /**
@@ -84,11 +90,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    */
   @Override
   public void sendPacket(@NonNull Packet packet) {
-    if (this.channel.executor().inEventLoop()) {
-      this.writePacket(packet, true);
-    } else {
-      this.channel.executor().execute(() -> this.writePacket(packet, true));
-    }
+    this.channel.writeAndFlush(packet);
   }
 
   /**
@@ -96,8 +98,8 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    */
   @Override
   public void sendPacketSync(@NonNull Packet packet) {
-    var future = this.writePacket(packet, true);
-    if (future != null && !future.executor().inEventLoop()) {
+    var future = this.channel.writeAndFlush(packet);
+    if (!future.executor().inEventLoop()) {
       // only await the future if we're not currently in the event loop
       // as this would deadlock the write operations triggered previously
       try {
@@ -130,23 +132,5 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   @Override
   public void close() {
     this.channel.close();
-  }
-
-  /**
-   * Writes the given packet into the channel, calling the packet send event beforehand and not writing when the event
-   * gets cancelled by a module/plugin.
-   *
-   * @param packet     the packet to write if the send operation is not cancelled.
-   * @param flushAfter if the send queue should be flushed directly after the write process.
-   * @return the future completed once the write operation (and flush) of the channel succeeded, null if cancelled.
-   * @throws NullPointerException if the given packet is null.
-   */
-  private @Nullable Future<Void> writePacket(@NonNull Packet packet, boolean flushAfter) {
-    var event = this.eventManager.callEvent(new NetworkChannelPacketSendEvent(this, packet));
-    if (!event.cancelled()) {
-      return flushAfter ? this.channel.writeAndFlush(packet) : this.channel.write(packet);
-    } else {
-      return null;
-    }
   }
 }

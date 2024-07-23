@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty.server;
 
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.netty.NettyOptionSettingChannelInitializer;
 import eu.cloudnetservice.driver.network.netty.codec.NettyPacketDecoder;
@@ -33,24 +32,20 @@ import lombok.NonNull;
  */
 public class NettyNetworkServerInitializer extends NettyOptionSettingChannelInitializer {
 
-  private final EventManager eventManager;
   private final HostAndPort serverLocalAddress;
   private final NettyNetworkServer networkServer;
 
   /**
    * Constructs a new network initializer instance.
    *
-   * @param eventManager       the event manager of the current component.
    * @param networkServer      the network server this handler belongs to.
    * @param serverLocalAddress the local address associated with this handler.
    * @throws NullPointerException if the given event manager, server or address is null.
    */
   public NettyNetworkServerInitializer(
-    @NonNull EventManager eventManager,
     @NonNull NettyNetworkServer networkServer,
     @NonNull HostAndPort serverLocalAddress
   ) {
-    this.eventManager = eventManager;
     this.networkServer = networkServer;
     this.serverLocalAddress = serverLocalAddress;
   }
@@ -69,7 +64,6 @@ public class NettyNetworkServerInitializer extends NettyOptionSettingChannelInit
       .addLast("packet-decoder", new NettyPacketDecoder())
       .addLast("packet-length-serializer", VarInt32FramePrepender.INSTANCE)
       .addLast("packet-encoder", NettyPacketEncoder.INSTANCE)
-      .addLast("network-server-handler",
-        new NettyNetworkServerHandler(this.eventManager, this.networkServer, this.serverLocalAddress));
+      .addLast("network-server-handler", new NettyNetworkServerHandler(this.networkServer, this.serverLocalAddress));
   }
 }

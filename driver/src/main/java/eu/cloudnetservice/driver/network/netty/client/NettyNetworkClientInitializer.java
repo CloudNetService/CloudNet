@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty.client;
 
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.netty.NettyOptionSettingChannelInitializer;
 import eu.cloudnetservice.driver.network.netty.codec.NettyPacketDecoder;
@@ -34,24 +33,20 @@ import lombok.NonNull;
 public class NettyNetworkClientInitializer extends NettyOptionSettingChannelInitializer {
 
   protected final HostAndPort hostAndPort;
-  protected final EventManager eventManager;
   protected final NettyNetworkClient nettyNetworkClient;
 
   /**
    * Constructs a new network client initializer instance.
    *
    * @param targetHost    the target host to which the network client connected.
-   * @param eventManager  the event manager of the current component.
    * @param networkClient the network client which connected to a server.
    * @throws NullPointerException if either the event manager, target host or client is null.
    */
   public NettyNetworkClientInitializer(
     @NonNull HostAndPort targetHost,
-    @NonNull EventManager eventManager,
     @NonNull NettyNetworkClient networkClient
   ) {
     this.hostAndPort = targetHost;
-    this.eventManager = eventManager;
     this.nettyNetworkClient = networkClient;
   }
 
@@ -72,7 +67,6 @@ public class NettyNetworkClientInitializer extends NettyOptionSettingChannelInit
       .addLast("packet-decoder", new NettyPacketDecoder())
       .addLast("packet-length-serializer", VarInt32FramePrepender.INSTANCE)
       .addLast("packet-encoder", NettyPacketEncoder.INSTANCE)
-      .addLast("network-client-handler",
-        new NettyNetworkClientHandler(this.eventManager, this.nettyNetworkClient, this.hostAndPort));
+      .addLast("network-client-handler", new NettyNetworkClientHandler(this.nettyNetworkClient, this.hostAndPort));
   }
 }
