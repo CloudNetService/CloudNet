@@ -79,7 +79,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiPredicate;
 import java.util.regex.Pattern;
-import kong.unirest.core.GetRequest;
 import kong.unirest.core.Unirest;
 import kong.unirest.core.UnirestException;
 import lombok.NonNull;
@@ -358,36 +357,30 @@ public abstract class AbstractService implements CloudService {
   public void includeWaitingServiceInclusions() {
     ServiceRemoteInclusion inclusion;
     while ((inclusion = this.waitingRemoteInclusions.poll()) != null) {
-      // prepare the connection from which we load the inclusion
-      var req = Unirest.get(inclusion.url());
-      // put the given http headers
-      var headers = inclusion.readPropertyOrDefault(ServiceRemoteInclusion.HEADERS, Map.of());
-      for (var entry : headers.entrySet()) {
-        req.header(entry.getKey(), entry.getValue());
-      }
-
       // check if we should load the inclusion
-      if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, req)).cancelled()) {
-        // get a target path based on the download url
-        var encodedUrl = Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8));
-        var destination = INCLUSION_TEMP_DIR.resolve(encodedUrl.replace('/', '_'));
-
+      var preLoadEvent = this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion));
+      if (!preLoadEvent.cancelled()) {
+        // the event might have changed the inclusion, use the updated one
+        inclusion = preLoadEvent.inclusion();
         // resolve the desired output path
         var target = this.serviceDirectory.resolve(inclusion.destination());
         FileUtil.ensureChild(this.serviceDirectory, target);
 
         try {
           if (inclusion.cacheFiles()) {
+            // get a target path based on the download url
+            var encodedUrl = Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8));
+            var destination = INCLUSION_TEMP_DIR.resolve(encodedUrl.replace('/', '_'));
             // download the file to the temp path if it does not exist
             if (Files.notExists(destination)) {
-              this.downloadInclusionFile(req, destination);
+              this.downloadInclusionFile(inclusion, destination);
             }
 
             // copy the file from the temp path to the desired output path
             FileUtil.copy(destination, target);
           } else {
             // download the file directly to the target path if caching is disabled
-            this.downloadInclusionFile(req, target);
+            this.downloadInclusionFile(inclusion, target);
           }
 
           // we've installed the inclusion successfully
@@ -397,7 +390,7 @@ public abstract class AbstractService implements CloudService {
             "Unable to download inclusion from %s to %s",
             exception.getCause(),
             inclusion.url(),
-            destination);
+            target);
         }
       }
     }
@@ -771,7 +764,15 @@ public abstract class AbstractService implements CloudService {
       configuration.privateKeyPath() == null ? null : wrapperDir.resolve("privateKey"));
   }
 
-  protected void downloadInclusionFile(@NonNull GetRequest request, @NonNull Path destination) {
+  protected void downloadInclusionFile(@NonNull ServiceRemoteInclusion inclusion, @NonNull Path destination) {
+    // prepare the connection from which we load the inclusion
+    var request = Unirest.get(inclusion.url());
+    // put the given http headers
+    var headers = inclusion.readPropertyOrDefault(ServiceRemoteInclusion.HEADERS, Map.of());
+    for (var entry : headers.entrySet()) {
+      request.header(entry.getKey(), entry.getValue());
+    }
+
     FileUtil.createDirectory(destination.getParent());
     request.asFile(destination.toString(), StandardCopyOption.REPLACE_EXISTING);
   }

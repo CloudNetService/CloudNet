@@ -19,33 +19,28 @@ package eu.cloudnetservice.node.event.service;
 import eu.cloudnetservice.driver.event.Cancelable;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.node.service.CloudService;
-import kong.unirest.core.GetRequest;
 import lombok.NonNull;
 
 public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent implements Cancelable {
 
-  private final GetRequest request;
-  private final ServiceRemoteInclusion serviceRemoteInclusion;
-
-  private volatile boolean cancelled;
+  private boolean cancelled;
+  private ServiceRemoteInclusion serviceRemoteInclusion;
 
   public CloudServicePreLoadInclusionEvent(
     @NonNull CloudService cloudService,
-    @NonNull ServiceRemoteInclusion serviceRemoteInclusion,
-    @NonNull GetRequest request
+    @NonNull ServiceRemoteInclusion serviceRemoteInclusion
   ) {
     super(cloudService);
 
     this.serviceRemoteInclusion = serviceRemoteInclusion;
-    this.request = request;
   }
 
   public @NonNull ServiceRemoteInclusion inclusion() {
     return this.serviceRemoteInclusion;
   }
 
-  public @NonNull GetRequest request() {
-    return this.request;
+  public void inclusion(@NonNull ServiceRemoteInclusion inclusion) {
+    this.serviceRemoteInclusion = inclusion;
   }
 
   public boolean cancelled() {
