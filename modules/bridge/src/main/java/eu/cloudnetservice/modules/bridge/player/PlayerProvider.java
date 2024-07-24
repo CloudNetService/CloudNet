@@ -75,7 +75,7 @@ public interface PlayerProvider {
    * @return a task containing all supplied cloud players.
    */
   default @NonNull CompletableFuture<Collection<CloudPlayer>> playersAsync() {
-    return Task.supply(this::players);
+    return Task.supplyAsync(this::players);
   }
 
   /**
@@ -84,7 +84,7 @@ public interface PlayerProvider {
    * @return a task containing all supplied unique ids.
    */
   default @NonNull CompletableFuture<Collection<UUID>> uniqueIdsAsync() {
-    return Task.supply(this::uniqueIds);
+    return Task.supplyAsync(this::uniqueIds);
   }
 
   /**
@@ -93,7 +93,7 @@ public interface PlayerProvider {
    * @return a task containing all supplied player names.
    */
   default @NonNull CompletableFuture<Collection<String>> namesAsync() {
-    return Task.supply(this::names);
+    return Task.supplyAsync(this::names);
   }
 
   /**
@@ -102,6 +102,6 @@ public interface PlayerProvider {
    * @return a task containing the amount of supplied players.
    */
   default @NonNull CompletableFuture<Integer> countAsync() {
-    return Task.supply(this::count);
+    return Task.supplyAsync(this::count);
   }
 }

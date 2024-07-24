@@ -101,7 +101,7 @@ public interface GroupConfigurationProvider {
    * @return a task completed if the group configurations were reloaded.
    */
   default @NonNull CompletableFuture<Void> reloadAsync() {
-    return Task.supply(this::reload);
+    return Task.runAsync(this::reload);
   }
 
   /**
@@ -112,7 +112,7 @@ public interface GroupConfigurationProvider {
    * @return a task completed with all registered group configurations within the cluster.
    */
   default @NonNull CompletableFuture<Collection<GroupConfiguration>> groupConfigurationsAsync() {
-    return Task.supply(this::groupConfigurations);
+    return Task.supplyAsync(this::groupConfigurations);
   }
 
   /**
@@ -124,7 +124,7 @@ public interface GroupConfigurationProvider {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull CompletableFuture<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
-    return Task.supply(() -> this.groupConfiguration(name));
+    return Task.supplyAsync(() -> this.groupConfiguration(name));
   }
 
   /**
@@ -139,7 +139,7 @@ public interface GroupConfigurationProvider {
   default @NonNull CompletableFuture<Boolean> addGroupConfigurationAsync(
     @NonNull GroupConfiguration groupConfiguration
   ) {
-    return Task.supply(() -> this.addGroupConfiguration(groupConfiguration));
+    return Task.supplyAsync(() -> this.addGroupConfiguration(groupConfiguration));
   }
 
   /**
@@ -153,7 +153,7 @@ public interface GroupConfigurationProvider {
    * @throws NullPointerException if the given group name is null.
    */
   default @NonNull CompletableFuture<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
-    return Task.supply(() -> this.removeGroupConfigurationByName(name));
+    return Task.runAsync(() -> this.removeGroupConfigurationByName(name));
   }
 
   /**
@@ -169,6 +169,6 @@ public interface GroupConfigurationProvider {
   default @NonNull CompletableFuture<Void> removeGroupConfigurationAsync(
     @NonNull GroupConfiguration groupConfiguration
   ) {
-    return Task.supply(() -> this.removeGroupConfiguration(groupConfiguration));
+    return Task.runAsync(() -> this.removeGroupConfiguration(groupConfiguration));
   }
 }

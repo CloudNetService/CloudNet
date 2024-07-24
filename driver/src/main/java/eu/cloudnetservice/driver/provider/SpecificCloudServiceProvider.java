@@ -318,7 +318,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed with the last reported snapshot of the service, can be null as described above.
    */
   default @NonNull CompletableFuture<ServiceInfoSnapshot> serviceInfoAsync() {
-    return Task.supply(this::serviceInfo);
+    return Task.supplyAsync(this::serviceInfo);
   }
 
   /**
@@ -331,7 +331,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed with true if this provider is still valid, false otherwise.
    */
   default @NonNull CompletableFuture<Boolean> validAsync() {
-    return Task.supply(this::valid);
+    return Task.supplyAsync(this::valid);
   }
 
   /**
@@ -346,7 +346,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed with a newly created service snapshot, can be null as described above.
    */
   default @NonNull CompletableFuture<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
-    return Task.supply(this::forceUpdateServiceInfo);
+    return Task.supplyAsync(this::forceUpdateServiceInfo);
   }
 
   /**
@@ -362,7 +362,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given service template is null.
    */
   default @NonNull CompletableFuture<Void> addServiceTemplateAsync(@NonNull ServiceTemplate serviceTemplate) {
-    return Task.supply(() -> this.addServiceTemplate(serviceTemplate));
+    return Task.runAsync(() -> this.addServiceTemplate(serviceTemplate));
   }
 
   /**
@@ -380,7 +380,7 @@ public interface SpecificCloudServiceProvider {
   default @NonNull CompletableFuture<Void> addServiceRemoteInclusionAsync(
     @NonNull ServiceRemoteInclusion serviceRemoteInclusion
   ) {
-    return Task.supply(() -> this.addServiceRemoteInclusion(serviceRemoteInclusion));
+    return Task.runAsync(() -> this.addServiceRemoteInclusion(serviceRemoteInclusion));
   }
 
   /**
@@ -396,7 +396,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given deployment is null.
    */
   default @NonNull CompletableFuture<Void> addServiceDeploymentAsync(@NonNull ServiceDeployment serviceDeployment) {
-    return Task.supply(() -> this.addServiceDeployment(serviceDeployment));
+    return Task.runAsync(() -> this.addServiceDeployment(serviceDeployment));
   }
 
   /**
@@ -409,7 +409,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed with all cached service log messages on the node the service is running on.
    */
   default @NonNull CompletableFuture<Queue<String>> cachedLogMessagesAsync() {
-    return Task.supply(this::cachedLogMessages);
+    return Task.supplyAsync(this::cachedLogMessages);
   }
 
   /**
@@ -427,7 +427,7 @@ public interface SpecificCloudServiceProvider {
     @NonNull ChannelMessageSender sender,
     @NonNull String channel
   ) {
-    return Task.supply(() -> this.toggleScreenEvents(sender, channel));
+    return Task.supplyAsync(() -> this.toggleScreenEvents(sender, channel));
   }
 
   /**
@@ -464,7 +464,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the service was restarted.
    */
   default @NonNull CompletableFuture<Void> restartAsync() {
-    return Task.supply(this::restart);
+    return Task.runAsync(this::restart);
   }
 
   /**
@@ -476,7 +476,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given lifecycle is null.
    */
   default @NonNull CompletableFuture<Void> updateLifecycleAsync(@NonNull ServiceLifeCycle lifeCycle) {
-    return Task.supply(() -> this.updateLifecycle(lifeCycle));
+    return Task.runAsync(() -> this.updateLifecycle(lifeCycle));
   }
 
   /**
@@ -489,7 +489,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the service files were deleted.
    */
   default @NonNull CompletableFuture<Void> deleteFilesAsync() {
-    return Task.supply(this::deleteFiles);
+    return Task.runAsync(this::deleteFiles);
   }
 
   /**
@@ -500,7 +500,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given command line is null.
    */
   default @NonNull CompletableFuture<Void> runCommandAsync(@NonNull String command) {
-    return Task.supply(() -> this.runCommand(command));
+    return Task.runAsync(() -> this.runCommand(command));
   }
 
   /**
@@ -513,7 +513,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the waiting service templates were included.
    */
   default @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync() {
-    return Task.supply(() -> this.includeWaitingServiceTemplates());
+    return Task.runAsync(() -> this.includeWaitingServiceTemplates());
   }
 
   /**
@@ -528,7 +528,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the waiting service templates were included.
    */
   default @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync(boolean force) {
-    return Task.supply(() -> this.includeWaitingServiceTemplates(force));
+    return Task.runAsync(() -> this.includeWaitingServiceTemplates(force));
   }
 
   /**
@@ -538,7 +538,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the waiting service inclusions were included.
    */
   default @NonNull CompletableFuture<Void> includeWaitingServiceInclusionsAsync() {
-    return Task.supply(this::includeWaitingServiceInclusions);
+    return Task.runAsync(this::includeWaitingServiceInclusions);
   }
 
   /**
@@ -549,7 +549,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when all waiting service deployments were executed.
    */
   default @NonNull CompletableFuture<Void> deployResourcesAsync(boolean removeDeployments) {
-    return Task.supply(() -> this.deployResources(removeDeployments));
+    return Task.runAsync(() -> this.deployResources(removeDeployments));
   }
 
   /**
@@ -575,6 +575,6 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given properties document is null.
    */
   default @NonNull CompletableFuture<Void> updatePropertiesAsync(@NonNull Document properties) {
-    return Task.supply(() -> this.updateProperties(properties));
+    return Task.runAsync(() -> this.updateProperties(properties));
   }
 }

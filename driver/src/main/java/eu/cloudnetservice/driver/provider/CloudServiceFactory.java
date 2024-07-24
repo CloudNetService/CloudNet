@@ -97,6 +97,6 @@ public interface CloudServiceFactory {
   default @NonNull CompletableFuture<ServiceCreateResult> createCloudServiceAsync(
     @NonNull ServiceConfiguration configuration
   ) {
-    return Task.supply(() -> this.createCloudService(configuration));
+    return Task.supplyAsync(() -> this.createCloudService(configuration));
   }
 }

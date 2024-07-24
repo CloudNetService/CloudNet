@@ -64,7 +64,7 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
    */
   @Override
   public @NonNull CompletableFuture<TransferStatus> transferChunkedData() {
-    return Task.supply(() -> {
+    return Task.supplyAsync(() -> {
       var chunkIndex = 0;
       var backingArray = new byte[this.chunkSessionInformation.chunkSize()];
 

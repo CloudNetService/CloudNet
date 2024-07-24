@@ -57,7 +57,7 @@ public class RPCNetworkHandlingTest {
         Assertions.assertEquals(NetworkConstants.INTERNAL_RPC_COM_CHANNEL, rpcRequest.channel());
         lastRPCRequest.set(rpcRequest);
         rpcNetworkHandler.handle(mockedChannel, rpcRequest);
-        return Task.supply(responseQueue::take);
+        return Task.supplyAsync(responseQueue::take);
       })
       .when(mockedChannel)
       .sendQueryAsync(Mockito.any(Packet.class));

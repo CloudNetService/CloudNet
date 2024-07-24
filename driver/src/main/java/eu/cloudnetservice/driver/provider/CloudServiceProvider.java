@@ -198,7 +198,7 @@ public interface CloudServiceProvider {
    * @return a task completed with all services which are registered in the cluster.
    */
   default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesAsync() {
-    return Task.supply(this::services);
+    return Task.supplyAsync(this::services);
   }
 
   /**
@@ -208,7 +208,7 @@ public interface CloudServiceProvider {
    * @return a task completed with all services which are registered and running in the cluster.
    */
   default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> runningServicesAsync() {
-    return Task.supply(this::runningServices);
+    return Task.supplyAsync(this::runningServices);
   }
 
   /**
@@ -220,7 +220,7 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given task name is null.
    */
   default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByTaskAsync(@NonNull String taskName) {
-    return Task.supply(() -> this.servicesByTask(taskName));
+    return Task.supplyAsync(() -> this.servicesByTask(taskName));
   }
 
   /**
@@ -232,7 +232,7 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given environment is null.
    */
   default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(@NonNull String environment) {
-    return Task.supply(() -> this.servicesByEnvironment(environment));
+    return Task.supplyAsync(() -> this.servicesByEnvironment(environment));
   }
 
   /**
@@ -244,7 +244,7 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given group name is null.
    */
   default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByGroupAsync(@NonNull String group) {
-    return Task.supply(() -> this.servicesByGroup(group));
+    return Task.supplyAsync(() -> this.servicesByGroup(group));
   }
 
   /**
@@ -253,7 +253,7 @@ public interface CloudServiceProvider {
    * @return a task completed with the amount of services which are currently registered within the cluster.
    */
   default @NonNull CompletableFuture<Integer> serviceCountAsync() {
-    return Task.supply(this::serviceCount);
+    return Task.supplyAsync(this::serviceCount);
   }
 
   /**
@@ -264,7 +264,7 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given group name is null.
    */
   default @NonNull CompletableFuture<Integer> serviceCountByGroupAsync(@NonNull String group) {
-    return Task.supply(() -> this.serviceCountByGroup(group));
+    return Task.supplyAsync(() -> this.serviceCountByGroup(group));
   }
 
   /**
@@ -275,7 +275,7 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given task name is null.
    */
   default @NonNull CompletableFuture<Integer> serviceCountByTaskAsync(@NonNull String taskName) {
-    return Task.supply(() -> this.serviceCountByTask(taskName));
+    return Task.supplyAsync(() -> this.serviceCountByTask(taskName));
   }
 
   /**
@@ -290,7 +290,7 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given service name is null.
    */
   default @NonNull CompletableFuture<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name) {
-    return Task.supply(() -> this.serviceByName(name));
+    return Task.supplyAsync(() -> this.serviceByName(name));
   }
 
   /**
@@ -305,6 +305,6 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given service unique id is null.
    */
   default @NonNull CompletableFuture<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId) {
-    return Task.supply(() -> this.service(uniqueId));
+    return Task.supplyAsync(() -> this.service(uniqueId));
   }
 }

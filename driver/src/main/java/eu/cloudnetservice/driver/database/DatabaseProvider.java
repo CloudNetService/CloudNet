@@ -97,7 +97,7 @@ public interface DatabaseProvider {
    * @throws NullPointerException if name is null.
    */
   default @NonNull CompletableFuture<Boolean> containsDatabaseAsync(@NonNull String name) {
-    return Task.supply(() -> this.containsDatabase(name));
+    return Task.supplyAsync(() -> this.containsDatabase(name));
   }
 
   /**
@@ -112,7 +112,7 @@ public interface DatabaseProvider {
    * @throws NullPointerException if name is null.
    */
   default @NonNull CompletableFuture<Boolean> deleteDatabaseAsync(@NonNull String name) {
-    return Task.supply(() -> this.deleteDatabase(name));
+    return Task.supplyAsync(() -> this.deleteDatabase(name));
   }
 
   /**
@@ -125,6 +125,6 @@ public interface DatabaseProvider {
    * @return a future completed with a collection of all database names.
    */
   default @NonNull CompletableFuture<Collection<String>> databaseNamesAsync() {
-    return Task.supply(this::databaseNames);
+    return Task.supplyAsync(this::databaseNames);
   }
 }

@@ -92,7 +92,7 @@ public interface CloudMessenger {
    * @throws NullPointerException if the given channel message is null.
    */
   default @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
-    return Task.supply(() -> this.sendChannelMessage(channelMessage));
+    return Task.runAsync(() -> this.sendChannelMessage(channelMessage));
   }
 
   /**
@@ -106,7 +106,7 @@ public interface CloudMessenger {
   default @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message
   ) {
-    return Task.supply(() -> this.sendChannelMessageQuery(message));
+    return Task.supplyAsync(() -> this.sendChannelMessageQuery(message));
   }
 
   /**
@@ -121,6 +121,6 @@ public interface CloudMessenger {
   default @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
     @NonNull ChannelMessage channelMessage
   ) {
-    return Task.supply(() -> this.sendSingleChannelMessageQuery(channelMessage));
+    return Task.supplyAsync(() -> this.sendSingleChannelMessageQuery(channelMessage));
   }
 }

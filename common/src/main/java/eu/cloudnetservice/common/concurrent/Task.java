@@ -16,13 +16,12 @@
 
 package eu.cloudnetservice.common.concurrent;
 
-import java.util.concurrent.Callable;
+import io.vavr.CheckedFunction0;
+import io.vavr.CheckedRunnable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.NonNull;
@@ -37,18 +36,15 @@ import org.jetbrains.annotations.UnknownNullability;
  */
 public class Task {
 
-  private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
-
   /**
    * Supplies and executes the given runnable in a cached thread pool and wraps it into a task.
    *
    * @param runnable the runnable to run.
-   * @param <V>      the generic type of the task.
    * @return a new task containing the given runnable.
    * @throws NullPointerException if the given runnable is null.
    */
-  public static <V> @NonNull CompletableFuture<V> supply(@NonNull Runnable runnable) {
-    return supply(() -> {
+  public static @NonNull CompletableFuture<Void> runAsync(@NonNull CheckedRunnable runnable) {
+    return supplyAsync(() -> {
       runnable.run();
       return null;
     });
@@ -63,21 +59,19 @@ public class Task {
    * @return the new task completing the value of the supplier.
    * @throws NullPointerException if the given supplier is null.
    */
-  public static <V> @NonNull CompletableFuture<V> supply(@NonNull Callable<V> supplier) {
-    var task = new CompletableFuture<V>();
-    SERVICE.execute(() -> {
+  public static <V> @NonNull CompletableFuture<V> supplyAsync(@NonNull CheckedFunction0<V> supplier) {
+    return CompletableFuture.supplyAsync(() -> {
       try {
-        task.complete(supplier.call());
-      } catch (Exception exception) {
-        task.completeExceptionally(exception);
+        return supplier.apply();
+      } catch (Throwable throwable) {
+        throw new CompletionException(throwable);
       }
     });
-    return task;
   }
 
   /**
    * Creates a new task that already has a defined result. If the given result is a throwable the task is completed
-   * exceptionally {@link Task#completeExceptionally(Throwable)} instead of completing a normal result.
+   * exceptionally {@link CompletableFuture#failedFuture(Throwable)} instead of completing a normal result.
    *
    * @param result the result for the new task.
    * @param <V>    the generic type of the new task.

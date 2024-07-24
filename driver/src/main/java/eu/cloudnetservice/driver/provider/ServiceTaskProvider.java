@@ -105,7 +105,7 @@ public interface ServiceTaskProvider {
    * @return a task completed when the provider was reloaded successfully.
    */
   default @NonNull CompletableFuture<Void> reloadAsync() {
-    return Task.supply(this::reload);
+    return Task.runAsync(this::reload);
   }
 
   /**
@@ -116,7 +116,7 @@ public interface ServiceTaskProvider {
    * @return a task completed with all registered task configurations within the cluster.
    */
   default @NonNull CompletableFuture<Collection<ServiceTask>> serviceTasksAsync() {
-    return Task.supply(this::serviceTasks);
+    return Task.supplyAsync(this::serviceTasks);
   }
 
   /**
@@ -128,7 +128,7 @@ public interface ServiceTaskProvider {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull CompletableFuture<ServiceTask> serviceTaskAsync(@NonNull String name) {
-    return Task.supply(() -> this.serviceTask(name));
+    return Task.supplyAsync(() -> this.serviceTask(name));
   }
 
   /**
@@ -141,7 +141,7 @@ public interface ServiceTaskProvider {
    * @throws NullPointerException if the given task configuration is null.
    */
   default @NonNull CompletableFuture<Boolean> addServiceTaskAsync(@NonNull ServiceTask serviceTask) {
-    return Task.supply(() -> this.addServiceTask(serviceTask));
+    return Task.supplyAsync(() -> this.addServiceTask(serviceTask));
   }
 
   /**
@@ -155,7 +155,7 @@ public interface ServiceTaskProvider {
    * @throws NullPointerException if the given task name is null.
    */
   default @NonNull CompletableFuture<Void> removeServiceTaskByNameAsync(@NonNull String name) {
-    return Task.supply(() -> this.removeServiceTaskByName(name));
+    return Task.runAsync(() -> this.removeServiceTaskByName(name));
   }
 
   /**
@@ -169,6 +169,6 @@ public interface ServiceTaskProvider {
    * @throws NullPointerException if the given task name is null.
    */
   default @NonNull CompletableFuture<Void> removeServiceTaskAsync(@NonNull ServiceTask serviceTask) {
-    return Task.supply(() -> this.removeServiceTask(serviceTask));
+    return Task.runAsync(() -> this.removeServiceTask(serviceTask));
   }
 }

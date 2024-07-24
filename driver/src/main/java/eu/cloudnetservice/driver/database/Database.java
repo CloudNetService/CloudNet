@@ -181,7 +181,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if either key or document is null.
    */
   default @NonNull CompletableFuture<Boolean> insertAsync(@NonNull String key, @NonNull Document document) {
-    return Task.supply(() -> this.insert(key, document));
+    return Task.supplyAsync(() -> this.insert(key, document));
   }
 
   /**
@@ -196,7 +196,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if key is null.
    */
   default @NonNull CompletableFuture<Boolean> containsAsync(@NonNull String key) {
-    return Task.supply(() -> this.contains(key));
+    return Task.supplyAsync(() -> this.contains(key));
   }
 
   /**
@@ -211,7 +211,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if key is null.
    */
   default @NonNull CompletableFuture<Boolean> deleteAsync(@NonNull String key) {
-    return Task.supply(() -> this.delete(key));
+    return Task.supplyAsync(() -> this.delete(key));
   }
 
   /**
@@ -227,7 +227,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if key is null.
    */
   default @NonNull CompletableFuture<Document> getAsync(@NonNull String key) {
-    return Task.supply(() -> this.get(key));
+    return Task.supplyAsync(() -> this.get(key));
   }
 
   /**
@@ -248,7 +248,7 @@ public interface Database extends Named, AutoCloseable {
     @NonNull String fieldName,
     @Nullable String fieldValue
   ) {
-    return Task.supply(() -> this.find(fieldName, fieldValue));
+    return Task.supplyAsync(() -> this.find(fieldName, fieldValue));
   }
 
   /**
@@ -265,7 +265,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if filters is null.
    */
   default @NonNull CompletableFuture<Collection<Document>> findAsync(@NonNull Map<String, String> filters) {
-    return Task.supply(() -> this.find(filters));
+    return Task.supplyAsync(() -> this.find(filters));
   }
 
   /**
@@ -278,7 +278,7 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with all keys which are currently stored in the database.
    */
   default @NonNull CompletableFuture<Collection<String>> keysAsync() {
-    return Task.supply(this::keys);
+    return Task.supplyAsync(this::keys);
   }
 
   /**
@@ -291,7 +291,7 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with all documents which are currently stored in the database.
    */
   default @NonNull CompletableFuture<Collection<Document>> documentsAsync() {
-    return Task.supply(this::documents);
+    return Task.supplyAsync(this::documents);
   }
 
   /**
@@ -304,7 +304,7 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with all key-value pairs currently stored in the database.
    */
   default @NonNull CompletableFuture<Map<String, Document>> entriesAsync() {
-    return Task.supply(this::entries);
+    return Task.supplyAsync(this::entries);
   }
 
   /**
@@ -317,7 +317,7 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed when the operation took place.
    */
   default @NonNull CompletableFuture<Void> clearAsync() {
-    return Task.supply(this::clear);
+    return Task.runAsync(this::clear);
   }
 
   /**
@@ -329,6 +329,6 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with the amount of documents currently stored in the database.
    */
   default @NonNull CompletableFuture<Long> documentCountAsync() {
-    return Task.supply(this::documentCount);
+    return Task.supplyAsync(this::documentCount);
   }
 }

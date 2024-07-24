@@ -84,6 +84,6 @@ public interface TemplateStorageProvider {
    * @return a task completed with the names of all template storages which are currently registered.
    */
   default @NonNull CompletableFuture<Collection<String>> availableTemplateStoragesAsync() {
-    return Task.supply(this::availableTemplateStorages);
+    return Task.supplyAsync(this::availableTemplateStorages);
   }
 }
