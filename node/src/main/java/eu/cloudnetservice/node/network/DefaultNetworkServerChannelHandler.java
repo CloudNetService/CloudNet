@@ -17,12 +17,9 @@
 package eu.cloudnetservice.node.network;
 
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
-import eu.cloudnetservice.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -37,11 +34,13 @@ import eu.cloudnetservice.node.util.NetworkUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class DefaultNetworkServerChannelHandler implements NetworkChannelHandler {
 
-  private static final Logger LOGGER = LogManager.logger(DefaultNetworkServerChannelHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkServerChannelHandler.class);
 
   private final EventManager eventManager;
   private final NodeNetworkUtil networkUtil;
@@ -78,7 +77,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         PacketClientAuthorizationListener.class);
 
-      LOGGER.fine(I18n.trans("server-network-channel-init",
+      LOGGER.debug(I18n.trans("server-network-channel-init",
         channel.serverAddress(),
         channel.clientAddress()));
     } else {
@@ -88,14 +87,14 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
 
   @Override
   public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    return !this.eventManager.callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
+    return true;
   }
 
   @Override
   public void handleChannelClose(@NonNull NetworkChannel channel) {
     this.eventManager.callEvent(new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
-    LOGGER.fine(I18n.trans("server-network-channel-close",
+    LOGGER.debug(I18n.trans("server-network-channel-close",
       channel.serverAddress(),
       channel.clientAddress()));
 

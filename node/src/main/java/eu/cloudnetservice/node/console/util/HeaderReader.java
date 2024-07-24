@@ -17,18 +17,18 @@
 package eu.cloudnetservice.node.console.util;
 
 import com.google.common.io.CharStreams;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.console.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class HeaderReader {
 
-  private static final Logger LOGGER = LogManager.logger(HeaderReader.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HeaderReader.class);
 
   private HeaderReader() {
     throw new UnsupportedOperationException();
@@ -46,7 +46,7 @@ public final class HeaderReader {
         console.forceWriteLine(line.replace("%codename%", codename).replace("%version%", version));
       }
     } catch (IOException exception) {
-      LOGGER.severe("Exception while reading header", exception);
+      LOGGER.error("Exception while reading header", exception);
     }
   }
 }

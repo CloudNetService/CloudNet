@@ -20,11 +20,11 @@ import com.google.gson.Gson;
 import com.mojang.authlib.properties.Property;
 import com.mojang.util.UndashedUuid;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
-import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
 import java.net.InetSocketAddress;
 import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntent;
@@ -41,39 +41,53 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.SERVER)
 @Mixin(ServerHandshakePacketListenerImpl.class)
-public final class ServerHandshakePacketListenerMixin {
+public abstract class ServerHandshakePacketListenerMixin {
 
   @Unique
-  private static final Gson GSON = new Gson();
+  private static final Gson cloudnet_bridge$GSON = new Gson();
   @Unique
-  private static final Component IP_INFO_MISSING = Component.literal(
-    "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!");
+  private static final Component cloudnet_bridge$IP_INFO_MISSING = Component.literal(
+      "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!")
+    .withStyle(ChatFormatting.RED);
 
   @Final
   @Shadow
   private Connection connection;
 
-  @Inject(at = @At("HEAD"), method = "handleIntention")
-  public void onHandshake(@NonNull ClientIntentionPacket packet, @NonNull CallbackInfo info) {
-    // do not try this for pings
-    if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING && packet.intention() == ClientIntent.LOGIN) {
-      var bridged = (BridgedClientConnection) this.connection;
-      // decode the bungee handshake
-      var split = packet.hostName().split("\00");
-      if (split.length == 3 || split.length == 4) {
-        packet.hostName = split[0];
-        // set bridged properties for later use
-        bridged.forwardedUniqueId(UndashedUuid.fromStringLenient(split[2]));
-        bridged.addr(
-          new InetSocketAddress(split[1], ((InetSocketAddress) this.connection.getRemoteAddress()).getPort()));
-        // check if properties were supplied
-        if (split.length == 4) {
-          bridged.forwardedProfile(GSON.fromJson(split[3], Property[].class));
+  @Inject(at = @At(
+    value = "INVOKE",
+    target =
+      "Lnet/minecraft/network/Connection;setupInboundProtocol"
+        + "(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V"),
+    method = "beginLogin")
+  public void cloudnet_bridge$onHandshake(
+    @NonNull ClientIntentionPacket packet,
+    boolean transfer,
+    @NonNull CallbackInfo callbackInfo
+  ) {
+    if (packet.intention() == ClientIntent.LOGIN) {
+      var channel = this.connection.channel;
+      channel.attr(FabricBridgeManagement.PLAYER_INTENTION_PACKET_SEEN_KEY).set(null);
+
+      if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
+        // decode the bungee handshake
+        var split = packet.hostName().split("\00");
+        if (split.length == 3 || split.length == 4) {
+          packet.hostName = split[0];
+          // set bridged properties for later use
+          var port = ((InetSocketAddress) this.connection.getRemoteAddress()).getPort();
+          this.connection.address = new InetSocketAddress(split[1], port);
+          channel.attr(FabricBridgeManagement.PLAYER_FORWARDED_UUID_KEY).set(UndashedUuid.fromStringLenient(split[2]));
+          // check if properties were supplied
+          if (split.length == 4) {
+            var properties = cloudnet_bridge$GSON.fromJson(split[3], Property[].class);
+            channel.attr(FabricBridgeManagement.PLAYER_PROFILE_PROPERTIES_KEY).set(properties);
+          }
+        } else {
+          // disconnect will not send the packet - it will just close the channel and set the disconnect reason
+          this.connection.send(new ClientboundLoginDisconnectPacket(cloudnet_bridge$IP_INFO_MISSING));
+          this.connection.disconnect(cloudnet_bridge$IP_INFO_MISSING);
         }
-      } else {
-        // disconnect will not send the packet - it will just close the channel and set the disconnect reason
-        this.connection.send(new ClientboundLoginDisconnectPacket(IP_INFO_MISSING));
-        this.connection.disconnect(IP_INFO_MISSING);
       }
     }
   }

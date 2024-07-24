@@ -22,16 +22,14 @@ import com.google.common.collect.ComparisonChain;
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.Named;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
@@ -62,6 +60,8 @@ import eu.cloudnetservice.node.service.defaults.provider.EmptySpecificCloudServi
 import eu.cloudnetservice.node.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.lang.constant.ClassDesc;
+import java.lang.constant.MethodTypeDesc;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
@@ -78,6 +78,8 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Provides({CloudServiceManager.class, CloudServiceProvider.class})
@@ -90,12 +92,17 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   protected static final ServiceConfigurationPreparer NO_OP_PREPARER = (cloudService) -> {
   };
 
-  private static final Logger LOGGER = LogManager.logger(CloudServiceManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CloudServiceManager.class);
+
+  private static final ClassDesc CD_UUID = ClassDesc.of(UUID.class.getName());
+  private static final ClassDesc CD_SPECIFIC_PROVIDER = ClassDesc.of(SpecificCloudServiceProvider.class.getName());
+  private static final MethodTypeDesc MTD_SERVICE_PROVIDER = MethodTypeDesc.of(CD_SPECIFIC_PROVIDER, CD_UUID);
 
   protected final RPCSender sender;
   protected final Collection<String> defaultJvmOptions;
   protected final NodeServerProvider nodeServerProvider;
   protected final CloudServiceFactory cloudServiceFactory;
+  protected final RPCImplementationBuilder.InstanceAllocator<? extends SpecificCloudServiceProvider> specificProviderAllocator;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
   protected final Cache<UUID, CloudService> localUnacceptedServices = Caffeine.newBuilder()
@@ -119,10 +126,22 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     this.nodeServerProvider = nodeServerProvider;
     this.cloudServiceFactory = cloudServiceFactory;
     this.defaultJvmOptions = Arrays.asList(args.remove(0).split(";;"));
-    // rpc init
-    this.sender = rpcFactory.providerForClass(null, CloudServiceProvider.class);
-    rpcFactory.newHandler(CloudServiceProvider.class, this).registerTo(handlerRegistry);
-    rpcFactory.newHandler(SpecificCloudServiceProvider.class, null).registerTo(handlerRegistry);
+
+    // init rpc
+    this.sender = rpcFactory.newRPCSenderBuilder(CloudServiceProvider.class).targetChannel(() -> null).build();
+    var cloudServiceProviderHandler = rpcFactory.newRPCHandlerBuilder(CloudServiceProvider.class)
+      .targetInstance(this)
+      .build();
+    handlerRegistry.registerHandler(cloudServiceProviderHandler);
+
+    var specificProviderHandler = rpcFactory.newRPCHandlerBuilder(SpecificCloudServiceProvider.class).build();
+    handlerRegistry.registerHandler(specificProviderHandler);
+
+    this.specificProviderAllocator = rpcFactory.newRPCBasedImplementationBuilder(RemoteNodeCloudServiceProvider.class)
+      .superclass(SpecificCloudServiceProvider.class)
+      .targetChannel(() -> null)
+      .generateImplementation();
+
     // register the default configuration preparers
     this.addServicePreparer(ServiceEnvironmentType.NUKKIT, NukkitConfigurationPreparer.class);
     this.addServicePreparer(ServiceEnvironmentType.VELOCITY, VelocityConfigurationPreparer.class);
@@ -156,11 +175,11 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
           // detect dead services and stop them
           if (service.alive()) {
             service.serviceConsoleLogCache().update();
-            LOGGER.fine("Updated service log cache of %s", null, service.serviceId().name());
+            LOGGER.trace("Updated service log cache of {}", service.serviceId().name());
           } else {
             eventManager.callEvent(new CloudServicePreForceStopEvent(service));
             service.stop();
-            LOGGER.fine("Stopped dead service %s", null, service.serviceId().name());
+            LOGGER.trace("Stopped dead service {}", service.serviceId().name());
           }
         }
       }
@@ -475,12 +494,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     }
 
     // build the service provider for the newly added service
-    var serviceProvider = this.sender.factory().generateRPCChainBasedApi(
-      this.sender,
-      "serviceProvider",
-      SpecificCloudServiceProvider.class,
-      GenerationContext.forClass(RemoteNodeCloudServiceProvider.class).channelSupplier(() -> source).build()
-    ).newInstance(new Object[]{snapshot}, new Object[]{snapshot.serviceId().uniqueId()});
+    var baseRPC = this.sender.invokeMethod("serviceProvider", MTD_SERVICE_PROVIDER, serviceUniqueId);
+    var serviceProvider = this.specificProviderAllocator
+      .withBaseRPC(baseRPC)
+      .withTargetChannel(() -> source)
+      .withAdditionalConstructorParameters(snapshot)
+      .allocate();
 
     // register the service and return the new provider, unless some other thread registered the service
     var knownProvider = this.knownServices.putIfAbsent(serviceUniqueId, serviceProvider);
@@ -492,7 +511,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     // deleted services were removed on the other node - remove it here too
     if (snapshot.lifeCycle() == ServiceLifeCycle.DELETED) {
       this.knownServices.remove(snapshot.serviceId().uniqueId());
-      LOGGER.fine("Deleted cloud service %s after lifecycle change to deleted", null, snapshot.serviceId());
+      LOGGER.debug("Deleted cloud service {} after lifecycle change to deleted", snapshot.serviceId());
     } else {
       // register the service if the provider is available
       var provider = this.knownServices.get(snapshot.serviceId().uniqueId());
@@ -500,12 +519,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         // this is the only point where the channel has to be present
         Objects.requireNonNull(source, "Node Network Channel has to be present to register service");
         this.registerService(snapshot, source);
-        LOGGER.fine("Registered remote service %s", null, snapshot.serviceId());
+        LOGGER.debug("Registered remote service {}", snapshot.serviceId());
       } else if (provider instanceof RemoteNodeCloudServiceProvider remoteProvider) {
         // update the provider if possible - we need only to handle remote node providers as local providers will update
         // the snapshot directly "in" them
         remoteProvider.snapshot(snapshot);
-        LOGGER.fine("Updated service snapshot of %s to %s", null, snapshot.serviceId(), snapshot);
+        LOGGER.debug("Updated service snapshot of {} to {}", snapshot.serviceId(), snapshot);
       } else if (provider instanceof CloudService localService) {
         // just set the service information locally - no further processing
         localService.updateServiceInfoSnapshot(snapshot);

@@ -19,21 +19,16 @@ package eu.cloudnetservice.wrapper.inject;
 import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.network.rpc.defaults.generation.RPCInternalInstanceFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
-import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.database.WrapperDatabaseProvider;
-import eu.cloudnetservice.wrapper.permission.WrapperPermissionManagement;
-import eu.cloudnetservice.wrapper.provider.WrapperCloudServiceProvider;
 import eu.cloudnetservice.wrapper.provider.WrapperTemplateStorageProvider;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -45,33 +40,17 @@ final class RPCFactories {
     throw new UnsupportedOperationException();
   }
 
-  private static @NonNull <T> T provideBasic(
-    @NonNull RPCFactory factory,
-    @NonNull NetworkClient networkClient,
-    @NonNull Class<T> baseClass
-  ) {
-    var context = GenerationContext.forClass(baseClass).component(networkClient).build();
-    return factory.generateRPCBasedApi(baseClass, context).newInstance();
-  }
-
-  private static @NonNull <T> T provideSpecial(
-    @NonNull RPCFactory factory,
-    @NonNull NetworkClient networkClient,
-    @NonNull Class<T> baseClass,
-    @NonNull Class<? extends T> implementingClass,
-    @NonNull Object... specialConstructorArgs
-  ) {
-    var context = GenerationContext.forClass(implementingClass).component(networkClient).build();
-    return factory.generateRPCBasedApi(baseClass, context).newInstance(specialConstructorArgs);
-  }
-
   @Factory
   @Singleton
   public static @NonNull ClusterNodeProvider provideClusterNodeProvider(
     @NonNull RPCFactory factory,
     @NonNull NetworkClient networkClient
   ) {
-    return provideBasic(factory, networkClient, ClusterNodeProvider.class);
+    return factory.newRPCBasedImplementationBuilder(ClusterNodeProvider.class)
+      .implementConcreteMethods()
+      .targetComponent(networkClient)
+      .generateImplementation()
+      .allocate();
   }
 
   @Factory
@@ -80,7 +59,11 @@ final class RPCFactories {
     @NonNull RPCFactory factory,
     @NonNull NetworkClient networkClient
   ) {
-    return provideBasic(factory, networkClient, ServiceTaskProvider.class);
+    return factory.newRPCBasedImplementationBuilder(ServiceTaskProvider.class)
+      .implementConcreteMethods()
+      .targetComponent(networkClient)
+      .generateImplementation()
+      .allocate();
   }
 
   @Factory
@@ -89,7 +72,11 @@ final class RPCFactories {
     @NonNull RPCFactory factory,
     @NonNull NetworkClient networkClient
   ) {
-    return provideBasic(factory, networkClient, GroupConfigurationProvider.class);
+    return factory.newRPCBasedImplementationBuilder(GroupConfigurationProvider.class)
+      .implementConcreteMethods()
+      .targetComponent(networkClient)
+      .generateImplementation()
+      .allocate();
   }
 
   @Factory
@@ -98,7 +85,24 @@ final class RPCFactories {
     @NonNull RPCFactory factory,
     @NonNull NetworkClient networkClient
   ) {
-    return provideBasic(factory, networkClient, CloudServiceFactory.class);
+    return factory.newRPCBasedImplementationBuilder(CloudServiceFactory.class)
+      .implementConcreteMethods()
+      .targetComponent(networkClient)
+      .generateImplementation()
+      .allocate();
+  }
+
+  @Factory
+  @Singleton
+  public static @NonNull CloudServiceProvider provideCloudServiceProvider(
+    @NonNull RPCFactory factory,
+    @NonNull NetworkClient networkClient
+  ) {
+    return factory.newRPCBasedImplementationBuilder(CloudServiceProvider.class)
+      .implementConcreteMethods()
+      .targetComponent(networkClient)
+      .generateImplementation()
+      .allocate();
   }
 
   @Factory
@@ -108,12 +112,16 @@ final class RPCFactories {
     @NonNull NetworkClient networkClient,
     @NonNull ComponentInfo componentInfo
   ) {
-    return provideSpecial(
-      factory,
-      networkClient,
-      TemplateStorageProvider.class,
-      WrapperTemplateStorageProvider.class,
-      componentInfo, networkClient);
+    return factory.newRPCBasedImplementationBuilder(WrapperTemplateStorageProvider.class)
+      .superclass(TemplateStorageProvider.class)
+      .targetComponent(networkClient)
+      .generateImplementation()
+      .withAdditionalConstructorParameters(
+        RPCInternalInstanceFactory.SpecialArg.RPC_SENDER,
+        componentInfo,
+        networkClient,
+        RPCInternalInstanceFactory.SpecialArg.CHANNEL_SUPPLIER)
+      .allocate();
   }
 
   @Factory
@@ -122,31 +130,13 @@ final class RPCFactories {
     @NonNull RPCFactory factory,
     @NonNull NetworkClient networkClient
   ) {
-    return provideSpecial(factory, networkClient, DatabaseProvider.class, WrapperDatabaseProvider.class);
-  }
-
-  @Factory
-  @Singleton
-  public static @NonNull CloudServiceProvider provideCloudServiceProvider(
-    @NonNull RPCFactory factory,
-    @NonNull NetworkClient networkClient
-  ) {
-    return provideSpecial(factory, networkClient, CloudServiceProvider.class, WrapperCloudServiceProvider.class);
-  }
-
-  @Factory
-  @Singleton
-  public static @NonNull PermissionManagement providePermissionManagement(
-    @NonNull RPCFactory factory,
-    @NonNull NetworkClient networkClient,
-    @NonNull EventManager eventManager,
-    @NonNull WrapperConfiguration configuration
-  ) {
-    return provideSpecial(
-      factory,
-      networkClient,
-      PermissionManagement.class,
-      WrapperPermissionManagement.class,
-      eventManager, configuration.serviceConfiguration());
+    return factory.newRPCBasedImplementationBuilder(WrapperDatabaseProvider.class)
+      .superclass(DatabaseProvider.class)
+      .targetComponent(networkClient)
+      .generateImplementation()
+      .withAdditionalConstructorParameters(
+        RPCInternalInstanceFactory.SpecialArg.RPC_SENDER,
+        RPCInternalInstanceFactory.SpecialArg.CHANNEL_SUPPLIER)
+      .allocate();
   }
 }

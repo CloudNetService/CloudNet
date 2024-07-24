@@ -53,7 +53,7 @@ import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
-import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
+import eu.cloudnetservice.node.log.QueuedConsoleLogAppender;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.setup.SpecificTaskSetup;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
@@ -107,7 +107,7 @@ public final class TasksCommand {
     @NonNull EventManager eventManager,
     @NonNull Configuration configuration,
     @NonNull ServiceTaskProvider taskProvider,
-    @NonNull QueuedConsoleLogHandler logHandler,
+    @NonNull QueuedConsoleLogAppender logHandler,
     @NonNull CloudServiceManager serviceManager,
     @NonNull ClusterNodeProvider clusterNodeProvider
   ) {
@@ -383,6 +383,21 @@ public final class TasksCommand {
       this.taskProvider.addServiceTask(ServiceTask.builder(serviceTask).name(newName).build());
       source.sendMessage(I18n.trans("command-tasks-task-rename-success", serviceTask.name(), newName));
     }
+  }
+
+  @CommandMethod("tasks task <name> set autoDeleteOnStop <enabled>")
+  public void setAutoDeleteOnStop(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> tasks,
+    @Argument("enabled") @Liberal boolean enabled
+  ) {
+    this.applyChange(
+      source,
+      tasks,
+      ServiceTask.Builder::autoDeleteOnStop,
+      "command-tasks-set-property-success",
+      "autoDeleteOnStop",
+      enabled);
   }
 
   @CommandMethod("tasks task <name> set runtime <runtime>")

@@ -22,6 +22,18 @@ plugins {
 
 tasks.withType<Jar> {
   archiveFileName.set(Files.npcs)
+
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
+}
+
+repositories {
+  maven("https://repo.codemc.io/repository/maven-releases/") {
+    mavenContent {
+      includeGroup("com.github.retrooper")
+    }
+  }
 }
 
 dependencies {

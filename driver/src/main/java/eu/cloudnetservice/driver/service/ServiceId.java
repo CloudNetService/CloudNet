@@ -215,7 +215,7 @@ public class ServiceId implements Named {
    * @return a stringified, non-cached version of this service id.
    */
   @Override
-  public String toString() {
+  public @NonNull String toString() {
     return this.name() + ':' + this.uniqueId;
   }
 

@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -44,13 +42,15 @@ import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class CloudNetSignsModule extends DriverModule {
 
   protected static final String DATABASE_NAME = "cloudnet_signs";
 
-  private static final Logger LOGGER = LogManager.logger(CloudNetSignsModule.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CloudNetSignsModule.class);
 
   protected Database database;
   protected SignsConfiguration configuration;
@@ -136,7 +136,7 @@ public class CloudNetSignsModule extends DriverModule {
     // when the document is null the conversation already happened
     if (document != null) {
       // notify the user about the change
-      LOGGER.warning("Detected old signs database, running conversation...");
+      LOGGER.warn("Detected old signs database, running conversation...");
       // remove the old document from the database
       db.delete("signs_store");
       // check if the old sign document even contains the signs

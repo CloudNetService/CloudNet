@@ -18,32 +18,34 @@ package eu.cloudnetservice.driver.network.netty.client;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.ComponentInfo;
-import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.network.DefaultNetworkComponent;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
+import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
+import eu.cloudnetservice.driver.network.scheduler.NetworkTaskScheduler;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import io.netty5.bootstrap.Bootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.WriteBufferWaterMark;
-import io.netty5.handler.ssl.ClientAuth;
+import io.netty5.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty5.handler.ssl.SslContext;
 import io.netty5.handler.ssl.SslContextBuilder;
 import io.netty5.handler.ssl.util.InsecureTrustManagerFactory;
-import io.netty5.handler.ssl.util.SelfSignedCertificate;
 import jakarta.inject.Singleton;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import javax.net.ssl.SSLException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,63 +55,97 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 @Singleton
-public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClient {
+public class NettyNetworkClient implements NetworkClient {
 
   private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
   private static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
 
-  protected final EventLoopGroup eventLoopGroup = NettyUtil.newEventLoopGroup(0);
+  protected final SslContext sslContext;
+  protected final EventLoopGroup eventLoopGroup;
 
   protected final Collection<NetworkChannel> channels = ConcurrentHashMap.newKeySet();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
-  protected final EventManager eventManager;
-  protected final Executor packetDispatcher;
-  protected final SSLConfiguration sslConfiguration;
+  protected final NetworkTaskScheduler packetDispatcher;
   protected final Callable<NetworkChannelHandler> handlerFactory;
-
-  protected SslContext sslContext;
 
   /**
    * Constructs a new netty network client instance. Equivalent to {@code new NettyNetworkClient(handlerFactory, null)}
    *
-   * @param eventManager   the event manager of the current component.
    * @param componentInfo  the component info of the current component the client is created for.
    * @param handlerFactory the factory for new handlers to be created with.
    * @throws NullPointerException if the given event manager, component info or factory is null.
    */
   public NettyNetworkClient(
-    @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo,
     @NonNull Callable<NetworkChannelHandler> handlerFactory
   ) {
-    this(eventManager, componentInfo, handlerFactory, null);
+    this(componentInfo, handlerFactory, null);
   }
 
   /**
    * Constructs a new netty network client instance.
    *
-   * @param eventManager     the event manager of the current component.
    * @param componentInfo    the component info of the current component the client is created for.
    * @param handlerFactory   the factory for new handler to be created with.
    * @param sslConfiguration the ssl configuration applying to this client, or null for no ssl configuration.
    * @throws NullPointerException if the given event manager, component info or factory is null.
    */
   public NettyNetworkClient(
-    @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo,
     @NonNull Callable<NetworkChannelHandler> handlerFactory,
     @Nullable SSLConfiguration sslConfiguration
   ) {
-    this.eventManager = eventManager;
     this.handlerFactory = handlerFactory;
-    this.sslConfiguration = sslConfiguration;
-    this.packetDispatcher = NettyUtil.newPacketDispatcher(componentInfo.environment());
+
+    this.sslContext = initializeSslContext(sslConfiguration);
+    this.packetDispatcher = NettyUtil.createPacketDispatcher(componentInfo.environment());
+    this.eventLoopGroup = NettyUtil.createWorkerEventLoopGroup(componentInfo.environment());
+  }
+
+  /**
+   * Builds the ssl context for this client if a ssl configuration was supplied and is active.
+   *
+   * @param sslConfig the supplied ssl configuration to build the ssl context based on, can be null.
+   * @return the constructed ssl context based on the given configuration.
+   * @throws IllegalStateException    if an error occurs during construction of the ssl context.
+   * @throws IllegalArgumentException if the trust certificate file does not contain any valid certificates.
+   */
+  private static @Nullable SslContext initializeSslContext(@Nullable SSLConfiguration sslConfig) {
+    if (sslConfig == null || !sslConfig.enabled()) {
+      return null;
+    }
 
     try {
-      this.init();
-    } catch (Exception exception) {
-      LOGGER.severe("Exception while initializing the netty network client", exception);
+      var trustCertificatePath = sslConfig.trustCertificatePath();
+      if (trustCertificatePath != null && Files.isRegularFile(trustCertificatePath)) {
+        // trust certificate path exists, load the trust certificate from that path
+        try (var trustCertCollectionStream = Files.newInputStream(trustCertificatePath, StandardOpenOption.READ)) {
+          return SslContextBuilder.forClient()
+            .applicationProtocolConfig(null)
+            .trustManager(trustCertCollectionStream)
+            .sslProvider(NettyUtil.selectedSslProvider())
+            .ciphers(null, IdentityCipherSuiteFilter.INSTANCE)
+            .build();
+        }
+      } else {
+        // no trust certificate path provided or file does not exist, fall back
+        // to just accepting all server certificates
+        return SslContextBuilder.forClient()
+          .applicationProtocolConfig(null)
+          .sslProvider(NettyUtil.selectedSslProvider())
+          .trustManager(InsecureTrustManagerFactory.INSTANCE)
+          .ciphers(null, IdentityCipherSuiteFilter.INSTANCE)
+          .build();
+      }
+    } catch (SSLException exception) {
+      var errorMessage = String.format("Unable to build client ssl provider from configuration %s", sslConfig);
+      throw new IllegalStateException(errorMessage, exception);
+    } catch (IOException exception) {
+      var errorMessage = String.format(
+        "Unable to open trust certificate at %s for reading",
+        sslConfig.trustCertificatePath());
+      throw new IllegalStateException(errorMessage, exception);
     }
   }
 
@@ -130,14 +166,15 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
     new Bootstrap()
       .group(this.eventLoopGroup)
       .channelFactory(NettyUtil.clientChannelFactory())
-      .handler(new NettyNetworkClientInitializer(hostAndPort, this.eventManager, this)
+      .handler(new NettyNetworkClientInitializer(hostAndPort, this)
         .option(ChannelOption.IP_TOS, 0x18)
         .option(ChannelOption.AUTO_READ, true)
         .option(ChannelOption.TCP_NODELAY, true)
         .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.TCP_FASTOPEN_CONNECT, true)
         .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS))
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
+        .option(ChannelOption.BUFFER_ALLOCATOR, NettyUtil.selectedBufferAllocator()))
 
       .connect(hostAndPort.host(), hostAndPort.port())
       .addListener(future -> {
@@ -159,6 +196,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
   @Override
   public void close() {
     this.closeChannels();
+    this.packetDispatcher.shutdown();
     this.eventLoopGroup.shutdownGracefully();
   }
 
@@ -182,53 +220,39 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Collection<NetworkChannel> modifiableChannels() {
-    return this.channels;
+  public @NonNull PacketListenerRegistry packetRegistry() {
+    return this.packetRegistry;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull PacketListenerRegistry packetRegistry() {
-    return this.packetRegistry;
+  public void sendPacket(@NonNull Packet packet) {
+    for (var channel : this.channels) {
+      channel.sendPacket(packet);
+    }
   }
 
   /**
-   * Builds the ssl context for this client if a ssl configuration was supplied and is active. If no certificates are
-   * set in the given ssl configuration, the client will self-sign a certificate.
-   *
-   * @throws Exception if any exception occurs during the creation of the ssl context.
+   * {@inheritDoc}
    */
-  private void init() throws Exception {
-    if (this.sslConfiguration != null && this.sslConfiguration.enabled()) {
-      if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {
-        // assign the trust certificate to the builder, trust all certificates if no trust certificate was specified
-        var builder = SslContextBuilder.forClient();
-        if (this.sslConfiguration.trustCertificatePath() != null) {
-          try (var stream = Files.newInputStream(this.sslConfiguration.trustCertificatePath())) {
-            builder.trustManager(stream);
-          }
-        } else {
-          builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
-        }
+  @Override
+  public void sendPacketSync(@NonNull Packet packet) {
+    for (var channel : this.channels) {
+      channel.sendPacketSync(packet);
+    }
+  }
 
-        // apply both certificates to the builder
-        try (var cert = Files.newInputStream(this.sslConfiguration.certificatePath());
-          var privateKey = Files.newInputStream(this.sslConfiguration.privateKeyPath())) {
-          this.sslContext = builder
-            .keyManager(cert, privateKey)
-            .clientAuth(this.sslConfiguration.clientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
-            .build();
-        }
-      } else {
-        // self sign a certificate as non was given
-        var selfSignedCertificate = new SelfSignedCertificate();
-        this.sslContext = SslContextBuilder.forClient()
-          .trustManager(InsecureTrustManagerFactory.INSTANCE)
-          .keyManager(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())
-          .build();
-      }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void closeChannels() {
+    var iterator = this.channels.iterator();
+    while (iterator.hasNext()) {
+      iterator.next().close();
+      iterator.remove();
     }
   }
 }

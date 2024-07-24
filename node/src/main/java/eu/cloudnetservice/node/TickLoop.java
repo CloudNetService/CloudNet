@@ -18,8 +18,6 @@ package eu.cloudnetservice.node;
 
 import eu.cloudnetservice.common.concurrent.ListenableTask;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
@@ -39,6 +37,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class TickLoop {
@@ -49,7 +49,7 @@ public final class TickLoop {
   // exposed to the package for internal use
   static final AtomicBoolean RUNNING = new AtomicBoolean(true);
 
-  private static final Logger LOGGER = LogManager.logger(TickLoop.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TickLoop.class);
 
   private final EventManager eventManager;
   private final ServiceTaskProvider taskProvider;
@@ -124,6 +124,10 @@ public final class TickLoop {
     return task;
   }
 
+  public boolean running() {
+    return RUNNING.get();
+  }
+
   public void pause() {
     this.tickPauseRequests.incrementAndGet();
   }
@@ -152,7 +156,7 @@ public final class TickLoop {
             //noinspection BusyWait
             Thread.sleep(MILLIS_BETWEEN_TICKS - lastTickLength);
           } catch (Exception exception) {
-            LOGGER.severe("Exception while oversleeping tick time", exception);
+            LOGGER.error("Exception while oversleeping tick time", exception);
           }
         }
 
@@ -192,7 +196,7 @@ public final class TickLoop {
           this.eventManager.callEvent(this.tickEvent);
         }
       } catch (Exception exception) {
-        LOGGER.severe("Exception while ticking", exception);
+        LOGGER.error("Exception while ticking", exception);
       }
     }
   }

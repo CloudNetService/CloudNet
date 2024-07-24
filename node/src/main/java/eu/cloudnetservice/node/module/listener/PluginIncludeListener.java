@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.module.listener;
 
 import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
@@ -28,6 +26,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public record PluginIncludeListener(
   @NonNull String moduleName,
@@ -37,7 +37,7 @@ public record PluginIncludeListener(
   @Nullable BiConsumer<CloudService, Path> includeHandler
 ) {
 
-  private static final Logger LOGGER = LogManager.logger(PluginIncludeListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PluginIncludeListener.class);
 
   public PluginIncludeListener(
     @NonNull String moduleName,
@@ -51,7 +51,7 @@ public record PluginIncludeListener(
   @EventListener
   public void handle(@NonNull CloudServicePreProcessStartEvent event) {
     if (this.includeChecker.apply(event.service())) {
-      LOGGER.fine("Including the module %s to service %s", null, this.moduleName, event.service().serviceId());
+      LOGGER.debug("Including the module {} to service {}", this.moduleName, event.service().serviceId());
       // remove the old plugin file if it exists
       var pluginFile = event.service().pluginDirectory().resolve(this.moduleName + ".jar");
       FileUtil.delete(pluginFile);

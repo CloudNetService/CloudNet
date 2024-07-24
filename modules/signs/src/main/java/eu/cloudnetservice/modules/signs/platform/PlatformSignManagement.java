@@ -19,8 +19,6 @@ package eu.cloudnetservice.modules.signs.platform;
 import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.JAVA_SERVER;
 import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_SERVER;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -54,6 +52,8 @@ import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManagement {
 
@@ -65,7 +65,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   public static final String SIGN_BULK_DELETE = "signs_sign_bulk_delete";
   public static final String SIGN_GET_SIGNS_BY_GROUPS = "signs_get_signs_by_groups";
 
-  protected static final Logger LOGGER = LogManager.logger(PlatformSignManagement.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(PlatformSignManagement.class);
 
   protected final Executor mainThreadExecutor;
   protected final WrapperConfiguration wrapperConfig;
@@ -261,7 +261,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
         try {
           this.tick(signsNeedingTicking);
         } catch (Throwable throwable) {
-          LOGGER.severe("Exception ticking signs", throwable);
+          LOGGER.error("Exception ticking signs", throwable);
         }
       }, 0, 1000 / this.tps(), TimeUnit.MILLISECONDS);
       this.startKnockbackTask();
@@ -390,7 +390,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
     try {
       PlatformSign<P, C> bestChoice = null;
       for (var platformSign : this.platformSigns.values()) {
-        if (!platformSign.exists()) {
+        if (!platformSign.needsUpdates() || !platformSign.exists()) {
           continue;
         }
 

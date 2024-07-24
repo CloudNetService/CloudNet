@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.provider;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
@@ -41,7 +40,6 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@RPCValidation
 public interface SpecificCloudServiceProvider {
 
   /**
@@ -131,7 +129,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return all cached log messages of the service on the node the service is running on.
    */
-  @NonNull Queue<String> cachedLogMessages();
+  @NonNull
+  Queue<String> cachedLogMessages();
 
   /**
    * Enables or disabled the screen event handling. When the log events get enabled an event will be called on the given
@@ -206,7 +205,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return all installed templates of the service.
    */
-  @NonNull Collection<ServiceTemplate> installedTemplates();
+  @NonNull
+  Collection<ServiceTemplate> installedTemplates();
 
   /**
    * Gets the inclusions that actually are installed on the service. If an inclusion is present in the configuration
@@ -215,7 +215,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return all installed inclusions of the service.
    */
-  @NonNull Collection<ServiceRemoteInclusion> installedInclusions();
+  @NonNull
+  Collection<ServiceRemoteInclusion> installedInclusions();
 
   /**
    * Gets the deployments that were actually executed for this service. If a deployment is present in the configuration
@@ -224,7 +225,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return all executed deployments of the service.
    */
-  @NonNull Collection<ServiceDeployment> installedDeployments();
+  @NonNull
+  Collection<ServiceDeployment> installedDeployments();
 
   /**
    * Copies all queued templates onto the service without further checks. Note that this can lead to errors if you try

@@ -27,8 +27,8 @@ import cn.nukkit.plugin.PluginManager;
 import cn.nukkit.utils.Faceable;
 import cn.nukkit.utils.TextFormat;
 import com.google.common.primitives.Ints;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -50,9 +50,9 @@ public class NukkitPlatformSign extends PlatformSign<Player, String> {
     @NonNull Sign base,
     @NonNull Server server,
     @NonNull PluginManager pluginManager,
-    @NonNull PlayerManager playerManager
+    @NonNull ServiceRegistry serviceRegistry
   ) {
-    super(base, playerManager, input -> TextFormat.colorize('&', input));
+    super(base, serviceRegistry, input -> TextFormat.colorize('&', input));
 
     this.server = server;
     this.pluginManager = pluginManager;

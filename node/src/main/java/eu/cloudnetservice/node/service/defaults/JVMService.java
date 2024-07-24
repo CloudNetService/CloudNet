@@ -20,8 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
@@ -60,12 +58,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JVMService extends AbstractService {
 
-  protected static final Logger LOGGER = LogManager.logger(JVMService.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(JVMService.class);
   protected static final Pattern FILE_NUMBER_PATTERN = Pattern.compile("(\\d+).*");
   protected static final Collection<String> DEFAULT_JVM_SYSTEM_PROPERTIES = Arrays.asList(
+    "--enable-preview",
     "-Dfile.encoding=UTF-8",
     "-Dlog4j2.formatMsgNoLookups=true",
     "-DIReallyKnowWhatIAmDoingISwear=true",
@@ -97,13 +98,13 @@ public class JVMService extends AbstractService {
     // load the wrapper information if possible
     var wrapperInformation = this.prepareWrapperFile();
     if (wrapperInformation == null) {
-      LOGGER.severe("Unable to load wrapper information for service startup");
+      LOGGER.error("Unable to load wrapper information for service startup");
       return;
     }
     // load the application file information if possible
     var applicationInformation = this.prepareApplicationFile(environmentType);
     if (applicationInformation == null) {
-      LOGGER.severe(I18n.trans("cloudnet-service-jar-file-not-found-error", this.serviceReplacement()));
+      LOGGER.error(I18n.trans("cloudnet-service-jar-file-not-found-error", this.serviceReplacement()));
       return;
     }
 
@@ -197,7 +198,7 @@ public class JVMService extends AbstractService {
         out.write((command + "\n").getBytes(StandardCharsets.UTF_8));
         out.flush();
       } catch (IOException exception) {
-        LOGGER.finer("Unable to dispatch command %s on service %s", exception, command, this.serviceId());
+        LOGGER.debug("Unable to dispatch command {} on service {}", command, this.serviceId(), exception);
       }
     }
   }
@@ -231,10 +232,11 @@ public class JVMService extends AbstractService {
       this.process = builder.start();
       this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this));
     } catch (IOException exception) {
-      LOGGER.severe("Unable to start process in %s with command line %s",
-        exception,
+      LOGGER.error(
+        "Unable to start process in {} with command line {}",
         this.serviceDirectory,
-        String.join(" ", arguments));
+        String.join(" ", arguments),
+        exception);
     }
   }
 
@@ -277,7 +279,7 @@ public class JVMService extends AbstractService {
         // copy the wrapper file to the output directory
         Files.copy(stream, WRAPPER_TEMP_FILE, StandardCopyOption.REPLACE_EXISTING);
       } catch (IOException exception) {
-        LOGGER.severe("Unable to copy \"wrapper.jar\" to %s", exception, WRAPPER_TEMP_FILE);
+        LOGGER.error("Unable to copy \"wrapper.jar\" to {}", WRAPPER_TEMP_FILE, exception);
       }
     }
     // read the main class
@@ -344,10 +346,11 @@ public class JVMService extends AbstractService {
             this.validateManifest(file.getManifest()).getMainAttributes())
         )).orElse(null);
     } catch (IOException exception) {
-      LOGGER.severe("Unable to find application file information in %s for environment %s",
-        exception,
+      LOGGER.error(
+        "Unable to find application file information in {} for environment {}",
         this.serviceDirectory,
-        environmentType);
+        environmentType,
+        exception);
       return null;
     }
   }
@@ -360,7 +363,7 @@ public class JVMService extends AbstractService {
     try (var jarFile = new JarFile(jarFilePath.toFile())) {
       return new Tuple2<>(jarFilePath, mapper.apply(jarFile));
     } catch (Throwable exception) {
-      LOGGER.severe("Unable to open wrapper file at %s for reading: ", exception, jarFilePath);
+      LOGGER.error("Unable to open wrapper file at {} for reading: ", jarFilePath, exception);
       return null;
     }
   }

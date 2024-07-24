@@ -46,16 +46,14 @@ initializePrefixedSubProjects(
   "platform-inject",
   "api", "loader", "processor", "runtime")
 // plugins
-initializeSubProjects("plugins", "chat", "simplenametags", "papi-expansion", "luckperms")
+initializeSubProjects("plugins", "papi-expansion", "luckperms")
 // modules
 initializeSubProjects("modules",
   "bridge",
   "report",
   "cloudflare",
-  "rest",
   "database-mongodb",
   "database-mysql",
-  "cloudperms",
   "signs",
   "storage-sftp",
   "syncproxy",
@@ -66,7 +64,7 @@ initializeSubProjects("modules",
   "dockerized-services",
   "influx")
 // launcher
-initializeSubProjects("launcher", "java8", "java17", "patcher")
+initializeSubProjects("launcher", "java8", "java22", "patcher")
 
 fun initializeSubProjects(rootProject: String, vararg names: String) {
   names.forEach {

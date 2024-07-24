@@ -25,57 +25,72 @@ import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.packet.RPCRequestPacket;
 import java.lang.reflect.Type;
+import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * The default implementation of a rpc.
  *
  * @since 4.0
  */
-public class DefaultRPC extends DefaultRPCProvider implements RPC {
+public final class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   private final RPCSender sender;
-  private final String className;
-  private final String methodName;
-  private final Object[] arguments;
-  private final Type expectedResultType;
+  private final Supplier<NetworkChannel> channelSupplier;
 
-  private boolean resultExpectation = true;
+  private final Object[] arguments;
+  private final RPCMethodMetadata targetMethod;
+
+  private boolean dropResult;
+  private Duration executionTimeout;
 
   /**
    * Constructs a new default rpc instance.
    *
-   * @param sender             the sender of this rpc.
-   * @param clazz              the target class of this rpc.
-   * @param methodName         the name of the method which should get invoked.
-   * @param arguments          the arguments which should get supplied to the method to invoke.
-   * @param objectMapper       the object mapper used to write/read data from constructed buffers.
-   * @param expectedResultType true if this rpc execution expects a result, false otherwise.
-   * @param dataBufFactory     the data buf factory to use for data buf allocation.
-   * @throws NullPointerException if one of the given arguments is null.
+   * @param targetClass      the class targeted by the RPC.
+   * @param sourceFactory    the rpc factory that constructed this object.
+   * @param objectMapper     the object mapper used for data serialization during rpc execution.
+   * @param dataBufFactory   the data buffer factory to use for buffer allocations during rpc execution.
+   * @param sender           the sender that constructed this rpc.
+   * @param channelSupplier  the default channel supplier to use during execution if none is provided.
+   * @param executionTimeout the timeout for the execution of this rpc.
+   * @param targetMethod     the target method that should be invoked.
+   * @param arguments        the arguments to supply for execution.
+   * @throws NullPointerException if one of the given arguments, except the timeout, is null.
    */
   public DefaultRPC(
-    @NonNull RPCSender sender,
-    @NonNull Class<?> clazz,
-    @NonNull String methodName,
-    @NonNull Object[] arguments,
+    @NonNull Class<?> targetClass,
+    @NonNull RPCFactory sourceFactory,
     @NonNull ObjectMapper objectMapper,
-    @NonNull Type expectedResultType,
-    @NonNull DataBufFactory dataBufFactory
+    @NonNull DataBufFactory dataBufFactory,
+    @NonNull RPCSender sender,
+    @NonNull Supplier<NetworkChannel> channelSupplier,
+    @Nullable Duration executionTimeout,
+    @NonNull RPCMethodMetadata targetMethod,
+    @NonNull Object[] arguments
   ) {
-    super(clazz, objectMapper, dataBufFactory);
-
+    super(targetClass, sourceFactory, objectMapper, dataBufFactory);
     this.sender = sender;
-    this.className = clazz.getCanonicalName();
-    this.methodName = methodName;
+    this.channelSupplier = channelSupplier;
+
+    this.executionTimeout = executionTimeout;
+    this.targetMethod = targetMethod;
+
     this.arguments = arguments;
-    this.expectedResultType = expectedResultType;
+    this.dropResult = targetMethod.executionResultIgnored();
   }
 
   /**
@@ -83,7 +98,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull RPCChain join(@NonNull RPC rpc) {
-    return new DefaultRPCChain(this, rpc);
+    return DefaultRPCChain.of(this, rpc, this.channelSupplier);
   }
 
   /**
@@ -99,7 +114,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull String className() {
-    return this.className;
+    return this.targetClass.getName();
   }
 
   /**
@@ -107,7 +122,15 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull String methodName() {
-    return this.methodName;
+    return this.targetMethod.name();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull String methodDescriptor() {
+    return this.targetMethod.methodType().descriptorString();
   }
 
   /**
@@ -123,15 +146,23 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull Type expectedResultType() {
-    return this.expectedResultType;
+    return this.targetMethod.unwrappedReturnType();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull RPC disableResultExpectation() {
-    this.resultExpectation = false;
+  public @NonNull RPCMethodMetadata targetMethod() {
+    return this.targetMethod;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull RPC timeout(@Nullable Duration timeout) {
+    this.executionTimeout = timeout;
     return this;
   }
 
@@ -139,8 +170,25 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    * {@inheritDoc}
    */
   @Override
-  public boolean expectsResult() {
-    return this.resultExpectation;
+  public @Nullable Duration timeout() {
+    return this.executionTimeout;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull RPC dropResult() {
+    this.dropResult = true;
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean resultDropped() {
+    return this.dropResult;
   }
 
   /**
@@ -148,15 +196,19 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public void fireAndForget() {
-    this.fireAndForget(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
+    var targetNetworkChannel = this.channelSupplier.get();
+    Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
+    this.fireAndForget(targetNetworkChannel);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public <T> @Nullable T fireSync() {
-    return this.fireSync(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
+  public <T> @UnknownNullability T fireSync() {
+    var targetNetworkChannel = this.channelSupplier.get();
+    Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
+    return this.fireSync(targetNetworkChannel);
   }
 
   /**
@@ -164,7 +216,9 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull <T> Task<T> fire() {
-    return this.fire(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
+    var targetNetworkChannel = this.channelSupplier.get();
+    Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
+    return this.fire(targetNetworkChannel);
   }
 
   /**
@@ -172,7 +226,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public void fireAndForget(@NonNull NetworkChannel component) {
-    this.disableResultExpectation().fireSync(component);
+    this.dropResult().fireSync(component);
   }
 
   /**
@@ -182,8 +236,16 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   public <T> @Nullable T fireSync(@NonNull NetworkChannel component) {
     try {
       Task<T> queryTask = this.fire(component);
-      return queryTask.get();
-    } catch (ExecutionException exception) {
+      var invocationResult = queryTask.get();
+      if (this.targetMethod.asyncReturnType()) {
+        // for async methods the fire method does not return the result wrapped in a Future, it returns the raw
+        // result. therefore for sync invocation we need re-wrap the result into a future as it is the expected type
+        //noinspection unchecked
+        return (T) Task.completedTask(invocationResult);
+      } else {
+        return invocationResult;
+      }
+    } catch (ExecutionException | CancellationException exception) {
       if (exception.getCause() instanceof RPCExecutionException executionException) {
         // may be thrown when the handler did throw an exception, just rethrow that one
         throw executionException;
@@ -202,27 +264,33 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
    */
   @Override
   public @NonNull <T> Task<T> fire(@NonNull NetworkChannel component) {
-    // write the default needed information we need
+    // write the information about the RPC into a buffer
     var dataBuf = this.dataBufFactory.createEmpty()
-      .writeBoolean(false) // not a method chain
-      .writeString(this.className)
-      .writeString(this.methodName)
-      .writeBoolean(this.resultExpectation)
-      .writeInt(this.arguments.length);
-    // write the arguments provided
+      .writeInt(1) // single RPC
+      .writeString(this.className())
+      .writeString(this.methodName())
+      .writeString(this.methodDescriptor());
     for (var argument : this.arguments) {
       this.objectMapper.writeObject(dataBuf, argument);
     }
-    // send query if result is needed
-    if (this.resultExpectation) {
-      // now send the query and read the response
-      return Task.wrapFuture(component
-        .sendQueryAsync(new RPCRequestPacket(dataBuf))
-        .thenApply(new RPCResultMapper<>(this.expectedResultType, this.objectMapper)));
-    } else {
-      // just send the method invocation request
+
+    if (this.dropResult) {
+      // no result expected: send the RPC request (not a query) and just return a completed future
       component.sendPacket(new RPCRequestPacket(dataBuf));
       return Task.completedTask(null);
+    } else {
+      // result is expected: send a query to the target network component and return the future so that
+      // the caller can decide how to wait for the result
+      CompletableFuture<T> queryFuture = component
+        .sendQueryAsync(new RPCRequestPacket(dataBuf))
+        .thenApply(new RPCResultMapper<>(this.expectedResultType(), this.objectMapper));
+      if (this.executionTimeout != null) {
+        // apply the requested timeout
+        var timeoutMillis = this.executionTimeout.toMillis();
+        queryFuture = queryFuture.orTimeout(timeoutMillis, TimeUnit.MILLISECONDS);
+      }
+
+      return Task.wrapFuture(queryFuture);
     }
   }
 }

@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.database;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import lombok.NonNull;
 
@@ -44,7 +43,6 @@ import lombok.NonNull;
  * @see Database
  * @since 4.0
  */
-@RPCValidation
 public interface DatabaseProvider {
 
   /**
@@ -55,7 +53,8 @@ public interface DatabaseProvider {
    * @return a facade for a database to write and read data to.
    * @throws NullPointerException if name is null.
    */
-  @NonNull Database database(@NonNull String name);
+  @NonNull
+  Database database(@NonNull String name);
 
   /**
    * Checks whether the database with the given name already exists. When a call to {@link #database(String)} is made
@@ -82,7 +81,8 @@ public interface DatabaseProvider {
    *
    * @return all names of all top-level existing databases.
    */
-  @NonNull Collection<String> databaseNames();
+  @NonNull
+  Collection<String> databaseNames();
 
   /**
    * Checks whether the database with the given name already exists. When a call to {@link #database(String)} is made

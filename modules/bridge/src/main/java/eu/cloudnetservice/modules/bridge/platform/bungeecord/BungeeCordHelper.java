@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.ext.component.ComponentFormats;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.net.InetSocketAddress;
@@ -26,7 +25,6 @@ import java.util.function.Consumer;
 import lombok.NonNull;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 
 @Singleton
@@ -67,10 +65,6 @@ public final class BungeeCordHelper {
 
   @NonNull Consumer<ServiceInfoSnapshot> serverUnregisterHandler() {
     return this.serverUnregisterHandler;
-  }
-
-  public @NonNull BaseComponent[] translateToComponent(@NonNull String input) {
-    return ComponentFormats.ADVENTURE_TO_BUNGEE.convert(input);
   }
 
   private @NonNull ServerInfo constructServerInfo(@NonNull ServiceInfoSnapshot snapshot) {

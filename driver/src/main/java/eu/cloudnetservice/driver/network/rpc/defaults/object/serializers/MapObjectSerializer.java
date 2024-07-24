@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.object.serializers;
 
-import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
+import io.leangen.geantyref.GenericTypeReflector;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.IntFunction;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,9 +32,9 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
+public final class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
 
-  private final Supplier<Map<?, ?>> mapFactory;
+  private final IntFunction<Map<Object, Object>> mapFactory;
 
   /**
    * Constructs a new map object serializer instance.
@@ -42,18 +42,18 @@ public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
    * @param mapFactory the map factory to use to construct the map instances.
    * @throws NullPointerException if the given map factory is null.
    */
-  protected MapObjectSerializer(@NonNull Supplier<Map<?, ?>> mapFactory) {
+  private MapObjectSerializer(@NonNull IntFunction<Map<Object, Object>> mapFactory) {
     this.mapFactory = mapFactory;
   }
 
   /**
    * Constructs a new map object serializer instance.
    *
-   * @param mapFactory the map factory to use to construct the map instances.
+   * @param mapFactory the map factory to use to construct the map instances, receiving the map size as parameter.
    * @return the created map object serializer instance.
    * @throws NullPointerException if the given map factory is null.
    */
-  public static @NonNull MapObjectSerializer of(@NonNull Supplier<Map<?, ?>> mapFactory) {
+  public static @NonNull MapObjectSerializer of(@NonNull IntFunction<Map<Object, Object>> mapFactory) {
     return new MapObjectSerializer(mapFactory);
   }
 
@@ -66,25 +66,29 @@ public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    // create a new instance of the map
-    var map = this.mapFactory.get();
-    // read the size of the map
+    if (!(type instanceof ParameterizedType pt) || !GenericTypeReflector.isFullyBound(pt)) {
+      // not a parameterized type or bounds are not tight enough to deserialize (e.g. Map<?, ?>)
+      throw new IllegalArgumentException(
+        String.format("expected fully bound parameterized type to deserialize Map, got %s", type));
+    }
+
+    var typeArguments = pt.getActualTypeArguments();
+    if (typeArguments.length != 2) {
+      // must have two type arguments to deserialize
+      throw new IllegalArgumentException(
+        String.format("expected 2 type arguments to deserialize Map, got %d", typeArguments.length));
+    }
+
+    // reconstruct the map data
     var mapSize = source.readInt();
-    // if the map is empty, break
-    if (mapSize == 0) {
-      return map;
+    var mapInstance = this.mapFactory.apply(mapSize);
+    for (var index = 0; index < mapSize; index++) {
+      var entryKey = caller.readObject(source, typeArguments[0]);
+      var entryValue = caller.readObject(source, typeArguments[1]);
+      mapInstance.put(entryKey, entryValue);
     }
-    // ensure that the type is parameterized
-    Preconditions.checkState(type instanceof ParameterizedType, "Map rpc read called without parameterized type");
-    // read the parameter type of the collection
-    var keyType = ((ParameterizedType) type).getActualTypeArguments()[0];
-    var valueType = ((ParameterizedType) type).getActualTypeArguments()[1];
-    // read the map content
-    for (var i = 0; i < mapSize; i++) {
-      map.put(caller.readObject(source, keyType), caller.readObject(source, valueType));
-    }
-    // read done
-    return map;
+
+    return mapInstance;
   }
 
   /**
@@ -93,16 +97,14 @@ public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,
-    @Nullable Map<?, ?> object,
+    @NonNull Map<?, ?> object,
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    dataBuf.writeInt(object == null ? 0 : object.size());
-    if (object != null) {
-      for (Map.Entry<?, ?> entry : object.entrySet()) {
-        caller.writeObject(dataBuf, entry.getKey());
-        caller.writeObject(dataBuf, entry.getValue());
-      }
+    dataBuf.writeInt(object.size());
+    for (var entry : object.entrySet()) {
+      caller.writeObject(dataBuf, entry.getKey());
+      caller.writeObject(dataBuf, entry.getValue());
     }
   }
 }

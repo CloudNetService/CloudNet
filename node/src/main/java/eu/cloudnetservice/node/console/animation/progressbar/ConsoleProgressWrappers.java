@@ -17,8 +17,6 @@
 package eu.cloudnetservice.node.console.animation.progressbar;
 
 import com.google.common.primitives.Longs;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedInputStream;
 import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedIterator;
@@ -30,11 +28,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class ConsoleProgressWrappers {
 
-  private static final Logger LOGGER = LogManager.logger(ConsoleProgressWrappers.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleProgressWrappers.class);
   // the log
   private static final double LOG_10_FILE_SIZE_BASE = 3.010299956639812;
   private static final String[] FILE_SIZE_UNIT_NAMES = new String[]{"B", "KB", "MB", "GB", "TB", "PB", "EB"};
@@ -89,7 +89,7 @@ public final class ConsoleProgressWrappers {
                 (int) Math.pow(1024, unitMultiplier),
                 contentSize)));
           } catch (Throwable exception) {
-            LOGGER.severe("Exception downloading file from %s", exception, url);
+            LOGGER.error("Exception downloading file from {}", url, exception);
           }
         }
       });

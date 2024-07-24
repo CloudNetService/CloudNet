@@ -25,9 +25,8 @@ import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
-import eu.cloudnetservice.driver.network.http.HttpServer;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
@@ -39,7 +38,6 @@ import lombok.NonNull;
 @Singleton
 public final class NodeModuleProviderHandler extends DefaultModuleProviderHandler implements ModuleProviderHandler {
 
-  private final HttpServer httpServer;
   private final NetworkClient networkClient;
   private final NetworkServer networkServer;
   private final RPCHandlerRegistry rpcHandlerRegistry;
@@ -50,7 +48,6 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
   @Inject
   public NodeModuleProviderHandler(
     @NonNull ModuleProvider moduleProvider,
-    @NonNull HttpServer httpServer,
     @NonNull NetworkClient networkClient,
     @NonNull NetworkServer networkServer,
     @NonNull RPCHandlerRegistry rpcHandlerRegistry,
@@ -61,7 +58,6 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
   ) {
     super(eventManager, moduleProvider, serviceRegistry);
 
-    this.httpServer = httpServer;
     this.networkClient = networkClient;
     this.networkServer = networkServer;
     this.rpcHandlerRegistry = rpcHandlerRegistry;
@@ -73,8 +69,6 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
   public void handlePostModuleStop(@NonNull ModuleWrapper moduleWrapper) {
     super.handlePostModuleStop(moduleWrapper);
 
-    // unregister all listeners from the http server
-    this.httpServer.removeHandler(moduleWrapper.classLoader());
     // unregister all listeners added to the network handlers
     this.networkClient.packetRegistry().removeListeners(moduleWrapper.classLoader());
     this.networkServer.packetRegistry().removeListeners(moduleWrapper.classLoader());

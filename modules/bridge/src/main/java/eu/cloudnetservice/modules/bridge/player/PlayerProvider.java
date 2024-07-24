@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.bridge.player;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;
@@ -36,7 +35,6 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-@RPCValidation
 public interface PlayerProvider {
 
   /**
@@ -44,21 +42,24 @@ public interface PlayerProvider {
    *
    * @return all supplied cloud players.
    */
-  @NonNull Collection<CloudPlayer> players();
+  @NonNull
+  Collection<CloudPlayer> players();
 
   /**
    * Gets all unique ids of the players supplied by this player provider.
    *
    * @return all supplied unique ids.
    */
-  @NonNull Collection<UUID> uniqueIds();
+  @NonNull
+  Collection<UUID> uniqueIds();
 
   /**
    * Gets all player names for all players supplied by this player provider.
    *
    * @return all supplied player names.
    */
-  @NonNull Collection<String> names();
+  @NonNull
+  Collection<String> names();
 
   /**
    * Gets the count of supplied players by this player provider.

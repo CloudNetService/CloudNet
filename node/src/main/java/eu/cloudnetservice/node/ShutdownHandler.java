@@ -18,13 +18,9 @@ package eu.cloudnetservice.node;
 
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
-import eu.cloudnetservice.driver.network.http.HttpServer;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
@@ -35,12 +31,14 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class ShutdownHandler {
 
   public static final String SHUTDOWN_THREAD_NAME = "CloudNet Shutdown Thread";
-  private static final Logger LOGGER = LogManager.logger(ShutdownHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownHandler.class);
 
   private final Console console;
   private final ModuleProvider moduleProvider;
@@ -50,13 +48,11 @@ public final class ShutdownHandler {
   private final ServiceVersionProvider serviceVersionProvider;
 
   // network
-  private final HttpServer httpServer;
   private final NetworkClient networkClient;
   private final NetworkServer networkServer;
 
   // database stuff
   private final NodeDatabaseProvider databaseProvider;
-  private final PermissionManagement permissionManagement;
 
   @Inject
   public ShutdownHandler(
@@ -66,11 +62,9 @@ public final class ShutdownHandler {
     @NonNull NodeServerProvider nodeServerProvider,
     @NonNull @Named("taskScheduler") ScheduledExecutorService scheduledExecutor,
     @NonNull ServiceVersionProvider serviceVersionProvider,
-    @NonNull HttpServer httpServer,
     @NonNull NetworkClient networkClient,
     @NonNull NetworkServer networkServer,
-    @NonNull NodeDatabaseProvider databaseProvider,
-    @NonNull PermissionManagement permissionManagement
+    @NonNull NodeDatabaseProvider databaseProvider
   ) {
     this.console = console;
     this.moduleProvider = moduleProvider;
@@ -78,11 +72,9 @@ public final class ShutdownHandler {
     this.nodeServerProvider = nodeServerProvider;
     this.scheduledExecutor = scheduledExecutor;
     this.serviceVersionProvider = serviceVersionProvider;
-    this.httpServer = httpServer;
     this.networkClient = networkClient;
     this.networkServer = networkServer;
     this.databaseProvider = databaseProvider;
-    this.permissionManagement = permissionManagement;
   }
 
   public void shutdown() {
@@ -104,13 +96,11 @@ public final class ShutdownHandler {
 
         // close all networking listeners
         LOGGER.info(I18n.trans("stop-network-components"));
-        this.httpServer.close();
         this.networkClient.close();
         this.networkServer.close();
 
         // close all the other providers
         LOGGER.info(I18n.trans("stop-providers"));
-        this.permissionManagement.close();
         this.databaseProvider.close();
 
         // stop & unload all modules
@@ -124,7 +114,7 @@ public final class ShutdownHandler {
         // close console
         this.console.close();
       } catch (Exception exception) {
-        LOGGER.severe("Caught exception while trying to cleanly stop CloudNet", exception);
+        LOGGER.error("Caught exception while trying to cleanly stop CloudNet", exception);
       }
 
       // exit if this was not called from a shutdown thread. We have to check this to prevent calling System.exit(0)

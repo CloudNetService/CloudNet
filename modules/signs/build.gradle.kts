@@ -22,10 +22,14 @@ plugins {
 
 tasks.withType<Jar> {
   archiveFileName.set(Files.signs)
+
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
 }
 
 tasks.withType<JavaCompile> {
-  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/signs.aero")
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/signs.aero")
 }
 
 dependencies {

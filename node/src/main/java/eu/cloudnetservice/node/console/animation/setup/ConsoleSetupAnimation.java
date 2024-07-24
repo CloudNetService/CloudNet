@@ -27,7 +27,7 @@ import eu.cloudnetservice.node.event.setup.SetupCancelledEvent;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
 import eu.cloudnetservice.node.event.setup.SetupInitiateEvent;
 import eu.cloudnetservice.node.event.setup.SetupResponseEvent;
-import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
+import eu.cloudnetservice.node.log.QueuedConsoleLogAppender;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
@@ -37,14 +37,14 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.locks.LockSupport;
 import lombok.NonNull;
-import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.Nullable;
+import org.jline.jansi.Ansi;
 
 public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
   // injected data
   private final EventManager eventManager;
-  private final QueuedConsoleLogHandler logHandler;
+  private final QueuedConsoleLogAppender logHandler;
 
   // session values
   private final UUID handlerId;
@@ -73,7 +73,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
   public ConsoleSetupAnimation(
     @NonNull EventManager eventManager,
-    @NonNull QueuedConsoleLogHandler logHandler,
+    @NonNull QueuedConsoleLogAppender logHandler,
     @Nullable String header,
     @Nullable String footer,
     @Nullable String overwritePrompt

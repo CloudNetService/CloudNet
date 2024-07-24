@@ -16,52 +16,70 @@
 
 package eu.cloudnetservice.wrapper.transform.netty;
 
-import eu.cloudnetservice.wrapper.transform.Transformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassTransform;
+import java.lang.classfile.CodeTransform;
+import java.lang.classfile.instruction.InvokeInstruction;
+import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDescs;
+import java.lang.constant.MethodTypeDesc;
 import lombok.NonNull;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.TypeInsnNode;
+import org.jetbrains.annotations.ApiStatus;
 
-public final class OldEpollDisableTransformer implements Transformer {
+/**
+ * A transformer that explicitly disables netty epoll on old versions bundled with Minecraft.
+ *
+ * @since 4.0
+ */
+@ApiStatus.Internal
+public final class OldEpollDisableTransformer implements ClassTransformer {
 
+  private static final String MN_OLD_EPOLL_CREATE = "epollCreate";
+  private static final String CNI_EPOLL = "io/netty/channel/epoll/Epoll";
+  private static final String FN_UNAVAILABILITY_CAUSE = "UNAVAILABILITY_CAUSE";
+  private static final ClassDesc CD_EPOLL = ClassDesc.ofInternalName(CNI_EPOLL);
+  private static final ClassDesc CD_UNSUPPORTED_OP_EX = ClassDesc.of(UnsupportedOperationException.class.getName());
+  private static final MethodTypeDesc MTD_UNSUPPORTED_OP_EX_NEW =
+    MethodTypeDesc.of(ConstantDescs.CD_void, ConstantDescs.CD_String);
+
+  /**
+   * Constructs a new instance of this transformer, usually done via SPI.
+   */
+  public OldEpollDisableTransformer() {
+    // used by SPI
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void transform(@NonNull String classname, @NonNull ClassNode classNode) {
-    // check if epoll should get disabled
-    for (var method : classNode.methods) {
-      if (method.name.equals("<clinit>")) {
+  public @NonNull ClassTransform provideClassTransform() {
+    CodeTransform codeTransform = (codeBuilder, codeElement) -> {
+      if (codeElement instanceof InvokeInstruction inst && inst.name().equalsString(MN_OLD_EPOLL_CREATE)) {
         // old versions of netty are invoking a method called "epollCreate", new ones are invoking "newEpollCreate"
-        for (var instruction : method.instructions) {
-          if (instruction instanceof MethodInsnNode methodInsnNode && methodInsnNode.name.equals("epollCreate")) {
-            var instructions = new InsnList();
-            // if the old epoll method is used then just set the unavailability cause
-            instructions.add(new TypeInsnNode(Opcodes.NEW, Type.getInternalName(UnsupportedOperationException.class)));
-            instructions.add(new InsnNode(Opcodes.DUP));
-            instructions.add(new LdcInsnNode("Netty 4.0.X is incompatible with Java 9+"));
-            instructions.add(new MethodInsnNode(
-              Opcodes.INVOKESPECIAL,
-              Type.getInternalName(UnsupportedOperationException.class),
-              "<init>",
-              "(Ljava/lang/String;)V",
-              false));
-            instructions.add(new FieldInsnNode(
-              Opcodes.PUTSTATIC,
-              // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
-              String.join("/", "io", "netty", "channel", "epoll", "Epoll"),
-              "UNAVAILABILITY_CAUSE",
-              Type.getDescriptor(Throwable.class)));
-            instructions.add(new InsnNode(Opcodes.RETURN));
-            // put it before the first instruction of the method
-            method.instructions.insert(instructions);
-            return;
-          }
-        }
+        // so if we encounter the old method call, we just set the unavailability cause field & insert a return to
+        // skip the remaining method body. This will mark Epoll as unavailable, and it will not be used
+        codeBuilder
+          .new_(CD_UNSUPPORTED_OP_EX)
+          .dup()
+          .ldc("Netty 4.0.X is incompatible with Java 9+")
+          .invokespecial(CD_UNSUPPORTED_OP_EX, ConstantDescs.INIT_NAME, MTD_UNSUPPORTED_OP_EX_NEW)
+          .putstatic(CD_EPOLL, FN_UNAVAILABILITY_CAUSE, CD_UNSUPPORTED_OP_EX)
+          .return_();
       }
-    }
+      codeBuilder.accept(codeElement);
+    };
+    return ClassTransform.transformingMethodBodies(
+      mm -> mm.methodName().equalsString(ConstantDescs.CLASS_INIT_NAME),
+      codeTransform);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
+    var isEpollClass = internalClassName.equals(CNI_EPOLL);
+    return isEpollClass ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
   }
 }

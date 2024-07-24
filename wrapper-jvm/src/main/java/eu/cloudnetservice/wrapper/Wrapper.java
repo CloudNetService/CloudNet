@@ -18,38 +18,26 @@ package eu.cloudnetservice.wrapper;
 
 import dev.derklaro.aerogel.Order;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
-import eu.cloudnetservice.common.log.LoggingUtil;
-import eu.cloudnetservice.common.log.defaults.DefaultFileHandler;
-import eu.cloudnetservice.common.log.defaults.DefaultLogFormatter;
-import eu.cloudnetservice.common.log.defaults.ThreadedLogRecordDispatcher;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.DefaultModuleProviderHandler;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
+import eu.cloudnetservice.driver.network.chunk.defaults.ChunkedSessionRegistry;
 import eu.cloudnetservice.driver.network.chunk.defaults.factory.EventChunkHandlerFactory;
 import eu.cloudnetservice.driver.network.chunk.network.ChunkedPacketListener;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ApplicationPostStartEvent;
 import eu.cloudnetservice.wrapper.event.ApplicationPreStartEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
-import eu.cloudnetservice.wrapper.log.InternalPrintStreamLogHandler;
 import eu.cloudnetservice.wrapper.network.chunk.TemplateStorageCallbackListener;
 import eu.cloudnetservice.wrapper.network.listener.PacketAuthorizationResponseListener;
 import eu.cloudnetservice.wrapper.network.listener.PacketServerChannelMessageListener;
 import eu.cloudnetservice.wrapper.network.listener.message.GroupChannelMessageListener;
 import eu.cloudnetservice.wrapper.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.wrapper.network.listener.message.TaskChannelMessageListener;
-import eu.cloudnetservice.wrapper.transform.TransformerRegistry;
-import eu.cloudnetservice.wrapper.transform.bukkit.BukkitCommodoreTransformer;
-import eu.cloudnetservice.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
-import eu.cloudnetservice.wrapper.transform.bukkit.PaperConfigTransformer;
-import eu.cloudnetservice.wrapper.transform.fabric.KnotClassDelegateTransformer;
-import eu.cloudnetservice.wrapper.transform.minestom.MinestomStopCleanlyTransformer;
-import eu.cloudnetservice.wrapper.transform.netty.OldEpollDisableTransformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
@@ -60,10 +48,15 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.jar.JarFile;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is the main api point when trying to interact with CloudNet from a running service within the CloudNet
@@ -73,22 +66,7 @@ import lombok.NonNull;
  */
 public final class Wrapper {
 
-  private static final Logger LOGGER = LogManager.logger(Wrapper.class);
-
-  @Inject
-  @Order(50)
-  private void setupLogger(@NonNull @Named("root") Logger logger) {
-    LoggingUtil.removeHandlers(logger);
-    var logFilePattern = Path.of(".wrapper", "logs", "wrapper.%g.log");
-
-    logger.setLevel(LoggingUtil.defaultLogLevel());
-    logger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
-
-    logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
-    logger.addHandler(DefaultFileHandler
-      .newInstance(logFilePattern, false)
-      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(Wrapper.class);
 
   @Inject
   @Order(100)
@@ -117,7 +95,8 @@ public final class Wrapper {
     @NonNull EventManager eventManager,
     @NonNull NetworkClient networkClient,
     @NonNull WrapperConfiguration configuration,
-    @NonNull ServiceInfoHolder serviceInfoHolder
+    @NonNull ServiceInfoHolder serviceInfoHolder,
+    @NonNull ChunkedSessionRegistry chunkedSessionRegistry
   ) {
     // create a new condition and the auth listener
     var currentThread = Thread.currentThread();
@@ -129,7 +108,7 @@ public final class Wrapper {
       .connect(configuration.targetListener())
       .exceptionally(ex -> {
         // log and exit, we're not connected
-        LOGGER.severe("Unable to establish a connection to the target node listener", ex);
+        LOGGER.error("Unable to establish a connection to the target node listener", ex);
         System.exit(-1);
         // returns void
         return null;
@@ -150,7 +129,7 @@ public final class Wrapper {
     // add the runtime packet listeners
     networkClient.packetRegistry().addListener(
       NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
-      new ChunkedPacketListener(EventChunkHandlerFactory.withEventManager(eventManager)));
+      new ChunkedPacketListener(chunkedSessionRegistry, new EventChunkHandlerFactory(eventManager)));
     networkClient.packetRegistry().addListener(
       NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
       PacketServerChannelMessageListener.class);
@@ -168,33 +147,20 @@ public final class Wrapper {
 
   @Inject
   @Order(250)
-  private void registerTransformer(@NonNull TransformerRegistry transformerRegistry) {
-    // register our default class transformers
-    transformerRegistry.registerTransformer(
-      "org/bukkit/craftbukkit",
-      "Commodore",
-      new BukkitCommodoreTransformer());
-    transformerRegistry.registerTransformer(
-      "org/bukkit/craftbukkit",
-      "Main",
-      new BukkitJavaVersionCheckTransformer());
-    transformerRegistry.registerTransformer(
-      "org/github/paperspigot",
-      "PaperSpigotConfig",
-      new PaperConfigTransformer());
-    transformerRegistry.registerTransformer(
-      "net/fabricmc/loader/impl/launch/knot",
-      "KnotClassDelegate",
-      new KnotClassDelegateTransformer());
-    // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
-    transformerRegistry.registerTransformer(
-      String.join("/", "io", "netty", "channel", "epoll"),
-      "Epoll",
-      new OldEpollDisableTransformer());
-    transformerRegistry.registerTransformer(
-      "net/minestom/server",
-      "ServerProcessImpl",
-      new MinestomStopCleanlyTransformer());
+  private void registerTransformer(@NonNull ClassTransformerRegistry transformerRegistry) {
+    var serviceLoader = ServiceLoader.load(ClassTransformer.class);
+    serviceLoader.stream()
+      .map(provider -> {
+        try {
+          return provider.get();
+        } catch (ServiceConfigurationError error) {
+          var typeName = provider.type().getName();
+          LOGGER.debug("Skipping registration of class transformer {} due to spi configuration error", typeName, error);
+          return null;
+        }
+      })
+      .filter(Objects::nonNull)
+      .forEach(transformerRegistry::registerTransformer);
   }
 
   @Inject
@@ -204,12 +170,6 @@ public final class Wrapper {
     eventManager.registerListener(GroupChannelMessageListener.class);
     eventManager.registerListener(ServiceChannelMessageListener.class);
     eventManager.registerListener(TemplateStorageCallbackListener.class);
-  }
-
-  @Inject
-  @Order(350)
-  private void initPermissionManagement(@NonNull PermissionManagement permissionManagement) {
-    permissionManagement.init();
   }
 
   @Inject
@@ -262,11 +222,11 @@ public final class Wrapper {
     // start the application
     var applicationThread = new Thread(() -> {
       try {
-        LOGGER.info(String.format("Starting application using class %s (pre-main: %s)", mainClass, premainClass));
+        LOGGER.info("Starting application using class {} (pre-main: {})", mainClass, premainClass);
         // start the application
         method.invoke(null, new Object[]{arguments.toArray(new String[0])});
       } catch (Exception exception) {
-        LOGGER.severe("Exception while starting application", exception);
+        LOGGER.error("Exception while starting application", exception);
       }
     }, "Application-Thread");
     applicationThread.setContextClassLoader(loader);

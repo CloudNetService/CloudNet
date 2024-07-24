@@ -101,7 +101,37 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.20.4"
+            "versionGroup": "1.21"
+          }
+        },
+        {
+          "name": "1.21",
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21"
+          }
+        },
+        {
+          "name": "1.20.6",
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.20.6"
           }
         },
         {
@@ -287,8 +317,36 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.20.4/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21/latest/download",
           "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.21",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21/latest/download",
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.20.6",
+          "url": "https://api.purpurmc.org/v2/purpur/1.20.6/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -368,8 +426,16 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.20.4.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.21.jar",
           "cacheFiles": false
+        },
+        {
+          "name": "1.21",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.21.jar"
+        },
+        {
+          "name": "1.20.6",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.20.6.jar"
         },
         {
           "name": "1.20.4",
@@ -448,7 +514,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.20.4",
+          "name": "1.21",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -459,11 +525,13 @@
             },
             "parameters": [
               "server",
-              "-mcversion %version%",
+              "-mcversion",
+              "%version%",
               "-downloadMinecraft"
             ],
             "fetchOverFabricApi": true
-          }
+          },
+          "minJavaVersion": 21
         }
       ]
     },
@@ -489,11 +557,12 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.20.4"
-          }
+            "mcVersion": "1.21"
+          },
+          "minJavaVersion": 21
         },
         {
-          "name": "1.20.4",
+          "name": "1.21",
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -502,8 +571,23 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.20.4"
-          }
+            "mcVersion": "1.21"
+          },
+          "minJavaVersion": 21
+        },
+        {
+          "name": "1.20.6",
+          "properties": {
+            "copy": {
+              "libraries/.*": "/",
+              "launcher\\.conf": "/",
+              "spongevanilla\\.jar": "/"
+            },
+            "fetchOverSpongeApi": true,
+            "artifact": "spongevanilla",
+            "mcVersion": "1.20.6"
+          },
+          "minJavaVersion": 21
         },
         {
           "name": "1.19.4",
@@ -577,25 +661,6 @@
       ]
     },
     {
-      "name": "waterfall",
-      "environmentType": "BUNGEECORD",
-      "website": "https://papermc.io",
-      "installSteps": [
-        "PAPER_API",
-        "DOWNLOAD"
-      ],
-      "versions": [
-        {
-          "name": "latest",
-          "cacheFiles": false,
-          "properties": {
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.20"
-          }
-        }
-      ]
-    },
-    {
       "name": "velocity",
       "environmentType": "VELOCITY",
       "website": "https://docs.papermc.io/velocity",
@@ -639,8 +704,16 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.loohpjames.com/job/Limbo/lastSuccessfulBuild/artifact/target/Limbo-0.7.9-ALPHA-1.20.6.jar",
+          "url": "https://ci.loohpjames.com/job/Limbo/lastSuccessfulBuild/artifact/target/Limbo-0.7.10-ALPHA-1.21.jar",
           "cacheFiles": false
+        },
+        {
+          "name": "1.21",
+          "url": "https://ci.loohpjames.com/job/Limbo/lastSuccessfulBuild/artifact/target/Limbo-0.7.10-ALPHA-1.21.jar"
+        },
+        {
+          "name": "1.20.6",
+          "url": "https://ci.loohpjames.com/job/Limbo/43/artifact/target/Limbo-0.7.9-ALPHA-1.20.6.jar"
         }
       ]
     }

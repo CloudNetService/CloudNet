@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.provider;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCChained;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
 import java.util.UUID;
@@ -37,7 +37,6 @@ import org.jetbrains.annotations.UnmodifiableView;
  *
  * @since 4.0
  */
-@RPCValidation
 public interface CloudServiceProvider {
 
   /**
@@ -58,7 +57,9 @@ public interface CloudServiceProvider {
    * @return an operational or no-op provider for a service, depending on whether the requested service exists.
    * @throws NullPointerException if the given service unique id is null.
    */
-  @NonNull SpecificCloudServiceProvider serviceProvider(@NonNull UUID serviceUniqueId);
+  @NonNull
+  @RPCChained
+  SpecificCloudServiceProvider serviceProvider(@NonNull UUID serviceUniqueId);
 
   /**
    * Gets a provider for the specific service with the given name. No check is made if the service this provider was
@@ -78,7 +79,9 @@ public interface CloudServiceProvider {
    * @return an operational or no-op provider for a service, depending on whether the requested service exists.
    * @throws NullPointerException if the service name is null.
    */
-  @NonNull SpecificCloudServiceProvider serviceProviderByName(@NonNull String serviceName);
+  @NonNull
+  @RPCChained
+  SpecificCloudServiceProvider serviceProviderByName(@NonNull String serviceName);
 
   /**
    * Gets all services which are currently registered in the cluster. Modifications to the returned collections are not
@@ -87,7 +90,8 @@ public interface CloudServiceProvider {
    * @return all services which are registered in the cluster.
    */
   @UnmodifiableView
-  @NonNull Collection<ServiceInfoSnapshot> services();
+  @NonNull
+  Collection<ServiceInfoSnapshot> services();
 
   /**
    * Gets all services which are currently registered and running in the cluster. Modifications to the returned
@@ -96,7 +100,8 @@ public interface CloudServiceProvider {
    * @return all services which are registered and running in the cluster.
    */
   @UnmodifiableView
-  @NonNull Collection<ServiceInfoSnapshot> runningServices();
+  @NonNull
+  Collection<ServiceInfoSnapshot> runningServices();
 
   /**
    * Gets all services which are currently registered in the cluster and belong to the given task. Modifications to the
@@ -107,7 +112,8 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given task name is null.
    */
   @UnmodifiableView
-  @NonNull Collection<ServiceInfoSnapshot> servicesByTask(@NonNull String taskName);
+  @NonNull
+  Collection<ServiceInfoSnapshot> servicesByTask(@NonNull String taskName);
 
   /**
    * Gets all services which are currently registered in the cluster and belong to the given environment. Modifications
@@ -118,7 +124,8 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given environment is null.
    */
   @UnmodifiableView
-  @NonNull Collection<ServiceInfoSnapshot> servicesByEnvironment(@NonNull String environment);
+  @NonNull
+  Collection<ServiceInfoSnapshot> servicesByEnvironment(@NonNull String environment);
 
   /**
    * Gets all services which are currently registered in the cluster and belong to the given group. Modifications to the
@@ -129,7 +136,8 @@ public interface CloudServiceProvider {
    * @throws NullPointerException if the given group name is null.
    */
   @UnmodifiableView
-  @NonNull Collection<ServiceInfoSnapshot> servicesByGroup(@NonNull String group);
+  @NonNull
+  Collection<ServiceInfoSnapshot> servicesByGroup(@NonNull String group);
 
   /**
    * Gets the amount of services which are currently registered within the cluster.

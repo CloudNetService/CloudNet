@@ -20,7 +20,6 @@ tasks.withType<Jar> {
 
 dependencies {
   "moduleLibrary"(libs.mongodb)
-  "moduleLibrary"(libs.slf4jNop)
 }
 
 moduleJson {

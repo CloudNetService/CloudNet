@@ -17,18 +17,18 @@
 package eu.cloudnetservice.node.console.animation;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.console.Console;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.NonNull;
-import org.fusesource.jansi.Ansi;
+import org.jline.jansi.Ansi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractConsoleAnimation implements Runnable {
 
-  protected static final Logger LOGGER = LogManager.logger(AbstractConsoleAnimation.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractConsoleAnimation.class);
 
   protected final int updateInterval;
   protected final Collection<Runnable> finishHandler = new ArrayList<>();

@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty.codec;
 
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
@@ -27,6 +25,8 @@ import io.netty5.handler.codec.ByteToMessageDecoder;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An internal implementation of the packet decoder used for client to server communication. This decoder reverses the
@@ -45,15 +45,15 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
-  private static final Logger LOGGER = LogManager.logger(NettyPacketDecoder.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NettyPacketDecoder.class);
 
   /**
    * {@inheritDoc}
    */
   @Override
   protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer in) {
-    // validates that the channel associated to this decoder call is still active and actually transferred data before
-    // beginning to read.
+    // validates that the channel associated to this decoder call is still active and actually
+    // transferred data before beginning to read.
     if (!ctx.channel().isActive() || in.readableBytes() <= 0) {
       return;
     }
@@ -66,7 +66,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
       // extract the body
       var bodyLength = NettyUtil.readVarInt(in);
-      var body = new NettyImmutableDataBuf(in.copy(in.readerOffset(), bodyLength, true));
+      var body = new NettyImmutableDataBuf(in.copy(in.readerOffset(), bodyLength));
       in.skipReadableBytes(bodyLength);
 
       // construct the packet
@@ -76,7 +76,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
       // register the packet for further downstream handling
       ctx.fireChannelRead(packet);
     } catch (Exception exception) {
-      LOGGER.severe("Exception while decoding packet", exception);
+      LOGGER.error("Exception while decoding packet", exception);
     }
   }
 }

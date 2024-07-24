@@ -34,7 +34,6 @@ import net.minestom.server.command.builder.arguments.ArgumentString;
 import net.minestom.server.command.builder.condition.CommandCondition;
 import net.minestom.server.command.builder.exception.ArgumentSyntaxException;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.fakeplayer.FakePlayer;
 
 @Singleton
 public class SignsCommand extends Command {
@@ -45,11 +44,11 @@ public class SignsCommand extends Command {
   private static final ArgumentLiteral CLEANUP_ALL_LITERAL = new ArgumentLiteral("cleanupAll");
 
   private static final CommandCondition DEFAULT_CONDITION = (sender, $) ->
-    sender instanceof Player && !(sender instanceof FakePlayer) && sender.hasPermission("cloudnet.command.cloudsign");
+    sender instanceof Player && sender.hasPermission("cloudnet.command.cloudsign");
 
   private final Argument<String> template = new ArgumentString("templatePath") {
     @Override
-    public @NonNull String parse(@NonNull String input) throws ArgumentSyntaxException {
+    public @NonNull String parse(@NonNull CommandSender sender, @NonNull String input) throws ArgumentSyntaxException {
       var template = ServiceTemplate.parse(input);
       if (template == null) {
         throw new ArgumentSyntaxException(I18n.trans("command-template-not-valid"), input, -1);
@@ -85,9 +84,11 @@ public class SignsCommand extends Command {
 
   private @NonNull ArgumentString createTargetGroupArgument(@NonNull GroupConfigurationProvider groupProvider) {
     return new ArgumentString("targetGroup") {
-
       @Override
-      public @NonNull String parse(@NonNull String input) throws ArgumentSyntaxException {
+      public @NonNull String parse(
+        @NonNull CommandSender sender,
+        @NonNull String input
+      ) throws ArgumentSyntaxException {
         return groupProvider.groupConfigurations()
           .stream()
           .filter(group -> group.name().equalsIgnoreCase(input))
@@ -108,10 +109,15 @@ public class SignsCommand extends Command {
     var player = (Player) sender;
     var instance = player.getInstance();
     if (instance != null) {
+      // the target block might be null if there is no block in reach
       var targetPoint = player.getTargetBlockPosition(15);
-      var targetBlock = instance.getBlock(targetPoint);
+      if (targetPoint == null) {
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        return;
+      }
 
       // check if the player faces a sign
+      var targetBlock = instance.getBlock(targetPoint);
       if (targetBlock.name().contains("sign")) {
         var worldPosition = this.signManagement.convertPosition(targetPoint, instance);
         var sign = this.signManagement.platformSignAt(worldPosition);
@@ -148,8 +154,14 @@ public class SignsCommand extends Command {
     var player = (Player) sender;
     var instance = player.getInstance();
     if (instance != null) {
-      // check if the player is facing a sign
+      // the target block might be null if there is no block in reach
       var targetPoint = player.getTargetBlockPosition(15);
+      if (targetPoint == null) {
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        return;
+      }
+
+      // check if the player is facing a sign
       var targetBlock = instance.getBlock(targetPoint);
       if (targetBlock.name().contains("sign")) {
         // check if the sign exists

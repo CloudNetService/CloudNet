@@ -17,12 +17,12 @@
 package eu.cloudnetservice.node.command.source;
 
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
-import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The driver command source represents a message receiving object for the driver api. All messages regarding command
@@ -30,7 +30,6 @@ import lombok.NonNull;
  * network, see {@link ClusterNodeProvider#sendCommandLine(String)}
  *
  * @see CommandSource
- * @see PermissionUserCommandSource
  * @since 4.0
  */
 public class DriverCommandSource implements CommandSource {
@@ -98,7 +97,7 @@ public class DriverCommandSource implements CommandSource {
    * {@inheritDoc}
    */
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

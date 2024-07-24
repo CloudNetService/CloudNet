@@ -34,7 +34,8 @@ public interface NetworkServer extends NetworkComponent, AutoCloseable {
    * @return a future completed exceptionally if the bind fails, normally if the bind succeeded.
    * @throws IllegalArgumentException if the given port exceeds the port range.
    */
-  @NonNull Task<Void> addListener(int port);
+  @NonNull
+  Task<Void> addListener(int port);
 
   /**
    * Binds this network server to the given host and port if no listener is already listening on the given address.
@@ -43,5 +44,6 @@ public interface NetworkServer extends NetworkComponent, AutoCloseable {
    * @return a future completed exceptionally if the bind fails, normally if the bind succeeded.
    * @throws NullPointerException if the given host and port is null.
    */
-  @NonNull Task<Void> addListener(@NonNull HostAndPort hostAndPort);
+  @NonNull
+  Task<Void> addListener(@NonNull HostAndPort hostAndPort);
 }

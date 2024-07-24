@@ -16,29 +16,28 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.util.ExecutorServiceUtil;
+import eu.cloudnetservice.driver.network.netty.buffer.NettyNioBufferReleasingAllocator;
+import eu.cloudnetservice.driver.network.scheduler.NetworkTaskScheduler;
+import eu.cloudnetservice.driver.network.scheduler.ScalingNetworkTaskScheduler;
 import io.netty5.buffer.Buffer;
+import io.netty5.buffer.BufferAllocator;
 import io.netty5.buffer.BufferUtil;
+import io.netty5.buffer.DefaultBufferAllocators;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFactory;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.ServerChannel;
 import io.netty5.channel.ServerChannelFactory;
 import io.netty5.handler.codec.DecoderException;
+import io.netty5.handler.ssl.OpenSsl;
+import io.netty5.handler.ssl.SslProvider;
 import io.netty5.util.ResourceLeakDetector;
-import io.netty5.util.concurrent.Future;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 
 /**
  * Internal util for the default netty based communication between server and clients, http and websocket.
@@ -48,27 +47,52 @@ import org.jetbrains.annotations.Range;
 @ApiStatus.Internal
 public final class NettyUtil {
 
-  // pre-computed var int byte lengths
-  private static final int[] VAR_INT_BYTE_LENGTHS = new int[33];
-  // transport
-  private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudnet.no-native");
-  private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
-  // packet thread handling
-  private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
+  private static final int PACKET_DISPATCH_THREADS;
+  private static final int NETTY_EVENT_LOOP_THREADS;
+
+  private static final SslProvider SELECTED_SSL_PROVIDER;
+  private static final NettyTransport SELECTED_NETTY_TRANSPORT;
+  private static final BufferAllocator SELECTED_BUFFER_ALLOCATOR;
 
   static {
-    // check if the leak detection level is set before overriding it
-    // may be useful for debugging of the network
-    if (System.getProperty("io.netty5.leakDetection.level") == null) {
+    // check if resource leak detection should be enabled for debugging purposes
+    // if that is not the case leak detection will be disabled completely
+    var enableLeakDetection = Boolean.getBoolean("cloudnet.net.leak-detection-enabled");
+    if (enableLeakDetection) {
+      ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
+      System.setProperty("io.netty5.buffer.leakDetectionEnabled", "true");
+    } else {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+      System.setProperty("io.netty5.buffer.leakDetectionEnabled", "false");
     }
 
-    // pre-compute all var int byte lengths
-    for (var i = 0; i <= 32; ++i) {
-      VAR_INT_BYTE_LENGTHS[i] = (int) Math.ceil((31d - (i - 1)) / 7d);
+    // select the ssl provider to use for netty. this uses the jdk provider in case it was explicitly selected
+    // or openssl is not available. the default choice is openssl if available.
+    var preferredSslProvider = System.getProperty("cloudnet.net.preferred-ssl-provider");
+    if ("jdk".equals(preferredSslProvider) || !OpenSsl.isAvailable()) {
+      SELECTED_SSL_PROVIDER = SslProvider.JDK;
+    } else {
+      SELECTED_SSL_PROVIDER = SslProvider.OPENSSL;
     }
-    // 0 is always one byte long
-    VAR_INT_BYTE_LENGTHS[32] = 1;
+
+    // select the buffer allocator to use. our internal allocator will free all buffers provided to it directly
+    // which significantly reduces the native memory usage. however, this might not be the designated behaviour for
+    // some users, therefore we leave it to their choice which allocator should be used.
+    var preferredBufferAllocator = System.getProperty("cloudnet.net.preferred-buffer-allocator");
+    if ("netty-default".equals(preferredBufferAllocator) || NettyNioBufferReleasingAllocator.notAbleToFreeBuffers()) {
+      SELECTED_BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
+    } else {
+      SELECTED_BUFFER_ALLOCATOR = new NettyNioBufferReleasingAllocator();
+    }
+
+    // select the transport type to use for netty
+    var disableNativeTransport = Boolean.getBoolean("cloudnet.net.no-native");
+    SELECTED_NETTY_TRANSPORT = NettyTransport.availableTransport(disableNativeTransport);
+
+    // get the values defined by the user or fall back to using -1, these will later be remapped to
+    // actual values when the whole context for the allocation is known.
+    PACKET_DISPATCH_THREADS = Integer.getInteger("cloudnet.net.packet-dispatch-threads", -1);
+    NETTY_EVENT_LOOP_THREADS = Integer.getInteger("cloudnet.net.netty-event-loop-threads", -1);
   }
 
   private NettyUtil() {
@@ -76,60 +100,81 @@ public final class NettyUtil {
   }
 
   /**
-   * Get a so-called "packet dispatcher" which represents an executor handling the received packets sent to a network
-   * component. The executor is optimized for the currently running-in environment - this represents the default
-   * settings applied to the dispatcher. If running in a node env the packet dispatcher uses the amount of processors
-   * multiplied by 2 for the maximum thread amount, in a wrapper env this is fixed to 8. All threads in the dispatcher
-   * can idle for 30 seconds before they are terminated forcefully. One thread will always idle in the handler to speed
-   * up just-in-time handling of packets. Given tasks are queued in the order they are given into the dispatcher and if
-   * the dispatcher has no capacity to run the task, the caller will automatically call the task instead.
+   * Returns the given overridden count if given (not zero or negative) or returns the given default value.
    *
-   * @param driverEnvironment the driver environment to get the executor for.
-   * @return a new packet dispatcher instance.
-   * @throws NullPointerException if the given environment is null.
-   * @see #threadAmount(DriverEnvironment)
+   * @param overriddenSetting the overridden setting, for example from a user input.
+   * @param defaultValue      the default value to use as a fallback, if the overridden value is not valid.
+   * @return the given overridden setting if valid, the given default value in all other cases.
    */
-  public static @NonNull Executor newPacketDispatcher(@NonNull DriverEnvironment driverEnvironment) {
-    // a cached pool with a thread idle-lifetime of 30 seconds
-    // rejected tasks will be executed on the calling thread (See ThreadPoolExecutor.CallerRunsPolicy)
-    // at least one thread is always idling in this executor
-    var maximumPoolSize = threadAmount(driverEnvironment);
-    return ExecutorServiceUtil.newVirtualThreadExecutor("Packet-Dispatcher-", threadFactory -> new ThreadPoolExecutor(
-      maximumPoolSize,
-      maximumPoolSize,
-      30L,
-      TimeUnit.SECONDS,
-      new LinkedBlockingQueue<>(),
-      threadFactory,
-      DEFAULT_REJECT_HANDLER));
+  private static int overriddenCountOrDefault(int overriddenSetting, int defaultValue) {
+    return overriddenSetting >= 1 ? overriddenSetting : defaultValue;
   }
 
   /**
-   * Creates a new nio or epoll event loop group based on their availability.
+   * Creates a new executor for all incoming packets. The thread size of the returned dispatcher depends either on a
+   * user-provided setting or on the given driver environment.
    *
-   * @param threads the number of threads to use for the event loop.
-   * @return a new nio or epoll event loop group.
+   * @param driverEnvironment the driver environment currently running on.
+   * @return a newly created executor for dispatching inbound packets.
+   * @throws NullPointerException if the given driver environment is null.
    */
-  public static @NonNull EventLoopGroup newEventLoopGroup(int threads) {
-    return CURR_NETTY_TRANSPORT.createEventLoopGroup(threads);
+  public static @NonNull NetworkTaskScheduler createPacketDispatcher(@NonNull DriverEnvironment driverEnvironment) {
+    // the maximum thread count that the pool will be allowed to use for packet processing
+    // TODO: consider moving the default thread amount for an environment into the environment as a property
+    var defaultEnvThreadCount = driverEnvironment.equals(DriverEnvironment.NODE) ? 12 : 4;
+    var maximumPoolSize = overriddenCountOrDefault(PACKET_DISPATCH_THREADS, defaultEnvThreadCount);
+
+    var threadFactory = new ThreadFactoryBuilder()
+      .setNameFormat("Packet-Dispatcher-%d")
+      .setThreadFactory(Executors.defaultThreadFactory())
+      .build();
+    return new ScalingNetworkTaskScheduler(threadFactory, maximumPoolSize);
   }
 
   /**
-   * Creates a new channel factory for network clients based on the epoll availability.
+   * Creates a new boss event loop group based on the selected netty transport. Boss event loops are used to accept new
+   * connections, which only requires a single thread.
    *
-   * @return a new channel factory for network clients based on the epoll availability.
+   * @return a newly created boss event loop group.
+   */
+  public static @NonNull EventLoopGroup createBossEventLoopGroup() {
+    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(1);
+  }
+
+  /**
+   * Creates a new worker event loop group based on the selected netty transport. The thread count that is used by the
+   * event loop is either set by the user or depends on the given driver environment.
+   *
+   * @param driverEnvironment the driver environment currently running on.
+   * @return a newly created worker event loop group.
+   * @throws NullPointerException if the given driver environment is null.
+   */
+  public static @NonNull EventLoopGroup createWorkerEventLoopGroup(@NonNull DriverEnvironment driverEnvironment) {
+    // use a relatively small thread count for netty, most of the work will be loaded into the processing
+    // packet executor when handling anyway. this also means that packets, when coming in really fast, are throttled
+    // by default when reading, which should reduce the risk of huge amounts of allocated memory due to that
+    // TODO: consider moving the default thread amount for an environment into the environment as a property
+    var defaultEnvThreadCount = driverEnvironment.equals(DriverEnvironment.NODE) ? 6 : 2;
+    var threadCount = overriddenCountOrDefault(NETTY_EVENT_LOOP_THREADS, defaultEnvThreadCount);
+    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(threadCount);
+  }
+
+  /**
+   * Get the channel factory for client channels of the selected netty transport.
+   *
+   * @return the channel factory for client channels of the selected netty transport.
    */
   public static @NonNull ChannelFactory<? extends Channel> clientChannelFactory() {
-    return CURR_NETTY_TRANSPORT.clientChannelFactory();
+    return SELECTED_NETTY_TRANSPORT.clientChannelFactory();
   }
 
   /**
-   * Creates a new channel factory for network servers based on the epoll availability.
+   * Get the channel factory for server channels of the selected netty transport.
    *
-   * @return a new channel factory for network servers based on the epoll availability.
+   * @return the channel factory for server channels of the selected netty transport.
    */
   public static @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory() {
-    return CURR_NETTY_TRANSPORT.serverChannelFactory();
+    return SELECTED_NETTY_TRANSPORT.serverChannelFactory();
   }
 
   /**
@@ -197,47 +242,21 @@ public final class NettyUtil {
   /**
    * Gets the number of bytes that writing the given content length as a var int will take in the underlying buffer.
    *
-   * @param contentLength the number to get the amount of bytes for.
+   * @param value the number to get the amount of bytes for.
    * @return the number of bytes writing the given number as a var int will take.
    */
-  public static int varIntBytes(int contentLength) {
-    return VAR_INT_BYTE_LENGTHS[Integer.numberOfLeadingZeros(contentLength)];
-  }
-
-  /**
-   * Waits for the given future to complete, either returning the same future instance as given (but completed) or
-   * rethrowing all exceptions that occurred during completion. This method throws an IllegalThreadStateException if the
-   * current thread was interrupted during the future computation.
-   *
-   * @param future the future to wait for.
-   * @param <T>    the type of data returned by the future.
-   * @return the same future as given to the method, but completed.
-   * @throws NullPointerException        if the given future is null.
-   * @throws CancellationException       if the computation was cancelled
-   * @throws CompletionException         if the computation threw an exception.
-   * @throws IllegalThreadStateException if the current thread was interrupted during computation.
-   */
-  public static @NonNull <T> Future<T> awaitFuture(@NonNull Future<T> future) {
-    try {
-      // await the future and rethrow exceptions if any occur
-      return future.asStage().sync().future();
-    } catch (InterruptedException exception) {
-      Thread.currentThread().interrupt(); // reset the interrupted state of the thread
-      throw new IllegalThreadStateException();
+  public static int varIntBytes(int value) {
+    if (value < 0 || value >= 268_435_456) {
+      return 5;
+    } else if (value < 128) {
+      return 1;
+    } else if (value < 16_384) {
+      return 2;
+    } else if (value < 2_097_152) {
+      return 3;
+    } else {
+      return 4;
     }
-  }
-
-  /**
-   * Get the thread amount used by the packet dispatcher to dispatch incoming packets. This method returns always 4 when
-   * running in as a wrapper and the amount of processors cores multiplied by 2 when running either embedded or as a
-   * node.
-   *
-   * @param environment the environment to get the thread count for.
-   * @return the thread amount used by the packet dispatcher to dispatch incoming packets.
-   * @throws NullPointerException if the given environment is null.
-   */
-  public static @Range(from = 2, to = Integer.MAX_VALUE) int threadAmount(@NonNull DriverEnvironment environment) {
-    return environment.equals(DriverEnvironment.NODE) ? Math.max(8, Runtime.getRuntime().availableProcessors() * 2) : 4;
   }
 
   /**
@@ -246,6 +265,24 @@ public final class NettyUtil {
    * @return the selected netty transport.
    */
   public static @NonNull NettyTransport selectedNettyTransport() {
-    return CURR_NETTY_TRANSPORT;
+    return SELECTED_NETTY_TRANSPORT;
+  }
+
+  /**
+   * Get the selected ssl provider which will be used in case ssl configurations are enabled on the client or server.
+   *
+   * @return the selected ssl provider.
+   */
+  public static @NonNull SslProvider selectedSslProvider() {
+    return SELECTED_SSL_PROVIDER;
+  }
+
+  /**
+   * Get the selected allocator for buffers that should be used for all buffer allocations.
+   *
+   * @return the selected allocator for buffers that should be used for all buffer allocations.
+   */
+  public static @NonNull BufferAllocator selectedBufferAllocator() {
+    return SELECTED_BUFFER_ALLOCATOR;
   }
 }

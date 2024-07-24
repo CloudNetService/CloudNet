@@ -44,7 +44,6 @@ public final class BungeeCordBridgePlugin implements PlatformEntrypoint {
   private final ProxyServer proxyServer;
   private final ModuleHelper moduleHelper;
   private final PluginManager pluginManager;
-  private final BungeeCordHelper bungeeHelper;
   private final ServiceRegistry serviceRegistry;
   private final BungeeCordCloudCommand cloudCommand;
   private final BungeeCordBridgeManagement bridgeManagement;
@@ -56,7 +55,6 @@ public final class BungeeCordBridgePlugin implements PlatformEntrypoint {
     @NonNull ProxyServer proxyServer,
     @NonNull ModuleHelper moduleHelper,
     @NonNull PluginManager pluginManager,
-    @NonNull BungeeCordHelper bungeeHelper,
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull BungeeCordCloudCommand cloudCommand,
     @NonNull BungeeCordBridgeManagement bridgeManagement,
@@ -66,7 +64,6 @@ public final class BungeeCordBridgePlugin implements PlatformEntrypoint {
     this.proxyServer = proxyServer;
     this.moduleHelper = moduleHelper;
     this.pluginManager = pluginManager;
-    this.bungeeHelper = bungeeHelper;
     this.serviceRegistry = serviceRegistry;
     this.cloudCommand = cloudCommand;
     this.bridgeManagement = bridgeManagement;
@@ -90,7 +87,6 @@ public final class BungeeCordBridgePlugin implements PlatformEntrypoint {
       // register the command
       this.pluginManager.registerCommand(this.plugin, new BungeeCordHubCommand(
         this.proxyServer,
-        this.bungeeHelper,
         this.bridgeManagement,
         names[0],
         names.length > 1 ? Arrays.copyOfRange(names, 1, names.length) : new String[0]));

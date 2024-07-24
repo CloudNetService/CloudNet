@@ -28,7 +28,7 @@ configurations {
 }
 
 tasks.withType<JavaCompile> {
-  options.compilerArgs = mutableListOf("-AaerogelAutoFileName=autoconfigure/bridge.aero")
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/bridge.aero")
 }
 
 dependencies {
@@ -46,6 +46,12 @@ dependencies {
   "minecraft"(libs.minecraft)
   "modCompileOnly"(libs.fabricLoader)
   "mappings"(loom.officialMojangMappings())
+}
+
+tasks.withType<Jar> {
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
 }
 
 tasks.withType<RemapJarTask> {

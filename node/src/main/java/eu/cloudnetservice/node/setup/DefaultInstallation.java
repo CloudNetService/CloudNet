@@ -20,7 +20,7 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
-import eu.cloudnetservice.node.log.QueuedConsoleLogHandler;
+import eu.cloudnetservice.node.log.QueuedConsoleLogAppender;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.LinkedList;
@@ -36,13 +36,13 @@ public final class DefaultInstallation {
 
   private final Console console;
   private final EventManager eventManager;
-  private final QueuedConsoleLogHandler logHandler;
+  private final QueuedConsoleLogAppender logHandler;
 
   @Inject
   public DefaultInstallation(
     @NonNull Console console,
     @NonNull EventManager eventManager,
-    @NonNull QueuedConsoleLogHandler logHandler
+    @NonNull QueuedConsoleLogAppender logHandler
   ) {
     this.console = console;
     this.eventManager = eventManager;

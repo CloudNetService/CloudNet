@@ -19,8 +19,6 @@ package eu.cloudnetservice.node.cluster.sync;
 import com.google.common.primitives.Ints;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.node.cluster.sync.prettyprint.GulfHelper;
 import eu.cloudnetservice.node.cluster.sync.prettyprint.GulfPrettyPrint;
@@ -34,12 +32,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Provides(DataSyncRegistry.class)
 public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
-  private static final Logger LOGGER = LogManager.logger(DefaultDataSyncRegistry.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDataSyncRegistry.class);
 
   private final Console console;
   private final Map<String, DataSyncHandler<?>> handlers = new ConcurrentHashMap<>();
@@ -148,11 +148,11 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
             // pretty format the changes
             for (var line : GulfPrettyPrint.prettyPrint(handler.name(current), changes)) {
-              LOGGER.warning(line);
+              LOGGER.warn(line);
             }
 
             // print out the possibilities the user has now
-            LOGGER.warning(I18n.trans("cluster-sync-change-decision-question"));
+            LOGGER.warn(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
             switch (this.waitForCorrectMergeInput(this.console)) {
               case 1 -> {
@@ -177,16 +177,16 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
               }
             }
           } catch (Exception exception) {
-            LOGGER.severe("Exception processing diff on key %s with %s and %s", null, key, data, current);
+            LOGGER.error("Exception processing diff on key {} with {} and {}", key, data, current);
           }
           // continue reading
           continue;
         }
       } catch (Exception exception) {
-        LOGGER.severe("Exception reading data for key %s while syncing", exception, key);
+        LOGGER.error("Exception reading data for key {} while syncing", key, exception);
       }
       // no handler for the result
-      LOGGER.fine("No handler for key %s to sync data", null, key);
+      LOGGER.debug("No handler for key {} to sync data", key);
     }
 
     // return the created result

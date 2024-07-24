@@ -20,12 +20,9 @@ import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
-import eu.cloudnetservice.driver.network.http.HttpServer;
 import eu.cloudnetservice.driver.network.netty.client.NettyNetworkClient;
-import eu.cloudnetservice.driver.network.netty.http.NettyHttpServer;
 import eu.cloudnetservice.driver.network.netty.server.NettyNetworkServer;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.DefaultNetworkClientChannelHandler;
@@ -45,30 +42,22 @@ final class BootFactories {
 
   @Factory
   @Singleton
-  public static @NonNull HttpServer provideHttpServer(@NonNull Configuration configuration) {
-    return new NettyHttpServer(configuration.webSSLConfig());
-  }
-
-  @Factory
-  @Singleton
   public static @NonNull NetworkClient provideNetworkClient(
-    @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo,
     @NonNull Configuration configuration,
     @NonNull Provider<DefaultNetworkClientChannelHandler> handlerProvider
   ) {
-    return new NettyNetworkClient(eventManager, componentInfo, handlerProvider::get, configuration.clientSSLConfig());
+    return new NettyNetworkClient(componentInfo, handlerProvider::get, configuration.clientSSLConfig());
   }
 
   @Factory
   @Singleton
   public static @NonNull NetworkServer provideNetworkServer(
-    @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo,
     @NonNull Configuration configuration,
     @NonNull Provider<DefaultNetworkServerChannelHandler> handlerProvider
   ) {
-    return new NettyNetworkServer(eventManager, componentInfo, handlerProvider::get, configuration.serverSSLConfig());
+    return new NettyNetworkServer(componentInfo, handlerProvider::get, configuration.serverSSLConfig());
   }
 
   @Factory

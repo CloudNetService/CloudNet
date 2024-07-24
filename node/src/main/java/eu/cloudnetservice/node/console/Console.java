@@ -41,10 +41,6 @@ public interface Console extends AutoCloseable {
 
   boolean printingEnabled();
 
-  default boolean hasAnimationSupport() {
-    return this.hasColorSupport();
-  }
-
   @Unmodifiable
   @NonNull Collection<String> commandHistory();
 
@@ -79,8 +75,6 @@ public interface Console extends AutoCloseable {
   @NonNull Console forceWriteLine(@NonNull String text);
 
   @NonNull Console writeLine(@NonNull String text);
-
-  boolean hasColorSupport();
 
   boolean usingMatchingHistoryComplete();
 

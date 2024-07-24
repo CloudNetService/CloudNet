@@ -16,8 +16,11 @@
 
 package eu.cloudnetservice.driver.network.rpc;
 
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import java.lang.reflect.Type;
+import java.time.Duration;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The basic rpc class. A rpc holds all information about what should be called on the receiver site of the rpc and
@@ -45,21 +48,32 @@ public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
    *
    * @return the sender of this rpc.
    */
-  @NonNull RPCSender sender();
+  @NonNull
+  RPCSender sender();
 
   /**
    * Get the fully qualified name of the class the target method is located in.
    *
    * @return the fully qualified name of the class the target method is located in.
    */
-  @NonNull String className();
+  @NonNull
+  String className();
 
   /**
    * Get the name of the method which should get called.
    *
    * @return the name of the method which should get called.
    */
-  @NonNull String methodName();
+  @NonNull
+  String methodName();
+
+  /**
+   * Get the descriptor string of the method that should be invoked.
+   *
+   * @return the descriptor string of the method that should be invoked.
+   */
+  @NonNull
+  String methodDescriptor();
 
   /**
    * Get the arguments which should get used to call the method. The main identification of a method happens based on
@@ -67,14 +81,43 @@ public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
    *
    * @return the arguments which should get used to call the method.
    */
-  @NonNull Object[] arguments();
+  @NonNull
+  Object[] arguments();
 
   /**
    * Get the expected result type of the method invocation. Can be void.
    *
    * @return the expected result type of the method invocation.
    */
-  @NonNull Type expectedResultType();
+  @NonNull
+  Type expectedResultType();
+
+  /**
+   * Get the full metadata of the target method.
+   *
+   * @return the full metadata of the target method.
+   */
+  @NonNull
+  RPCMethodMetadata targetMethod();
+
+  /**
+   * Sets the timeout that should be applied to the RPC. The default value is derived from the target in the target
+   * class (using the {@link eu.cloudnetservice.driver.network.rpc.annotation.RPCTimeout} annotation). If no timeout is
+   * set, the fire methods will wait for a method result forever.
+   *
+   * @param timeout the timeout to apply to the method invocation.
+   * @return this RPC, for chaining.
+   */
+  @NonNull
+  RPC timeout(@Nullable Duration timeout);
+
+  /**
+   * Get the timeout that is applied to this RPC, if any.
+   *
+   * @return the timeout applied to this RPC.
+   */
+  @Nullable
+  Duration timeout();
 
   /**
    * Disables that this rpc is waiting for a result from the target network component. By default, the current component
@@ -82,12 +125,13 @@ public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
    *
    * @return the same instance used to call the method, for chaining.
    */
-  @NonNull RPC disableResultExpectation();
+  @NonNull
+  RPC dropResult();
 
   /**
-   * Get if this rpc expects a result from the network component the invoke request is sent to.
+   * Get whether the result of the method call is discarded and the execution of the method should not be waited for.
    *
-   * @return true if the current rpc expects a result from the target network component, false otherwise.
+   * @return true if the result of this RPC gets discarded, false otherwise.
    */
-  boolean expectsResult();
+  boolean resultDropped();
 }

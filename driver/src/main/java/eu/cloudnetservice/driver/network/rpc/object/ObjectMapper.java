@@ -39,7 +39,8 @@ public interface ObjectMapper {
    * @return the same instance as used to call the method, for chaining.
    * @throws NullPointerException if the given base type is null.
    */
-  @NonNull ObjectMapper unregisterBinding(@NonNull Type type, boolean superTypes);
+  @NonNull
+  ObjectMapper unregisterBinding(@NonNull Type type, boolean superTypes);
 
   /**
    * Unregisters all object serializers whose classes were loaded by the given class loader.
@@ -48,7 +49,8 @@ public interface ObjectMapper {
    * @return the same instance as used to call the method, for chaining.
    * @throws NullPointerException if the given class loader is null.
    */
-  @NonNull ObjectMapper unregisterBindings(@NonNull ClassLoader classLoader);
+  @NonNull
+  ObjectMapper unregisterBindings(@NonNull ClassLoader classLoader);
 
   /**
    * Registers the given object serializer to this mapper, including all super types of the given type if requested.
@@ -61,7 +63,8 @@ public interface ObjectMapper {
    * @return the same instance as used to call the method, for chaining.
    * @throws NullPointerException if either the given type or serializer is null.
    */
-  @NonNull <T> ObjectMapper registerBinding(
+  @NonNull
+  <T> ObjectMapper registerBinding(
     @NonNull Type type,
     @NonNull ObjectSerializer<T> serializer,
     boolean superTypes);
@@ -76,7 +79,8 @@ public interface ObjectMapper {
    * @throws NullPointerException             if the given buffer is null.
    * @throws MissingObjectSerializerException if no serializer was found to serialize the given object.
    */
-  @NonNull <T> DataBuf.Mutable writeObject(@NonNull DataBuf.Mutable dataBuf, @Nullable T object);
+  @NonNull
+  <T> DataBuf.Mutable writeObject(@NonNull DataBuf.Mutable dataBuf, @Nullable T object);
 
   /**
    * Reads an object from the given buffer by the given type using the previously registered serializers. The returned
@@ -89,5 +93,6 @@ public interface ObjectMapper {
    * @throws NullPointerException             if either the given buffer or type is null.
    * @throws MissingObjectSerializerException if no serializer was found to deserialize the given object.
    */
-  @UnknownNullability <T> T readObject(@NonNull DataBuf dataBuf, @NonNull Type type);
+  @UnknownNullability
+  <T> T readObject(@NonNull DataBuf dataBuf, @NonNull Type type);
 }

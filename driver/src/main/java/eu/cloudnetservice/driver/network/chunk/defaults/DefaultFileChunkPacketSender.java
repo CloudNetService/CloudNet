@@ -36,8 +36,6 @@ import lombok.NonNull;
  */
 public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider implements ChunkedPacketSender {
 
-  protected static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-
   protected final InputStream source;
   protected final Consumer<Packet> packetSplitter;
 
@@ -64,49 +62,32 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
    * {@inheritDoc}
    */
   @Override
-  public @NonNull InputStream source() {
-    return this.source;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull Consumer<Packet> packetSplitter() {
-    return this.packetSplitter;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public @NonNull Task<TransferStatus> transferChunkedData() {
     return Task.supply(() -> {
-      var readCalls = 0;
+      var chunkIndex = 0;
       var backingArray = new byte[this.chunkSessionInformation.chunkSize()];
 
       while (true) {
-        var bytesRead = this.source.read(backingArray);
-        if (bytesRead != -1 && bytesRead == backingArray.length) {
-          // acquire the transfer information once before writing the data of the chunk
+        var bytesRead = Math.max(0, this.source.read(backingArray));
+        if (bytesRead == backingArray.length) {
+          // if the bytes read is the same size as the backing array, then a full chunk of data has been read from the
+          // backing file. this usually indicates that the chunk is not the last chunk in the transfer
           this.chunkSessionInformation.transferInformation().acquire();
-          this.packetSplitter.accept(ChunkedPacket.createChunk(
-            this.chunkSessionInformation,
-            readCalls++,
-            backingArray));
+          var chunkPacket = ChunkedPacket.createFullChunk(chunkIndex++, backingArray, this.chunkSessionInformation);
+          this.packetSplitter.accept(chunkPacket);
         } else {
-          this.packetSplitter.accept(ChunkedPacket.createChunk(
-            this.chunkSessionInformation,
-            readCalls,
-            readCalls,
-            bytesRead == -1 ? 0 : bytesRead,
-            bytesRead == -1 ? EMPTY_BYTE_ARRAY : backingArray));
+          // final chunk to send out, this is one is allowed to not contain as much data as the other chunks
+          var chunkPacket = ChunkedPacket.createFinalChunk(
+            chunkIndex,
+            bytesRead,
+            backingArray,
+            this.chunkSessionInformation);
+          this.packetSplitter.accept(chunkPacket);
 
-          // close the stream after reading the final chunk & release the extra content now
+          // close all allocated resources used for the transfer
           this.source.close();
           this.chunkSessionInformation.transferInformation().release();
 
-          // successful transfer
           return TransferStatus.SUCCESS;
         }
       }

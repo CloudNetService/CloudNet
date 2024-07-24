@@ -17,16 +17,17 @@
 package eu.cloudnetservice.modules.signs.platform.minestom;
 
 import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.minestom.event.MinestomCloudSignInteractEvent;
 import java.util.UUID;
 import lombok.NonNull;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minestom.server.coordinate.Pos;
@@ -35,7 +36,6 @@ import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceManager;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBT;
 
 public class MinestomPlatformSign extends PlatformSign<Player, String> {
 
@@ -46,11 +46,11 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
 
   public MinestomPlatformSign(
     @NonNull Sign base,
-    @NonNull PlayerManager playerManager,
+    @NonNull ServiceRegistry serviceRegistry,
     @NonNull GlobalEventHandler eventHandler,
     @NonNull InstanceManager instanceManager
   ) {
-    super(base, playerManager, input -> {
+    super(base, serviceRegistry, input -> {
       var coloredComponent = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(input);
       return GsonComponentSerializer.gson().serialize(coloredComponent);
     });
@@ -86,26 +86,27 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
   public void updateSign(@NonNull SignLayout layout) {
     var location = this.signLocation();
     if (location != null) {
-      // build the compound information about the sign
-      var compound = NBT.Compound(nbt -> {
-        // set the sign glowing if requested
-        var glowingColor = layout.glowingColor();
-        if (glowingColor != null && glowingColor.length() == 1) {
-          var color = AdventureTextFormatLookup.findColor(glowingColor.charAt(0));
 
-          nbt.put("GlowingText", NBT.Boolean(color != null));
-          nbt.put("Color", NBT.String(color == null ? NamedTextColor.WHITE.toString() : color.toString()));
-        }
+      // construct the sign data in this binary compound
+      var compound = CompoundBinaryTag.builder();
 
-        // set the sign lines
-        this.changeSignLines(layout, (index, line) -> nbt.put("Text" + (index + 1), NBT.String(line)));
-      });
+      // set the sign glowing if requested
+      var glowingColor = layout.glowingColor();
+      if (glowingColor != null && glowingColor.length() == 1) {
+        var color = AdventureTextFormatLookup.findColor(glowingColor.charAt(0));
+
+        compound.putBoolean("GlowingText", color != null);
+        compound.putString("Color", color == null ? NamedTextColor.WHITE.toString() : color.toString());
+      }
+
+      // set the sign lines
+      this.changeSignLines(layout, (index, line) -> compound.putString("Text" + (index + 1), line));
 
       // set the block at the position
       var block = location.second().getBlock(location.first());
       location.second().setBlock(
         location.first(),
-        block.withHandler(MinestomSignBlockHandler.SIGN_BLOCK_HANDLER).withNbt(compound));
+        block.withHandler(MinestomSignBlockHandler.SIGN_BLOCK_HANDLER).withNbt(compound.build()));
     }
   }
 

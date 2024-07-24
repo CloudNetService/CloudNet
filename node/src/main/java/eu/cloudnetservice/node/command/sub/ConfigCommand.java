@@ -27,7 +27,6 @@ import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.network.HostAndPort;
-import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
@@ -51,19 +50,16 @@ public final class ConfigCommand {
   private final Configuration configuration;
   private final ServiceTaskProvider taskProvider;
   private final GroupConfigurationProvider groupProvider;
-  private final PermissionManagement permissionManagement;
 
   @Inject
   public ConfigCommand(
     @NonNull Configuration configuration,
     @NonNull ServiceTaskProvider taskProvider,
-    @NonNull GroupConfigurationProvider groupProvider,
-    @NonNull PermissionManagement permissionManagement
+    @NonNull GroupConfigurationProvider groupProvider
   ) {
     this.configuration = configuration;
     this.taskProvider = taskProvider;
     this.groupProvider = groupProvider;
-    this.permissionManagement = permissionManagement;
   }
 
 
@@ -92,7 +88,6 @@ public final class ConfigCommand {
     this.configuration.reloadFrom(JsonConfiguration.loadFromFile());
     this.taskProvider.reload();
     this.groupProvider.reload();
-    this.permissionManagement.reload();
     source.sendMessage(I18n.trans("command-config-reload-config"));
   }
 

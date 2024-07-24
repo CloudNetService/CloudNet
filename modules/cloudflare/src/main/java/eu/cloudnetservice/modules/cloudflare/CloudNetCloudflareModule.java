@@ -19,8 +19,6 @@ package eu.cloudnetservice.modules.cloudflare;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.Document;
@@ -50,12 +48,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class CloudNetCloudflareModule extends DriverModule {
 
   private static final UUID NODE_RECORDS_ID = UUID.randomUUID();
-  private static final Logger LOGGER = LogManager.logger(CloudNetCloudflareModule.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CloudNetCloudflareModule.class);
 
   private CloudflareConfiguration cloudflareConfiguration;
 
@@ -115,7 +115,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
               Document.newJsonDocument()));
           } else {
             // mark the record as created
-            LOGGER.fine("Skipping creation of record for %s because the record %s exists", null, entry, existingRecord);
+            LOGGER.debug("Skipping creation of record for {} because the record {} exists", entry, existingRecord);
             recordManager.trackedRecords().put(
               NODE_RECORDS_ID,
               new DnsRecordDetail(existingRecord.id(), existingRecord, entry));
@@ -299,7 +299,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
       // return the parsed values
       return new Tuple2<>(dnsType, address.getHostAddress());
     } catch (IllegalArgumentException exception) {
-      LOGGER.severe("Host address %s is invalid", exception, entry.hostAddress());
+      LOGGER.error("Host address {} is invalid", entry.hostAddress(), exception);
       return null;
     }
   }

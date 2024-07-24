@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord.command;
 
+import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
-import eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper;
 import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -28,18 +28,15 @@ import net.md_5.bungee.api.plugin.Command;
 public final class BungeeCordHubCommand extends Command {
 
   private final ProxyServer proxyServer;
-  private final BungeeCordHelper bungeeHelper;
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
 
   public BungeeCordHubCommand(
     @NonNull ProxyServer proxyServer,
-    @NonNull BungeeCordHelper bungeeHelper,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
     @NonNull String name,
     String @NonNull ... aliases
   ) {
     super(name, null, aliases);
-    this.bungeeHelper = bungeeHelper;
     this.management = management;
     this.proxyServer = proxyServer;
   }
@@ -52,7 +49,7 @@ public final class BungeeCordHubCommand extends Command {
         this.management.configuration().handleMessage(
           player.getLocale(),
           "command-hub-already-in-hub",
-          this.bungeeHelper::translateToComponent,
+          ComponentFormats.ADVENTURE_TO_BUNGEE::convert,
           player::sendMessage);
       } else {
         // try to get a fallback for the player
@@ -67,14 +64,14 @@ public final class BungeeCordHubCommand extends Command {
               this.management.configuration().handleMessage(
                 player.getLocale(),
                 "command-hub-success-connect",
-                message -> this.bungeeHelper.translateToComponent(message.replace("%server%", hub.getName())),
+                message -> ComponentFormats.ADVENTURE_TO_BUNGEE.convert(message.replace("%server%", hub.getName())),
                 player::sendMessage);
             } else {
               // the connection was not successful
               this.management.configuration().handleMessage(
                 player.getLocale(),
                 "command-hub-no-server-found",
-                this.bungeeHelper::translateToComponent,
+                ComponentFormats.ADVENTURE_TO_BUNGEE::convert,
                 player::sendMessage);
             }
           }, Reason.COMMAND);

@@ -76,8 +76,7 @@ public class ChunkedPacketSenderTest {
     DataBuf dataBuf = DataBuf.empty().writeString("hello").writeInt(10).writeString("world");
 
     var splitter = new NetworkChannelsPacketSplitter(IntStream.range(0, 10)
-      .mapToObj($ -> this.mockNetworkChannel(packet ->
-        this.validatePacket(packet, sessionId, packetSplits, chunkData)))
+      .mapToObj(_ -> this.mockNetworkChannel(packet -> this.validatePacket(packet, sessionId, packetSplits, chunkData)))
       .collect(Collectors.toList()));
 
     Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forFileTransfer()
@@ -103,21 +102,21 @@ public class ChunkedPacketSenderTest {
 
   private void validatePacket(Packet packet, UUID sessionId, AtomicInteger splits, byte[] data) {
     var info = packet.content().readObject(ChunkSessionInformation.class);
+    var chunkIndex = packet.content().readInt();
+    var finalChunk = packet.content().readBoolean();
 
     Assertions.assertEquals(256, info.chunkSize());
     Assertions.assertEquals(sessionId, info.sessionUniqueId());
     Assertions.assertEquals("hello_world", info.transferChannel());
-    Assertions.assertEquals(splits.get(), packet.content().readInt());
+    Assertions.assertEquals(splits.get(), chunkIndex);
 
     Assertions.assertEquals("hello", info.transferInformation().readString());
     Assertions.assertEquals(10, info.transferInformation().readInt());
     Assertions.assertEquals("world", info.transferInformation().readString());
 
-    var isFinalPacket = packet.content().readBoolean();
-    Assertions.assertEquals(splits.get() == data.length / 256, isFinalPacket);
-
-    if (isFinalPacket) {
-      Assertions.assertEquals(data.length / 256, packet.content().readInt());
+    Assertions.assertEquals(splits.get() == data.length / 256, finalChunk);
+    if (finalChunk) {
+      Assertions.assertEquals(data.length / 256, chunkIndex);
     }
 
     // this prevents a weird bug happening. When copying an array beginning at the length of the array (in this case

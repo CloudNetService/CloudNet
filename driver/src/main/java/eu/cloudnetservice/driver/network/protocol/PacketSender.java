@@ -53,17 +53,4 @@ public interface PacketSender {
       this.sendPacket(packet);
     }
   }
-
-  /**
-   * Sends all the given packets to the associated target, waiting for the packet writes to the channel to complete
-   * before resuming the current thread.
-   *
-   * @param packets the packets to send.
-   * @throws NullPointerException if the packets are null.
-   */
-  default void sendPacketSync(@NonNull Packet... packets) {
-    for (var packet : packets) {
-      this.sendPacketSync(packet);
-    }
-  }
 }

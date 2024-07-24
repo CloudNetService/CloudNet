@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.player.executor;
 
-import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import java.util.UUID;
 import lombok.NonNull;
@@ -38,7 +37,6 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@RPCValidation
 public interface PlayerExecutor {
 
   UUID GLOBAL_UNIQUE_ID = new UUID(0, 0);
@@ -51,7 +49,8 @@ public interface PlayerExecutor {
    *
    * @return the unique id of the player executor.
    */
-  @NonNull UUID uniqueId();
+  @NonNull
+  UUID uniqueId();
 
   /**
    * Connects the player associated with this player executor to the given service.

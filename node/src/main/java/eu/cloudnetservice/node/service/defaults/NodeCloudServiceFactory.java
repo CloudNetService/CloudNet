@@ -18,15 +18,13 @@ package eu.cloudnetservice.node.service.defaults;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.log.LogManager;
-import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
@@ -50,12 +48,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Provides(CloudServiceFactory.class)
 public class NodeCloudServiceFactory implements CloudServiceFactory {
 
-  private static final Logger LOGGER = LogManager.logger(NodeCloudServiceFactory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NodeCloudServiceFactory.class);
 
   private final EventManager eventManager;
   private final CloudServiceManager serviceManager;
@@ -79,7 +79,8 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     this.nodeServerProvider = nodeServerProvider;
     this.groupProvider = groupProvider;
 
-    rpcFactory.newHandler(CloudServiceFactory.class, this).registerTo(handlerRegistry);
+    var rpcHandler = rpcFactory.newRPCHandlerBuilder(CloudServiceFactory.class).targetInstance(this).build();
+    handlerRegistry.registerHandler(rpcHandler);
   }
 
   @PostConstruct
@@ -183,9 +184,8 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // check if the node is still connected
     var nodeChannel = associatedNode.channel();
     if (nodeChannel == null || !associatedNode.available()) {
-      LOGGER.fine(
-        "Unable to register service on node %s as the node is no longer connected",
-        null,
+      LOGGER.debug(
+        "Unable to register service on node {} as the node is no longer connected",
         associatedNode.info().uniqueId());
       return ServiceCreateResult.FAILED;
     }

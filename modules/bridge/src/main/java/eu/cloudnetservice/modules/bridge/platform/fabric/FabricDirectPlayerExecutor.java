@@ -17,14 +17,18 @@
 package eu.cloudnetservice.modules.bridge.platform.fabric;
 
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
+import eu.cloudnetservice.modules.bridge.platform.fabric.access.CustomPayloadAccessor;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
+import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.DiscardedPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
@@ -78,8 +82,9 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   @Override
   public void sendPluginMessage(@NonNull String key, byte[] data) {
-    var customPayload = new FabricCustomPacketPayload(new ResourceLocation(key), data);
-    this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(customPayload)));
+    var payload = new DiscardedPayload(ResourceLocation.parse(key));
+    ((CustomPayloadAccessor) (Object) payload).cloudnet_bridge$setData(Unpooled.wrappedBuffer(data));
+    this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(payload)));
   }
 
   @Override
@@ -92,7 +97,7 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   private @NonNull net.minecraft.network.chat.Component vanillaFromAdventure(@NonNull Component adventure) {
     var adventureAsJson = GsonComponentSerializer.gson().serializeToTree(adventure);
-    var vanilla = net.minecraft.network.chat.Component.Serializer.fromJson(adventureAsJson);
+    var vanilla = net.minecraft.network.chat.Component.Serializer.fromJson(adventureAsJson, RegistryAccess.EMPTY);
     return vanilla == null ? net.minecraft.network.chat.Component.empty() : vanilla;
   }
 }

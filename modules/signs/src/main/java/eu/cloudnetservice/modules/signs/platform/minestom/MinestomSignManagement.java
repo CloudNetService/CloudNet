@@ -20,10 +20,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.registry.injection.Service;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -34,10 +33,9 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
-import net.minestom.server.MinecraftServer;
+import net.minestom.server.ServerFlag;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceManager;
@@ -49,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
 @ProvidesFor(platform = "minestom", types = {PlatformSignManagement.class, SignManagement.class})
 public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple2<Point, Instance>, String> {
 
-  private final PlayerManager playerManager;
+  private final ServiceRegistry serviceRegistry;
   private final GlobalEventHandler eventHandler;
   private final InstanceManager instanceManager;
   private final SchedulerManager schedulerManager;
@@ -57,7 +55,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
   @Inject
   protected MinestomSignManagement(
     @NonNull EventManager eventManager,
-    @NonNull @Service PlayerManager playerManager,
+    @NonNull ServiceRegistry serviceRegistry,
     @NonNull GlobalEventHandler eventHandler,
     @NonNull InstanceManager instanceManager,
     @NonNull SchedulerManager schedulerManager,
@@ -67,7 +65,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
   ) {
     super(eventManager, MoreExecutors.directExecutor(), wrapperConfig, serviceProvider, executorService);
 
-    this.playerManager = playerManager;
+    this.serviceRegistry = serviceRegistry;
     this.eventHandler = eventHandler;
     this.instanceManager = instanceManager;
     this.schedulerManager = schedulerManager;
@@ -75,7 +73,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
 
   @Override
   protected int tps() {
-    return MinecraftServer.TICK_PER_SECOND;
+    return ServerFlag.SERVER_TICKS_PER_SECOND;
   }
 
   @Override
@@ -93,7 +91,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
               if (location != null) {
                 var vec = location.first().asVec();
                 for (var entity : location.second().getNearbyEntities(location.first(), distance)) {
-                  if (entity instanceof Player player && !(entity instanceof FakePlayer)
+                  if (entity instanceof Player player
                     && (conf.bypassPermission() == null || !player.hasPermission(conf.bypassPermission()))) {
                     entity.setVelocity(entity.getPosition().asVec()
                       .sub(vec)
@@ -127,6 +125,6 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
 
   @Override
   protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
-    return new MinestomPlatformSign(base, this.playerManager, this.eventHandler, this.instanceManager);
+    return new MinestomPlatformSign(base, this.serviceRegistry, this.eventHandler, this.instanceManager);
   }
 }
