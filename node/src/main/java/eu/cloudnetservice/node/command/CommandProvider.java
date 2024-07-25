@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.command;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.console.Console;
@@ -59,7 +59,7 @@ public interface CommandProvider {
    * Executes a command with the given command source and sends all responses to the given source.
    * <p>
    * Note: The command is executed asynchronously in a cached thread pool. If synchronous execution is necessary, then
-   * you should consider blocking for the command execution using {@link Task#getOrNull()}.
+   * you should consider blocking for the command execution using {@link TaskUtil#getOrNull()}.
    *
    * @param source the command source that is used to execute the command.
    * @param input  the commandline that is executed.

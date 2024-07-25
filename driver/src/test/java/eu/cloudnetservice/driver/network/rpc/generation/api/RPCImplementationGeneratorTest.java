@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc.generation.api;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.TestInjectionLayerConfigurator;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -48,7 +48,7 @@ public class RPCImplementationGeneratorTest {
         var rpcResponse = DataBuf.empty()
           .writeByte(RPCInvocationResult.STATUS_OK)
           .writeObject(true);
-        return Task.completedTask(new BasePacket(-1, rpcResponse));
+        return TaskUtil.finishedFuture(new BasePacket(-1, rpcResponse));
       })
       .when(mockedChannel)
       .sendQueryAsync(Mockito.any(Packet.class));
@@ -79,7 +79,7 @@ public class RPCImplementationGeneratorTest {
 
     var future = database.getAsync("hello");
     Assertions.assertTrue(future.isDone());
-    Assertions.assertSame(BaseDatabase.TEST_DOCUMENT, Task.getOrNull(future));
+    Assertions.assertSame(BaseDatabase.TEST_DOCUMENT, TaskUtil.getOrDefault(future, null));
   }
 
   @Test

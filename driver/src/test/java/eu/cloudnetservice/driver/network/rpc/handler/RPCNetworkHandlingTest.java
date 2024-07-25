@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc.handler;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -57,7 +57,7 @@ public class RPCNetworkHandlingTest {
         Assertions.assertEquals(NetworkConstants.INTERNAL_RPC_COM_CHANNEL, rpcRequest.channel());
         lastRPCRequest.set(rpcRequest);
         rpcNetworkHandler.handle(mockedChannel, rpcRequest);
-        return Task.supplyAsync(responseQueue::take);
+        return TaskUtil.supplyAsync(responseQueue::take);
       })
       .when(mockedChannel)
       .sendQueryAsync(Mockito.any(Packet.class));

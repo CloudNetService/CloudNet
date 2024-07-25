@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.provider;
 import com.google.common.collect.Iterables;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.common.concurrent.CountingTask;
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -34,6 +34,7 @@ import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -41,7 +42,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
@@ -77,7 +77,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return Task.get(this.sendChannelMessageQueryAsync(channelMessage), 20, TimeUnit.SECONDS, List.of());
+    return TaskUtil.getOrDefault(this.sendChannelMessageQueryAsync(channelMessage), Duration.ofSeconds(20), List.of());
   }
 
   public void sendChannelMessage(@NonNull ChannelMessage message, boolean allowClusterRedirect) {
@@ -111,7 +111,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     if (channels.isEmpty()) {
       // no target channels found, release the message now
       message.content().release();
-      return Task.completedTask(new HashSet<>());
+      return TaskUtil.finishedFuture(new HashSet<>());
     } else {
       // the result we generate
       Set<ChannelMessage> result = new HashSet<>();

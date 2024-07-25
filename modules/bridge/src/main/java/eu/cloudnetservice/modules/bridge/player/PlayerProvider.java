@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -75,7 +75,7 @@ public interface PlayerProvider {
    * @return a task containing all supplied cloud players.
    */
   default @NonNull CompletableFuture<Collection<CloudPlayer>> playersAsync() {
-    return Task.supplyAsync(this::players);
+    return TaskUtil.supplyAsync(this::players);
   }
 
   /**
@@ -84,7 +84,7 @@ public interface PlayerProvider {
    * @return a task containing all supplied unique ids.
    */
   default @NonNull CompletableFuture<Collection<UUID>> uniqueIdsAsync() {
-    return Task.supplyAsync(this::uniqueIds);
+    return TaskUtil.supplyAsync(this::uniqueIds);
   }
 
   /**
@@ -93,7 +93,7 @@ public interface PlayerProvider {
    * @return a task containing all supplied player names.
    */
   default @NonNull CompletableFuture<Collection<String>> namesAsync() {
-    return Task.supplyAsync(this::names);
+    return TaskUtil.supplyAsync(this::names);
   }
 
   /**
@@ -102,6 +102,6 @@ public interface PlayerProvider {
    * @return a task containing the amount of supplied players.
    */
   default @NonNull CompletableFuture<Integer> countAsync() {
-    return Task.supplyAsync(this::count);
+    return TaskUtil.supplyAsync(this::count);
   }
 }

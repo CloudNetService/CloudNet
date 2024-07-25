@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc.generation.api;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.document.Document;
 import java.util.concurrent.CompletableFuture;
@@ -33,6 +33,6 @@ public abstract class BaseDatabase implements Database {
 
   @Override
   public CompletableFuture<Document> getAsync(String key) {
-    return Task.completedTask(TEST_DOCUMENT);
+    return TaskUtil.finishedFuture(TEST_DOCUMENT);
   }
 }

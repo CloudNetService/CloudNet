@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.service.defaults.provider;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -39,7 +39,7 @@ public abstract class RemoteNodeCloudServiceProvider implements SpecificCloudSer
 
   @Override
   public @NonNull CompletableFuture<ServiceInfoSnapshot> serviceInfoAsync() {
-    return Task.completedTask(this.snapshot);
+    return TaskUtil.finishedFuture(this.snapshot);
   }
 
   public void snapshot(@NonNull ServiceInfoSnapshot snapshot) {

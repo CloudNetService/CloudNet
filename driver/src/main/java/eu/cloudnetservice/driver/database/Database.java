@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.database;
 
 import eu.cloudnetservice.common.Named;
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.document.Document;
 import java.util.Collection;
 import java.util.Map;
@@ -181,7 +181,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if either key or document is null.
    */
   default @NonNull CompletableFuture<Boolean> insertAsync(@NonNull String key, @NonNull Document document) {
-    return Task.supplyAsync(() -> this.insert(key, document));
+    return TaskUtil.supplyAsync(() -> this.insert(key, document));
   }
 
   /**
@@ -196,7 +196,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if key is null.
    */
   default @NonNull CompletableFuture<Boolean> containsAsync(@NonNull String key) {
-    return Task.supplyAsync(() -> this.contains(key));
+    return TaskUtil.supplyAsync(() -> this.contains(key));
   }
 
   /**
@@ -211,7 +211,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if key is null.
    */
   default @NonNull CompletableFuture<Boolean> deleteAsync(@NonNull String key) {
-    return Task.supplyAsync(() -> this.delete(key));
+    return TaskUtil.supplyAsync(() -> this.delete(key));
   }
 
   /**
@@ -227,7 +227,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if key is null.
    */
   default @NonNull CompletableFuture<Document> getAsync(@NonNull String key) {
-    return Task.supplyAsync(() -> this.get(key));
+    return TaskUtil.supplyAsync(() -> this.get(key));
   }
 
   /**
@@ -248,7 +248,7 @@ public interface Database extends Named, AutoCloseable {
     @NonNull String fieldName,
     @Nullable String fieldValue
   ) {
-    return Task.supplyAsync(() -> this.find(fieldName, fieldValue));
+    return TaskUtil.supplyAsync(() -> this.find(fieldName, fieldValue));
   }
 
   /**
@@ -265,7 +265,7 @@ public interface Database extends Named, AutoCloseable {
    * @throws NullPointerException if filters is null.
    */
   default @NonNull CompletableFuture<Collection<Document>> findAsync(@NonNull Map<String, String> filters) {
-    return Task.supplyAsync(() -> this.find(filters));
+    return TaskUtil.supplyAsync(() -> this.find(filters));
   }
 
   /**
@@ -278,7 +278,7 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with all keys which are currently stored in the database.
    */
   default @NonNull CompletableFuture<Collection<String>> keysAsync() {
-    return Task.supplyAsync(this::keys);
+    return TaskUtil.supplyAsync(this::keys);
   }
 
   /**
@@ -291,7 +291,7 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with all documents which are currently stored in the database.
    */
   default @NonNull CompletableFuture<Collection<Document>> documentsAsync() {
-    return Task.supplyAsync(this::documents);
+    return TaskUtil.supplyAsync(this::documents);
   }
 
   /**
@@ -304,7 +304,7 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with all key-value pairs currently stored in the database.
    */
   default @NonNull CompletableFuture<Map<String, Document>> entriesAsync() {
-    return Task.supplyAsync(this::entries);
+    return TaskUtil.supplyAsync(this::entries);
   }
 
   /**
@@ -317,7 +317,7 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed when the operation took place.
    */
   default @NonNull CompletableFuture<Void> clearAsync() {
-    return Task.runAsync(this::clear);
+    return TaskUtil.runAsync(this::clear);
   }
 
   /**
@@ -329,6 +329,6 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with the amount of documents currently stored in the database.
    */
   default @NonNull CompletableFuture<Long> documentCountAsync() {
-    return Task.supplyAsync(this::documentCount);
+    return TaskUtil.supplyAsync(this::documentCount);
   }
 }

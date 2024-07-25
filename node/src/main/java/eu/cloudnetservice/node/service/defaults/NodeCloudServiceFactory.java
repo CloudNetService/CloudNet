@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.service.defaults;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -40,6 +40,7 @@ import eu.cloudnetservice.node.network.listener.message.ServiceChannelMessageLis
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -224,7 +225,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .buffer(DataBuf.empty().writeObject(configuration))
       .build()
       .sendSingleQueryAsync();
-    var result = Task.get(future, 20, TimeUnit.SECONDS, null);
+    var result = TaskUtil.getOrDefault(future, Duration.ofSeconds(20), null);
 
     // read the result service info from the buffer, if the there was no response then we need to fail (only the head
     // node should queue start requests)

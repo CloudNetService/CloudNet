@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.cluster.sync;
 
 import com.google.common.primitives.Ints;
 import dev.derklaro.aerogel.auto.Provides;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.node.cluster.sync.prettyprint.GulfHelper;
@@ -222,7 +223,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   protected int readMergeInput(@NonNull Console console) {
     while (true) {
       // wait for an input
-      var input = console.readLine().getNow(null);
+      var input = TaskUtil.getOrDefault(console.readLine(), null);
       // check if an input was supplied
       if (input == null) {
         continue;

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.provider;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import java.util.concurrent.CompletableFuture;
@@ -97,6 +97,6 @@ public interface CloudServiceFactory {
   default @NonNull CompletableFuture<ServiceCreateResult> createCloudServiceAsync(
     @NonNull ServiceConfiguration configuration
   ) {
-    return Task.supplyAsync(() -> this.createCloudService(configuration));
+    return TaskUtil.supplyAsync(() -> this.createCloudService(configuration));
   }
 }

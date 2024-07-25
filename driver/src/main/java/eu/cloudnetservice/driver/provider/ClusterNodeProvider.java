@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.provider;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.command.CommandInfo;
@@ -167,7 +167,7 @@ public interface ClusterNodeProvider {
    * @return a task completed with all registered commands.
    */
   default @NonNull CompletableFuture<Collection<CommandInfo>> consoleCommandsAsync() {
-    return Task.supplyAsync(this::consoleCommands);
+    return TaskUtil.supplyAsync(this::consoleCommands);
   }
 
   /**
@@ -179,7 +179,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given command name is null.
    */
   default @NonNull CompletableFuture<CommandInfo> consoleCommandAsync(@NonNull String name) {
-    return Task.supplyAsync(() -> this.consoleCommand(name));
+    return TaskUtil.supplyAsync(() -> this.consoleCommand(name));
   }
 
   /**
@@ -194,7 +194,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given command line is null.
    */
   default @NonNull CompletableFuture<Collection<String>> consoleTabCompleteResultsAsync(@NonNull String commandLine) {
-    return Task.supplyAsync(() -> this.consoleTabCompleteResults(commandLine));
+    return TaskUtil.supplyAsync(() -> this.consoleTabCompleteResults(commandLine));
   }
 
   /**
@@ -207,7 +207,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given command line is null.
    */
   default @NonNull CompletableFuture<Collection<String>> sendCommandLineAsync(@NonNull String commandLine) {
-    return Task.supplyAsync(() -> this.sendCommandLine(commandLine));
+    return TaskUtil.supplyAsync(() -> this.sendCommandLine(commandLine));
   }
 
   /**
@@ -219,7 +219,7 @@ public interface ClusterNodeProvider {
    * @return a task completed with all nodes which are registered on the current node.
    */
   default @NonNull CompletableFuture<Collection<NetworkClusterNode>> nodesAsync() {
-    return Task.supplyAsync(this::nodes);
+    return TaskUtil.supplyAsync(this::nodes);
   }
 
   /**
@@ -231,7 +231,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given unique id is null.
    */
   default @NonNull CompletableFuture<NetworkClusterNode> nodeAsync(@NonNull String uniqueId) {
-    return Task.supplyAsync(() -> this.node(uniqueId));
+    return TaskUtil.supplyAsync(() -> this.node(uniqueId));
   }
 
   /**
@@ -247,7 +247,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given node to register is null.
    */
   default @NonNull CompletableFuture<Boolean> addNodeAsync(@NonNull NetworkClusterNode node) {
-    return Task.supplyAsync(() -> this.addNode(node));
+    return TaskUtil.supplyAsync(() -> this.addNode(node));
   }
 
   /**
@@ -263,7 +263,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given node unique id is null.
    */
   default @NonNull CompletableFuture<Boolean> removeNodeAsync(@NonNull String uniqueId) {
-    return Task.supplyAsync(() -> this.removeNode(uniqueId));
+    return TaskUtil.supplyAsync(() -> this.removeNode(uniqueId));
   }
 
   /**
@@ -276,7 +276,7 @@ public interface ClusterNodeProvider {
    * @return a task completed with the snapshot of all nodes which are currently connected to the current node.
    */
   default @NonNull CompletableFuture<Collection<NodeInfoSnapshot>> nodeInfoSnapshotsAsync() {
-    return Task.supplyAsync(this::nodeInfoSnapshots);
+    return TaskUtil.supplyAsync(this::nodeInfoSnapshots);
   }
 
   /**
@@ -289,6 +289,6 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given node unique id is null.
    */
   default @NonNull CompletableFuture<NodeInfoSnapshot> nodeInfoSnapshotAsync(@NonNull String uniqueId) {
-    return Task.supplyAsync(() -> this.nodeInfoSnapshot(uniqueId));
+    return TaskUtil.supplyAsync(() -> this.nodeInfoSnapshot(uniqueId));
   }
 }

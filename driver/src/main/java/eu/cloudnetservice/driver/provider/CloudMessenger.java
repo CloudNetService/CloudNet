@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.provider;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -92,7 +92,7 @@ public interface CloudMessenger {
    * @throws NullPointerException if the given channel message is null.
    */
   default @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
-    return Task.runAsync(() -> this.sendChannelMessage(channelMessage));
+    return TaskUtil.runAsync(() -> this.sendChannelMessage(channelMessage));
   }
 
   /**
@@ -106,7 +106,7 @@ public interface CloudMessenger {
   default @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message
   ) {
-    return Task.supplyAsync(() -> this.sendChannelMessageQuery(message));
+    return TaskUtil.supplyAsync(() -> this.sendChannelMessageQuery(message));
   }
 
   /**
@@ -121,6 +121,6 @@ public interface CloudMessenger {
   default @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
     @NonNull ChannelMessage channelMessage
   ) {
-    return Task.supplyAsync(() -> this.sendSingleChannelMessageQuery(channelMessage));
+    return TaskUtil.supplyAsync(() -> this.sendSingleChannelMessageQuery(channelMessage));
   }
 }

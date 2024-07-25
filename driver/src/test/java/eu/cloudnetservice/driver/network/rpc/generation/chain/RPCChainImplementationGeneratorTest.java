@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc.generation.chain;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
@@ -42,7 +42,7 @@ public class RPCChainImplementationGeneratorTest {
         var rpcResponse = DataBuf.empty()
           .writeByte(RPCInvocationResult.STATUS_OK)
           .writeObject("hello world!");
-        return Task.completedTask(new BasePacket(-1, rpcResponse));
+        return TaskUtil.finishedFuture(new BasePacket(-1, rpcResponse));
       })
       .when(mockedChannel)
       .sendQueryAsync(Mockito.any(Packet.class));

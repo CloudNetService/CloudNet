@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.cluster.defaults;
 
 import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
@@ -215,7 +215,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var sender = new DriverCommandSource();
-    Task.getOrNull(this.commandProvider.execute(sender, commandLine));
+    TaskUtil.getOrDefault(this.commandProvider.execute(sender, commandLine), null);
     return sender.messages();
   }
 

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.template;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
@@ -84,6 +84,6 @@ public interface TemplateStorageProvider {
    * @return a task completed with the names of all template storages which are currently registered.
    */
   default @NonNull CompletableFuture<Collection<String>> availableTemplateStoragesAsync() {
-    return Task.supplyAsync(this::availableTemplateStorages);
+    return TaskUtil.supplyAsync(this::availableTemplateStorages);
   }
 }

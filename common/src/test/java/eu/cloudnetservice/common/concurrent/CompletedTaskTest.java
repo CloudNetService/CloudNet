@@ -29,7 +29,7 @@ public class CompletedTaskTest {
     CompletableFuture<Integer> task = CompletableFuture.completedFuture(12345);
 
     Assertions.assertTrue(task.isDone());
-    Assertions.assertEquals(12345, Task.getOrNull(task));
+    Assertions.assertEquals(12345, TaskUtil.getOrDefault(task, null));
     Assertions.assertDoesNotThrow((ThrowingSupplier<Integer>) task::get);
 
     var then = task.thenApply(i -> i == 12345 ? "Hello World" : "No world");
