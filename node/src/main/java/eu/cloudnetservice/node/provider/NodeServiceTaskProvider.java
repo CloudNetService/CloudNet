@@ -31,6 +31,7 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
@@ -40,14 +41,17 @@ import eu.cloudnetservice.node.network.listener.message.TaskChannelMessageListen
 import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.setup.DefaultTaskSetup;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
+import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
@@ -61,6 +65,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   private static final Path TASKS_DIRECTORY = Path.of(
     System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
+  private static final Type LIST_DOCUMENT_TYPE = TypeFactory.parameterizedClass(List.class, Document.class);
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeServiceTaskProvider.class);
 
@@ -203,6 +208,18 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         processConfiguration.append("environmentVariables", new HashMap<>());
         document.append("processConfiguration", processConfiguration);
       }
+
+      // inclusions now feature a mandatory cache strategy field.
+      // Convert old inclusions that do not have a non-null value already set.
+      List<Document> remoteInclusions = document.readObject("includes", LIST_DOCUMENT_TYPE);
+      var migratedInclusions = remoteInclusions.stream().map(remoteInclusion -> {
+        if (remoteInclusion.containsNonNull("cacheStrategy")) {
+          return remoteInclusion;
+        }
+
+        return remoteInclusion.mutableCopy().append("cacheStrategy", ServiceRemoteInclusion.NO_CACHE_STRATEGY);
+      }).toList();
+      document.append("includes", migratedInclusions);
 
       // load the service task
       var task = document.toInstanceOf(ServiceTask.class);

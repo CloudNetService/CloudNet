@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.service.defaults;
 
 import com.google.common.base.Preconditions;
+import com.google.common.hash.Hashing;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
@@ -63,7 +64,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -367,10 +367,10 @@ public abstract class AbstractService implements CloudService {
         FileUtil.ensureChild(this.serviceDirectory, target);
 
         try {
-          if (inclusion.cacheFiles()) {
+          if (inclusion.cacheStrategy().equals(ServiceRemoteInclusion.KEEP_UNTIL_RESTART_STRATEGY)) {
             // get a target path based on the download url
-            var encodedUrl = Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8));
-            var destination = INCLUSION_TEMP_DIR.resolve(encodedUrl.replace('/', '_'));
+            var encodedUrl = Hashing.murmur3_128().hashString(inclusion.url(), StandardCharsets.UTF_8).toString();
+            var destination = INCLUSION_TEMP_DIR.resolve(encodedUrl);
             // download the file to the temp path if it does not exist
             if (Files.notExists(destination)) {
               this.downloadInclusionFile(inclusion, destination);
