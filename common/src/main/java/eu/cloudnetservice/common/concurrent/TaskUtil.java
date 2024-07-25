@@ -23,6 +23,8 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -40,6 +42,8 @@ import org.jetbrains.annotations.UnknownNullability;
 @ApiStatus.Internal
 public final class TaskUtil {
 
+  private static final ExecutorService VIRTUAL_THREAD_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+
   private TaskUtil() {
     throw new UnsupportedOperationException();
   }
@@ -53,6 +57,20 @@ public final class TaskUtil {
    */
   public static @NonNull CompletableFuture<Void> runAsync(@NonNull CheckedRunnable runnable) {
     return supplyAsync(() -> {
+      runnable.run();
+      return null;
+    });
+  }
+
+  /**
+   * Runs the given runnable in a virtual thread pool and wraps it into a completable future.
+   *
+   * @param runnable the runnable to run.
+   * @return a new completable future containing the given runnable.
+   * @throws NullPointerException if the given runnable is null.
+   */
+  public static @NonNull CompletableFuture<Void> runVirtualAsync(@NonNull CheckedRunnable runnable) {
+    return supplyVirtualAsync(() -> {
       runnable.run();
       return null;
     });
@@ -75,6 +93,25 @@ public final class TaskUtil {
         throw new CompletionException(throwable);
       }
     });
+  }
+
+  /**
+   * Supplies the given supplier into a virtual thread pool. A new future is created and completed with the return value
+   * of the supplier. Thrown exceptions are caught and passed into the created future.
+   *
+   * @param supplier the supplier to execute in the thread pool.
+   * @param <V>      the generic type of the supplier and the future.
+   * @return the new future completing the value of the supplier.
+   * @throws NullPointerException if the given supplier is null.
+   */
+  public static <V> @NonNull CompletableFuture<V> supplyVirtualAsync(@NonNull CheckedFunction0<V> supplier) {
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        return supplier.apply();
+      } catch (Throwable throwable) {
+        throw new CompletionException(throwable);
+      }
+    }, VIRTUAL_THREAD_EXECUTOR);
   }
 
   /**

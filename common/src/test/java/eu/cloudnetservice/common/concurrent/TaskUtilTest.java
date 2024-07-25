@@ -78,7 +78,7 @@ public class TaskUtilTest {
 
   @Test
   @Timeout(10)
-  void testTimeout() {
+  void testFutureTimeout() {
     var future = TaskUtil.supplyAsync(() -> {
       Thread.sleep(2000);
       return "success";
