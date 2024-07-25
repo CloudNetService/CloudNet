@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.template.defaults;
 
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.io.ListenableOutputStream;
 import eu.cloudnetservice.common.io.ZipUtil;
@@ -97,7 +98,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
    */
   @Override
   public boolean deploy(@NonNull ServiceTemplate target, @NonNull InputStream inputStream) {
-    return this.deployAsync(target, inputStream).join();
+    return TaskUtil.getOrDefault(this.deployAsync(target, inputStream), false);
   }
 
   /**
@@ -123,7 +124,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
    */
   @Override
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) {
-    return this.zipTemplateAsync(template).join();
+    return TaskUtil.getOrDefault(this.zipTemplateAsync(template), null);
   }
 
   @Override
@@ -199,7 +200,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate template,
     @NonNull String path
   ) throws IOException {
-    return this.newInputStreamAsync(template, path).join();
+    return TaskUtil.getOrDefault(this.newInputStreamAsync(template, path), null);
   }
 
   @Override
