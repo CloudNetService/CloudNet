@@ -165,14 +165,11 @@ public final class TaskUtil {
     @Nullable V defaultValue
   ) {
     try {
-      if (timeout.isZero() || timeout.isNegative()) {
-        return future.get();
-      }
-
-      return future.get(timeout.toNanos(), TimeUnit.NANOSECONDS);
-    } catch (CancellationException | ExecutionException | TimeoutException exception) {
+      var useInfiniteTimeout = timeout.isZero() || timeout.isNegative();
+      return useInfiniteTimeout ? future.get() : future.get(timeout.toNanos(), TimeUnit.NANOSECONDS);
+    } catch (CancellationException | ExecutionException | TimeoutException _) {
       return defaultValue;
-    } catch (InterruptedException exception) {
+    } catch (InterruptedException _) {
       Thread.currentThread().interrupt();
       return defaultValue;
     }
