@@ -24,7 +24,10 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import jakarta.inject.Inject;
 import lombok.NonNull;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.util.Ticks;
 import org.spongepowered.plugin.PluginContainer;
 
 @Singleton
@@ -65,7 +68,12 @@ public final class SpongeBridgePlugin implements PlatformEntrypoint {
   @Override
   public void onLoad() {
     this.bridgeManagement.registerServices(this.serviceRegistry);
-    this.bridgeManagement.postInit();
+    Sponge.server().scheduler().submit(
+      Task.builder()
+        .delay(Ticks.of(1))
+        .plugin(this.plugin)
+        .execute(this.bridgeManagement::postInit)
+        .build());
     // register the listener
     this.eventManager.registerListeners(this.plugin, this.playerListener);
   }

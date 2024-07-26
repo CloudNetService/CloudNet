@@ -64,7 +64,8 @@ public final class LimboLoohpBridgePlugin implements PlatformEntrypoint {
   public void onLoad() {
     // init the bridge management
     this.bridgeManagement.registerServices(this.serviceRegistry);
-    this.bridgeManagement.postInit();
+
+    this.plugin.getServer().getScheduler().runTask(this.plugin, this.bridgeManagement::postInit);
     // register the bukkit listener
     this.eventsManager.registerEvents(this.plugin, this.playerListener);
   }
