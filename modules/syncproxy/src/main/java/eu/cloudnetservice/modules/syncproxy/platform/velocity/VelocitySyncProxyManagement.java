@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 
+import com.velocitypowered.api.network.ProtocolState;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -87,6 +88,11 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
 
   @Override
   public void playerTabList(@NonNull Player player, @Nullable String header, @Nullable String footer) {
+    if (player.getProtocolState() != ProtocolState.PLAY) {
+      // prevent tab list updates if player is in an invalid state. Issue #1467
+      return;
+    }
+
     if (header == null || footer == null) {
       player.getTabList().clearHeaderAndFooter();
     } else {
