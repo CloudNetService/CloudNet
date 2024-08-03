@@ -27,7 +27,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Setup gradle cache
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: true
 
