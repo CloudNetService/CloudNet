@@ -16,11 +16,12 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -59,7 +60,8 @@ public interface PlayerManager {
    * @return the online cloud player or null if the player is not online.
    * @throws NullPointerException if the given unique id is null.
    */
-  @Nullable CloudPlayer onlinePlayer(@NonNull UUID uniqueId);
+  @Nullable
+  CloudPlayer onlinePlayer(@NonNull UUID uniqueId);
 
   /**
    * Gets the first cloud player that is online and has the given case-insensitive name.
@@ -70,7 +72,8 @@ public interface PlayerManager {
    * @return the first cloud player with the given name, null if no player was found.
    * @throws NullPointerException if the given name is null.
    */
-  @Nullable CloudPlayer firstOnlinePlayer(@NonNull String name);
+  @Nullable
+  CloudPlayer firstOnlinePlayer(@NonNull String name);
 
   /**
    * Gets all online cloud players that have the given case-insensitive name.
@@ -156,7 +159,8 @@ public interface PlayerManager {
    * @return the offline player with the given unique id or null if there is no player.
    * @throws NullPointerException if the given unique id is null.
    */
-  @Nullable CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId);
+  @Nullable
+  CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId);
 
   /**
    * Gets the first registered offline player that has the given name. The player must have been previously connected.
@@ -168,7 +172,8 @@ public interface PlayerManager {
    * @return the first offline player with the given name or null if there is no player with the name.
    * @throws NullPointerException if the given name is null.
    */
-  @Nullable CloudOfflinePlayer firstOfflinePlayer(@NonNull String name);
+  @Nullable
+  CloudOfflinePlayer firstOfflinePlayer(@NonNull String name);
 
   /**
    * Gets all registered cloud players that have the given case-sensitive name. The player must have been previously
@@ -223,8 +228,8 @@ public interface PlayerManager {
    *
    * @return a task containing the online player count.
    */
-  default @NonNull Task<Integer> onlineCountAsync() {
-    return Task.supply(this::onlineCount);
+  default @NonNull CompletableFuture<Integer> onlineCountAsync() {
+    return TaskUtil.supplyAsync(this::onlineCount);
   }
 
   /**
@@ -232,8 +237,8 @@ public interface PlayerManager {
    *
    * @return a task containing the registered player count.
    */
-  default @NonNull Task<Long> registeredCountAsync() {
-    return Task.supply(this::registeredCount);
+  default @NonNull CompletableFuture<Long> registeredCountAsync() {
+    return TaskUtil.supplyAsync(this::registeredCount);
   }
 
   /**
@@ -245,8 +250,8 @@ public interface PlayerManager {
    * @return a task containing the online cloud player or an empty task if the player is not online.
    * @throws NullPointerException if the given unique id is null.
    */
-  default @NonNull Task<CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId) {
-    return Task.supply(() -> this.onlinePlayer(uniqueId));
+  default @NonNull CompletableFuture<CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId) {
+    return TaskUtil.supplyAsync(() -> this.onlinePlayer(uniqueId));
   }
 
   /**
@@ -258,8 +263,8 @@ public interface PlayerManager {
    * @return a task containing the first cloud player with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  default @NonNull Task<CloudPlayer> firstOnlinePlayerAsync(@NonNull String name) {
-    return Task.supply(() -> this.firstOnlinePlayer(name));
+  default @NonNull CompletableFuture<CloudPlayer> firstOnlinePlayerAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.firstOnlinePlayer(name));
   }
 
   /**
@@ -271,8 +276,8 @@ public interface PlayerManager {
    * @return a task containing a list of all online players with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  default @NonNull Task<List<CloudPlayer>> onlinePlayerAsync(@NonNull String name) {
-    return Task.supply(() -> this.onlinePlayers(name));
+  default @NonNull CompletableFuture<List<CloudPlayer>> onlinePlayerAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.onlinePlayers(name));
   }
 
   /**
@@ -284,8 +289,8 @@ public interface PlayerManager {
    * @return a task containing a list of all cloud players connected to a service of the given service environment.
    * @throws NullPointerException if the given environment is null.
    */
-  default @NonNull Task<List<CloudPlayer>> onlinePlayerAsync(@NonNull ServiceEnvironmentType env) {
-    return Task.supply(() -> this.environmentOnlinePlayers(env));
+  default @NonNull CompletableFuture<List<CloudPlayer>> onlinePlayerAsync(@NonNull ServiceEnvironmentType env) {
+    return TaskUtil.supplyAsync(() -> this.environmentOnlinePlayers(env));
   }
 
   /**
@@ -299,8 +304,8 @@ public interface PlayerManager {
    * @return a task containing the offline player with the given unique id.
    * @throws NullPointerException if the given unique id is null.
    */
-  default @NonNull Task<CloudOfflinePlayer> offlinePlayerAsync(@NonNull UUID uniqueId) {
-    return Task.supply(() -> this.offlinePlayer(uniqueId));
+  default @NonNull CompletableFuture<CloudOfflinePlayer> offlinePlayerAsync(@NonNull UUID uniqueId) {
+    return TaskUtil.supplyAsync(() -> this.offlinePlayer(uniqueId));
   }
 
   /**
@@ -313,8 +318,8 @@ public interface PlayerManager {
    * @return a task containing the first offline player with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  default @NonNull Task<CloudOfflinePlayer> firstOfflinePlayerAsync(@NonNull String name) {
-    return Task.supply(() -> this.firstOnlinePlayer(name));
+  default @NonNull CompletableFuture<CloudOfflinePlayer> firstOfflinePlayerAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.firstOnlinePlayer(name));
   }
 
   /**
@@ -325,8 +330,8 @@ public interface PlayerManager {
    * @return a task containing a list of all registered players with the given name.
    * @throws NullPointerException if the given name is null.
    */
-  default @NonNull Task<List<CloudOfflinePlayer>> offlinePlayerAsync(@NonNull String name) {
-    return Task.supply(() -> this.offlinePlayers(name));
+  default @NonNull CompletableFuture<List<CloudOfflinePlayer>> offlinePlayerAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.offlinePlayers(name));
   }
 
   /**
@@ -337,8 +342,8 @@ public interface PlayerManager {
    * @return a task completing after the player was updated.
    * @throws NullPointerException if the given offline player is null.
    */
-  default @NonNull Task<Void> updateOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
-    return Task.supply(() -> this.updateOfflinePlayer(cloudOfflinePlayer));
+  default @NonNull CompletableFuture<Void> updateOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
+    return TaskUtil.runAsync(() -> this.updateOfflinePlayer(cloudOfflinePlayer));
   }
 
   /**
@@ -348,8 +353,8 @@ public interface PlayerManager {
    * @return a task completing after the player was updated.
    * @throws NullPointerException if the given player is null.
    */
-  default @NonNull Task<Void> updateOnlinePlayerAsync(@NonNull CloudPlayer cloudPlayer) {
-    return Task.supply(() -> this.updateOnlinePlayer(cloudPlayer));
+  default @NonNull CompletableFuture<Void> updateOnlinePlayerAsync(@NonNull CloudPlayer cloudPlayer) {
+    return TaskUtil.runAsync(() -> this.updateOnlinePlayer(cloudPlayer));
   }
 
   /**
@@ -360,7 +365,9 @@ public interface PlayerManager {
    * @return a task completing after the player was deleted.
    * @throws NullPointerException if the given offline player is null.
    */
-  default @NonNull Task<Void> deleteCloudOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
-    return Task.supply(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
+  default @NonNull CompletableFuture<Void> deleteCloudOfflinePlayerAsync(
+    @NonNull CloudOfflinePlayer cloudOfflinePlayer
+  ) {
+    return TaskUtil.runAsync(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
   }
 }

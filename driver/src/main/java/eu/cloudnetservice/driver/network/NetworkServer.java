@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 
 /**
@@ -35,7 +35,7 @@ public interface NetworkServer extends NetworkComponent, AutoCloseable {
    * @throws IllegalArgumentException if the given port exceeds the port range.
    */
   @NonNull
-  Task<Void> addListener(int port);
+  CompletableFuture<Void> addListener(int port);
 
   /**
    * Binds this network server to the given host and port if no listener is already listening on the given address.
@@ -45,5 +45,5 @@ public interface NetworkServer extends NetworkComponent, AutoCloseable {
    * @throws NullPointerException if the given host and port is null.
    */
   @NonNull
-  Task<Void> addListener(@NonNull HostAndPort hostAndPort);
+  CompletableFuture<Void> addListener(@NonNull HostAndPort hostAndPort);
 }

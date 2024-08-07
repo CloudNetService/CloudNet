@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.driver.network;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultQueryPacketManager;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 
@@ -74,7 +74,7 @@ public abstract class DefaultNetworkChannel implements NetworkChannel {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Task<Packet> sendQueryAsync(@NonNull Packet packet) {
+  public @NonNull CompletableFuture<Packet> sendQueryAsync(@NonNull Packet packet) {
     return this.queryPacketManager.sendQueryPacket(packet);
   }
 

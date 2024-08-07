@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.node.console;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
 import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
 import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +48,8 @@ public interface Console extends AutoCloseable {
 
   void commandInputValue(@NonNull String commandInputValue);
 
-  @NonNull Task<String> readLine();
+  @NonNull
+  CompletableFuture<String> readLine();
 
   void enableAllHandlers();
 

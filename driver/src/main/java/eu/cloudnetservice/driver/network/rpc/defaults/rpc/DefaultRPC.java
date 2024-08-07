@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.rpc;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPC;
@@ -215,7 +215,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull <T> Task<T> fire() {
+  public @NonNull <T> CompletableFuture<T> fire() {
     var targetNetworkChannel = this.channelSupplier.get();
     Objects.requireNonNull(targetNetworkChannel, "unable to get target network channel");
     return this.fire(targetNetworkChannel);
@@ -235,13 +235,13 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
   @Override
   public <T> @Nullable T fireSync(@NonNull NetworkChannel component) {
     try {
-      Task<T> queryTask = this.fire(component);
+      CompletableFuture<T> queryTask = this.fire(component);
       var invocationResult = queryTask.get();
       if (this.targetMethod.asyncReturnType()) {
         // for async methods the fire method does not return the result wrapped in a Future, it returns the raw
         // result. therefore for sync invocation we need re-wrap the result into a future as it is the expected type
         //noinspection unchecked
-        return (T) Task.completedTask(invocationResult);
+        return (T) TaskUtil.finishedFuture(invocationResult);
       } else {
         return invocationResult;
       }
@@ -263,7 +263,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull <T> Task<T> fire(@NonNull NetworkChannel component) {
+  public @NonNull <T> CompletableFuture<T> fire(@NonNull NetworkChannel component) {
     // write the information about the RPC into a buffer
     var dataBuf = this.dataBufFactory.createEmpty()
       .writeInt(1) // single RPC
@@ -277,7 +277,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
     if (this.dropResult) {
       // no result expected: send the RPC request (not a query) and just return a completed future
       component.sendPacket(new RPCRequestPacket(dataBuf));
-      return Task.completedTask(null);
+      return TaskUtil.finishedFuture(null);
     } else {
       // result is expected: send a query to the target network component and return the future so that
       // the caller can decide how to wait for the result
@@ -290,7 +290,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
         queryFuture = queryFuture.orTimeout(timeoutMillis, TimeUnit.MILLISECONDS);
       }
 
-      return Task.wrapFuture(queryFuture);
+      return queryFuture;
     }
   }
 }

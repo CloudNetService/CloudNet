@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.cluster.defaults;
 
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
@@ -47,6 +46,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -178,7 +178,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
   }
 
   @Override
-  public @NonNull Task<TransferStatus> deployTemplateToCluster(
+  public @NonNull CompletableFuture<TransferStatus> deployTemplateToCluster(
     @NonNull ServiceTemplate template,
     @NonNull InputStream stream,
     boolean overwrite
@@ -197,11 +197,11 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
         .transferChunkedData();
     }
     // if there are no channels we "pseudo" completed the transfer
-    return Task.completedTask(TransferStatus.SUCCESS);
+    return CompletableFuture.completedFuture(TransferStatus.SUCCESS);
   }
 
   @Override
-  public @NonNull Task<TransferStatus> deployStaticServiceToCluster(
+  public @NonNull CompletableFuture<TransferStatus> deployStaticServiceToCluster(
     @NonNull String name,
     @NonNull InputStream stream,
     boolean overwrite
@@ -219,7 +219,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
         .transferChunkedData();
     }
     // if there are no channels we "pseudo" completed the transfer
-    return Task.completedTask(TransferStatus.SUCCESS);
+    return CompletableFuture.completedFuture(TransferStatus.SUCCESS);
   }
 
   @Override

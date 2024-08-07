@@ -26,10 +26,10 @@ public class CompletedTaskTest {
 
   @Test
   void testFutureCompletedNormally() {
-    Task<Integer> task = Task.completedTask(12345);
+    CompletableFuture<Integer> task = CompletableFuture.completedFuture(12345);
 
     Assertions.assertTrue(task.isDone());
-    Assertions.assertEquals(12345, task.getDef(null));
+    Assertions.assertEquals(12345, TaskUtil.getOrDefault(task, null));
     Assertions.assertDoesNotThrow((ThrowingSupplier<Integer>) task::get);
 
     var then = task.thenApply(i -> i == 12345 ? "Hello World" : "No world");
@@ -41,7 +41,7 @@ public class CompletedTaskTest {
       throw new RuntimeException(s.equals("Hello World") ? "Google" : "Bing");
     });
     Assertions.assertTrue(thenThen.isDone());
-    Assertions.assertNull(thenThen.exceptionally($ -> null).join());
+    Assertions.assertNull(thenThen.exceptionally(_ -> null).join());
 
     this.validateExceptionalResult(thenThen, RuntimeException.class, "Google");
   }

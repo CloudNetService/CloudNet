@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.generation;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.ChainableRPC;
 import eu.cloudnetservice.driver.network.rpc.RPC;
@@ -29,6 +28,7 @@ import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.TypeDescriptor;
 import java.lang.reflect.AccessFlag;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
@@ -49,7 +49,6 @@ final class RPCGenerationConstants {
 
   // ==== Class Descriptors ====
   static final ClassDesc CD_RPC = ClassDesc.of(RPC.class.getName());
-  static final ClassDesc CD_TASK = ClassDesc.of(Task.class.getName());
   static final ClassDesc CD_SUPPLIER = ClassDesc.of(Supplier.class.getName());
   static final ClassDesc CD_RPC_CHAIN = ClassDesc.of(RPCChain.class.getName());
   static final ClassDesc CD_RPC_SENDER = ClassDesc.of(RPCSender.class.getName());
@@ -57,6 +56,7 @@ final class RPCGenerationConstants {
   static final ClassDesc CD_CHAINABLE_RPC = ClassDesc.of(ChainableRPC.class.getName());
   static final ClassDesc CD_RPC_EXECUTABLE = ClassDesc.of(RPCExecutable.class.getName());
   static final ClassDesc CD_NETWORK_CHANNEL = ClassDesc.of(NetworkChannel.class.getName());
+  static final ClassDesc CD_COMPLETABLE_FUTURE = ClassDesc.of(CompletableFuture.class.getName());
   static final ClassDesc CD_INT_INSTANCE_FACTORY = ClassDesc.of(RPCInternalInstanceFactory.class.getName());
   static final ClassDesc CD_INT_FACTORY_SPECIAL_ARG = CD_INT_INSTANCE_FACTORY.nested("SpecialArg");
 

@@ -17,10 +17,11 @@
 package eu.cloudnetservice.driver.database;
 
 import eu.cloudnetservice.common.Named;
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.document.Document;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,7 +91,8 @@ public interface Database extends Named, AutoCloseable {
    * @return the document associated with the key or null if there is no document associated with the key.
    * @throws NullPointerException if key is null.
    */
-  @Nullable Document get(@NonNull String key);
+  @Nullable
+  Document get(@NonNull String key);
 
   /**
    * Searches for all entries in the database which value contains the given field and the field value matches the given
@@ -178,8 +180,8 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with the write operation status.
    * @throws NullPointerException if either key or document is null.
    */
-  default @NonNull Task<Boolean> insertAsync(@NonNull String key, @NonNull Document document) {
-    return Task.supply(() -> this.insert(key, document));
+  default @NonNull CompletableFuture<Boolean> insertAsync(@NonNull String key, @NonNull Document document) {
+    return TaskUtil.supplyAsync(() -> this.insert(key, document));
   }
 
   /**
@@ -193,8 +195,8 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with the lookup status when completed.
    * @throws NullPointerException if key is null.
    */
-  default @NonNull Task<Boolean> containsAsync(@NonNull String key) {
-    return Task.supply(() -> this.contains(key));
+  default @NonNull CompletableFuture<Boolean> containsAsync(@NonNull String key) {
+    return TaskUtil.supplyAsync(() -> this.contains(key));
   }
 
   /**
@@ -208,8 +210,8 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with the removal status of the given key.
    * @throws NullPointerException if key is null.
    */
-  default @NonNull Task<Boolean> deleteAsync(@NonNull String key) {
-    return Task.supply(() -> this.delete(key));
+  default @NonNull CompletableFuture<Boolean> deleteAsync(@NonNull String key) {
+    return TaskUtil.supplyAsync(() -> this.delete(key));
   }
 
   /**
@@ -224,8 +226,8 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with the document associated with the given key.
    * @throws NullPointerException if key is null.
    */
-  default @NonNull Task<Document> getAsync(@NonNull String key) {
-    return Task.supply(() -> this.get(key));
+  default @NonNull CompletableFuture<Document> getAsync(@NonNull String key) {
+    return TaskUtil.supplyAsync(() -> this.get(key));
   }
 
   /**
@@ -242,8 +244,11 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with all documents matching the given field key/value.
    * @throws NullPointerException if fieldName is null.
    */
-  default @NonNull Task<Collection<Document>> findAsync(@NonNull String fieldName, @Nullable String fieldValue) {
-    return Task.supply(() -> this.find(fieldName, fieldValue));
+  default @NonNull CompletableFuture<Collection<Document>> findAsync(
+    @NonNull String fieldName,
+    @Nullable String fieldValue
+  ) {
+    return TaskUtil.supplyAsync(() -> this.find(fieldName, fieldValue));
   }
 
   /**
@@ -259,8 +264,8 @@ public interface Database extends Named, AutoCloseable {
    * @return a future completed with all documents matching the given filters.
    * @throws NullPointerException if filters is null.
    */
-  default @NonNull Task<Collection<Document>> findAsync(@NonNull Map<String, String> filters) {
-    return Task.supply(() -> this.find(filters));
+  default @NonNull CompletableFuture<Collection<Document>> findAsync(@NonNull Map<String, String> filters) {
+    return TaskUtil.supplyAsync(() -> this.find(filters));
   }
 
   /**
@@ -272,8 +277,8 @@ public interface Database extends Named, AutoCloseable {
    *
    * @return a future completed with all keys which are currently stored in the database.
    */
-  default @NonNull Task<Collection<String>> keysAsync() {
-    return Task.supply(this::keys);
+  default @NonNull CompletableFuture<Collection<String>> keysAsync() {
+    return TaskUtil.supplyAsync(this::keys);
   }
 
   /**
@@ -285,8 +290,8 @@ public interface Database extends Named, AutoCloseable {
    *
    * @return a future completed with all documents which are currently stored in the database.
    */
-  default @NonNull Task<Collection<Document>> documentsAsync() {
-    return Task.supply(this::documents);
+  default @NonNull CompletableFuture<Collection<Document>> documentsAsync() {
+    return TaskUtil.supplyAsync(this::documents);
   }
 
   /**
@@ -298,8 +303,8 @@ public interface Database extends Named, AutoCloseable {
    *
    * @return a future completed with all key-value pairs currently stored in the database.
    */
-  default @NonNull Task<Map<String, Document>> entriesAsync() {
-    return Task.supply(this::entries);
+  default @NonNull CompletableFuture<Map<String, Document>> entriesAsync() {
+    return TaskUtil.supplyAsync(this::entries);
   }
 
   /**
@@ -311,8 +316,8 @@ public interface Database extends Named, AutoCloseable {
    *
    * @return a future completed when the operation took place.
    */
-  default @NonNull Task<Void> clearAsync() {
-    return Task.supply(this::clear);
+  default @NonNull CompletableFuture<Void> clearAsync() {
+    return TaskUtil.runAsync(this::clear);
   }
 
   /**
@@ -323,7 +328,7 @@ public interface Database extends Named, AutoCloseable {
    *
    * @return a future completed with the amount of documents currently stored in the database.
    */
-  default @NonNull Task<Long> documentCountAsync() {
-    return Task.supply(this::documentCount);
+  default @NonNull CompletableFuture<Long> documentCountAsync() {
+    return TaskUtil.supplyAsync(this::documentCount);
   }
 }

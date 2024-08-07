@@ -32,9 +32,9 @@ import lombok.NonNull;
  */
 final class BasicRPCMethodGenerator implements RPCMethodGenerator {
 
-  // method descriptor for "fire(NetworkChannel): Task"
+  // method descriptor for "fire(NetworkChannel): CompletableFuture"
   private static final MethodTypeDesc MTD_FIRE = MethodTypeDesc.of(
-    RPCGenerationConstants.CD_TASK,
+    RPCGenerationConstants.CD_COMPLETABLE_FUTURE,
     RPCGenerationConstants.CD_NETWORK_CHANNEL);
   // method descriptor for "fireSync(NetworkChannel): Object"
   private static final MethodTypeDesc MTD_FIRE_SYNC = MethodTypeDesc.of(

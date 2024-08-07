@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.driver.network.protocol;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,7 +63,7 @@ public interface QueryPacketManager {
    * @throws NullPointerException if the given unique id is null.
    */
   @Nullable
-  Task<Packet> waitingHandler(@NonNull UUID queryUniqueId);
+  CompletableFuture<Packet> waitingHandler(@NonNull UUID queryUniqueId);
 
   /**
    * Sends a query packet to the associated network channel, automatically selecting a query id for the packet and
@@ -75,5 +75,5 @@ public interface QueryPacketManager {
    * @throws NullPointerException if the given packet is null.
    */
   @NonNull
-  Task<Packet> sendQueryPacket(@NonNull Packet packet);
+  CompletableFuture<Packet> sendQueryPacket(@NonNull Packet packet);
 }
