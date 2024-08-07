@@ -17,6 +17,7 @@
 package eu.cloudnetservice.common.concurrent;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.NonNull;
 
@@ -28,7 +29,7 @@ import lombok.NonNull;
  * @param <V> the generic type of the task.
  * @since 4.0
  */
-public class ListenableTask<V> extends Task<V> {
+public class ListenableTask<V> extends CompletableFuture<V> {
 
   protected static final int STATE_NEW = 0;
   protected static final int STATE_RUN = 1;

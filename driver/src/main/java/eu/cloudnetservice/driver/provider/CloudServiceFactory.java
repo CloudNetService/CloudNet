@@ -16,9 +16,10 @@
 
 package eu.cloudnetservice.driver.provider;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 
 /**
@@ -93,7 +94,9 @@ public interface CloudServiceFactory {
    * @return a task completed with a result representing the state of the service creation.
    * @throws NullPointerException if the given service configuration is null.
    */
-  default @NonNull Task<ServiceCreateResult> createCloudServiceAsync(@NonNull ServiceConfiguration configuration) {
-    return Task.supply(() -> this.createCloudService(configuration));
+  default @NonNull CompletableFuture<ServiceCreateResult> createCloudServiceAsync(
+    @NonNull ServiceConfiguration configuration
+  ) {
+    return TaskUtil.supplyAsync(() -> this.createCloudService(configuration));
   }
 }

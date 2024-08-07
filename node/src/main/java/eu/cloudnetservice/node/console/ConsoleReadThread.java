@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.console;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.UserInterruptException;
@@ -24,7 +24,7 @@ import org.jline.reader.UserInterruptException;
 public final class ConsoleReadThread extends Thread {
 
   private final JLine3Console console;
-  private Task<String> currentTask;
+  private CompletableFuture<String> currentTask;
 
   public ConsoleReadThread(@NonNull JLine3Console console) {
     this.console = console;
@@ -68,9 +68,10 @@ public final class ConsoleReadThread extends Thread {
     }
   }
 
-  @NonNull Task<String> currentTask() {
+  @NonNull
+  CompletableFuture<String> currentTask() {
     if (this.currentTask == null) {
-      this.currentTask = new Task<>();
+      this.currentTask = new CompletableFuture<>();
     }
 
     return this.currentTask;

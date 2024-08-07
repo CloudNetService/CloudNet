@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.channel;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -26,6 +25,7 @@ import eu.cloudnetservice.driver.provider.CloudMessenger;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -117,7 +117,7 @@ public record ChannelMessage(
    *
    * @return a future completed with all responses of all target components of this channel message.
    */
-  public @NonNull Task<Collection<ChannelMessage>> sendQueryAsync() {
+  public @NonNull CompletableFuture<Collection<ChannelMessage>> sendQueryAsync() {
     return this.messenger().sendChannelMessageQueryAsync(this);
   }
 
@@ -130,7 +130,7 @@ public record ChannelMessage(
    *
    * @return a future completed with the first response of any target of this channel message.
    */
-  public @NonNull Task<ChannelMessage> sendSingleQueryAsync() {
+  public @NonNull CompletableFuture<ChannelMessage> sendSingleQueryAsync() {
     return this.messenger().sendSingleChannelMessageQueryAsync(this);
   }
 

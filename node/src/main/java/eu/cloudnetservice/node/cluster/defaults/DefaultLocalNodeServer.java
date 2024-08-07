@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.cluster.defaults;
 
 import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
@@ -45,6 +45,7 @@ import jakarta.inject.Singleton;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -120,8 +121,8 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   }
 
   @Override
-  public @NonNull Task<Void> connect() {
-    return Task.completedTask(null); // yes we are connected to us now :)
+  public @NonNull CompletableFuture<Void> connect() {
+    return CompletableFuture.completedFuture(null); // yes we are connected to us now :)
   }
 
   @Override
@@ -214,7 +215,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var sender = new DriverCommandSource();
-    this.commandProvider.execute(sender, commandLine).getOrNull();
+    TaskUtil.getOrDefault(this.commandProvider.execute(sender, commandLine), null);
     return sender.messages();
   }
 

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.driver.network.rpc.handler;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.rpc.RPCProvider;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +45,7 @@ public interface RPCHandler extends RPCProvider {
    * @throws NullPointerException if the given context is null.
    */
   @NonNull
-  Task<RPCInvocationResult> handle(@NonNull RPCInvocationContext context);
+  CompletableFuture<RPCInvocationResult> handle(@NonNull RPCInvocationContext context);
 
   /**
    * A builder for an RPC handler.

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.cluster.util;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
@@ -24,6 +23,7 @@ import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 
@@ -73,7 +73,7 @@ public final class QueuedNetworkChannel implements NetworkChannel {
   }
 
   @Override
-  public @NonNull Task<Packet> sendQueryAsync(@NonNull Packet packet) {
+  public @NonNull CompletableFuture<Packet> sendQueryAsync(@NonNull Packet packet) {
     return this.wrappedChannel.sendQueryAsync(packet);
   }
 

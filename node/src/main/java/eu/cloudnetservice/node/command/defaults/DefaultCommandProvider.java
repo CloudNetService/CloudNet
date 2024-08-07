@@ -25,7 +25,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.command.CommandInfo;
@@ -65,6 +64,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -160,12 +160,12 @@ public final class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input) {
-    return Task.wrapFuture(this.commandManager.executeCommand(source, input).exceptionally(exception -> {
+  public @NonNull CompletableFuture<?> execute(@NonNull CommandSource source, @NonNull String input) {
+    return this.commandManager.executeCommand(source, input).exceptionally(exception -> {
       this.exceptionHandler.handleCommandExceptions(source, exception);
       // ensure that the new future still holds the exception
       throw exception instanceof CompletionException cex ? cex : new CompletionException(exception);
-    }));
+    });
   }
 
   /**

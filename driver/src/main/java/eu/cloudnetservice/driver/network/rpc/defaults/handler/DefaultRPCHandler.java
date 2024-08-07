@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
@@ -104,24 +104,24 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Task<RPCInvocationResult> handle(@NonNull RPCInvocationContext context) {
+  public @NonNull CompletableFuture<RPCInvocationResult> handle(@NonNull RPCInvocationContext context) {
     // get the instance we're working with
     var contextualInstance = context.workingInstance();
     var workingInstance = contextualInstance != null ? contextualInstance : this.boundInstance;
     if (workingInstance == null) {
-      return Task.completedTask(new RPCInvocationResult.ServerError("no instance to invoke the method on", this));
+      return TaskUtil.finishedFuture(new RPCInvocationResult.ServerError("no instance to invoke the method on", this));
     }
 
     // parse the method type to validate it
     var targetMethodType = parseMethodDescriptor(context.methodDescriptor());
     if (targetMethodType == null) {
-      return Task.completedTask(new RPCInvocationResult.BadRequest("invalid target method descriptor", this));
+      return TaskUtil.finishedFuture(new RPCInvocationResult.BadRequest("invalid target method descriptor", this));
     }
 
     // find the associated method meta in the target class
     var targetMethod = this.targetClassMeta.findMethod(context.methodName(), targetMethodType);
     if (targetMethod == null) {
-      return Task.completedTask(new RPCInvocationResult.BadRequest("target method not found", this));
+      return TaskUtil.finishedFuture(new RPCInvocationResult.BadRequest("target method not found", this));
     }
 
     // deserialize the provided method arguments, returns null in case the arguments buffer
@@ -130,7 +130,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
     if (methodArguments == null) {
       var targetDescriptor = targetMethod.methodType().descriptorString();
       var msg = String.format("provided arguments do not satisfy %s", targetDescriptor);
-      return Task.completedTask(new RPCInvocationResult.BadRequest(msg, this));
+      return TaskUtil.finishedFuture(new RPCInvocationResult.BadRequest(msg, this));
     }
 
     // get or create a method invoker for the target method
@@ -138,7 +138,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
     if (maybeMethodInvoker.isFailure()) {
       var constructionException = maybeMethodInvoker.getCause();
       LOGGER.error("unable to create method invoker for {}", targetMethod, constructionException);
-      return Task.completedTask(new RPCInvocationResult.ServerError("unable to create method invoker", this));
+      return TaskUtil.finishedFuture(new RPCInvocationResult.ServerError("unable to create method invoker", this));
     }
 
     try {
@@ -162,7 +162,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
           });
         };
 
-        Task<RPCInvocationResult> resultTask = new Task<>();
+        CompletableFuture<RPCInvocationResult> resultTask = new CompletableFuture<>();
         futureCompletionStage.whenComplete((futureResult, exception) -> {
           if (exception != null) {
             // method invocation failed with an exception
@@ -175,10 +175,10 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
         return resultTask;
       } else {
         // result of method invocation is available immediately
-        return Task.completedTask(new RPCInvocationResult.Success(invocationResult, this, targetMethod));
+        return TaskUtil.finishedFuture(new RPCInvocationResult.Success(invocationResult, this, targetMethod));
       }
     } catch (Throwable throwable) {
-      return Task.completedTask(new RPCInvocationResult.Failure(throwable, this, targetMethod));
+      return TaskUtil.finishedFuture(new RPCInvocationResult.Failure(throwable, this, targetMethod));
     }
   }
 

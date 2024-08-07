@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.rpc.listener;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
@@ -28,6 +27,7 @@ import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationContext;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -107,7 +107,7 @@ public final class RPCPacketListener implements PacketListener {
    * @throws NullPointerException if the given callback is null.
    */
   private void waitForInvocationCompletion(
-    @Nullable Task<RPCInvocationResult> invocationTask,
+    @Nullable CompletableFuture<RPCInvocationResult> invocationTask,
     @NonNull Consumer<RPCInvocationResult> callback
   ) {
     if (invocationTask == null) {
@@ -240,7 +240,7 @@ public final class RPCPacketListener implements PacketListener {
    */
   // note: do not change this method name, it's used by RPCExceptionUtil.serializeHandlingException
   // to determine where the internal handling frame cutoff should be
-  private @Nullable Task<RPCInvocationResult> postRPCRequestToHandler(
+  private @Nullable CompletableFuture<RPCInvocationResult> postRPCRequestToHandler(
     @NonNull String targetClassName,
     @NonNull RPCInvocationContext context
   ) {

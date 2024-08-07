@@ -22,6 +22,7 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.exceptions.NoSuchCommandException;
 import dev.derklaro.aerogel.binding.BindingBuilder;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.event.DefaultEventManager;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -96,7 +97,7 @@ public final class CommandProviderTest {
     var source = new DriverCommandSource();
 
     try {
-      commandProvider.execute(source, "non existing command").getOrNull();
+      TaskUtil.getOrDefault(commandProvider.execute(source, "non existing command"), null);
     } catch (CompletionException exception) {
       Assertions.assertEquals(NoSuchCommandException.class, exception.getCause().getClass());
     }

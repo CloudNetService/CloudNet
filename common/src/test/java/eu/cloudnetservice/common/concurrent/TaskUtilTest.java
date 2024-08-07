@@ -16,23 +16,21 @@
 
 package eu.cloudnetservice.common.concurrent;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-public class TaskTest {
+public class TaskUtilTest {
 
   @Test
   @Timeout(10)
   void testFutureCompletedNormally() {
     var result = new AtomicInteger();
-    var then = Task.supply(() -> {
+    var then = TaskUtil.supplyAsync(() -> {
       if (result.getAndIncrement() != 0) {
         throw new RuntimeException("Bing");
       }
@@ -57,22 +55,10 @@ public class TaskTest {
 
   @Test
   @Timeout(10)
-  void testFutureCompletion() {
-    var future = new Task<String>();
-    Assertions.assertFalse(future.isDone());
-    Assertions.assertNull(future.getNow(null));
-
-    future.complete("Hello world");
-    Assertions.assertTrue(future.isDone());
-    Assertions.assertEquals("Hello world", future.getNow(null));
-  }
-
-  @Test
-  @Timeout(10)
   void testFutureExceptionalCompletion() {
     var listenerResult = new AtomicReference<Throwable>();
 
-    var future = new Task<String>();
+    var future = new CompletableFuture<>();
     future.exceptionally(throwable -> {
       listenerResult.set(throwable);
       return null;
@@ -83,7 +69,7 @@ public class TaskTest {
 
     future.completeExceptionally(new UnsupportedOperationException("Hello world"));
     Assertions.assertTrue(future.isDone());
-    Assertions.assertThrows(ExecutionException.class, future::get);
+    Assertions.assertEquals("def", TaskUtil.getOrDefault(future, "def"));
 
     Assertions.assertNotNull(listenerResult.get());
     Assertions.assertInstanceOf(UnsupportedOperationException.class, listenerResult.get());
@@ -92,27 +78,28 @@ public class TaskTest {
 
   @Test
   @Timeout(10)
-  void testCompletableFutureWrapping() throws InterruptedException {
-    var result = new CountDownLatch(2);
-    var executor = Executors.newCachedThreadPool();
-
-    var futureA = Task.wrapFuture(CompletableFuture.supplyAsync(() -> 5, executor));
-    futureA.thenAccept($ -> result.countDown());
-
-    var futureB = Task.wrapFuture(CompletableFuture.supplyAsync(() -> {
-      throw new RuntimeException();
-    }, executor));
-    futureB.exceptionally(ex -> {
-      result.countDown();
-      return null;
+  void testFutureTimeout() {
+    var future = TaskUtil.supplyAsync(() -> {
+      Thread.sleep(2000);
+      return "success";
     });
 
-    futureA.getOrNull();
-    futureB.getOrNull();
+    Assertions.assertFalse(future.isDone());
+    Assertions.assertNull(TaskUtil.getOrDefault(future, Duration.ofSeconds(1), null));
+    Assertions.assertEquals("success", TaskUtil.getOrDefault(future, null));
+  }
 
-    result.await();
-    executor.shutdown();
+  @Test
+  @Timeout(10)
+  void testFinishedFuture() {
+    var future = TaskUtil.finishedFuture(new Throwable());
+    Assertions.assertTrue(future.isDone());
+    Assertions.assertTrue(future.isCompletedExceptionally());
+    Assertions.assertEquals("def", TaskUtil.getOrDefault(future, "def"));
 
-    Assertions.assertEquals(0, result.getCount());
+    var successfulFuture = TaskUtil.finishedFuture("result");
+    Assertions.assertTrue(successfulFuture.isDone());
+    Assertions.assertFalse(successfulFuture.isCompletedExceptionally());
+    Assertions.assertEquals("result", TaskUtil.getOrDefault(successfulFuture, null));
   }
 }

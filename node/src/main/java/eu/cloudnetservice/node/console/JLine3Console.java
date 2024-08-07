@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.console;
 
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
 import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
@@ -32,6 +31,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -179,7 +179,7 @@ public final class JLine3Console implements Console {
   }
 
   @Override
-  public @NonNull Task<String> readLine() {
+  public @NonNull CompletableFuture<String> readLine() {
     return this.consoleReadThread.currentTask();
   }
 

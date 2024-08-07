@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.netty.server;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -49,6 +48,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import javax.net.ssl.SSLException;
@@ -183,7 +183,7 @@ public class NettyNetworkServer implements NetworkServer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Task<Void> addListener(int port) {
+  public @NonNull CompletableFuture<Void> addListener(int port) {
     return this.addListener(new HostAndPort("0.0.0.0", port));
   }
 
@@ -191,8 +191,8 @@ public class NettyNetworkServer implements NetworkServer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Task<Void> addListener(@NonNull HostAndPort hostAndPort) {
-    Task<Void> result = new Task<>();
+  public @NonNull CompletableFuture<Void> addListener(@NonNull HostAndPort hostAndPort) {
+    CompletableFuture<Void> result = new CompletableFuture<>();
     new ServerBootstrap()
       .channelFactory(NettyUtil.serverChannelFactory())
       .group(this.bossEventLoopGroup, this.workerEventLoopGroup)

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.cluster;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -26,24 +25,32 @@ import eu.cloudnetservice.driver.service.ServiceTemplate;
 import java.io.Closeable;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface NodeServerProvider extends PacketSender, Closeable {
 
-  @NonNull Collection<NodeServer> nodeServers();
+  @NonNull
+  Collection<NodeServer> nodeServers();
 
-  @NonNull Collection<NodeServer> availableNodeServers();
+  @NonNull
+  Collection<NodeServer> availableNodeServers();
 
-  @NonNull Collection<NetworkChannel> connectedNodeChannels();
+  @NonNull
+  Collection<NetworkChannel> connectedNodeChannels();
 
-  @NonNull NodeServer headNode();
+  @NonNull
+  NodeServer headNode();
 
-  @NonNull LocalNodeServer localNode();
+  @NonNull
+  LocalNodeServer localNode();
 
-  @Nullable NodeServer node(@NonNull String uniqueId);
+  @Nullable
+  NodeServer node(@NonNull String uniqueId);
 
-  @Nullable NodeServer node(@NonNull NetworkChannel channel);
+  @Nullable
+  NodeServer node(@NonNull NetworkChannel channel);
 
   void syncDataIntoCluster();
 
@@ -55,12 +62,14 @@ public interface NodeServerProvider extends PacketSender, Closeable {
 
   void selectHeadNode();
 
-  @NonNull Task<TransferStatus> deployTemplateToCluster(
+  @NonNull
+  CompletableFuture<TransferStatus> deployTemplateToCluster(
     @NonNull ServiceTemplate template,
     @NonNull InputStream stream,
     boolean overwrite);
 
-  @NonNull Task<TransferStatus> deployStaticServiceToCluster(
+  @NonNull
+  CompletableFuture<TransferStatus> deployStaticServiceToCluster(
     @NonNull String name,
     @NonNull InputStream stream,
     boolean overwrite);

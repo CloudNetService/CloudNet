@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.provider;
 
 import dev.derklaro.aerogel.auto.Provides;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
@@ -145,7 +146,7 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var driverCommandSource = new DriverCommandSource();
-    this.commandProvider.execute(driverCommandSource, commandLine).getOrNull();
+    TaskUtil.getOrDefault(this.commandProvider.execute(driverCommandSource, commandLine), null);
     return driverCommandSource.messages();
   }
 

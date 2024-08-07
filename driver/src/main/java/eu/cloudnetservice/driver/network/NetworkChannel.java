@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.driver.network;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.PacketSender;
 import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 
 /**
@@ -93,7 +93,7 @@ public interface NetworkChannel extends PacketSender {
    * @throws NullPointerException if the given packet is null.
    */
   @NonNull
-  Task<Packet> sendQueryAsync(@NonNull Packet packet);
+  CompletableFuture<Packet> sendQueryAsync(@NonNull Packet packet);
 
   /**
    * Get if the underlying channel is currently writeable and will perform writes to the channel immediately.

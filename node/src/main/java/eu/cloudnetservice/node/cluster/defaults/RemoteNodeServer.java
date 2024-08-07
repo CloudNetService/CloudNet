@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.cluster.defaults;
 
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
@@ -40,6 +39,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -112,11 +112,11 @@ public class RemoteNodeServer implements NodeServer {
   }
 
   @Override
-  public @NonNull Task<Void> connect() {
+  public @NonNull CompletableFuture<Void> connect() {
     // check if the node has any listeners
     var listeners = this.info.listeners();
     if (listeners.isEmpty()) {
-      return Task.completedTask(new IllegalStateException("No listeners registered for the node"));
+      return CompletableFuture.failedFuture(new IllegalStateException("No listeners registered for the node"));
     }
     // select a random listener and try to connect to it
     var listener = listeners.get(ThreadLocalRandom.current().nextInt(0, listeners.size()));

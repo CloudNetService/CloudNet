@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node;
 
 import eu.cloudnetservice.common.concurrent.ListenableTask;
-import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
@@ -31,6 +30,7 @@ import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -80,27 +80,29 @@ public final class TickLoop {
     this.shutdownHandlerProvider = shutdownHandlerProvider;
   }
 
-  public @NonNull Task<Void> runTask(@NonNull Runnable runnable) {
+  public @NonNull CompletableFuture<Void> runTask(@NonNull Runnable runnable) {
     return this.runTask(() -> {
       runnable.run();
       return null;
     });
   }
 
-  public @NonNull <T> Task<T> runTask(@NonNull Callable<T> callable) {
+  public @NonNull <T> CompletableFuture<T> runTask(@NonNull Callable<T> callable) {
     var task = new ScheduledTask<>(callable, 0, 1, this.currentTick.get() + 1);
     this.processQueue.offer(task);
     return task;
   }
 
-  public @NonNull Task<Void> runDelayedTask(@NonNull Runnable runnable, long delay, @NonNull TimeUnit timeUnit) {
+  public @NonNull CompletableFuture<Void> runDelayedTask(@NonNull Runnable runnable, long delay,
+    @NonNull TimeUnit timeUnit) {
     return this.runDelayedTask(() -> {
       runnable.run();
       return null;
     }, delay, timeUnit);
   }
 
-  public @NonNull <T> Task<T> runDelayedTask(@NonNull Callable<T> callable, long delay, @NonNull TimeUnit timeUnit) {
+  public @NonNull <T> CompletableFuture<T> runDelayedTask(@NonNull Callable<T> callable, long delay,
+    @NonNull TimeUnit timeUnit) {
     var task = new ScheduledTask<>(
       callable,
       0,
@@ -110,11 +112,11 @@ public final class TickLoop {
     return task;
   }
 
-  public @NonNull <T> Task<T> scheduleTask(@NonNull Callable<T> callable, long delay) {
+  public @NonNull <T> CompletableFuture<T> scheduleTask(@NonNull Callable<T> callable, long delay) {
     return this.scheduleTask(callable, delay, -1);
   }
 
-  public @NonNull <T> Task<T> scheduleTask(@NonNull Callable<T> callable, long delay, long maxExecutions) {
+  public @NonNull <T> CompletableFuture<T> scheduleTask(@NonNull Callable<T> callable, long delay, long maxExecutions) {
     var task = new ScheduledTask<>(
       callable,
       delay,

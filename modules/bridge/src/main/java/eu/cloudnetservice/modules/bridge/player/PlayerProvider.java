@@ -16,9 +16,10 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 
 /**
@@ -73,8 +74,8 @@ public interface PlayerProvider {
    *
    * @return a task containing all supplied cloud players.
    */
-  default @NonNull Task<Collection<CloudPlayer>> playersAsync() {
-    return Task.supply(this::players);
+  default @NonNull CompletableFuture<Collection<CloudPlayer>> playersAsync() {
+    return TaskUtil.supplyAsync(this::players);
   }
 
   /**
@@ -82,8 +83,8 @@ public interface PlayerProvider {
    *
    * @return a task containing all supplied unique ids.
    */
-  default @NonNull Task<Collection<UUID>> uniqueIdsAsync() {
-    return Task.supply(this::uniqueIds);
+  default @NonNull CompletableFuture<Collection<UUID>> uniqueIdsAsync() {
+    return TaskUtil.supplyAsync(this::uniqueIds);
   }
 
   /**
@@ -91,8 +92,8 @@ public interface PlayerProvider {
    *
    * @return a task containing all supplied player names.
    */
-  default @NonNull Task<Collection<String>> namesAsync() {
-    return Task.supply(this::names);
+  default @NonNull CompletableFuture<Collection<String>> namesAsync() {
+    return TaskUtil.supplyAsync(this::names);
   }
 
   /**
@@ -100,7 +101,7 @@ public interface PlayerProvider {
    *
    * @return a task containing the amount of supplied players.
    */
-  default @NonNull Task<Integer> countAsync() {
-    return Task.supply(this::count);
+  default @NonNull CompletableFuture<Integer> countAsync() {
+    return TaskUtil.supplyAsync(this::count);
   }
 }
