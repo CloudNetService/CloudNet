@@ -34,8 +34,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder, Cloneable {
 
-  public static final String NO_CACHE_STRATEGY = "NO_CACHE";
-  public static final String KEEP_UNTIL_RESTART_STRATEGY = "KEEP_UNTIL_NODE_RESTART";
+  public static final String NO_CACHE_STRATEGY = "none";
+  public static final String KEEP_UNTIL_RESTART_STRATEGY = "until-node-restart";
 
   /**
    * A property which can be added to a service inclusion to set the http headers to send when making the download http
@@ -157,6 +157,9 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(@Nullable Object other) {
     if (this == other) {
@@ -182,7 +185,7 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
 
     protected String url;
     protected String destination;
-    protected String cacheStrategy = "NO_CACHE";
+    protected String cacheStrategy = ServiceRemoteInclusion.NO_CACHE_STRATEGY;
     protected Document properties = Document.emptyDocument();
 
     /**
@@ -213,10 +216,9 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
     }
 
     /**
-     * Sets whether the downloaded file will be cached on the node. If set to {@code true} the file is downloaded once
-     * and cached until the cloud is restarted.
+     * Sets the cache strategy that is used when downloading the inclusion from the remote.
      *
-     * @param cacheStrategy whether to cache the downloaded file.
+     * @param cacheStrategy the caching strategy to use.
      * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder cacheStrategy(@NonNull String cacheStrategy) {
