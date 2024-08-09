@@ -120,10 +120,9 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
   }
 
   /**
-   * Whether the downloaded file will be cached on the node. If set to {@code true} the file is downloaded once and
-   * cached until the cloud is restarted.
+   * The caching strategy that is used when downloading the inclusion.
    *
-   * @return whether the downloaded file will be cached on the node.
+   * @return the caching strategy.
    */
   public @NonNull String cacheStrategy() {
     return this.cacheStrategy;
@@ -217,6 +216,9 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
 
     /**
      * Sets the cache strategy that is used when downloading the inclusion from the remote.
+     * <p>
+     * To disable caching use the {@link ServiceRemoteInclusion#NO_CACHE_STRATEGY}, which is also the default of this
+     * builder.
      *
      * @param cacheStrategy the caching strategy to use.
      * @return the same instance as used to call the method, for chaining.
