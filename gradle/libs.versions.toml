@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-shadow = "8.1.8"
+shadow = "8.3.0"
 juppiter = "0.4.0"
 spotless = "6.25.0"
 fabricLoom = "1.7.3"
@@ -217,6 +217,6 @@ serverPlatform = ["spigot", "sponge", "nukkitX", "minestom", "minestomExtensions
 
 fabricLoom = { id = "fabric-loom", version.ref = "fabricLoom" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-shadow = { id = "io.github.goooler.shadow", version.ref = "shadow" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }
 nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }
