@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.service.defaults;
 
 import com.google.common.base.Preconditions;
+import com.google.common.hash.Hashing;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
@@ -63,7 +64,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -357,43 +357,41 @@ public abstract class AbstractService implements CloudService {
   public void includeWaitingServiceInclusions() {
     ServiceRemoteInclusion inclusion;
     while ((inclusion = this.waitingRemoteInclusions.poll()) != null) {
-      // prepare the connection from which we load the inclusion
-      var req = Unirest.get(inclusion.url());
-      // put the given http headers
-      var headers = inclusion.readPropertyOrDefault(ServiceRemoteInclusion.HEADERS, Map.of());
-      for (var entry : headers.entrySet()) {
-        req.header(entry.getKey(), entry.getValue());
-      }
-
       // check if we should load the inclusion
-      if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, req)).cancelled()) {
-        // get a target path based on the download url
-        var encodedUrl = Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8));
-        var destination = INCLUSION_TEMP_DIR.resolve(encodedUrl.replace('/', '_'));
-
-        // download the file from the given url to the temp path if it does not exist
-        if (Files.notExists(destination)) {
-          try {
-            // copy the file to the temp path, ensure that the parent directory exists
-            FileUtil.createDirectory(INCLUSION_TEMP_DIR);
-            req.asFile(destination.toString(), StandardCopyOption.REPLACE_EXISTING);
-          } catch (UnirestException exception) {
-            LOGGER.error(
-              "Unable to download inclusion from {} to {}",
-              inclusion.url(),
-              destination,
-              exception.getCause());
-            continue;
-          }
-        }
-
+      var preLoadEvent = this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion));
+      if (!preLoadEvent.cancelled()) {
+        // the event might have changed the inclusion, use the updated one
+        inclusion = preLoadEvent.inclusion();
         // resolve the desired output path
         var target = this.serviceDirectory.resolve(inclusion.destination());
         FileUtil.ensureChild(this.serviceDirectory, target);
-        // copy the file to the desired output path
-        FileUtil.copy(destination, target);
-        // we've installed the inclusion successfully
-        this.installedInclusions.add(inclusion);
+
+        try {
+          if (inclusion.cacheStrategy().equals(ServiceRemoteInclusion.KEEP_UNTIL_RESTART_STRATEGY)) {
+            // get a target path based on the download url
+            var encodedUrl = Hashing.murmur3_128().hashString(inclusion.url(), StandardCharsets.UTF_8).toString();
+            var destination = INCLUSION_TEMP_DIR.resolve(encodedUrl);
+            // download the file to the temp path if it does not exist
+            if (Files.notExists(destination)) {
+              this.downloadInclusionFile(inclusion, destination);
+            }
+
+            // copy the file from the temp path to the desired output path
+            FileUtil.copy(destination, target);
+          } else {
+            // download the file directly to the target path if caching is disabled
+            this.downloadInclusionFile(inclusion, target);
+          }
+
+          // we've installed the inclusion successfully
+          this.installedInclusions.add(inclusion);
+        } catch (UnirestException exception) {
+          LOGGER.warn(
+            "Unable to download inclusion from {} to {}",
+            inclusion.url(),
+            target,
+            exception.getCause());
+        }
       }
     }
   }
@@ -761,6 +759,19 @@ public abstract class AbstractService implements CloudService {
     return Document.newJsonDocument()
       .append("enabled", true)
       .append("trustCertificatePath", relativeFilePath.toString());
+  }
+
+  protected void downloadInclusionFile(@NonNull ServiceRemoteInclusion inclusion, @NonNull Path destination) {
+    // prepare the connection from which we load the inclusion
+    var request = Unirest.get(inclusion.url());
+    // put the given http headers
+    var headers = inclusion.readPropertyOrDefault(ServiceRemoteInclusion.HEADERS, Map.of());
+    for (var entry : headers.entrySet()) {
+      request.header(entry.getKey(), entry.getValue());
+    }
+
+    FileUtil.createDirectory(destination.getParent());
+    request.asFile(destination.toString(), StandardCopyOption.REPLACE_EXISTING);
   }
 
   protected @NonNull Object[] serviceReplacement() {

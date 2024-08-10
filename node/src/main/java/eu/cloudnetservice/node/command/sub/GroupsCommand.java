@@ -76,6 +76,22 @@ public final class GroupsCommand {
     return this.groupProvider.groupConfigurations().stream().map(Named::name).toList();
   }
 
+  @Parser(name = "inclusionCacheStrategy", suggestions = "inclusionCacheStrategy")
+  public @NonNull String inclusionCacheStrategyParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
+    var strategy = input.remove();
+    if (strategy.equals(ServiceRemoteInclusion.NO_CACHE_STRATEGY) ||
+      strategy.equals(ServiceRemoteInclusion.KEEP_UNTIL_RESTART_STRATEGY)) {
+      return strategy;
+    }
+
+    throw new ArgumentNotAvailableException(I18n.trans("command-tasks-inclusion-cache-strategy-not-found", strategy));
+  }
+
+  @Suggestions("inclusionCacheStrategy")
+  public @NonNull List<String> inclusionCacheStrategySuggester(@NonNull CommandContext<?> $, @NonNull String input) {
+    return List.of(ServiceRemoteInclusion.NO_CACHE_STRATEGY, ServiceRemoteInclusion.KEEP_UNTIL_RESTART_STRATEGY);
+  }
+
   @CommandMethod("groups delete <name>")
   public void deleteGroup(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration configuration) {
     this.groupProvider.removeGroupConfiguration(configuration);
@@ -186,14 +202,22 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> add inclusion <url> <path>")
+  @CommandMethod("groups group <name> add inclusion <url> <path> [cacheStrategy]")
   public void addInclusion(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("url") String url,
-    @NonNull @Argument("path") String path
+    @NonNull @Argument("path") String path,
+    @NonNull @Argument(
+      value = "cacheStrategy",
+      parserName = "inclusionCacheStrategy",
+      defaultValue = ServiceRemoteInclusion.NO_CACHE_STRATEGY) String cacheStrategy
   ) {
-    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
+    var inclusion = ServiceRemoteInclusion.builder()
+      .url(url)
+      .destination(path)
+      .cacheStrategy(cacheStrategy)
+      .build();
     this.updateGroup(group, builder -> builder.modifyInclusions(inclusions -> inclusions.add(inclusion)));
     source.sendMessage(I18n.trans("command-groups-add-collection-property",
       "inclusion",
@@ -341,6 +365,17 @@ public final class GroupsCommand {
     this.updateGroup(group, builder -> builder.modifyProcessParameters(Collection::clear));
     source.sendMessage(I18n.trans("command-groups-clear-property",
       "processParameters",
+      group.name()));
+  }
+
+  @CommandMethod("groups group <name> clear inclusions")
+  public void clearInclusions(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") GroupConfiguration group
+  ) {
+    this.updateGroup(group, builder -> builder.modifyInclusions(Collection::clear));
+    source.sendMessage(I18n.trans("command-groups-clear-property",
+      "inclusions",
       group.name()));
   }
 

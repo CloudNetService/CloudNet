@@ -22,8 +22,9 @@ import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.document.property.DocProperty;
 import io.leangen.geantyref.TypeFactory;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * An inclusion which can be added to a service and will download a file from the specified url to the given
@@ -31,8 +32,10 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-@EqualsAndHashCode
 public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder, Cloneable {
+
+  public static final String NO_CACHE_STRATEGY = "none";
+  public static final String KEEP_UNTIL_RESTART_STRATEGY = "until-node-restart";
 
   /**
    * A property which can be added to a service inclusion to set the http headers to send when making the download http
@@ -44,19 +47,28 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
 
   private final String url;
   private final String destination;
+  private final String cacheStrategy;
   private final Document properties;
 
   /**
    * Constructs a new service remote inclusion instance.
    *
-   * @param url         the url to download the associated file from.
-   * @param destination the destination inside the service directory to copy the downloaded file to.
-   * @param properties  the properties of the remote inclusion, these can for example contain the http headers to send.
+   * @param url           the url to download the associated file from.
+   * @param destination   the destination inside the service directory to copy the downloaded file to.
+   * @param cacheStrategy the cache strategy to use when downloading files from the remote.
+   * @param properties    the properties of the remote inclusion, these can for example contain the http headers to
+   *                      send.
    * @throws NullPointerException if one of the given parameters is null.
    */
-  private ServiceRemoteInclusion(@NonNull String url, @NonNull String destination, @NonNull Document properties) {
+  private ServiceRemoteInclusion(
+    @NonNull String url,
+    @NonNull String destination,
+    @NonNull String cacheStrategy,
+    @NonNull Document properties
+  ) {
     this.url = url;
     this.destination = destination;
+    this.cacheStrategy = cacheStrategy;
     this.properties = properties;
   }
 
@@ -84,6 +96,7 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
     return builder()
       .url(inclusion.url())
       .destination(inclusion.destination())
+      .cacheStrategy(inclusion.cacheStrategy())
       .properties(inclusion.propertyHolder());
   }
 
@@ -104,6 +117,15 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
    */
   public @NonNull String destination() {
     return this.destination;
+  }
+
+  /**
+   * The caching strategy that is used when downloading the inclusion.
+   *
+   * @return the caching strategy.
+   */
+  public @NonNull String cacheStrategy() {
+    return this.cacheStrategy;
   }
 
   /**
@@ -135,6 +157,25 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof ServiceRemoteInclusion that)) {
+      return false;
+    }
+    return Objects.equals(this.url, that.url()) && Objects.equals(this.destination, that.destination());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.url, this.destination);
+  }
+
+  /**
    * A builder for a service remote inclusion.
    *
    * @since 4.0
@@ -143,6 +184,7 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
 
     protected String url;
     protected String destination;
+    protected String cacheStrategy = ServiceRemoteInclusion.NO_CACHE_STRATEGY;
     protected Document properties = Document.emptyDocument();
 
     /**
@@ -173,6 +215,21 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
     }
 
     /**
+     * Sets the cache strategy that is used when downloading the inclusion from the remote.
+     * <p>
+     * To disable caching use the {@link ServiceRemoteInclusion#NO_CACHE_STRATEGY}, which is also the default of this
+     * builder.
+     *
+     * @param cacheStrategy the caching strategy to use.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given cache strategy is null.
+     */
+    public @NonNull Builder cacheStrategy(@NonNull String cacheStrategy) {
+      this.cacheStrategy = cacheStrategy;
+      return this;
+    }
+
+    /**
      * Sets the properties of the service remote inclusion. The properties can for example be used to set the http
      * headers which should get send when making a request to the given download url.
      *
@@ -189,13 +246,14 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
      * Builds a service remote inclusion instance based on this builder.
      *
      * @return the service remote inclusion.
-     * @throws NullPointerException if no url or destination was given.
+     * @throws NullPointerException if no url, destination or cache strategy is given.
      */
     public @NonNull ServiceRemoteInclusion build() {
       Preconditions.checkNotNull(this.url, "no url given");
       Preconditions.checkNotNull(this.destination, "no destination given");
+      Preconditions.checkNotNull(this.cacheStrategy, "no cacheStrategy given");
 
-      return new ServiceRemoteInclusion(this.url, this.destination, this.properties);
+      return new ServiceRemoteInclusion(this.url, this.destination, this.cacheStrategy, this.properties);
     }
   }
 }

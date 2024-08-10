@@ -30,6 +30,7 @@ import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
+import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.event.group.LocalGroupConfigurationAddEvent;
@@ -45,6 +46,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
@@ -60,6 +62,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   private static final Path GROUP_DIRECTORY_PATH = Path.of(
     System.getProperty("cloudnet.config.groups.directory.path", "local/groups"));
 
+  private static final Type LIST_DOCUMENT_TYPE = TypeFactory.parameterizedClass(List.class, Document.class);
   private static final Type TYPE = TypeFactory.parameterizedClass(Collection.class, GroupConfiguration.class);
 
   private final EventManager eventManager;
@@ -227,6 +230,18 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
       if (!document.containsNonNull("environmentVariables")) {
         document.append("environmentVariables", new HashMap<>());
       }
+
+      // inclusions now feature a mandatory cache strategy field.
+      // Convert old inclusions that do not have a non-null value already set.
+      List<Document> remoteInclusions = document.readObject("includes", LIST_DOCUMENT_TYPE);
+      var migratedInclusions = remoteInclusions.stream().map(remoteInclusion -> {
+        if (remoteInclusion.containsNonNull("cacheStrategy")) {
+          return remoteInclusion;
+        }
+
+        return remoteInclusion.mutableCopy().append("cacheStrategy", ServiceRemoteInclusion.NO_CACHE_STRATEGY);
+      }).toList();
+      document.append("includes", migratedInclusions);
 
       // load the group
       var group = document.toInstanceOf(GroupConfiguration.class);

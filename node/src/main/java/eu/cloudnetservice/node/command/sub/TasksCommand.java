@@ -133,7 +133,7 @@ public final class TasksCommand {
     messages.add("Includes:");
 
     for (var inclusion : configurationBase.inclusions()) {
-      messages.add("- " + inclusion.url() + " => " + inclusion.destination());
+      messages.add("- " + inclusion.url() + ':' + inclusion.cacheStrategy() + " => " + inclusion.destination());
     }
 
     messages.add(" ");
@@ -634,18 +634,22 @@ public final class TasksCommand {
       template);
   }
 
-  @CommandMethod("tasks task <name> add inclusion <url> <path>")
+  @CommandMethod("tasks task <name> add inclusion <url> <path> [cacheStrategy]")
   public void addInclusion(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
     @NonNull @Argument("url") String url,
-    @NonNull @Argument("path") String path
+    @NonNull @Argument("path") String path,
+    @NonNull @Argument(
+      value = "cacheStrategy",
+      parserName = "inclusionCacheStrategy",
+      defaultValue = ServiceRemoteInclusion.NO_CACHE_STRATEGY) String cacheStrategy
   ) {
-    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
+    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).cacheStrategy(cacheStrategy).build();
     this.applyChange(
       source,
       tasks,
-      (builder, $) -> builder.modifyInclusions(col -> col.add(inclusion)),
+      (builder, _) -> builder.modifyInclusions(col -> col.add(inclusion)),
       "command-tasks-add-collection-property",
       "inclusion",
       inclusion);
@@ -826,6 +830,20 @@ public final class TasksCommand {
       (builder, $) -> builder.modifyProcessParameters(Collection::clear),
       "command-tasks-clear-property",
       "processParameters",
+      null);
+  }
+
+  @CommandMethod("tasks task <name> clear inclusions")
+  public void clearInclusions(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> tasks
+  ) {
+    this.applyChange(
+      source,
+      tasks,
+      (builder, $) -> builder.modifyInclusions(Collection::clear),
+      "command-tasks-clear-property",
+      "inclusions",
       null);
   }
 
