@@ -81,10 +81,10 @@ public final class GroupsCommand {
     var strategy = input.remove();
     if (strategy.equals(ServiceRemoteInclusion.NO_CACHE_STRATEGY) ||
       strategy.equals(ServiceRemoteInclusion.KEEP_UNTIL_RESTART_STRATEGY)) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-tasks-inclusion-cache-strategy-not-found", strategy));
+      return strategy;
     }
 
-    return strategy;
+    throw new ArgumentNotAvailableException(I18n.trans("command-tasks-inclusion-cache-strategy-not-found", strategy));
   }
 
   @Suggestions("inclusionCacheStrategy")

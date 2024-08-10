@@ -55,7 +55,7 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
    *
    * @param url           the url to download the associated file from.
    * @param destination   the destination inside the service directory to copy the downloaded file to.
-   * @param cacheStrategy whether to cache files of this remote inclusion.
+   * @param cacheStrategy the cache strategy to use when downloading files from the remote.
    * @param properties    the properties of the remote inclusion, these can for example contain the http headers to
    *                      send.
    * @throws NullPointerException if one of the given parameters is null.
@@ -245,7 +245,7 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
      * Builds a service remote inclusion instance based on this builder.
      *
      * @return the service remote inclusion.
-     * @throws NullPointerException if no url or destination was given.
+     * @throws NullPointerException if no url, destination or cache strategy is given.
      */
     public @NonNull ServiceRemoteInclusion build() {
       Preconditions.checkNotNull(this.url, "no url given");
