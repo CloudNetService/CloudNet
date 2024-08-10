@@ -222,6 +222,7 @@ public final class ServiceRemoteInclusion implements DefaultedDocPropertyHolder,
      *
      * @param cacheStrategy the caching strategy to use.
      * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given cache strategy is null.
      */
     public @NonNull Builder cacheStrategy(@NonNull String cacheStrategy) {
       this.cacheStrategy = cacheStrategy;
