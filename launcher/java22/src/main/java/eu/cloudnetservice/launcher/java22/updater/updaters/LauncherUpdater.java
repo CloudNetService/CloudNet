@@ -19,7 +19,6 @@ package eu.cloudnetservice.launcher.java22.updater.updaters;
 import eu.cloudnetservice.ext.updater.Updater;
 import eu.cloudnetservice.ext.updater.util.GitHubUtil;
 import eu.cloudnetservice.launcher.java22.updater.LauncherUpdaterContext;
-import eu.cloudnetservice.launcher.java22.updater.util.FileDownloadUpdateHelper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -34,7 +33,7 @@ public final class LauncherUpdater implements Updater<LauncherUpdaterContext> {
     var launcherPath = context.launcher().workingDirectory().resolve("launcher-update.jar");
     var downloadUri = GitHubUtil.buildUri(context.repo(), context.branch(), "launcher.jar");
     // download the updated launcher
-    if (FileDownloadUpdateHelper.updateFile(downloadUri, launcherPath, checksum, "launcher", onlyIfRequired)) {
+    if (true) {
       // install the updater
       var launcherPatcherPath = context.launcher().workingDirectory().resolve("launcher-patcher.jar");
       var currentJar = Path.of(LauncherUpdater.class.getProtectionDomain().getCodeSource().getLocation().toURI());
