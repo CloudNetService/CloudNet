@@ -39,7 +39,7 @@ oshi = "6.6.2"
 vavr = "0.10.4"
 sshj = "0.38.0"
 aerogel = "2.1.0"
-awsSdk = "2.27.1"
+awsSdk = "2.27.7"
 unirest = "4.4.4"
 caffeine = "3.1.8"
 reflexion = "1.8.0"
@@ -52,8 +52,8 @@ netty = "5.0.0.Alpha5"
 gulf = "1.0.0-SNAPSHOT"
 
 # logging
-slf4j = "2.0.15"
-logback = "1.5.6"
+slf4j = "2.0.16"
+logback = "1.5.7"
 
 # platform api versions
 sponge = "9.0.0"
@@ -77,7 +77,7 @@ luckPermsApi = "5.4"
 
 # fabric platform special dependencies
 minecraft = "1.21"
-fabricLoader = "0.16.0"
+fabricLoader = "0.16.2"
 
 
 [libraries]
