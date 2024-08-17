@@ -281,6 +281,7 @@ public class BukkitPlatformNPCManagement extends
   protected @NonNull PlatformPacketAdapter<World, Player, ItemStack, Plugin> resolvePacketAdapter() {
     var protocolLibAdapter = BukkitProtocolAdapter.protocolLib();
     try {
+      //noinspection DataFlowIssue
       protocolLibAdapter.createCustomPayloadPacket("minecraft:test", new byte[0]).schedule((Player) null, null);
       return protocolLibAdapter;
     } catch (NullPointerException _) {
