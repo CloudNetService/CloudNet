@@ -48,7 +48,7 @@ subprojects {
     "annotationProcessor"(rootProject.projects.ext.platformInjectSupport.platformInjectProcessor)
 
     // internal dependencies
-    "implementation"(rootProject.libs.guava)
+    "compileOnly"(rootProject.libs.guava)
   }
 
   tasks.create<Sync>("processSources") {
