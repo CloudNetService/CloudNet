@@ -65,10 +65,13 @@ public class NukkitSignManagement extends PlatformSignManagement<Player, Locatio
     super(
       eventManager,
       runnable -> {
-        if (server.isPrimaryThread()) {
-          runnable.run();
-        } else {
-          scheduler.scheduleTask(plugin, runnable);
+        // only schedule tasks if the plugin is enabled, nukkit does not allow scheduling while disabled
+        if (plugin.isEnabled()) {
+          if (server.isPrimaryThread()) {
+            runnable.run();
+          } else {
+            scheduler.scheduleTask(plugin, runnable);
+          }
         }
       },
       wrapperConfig,
