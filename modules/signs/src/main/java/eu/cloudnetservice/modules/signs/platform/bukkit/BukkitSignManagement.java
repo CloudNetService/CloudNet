@@ -61,11 +61,14 @@ public class BukkitSignManagement extends PlatformSignManagement<Player, Locatio
     @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
   ) {
     super(eventManager, runnable -> {
-      // check if we're already on main
-      if (server.isPrimaryThread()) {
-        runnable.run();
-      } else {
-        scheduler.runTask(plugin, runnable);
+      // only schedule tasks if the plugin is enabled, bukkit does not allow scheduling while disabled
+      if (plugin.isEnabled()) {
+        // check if we're already on main
+        if (server.isPrimaryThread()) {
+          runnable.run();
+        } else {
+          scheduler.runTask(plugin, runnable);
+        }
       }
     }, wrapperConfig, serviceProvider, executorService);
 
