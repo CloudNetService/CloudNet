@@ -35,11 +35,11 @@ hikariCp = "5.1.0"
 mysqlConnector = "9.0.0"
 
 # general
-oshi = "6.6.2"
+oshi = "6.6.3"
 vavr = "0.10.4"
 sshj = "0.38.0"
 aerogel = "2.1.0"
-awsSdk = "2.27.7"
+awsSdk = "2.27.9"
 unirest = "4.4.4"
 caffeine = "3.1.8"
 reflexion = "1.8.0"
