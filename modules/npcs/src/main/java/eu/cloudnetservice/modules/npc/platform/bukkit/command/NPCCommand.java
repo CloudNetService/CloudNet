@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
+import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
@@ -580,6 +581,50 @@ public final class NPCCommand extends BaseTabExecutor {
         // sets the target group of the npc
         case "tg", "targetgroup" -> updatedNpc = NPC.builder(npc).targetGroup(args[2]).build();
 
+        case "r", "rot", "rotate" -> {
+          if (args.length < 4) {
+            sender.sendMessage("§cInvalid usage! Use §6/cn edit rotate <yaw/pitch> <value>§c!");
+            return true;
+          }
+
+          var input = args[3];
+          // we want to use ~ as an operator to indicate whether the provided value is relative or absolute
+          var relative = input.startsWith("~");
+          var targetYaw = args[2].equalsIgnoreCase("yaw");
+          if (relative) {
+            // we know that we got a relative input, strip the ~ and try to parse later on
+            input = input.substring(1);
+          }
+
+          try {
+            var location = npc.location();
+            var yaw = location.yaw();
+            var pitch = location.pitch();
+            var value = Double.parseDouble(input);
+            if (targetYaw) {
+              yaw = relative ? value + yaw : value;
+            } else {
+              pitch = relative ? value + pitch : value;
+            }
+
+            var updatedPosition = new WorldPosition(
+              location.x(),
+              location.y(),
+              location.z(),
+              yaw,
+              pitch,
+              location.world(),
+              location.group());
+            updatedNpc = NPC.builder(npc).location(updatedPosition).build();
+            // npcs use the position as key so the npc is not updated but rather another npc is created
+            // just delete the old npc
+            this.management.deleteNPC(npc);
+          } catch (NumberFormatException _) {
+            sender.sendMessage(String.format("§cUnable to parse value from string §6%s§c.", args[3]));
+            return true;
+          }
+        }
+
         // unknown option
         default -> {
           sender.sendMessage(String.format("§cNo option with name §6%s §cfound!", StringUtil.toLower(args[1])));
@@ -660,6 +705,7 @@ public final class NPCCommand extends BaseTabExecutor {
       if (args.length == 2) {
         return Arrays.asList(
           "inventoryname",
+          "rotate",
           "lookatplayer",
           "imitateplayer",
           "useplayerskin",
@@ -708,6 +754,8 @@ public final class NPCCommand extends BaseTabExecutor {
             .groupConfigurations().stream()
             .map(GroupConfiguration::name)
             .toList();
+          // rotation
+          case "r", "rot", "rotate" -> List.of("yaw", "pitch");
           // item slots
           case "items" -> new ArrayList<>(VALID_ITEM_SLOTS.keySet());
           // info lines top level
