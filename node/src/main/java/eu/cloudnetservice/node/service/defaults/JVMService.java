@@ -87,7 +87,7 @@ public class JVMService extends AbstractService {
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
     super(tickLoop, nodeConfig, configuration, manager, eventManager, versionProvider, serviceConfigurationPreparer);
-    super.logCache = new ProcessServiceLogCache(() -> this.process, nodeConfig, this);
+    super.logCache = new ProcessServiceLogCache(nodeConfig, this);
     this.initLogHandler();
   }
 
@@ -231,6 +231,12 @@ public class JVMService extends AbstractService {
       // start the process and fire the post start event
       this.process = builder.start();
       this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this));
+
+      // start the log reading unless some user code changed the log cache type
+      // in that case it's up to the user to start the reading process
+      if (super.logCache instanceof ProcessServiceLogCache processServiceLogCache) {
+        processServiceLogCache.start(this.process);
+      }
     } catch (IOException exception) {
       LOGGER.error(
         "Unable to start process in {} with command line {}",

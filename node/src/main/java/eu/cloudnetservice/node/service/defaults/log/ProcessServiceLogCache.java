@@ -18,68 +18,47 @@ package eu.cloudnetservice.node.service.defaults.log;
 
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
-import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 import lombok.NonNull;
 
 public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
-  protected final Supplier<Process> processSupplier;
-
-  protected final byte[] buffer = new byte[2048];
-  protected final StringBuffer stringBuffer = new StringBuffer();
-
-  public ProcessServiceLogCache(
-    @NonNull Supplier<Process> processSupplier,
-    @NonNull Configuration configuration,
-    @NonNull CloudService service
-  ) {
+  public ProcessServiceLogCache(@NonNull Configuration configuration, @NonNull CloudService service) {
     super(configuration, service);
-    this.processSupplier = processSupplier;
   }
 
-  @Override
-  public @NonNull ServiceConsoleLogCache update() {
-    // check if we can currently update
-    var process = this.processSupplier.get();
-    if (process != null) {
-      try {
-        this.readStream(process.getInputStream(), false);
-        this.readStream(process.getErrorStream(), true);
-      } catch (IOException exception) {
-        LOGGER.error("Exception updating content of console for service {}",
-          this.service.serviceId().name(),
-          exception);
-        // reset the string buffer
-        this.stringBuffer.setLength(0);
-      }
-    }
-    // for chaining
-    return this;
+  public void start(@NonNull Process process) {
+    var inputStreamReader = process.inputReader(StandardCharsets.UTF_8);
+    this.startStreamReadingTask(inputStreamReader, false);
+
+    var errorStreamReader = process.errorReader(StandardCharsets.UTF_8);
+    this.startStreamReadingTask(errorStreamReader, true);
   }
 
-  protected void readStream(@NonNull InputStream stream, boolean isErrorStream) throws IOException {
-    int len;
-    while (stream.available() > 0 && (len = stream.read(this.buffer, 0, this.buffer.length)) != -1) {
-      this.stringBuffer.append(new String(this.buffer, 0, len, StandardCharsets.UTF_8));
-    }
+  protected void startStreamReadingTask(@NonNull BufferedReader reader, boolean isErrorStream) {
+    var serviceName = this.service.serviceId().name();
+    var streamTypeDisplayName = isErrorStream ? "error" : "output";
+    var threadName = String.format("%s %s-stream reader", serviceName, streamTypeDisplayName);
 
-    // check if we got a result we can work with
-    var content = this.stringBuffer.toString();
-    if (content.contains("\n") || content.contains("\r")) {
-      for (var input : content.split("\r")) {
-        for (var text : input.split("\n")) {
-          if (!text.trim().isEmpty()) {
-            this.handleItem(text, isErrorStream);
+    Thread.ofVirtual()
+      .name(threadName)
+      .inheritInheritableThreadLocals(false)
+      .start(() -> {
+        while (true) {
+          try {
+            var logLine = reader.readLine();
+            if (logLine == null) {
+              // reached EOF, process terminated
+              break;
+            }
+
+            this.handleItem(logLine, isErrorStream);
+          } catch (IOException exception) {
+            LOGGER.error("Exception reading {} stream of service {}", serviceName, streamTypeDisplayName, exception);
           }
         }
-      }
-    }
-
-    // reset the string buffer
-    this.stringBuffer.setLength(0);
+      });
   }
 }
