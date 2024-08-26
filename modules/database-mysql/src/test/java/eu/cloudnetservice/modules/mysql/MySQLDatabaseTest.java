@@ -40,7 +40,8 @@ class MySQLDatabaseTest {
     .withEnv("MYSQL_USER", "test")
     .withEnv("MYSQL_PASSWORD", "test")
     .withEnv("MYSQL_ROOT_PASSWORD", "test")
-    .withEnv("MYSQL_DATABASE", "cn_testing");
+    .withEnv("MYSQL_DATABASE", "cn_testing")
+    .withCommand("mariadbd", "--ssl=0");
 
   private MySQLDatabaseProvider databaseProvider;
 
