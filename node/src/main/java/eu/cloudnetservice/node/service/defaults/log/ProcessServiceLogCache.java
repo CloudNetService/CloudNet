@@ -56,7 +56,7 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
             this.handleItem(logLine, isErrorStream);
           } catch (IOException exception) {
-            LOGGER.error("Exception reading {} stream of service {}", serviceName, streamTypeDisplayName, exception);
+            LOGGER.error("Exception reading {} stream of service {}", streamTypeDisplayName, serviceName, exception);
           }
         }
       });
