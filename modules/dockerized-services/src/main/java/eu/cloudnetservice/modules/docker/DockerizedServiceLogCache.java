@@ -43,9 +43,7 @@ public class DockerizedServiceLogCache extends AbstractServiceLogCache {
     if (content.contains("\n") || content.contains("\r")) {
       for (var input : content.split("\r")) {
         for (var text : input.split("\n")) {
-          if (!text.trim().isEmpty()) {
-            super.handleItem(text, comesFromErrorStream);
-          }
+          super.handleItem(text, comesFromErrorStream);
         }
       }
     }

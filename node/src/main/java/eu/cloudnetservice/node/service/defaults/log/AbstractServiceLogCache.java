@@ -97,17 +97,26 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
   }
 
   protected void handleItem(@NonNull String entry, boolean comesFromErrorStream) {
-    // drain the cache
-    while (this.cachedLogMessages.size() > this.logCacheSize) {
-      this.cachedLogMessages.poll();
+    // empty log lines could be used for some kind of formatting, but are not really
+    // not useful in any way usually, therefore we don't cache them at all
+    if (entry.isBlank()) {
+      return;
     }
-    // print the line to the console if enabled
+
+    // insert the log line into the cache, unless the cache is disabled
+    // if needed we also remove elements from the cache to stay in the provided size bounds
+    if (this.logCacheSize > 0) {
+      while (this.cachedLogMessages.size() > this.logCacheSize) {
+        this.cachedLogMessages.poll();
+      }
+
+      this.cachedLogMessages.add(entry);
+    }
+
     if (this.alwaysPrintErrorStreamToConsole && comesFromErrorStream) {
       LOGGER.warn("[{}/WARN]: {}", this.service.serviceId().name(), entry);
     }
-    // add the line
-    this.cachedLogMessages.add(entry);
-    // call all handlers
+
     if (!this.handlers.isEmpty()) {
       for (var handler : this.handlers) {
         handler.handleLine(this, entry, comesFromErrorStream);
