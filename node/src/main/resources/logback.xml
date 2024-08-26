@@ -26,7 +26,7 @@
   <variable name="cloudnet.log.path" value="local/logs"/>
 
   <conversionRule conversionWord="levelColor"
-    converterClass="eu.cloudnetservice.node.console.log.ConsoleLevelConversion"/>
+    class="eu.cloudnetservice.node.console.log.ConsoleLevelConversion"/>
   <property name="CONSOLE_PATTERN"
     value="%gray([%boldWhite(%d{dd.MM HH:mm:ss.SSS}%gray(]))) %gray(%levelColor(%-5level%gray(:))) %msg%n"/>
   <appender name="ConsoleLogAppender" class="ConsoleLogAppender">
