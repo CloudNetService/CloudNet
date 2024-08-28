@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.service.defaults.log;
 
+import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.service.CloudService;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,8 +25,8 @@ import lombok.NonNull;
 
 public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
-  public ProcessServiceLogCache(@NonNull Configuration configuration, @NonNull CloudService service) {
-    super(configuration, service);
+  public ProcessServiceLogCache(@NonNull Configuration configuration, @NonNull ServiceId associatedServiceId) {
+    super(configuration, associatedServiceId);
   }
 
   public void start(@NonNull Process process) {
@@ -38,7 +38,7 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
   }
 
   protected void startStreamReadingTask(@NonNull BufferedReader reader, boolean isErrorStream) {
-    var serviceName = this.service.serviceId().name();
+    var serviceName = this.associatedServiceId.name();
     var streamTypeDisplayName = isErrorStream ? "error" : "output";
     var threadName = String.format("%s %s-stream reader", serviceName, streamTypeDisplayName);
 

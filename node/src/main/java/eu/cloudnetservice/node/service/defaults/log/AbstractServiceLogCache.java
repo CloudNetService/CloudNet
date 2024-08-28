@@ -17,8 +17,8 @@
 package eu.cloudnetservice.node.service.defaults.log;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractServiceLogCache.class);
 
-  protected final CloudService service;
+  protected final ServiceId associatedServiceId;
 
   protected final Queue<String> cachedLogMessages = new ConcurrentLinkedQueue<>();
   protected final Set<ServiceConsoleLineHandler> handlers = ConcurrentHashMap.newKeySet();
@@ -44,15 +44,15 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
   protected volatile int logCacheSize;
   protected volatile boolean alwaysPrintErrorStreamToConsole;
 
-  public AbstractServiceLogCache(@NonNull Configuration configuration, @NonNull CloudService service) {
-    this.service = service;
+  public AbstractServiceLogCache(@NonNull Configuration configuration, @NonNull ServiceId associatedServiceId) {
+    this.associatedServiceId = associatedServiceId;
     this.logCacheSize = configuration.maxServiceConsoleLogCacheSize();
     this.alwaysPrintErrorStreamToConsole = configuration.printErrorStreamLinesFromServices();
   }
 
   @Override
-  public @NonNull CloudService service() {
-    return this.service;
+  public @NonNull ServiceId associatedServiceId() {
+    return this.associatedServiceId;
   }
 
   @Override
@@ -114,7 +114,7 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
     }
 
     if (this.alwaysPrintErrorStreamToConsole && comesFromErrorStream) {
-      LOGGER.warn("[{}/WARN]: {}", this.service.serviceId().name(), entry);
+      LOGGER.warn("[{}/WARN]: {}", this.associatedServiceId.name(), entry);
     }
 
     if (!this.handlers.isEmpty()) {

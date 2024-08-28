@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.service;
 
+import eu.cloudnetservice.driver.service.ServiceId;
 import java.util.Collection;
 import java.util.Queue;
 import lombok.NonNull;
@@ -27,7 +28,7 @@ public interface ServiceConsoleLogCache {
   Queue<String> cachedLogMessages();
 
   @NonNull
-  CloudService service();
+  ServiceId associatedServiceId();
 
   int logCacheSize();
 
