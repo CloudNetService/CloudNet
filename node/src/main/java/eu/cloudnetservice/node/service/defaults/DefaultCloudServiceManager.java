@@ -167,20 +167,14 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         })
         .currentGetter(group -> this.serviceProviderByName(group.name()).serviceInfo())
         .build());
-    // schedule the updating of the local service log cache
+
+    // schedule the service watchdog to run once per second
     mainThread.scheduleTask(() -> {
       for (var service : this.localCloudServices()) {
-        // we only need to look at running services
-        if (service.lifeCycle() == ServiceLifeCycle.RUNNING) {
-          // detect dead services and stop them
-          if (service.alive()) {
-            service.serviceConsoleLogCache().update();
-            LOGGER.trace("Updated service log cache of {}", service.serviceId().name());
-          } else {
-            eventManager.callEvent(new CloudServicePreForceStopEvent(service));
-            service.stop();
-            LOGGER.trace("Stopped dead service {}", service.serviceId().name());
-          }
+        if (service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.alive()) {
+          eventManager.callEvent(new CloudServicePreForceStopEvent(service));
+          service.stop();
+          LOGGER.debug("Stopped dead service {}", service.serviceId().name());
         }
       }
       return null;
