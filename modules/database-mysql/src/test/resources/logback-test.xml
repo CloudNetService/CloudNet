@@ -21,7 +21,12 @@
     </encoder>
   </appender>
 
-  <root level="INFO">
-    <appender-ref ref="STDOUT" />
+  <root level="DEBUG">
+    <appender-ref ref="STDOUT"/>
   </root>
+
+  <logger name="tc" level="INFO"/>
+  <logger name="org.testcontainers" level="INFO"/>
+  <logger name="com.github.dockerjava" level="WARN"/>
+  <logger name="com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.wire" level="OFF"/>
 </configuration>
