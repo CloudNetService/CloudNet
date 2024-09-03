@@ -175,8 +175,10 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
 
   @Override
   protected void remove0() {
-    this.entity.remove();
-    this.entity = null;
+    if (this.entity != null) {
+      this.entity.remove();
+      this.entity = null;
+    }
   }
 
   @Override

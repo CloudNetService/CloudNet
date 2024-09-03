@@ -18,8 +18,10 @@ package eu.cloudnetservice.modules.npc.platform.bukkit;
 
 import com.github.juliarn.npclib.api.NpcActionController;
 import com.github.juliarn.npclib.api.Platform;
+import com.github.juliarn.npclib.api.protocol.PlatformPacketAdapter;
 import com.github.juliarn.npclib.bukkit.BukkitPlatform;
 import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
+import com.github.juliarn.npclib.bukkit.protocol.BukkitProtocolAdapter;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.ComponentInfo;
@@ -97,11 +99,13 @@ public class BukkitPlatformNPCManagement extends
           .flag(NpcActionController.IMITATE_DISTANCE, entry.npcPoolOptions().actionDistance())
           .flag(NpcActionController.TAB_REMOVAL_TICKS, entry.npcPoolOptions().tabListRemoveTicks()))
         .worldAccessor(BukkitWorldAccessor.nameBasedAccessor())
+        .packetFactory(this.resolvePacketAdapter())
         .build();
     } else {
       this.npcPlatform = BukkitPlatform.bukkitNpcPlatformBuilder()
         .extension(plugin)
         .worldAccessor(BukkitWorldAccessor.nameBasedAccessor())
+        .packetFactory(this.resolvePacketAdapter())
         .build();
     }
 
@@ -271,6 +275,21 @@ public class BukkitPlatformNPCManagement extends
       } else {
         this.npcEmoteTask = null;
       }
+    }
+  }
+
+  protected @NonNull PlatformPacketAdapter<World, Player, ItemStack, Plugin> resolvePacketAdapter() {
+    var protocolLibAdapter = BukkitProtocolAdapter.protocolLib();
+    try {
+      //noinspection DataFlowIssue
+      protocolLibAdapter.createCustomPayloadPacket("minecraft:test", new byte[0]).schedule((Player) null, null);
+      return protocolLibAdapter;
+    } catch (NullPointerException _) {
+      // the above test code will always throw an NPE if the test passes. We need to handle this as success.
+      return protocolLibAdapter;
+    } catch (Throwable _) {
+      // protocollib is not working, fallback to packet events
+      return BukkitProtocolAdapter.packetEvents();
     }
   }
 }

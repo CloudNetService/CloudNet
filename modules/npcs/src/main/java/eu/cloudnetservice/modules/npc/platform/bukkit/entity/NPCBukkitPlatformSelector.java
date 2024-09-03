@@ -104,8 +104,10 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
 
   @Override
   protected void remove0() {
-    this.handleNpc.unlink();
-    this.handleNpc = null;
+    if (this.handleNpc != null) {
+      this.handleNpc.unlink();
+      this.handleNpc = null;
+    }
   }
 
   @Override
