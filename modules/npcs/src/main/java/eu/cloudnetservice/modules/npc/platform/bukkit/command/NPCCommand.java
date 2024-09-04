@@ -587,10 +587,19 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
 
+          boolean targetYaw;
+          switch (StringUtil.toLower(args[2])) {
+            case "yaw" -> targetYaw = true;
+            case "pitch" -> targetYaw = false;
+            default -> {
+              sender.sendMessage("§cInvalid usage! Use §6/cn edit rotate <yaw/pitch> <value>§c!");
+              return true;
+            }
+          }
+
           var input = args[3];
           // we want to use ~ as an operator to indicate whether the provided value is relative or absolute
           var relative = input.startsWith("~");
-          var targetYaw = args[2].equalsIgnoreCase("yaw");
           if (relative) {
             // we know that we got a relative input, strip the ~ and try to parse later on
             input = input.substring(1);
@@ -603,8 +612,16 @@ public final class NPCCommand extends BaseTabExecutor {
             var value = Double.parseDouble(input);
             if (targetYaw) {
               yaw = relative ? value + yaw : value;
+              if (yaw < 0 || yaw > 360) {
+                sender.sendMessage("§cInvalid argument! Use a value between 0 and 360");
+                return true;
+              }
             } else {
               pitch = relative ? value + pitch : value;
+              if (pitch < -90 || pitch > 90) {
+                sender.sendMessage("§cInvalid argument! Use a value between -90 and 90");
+                return true;
+              }
             }
 
             var updatedPosition = new WorldPosition(
