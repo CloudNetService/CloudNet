@@ -605,7 +605,7 @@ public final class NPCCommand extends BaseTabExecutor {
           WorldPosition updatedPosition;
           switch (StringUtil.toLower(args[2])) {
             case "yaw" -> {
-              var yaw = relative ? position.yaw() + value : position.yaw();
+              var yaw = relative ? position.yaw() + value : value;
               if (yaw < 0 || yaw > 360) {
                 sender.sendMessage("§cInvalid argument! Use a value between 0 and 360");
                 return true;
@@ -621,7 +621,7 @@ public final class NPCCommand extends BaseTabExecutor {
                 position.group());
             }
             case "pitch" -> {
-              var pitch = relative ? position.pitch() + value : position.pitch();
+              var pitch = relative ? position.pitch() + value : value;
               if (pitch < -90 || pitch > 90) {
                 sender.sendMessage("§cInvalid argument! Use a value between -90 and 90");
                 return true;
