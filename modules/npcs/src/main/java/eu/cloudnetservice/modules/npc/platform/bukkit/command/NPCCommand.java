@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.command;
 import com.github.juliarn.npclib.api.profile.Profile;
 import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.Document;
@@ -587,59 +588,64 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
 
-          boolean targetYaw;
+          // we want to use ~ as an operator to indicate whether the provided value is relative or absolute
+          var input = args[3];
+          var relative = input.startsWith("~");
+          if (relative) {
+            input = input.substring(1);
+          }
+
+          var position = npc.location();
+          var value = Doubles.tryParse(input);
+          if (value == null) {
+            sender.sendMessage(String.format("§cUnable to parse value from string §6%s§c.", args[3]));
+            return true;
+          }
+
+          WorldPosition updatedPosition;
           switch (StringUtil.toLower(args[2])) {
-            case "yaw" -> targetYaw = true;
-            case "pitch" -> targetYaw = false;
+            case "yaw" -> {
+              var yaw = relative ? position.yaw() + value : position.yaw();
+              if (yaw < 0 || yaw > 360) {
+                sender.sendMessage("§cInvalid argument! Use a value between 0 and 360");
+                return true;
+              }
+
+              updatedPosition = new WorldPosition(
+                position.x(),
+                position.y(),
+                position.z(),
+                yaw,
+                position.pitch(),
+                position.world(),
+                position.group());
+            }
+            case "pitch" -> {
+              var pitch = relative ? position.pitch() + value : position.pitch();
+              if (pitch < -90 || pitch > 90) {
+                sender.sendMessage("§cInvalid argument! Use a value between -90 and 90");
+                return true;
+              }
+
+              updatedPosition = new WorldPosition(
+                position.x(),
+                position.y(),
+                position.z(),
+                position.yaw(),
+                pitch,
+                position.world(),
+                position.group());
+            }
             default -> {
               sender.sendMessage("§cInvalid usage! Use §6/cn edit rotate <yaw/pitch> <value>§c!");
               return true;
             }
           }
 
-          var input = args[3];
-          // we want to use ~ as an operator to indicate whether the provided value is relative or absolute
-          var relative = input.startsWith("~");
-          if (relative) {
-            // we know that we got a relative input, strip the ~ and try to parse later on
-            input = input.substring(1);
-          }
-
-          try {
-            var location = npc.location();
-            var yaw = location.yaw();
-            var pitch = location.pitch();
-            var value = Double.parseDouble(input);
-            if (targetYaw) {
-              yaw = relative ? value + yaw : value;
-              if (yaw < 0 || yaw > 360) {
-                sender.sendMessage("§cInvalid argument! Use a value between 0 and 360");
-                return true;
-              }
-            } else {
-              pitch = relative ? value + pitch : value;
-              if (pitch < -90 || pitch > 90) {
-                sender.sendMessage("§cInvalid argument! Use a value between -90 and 90");
-                return true;
-              }
-            }
-
-            var updatedPosition = new WorldPosition(
-              location.x(),
-              location.y(),
-              location.z(),
-              yaw,
-              pitch,
-              location.world(),
-              location.group());
-            updatedNpc = NPC.builder(npc).location(updatedPosition).build();
-            // npcs use the position as key so the npc is not updated but rather another npc is created
-            // just delete the old npc
-            this.management.deleteNPC(npc);
-          } catch (NumberFormatException _) {
-            sender.sendMessage(String.format("§cUnable to parse value from string §6%s§c.", args[3]));
-            return true;
-          }
+          updatedNpc = NPC.builder(npc).location(updatedPosition).build();
+          // npcs use the position as key so the npc is not updated but rather another npc is created
+          // just delete the old npc
+          this.management.deleteNPC(npc);
         }
 
         // unknown option
