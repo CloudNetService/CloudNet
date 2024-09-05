@@ -16,15 +16,17 @@
 
 package eu.cloudnetservice.node.command.defaults;
 
-import cloud.commandframework.execution.postprocessor.CommandPostprocessingContext;
-import cloud.commandframework.execution.postprocessor.CommandPostprocessor;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.event.command.CommandPostProcessEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
+import org.incendo.cloud.execution.postprocessor.CommandPostprocessingContext;
+import org.incendo.cloud.execution.postprocessor.CommandPostprocessor;
 
 /**
  * {@inheritDoc}
@@ -46,8 +48,8 @@ final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandS
    */
   @Override
   public void accept(@NonNull CommandPostprocessingContext<CommandSource> context) {
-    var commandContext = context.getCommandContext();
-    var source = commandContext.getSender();
+    var commandContext = context.commandContext();
+    var source = commandContext.sender();
 
     // we only process command executions and not the tab complete handling
     if (commandContext.isSuggestions()) {
@@ -55,13 +57,18 @@ final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandS
     }
 
     // get the first argument and retrieve the command info using it
-    var rawInput = commandContext.getRawInput();
-    var firstArgument = rawInput.getFirst();
+    var rawInput = commandContext.rawInput();
+    var firstArgument = rawInput.peekString();
     var commandInfo = this.provider.command(firstArgument);
+
+    List<String> tokenizedInput = new ArrayList<>();
+    while (rawInput.hasRemainingInput(true)) {
+      tokenizedInput.add(rawInput.readString());
+    }
 
     // should not happen - just make sure
     if (commandInfo != null) {
-      this.eventManager.callEvent(new CommandPostProcessEvent(rawInput, commandInfo, source, this.provider));
+      this.eventManager.callEvent(new CommandPostProcessEvent(tokenizedInput, commandInfo, source, this.provider));
     }
   }
 }

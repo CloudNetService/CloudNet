@@ -16,12 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import eu.cloudnetservice.common.Named;
@@ -46,16 +40,23 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandContext;
+import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @CommandAlias("t")
-@CommandPermission("cloudnet.command.template")
+@Permission("cloudnet.command.template")
 @Description("command-template-description")
 public final class TemplateCommand {
 
@@ -91,11 +92,8 @@ public final class TemplateCommand {
   }
 
   @Parser(suggestions = "serviceTemplate")
-  public @NonNull ServiceTemplate defaultServiceTemplateParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var template = ServiceTemplate.parse(input.remove());
+  public @NonNull ServiceTemplate defaultServiceTemplateParser(@NonNull CommandInput input) {
+    var template = ServiceTemplate.parse(input.readString());
     if (template == null || template.findStorage() == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-template-not-valid"));
     }
@@ -103,21 +101,17 @@ public final class TemplateCommand {
   }
 
   @Suggestions("serviceTemplate")
-  public @NonNull List<String> suggestServiceTemplate(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull Stream<String> suggestServiceTemplate() {
     return this.templateStorageProvider.availableTemplateStorages().stream()
-      .map(storage -> this.templateStorageProvider.templateStorage(storage))
+      .map(this.templateStorageProvider::templateStorage)
       .filter(Objects::nonNull)
       .flatMap(storage -> STORED_TEMPLATES.get(storage).stream())
-      .map(ServiceTemplate::toString)
-      .toList();
+      .map(ServiceTemplate::toString);
   }
 
   @Parser
-  public @NonNull TemplateStorage defaultTemplateStorageParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var storage = input.remove();
+  public @NonNull TemplateStorage defaultTemplateStorageParser(@NonNull CommandInput input) {
+    var storage = input.readString();
     var templateStorage = this.templateStorageProvider.templateStorage(storage);
     if (templateStorage == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-template-storage-not-found", storage));
@@ -127,16 +121,16 @@ public final class TemplateCommand {
   }
 
   @Suggestions("templateStorage")
-  public @NonNull List<String> suggestTemplateStorage(@NonNull CommandContext<?> $, @NonNull String input) {
-    return List.copyOf(this.templateStorageProvider.availableTemplateStorages());
+  public @NonNull Collection<String> suggestTemplateStorage() {
+    return this.templateStorageProvider.availableTemplateStorages();
   }
 
   @Parser(suggestions = "version")
   public @NonNull ServiceVersion defaultVersionParser(
     @NonNull CommandContext<?> context,
-    @NonNull Queue<String> input
+    @NonNull CommandInput input
   ) {
-    var version = input.remove();
+    var version = input.readString();
     ServiceVersionType type = context.get("versionType");
 
     var serviceVersion = type.version(version);
@@ -148,21 +142,17 @@ public final class TemplateCommand {
   }
 
   @Suggestions("version")
-  public @NonNull List<String> suggestVersions(@NonNull CommandContext<?> context, @NonNull String input) {
+  public @NonNull Stream<String> suggestVersions(@NonNull CommandContext<?> context) {
     ServiceVersionType type = context.get("versionType");
     return type.versions()
       .stream()
       .filter(ServiceVersion::canRun)
-      .map(Named::name)
-      .toList();
+      .map(Named::name);
   }
 
   @Parser(suggestions = "serviceEnvironments")
-  public @NonNull ServiceEnvironmentType defaultServiceEnvironmentTypeParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var env = input.remove();
+  public @NonNull ServiceEnvironmentType defaultServiceEnvironmentTypeParser(@NonNull CommandInput input) {
+    var env = input.readString();
     var type = this.serviceVersionProvider.environmentType(env);
     if (type != null) {
       return type;
@@ -172,11 +162,11 @@ public final class TemplateCommand {
   }
 
   @Suggestions("serviceEnvironments")
-  public @NonNull List<String> suggestServiceEnvironments(@NonNull CommandContext<?> context, @NonNull String input) {
-    return List.copyOf(this.serviceVersionProvider.knownEnvironments().keySet());
+  public @NonNull Set<String> suggestServiceEnvironments() {
+    return this.serviceVersionProvider.knownEnvironments().keySet();
   }
 
-  @CommandMethod("template|t list [storage]")
+  @Command("template|t list [storage]")
   public void displayTemplates(
     @NonNull CommandSource source,
     @Nullable @Argument("storage") TemplateStorage templateStorage
@@ -194,7 +184,7 @@ public final class TemplateCommand {
     source.sendMessage(LIST_FORMATTER.format(templates));
   }
 
-  @CommandMethod("template|t delete|rm|del <template>")
+  @Command("template|t delete|rm|del <template>")
   public void deleteTemplate(@NonNull CommandSource source, @NonNull @Argument("template") ServiceTemplate template) {
     var templateStorage = template.storage();
     if (!templateStorage.contains(template)) {
@@ -208,7 +198,7 @@ public final class TemplateCommand {
     source.sendMessage(I18n.trans("command-template-delete-success", template.toString(), templateStorage.name()));
   }
 
-  @CommandMethod("template|t create <template> <environment>")
+  @Command("template|t create <template> <environment>")
   public void createTemplate(
     @NonNull CommandSource source,
     @NonNull @Argument("template") ServiceTemplate template,
@@ -231,7 +221,7 @@ public final class TemplateCommand {
     }
   }
 
-  @CommandMethod("template|t copy|cp <sourceTemplate> <targetTemplate>")
+  @Command("template|t copy|cp <sourceTemplate> <targetTemplate>")
   public void copyTemplate(
     @NonNull CommandSource source,
     @NonNull @Argument("sourceTemplate") ServiceTemplate sourceTemplate,

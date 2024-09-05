@@ -16,12 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.node.command;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
@@ -37,12 +31,17 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 
 @Singleton
-@CommandPermission("cloudnet.command.bridge")
+@Permission("cloudnet.command.bridge")
 @Description("module-bridge-command-description")
 public class BridgeCommand {
 
@@ -62,8 +61,8 @@ public class BridgeCommand {
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")
-  public GroupConfiguration bridgeGroupParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var name = input.remove();
+  public GroupConfiguration bridgeGroupParser(@NonNull CommandInput input) {
+    var name = input.readString();
     var group = this.groupConfigurationProvider.groupConfiguration(name);
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
@@ -78,15 +77,14 @@ public class BridgeCommand {
   }
 
   @Suggestions("bridgeGroups")
-  public List<String> suggestBridgeGroups(@NonNull CommandContext<?> $, String input) {
+  public Stream<String> suggestBridgeGroups() {
     return this.groupConfigurationProvider.groupConfigurations().stream()
       .map(Named::name)
       .filter(group -> this.bridgeManagement.configuration().fallbackConfigurations().stream()
-        .noneMatch(fallback -> fallback.targetGroup().equals(group)))
-      .toList();
+        .noneMatch(fallback -> fallback.targetGroup().equals(group)));
   }
 
-  @CommandMethod("bridge create entry <targetGroup>")
+  @Command("bridge create entry <targetGroup>")
   public void createBridgeEntry(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "targetGroup", parserName = "bridgeGroups") GroupConfiguration group
@@ -104,7 +102,7 @@ public class BridgeCommand {
     source.sendMessage(I18n.trans("module-bridge-command-create-entry-success"));
   }
 
-  @CommandMethod("bridge task <task> set requiredPermission <permission>")
+  @Command("bridge task <task> set requiredPermission <permission>")
   public void setRequiredPermission(
     @NonNull CommandSource source,
     @NonNull @Argument("task") Collection<ServiceTask> serviceTasks,

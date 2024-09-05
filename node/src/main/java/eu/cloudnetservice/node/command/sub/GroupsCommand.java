@@ -16,15 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.specifier.Greedy;
-import cloud.commandframework.annotations.specifier.Quoted;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
@@ -42,13 +33,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotation.specifier.Greedy;
+import org.incendo.cloud.annotation.specifier.Quoted;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Default;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-@CommandPermission("cloudnet.command.groups")
+@Permission("cloudnet.command.groups")
 @Description("command-groups-description")
 public final class GroupsCommand {
 
@@ -60,9 +61,8 @@ public final class GroupsCommand {
   }
 
   @Parser(suggestions = "groupConfiguration")
-  public @NonNull GroupConfiguration defaultGroupParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var name = input.remove();
-
+  public @NonNull GroupConfiguration defaultGroupParser(@NonNull CommandInput input) {
+    var name = input.readString();
     var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
@@ -72,13 +72,13 @@ public final class GroupsCommand {
   }
 
   @Suggestions("groupConfiguration")
-  public @NonNull List<String> suggestGroups(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.groupProvider.groupConfigurations().stream().map(Named::name).toList();
+  public @NonNull Stream<String> suggestGroups() {
+    return this.groupProvider.groupConfigurations().stream().map(Named::name);
   }
 
   @Parser(name = "inclusionCacheStrategy", suggestions = "inclusionCacheStrategy")
-  public @NonNull String inclusionCacheStrategyParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var strategy = input.remove();
+  public @NonNull String inclusionCacheStrategyParser(@NonNull CommandInput input) {
+    var strategy = input.readString();
     if (strategy.equals(ServiceRemoteInclusion.NO_CACHE_STRATEGY) ||
       strategy.equals(ServiceRemoteInclusion.KEEP_UNTIL_RESTART_STRATEGY)) {
       return strategy;
@@ -88,17 +88,17 @@ public final class GroupsCommand {
   }
 
   @Suggestions("inclusionCacheStrategy")
-  public @NonNull List<String> inclusionCacheStrategySuggester(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull List<String> inclusionCacheStrategySuggester() {
     return List.of(ServiceRemoteInclusion.NO_CACHE_STRATEGY, ServiceRemoteInclusion.KEEP_UNTIL_RESTART_STRATEGY);
   }
 
-  @CommandMethod("groups delete <name>")
+  @Command("groups delete <name>")
   public void deleteGroup(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration configuration) {
     this.groupProvider.removeGroupConfiguration(configuration);
     source.sendMessage(I18n.trans("command-groups-delete-group"));
   }
 
-  @CommandMethod("groups create <name>")
+  @Command("groups create <name>")
   public void createGroup(@NonNull CommandSource source, @NonNull @Argument("name") String groupName) {
     if (this.groupProvider.groupConfiguration(groupName) != null) {
       source.sendMessage(I18n.trans("command-groups-group-already-existing", groupName));
@@ -108,13 +108,13 @@ public final class GroupsCommand {
     }
   }
 
-  @CommandMethod("groups reload")
+  @Command("groups reload")
   public void reloadGroups(@NonNull CommandSource source) {
     this.groupProvider.reload();
     source.sendMessage(I18n.trans("command-groups-reload-success"));
   }
 
-  @CommandMethod("groups list")
+  @Command("groups list")
   public void listGroups(@NonNull CommandSource source) {
     var groups = this.groupProvider.groupConfigurations();
     if (groups.isEmpty()) {
@@ -128,7 +128,7 @@ public final class GroupsCommand {
     }
   }
 
-  @CommandMethod("groups group <name>")
+  @Command("groups group <name>")
   public void displayGroup(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration group) {
     Collection<String> messages = new ArrayList<>();
     messages.add("Name: " + group.name());
@@ -138,7 +138,7 @@ public final class GroupsCommand {
     source.sendMessage(messages);
   }
 
-  @CommandMethod("groups rename <oldName> <newName>")
+  @Command("groups rename <oldName> <newName>")
   public void renameGroup(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "oldName") GroupConfiguration group,
@@ -154,7 +154,7 @@ public final class GroupsCommand {
     }
   }
 
-  @CommandMethod("groups group <name> add environment <environment>")
+  @Command("groups group <name> add environment <environment>")
   public void addEnvironment(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -167,7 +167,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> add deployment <deployment>")
+  @Command("groups group <name> add deployment <deployment>")
   public void addDeployment(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -189,7 +189,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> add template <template>")
+  @Command("groups group <name> add template <template>")
   public void addTemplate(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -202,16 +202,16 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> add inclusion <url> <path> [cacheStrategy]")
+  @Command("groups group <name> add inclusion <url> <path> [cacheStrategy]")
   public void addInclusion(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("url") String url,
     @NonNull @Argument("path") String path,
-    @NonNull @Argument(
+    @NonNull @Default(ServiceRemoteInclusion.NO_CACHE_STRATEGY)
+    @Argument(
       value = "cacheStrategy",
-      parserName = "inclusionCacheStrategy",
-      defaultValue = ServiceRemoteInclusion.NO_CACHE_STRATEGY) String cacheStrategy
+      parserName = "inclusionCacheStrategy") String cacheStrategy
   ) {
     var inclusion = ServiceRemoteInclusion.builder()
       .url(url)
@@ -225,7 +225,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> add jvmOption <options>")
+  @Command("groups group <name> add jvmOption <options>")
   public void addJvmOption(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -239,7 +239,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> add processParameter <options>")
+  @Command("groups group <name> add processParameter <options>")
   public void addProcessParameter(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -255,7 +255,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> remove environment <environment>")
+  @Command("groups group <name> remove environment <environment>")
   public void removeEnvironment(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -268,7 +268,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> remove deployment <deployment>")
+  @Command("groups group <name> remove deployment <deployment>")
   public void removeDeployment(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -291,7 +291,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> remove template <template>")
+  @Command("groups group <name> remove template <template>")
   public void removeTemplate(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -304,7 +304,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> remove inclusion <url> <path>")
+  @Command("groups group <name> remove inclusion <url> <path>")
   public void removeInclusion(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -319,7 +319,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> remove jvmOption <options>")
+  @Command("groups group <name> remove jvmOption <options>")
   public void removeJvmOption(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -333,7 +333,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> remove processParameter <options>")
+  @Command("groups group <name> remove processParameter <options>")
   public void removeProcessParameter(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
@@ -349,7 +349,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> clear jvmOptions")
+  @Command("groups group <name> clear jvmOptions")
   public void clearJvmOptions(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration group) {
     this.updateGroup(group, builder -> builder.modifyJvmOptions(Collection::clear));
     source.sendMessage(I18n.trans("command-groups-clear-property",
@@ -357,7 +357,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> clear processParameters")
+  @Command("groups group <name> clear processParameters")
   public void clearProcessParameters(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group
@@ -368,7 +368,7 @@ public final class GroupsCommand {
       group.name()));
   }
 
-  @CommandMethod("groups group <name> clear inclusions")
+  @Command("groups group <name> clear inclusions")
   public void clearInclusions(
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group

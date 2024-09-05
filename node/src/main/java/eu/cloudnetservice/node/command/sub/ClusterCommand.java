@@ -16,13 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import com.google.common.collect.Lists;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
@@ -61,14 +54,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandContext;
+import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 @CommandAlias("clu")
-@CommandPermission("cloudnet.command.cluster")
+@Permission("cloudnet.command.cluster")
 @Description("command-cluster-description")
 public final class ClusterCommand {
 
@@ -119,11 +121,8 @@ public final class ClusterCommand {
   }
 
   @Parser(suggestions = "clusterNodeServer")
-  public @NonNull NodeServer defaultClusterNodeServerParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var nodeServer = this.nodeServerProvider.node(input.remove());
+  public @NonNull NodeServer defaultClusterNodeServerParser(@NonNull CommandInput input) {
+    var nodeServer = this.nodeServerProvider.node(input.readString());
     if (nodeServer == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -132,11 +131,8 @@ public final class ClusterCommand {
   }
 
   @Suggestions("clusterNodeServer")
-  public @NonNull List<String> suggestClusterNodeServer(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.nodeServerProvider.nodeServers()
-      .stream()
-      .map(clusterNodeServer -> clusterNodeServer.info().uniqueId())
-      .toList();
+  public @NonNull Stream<String> suggestClusterNodeServer() {
+    return this.nodeServerProvider.nodeServers().stream().map(clusterNodeServer -> clusterNodeServer.info().uniqueId());
   }
 
   @Parser(suggestions = "networkClusterNode")
@@ -154,16 +150,13 @@ public final class ClusterCommand {
   }
 
   @Suggestions("networkClusterNode")
-  public @NonNull List<String> suggestNetworkClusterNode(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.configuration.clusterConfig().nodes()
-      .stream()
-      .map(NetworkClusterNode::uniqueId)
-      .toList();
+  public @NonNull Stream<String> suggestNetworkClusterNode() {
+    return this.configuration.clusterConfig().nodes().stream().map(NetworkClusterNode::uniqueId);
   }
 
   @Parser(name = "anyHostAndPort")
-  public @NonNull HostAndPort defaultHostAndPortParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var address = input.remove();
+  public @NonNull HostAndPort defaultHostAndPortParser(@NonNull CommandInput input) {
+    var address = input.readString();
     var hostAndPort = NetworkUtil.parseHostAndPort(address, true);
     if (hostAndPort == null || NetworkUtil.checkWildcard(hostAndPort)) {
       throw new ArgumentNotAvailableException(I18n.trans("command-any-host-and-port-invalid", address));
@@ -173,8 +166,8 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "assignableHostAndPort", suggestions = "assignableHostAndPort")
-  public @NonNull HostAndPort assignableHostAndPortParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var address = input.remove();
+  public @NonNull HostAndPort assignableHostAndPortParser(@NonNull CommandInput input) {
+    var address = input.readInput();
     var hostAndPort = NetworkUtil.parseHostAndPort(address, false);
     // check if we can parse a host and port form the given input
     if (hostAndPort == null) {
@@ -189,13 +182,13 @@ public final class ClusterCommand {
   }
 
   @Suggestions("assignableHostAndPort")
-  public @NonNull List<String> suggestAssignableHostAndPort(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull List<String> suggestAssignableHostAndPort() {
     return List.copyOf(NetworkUtil.availableIPAddresses());
   }
 
   @Parser(name = "anyHost")
-  public @NonNull String anyHostParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var address = input.remove();
+  public @NonNull String anyHostParser(@NonNull CommandInput input) {
+    var address = input.readString();
     var hostAndPort = NetworkUtil.parseHostAndPort(address, false);
     if (hostAndPort == null || NetworkUtil.checkWildcard(hostAndPort)) {
       throw new ArgumentNotAvailableException(I18n.trans("command-any-host-invalid", address));
@@ -205,8 +198,8 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "noNodeId", suggestions = "clusterNode")
-  public @NonNull String noClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var nodeId = input.remove();
+  public @NonNull String noClusterNodeParser(@NonNull CommandInput input) {
+    var nodeId = input.readString();
     for (var node : this.configuration.clusterConfig().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
@@ -217,8 +210,8 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "staticService", suggestions = "staticService")
-  public @NonNull String staticServiceParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var name = input.remove();
+  public @NonNull String staticServiceParser(@NonNull CommandInput input) {
+    var name = input.readString();
     if (this.serviceProvider.serviceByName(name) != null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-push-static-service-running"));
     }
@@ -229,12 +222,12 @@ public final class ClusterCommand {
   }
 
   @Suggestions("staticService")
-  public @NonNull List<String> suggestNotStartedStaticServices(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull List<String> suggestNotStartedStaticServices() {
     return this.resolveAllStaticServices();
   }
 
-  @CommandMethod(value = "cluster|clu shutdown", requiredSender = ConsoleCommandSource.class)
-  public void shutdownCluster(@NonNull CommandSource $) {
+  @Command(value = "cluster|clu shutdown", requiredSender = ConsoleCommandSource.class)
+  public void shutdownCluster() {
     for (var nodeServer : this.nodeServerProvider.nodeServers()) {
       if (nodeServer.channel() != null) {
         nodeServer.shutdown();
@@ -244,7 +237,7 @@ public final class ClusterCommand {
     this.shutdownHandlerProvider.get().shutdown();
   }
 
-  @CommandMethod("cluster|clu add <nodeId> <host>")
+  @Command("cluster|clu add <nodeId> <host>")
   public void addNodeToCluster(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
@@ -254,7 +247,7 @@ public final class ClusterCommand {
     source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId));
   }
 
-  @CommandMethod("cluster|clu remove <nodeId>")
+  @Command("cluster|clu remove <nodeId>")
   public void removeNodeFromCluster(
     @NonNull CommandSource source,
     @NonNull @Argument("nodeId") NetworkClusterNode node
@@ -263,17 +256,17 @@ public final class ClusterCommand {
     source.sendMessage(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
   }
 
-  @CommandMethod("cluster|clu nodes")
+  @Command("cluster|clu nodes")
   public void listNodes(@NonNull CommandSource source) {
     source.sendMessage(FORMATTER.format(this.nodeServerProvider.nodeServers()));
   }
 
-  @CommandMethod("cluster|clu node <nodeId>")
+  @Command("cluster|clu node <nodeId>")
   public void listNode(@NonNull CommandSource source, @NonNull @Argument("nodeId") NodeServer nodeServer) {
     this.displayNode(source, nodeServer);
   }
 
-  @CommandMethod("cluster|clu node <nodeId> set drain <enabled>")
+  @Command("cluster|clu node <nodeId> set drain <enabled>")
   public void drainNode(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "nodeId") NodeServer nodeServer,
@@ -283,14 +276,14 @@ public final class ClusterCommand {
     source.sendMessage(I18n.trans("command-cluster-node-set-drain", enabled ? 1 : 0, nodeServer.info().uniqueId()));
   }
 
-  @CommandMethod("cluster|clu sync")
+  @Command("cluster|clu sync")
   public void sync(@NonNull CommandSource source) {
     source.sendMessage(I18n.trans("command-cluster-start-sync"));
     // perform a cluster sync that takes care of tasks, groups and more
     this.nodeServerProvider.syncDataIntoCluster();
   }
 
-  @CommandMethod("cluster|clu push templates [template]")
+  @Command("cluster|clu push templates [template]")
   public void pushTemplates(@NonNull CommandSource source, @Nullable @Argument("template") ServiceTemplate template) {
     // check if we need to push all templates or just a specific one
     if (template == null) {
@@ -305,7 +298,7 @@ public final class ClusterCommand {
     }
   }
 
-  @CommandMethod("cluster|clu push staticServices [service]")
+  @Command("cluster|clu push staticServices [service]")
   public void pushStaticServices(
     @NonNull CommandSource source,
     @Nullable @Argument(value = "service", parserName = "staticService") String service,

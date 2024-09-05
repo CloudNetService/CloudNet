@@ -16,16 +16,16 @@
 
 package eu.cloudnetservice.node.command.defaults;
 
-import cloud.commandframework.CloudCapability;
-import cloud.commandframework.CommandManager;
-import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
-import cloud.commandframework.internal.CommandRegistrationHandler;
-import cloud.commandframework.meta.CommandMeta;
-import cloud.commandframework.meta.SimpleCommandMeta;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
 import java.util.concurrent.Executors;
 import lombok.NonNull;
+import org.incendo.cloud.CloudCapability;
+import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.internal.CommandRegistrationHandler;
+import org.incendo.cloud.meta.CommandMeta;
+import org.incendo.cloud.meta.SimpleCommandMeta;
 
 /**
  * {@inheritDoc}
@@ -38,9 +38,8 @@ final class DefaultCommandManager extends CommandManager<CommandSource> {
    * a thread pool with 4 threads.
    */
   private DefaultCommandManager() {
-    super(AsynchronousCommandExecutionCoordinator.<CommandSource>builder()
-        .withExecutor(Executors.newFixedThreadPool(4))
-        .build(),
+    super(
+      ExecutionCoordinator.<CommandSource>builder().executor(Executors.newFixedThreadPool(4)).build(),
       CommandRegistrationHandler.nullCommandRegistrationHandler());
     this.registerCapability(CloudCapability.StandardCapabilities.ROOT_COMMAND_DELETION);
   }

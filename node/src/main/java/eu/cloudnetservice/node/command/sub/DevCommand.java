@@ -18,32 +18,31 @@ package eu.cloudnetservice.node.command.sub;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
 import java.util.List;
-import java.util.Queue;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 @Description("command-dev-description")
-@CommandPermission("cloudnet.command.dev")
+@Permission("cloudnet.command.dev")
 public final class DevCommand {
 
-  private static final List<String> LOG_LEVEL = List.of("OFF", "ERROR", "WARN", "INFO", "DEBUG", "TRACE", "OFF");
+  private static final List<String> LOG_LEVEL = List.of("OFF", "ERROR", "WARN", "INFO", "DEBUG", "TRACE");
 
   @Parser(suggestions = "logLevel")
-  public @NonNull Level logLevelParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var levelName = input.remove();
+  public @NonNull Level logLevelParser(@NonNull CommandInput input) {
+    var levelName = input.readString();
     var level = Level.toLevel(levelName, null);
     if (level == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-dev-log-level-not-found"));
@@ -53,11 +52,11 @@ public final class DevCommand {
   }
 
   @Suggestions("logLevel")
-  public @NonNull List<String> suggestLogLevel(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull List<String> suggestLogLevel() {
     return LOG_LEVEL;
   }
 
-  @CommandMethod("dev set logLevel <level>")
+  @Command("dev set logLevel <level>")
   public void setLogLevel(@NonNull CommandSource source, @NonNull @Argument("level") Level level) {
     var rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     if (rootLogger instanceof Logger logbackLogger) {

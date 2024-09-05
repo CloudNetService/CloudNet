@@ -16,13 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
@@ -38,13 +31,19 @@ import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.List;
-import java.util.Queue;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 
 @Singleton
 @CommandAlias("signs")
-@CommandPermission("cloudnet.command.sign")
+@Permission("cloudnet.command.sign")
 @Description("module-sign-command-description")
 public class SignCommand {
 
@@ -64,11 +63,8 @@ public class SignCommand {
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
-  public @NonNull String newConfigurationParser(
-    @NonNull CommandContext<CommandSource> $,
-    @NonNull Queue<String> input
-  ) {
-    var name = input.remove();
+  public @NonNull String newConfigurationParser(@NonNull CommandInput input) {
+    var name = input.readString();
     var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
@@ -84,25 +80,21 @@ public class SignCommand {
   }
 
   @Suggestions("newConfiguration")
-  public @NonNull List<String> suggestNewConfigurations(
-    @NonNull CommandContext<CommandSource> $,
-    @NonNull String input
-  ) {
+  public @NonNull Stream<String> suggestNewConfigurations() {
     return this.groupProvider.groupConfigurations().stream()
       .map(Named::name)
       .filter(group -> this.signManagement.signsConfiguration()
         .entries()
         .stream()
-        .noneMatch(entry -> entry.targetGroup().equals(group)))
-      .toList();
+        .noneMatch(entry -> entry.targetGroup().equals(group)));
   }
 
-  @CommandMethod("sign|signs list|l")
+  @Command("sign|signs list|l")
   public void listConfiguration(@NonNull CommandSource source) {
     source.sendMessage(ENTRY_LIST_FORMATTER.format(this.signManagement.signsConfiguration().entries()));
   }
 
-  @CommandMethod("sign|signs create entry <targetGroup>")
+  @Command("sign|signs create entry <targetGroup>")
   public void createEntry(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "targetGroup", parserName = "newConfiguration") String targetGroup,

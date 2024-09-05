@@ -16,12 +16,7 @@
 
 package eu.cloudnetservice.node.command.exception;
 
-import cloud.commandframework.arguments.CommandArgument;
-import cloud.commandframework.arguments.compound.FlagArgument;
-import cloud.commandframework.exceptions.ArgumentParseException;
-import cloud.commandframework.exceptions.InvalidSyntaxException;
-import cloud.commandframework.exceptions.NoSuchCommandException;
-import eu.cloudnetservice.CaptionedCommandException;
+import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.CommandProvider;
@@ -35,6 +30,12 @@ import java.util.List;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.incendo.cloud.component.CommandComponent;
+import org.incendo.cloud.exception.ArgumentParseException;
+import org.incendo.cloud.exception.CommandParseException;
+import org.incendo.cloud.exception.InvalidSyntaxException;
+import org.incendo.cloud.exception.NoSuchCommandException;
+import org.incendo.cloud.parser.flag.CommandFlagParser;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,17 +78,34 @@ public class CommandExceptionHandler {
     }
 
     // determine the cause type and apply the specific handler
-    if (cause instanceof CaptionedCommandException) {
+    if (cause instanceof ArgumentParseException parseException) {
+      var deepCause = cause.getCause();
+      if (deepCause instanceof ArgumentNotAvailableException) {
+        source.sendMessage(deepCause.getMessage());
+      } else if (deepCause instanceof IllegalArgumentException) {
+        // we need to handle this exception extra
+        if (deepCause instanceof CommandFlagParser.FlagParseException flagParseException) {
+          // if no flag is supplied we should reply with the command tree
+          if (flagParseException.failureReason() == CommandFlagParser.FailureReason.NO_FLAG_STARTED) {
+            source.sendMessage(this.collectCommandHelp(parseException.currentChain()));
+            return;
+          }
+        }
+        source.sendMessage(deepCause.getMessage());
+      } else {
+        LOGGER.error("Exception during command argument parsing", cause);
+      }
+    } else if (cause instanceof CommandParseException) {
       if (cause instanceof InvalidSyntaxException invalidSyntaxException) {
         // build the full command tree for the given input
-        var commandTree = this.collectCommandHelp(invalidSyntaxException.getCurrentChain());
+        var commandTree = this.collectCommandHelp(invalidSyntaxException.currentChain());
         // call the event to allow an own response
         var event = this.eventManager.callEvent(new CommandInvalidSyntaxEvent(
           source,
-          invalidSyntaxException.getCorrectSyntax(),
+          invalidSyntaxException.correctSyntax(),
           commandTree,
           // by default, we display the whole tree if we just have one argument
-          invalidSyntaxException.getCurrentChain().size() <= 1
+          invalidSyntaxException.currentChain().size() <= 1
             ? commandTree
             : List.of(invalidSyntaxException.getMessage())));
         // send the response of the event
@@ -96,30 +114,13 @@ public class CommandExceptionHandler {
         // call the command not found event for own responses
         var event = this.eventManager.callEvent(new CommandNotFoundEvent(
           source,
-          noSuchCommandException.getSuppliedCommand(),
-          cause.getMessage()));
+          noSuchCommandException.suppliedCommand(),
+          I18n.trans("no-such-command")));
         // send the response of the event
         source.sendMessage(event.response());
       } else {
         // just send the message
         source.sendMessage(cause.getMessage());
-      }
-    } else if (cause instanceof ArgumentParseException parseException) {
-      var deepCause = cause.getCause();
-      if (deepCause instanceof ArgumentNotAvailableException) {
-        source.sendMessage(deepCause.getMessage());
-      } else if (deepCause instanceof CaptionedCommandException) {
-        // we need to handle this exception extra
-        if (deepCause instanceof FlagArgument.FlagParseException flagParseException) {
-          // if no flag is supplied we should reply with the command tree
-          if (flagParseException.failureReason() == FlagArgument.FailureReason.NO_FLAG_STARTED) {
-            source.sendMessage(this.collectCommandHelp(parseException.getCurrentChain()));
-            return;
-          }
-        }
-        source.sendMessage(deepCause.getMessage());
-      } else {
-        LOGGER.error("Exception during command argument parsing", cause);
       }
     } else {
       LOGGER.error("Exception during command execution", cause);
@@ -133,12 +134,12 @@ public class CommandExceptionHandler {
    * @return a list containing the response for the source.
    * @throws NullPointerException if the current chain is null.
    */
-  protected @NonNull List<String> collectCommandHelp(@NonNull List<CommandArgument<?, ?>> currentChain) {
+  protected @NonNull List<String> collectCommandHelp(@NonNull List<CommandComponent<?>> currentChain) {
     if (currentChain.isEmpty()) {
       // the command chain is empty, let the user handle the response
       return List.of();
     }
-    var root = currentChain.get(0).getName();
+    var root = currentChain.getFirst().name();
     var commandInfo = this.commandProvider.command(root);
     if (commandInfo == null) {
       // we can't find a matching command, let the user handle the response
@@ -150,7 +151,7 @@ public class CommandExceptionHandler {
       this.collectDefaultUsage(results, commandInfo);
     } else {
       // rebuild the input of the user
-      var commandChain = currentChain.stream().map(CommandArgument::getName).collect(Collectors.joining(" "));
+      var commandChain = currentChain.stream().map(CommandComponent::name).collect(Collectors.joining(" "));
       // check if we can find any chain specific usages
       for (var usage : commandInfo.usage()) {
         if (usage.startsWith(commandChain)) {

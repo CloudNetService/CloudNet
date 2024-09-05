@@ -23,6 +23,7 @@ import eu.cloudnetservice.node.console.Console;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -35,10 +36,10 @@ import org.jetbrains.annotations.UnmodifiableView;
  * one "root command" is meant that all commands in one class must start with a prefix that all have in common. The
  * reason for this is that there is no other way to properly parse and register the commands than this one.
  * <p>
- * Note: Commands that have a requiredSender in their {@link cloud.commandframework.annotations.CommandMethod}
- * annotation set are only executable using the console or the api.
+ * Note: Commands that have a requiredSender in their {@link org.incendo.cloud.annotations.Command} annotation set are
+ * only executable using the console or the api.
  *
- * @see cloud.commandframework.annotations.CommandMethod
+ * @see org.incendo.cloud.annotations.Command
  * @see CommandInfo
  * @since 4.0
  */
@@ -53,13 +54,14 @@ public interface CommandProvider {
    * @return the suggestions for the current command chain.
    * @throws NullPointerException if separator or input is null.
    */
-  @NonNull List<String> suggest(@NonNull CommandSource source, @NonNull String input);
+  @NonNull
+  List<String> suggest(@NonNull CommandSource source, @NonNull String input);
 
   /**
    * Executes a command with the given command source and sends all responses to the given source.
    * <p>
    * Note: The command is executed asynchronously in a cached thread pool. If synchronous execution is necessary, then
-   * you should consider blocking for the command execution using {@link TaskUtil#getOrNull()}.
+   * you should consider blocking for the command execution using {@link TaskUtil#getOrDefault(Future, Object)}}.
    *
    * @param source the command source that is used to execute the command.
    * @param input  the commandline that is executed.
@@ -71,7 +73,7 @@ public interface CommandProvider {
 
   /**
    * Registers a command on a per-class basis. All methods annotated with
-   * {@link cloud.commandframework.annotations.CommandMethod} are parsed into a command and only one common
+   * {@link org.incendo.cloud.annotations.Command} are parsed into a command and only one common
    * {@link CommandInfo}.
    * <p>
    * This method takes a class instead of an instance and creates the instance using our dependency injection framework.
@@ -84,7 +86,7 @@ public interface CommandProvider {
 
   /**
    * Registers a command on a per-class basis. All methods annotated with
-   * {@link cloud.commandframework.annotations.CommandMethod} are parsed into a command and only one common
+   * {@link org.incendo.cloud.annotations.Command} are parsed into a command and only one common
    * {@link CommandInfo}.
    *
    * @param command the instance of the class to register all commands for.
@@ -137,5 +139,6 @@ public interface CommandProvider {
    * @return all registered commands.
    */
   @UnmodifiableView
-  @NonNull Collection<CommandInfo> commands();
+  @NonNull
+  Collection<CommandInfo> commands();
 }
