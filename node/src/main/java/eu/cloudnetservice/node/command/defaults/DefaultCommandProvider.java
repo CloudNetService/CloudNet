@@ -85,12 +85,8 @@ public final class DefaultCommandProvider implements CommandProvider {
 
   private static final CloudKey<Set<String>> ALIAS_KEY = CloudKey.of("cloudnet:alias", new TypeToken<Set<String>>() {
   });
-  private static final CloudKey<String> DESCRIPTION_KEY = CloudKey.of(
-    "cloudnet:description",
-    String.class);
-  private static final CloudKey<String> DOCUMENTATION_KEY = CloudKey.of(
-    "cloudnet:documentation",
-    String.class);
+  private static final CloudKey<String> DESCRIPTION_KEY = CloudKey.of("cloudnet:description", String.class);
+  private static final CloudKey<String> DOCUMENTATION_KEY = CloudKey.of("cloudnet:documentation", String.class);
 
   private final CommandExceptionHandler exceptionHandler;
   private final CommandManager<CommandSource> commandManager;
