@@ -24,7 +24,7 @@ javapoet = "1.13.0"
 
 # console
 jline = "3.26.3"
-cloud = "2.0.0"
+cloud = "2.0.0-cn1"
 cloudConfirmation = "1.0.0-rc.1"
 stringSimilarity = "2.0.0"
 
@@ -103,9 +103,9 @@ nightConfigYaml = { group = "com.electronwill.night-config", name = "yaml", vers
 nightConfigJson = { group = "com.electronwill.night-config", name = "json", version.ref = "nightConfig" }
 
 # cloud commands
-cloudCore = { group = "org.incendo", name = "cloud-core", version.ref = "cloud" }
-cloudAnnotations = { group = "org.incendo", name = "cloud-annotations", version.ref = "cloud" }
-cloudConfirmationProcessor = {group = "org.incendo", name = "cloud-processors-confirmation", version.ref = "cloudConfirmation"}
+cloudCore = { group = "com.github.CloudNetService.cloud-command-framework", name = "cloud-core", version.ref = "cloud" }
+cloudAnnotations = { group = "com.github.CloudNetService.cloud-command-framework", name = "cloud-annotations", version.ref = "cloud" }
+cloudConfirmationProcessor = { group = "org.incendo", name = "cloud-processors-confirmation", version.ref = "cloudConfirmation" }
 
 # junit
 junitApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
