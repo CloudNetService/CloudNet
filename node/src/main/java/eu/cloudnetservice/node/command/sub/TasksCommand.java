@@ -229,10 +229,9 @@ public final class TasksCommand {
 
   @Parser(name = "javaCommand")
   public @NonNull Tuple2<String, JavaVersion> javaCommandParser(@NonNull CommandInput input) {
-    //TODO check if this is correct
     var command = input.remainingInput();
     // we have to clear the queue as we consumed the input using String.join
-    input.cursor(input.remainingLength());
+    input.cursor(input.length());
 
     var version = JavaVersionResolver.resolveFromJavaExecutable(command);
     if (version == null) {
