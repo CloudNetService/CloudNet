@@ -101,11 +101,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.21"
+            "versionGroup": "1.21.1"
           }
         },
         {
-          "name": "1.21",
+          "name": "1.21.1",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -116,7 +116,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.21"
+            "versionGroup": "1.21.1"
           }
         },
         {
@@ -317,7 +317,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.1/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -331,8 +331,8 @@
           }
         },
         {
-          "name": "1.21",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21/latest/download",
+          "name": "1.21.1",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.1/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -514,7 +514,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.21",
+          "name": "1.21.1",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -557,12 +557,12 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.21"
+            "mcVersion": "1.21.1"
           },
           "minJavaVersion": 21
         },
         {
-          "name": "1.21",
+          "name": "1.21.1",
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -571,7 +571,7 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.21"
+            "mcVersion": "1.21.1"
           },
           "minJavaVersion": 21
         },
@@ -704,12 +704,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.loohpjames.com/job/Limbo/lastSuccessfulBuild/artifact/target/Limbo-0.7.10-ALPHA-1.21.jar",
+          "url": "https://ci.loohpjames.com/job/Limbo/46/artifact/target/Limbo-0.7.10-ALPHA-1.21.1.jar",
           "cacheFiles": false
         },
         {
-          "name": "1.21",
-          "url": "https://ci.loohpjames.com/job/Limbo/lastSuccessfulBuild/artifact/target/Limbo-0.7.10-ALPHA-1.21.jar"
+          "name": "1.21.1",
+          "url": "https://ci.loohpjames.com/job/Limbo/46/artifact/target/Limbo-0.7.10-ALPHA-1.21.1.jar"
         },
         {
           "name": "1.20.6",
