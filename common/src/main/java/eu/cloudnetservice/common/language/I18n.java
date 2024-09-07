@@ -18,6 +18,7 @@ package eu.cloudnetservice.common.language;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.resource.ResourceResolver;
@@ -55,7 +56,8 @@ public final class I18n {
   private static final Pattern MESSAGE_FORMAT = Pattern.compile("\\{(.+?)\\$.+?\\$}");
 
   private static final Logger LOGGER = LoggerFactory.getLogger(I18n.class);
-  private static final SetMultimap<String, Entry> REGISTERED_ENTRIES = HashMultimap.create();
+  private static final SetMultimap<String, Entry> REGISTERED_ENTRIES = Multimaps.synchronizedSetMultimap(
+    HashMultimap.create());
   private static final AtomicReference<String> CURRENT_LANGUAGE = new AtomicReference<>("en_US");
 
   private I18n() {
