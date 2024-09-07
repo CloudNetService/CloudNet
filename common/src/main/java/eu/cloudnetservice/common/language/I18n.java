@@ -18,7 +18,6 @@ package eu.cloudnetservice.common.language;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.resource.ResourceResolver;
@@ -29,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
@@ -56,8 +56,7 @@ public final class I18n {
   private static final Pattern MESSAGE_FORMAT = Pattern.compile("\\{(.+?)\\$.+?\\$}");
 
   private static final Logger LOGGER = LoggerFactory.getLogger(I18n.class);
-  private static final SetMultimap<String, Entry> REGISTERED_ENTRIES = Multimaps.synchronizedSetMultimap(
-    HashMultimap.create());
+  private static final SetMultimap<String, Entry> REGISTERED_ENTRIES = HashMultimap.create();
   private static final AtomicReference<String> CURRENT_LANGUAGE = new AtomicReference<>("en_US");
 
   private I18n() {
@@ -159,7 +158,8 @@ public final class I18n {
    * @throws NullPointerException if the given loader is null.
    */
   public static void unregisterLanguageFiles(@NonNull ClassLoader loader) {
-    for (var entry : REGISTERED_ENTRIES.entries()) {
+    var entries = new ArrayList<>(REGISTERED_ENTRIES.entries());
+    for (var entry : entries) {
       if (entry.getValue().source().equals(loader)) {
         REGISTERED_ENTRIES.remove(entry.getKey(), entry.getValue());
       }
