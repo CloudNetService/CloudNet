@@ -33,6 +33,7 @@ import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -163,6 +164,37 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
       .filter(entry -> entry.getPort() != port && (protocol == null || !protocol.equals(entry.getProtocol())))
       .collect(Collectors.toSet())));
     source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "exposedPort", task.name(), port));
+  }
+
+  @CommandMethod("docker task <task> add label <key> <value>")
+  public void addLabel(
+    @NonNull CommandSource source,
+    @Argument("task") @NonNull ServiceTask task,
+    @Argument("key") @NonNull String key,
+    @Argument("value") @NonNull String value
+  ) {
+    var entry = Map.entry(key, value);
+    this.updateTaskDockerConfig(task, ($, builder) -> builder.addLabel(entry));
+    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "labels", task.name(), entry));
+  }
+
+  @CommandMethod("docker task <task> clear labels")
+  public void clearLabels(
+    @NonNull CommandSource source,
+    @Argument("task") @NonNull ServiceTask task
+  ) {
+    this.updateTaskDockerConfig(task, ($, builder) -> builder.labels(Map.of()));
+    source.sendMessage(I18n.trans("command-tasks-clear-property", "labels", task.name()));
+  }
+
+  @CommandMethod("docker task <task> remove label <key>")
+  public void removeLabel(
+    @NonNull CommandSource source,
+    @Argument("task") @NonNull ServiceTask task,
+    @Argument("key") @NonNull String key
+  ) {
+    this.updateTaskDockerConfig(task, (config, builder) -> builder.removeLabel(key));
+    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "labels", task.name(), key));
   }
 
   @CommandMethod("docker config network <network>")
