@@ -584,7 +584,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
         case "r", "rot", "rotate" -> {
           if (args.length < 4) {
-            sender.sendMessage("§cInvalid usage! Use §6/cn edit rotate <yaw/pitch> <value>§c!");
+            sender.sendMessage("§cInvalid usage! Use §6/cn edit rotate [~]<yaw/pitch> <value>§c!");
             return true;
           }
 
@@ -598,7 +598,7 @@ public final class NPCCommand extends BaseTabExecutor {
           var position = npc.location();
           var value = Doubles.tryParse(input);
           if (value == null) {
-            sender.sendMessage(String.format("§cUnable to parse value from string §6%s§c.", args[3]));
+            sender.sendMessage(String.format("§cUnable to parse yaw or pitch from input §6%s§c.", args[3]));
             return true;
           }
 
@@ -607,7 +607,7 @@ public final class NPCCommand extends BaseTabExecutor {
             case "yaw" -> {
               var yaw = relative ? position.yaw() + value : value;
               if (yaw < 0 || yaw > 360) {
-                sender.sendMessage("§cInvalid argument! Use a value between 0 and 360");
+                sender.sendMessage("§cInvalid argument! Yaw must be between 0 and 360, got " + yaw);
                 return true;
               }
 
@@ -623,7 +623,7 @@ public final class NPCCommand extends BaseTabExecutor {
             case "pitch" -> {
               var pitch = relative ? position.pitch() + value : value;
               if (pitch < -90 || pitch > 90) {
-                sender.sendMessage("§cInvalid argument! Use a value between -90 and 90");
+                sender.sendMessage("§cInvalid argument! Pitch must be between -90 and 90, got " + pitch);
                 return true;
               }
 
@@ -637,7 +637,7 @@ public final class NPCCommand extends BaseTabExecutor {
                 position.group());
             }
             default -> {
-              sender.sendMessage("§cInvalid usage! Use §6/cn edit rotate <yaw/pitch> <value>§c!");
+              sender.sendMessage("§cInvalid usage! Use §6/cn edit rotate [~]<yaw/pitch> <value>§c!");
               return true;
             }
           }
