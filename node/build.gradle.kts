@@ -42,7 +42,9 @@ dependencies {
 
   // dependencies which are available for modules
   "api"(libs.guava)
-  "api"(libs.bundles.cloud)
+  "api"(libs.bundles.cloud) {
+    exclude(group = "org.incendo", module = "cloud-core")
+  }
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)

@@ -16,11 +16,6 @@
 
 package eu.cloudnetservice.node.command;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
-import cloud.commandframework.exceptions.NoSuchCommandException;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.event.DefaultEventManager;
@@ -33,6 +28,11 @@ import eu.cloudnetservice.node.command.source.DriverCommandSource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionException;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandContext;
+import org.incendo.cloud.exception.NoSuchCommandException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -67,7 +67,7 @@ public final class CommandProviderTest {
     var testCommandByAlias = commandProvider.command("test1");
     Assertions.assertNotNull(testCommandByAlias);
     Assertions.assertNotEquals("test1", testCommand.name());
-    Assertions.assertEquals(testCommandByAlias, testCommandByAlias);
+    Assertions.assertEquals(testCommand, testCommandByAlias);
   }
 
   @Test
@@ -76,7 +76,7 @@ public final class CommandProviderTest {
 
     var rootSuggestions = commandProvider.suggest(source, "tests");
     Assertions.assertEquals(1, rootSuggestions.size());
-    Assertions.assertEquals("tests", rootSuggestions.get(0));
+    Assertions.assertEquals("tests", rootSuggestions.getFirst());
 
     var subSuggestions = commandProvider.suggest(source, "tests ");
     Assertions.assertEquals(1, subSuggestions.size());
@@ -113,7 +113,7 @@ public final class CommandProviderTest {
 
   public static final class HelpTestCommand {
 
-    @CommandMethod("help")
+    @Command("help")
     public void testHelpCommand(CommandSource source) {
       // no response
     }
@@ -127,7 +127,7 @@ public final class CommandProviderTest {
       return Arrays.asList("alice", "bob", "clyde");
     }
 
-    @CommandMethod("tests test <user>")
+    @Command("tests test <user>")
     public void testUserCommand(
       CommandSource source,
       @Argument(value = "user", suggestions = "UserSuggestions") String user

@@ -128,6 +128,6 @@ fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions) {
     "https://jd.advntr.dev/api/latest/",
     "https://javadoc.io/doc/com.konghq/unirest-java/latest/",
     "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
-    "https://javadoc.io/doc/cloud.commandframework/cloud-core/latest/"
+    "https://javadoc.io/doc/org.incendo/cloud-core/latest/"
   )
 }

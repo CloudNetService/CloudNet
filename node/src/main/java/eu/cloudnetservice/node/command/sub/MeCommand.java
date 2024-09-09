@@ -16,9 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
 import eu.cloudnetservice.common.resource.CpuUsageResolver;
 import eu.cloudnetservice.common.resource.ResourceFormatter;
 import eu.cloudnetservice.driver.CloudNetVersion;
@@ -36,10 +33,13 @@ import java.lang.management.RuntimeMXBean;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
 
 @Singleton
 @CommandAlias("info")
-@CommandPermission("cloudnet.command.me")
+@Permission("cloudnet.command.me")
 @Description("command-me-description")
 public final class MeCommand {
 
@@ -51,7 +51,7 @@ public final class MeCommand {
   private static final String UPDATE_BRANCH = System.getProperty("cloudnet.updateBranch", "release");
   private static final String UPDATE_REPO = System.getProperty("cloudnet.updateRepo", "CloudNetService/launchermeta");
 
-  @CommandMethod("me|info")
+  @Command("me|info")
   public void me(
     @NonNull CloudNetVersion version,
     @NonNull Configuration configuration,

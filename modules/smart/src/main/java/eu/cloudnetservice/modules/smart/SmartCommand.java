@@ -16,13 +16,6 @@
 
 package eu.cloudnetservice.modules.smart;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.specifier.Range;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -32,13 +25,19 @@ import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.List;
-import java.util.Queue;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotation.specifier.Range;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 
 @Singleton
-@CommandPermission("cloudnet.command.smart")
+@Permission("cloudnet.command.smart")
 @Description("module-smart-command-description")
 public class SmartCommand {
 
@@ -50,8 +49,8 @@ public class SmartCommand {
   }
 
   @Parser(name = "smartTask", suggestions = "smartTask")
-  public @NonNull ServiceTask smartTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var task = this.taskProvider.serviceTask(input.remove());
+  public @NonNull ServiceTask smartTaskParser(@NonNull CommandInput input) {
+    var task = this.taskProvider.serviceTask(input.readString());
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -63,15 +62,14 @@ public class SmartCommand {
   }
 
   @Suggestions("smartTask")
-  public @NonNull List<String> suggestSmartTasks(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull Stream<String> suggestSmartTasks() {
     return this.taskProvider.serviceTasks()
       .stream()
       .filter(serviceTask -> serviceTask.propertyHolder().contains("smartConfig"))
-      .map(Named::name)
-      .toList();
+      .map(Named::name);
   }
 
-  @CommandMethod("smart task <task> enabled <enabled>")
+  @Command("smart task <task> enabled <enabled>")
   public void enable(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -84,7 +82,7 @@ public class SmartCommand {
       enabled));
   }
 
-  @CommandMethod("smart task <task> priority <priority>")
+  @Command("smart task <task> priority <priority>")
   public void priority(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -98,7 +96,7 @@ public class SmartCommand {
       priority));
   }
 
-  @CommandMethod("smart task <task> maxServices <amount>")
+  @Command("smart task <task> maxServices <amount>")
   public void maxServices(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -112,7 +110,7 @@ public class SmartCommand {
       maxServices));
   }
 
-  @CommandMethod("smart task <task> preparedServices <amount>")
+  @Command("smart task <task> preparedServices <amount>")
   public void preparedServices(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -127,7 +125,7 @@ public class SmartCommand {
         preparedServices));
   }
 
-  @CommandMethod("smart task <task> smartMinServiceCount <amount>")
+  @Command("smart task <task> smartMinServiceCount <amount>")
   public void smartMinServiceCount(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -142,7 +140,7 @@ public class SmartCommand {
         smartMinServiceCount));
   }
 
-  @CommandMethod("smart task <task> splitLogicallyOverNodes <enabled>")
+  @Command("smart task <task> splitLogicallyOverNodes <enabled>")
   public void splitLogicallyOverNodes(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -157,7 +155,7 @@ public class SmartCommand {
         enabled));
   }
 
-  @CommandMethod("smart task <task> directTemplatesAndInclusionsSetup <enabled>")
+  @Command("smart task <task> directTemplatesAndInclusionsSetup <enabled>")
   public void directTemplatesAndInclusionsSetup(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -171,7 +169,7 @@ public class SmartCommand {
       enabled));
   }
 
-  @CommandMethod("smart task <task> templateInstaller <installer>")
+  @Command("smart task <task> templateInstaller <installer>")
   public void templateInstaller(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -185,7 +183,7 @@ public class SmartCommand {
       installer));
   }
 
-  @CommandMethod("smart task <task> autoStopTimeByUnusedServiceInSeconds <seconds>")
+  @Command("smart task <task> autoStopTimeByUnusedServiceInSeconds <seconds>")
   public void autoStopTimeByUnusedServiceInSeconds(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -199,7 +197,7 @@ public class SmartCommand {
       seconds));
   }
 
-  @CommandMethod("smart task <task> percentOfPlayersToCheckShouldStopTheService <percent>")
+  @Command("smart task <task> percentOfPlayersToCheckShouldStopTheService <percent>")
   public void percentOfPlayersToCheckShouldStopTheService(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -213,7 +211,7 @@ public class SmartCommand {
       percent));
   }
 
-  @CommandMethod("smart task <task> forAnewInstanceDelayTimeInSeconds <seconds>")
+  @Command("smart task <task> forAnewInstanceDelayTimeInSeconds <seconds>")
   public void forAnewInstanceDelayTimeInSeconds(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
@@ -227,7 +225,7 @@ public class SmartCommand {
       seconds));
   }
 
-  @CommandMethod("smart task <task> percentOfPlayersForANewServiceByInstance <percent>")
+  @Command("smart task <task> percentOfPlayersForANewServiceByInstance <percent>")
   public void percentOfPlayersForANewServiceByInstance(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,

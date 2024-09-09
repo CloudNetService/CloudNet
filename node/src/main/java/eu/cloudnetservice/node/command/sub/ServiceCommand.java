@@ -16,15 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.specifier.Greedy;
-import cloud.commandframework.annotations.specifier.Quoted;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import com.google.common.base.Splitter;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
@@ -58,18 +49,27 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotation.specifier.Greedy;
+import org.incendo.cloud.annotation.specifier.Quoted;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 @CommandAlias("ser")
-@CommandPermission("cloudnet.command.service")
+@Permission("cloudnet.command.service")
 @Description("command-service-description")
 public final class ServiceCommand {
 
@@ -108,19 +108,15 @@ public final class ServiceCommand {
   }
 
   @Suggestions("service")
-  public @NonNull List<String> suggestService(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull Stream<String> suggestService() {
     return this.cloudServiceProvider.services()
       .stream()
-      .map(Named::name)
-      .toList();
+      .map(Named::name);
   }
 
   @Parser(suggestions = "service")
-  public @NonNull Collection<ServiceInfoSnapshot> wildcardServiceParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var name = input.remove();
+  public @NonNull Collection<ServiceInfoSnapshot> wildcardServiceParser(@NonNull CommandInput input) {
+    var name = input.readString();
     var knownServices = this.cloudServiceProvider.services();
     var matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
@@ -130,7 +126,7 @@ public final class ServiceCommand {
     return matchedServices;
   }
 
-  @CommandMethod("service|ser list|l")
+  @Command("service|ser list|l")
   public void displayServices(
     @NonNull CommandSource source,
     @Nullable @Flag("id") Integer id,
@@ -156,7 +152,7 @@ public final class ServiceCommand {
     source.sendMessage(String.format("=> Showing %d service(s)", services.size()));
   }
 
-  @CommandMethod("service|ser <name>")
+  @Command("service|ser <name>")
   public void displayBasicServiceInfo(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
@@ -168,7 +164,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> start")
+  @Command("service|ser <name> start")
   public void startServices(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
@@ -178,7 +174,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> restart")
+  @Command("service|ser <name> restart")
   public void restartServices(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
@@ -188,7 +184,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> stop")
+  @Command("service|ser <name> stop")
   public void stopServices(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
@@ -198,7 +194,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> copy|cp")
+  @Command("service|ser <name> copy|cp")
   public void copyService(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "name") Collection<ServiceInfoSnapshot> services,
@@ -247,7 +243,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> delete|del")
+  @Command("service|ser <name> delete|del")
   public void deleteServices(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
@@ -257,7 +253,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod(value = "service|ser <name> screen|toggle", requiredSender = ConsoleCommandSource.class)
+  @Command(value = "service|ser <name> screen|toggle", requiredSender = ConsoleCommandSource.class)
   public void toggleScreens(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
@@ -274,7 +270,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> includeInclusions")
+  @Command("service|ser <name> includeInclusions")
   public void includeInclusions(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
@@ -285,7 +281,7 @@ public final class ServiceCommand {
     source.sendMessage(I18n.trans("command-service-include-inclusion-success"));
   }
 
-  @CommandMethod("service|ser <name> includeTemplates")
+  @Command("service|ser <name> includeTemplates")
   public void includeTemplates(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
@@ -296,7 +292,7 @@ public final class ServiceCommand {
     source.sendMessage(I18n.trans("command-service-include-templates-success"));
   }
 
-  @CommandMethod("service|ser <name> deployResources")
+  @Command("service|ser <name> deployResources")
   public void deployResources(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
@@ -307,7 +303,7 @@ public final class ServiceCommand {
     source.sendMessage(I18n.trans("command-service-deploy-deployment-success"));
   }
 
-  @CommandMethod("service|ser <name> command|cmd <command>")
+  @Command("service|ser <name> command|cmd <command>")
   public void sendCommand(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
@@ -318,7 +314,7 @@ public final class ServiceCommand {
     }
   }
 
-  @CommandMethod("service|ser <name> add deployment <deployment>")
+  @Command("service|ser <name> add deployment <deployment>")
   public void addDeployment(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
@@ -339,7 +335,7 @@ public final class ServiceCommand {
     source.sendMessage(I18n.trans("command-service-add-deployment-success", deployment.template().fullName()));
   }
 
-  @CommandMethod("service|ser <name> add template <template>")
+  @Command("service|ser <name> add template <template>")
   public void addTemplate(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
@@ -351,7 +347,7 @@ public final class ServiceCommand {
     source.sendMessage(I18n.trans("command-service-add-template-success", template.fullName()));
   }
 
-  @CommandMethod("service|ser <name> add inclusion <url> <path>")
+  @Command("service|ser <name> add inclusion <url> <path>")
   public void addInclusion(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,

@@ -16,9 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Confirmation;
 import eu.cloudnetservice.node.ShutdownHandler;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -27,10 +24,13 @@ import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.processors.confirmation.annotation.Confirmation;
 
 @Singleton
 @CommandAlias({"shutdown", "stop"})
-@CommandPermission("cloudnet.command.exit")
+@Permission("cloudnet.command.exit")
 @Description("command-exit-description")
 public final class ExitCommand {
 
@@ -42,7 +42,7 @@ public final class ExitCommand {
   }
 
   @Confirmation
-  @CommandMethod(value = "exit|shutdown|stop", requiredSender = ConsoleCommandSource.class)
+  @Command(value = "exit|shutdown|stop", requiredSender = ConsoleCommandSource.class)
   public void exit() {
     // call our shutdown handler, this prevents the Cleaner shutdown hook which is added
     // by java to run first. The cleaner task will close all logging providers, which makes it

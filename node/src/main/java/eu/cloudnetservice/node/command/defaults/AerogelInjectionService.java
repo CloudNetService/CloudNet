@@ -16,23 +16,21 @@
 
 package eu.cloudnetservice.node.command.defaults;
 
-import cloud.commandframework.annotations.AnnotationAccessor;
-import cloud.commandframework.annotations.injection.InjectionService;
-import cloud.commandframework.context.CommandContext;
-import cloud.commandframework.types.tuples.Triplet;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.incendo.cloud.injection.InjectionRequest;
+import org.incendo.cloud.injection.InjectionService;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
 final class AerogelInjectionService implements InjectionService<CommandSource> {
 
   @Override
-  public @Nullable Object handle(@NonNull Triplet<CommandContext<CommandSource>, Class<?>, AnnotationAccessor> input) {
+  public @Nullable Object handle(@NonNull InjectionRequest<CommandSource> request) {
     // get the associated data from the input values
-    var targetClass = input.getSecond();
+    var targetClass = request.injectedClass();
     var injectionLayer = InjectionLayer.findLayerOf(targetClass);
 
     // get the instance of the given class from the injection layer

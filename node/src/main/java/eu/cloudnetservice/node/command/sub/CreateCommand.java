@@ -16,11 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
-import cloud.commandframework.annotations.specifier.Range;
 import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.tuple.Tuple2;
@@ -33,14 +28,19 @@ import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressAnimation;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.incendo.cloud.annotation.specifier.Range;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-@CommandPermission("cloudnet.command.create")
+@Permission("cloudnet.command.create")
 @Description("command-create-description")
 public final class CreateCommand {
 
-  @CommandMethod("create by <task> <amount>")
+  @Command("create by <task> <amount>")
   public void createByTask(
     @NonNull Console console,
     @NonNull CommandSource source,
