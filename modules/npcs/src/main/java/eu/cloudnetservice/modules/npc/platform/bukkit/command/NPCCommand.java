@@ -200,7 +200,8 @@ public final class NPCCommand extends BaseTabExecutor {
         case "info" -> {
           var npc = this.getNearestNPC(player.getLocation());
           if (npc == null) {
-            sender.sendMessage("§cNo npc in range found! Make sure the npc you want to edit is in a 5 block radius.");
+            sender.sendMessage("§cNo npc in range found!"
+              + " Make sure the npc you want to get information about is in a 5 block radius.");
             return true;
           }
 
@@ -651,6 +652,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
     sender.sendMessage("§8> §7/cn create <targetGroup> <type> <skinOwnerName/entityType>");
     sender.sendMessage("§8> §7/cn edit <option> <value...>");
+    sender.sendMessage("§8> §7/cn info");
     sender.sendMessage("§8> §7/cn remove");
     sender.sendMessage("§8> §7/cn removeall [targetGroup]");
     sender.sendMessage("§8> §7/cn cleanup");
