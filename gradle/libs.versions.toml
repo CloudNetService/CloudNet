@@ -38,7 +38,7 @@ mysqlConnector = "9.0.0"
 # general
 oshi = "6.6.3"
 vavr = "0.10.4"
-sshj = "0.38.0"
+sshj = "0.39.0"
 aerogel = "2.1.0"
 awsSdk = "2.27.9"
 unirest = "4.4.4"
