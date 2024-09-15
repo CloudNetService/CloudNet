@@ -98,7 +98,7 @@ final class RPCImplementationGenerator {
         codeBuilder
           .dup()
           .ldc(index)
-          .loadInstruction(typeKind, parameterSlot);
+          .loadLocal(typeKind, parameterSlot);
         CodeGenerationUtil.boxPrimitive(codeBuilder, descriptor);
         codeBuilder.aastore();
       } else {

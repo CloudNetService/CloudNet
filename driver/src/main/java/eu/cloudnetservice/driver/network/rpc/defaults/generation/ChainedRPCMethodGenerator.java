@@ -156,7 +156,7 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
         if (paramType.isPrimitive()) {
           // box primitive type before storing
           var typeKind = TypeKind.fromDescriptor(paramType.descriptorString());
-          codeBuilder.loadInstruction(typeKind, paramSlot);
+          codeBuilder.loadLocal(typeKind, paramSlot);
           CodeGenerationUtil.boxPrimitive(codeBuilder, paramType.descriptorString());
           codeBuilder.aastore();
         } else {
