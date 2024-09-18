@@ -98,47 +98,48 @@ public final class PacketServerChannelMessageListener implements PacketListener 
     if (packet.uniqueId() != null) {
       this.messenger.sendChannelMessageQueryAsync(message, comesFromWrapper)
         .orTimeout(20, TimeUnit.SECONDS)
-        .whenComplete((result, exception) -> {
-          try {
-            // check if the handling was successful
-            DataBuf responseContent;
-            if (exception == null) {
-              // respond with the result or just the single initial response if given
-              if (result == null) {
-                responseContent = initialResponse == null
-                  ? DataBuf.empty().writeBoolean(false)
-                  : DataBuf.empty().writeObject(Set.of(initialResponse));
-              } else {
-                // add the initial response if given before writing
-                if (initialResponse != null) {
-                  result.add(initialResponse);
-                }
-
-                // serialize the response
-                if (result.isEmpty()) {
-                  responseContent = DataBuf.empty().writeBoolean(false);
-                } else {
-                  responseContent = DataBuf.empty().writeObject(result);
-                }
-              }
+        .handle((result, exception) -> {
+          // check if the handling was successful
+          DataBuf responseContent;
+          if (exception == null) {
+            // respond with the result or just the single initial response if given
+            if (result == null) {
+              responseContent = initialResponse == null
+                ? DataBuf.empty().writeBoolean(false)
+                : DataBuf.empty().writeObject(Set.of(initialResponse));
             } else {
-              // just respond with nothing when an exception was thrown
-              responseContent = DataBuf.empty().writeBoolean(false);
-            }
+              // add the initial response if given before writing
+              if (initialResponse != null) {
+                result.add(initialResponse);
+              }
 
-            if (initialResponse != null) {
-              initialResponse.content().release();
+              // serialize the response
+              if (result.isEmpty()) {
+                responseContent = DataBuf.empty().writeBoolean(false);
+              } else {
+                responseContent = DataBuf.empty().writeObject(result);
+              }
             }
+          } else {
+            // just respond with nothing when an exception was thrown
+            responseContent = DataBuf.empty().writeBoolean(false);
+          }
 
-            // send the results to the sender
-            channel.sendPacket(packet.constructResponse(responseContent));
-          } catch (Throwable t) {
-            LOGGER.error("Query response packet failed", t);
+          // send the results to the sender
+          channel.sendPacket(packet.constructResponse(responseContent));
+          return null;
+        }).whenComplete((_, exception) -> {
+          // log any internal errors
+          if (exception != null) {
+            LOGGER.error("Query response packet failed", exception);
+          }
+
+          if (initialResponse != null) {
+            initialResponse.content().release();
           }
         });
     } else {
       this.messenger.sendChannelMessage(message, comesFromWrapper);
-      // release the initial response content in case it was not send to any channel
       if (initialResponse != null) {
         initialResponse.content().release();
       }
