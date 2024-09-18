@@ -123,7 +123,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
           } else {
             // just respond with nothing when an exception was thrown
             responseContent = DataBuf.empty().writeBoolean(false);
-            LOGGER.error("An error occurred while sending a query message", exception);
+            LOGGER.error("Unable to relay channel message {} into cluster", message, exception);
           }
 
           // send the results to the sender
