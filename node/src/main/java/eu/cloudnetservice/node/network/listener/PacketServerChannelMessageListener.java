@@ -132,7 +132,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
         }).whenComplete((_, exception) -> {
           // log any internal errors
           if (exception != null) {
-            LOGGER.error("Query response packet failed", exception);
+            LOGGER.error("Unable to encode/send response to channel message {}", message, exception);
           }
 
           if (initialResponse != null) {
