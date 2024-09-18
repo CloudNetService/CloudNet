@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.config;
+package eu.cloudnetservice.modules.dns.provider;
 
-import java.util.Collection;
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import lombok.NonNull;
 
-public record CloudflareConfiguration(@NonNull Collection<CloudflareConfigurationEntry> entries) {
+public record DnsProviderZoneConfig(@NonNull Document properties) implements DefaultedDocPropertyHolder {
 
+  @Override
+  public @NonNull Document propertyHolder() {
+    return this.properties;
+  }
 }

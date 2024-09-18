@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.listener;
+package old.eu.cloudnetservice.modules.cloudflare.listener;
 
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule;
-import eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareRecordManager;
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
-import eu.cloudnetservice.modules.cloudflare.dns.SrvRecord;
+import old.eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule;
+import old.eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareRecordManager;
+import old.eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
+import old.eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
+import old.eu.cloudnetservice.modules.cloudflare.dns.SrvRecord;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.service.CloudService;
 import jakarta.inject.Inject;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.config;
+package old.eu.cloudnetservice.modules.cloudflare.config;
 
 import eu.cloudnetservice.common.util.StringUtil;
 import java.util.Collection;

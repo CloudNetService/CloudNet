@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.cloudflare;
+package old.eu.cloudnetservice.modules.cloudflare.cloudflare;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
+import old.eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
+import old.eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;

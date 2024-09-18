@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.dns;
+package old.eu.cloudnetservice.modules.cloudflare.dns;
 
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
+import old.eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
+import old.eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
 import lombok.NonNull;
 
 public final class SrvRecord extends DnsRecord {

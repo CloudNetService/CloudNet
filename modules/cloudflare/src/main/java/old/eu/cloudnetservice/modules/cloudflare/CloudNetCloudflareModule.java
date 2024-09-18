@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare;
+package old.eu.cloudnetservice.modules.cloudflare;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
@@ -27,14 +27,16 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareRecordManager;
-import eu.cloudnetservice.modules.cloudflare.cloudflare.DnsRecordDetail;
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfiguration;
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
-import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
-import eu.cloudnetservice.modules.cloudflare.dns.DnsType;
-import eu.cloudnetservice.modules.cloudflare.listener.CloudflareServiceStateListener;
+import java.net.URLEncoder;
+import java.net.http.HttpRequest;
+import old.eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareRecordManager;
+import old.eu.cloudnetservice.modules.cloudflare.cloudflare.DnsRecordDetail;
+import old.eu.cloudnetservice.modules.cloudflare.config.CloudflareConfiguration;
+import old.eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
+import old.eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
+import old.eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
+import old.eu.cloudnetservice.modules.cloudflare.dns.DnsType;
+import old.eu.cloudnetservice.modules.cloudflare.listener.CloudflareServiceStateListener;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.util.NetworkUtil;
 import jakarta.inject.Singleton;

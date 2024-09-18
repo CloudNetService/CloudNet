@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.cloudflare;
+package eu.cloudnetservice.modules.dns.provider.info;
 
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
+import eu.cloudnetservice.modules.dns.provider.record.DnsRecordData;
 import lombok.NonNull;
 
-public record DnsRecordDetail(
-  @NonNull String id,
-  @NonNull DnsRecord dnsRecord,
-  @NonNull CloudflareConfigurationEntry configurationEntry
-) {
+public interface DnsRecordInfo {
 
+  static @NonNull DnsRecordInfo of(@NonNull String id, @NonNull DnsRecordData data) {
+    return new DnsRecordInfoImpl(id, data);
+  }
+
+  @NonNull
+  String id();
+
+  @NonNull
+  DnsRecordData data();
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.dns;
+package old.eu.cloudnetservice.modules.cloudflare.dns;
 
 import eu.cloudnetservice.driver.document.Document;
 import lombok.NonNull;

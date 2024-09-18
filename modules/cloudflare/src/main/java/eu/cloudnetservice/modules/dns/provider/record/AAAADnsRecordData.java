@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.config;
+package eu.cloudnetservice.modules.dns.provider.record;
 
 import lombok.NonNull;
 
-public record CloudflareGroupConfiguration(@NonNull String name, @NonNull String sub, int priority, int weight) {
+public record AAAADnsRecordData(@NonNull String name, int ttl, @NonNull String content) implements DnsRecordData {
 
+  @Override
+  public @NonNull String type() {
+    return "AAAA";
+  }
 }
