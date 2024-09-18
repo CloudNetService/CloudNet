@@ -31,9 +31,13 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class PacketServerChannelMessageListener implements PacketListener {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PacketServerChannelMessageListener.class);
 
   private final NodeMessenger messenger;
   private final EventManager eventManager;
@@ -95,42 +99,49 @@ public final class PacketServerChannelMessageListener implements PacketListener 
       this.messenger.sendChannelMessageQueryAsync(message, comesFromWrapper)
         .orTimeout(20, TimeUnit.SECONDS)
         .whenComplete((result, exception) -> {
-          // check if the handling was successful
-          DataBuf responseContent;
-          if (exception == null) {
-            // respond with the result or just the single initial response if given
-            if (result == null) {
-              responseContent = initialResponse == null
-                ? DataBuf.empty().writeBoolean(false)
-                : DataBuf.empty().writeObject(Set.of(initialResponse));
-            } else {
-              // add the initial response if given before writing
-              if (initialResponse != null) {
-                result.add(initialResponse);
-              }
-
-              // serialize the response
-              if (result.isEmpty()) {
-                responseContent = DataBuf.empty().writeBoolean(false);
+          try {
+            // check if the handling was successful
+            DataBuf responseContent;
+            if (exception == null) {
+              // respond with the result or just the single initial response if given
+              if (result == null) {
+                responseContent = initialResponse == null
+                  ? DataBuf.empty().writeBoolean(false)
+                  : DataBuf.empty().writeObject(Set.of(initialResponse));
               } else {
-                responseContent = DataBuf.empty().writeObject(result);
-              }
-            }
-          } else {
-            // just respond with nothing when an exception was thrown
-            responseContent = DataBuf.empty().writeBoolean(false);
-          }
+                // add the initial response if given before writing
+                if (initialResponse != null) {
+                  result.add(initialResponse);
+                }
 
-          // send the results to the sender
-          channel.sendPacket(packet.constructResponse(responseContent));
+                // serialize the response
+                if (result.isEmpty()) {
+                  responseContent = DataBuf.empty().writeBoolean(false);
+                } else {
+                  responseContent = DataBuf.empty().writeObject(result);
+                }
+              }
+            } else {
+              // just respond with nothing when an exception was thrown
+              responseContent = DataBuf.empty().writeBoolean(false);
+            }
+
+            if (initialResponse != null) {
+              initialResponse.content().release();
+            }
+
+            // send the results to the sender
+            channel.sendPacket(packet.constructResponse(responseContent));
+          } catch (Throwable t) {
+            LOGGER.error("Query response packet failed", t);
+          }
         });
     } else {
       this.messenger.sendChannelMessage(message, comesFromWrapper);
-    }
-
-    // release the initial response content in case it was not send to any channel
-    if (initialResponse != null) {
-      initialResponse.content().release();
+      // release the initial response content in case it was not send to any channel
+      if (initialResponse != null) {
+        initialResponse.content().release();
+      }
     }
 
     // force release of the current message
