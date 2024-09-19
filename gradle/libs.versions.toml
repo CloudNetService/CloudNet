@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-shadow = "8.3.0"
+shadow = "8.3.2"
 juppiter = "0.4.0"
 spotless = "6.25.0"
 fabricLoom = "1.7.3"
