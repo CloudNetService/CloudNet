@@ -29,7 +29,7 @@ public final class NetcupDnsProvider implements DnsProvider {
 
   private static final DocProperty<String> API_KEY_PROPERTY = DocProperty.property("apiKey", String.class);
   private static final DocProperty<String> API_PWD_PROPERTY = DocProperty.property("apiPassword", String.class);
-  private static final DocProperty<String> DOMAIN_NAME_PROPERTY = DocProperty.property("domainNAme", String.class);
+  private static final DocProperty<String> DOMAIN_NAME_PROPERTY = DocProperty.property("domainName", String.class);
   private static final DocProperty<String> CUSTOMER_ID_PROPERTY = DocProperty.property("customerId", String.class);
 
   @Override
