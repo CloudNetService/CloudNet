@@ -174,7 +174,6 @@ public final class DnsModuleGroupEntry {
      *
      * @param hostAddressV4 the host address (ipv4) that will be used as target for created records.
      * @return this builder, for chaining.
-     * @throws IllegalArgumentException if the given host address is invalid or not an ipv4 address.
      */
     @Contract("_ -> this")
     public @NonNull Builder hostAddressV4(@Nullable String hostAddressV4) {
@@ -188,7 +187,6 @@ public final class DnsModuleGroupEntry {
      *
      * @param hostAddressV6 the host address (ipv6) that will be used as target for created records.
      * @return this builder, for chaining.
-     * @throws IllegalArgumentException if the given host address is invalid or not an ipv6 address.
      */
     @Contract("_ -> this")
     public @NonNull Builder hostAddressV6(@Nullable String hostAddressV6) {
@@ -224,7 +222,7 @@ public final class DnsModuleGroupEntry {
 
     /**
      * Constructs a new dns group configuration entry from this builder. The builder can be re-used after this operation
-     * as further changes will not reflect into the builder.
+     * as further changes will not reflect into the constructed group entry.
      *
      * @return the newly created dns group configuration based on this builder.
      * @throws NullPointerException if not target group was specified.

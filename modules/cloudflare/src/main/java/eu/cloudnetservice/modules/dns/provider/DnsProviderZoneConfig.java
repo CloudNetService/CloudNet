@@ -18,9 +18,14 @@ package eu.cloudnetservice.modules.dns.provider;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
+import java.time.Duration;
 import lombok.NonNull;
 
-public record DnsProviderZoneConfig(@NonNull Document properties) implements DefaultedDocPropertyHolder {
+public record DnsProviderZoneConfig(
+  @NonNull Duration apiConnectTimeout,
+  @NonNull Duration apiRequestTimeout,
+  @NonNull Document properties
+) implements DefaultedDocPropertyHolder {
 
   @Override
   public @NonNull Document propertyHolder() {
