@@ -46,6 +46,8 @@ public final class NetcupDnsProvider implements DnsProvider {
     var unirestInstance = Unirest.spawnInstance();
     var unirestInstanceConfig = unirestInstance.config();
     unirestInstanceConfig.defaultBaseUrl(API_BASE_URL);
+    unirestInstanceConfig.connectTimeout((int) zoneConfig.apiConnectTimeout().toMillis());
+    unirestInstanceConfig.requestTimeout((int) zoneConfig.apiRequestTimeout().toMillis());
 
     var requestSender = new NetcupSoapRequestSender(customerId, apiKey, apiPwd, unirestInstance);
     return new NetcupDnsZoneProvider(domainName, requestSender);

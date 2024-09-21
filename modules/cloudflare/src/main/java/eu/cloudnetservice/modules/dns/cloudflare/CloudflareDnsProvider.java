@@ -38,6 +38,8 @@ public final class CloudflareDnsProvider implements DnsProvider {
     var unirestInstance = Unirest.spawnInstance();
     var unirestInstanceConfig = unirestInstance.config();
     unirestInstanceConfig.defaultBaseUrl(API_BASE_URL);
+    unirestInstanceConfig.connectTimeout((int) zoneConfig.apiConnectTimeout().toMillis());
+    unirestInstanceConfig.requestTimeout((int) zoneConfig.apiRequestTimeout().toMillis());
     unirestInstanceConfig.setDefaultHeader("Authorization", "Bearer " + apiKey);
 
     return new CloudflareDnsZoneProvider(zoneId, unirestInstance);

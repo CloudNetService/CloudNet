@@ -39,6 +39,8 @@ public final class HetznerDnsProvider implements DnsProvider {
     var unirestInstanceConfig = unirestInstance.config();
     unirestInstanceConfig.defaultBaseUrl(API_BASE_URL);
     unirestInstanceConfig.setDefaultHeader("Auth-API-Token", apiKey);
+    unirestInstanceConfig.connectTimeout((int) zoneConfig.apiConnectTimeout().toMillis());
+    unirestInstanceConfig.requestTimeout((int) zoneConfig.apiRequestTimeout().toMillis());
 
     return new HetznerDnsZoneProvider(zoneId, unirestInstance);
   }
