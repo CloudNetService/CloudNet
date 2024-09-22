@@ -17,11 +17,8 @@
 package eu.cloudnetservice.driver.inject;
 
 import com.google.common.base.Preconditions;
-import dev.derklaro.aerogel.Injector;
-import dev.derklaro.aerogel.binding.UninstalledBinding;
 import dev.derklaro.aerogel.binding.key.BindingKey;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -79,67 +76,50 @@ public final class InjectUtil {
   /**
    * Finds all instances that are requested by the given element array in the given injection layer.
    *
-   * @param layer    the layer to retrieve the needed instances from.
-   * @param elements the elements to get the instances of.
+   * @param layer the layer to retrieve the needed instances from.
+   * @param keys  the keys to get the instances of.
    * @return the instances represented by the given elements, in order.
    * @throws NullPointerException if the given injection layer or elements array is null.
    */
   public static @NonNull Object[] findAllInstances(
     @NonNull InjectionLayer<?> layer,
-    @NonNull BindingKey<?>[] elements
+    @NonNull BindingKey<?>[] keys
   ) {
-    return findAllInstances(layer, elements, 0);
+    return findAllInstances(layer, keys, 0);
   }
 
   /**
    * Finds all instances that are requested by the given element array in the given injection layer.
    *
-   * @param layer    the layer to retrieve the needed instances from.
-   * @param elements the elements to get the instances of.
-   * @param offset   the offset to start writing the elements from in the resulting array, must be bigger than zero.
+   * @param layer  the layer to retrieve the needed instances from.
+   * @param keys   the keys to get the instances of.
+   * @param offset the offset to start writing the elements from in the resulting array, must be bigger than zero.
    * @return the instances represented by the given elements, in order.
    * @throws NullPointerException     if the given injection layer or elements array is null.
    * @throws IllegalArgumentException if the given offset is smaller than zero.
    */
   public static @NonNull Object[] findAllInstances(
     @NonNull InjectionLayer<?> layer,
-    @NonNull BindingKey<?>[] elements,
+    @NonNull BindingKey<?>[] keys,
     int offset
   ) {
     Preconditions.checkArgument(offset >= 0, "offset must be >= 0");
 
     // return an empty array if the offset is 0 and no elements are present
-    if (elements.length == 0 && offset == 0) {
+    if (keys.length == 0 && offset == 0) {
       return EMPTY_INSTANCE_ARRAY;
     }
 
     // return an array of the expected size if an offset is present but no elements are present
-    if (elements.length == 0) {
+    if (keys.length == 0) {
       return new Object[offset];
     }
 
     // find the instances
-    var instances = new Object[elements.length + offset];
-    for (int i = 0; i < elements.length; i++) {
-      instances[i + offset] = layer.instance(elements[i]);
+    var instances = new Object[keys.length + offset];
+    for (int i = 0; i < keys.length; i++) {
+      instances[i + offset] = layer.instance(keys[i]);
     }
     return instances;
-  }
-
-  /**
-   * Creates a fixed binding constructor without setting any required name or annotation. It is only based on the type.
-   *
-   * @param value the value that is bound to the type.
-   * @param types the types to bind the given value to.
-   * @return the new binding constructor.
-   * @throws NullPointerException      if the given type or value is null.
-   * @throws IndexOutOfBoundsException if the given type array is empty.
-   */
-  public static @NonNull UninstalledBinding<?> createFixedBinding(
-    @NonNull Injector injector,
-    @NonNull Object value,
-    @NonNull Type type
-  ) {
-    return injector.createBindingBuilder().bind(type).toInstance(value);
   }
 }

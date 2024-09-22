@@ -85,7 +85,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     handlerRegistry.registerHandler(rpcHandler);
   }
 
-  @PostConstruct
+  @Inject
   private void registerServiceChannelListener() {
     this.eventManager.registerListener(ServiceChannelMessageListener.class);
   }

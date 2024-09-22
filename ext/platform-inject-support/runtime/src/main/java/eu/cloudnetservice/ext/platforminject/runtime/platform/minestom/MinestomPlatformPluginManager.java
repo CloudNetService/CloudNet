@@ -16,9 +16,7 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.minestom;
 
-import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
-
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
@@ -52,30 +50,32 @@ public final class MinestomPlatformPluginManager extends BasePlatformPluginManag
   }
 
   @Override
-  protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull Extension platformData) {
-    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
+  protected @NonNull InjectionLayer<Injector> createInjectionLayer(@NonNull Extension platformData) {
+    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", targetedBuilder -> {
       // install bindings for the platform
-      layer.install(bindingBuilder.bind(ServerProcess.class).toInstance(MinecraftServer.process()));
-      layer.install(bindingBuilder.bind(ComponentLogger.class).toInstance(platformData.getLogger()));
-      layer.install(bindingBuilder.bind(TagManager.class).toInstance(MinecraftServer.getTagManager()));
-      layer.install(bindingBuilder.bind(TeamManager.class).toInstance(MinecraftServer.getTeamManager()));
-      layer.install(bindingBuilder.bind(BlockManager.class).toInstance(MinecraftServer.getBlockManager()));
-      layer.install(bindingBuilder.bind(RecipeManager.class).toInstance(MinecraftServer.getRecipeManager()));
-      layer.install(bindingBuilder.bind(BossBarManager.class).toInstance(MinecraftServer.getBossBarManager()));
-      layer.install(bindingBuilder.bind(CommandManager.class).toInstance(MinecraftServer.getCommandManager()));
-      layer.install(bindingBuilder.bind(PacketProcessor.class).toInstance(MinecraftServer.getPacketProcessor()));
-      layer.install(bindingBuilder.bind(InstanceManager.class).toInstance(MinecraftServer.getInstanceManager()));
-      layer.install(bindingBuilder.bind(ExceptionManager.class).toInstance(MinecraftServer.getExceptionManager()));
-      layer.install(bindingBuilder.bind(BenchmarkManager.class).toInstance(MinecraftServer.getBenchmarkManager()));
-      layer.install(bindingBuilder.bind(SchedulerManager.class).toInstance(MinecraftServer.getSchedulerManager()));
-      layer.install(bindingBuilder.bind(ConnectionManager.class).toInstance(MinecraftServer.getConnectionManager()));
-      layer.install(bindingBuilder.bind(ExtensionManager.class).toInstance(ExtensionBootstrap.getExtensionManager()));
-      layer.install(bindingBuilder.bind(GlobalEventHandler.class).toInstance(MinecraftServer.getGlobalEventHandler()));
-      layer.install(bindingBuilder.bind(AdvancementManager.class).toInstance(MinecraftServer.getAdvancementManager()));
-      layer.install(bindingBuilder.bind(PacketListenerManager.class).toInstance(MinecraftServer.getPacketListenerManager()));
+      var layer = BASE_INJECTION_LAYER;
+      var builder = layer.injector().createBindingBuilder();
+      layer.install(builder.bind(ServerProcess.class).toInstance(MinecraftServer.process()));
+      layer.install(builder.bind(ComponentLogger.class).toInstance(platformData.getLogger()));
+      layer.install(builder.bind(TagManager.class).toInstance(MinecraftServer.getTagManager()));
+      layer.install(builder.bind(TeamManager.class).toInstance(MinecraftServer.getTeamManager()));
+      layer.install(builder.bind(BlockManager.class).toInstance(MinecraftServer.getBlockManager()));
+      layer.install(builder.bind(RecipeManager.class).toInstance(MinecraftServer.getRecipeManager()));
+      layer.install(builder.bind(BossBarManager.class).toInstance(MinecraftServer.getBossBarManager()));
+      layer.install(builder.bind(CommandManager.class).toInstance(MinecraftServer.getCommandManager()));
+      layer.install(builder.bind(PacketProcessor.class).toInstance(MinecraftServer.getPacketProcessor()));
+      layer.install(builder.bind(InstanceManager.class).toInstance(MinecraftServer.getInstanceManager()));
+      layer.install(builder.bind(ExceptionManager.class).toInstance(MinecraftServer.getExceptionManager()));
+      layer.install(builder.bind(BenchmarkManager.class).toInstance(MinecraftServer.getBenchmarkManager()));
+      layer.install(builder.bind(SchedulerManager.class).toInstance(MinecraftServer.getSchedulerManager()));
+      layer.install(builder.bind(ConnectionManager.class).toInstance(MinecraftServer.getConnectionManager()));
+      layer.install(builder.bind(ExtensionManager.class).toInstance(ExtensionBootstrap.getExtensionManager()));
+      layer.install(builder.bind(GlobalEventHandler.class).toInstance(MinecraftServer.getGlobalEventHandler()));
+      layer.install(builder.bind(AdvancementManager.class).toInstance(MinecraftServer.getAdvancementManager()));
+      layer.install(builder.bind(PacketListenerManager.class).toInstance(MinecraftServer.getPacketListenerManager()));
 
       // install the bindings which are specific to the plugin
-      injector.installSpecified(fixedBindingWithBound(platformData, Extension.class));
+      targetedBuilder.installBinding(builder.bind(Extension.class).toInstance(platformData));
     });
   }
 }

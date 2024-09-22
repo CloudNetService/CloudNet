@@ -59,7 +59,7 @@ public class DefaultServiceRegistry implements ServiceRegistry {
           result = this.provider(serviceClass, serviceName);
         }
 
-        return scopedBuilder.toInstance(result);
+        return scopedBuilder.toProvider(() -> result);
       });
     injectionLayer.install(dynamicBinding);
   }

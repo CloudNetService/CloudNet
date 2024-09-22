@@ -16,15 +16,12 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.limboloohp;
 
-import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
-import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
-
 import com.loohp.limbo.Limbo;
 import com.loohp.limbo.events.EventsManager;
 import com.loohp.limbo.plugins.LimboPlugin;
 import com.loohp.limbo.plugins.PluginManager;
 import com.loohp.limbo.scheduler.LimboScheduler;
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
@@ -37,16 +34,18 @@ public final class LimboLoohpPlatformPluginManager extends BasePlatformPluginMan
   }
 
   @Override
-  protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull LimboPlugin platformData) {
-    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
+  protected @NonNull InjectionLayer<Injector> createInjectionLayer(@NonNull LimboPlugin platformData) {
+    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", targetedBuilder -> {
       // install bindings for the platform
+      var layer = BASE_INJECTION_LAYER;
+      var bindingBuilder = layer.injector().createBindingBuilder();
       layer.install(bindingBuilder.bind(Limbo.class).toInstance(platformData.getServer()));
       layer.install(bindingBuilder.bind(PluginManager.class).toInstance(platformData.getServer().getPluginManager()));
       layer.install(bindingBuilder.bind(EventsManager.class).toInstance(platformData.getServer().getEventsManager()));
       layer.install(bindingBuilder.bind(LimboScheduler.class).toInstance(platformData.getServer().getScheduler()));
 
       // install the bindings which are specific to the plugin
-      injector.installSpecified(fixedBindingWithBound(platformData, LimboPlugin.class));
+      targetedBuilder.installBinding(bindingBuilder.bind(LimboPlugin.class).toInstance(platformData));
     });
   }
 }

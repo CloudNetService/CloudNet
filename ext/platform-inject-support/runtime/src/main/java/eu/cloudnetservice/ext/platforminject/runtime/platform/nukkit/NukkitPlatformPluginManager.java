@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.nukkit;
 
-import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
-
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandMap;
 import cn.nukkit.inventory.CraftingManager;
@@ -44,18 +42,19 @@ public final class NukkitPlatformPluginManager extends BasePlatformPluginManager
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", targetedBuilder -> {
       // install bindings for the platform
       var layer = BASE_INJECTION_LAYER;
+      var server = platformData.getServer();
       var builder = layer.injector().createBindingBuilder();
-      layer.install(builder.bind(Server.class).toInstance(platformData.getServer()));
-      layer.install(builder.bind(CommandMap.class).toInstance(platformData.getServer().getCommandMap()));
-      layer.install(builder.bind(ServerScheduler.class).toInstance(platformData.getServer().getScheduler()));
-      layer.install(builder.bind(PluginManager.class).toInstance(platformData.getServer().getPluginManager()));
-      layer.install(builder.bind(ServiceManager.class).toInstance(platformData.getServer().getServiceManager()));
-      layer.install(builder.bind(CraftingManager.class).toInstance(platformData.getServer().getCraftingManager()));
-      layer.install(builder.bind(ResourcePackManager.class)
-        .toInstance(platformData.getServer().getResourcePackManager()));
+      layer.install(builder.bind(Server.class).toInstance(server));
+      layer.install(builder.bind(CommandMap.class).toInstance(server.getCommandMap()));
+      layer.install(builder.bind(ServerScheduler.class).toInstance(server.getScheduler()));
+      layer.install(builder.bind(PluginManager.class).toInstance(server.getPluginManager()));
+      layer.install(builder.bind(ServiceManager.class).toInstance(server.getServiceManager()));
+      layer.install(builder.bind(CraftingManager.class).toInstance(server.getCraftingManager()));
+      layer.install(builder.bind(ResourcePackManager.class).toInstance(server.getResourcePackManager()));
 
       // install the bindings which are specific to the plugin
-      targetedBuilder.installBinding(fixedBindingWithBound(platformData, PluginBase.class, Plugin.class));
+      targetedBuilder.installBinding(builder.bind(Plugin.class).toInstance(platformData));
+      targetedBuilder.installBinding(builder.bind(PluginBase.class).toInstance(platformData));
     });
   }
 }

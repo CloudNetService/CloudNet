@@ -16,13 +16,7 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.sponge;
 
-import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
-import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
-
-import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.SpecifiedInjector;
-import dev.derklaro.aerogel.binding.BindingBuilder;
-import dev.derklaro.aerogel.util.Qualifiers;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.mapping.Container;
@@ -62,17 +56,20 @@ public final class SpongePlatformPluginManager extends BasePlatformPluginManager
   }
 
   @Override
-  protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(
+  protected @NonNull InjectionLayer<Injector> createInjectionLayer(
     @NonNull Container<PluginContainer> platformData
   ) {
-    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
+    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", targetedBuilder -> {
       // scheduler bindings
-      var schedulerElement = Element.forType(Scheduler.class);
-      layer.install(BindingBuilder.create()
-        .bind(schedulerElement.requireAnnotation(Qualifiers.named("sync")))
+      var layer = BASE_INJECTION_LAYER;
+      var bindingBuilder = layer.injector().createBindingBuilder();
+      layer.install(bindingBuilder
+        .bind(Scheduler.class)
+        .qualifiedWithName("sync")
         .toInstance(Sponge.server().scheduler()));
-      layer.install(BindingBuilder.create()
-        .bind(schedulerElement.requireAnnotation(Qualifiers.named("async")))
+      layer.install(bindingBuilder
+        .bind(Scheduler.class)
+        .qualifiedWithName("async")
         .toInstance(Sponge.game().asyncScheduler()));
 
       // game bindings
@@ -89,26 +86,31 @@ public final class SpongePlatformPluginManager extends BasePlatformPluginManager
       layer.install(bindingBuilder.bind(ServiceProvider.GameScoped.class).toInstance(Sponge.game().serviceProvider()));
 
       // server bindings
-      layer.install(bindingBuilder.bind(MapStorage.class).toInstance(Sponge.server().mapStorage()));
-      layer.install(bindingBuilder.bind(UserManager.class).toInstance(Sponge.server().userManager()));
-      layer.install(bindingBuilder.bind(WorldManager.class).toInstance(Sponge.server().worldManager()));
-      layer.install(bindingBuilder.bind(RegistryHolder.class).toInstance(Sponge.server(), Server.class));
-      layer.install(bindingBuilder.bind(RecipeManager.class).toInstance(Sponge.server().recipeManager()));
-      layer.install(bindingBuilder.bind(TeleportHelper.class).toInstance(Sponge.server().teleportHelper()));
-      layer.install(bindingBuilder.bind(CommandManager.class).toInstance(Sponge.server().commandManager()));
-      layer.install(bindingBuilder.bind(PackRepository.class).toInstance(Sponge.server().packRepository()));
-      layer.install(bindingBuilder.bind(ResourceManager.class).toInstance(Sponge.server().resourceManager()));
-      layer.install(bindingBuilder.bind(CauseStackManager.class).toInstance(Sponge.server().causeStackManager()));
-      layer.install(createFixedBinding(
-        Sponge.server().gameProfileManager(),
-        GameProfileManager.class, GameProfileProvider.class));
-      layer.install(createFixedBinding(
-        Sponge.server().serviceProvider(),
-        ServiceProvider.ServerScoped.class, ServiceProvider.class));
+      var server = Sponge.server();
+      layer.install(bindingBuilder.bind(Server.class).toInstance(server));
+      layer.install(bindingBuilder.bind(RegistryHolder.class).toInstance(server));
+      layer.install(bindingBuilder.bind(MapStorage.class).toInstance(server.mapStorage()));
+      layer.install(bindingBuilder.bind(UserManager.class).toInstance(server.userManager()));
+      layer.install(bindingBuilder.bind(WorldManager.class).toInstance(server.worldManager()));
+      layer.install(bindingBuilder.bind(RecipeManager.class).toInstance(server.recipeManager()));
+      layer.install(bindingBuilder.bind(TeleportHelper.class).toInstance(server.teleportHelper()));
+      layer.install(bindingBuilder.bind(CommandManager.class).toInstance(server.commandManager()));
+      layer.install(bindingBuilder.bind(PackRepository.class).toInstance(server.packRepository()));
+      layer.install(bindingBuilder.bind(ResourceManager.class).toInstance(server.resourceManager()));
+      layer.install(bindingBuilder.bind(CauseStackManager.class).toInstance(server.causeStackManager()));
+      layer.install(bindingBuilder.bind(GameProfileManager.class).toInstance(server.gameProfileManager()));
+      layer.install(bindingBuilder.bind(GameProfileProvider.class).toInstance(server.gameProfileManager()));
+      layer.install(bindingBuilder.bind(ServiceProvider.class).toInstance(server.serviceProvider()));
+      layer.install(bindingBuilder.bind(ServiceProvider.ServerScoped.class).toInstance(server.serviceProvider()));
 
       // install the bindings which are specific to the plugin
-      injector.installSpecified(fixedBindingWithBound(platformData.pluginInstance()));
-      injector.installSpecified(createFixedBinding(platformData.container(), PluginContainer.class));
+      targetedBuilder.installBinding(bindingBuilder
+        .bind(Object.class)
+        .qualifiedWithName("plugin")
+        .toInstance(platformData.pluginInstance()));
+      targetedBuilder.installBinding(bindingBuilder
+        .bind(PluginContainer.class)
+        .toInstance(platformData.container()));
     });
   }
 }

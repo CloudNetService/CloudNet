@@ -20,7 +20,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
-import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.binding.key.BindingKey;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -86,10 +86,9 @@ public class DockerizedServicesModule extends DriverModule {
     var dockerClient = DockerClientImpl.getInstance(clientConfig, dockerHttpClient);
 
     // construct the factory instance & register it in the service manager
-    var factory = moduleInjectionLayer.instance(DockerizedLocalCloudServiceFactory.class, map -> {
-      map
-      builder.override(Element.forType(DockerClient.class), dockerClient);
-      map.override(Element.forType(DockerConfiguration.class), this.configuration);
+    var factory = moduleInjectionLayer.instance(DockerizedLocalCloudServiceFactory.class, overrides -> {
+      overrides.put(BindingKey.of(DockerClient.class), () -> dockerClient);
+      overrides.put(BindingKey.of(DockerConfiguration.class), () -> this.configuration);
     });
     serviceManager.addCloudServiceFactory(this.configuration.factoryName(), factory);
   }

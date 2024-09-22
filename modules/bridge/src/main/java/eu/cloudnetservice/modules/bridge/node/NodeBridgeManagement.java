@@ -80,7 +80,7 @@ public class NodeBridgeManagement implements BridgeManagement {
     rpcHandlerRegistry.registerHandler(rpcHandler);
   }
 
-  @PostConstruct
+  @Inject
   private void registerListener() {
     this.eventManager.registerListener(NodeBridgeChannelMessageListener.class);
     this.eventManager.registerListener(NodeSetupListener.class);

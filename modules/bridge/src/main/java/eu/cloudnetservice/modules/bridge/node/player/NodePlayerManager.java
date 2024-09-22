@@ -20,7 +20,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Striped;
-
 import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
@@ -126,12 +125,12 @@ public class NodePlayerManager implements PlayerManager {
       .build());
   }
 
-  @PostConstruct
+  @Inject
   private void registerPlayerCommand() {
     this.commandProvider.register(PlayersCommand.class);
   }
 
-  @PostConstruct
+  @Inject
   private void registerListeners() {
     this.eventManager.registerListener(BridgeLocalProxyPlayerDisconnectListener.class);
     this.eventManager.registerListener(NodePlayerChannelMessageListener.class);
