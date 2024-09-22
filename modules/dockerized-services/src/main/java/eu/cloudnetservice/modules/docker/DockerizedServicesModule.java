@@ -86,9 +86,10 @@ public class DockerizedServicesModule extends DriverModule {
     var dockerClient = DockerClientImpl.getInstance(clientConfig, dockerHttpClient);
 
     // construct the factory instance & register it in the service manager
-    var factory = moduleInjectionLayer.instance(DockerizedLocalCloudServiceFactory.class, builder -> {
+    var factory = moduleInjectionLayer.instance(DockerizedLocalCloudServiceFactory.class, map -> {
+      map
       builder.override(Element.forType(DockerClient.class), dockerClient);
-      builder.override(Element.forType(DockerConfiguration.class), this.configuration);
+      map.override(Element.forType(DockerConfiguration.class), this.configuration);
     });
     serviceManager.addCloudServiceFactory(this.configuration.factoryName(), factory);
   }

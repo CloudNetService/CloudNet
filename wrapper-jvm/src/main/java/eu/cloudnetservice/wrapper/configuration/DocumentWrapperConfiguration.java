@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.configuration;
 
-import dev.derklaro.aerogel.auto.Factory;
+import dev.derklaro.aerogel.auto.annotation.Factory;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;

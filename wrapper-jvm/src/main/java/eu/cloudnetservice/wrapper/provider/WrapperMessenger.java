@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.provider;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.def.PacketServerChannelMessage;

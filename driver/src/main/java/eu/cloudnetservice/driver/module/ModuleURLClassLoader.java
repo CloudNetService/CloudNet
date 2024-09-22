@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.module;
 
 import com.google.common.collect.ObjectArrays;
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.inject.InjectionLayerHolder;
 import java.io.IOException;
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @since 4.0
  */
 @ApiStatus.Internal
-public class ModuleURLClassLoader extends URLClassLoader implements InjectionLayerHolder<SpecifiedInjector> {
+public class ModuleURLClassLoader extends URLClassLoader implements InjectionLayerHolder<Injector> {
 
   /**
    * All loaders which were created and of which the associated module is still loaded.
@@ -50,7 +50,7 @@ public class ModuleURLClassLoader extends URLClassLoader implements InjectionLay
     ClassLoader.registerAsParallelCapable();
   }
 
-  protected final InjectionLayer<SpecifiedInjector> injectionLayer;
+  protected final InjectionLayer<Injector> injectionLayer;
 
   /**
    * Creates an instance of this FinalizeURLClassLoader.
@@ -63,7 +63,7 @@ public class ModuleURLClassLoader extends URLClassLoader implements InjectionLay
   public ModuleURLClassLoader(
     @NonNull URL moduleFileUrl,
     @NonNull Set<URL> moduleDependencyUrls,
-    @NonNull InjectionLayer<SpecifiedInjector> injectionLayer
+    @NonNull InjectionLayer<Injector> injectionLayer
   ) {
     super(
       ObjectArrays.concat(moduleFileUrl, moduleDependencyUrls.toArray(new URL[0])),
@@ -114,7 +114,7 @@ public class ModuleURLClassLoader extends URLClassLoader implements InjectionLay
    * {@inheritDoc}
    */
   @Override
-  public @NonNull InjectionLayer<SpecifiedInjector> injectionLayer() {
+  public @NonNull InjectionLayer<Injector> injectionLayer() {
     return this.injectionLayer;
   }
 

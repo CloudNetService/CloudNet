@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.config;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import dev.derklaro.aerogel.auto.Factory;
+import dev.derklaro.aerogel.auto.annotation.Factory;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;

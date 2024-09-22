@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.event;
 
-import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.binding.key.BindingKey;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.inject.InjectUtil;
@@ -40,7 +40,7 @@ final class DefaultRegisteredEventListener implements RegisteredEventListener {
   private final EventListener eventListener;
 
   private final String methodName;
-  private final Element[] methodArguments;
+  private final BindingKey<?>[] methodArguments;
   private final MethodAccessor<?> methodAccessor;
 
   private final InjectionLayer<?> injectionLayer;

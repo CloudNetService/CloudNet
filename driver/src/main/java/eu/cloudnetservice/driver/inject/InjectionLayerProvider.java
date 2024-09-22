@@ -16,17 +16,15 @@
 
 package eu.cloudnetservice.driver.inject;
 
-import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.Injector;
-import dev.derklaro.aerogel.SpecifiedInjector;
-import dev.derklaro.aerogel.auto.runtime.AutoAnnotationRegistry;
-import dev.derklaro.aerogel.binding.BindingBuilder;
-import dev.derklaro.aerogel.binding.BindingConstructor;
-import dev.derklaro.aerogel.util.Qualifiers;
+import dev.derklaro.aerogel.TargetedInjectorBuilder;
+import dev.derklaro.aerogel.auto.AerogelAutoModule;
+import dev.derklaro.aerogel.binding.UninstalledBinding;
 import eu.cloudnetservice.common.util.StringUtil;
 import io.leangen.geantyref.TypeFactory;
+import jakarta.inject.Provider;
+import java.lang.reflect.Type;
 import java.util.ServiceLoader;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
@@ -40,17 +38,14 @@ final class InjectionLayerProvider {
   // the boot layer registry
   static final InjectionLayerRegistry REGISTRY = new InjectionLayerRegistry();
   // generic elements
-  private static final Element RAW_ELEMENT = Element.forType(InjectionLayer.class);
-  private static final Element GENERIC_ELEMENT = Element.forType(TypeFactory.parameterizedClass(
+  @SuppressWarnings("rawtypes")
+  private static final Class<InjectionLayer> RAW_ELEMENT = InjectionLayer.class;
+  private static final Type GENERIC_ELEMENT = TypeFactory.parameterizedClass(
     InjectionLayer.class,
-    TypeFactory.unboundWildcard()));
+    TypeFactory.unboundWildcard());
   // specified elements
-  private static final Element INJECTOR_ELEMENT = Element.forType(TypeFactory.parameterizedClass(
-    InjectionLayer.class,
-    Injector.class));
-  private static final Element SPECIFIED_INJECTOR_ELEMENT = Element.forType(TypeFactory.parameterizedClass(
-    InjectionLayer.class,
-    SpecifiedInjector.class));
+  private static final Type INJECTOR_ELEMENT = TypeFactory.parameterizedClass(InjectionLayer.class, Injector.class);
+
   private static InjectionLayer<Injector> boot;
   private static InjectionLayer<Injector> ext;
 
@@ -120,19 +115,27 @@ final class InjectionLayerProvider {
    * @throws NullPointerException     if the given parent layer, name or configurator is null.
    * @throws IllegalArgumentException if the given name is invalid.
    */
-  public static @NonNull InjectionLayer<SpecifiedInjector> specifiedChild(
+  public static @NonNull InjectionLayer<Injector> specifiedChild(
     @NonNull InjectionLayer<? extends Injector> parent,
     @NonNull String name,
-    @NonNull BiConsumer<InjectionLayer<SpecifiedInjector>, SpecifiedInjector> configurator
+    @NonNull Consumer<TargetedInjectorBuilder> configurator
   ) {
-    var childInjector = parent.injector().newSpecifiedInjector();
-    return configuredLayer(name, childInjector,
-      ((Consumer<InjectionLayer<SpecifiedInjector>>) layer -> registerBindings(
-        layer,
-        SPECIFIED_INJECTOR_ELEMENT,
-        name,
-        ($, constructor) -> childInjector.installSpecified(constructor))
-      ).andThen(layer -> configurator.accept(layer, childInjector)));
+    var childInjector = parent.injector().createTargetedInjectorBuilder();
+    var layerHolder = new Object() {
+      InjectionLayer<Injector> layer;
+    };
+    registerBindings(
+      parent.injector(),
+      () -> layerHolder.layer,
+      name,
+      childInjector::installBinding);
+
+    // build and configure the layer
+    configurator.accept(childInjector);
+    layerHolder.layer = new DefaultInjectionLayer<>(childInjector.build(), AerogelAutoModule.newInstance(), name);
+
+    // return the new layer
+    return layerHolder.layer;
   }
 
   /**
@@ -153,9 +156,11 @@ final class InjectionLayerProvider {
     @NonNull InjectionLayer<Injector> parent,
     @NonNull String name
   ) {
-    var childInjector = parent.injector().newChildInjector();
-    return configuredLayer(name, childInjector,
-      layer -> registerBindings(layer, INJECTOR_ELEMENT, name, InjectionLayer::install));
+    var childInjector = parent.injector().createChildInjector();
+    return configuredLayer(
+      name,
+      childInjector,
+      layer -> registerBindings(childInjector, () -> layer, name, layer::install));
   }
 
   /**
@@ -169,9 +174,11 @@ final class InjectionLayerProvider {
    */
   public static @NonNull InjectionLayer<Injector> fresh(@NonNull String name) {
     return configuredLayer(name, layer -> {
-      layer.install(BindingBuilder.create().bind(RAW_ELEMENT).toInstance(layer));
-      layer.install(BindingBuilder.create().bind(GENERIC_ELEMENT).toInstance(layer));
-      layer.install(BindingBuilder.create().bind(INJECTOR_ELEMENT).toInstance(layer));
+      var injector = layer.injector();
+      var bindingBuilder = injector.createBindingBuilder();
+      injector.installBinding(bindingBuilder.bind(RAW_ELEMENT).toInstance(layer));
+      injector.installBinding(bindingBuilder.bind(GENERIC_ELEMENT).toInstance(layer));
+      injector.installBinding(bindingBuilder.bind(INJECTOR_ELEMENT).toInstance(layer));
     });
   }
 
@@ -212,7 +219,7 @@ final class InjectionLayerProvider {
     validateName(name);
 
     // build and configure the layer
-    var layer = new DefaultInjectionLayer<>(injector, AutoAnnotationRegistry.newRegistry(), name);
+    var layer = new DefaultInjectionLayer<>(injector, AerogelAutoModule.newInstance(), name);
     configurator.accept(layer);
 
     // return the new layer
@@ -294,19 +301,14 @@ final class InjectionLayerProvider {
   }
 
   private static void registerBindings(
-    @NonNull InjectionLayer<?> layer,
-    @NonNull Element mainElement,
+    @NonNull Injector injector,
+    @NonNull Provider<InjectionLayer<?>> layer,
     @NonNull String name,
-    @NonNull BiConsumer<InjectionLayer<?>, BindingConstructor> registerFunction
+    @NonNull Consumer<UninstalledBinding<?>> register
   ) {
-    registerFunction.accept(layer, BindingBuilder.create()
-      .bind(RAW_ELEMENT.requireAnnotation(Qualifiers.named(name)))
-      .toInstance(layer));
-    registerFunction.accept(layer, BindingBuilder.create()
-      .bind(GENERIC_ELEMENT.requireAnnotation(Qualifiers.named(name)))
-      .toInstance(layer));
-    registerFunction.accept(layer, BindingBuilder.create()
-      .bind(mainElement.requireAnnotation(Qualifiers.named(name)))
-      .toInstance(layer));
+    var bindingBuilder = injector.createBindingBuilder();
+    register.accept(bindingBuilder.bind(RAW_ELEMENT).qualifiedWithName(name).toProvider(layer));
+    register.accept(bindingBuilder.bind(GENERIC_ELEMENT).qualifiedWithName(name).toProvider(layer));
+    register.accept(bindingBuilder.bind(INJECTOR_ELEMENT).qualifiedWithName(name).toProvider(layer));
   }
 }

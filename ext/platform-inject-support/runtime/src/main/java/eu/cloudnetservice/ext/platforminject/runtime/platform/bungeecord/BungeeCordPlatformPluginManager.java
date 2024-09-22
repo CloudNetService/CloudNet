@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.bungeecord;
 
-import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
 import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
 
 import dev.derklaro.aerogel.SpecifiedInjector;
@@ -40,10 +39,10 @@ public final class BungeeCordPlatformPluginManager extends BasePlatformPluginMan
   protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull Plugin platformData) {
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
       // install bindings for the platform
-      layer.install(createFixedBinding(platformData.getProxy(), ProxyServer.class));
-      layer.install(createFixedBinding(platformData.getProxy().getConfig(), ProxyConfig.class));
-      layer.install(createFixedBinding(platformData.getProxy().getScheduler(), TaskScheduler.class));
-      layer.install(createFixedBinding(platformData.getProxy().getPluginManager(), PluginManager.class));
+      layer.install(bindingBuilder.bind(ProxyServer.class).toInstance(platformData.getProxy()));
+      layer.install(bindingBuilder.bind(ProxyConfig.class).toInstance(platformData.getProxy().getConfig()));
+      layer.install(bindingBuilder.bind(TaskScheduler.class).toInstance(platformData.getProxy().getScheduler()));
+      layer.install(bindingBuilder.bind(PluginManager.class).toInstance(platformData.getProxy().getPluginManager()));
 
       // install the bindings which are specific to the plugin
       injector.installSpecified(fixedBindingWithBound(platformData, Plugin.class));

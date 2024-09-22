@@ -76,29 +76,29 @@ public final class SpongePlatformPluginManager extends BasePlatformPluginManager
         .toInstance(Sponge.game().asyncScheduler()));
 
       // game bindings
-      layer.install(createFixedBinding(Sponge.game(), Game.class));
-      layer.install(createFixedBinding(Sponge.game().platform(), Platform.class));
-      layer.install(createFixedBinding(Sponge.game().dataManager(), DataManager.class));
-      layer.install(createFixedBinding(Sponge.game().eventManager(), EventManager.class));
-      layer.install(createFixedBinding(Sponge.game().configManager(), ConfigManager.class));
-      layer.install(createFixedBinding(Sponge.game().pluginManager(), PluginManager.class));
-      layer.install(createFixedBinding(Sponge.game().channelManager(), ChannelManager.class));
-      layer.install(createFixedBinding(Sponge.game().builderProvider(), BuilderProvider.class));
-      layer.install(createFixedBinding(Sponge.game().factoryProvider(), FactoryProvider.class));
-      layer.install(createFixedBinding(Sponge.game().metricsConfigManager(), MetricsConfigManager.class));
-      layer.install(createFixedBinding(Sponge.game().serviceProvider(), ServiceProvider.GameScoped.class));
+      layer.install(bindingBuilder.bind(Game.class).toInstance(Sponge.game()));
+      layer.install(bindingBuilder.bind(Platform.class).toInstance(Sponge.game().platform()));
+      layer.install(bindingBuilder.bind(DataManager.class).toInstance(Sponge.game().dataManager()));
+      layer.install(bindingBuilder.bind(EventManager.class).toInstance(Sponge.game().eventManager()));
+      layer.install(bindingBuilder.bind(ConfigManager.class).toInstance(Sponge.game().configManager()));
+      layer.install(bindingBuilder.bind(PluginManager.class).toInstance(Sponge.game().pluginManager()));
+      layer.install(bindingBuilder.bind(ChannelManager.class).toInstance(Sponge.game().channelManager()));
+      layer.install(bindingBuilder.bind(BuilderProvider.class).toInstance(Sponge.game().builderProvider()));
+      layer.install(bindingBuilder.bind(FactoryProvider.class).toInstance(Sponge.game().factoryProvider()));
+      layer.install(bindingBuilder.bind(MetricsConfigManager.class).toInstance(Sponge.game().metricsConfigManager()));
+      layer.install(bindingBuilder.bind(ServiceProvider.GameScoped.class).toInstance(Sponge.game().serviceProvider()));
 
       // server bindings
-      layer.install(createFixedBinding(Sponge.server().mapStorage(), MapStorage.class));
-      layer.install(createFixedBinding(Sponge.server().userManager(), UserManager.class));
-      layer.install(createFixedBinding(Sponge.server().worldManager(), WorldManager.class));
-      layer.install(createFixedBinding(Sponge.server(), Server.class, RegistryHolder.class));
-      layer.install(createFixedBinding(Sponge.server().recipeManager(), RecipeManager.class));
-      layer.install(createFixedBinding(Sponge.server().teleportHelper(), TeleportHelper.class));
-      layer.install(createFixedBinding(Sponge.server().commandManager(), CommandManager.class));
-      layer.install(createFixedBinding(Sponge.server().packRepository(), PackRepository.class));
-      layer.install(createFixedBinding(Sponge.server().resourceManager(), ResourceManager.class));
-      layer.install(createFixedBinding(Sponge.server().causeStackManager(), CauseStackManager.class));
+      layer.install(bindingBuilder.bind(MapStorage.class).toInstance(Sponge.server().mapStorage()));
+      layer.install(bindingBuilder.bind(UserManager.class).toInstance(Sponge.server().userManager()));
+      layer.install(bindingBuilder.bind(WorldManager.class).toInstance(Sponge.server().worldManager()));
+      layer.install(bindingBuilder.bind(RegistryHolder.class).toInstance(Sponge.server(), Server.class));
+      layer.install(bindingBuilder.bind(RecipeManager.class).toInstance(Sponge.server().recipeManager()));
+      layer.install(bindingBuilder.bind(TeleportHelper.class).toInstance(Sponge.server().teleportHelper()));
+      layer.install(bindingBuilder.bind(CommandManager.class).toInstance(Sponge.server().commandManager()));
+      layer.install(bindingBuilder.bind(PackRepository.class).toInstance(Sponge.server().packRepository()));
+      layer.install(bindingBuilder.bind(ResourceManager.class).toInstance(Sponge.server().resourceManager()));
+      layer.install(bindingBuilder.bind(CauseStackManager.class).toInstance(Sponge.server().causeStackManager()));
       layer.install(createFixedBinding(
         Sponge.server().gameProfileManager(),
         GameProfileManager.class, GameProfileProvider.class));

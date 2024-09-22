@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.cluster.defaults;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;

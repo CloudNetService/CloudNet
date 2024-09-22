@@ -18,7 +18,6 @@ package eu.cloudnetservice.node.log;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
-import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.event.log.LoggingEntryEvent;
@@ -41,11 +40,15 @@ public final class QueuedConsoleLogAppender extends ConsoleAppender<ILoggingEven
   private final Queue<ILoggingEvent> cachedQueuedLogEntries = new ConcurrentLinkedQueue<>();
 
   public QueuedConsoleLogAppender() {
-    this.eventManager = InjectionLayer.boot().instance(EventManager.class);
+    var bootLayer = InjectionLayer.boot();
+    this.eventManager = bootLayer.instance(EventManager.class);
 
     // we have to install the binding for the log appender ourselves because this class gets constructed by logback,
     // but we need the access in other classes
-    InjectionLayer.boot().install(BindingBuilder.create().bind(QueuedConsoleLogAppender.class).toInstance(this));
+    bootLayer.install(bootLayer.injector()
+      .createBindingBuilder()
+      .bind(QueuedConsoleLogAppender.class)
+      .toInstance(this));
   }
 
   public @NonNull Queue<ILoggingEvent> cachedLogEntries() {

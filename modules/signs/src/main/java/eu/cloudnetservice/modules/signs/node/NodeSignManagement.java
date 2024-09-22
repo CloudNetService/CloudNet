@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.document.Document;

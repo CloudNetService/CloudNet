@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.provider;
 
 import com.google.common.collect.Iterables;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.common.concurrent.CountingTask;
 import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;

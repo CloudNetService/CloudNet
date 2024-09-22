@@ -19,8 +19,8 @@ package eu.cloudnetservice.node.service.defaults;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.ComparisonChain;
-import dev.derklaro.aerogel.PostConstruct;
-import dev.derklaro.aerogel.auto.Provides;
+
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;

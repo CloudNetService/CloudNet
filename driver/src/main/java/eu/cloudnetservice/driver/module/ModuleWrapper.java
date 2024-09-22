@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.module;
 
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.inject.InjectionLayerHolder;
 import java.net.URI;
@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Unmodifiable;
  * @see ModuleLifeCycle
  * @since 4.0
  */
-public interface ModuleWrapper extends InjectionLayerHolder<SpecifiedInjector> {
+public interface ModuleWrapper extends InjectionLayerHolder<Injector> {
 
   /**
    * Get all module tasks which were detected in the main class of the module.
@@ -171,5 +171,5 @@ public interface ModuleWrapper extends InjectionLayerHolder<SpecifiedInjector> {
    * @return the injection layer of the module.
    */
   @Override
-  @NonNull InjectionLayer<SpecifiedInjector> injectionLayer();
+  @NonNull InjectionLayer<Injector> injectionLayer();
 }

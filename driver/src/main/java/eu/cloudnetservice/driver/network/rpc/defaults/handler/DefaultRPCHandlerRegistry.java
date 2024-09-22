@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import jakarta.inject.Singleton;

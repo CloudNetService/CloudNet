@@ -21,7 +21,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;

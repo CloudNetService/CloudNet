@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.provider;
 
-import dev.derklaro.aerogel.PostConstruct;
-import dev.derklaro.aerogel.auto.Provides;
+
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.jvm.JavaVersion;
@@ -107,7 +107,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
   }
 
-  @PostConstruct
+  @Inject
   private void registerTaskChannelListener() {
     this.eventManager.registerListener(TaskChannelMessageListener.class);
   }

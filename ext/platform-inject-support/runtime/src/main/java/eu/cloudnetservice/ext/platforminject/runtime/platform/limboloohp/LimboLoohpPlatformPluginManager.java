@@ -40,10 +40,10 @@ public final class LimboLoohpPlatformPluginManager extends BasePlatformPluginMan
   protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull LimboPlugin platformData) {
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
       // install bindings for the platform
-      layer.install(createFixedBinding(platformData.getServer(), Limbo.class));
-      layer.install(createFixedBinding(platformData.getServer().getPluginManager(), PluginManager.class));
-      layer.install(createFixedBinding(platformData.getServer().getEventsManager(), EventsManager.class));
-      layer.install(createFixedBinding(platformData.getServer().getScheduler(), LimboScheduler.class));
+      layer.install(bindingBuilder.bind(Limbo.class).toInstance(platformData.getServer()));
+      layer.install(bindingBuilder.bind(PluginManager.class).toInstance(platformData.getServer().getPluginManager()));
+      layer.install(bindingBuilder.bind(EventsManager.class).toInstance(platformData.getServer().getEventsManager()));
+      layer.install(bindingBuilder.bind(LimboScheduler.class).toInstance(platformData.getServer().getScheduler()));
 
       // install the bindings which are specific to the plugin
       injector.installSpecified(fixedBindingWithBound(platformData, LimboPlugin.class));

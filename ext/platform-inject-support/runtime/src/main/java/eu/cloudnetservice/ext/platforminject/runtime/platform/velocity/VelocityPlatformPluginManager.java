@@ -47,12 +47,12 @@ final class VelocityPlatformPluginManager
   ) {
     return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
       // install bindings for the platform
-      layer.install(createFixedBinding(platformData.platformInstance(), ProxyServer.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getScheduler(), Scheduler.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getEventManager(), EventManager.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getPluginManager(), PluginManager.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getCommandManager(), CommandManager.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getChannelRegistrar(), ChannelRegistrar.class));
+      layer.install(bindingBuilder.bind(ProxyServer.class).toInstance(platformData.platformInstance()));
+      layer.install(bindingBuilder.bind(Scheduler.class).toInstance(platformData.platformInstance().getScheduler()));
+      layer.install(bindingBuilder.bind(EventManager.class).toInstance(platformData.platformInstance().getEventManager()));
+      layer.install(bindingBuilder.bind(PluginManager.class).toInstance(platformData.platformInstance().getPluginManager()));
+      layer.install(bindingBuilder.bind(CommandManager.class).toInstance(platformData.platformInstance().getCommandManager()));
+      layer.install(bindingBuilder.bind(ChannelRegistrar.class).toInstance(platformData.platformInstance().getChannelRegistrar()));
 
       // install the bindings which are specific to the plugin
       injector.installSpecified(createFixedBinding(platformData.container(), PluginContainer.class));

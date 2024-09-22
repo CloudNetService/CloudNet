@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node;
 
 import dev.derklaro.aerogel.Order;
-import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.io.LogOutputStream;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
@@ -225,10 +224,9 @@ public final class Node {
     }
 
     // bind the provider for dependency injection
-    var binding = BindingBuilder.create()
-      .bindAll(DatabaseProvider.class, NodeDatabaseProvider.class)
-      .toInstance(provider);
-    bootLayer.install(binding);
+    var builder = bootLayer.injector().createBindingBuilder();
+    bootLayer.install(builder.bind(DatabaseProvider.class).toInstance(provider));
+    bootLayer.install(builder.bind(NodeDatabaseProvider.class).toInstance(provider));
 
     // register the rpc handler for the database provider
     var dbProviderHandler = rpcFactory.newRPCHandlerBuilder(DatabaseProvider.class).targetInstance(provider).build();
