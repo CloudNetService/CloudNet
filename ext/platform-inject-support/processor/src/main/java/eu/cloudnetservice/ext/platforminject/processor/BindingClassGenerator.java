@@ -26,7 +26,9 @@ import eu.cloudnetservice.ext.platforminject.api.inject.BindingsInstaller;
 import eu.cloudnetservice.ext.platforminject.processor.util.GeantyrefUtil;
 import eu.cloudnetservice.ext.platforminject.processor.util.TypeUtil;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.lang.model.element.Modifier;
 import lombok.NonNull;
@@ -53,7 +55,9 @@ final class BindingClassGenerator {
     // apply each binding
     for (var binding : bindingData) {
       // build the layer install code block for the raw types
-      var rawTypesGetter = binding.providingElements().stream().map(type -> CodeBlock.of("$T.class", type));
+      var rawTypesGetter = binding.providingElements().stream()
+        .map(type -> CodeBlock.of("$T.class", type))
+        .collect(Collectors.toList());
 
       // build the layer install block for the generic types, if any
       var genericElements = binding.providedGenericElements();
@@ -79,18 +83,14 @@ final class BindingClassGenerator {
 
             // only add the generic constructor
             return Stream.of(genericTypeConstructor);
-          });
+          }).toList();
 
-        genericTypesGetter.forEach(block -> {
-          // install all bindings to the layer
-          var layerInstallGenericBlock = buildLayerInstallBlock(block, binding.boundElement());
-          applyBindings.addCode(layerInstallGenericBlock);
-        });
+
+        rawTypesGetter.addAll(genericTypesGetter);
       }
-      rawTypesGetter.forEach(block -> {
-        var layerInstallRawBlock = buildLayerInstallBlock(block, binding.boundElement());
-        applyBindings.addCode(layerInstallRawBlock);
-      });
+
+      var layerInstallRawBlock = buildLayerInstallBlock(rawTypesGetter, binding.boundElement());
+      applyBindings.addCode(layerInstallRawBlock);
     }
 
     // build the class
@@ -102,14 +102,19 @@ final class BindingClassGenerator {
   }
 
   private static @NonNull CodeBlock buildLayerInstallBlock(
-    @NonNull CodeBlock typeGetterBlock,
+    @NonNull List<CodeBlock> bindingBlocks,
     @NonNull ClassName boundElement
   ) {
     // build the block which actually adds the binding to the layer
-    var constructorBuild = CodeBlock.of("builder.bind($L).toConstructingClass($T.class)",
-      typeGetterBlock,
-      boundElement);
-    return CodeBlock.of("l.install($L);", constructorBuild);
+    var constructorBuild = CodeBlock.builder().add("builder.bind($L)", bindingBlocks.getFirst());
+    if (bindingBlocks.size() > 1) {
+      for (int i = 1; i < bindingBlocks.size(); i++) {
+        constructorBuild.add(".andBind($L)", bindingBlocks.get(i));
+      }
+    }
+
+    constructorBuild.add(".toConstructingClass($T.class)", boundElement);
+    return CodeBlock.of("l.install($L);", constructorBuild.build());
   }
 
   public record ParsedBindingData(
