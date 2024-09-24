@@ -176,9 +176,10 @@ final class InjectionLayerProvider {
     return configuredLayer(name, layer -> {
       var injector = layer.injector();
       var bindingBuilder = injector.createBindingBuilder();
-      injector.installBinding(bindingBuilder.bind(RAW_ELEMENT).toInstance(layer));
-      injector.installBinding(bindingBuilder.bind(GENERIC_ELEMENT).toInstance(layer));
-      injector.installBinding(bindingBuilder.bind(INJECTOR_ELEMENT).toInstance(layer));
+      injector.installBinding(bindingBuilder.bind(RAW_ELEMENT)
+        .andBind(GENERIC_ELEMENT)
+        .andBind(INJECTOR_ELEMENT)
+        .toInstance(layer));
     });
   }
 
@@ -307,8 +308,10 @@ final class InjectionLayerProvider {
     @NonNull Consumer<UninstalledBinding<?>> register
   ) {
     var bindingBuilder = injector.createBindingBuilder();
-    register.accept(bindingBuilder.bind(RAW_ELEMENT).qualifiedWithName(name).toProvider(layer));
-    register.accept(bindingBuilder.bind(GENERIC_ELEMENT).qualifiedWithName(name).toProvider(layer));
-    register.accept(bindingBuilder.bind(INJECTOR_ELEMENT).qualifiedWithName(name).toProvider(layer));
+    register.accept(bindingBuilder.bind(RAW_ELEMENT)
+      .andBind(GENERIC_ELEMENT)
+      .andBind(INJECTOR_ELEMENT)
+      .qualifiedWithName(name)
+      .toProvider(layer));
   }
 }

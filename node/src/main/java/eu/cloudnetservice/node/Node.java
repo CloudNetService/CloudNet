@@ -225,8 +225,7 @@ public final class Node {
 
     // bind the provider for dependency injection
     var builder = bootLayer.injector().createBindingBuilder();
-    bootLayer.install(builder.bind(DatabaseProvider.class).toInstance(provider));
-    bootLayer.install(builder.bind(NodeDatabaseProvider.class).toInstance(provider));
+    bootLayer.install(builder.bind(DatabaseProvider.class).andBind(NodeDatabaseProvider.class).toInstance(provider));
 
     // register the rpc handler for the database provider
     var dbProviderHandler = rpcFactory.newRPCHandlerBuilder(DatabaseProvider.class).targetInstance(provider).build();
