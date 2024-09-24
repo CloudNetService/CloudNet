@@ -56,7 +56,7 @@ final class VelocityPlatformPluginManager
       targetedBuilder.installBinding(bindingBuilder.bind(PluginContainer.class).toInstance(platformData.container()));
       targetedBuilder.installBinding(bindingBuilder.bind(Object.class)
         .qualifiedWithName("plugin")
-        .toInstance(proxyServer));
+        .toInstance(platformData.pluginInstance()));
     });
   }
 }
