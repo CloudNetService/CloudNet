@@ -24,13 +24,12 @@ import dev.derklaro.aerogel.binding.key.BindingKey;
 import dev.derklaro.aerogel.internal.context.scope.InjectionContextProvider;
 import jakarta.inject.Provider;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The default implementation for of an injector layer.
@@ -46,8 +45,6 @@ record DefaultInjectionLayer<I extends Injector>(
   @NonNull AerogelAutoModule autoModule,
   @NonNull String name
 ) implements InjectionLayer<I> {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultInjectionLayer.class);
 
   /**
    * {@inheritDoc}
@@ -128,7 +125,9 @@ record DefaultInjectionLayer<I extends Injector>(
         this.autoModule.deserializeBindings(stream, loader).installBindings(this.injector);
       }
     } catch (IOException exception) {
-      LOGGER.warn("Unable to auto configure bindings for component {} with file {}", component, fileName, exception);
+      throw new UncheckedIOException(
+        String.format("Unable to auto configure bindings for component %s with file %s", component, fileName),
+        exception);
     }
   }
 
@@ -155,10 +154,7 @@ record DefaultInjectionLayer<I extends Injector>(
   @Override
   public void close() {
     // remove the bindings from the parent injector if needed
-    // TODO aerogel
-    /*if (this.injector instanceof Target specifiedInjector) {
-      specifiedInjector.removeConstructedBindings();
-    }*/
+    this.injector.close();
 
     // remove this injector from the registry
     InjectionLayerProvider.REGISTRY.unregisterLayer(this);
