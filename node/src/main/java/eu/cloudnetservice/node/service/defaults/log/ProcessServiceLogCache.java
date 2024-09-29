@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.node.service.defaults.log;
 
+import com.google.common.base.Preconditions;
+import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.config.Configuration;
 import java.io.BufferedReader;
@@ -25,40 +27,99 @@ import lombok.NonNull;
 
 public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
-  public ProcessServiceLogCache(@NonNull Configuration configuration, @NonNull ServiceId associatedServiceId) {
+  private final ProcessServiceLogReadScheduler scheduler;
+
+  private volatile ProcessHandle targetProcess;
+  private BufferedReader outStreamReader;
+  private BufferedReader errStreamReader;
+
+  public ProcessServiceLogCache(
+    @NonNull Configuration configuration,
+    @NonNull ServiceId associatedServiceId,
+    @NonNull ProcessServiceLogReadScheduler scheduler
+  ) {
     super(configuration, associatedServiceId);
+    this.scheduler = scheduler;
   }
 
   public void start(@NonNull Process process) {
-    var inputStreamReader = process.inputReader(StandardCharsets.UTF_8);
-    this.startStreamReadingTask(inputStreamReader, false);
-
-    var errorStreamReader = process.errorReader(StandardCharsets.UTF_8);
-    this.startStreamReadingTask(errorStreamReader, true);
+    Preconditions.checkState(this.targetProcess == null);
+    this.targetProcess = process.toHandle();
+    this.outStreamReader = process.inputReader(StandardCharsets.UTF_8);
+    this.errStreamReader = process.errorReader(StandardCharsets.UTF_8);
+    this.scheduler.schedule(this);
   }
 
-  protected void startStreamReadingTask(@NonNull BufferedReader reader, boolean isErrorStream) {
-    var serviceName = this.associatedServiceId.name();
-    var streamTypeDisplayName = isErrorStream ? "error" : "output";
-    var threadName = String.format("%s %s-stream reader", serviceName, streamTypeDisplayName);
+  public void stop() {
+    try {
+      var outReader = this.outStreamReader;
+      var errReader = this.errStreamReader;
+      if (outReader != null && errReader != null) {
+        outReader.close();
+        errReader.close();
+        this.outStreamReader = null;
+        this.errStreamReader = null;
+      }
 
-    Thread.ofVirtual()
-      .name(threadName)
-      .inheritInheritableThreadLocals(false)
-      .start(() -> {
-        while (true) {
-          try {
-            var logLine = reader.readLine();
-            if (logLine == null) {
-              // reached EOF, process terminated
-              break;
-            }
+      // no longer targeting a process, always reset the target process
+      // in case something went wrong elsewhere to allow re-using this
+      // log cache in that case anyway
+      this.targetProcess = null;
+    } catch (IOException exception) {
+      LOGGER.error("Failed to close process streams of service {}", this.associatedServiceId.name(), exception);
+    }
+  }
 
-            this.handleItem(logLine, isErrorStream);
-          } catch (IOException exception) {
-            LOGGER.error("Exception reading {} stream of service {}", streamTypeDisplayName, serviceName, exception);
-          }
-        }
-      });
+  public boolean readProcessOutputContent() {
+    try {
+      var outReader = this.outStreamReader;
+      var errReader = this.errStreamReader;
+      if (outReader == null || errReader == null) {
+        return false;
+      }
+
+      // try to read all lines from both stream if content is available
+      // these calls do not block in case the readers have no content
+      // available yet
+      this.readLinesFromStream(outReader, false);
+      this.readLinesFromStream(errReader, true);
+
+      // check if the target process terminated, we can stop reading
+      // the data streams in that case
+      // the data that was buffered is now removed from the reader and
+      // no now data will become available if the process is dead
+      var targetProcess = this.targetProcess;
+      if (targetProcess == null || !targetProcess.isAlive()) {
+        this.stop(); // call stop to ensure that the termination is properly handled (prevent state mismatch)
+        return false;
+      }
+
+      return true;
+    } catch (IOException exception) {
+      // stream close and read can happen concurrently, so in case the stream
+      // closed we don't want to log the exception but rather signal that the
+      // service was stopped. "stream closed" is the message for both the reader
+      // being closed and the file descriptor being no longer available (process terminated)
+      var message = StringUtil.toLower(exception.getMessage());
+      if (message != null && message.equals("stream closed")) {
+        this.stop(); // call stop to ensure that the termination is properly handled (prevent state mismatch)
+        LOGGER.debug("Encountered closed out/err stream for service {}, stopping", associatedServiceId);
+        return false;
+      } else {
+        LOGGER.error("Unable to read out/err stream of service {}", this.associatedServiceId, exception);
+        return true; // couldn't read this time, but maybe we can read next time?
+      }
+    }
+  }
+
+  private void readLinesFromStream(@NonNull BufferedReader stream, boolean errStream) throws IOException {
+    while (stream.ready()) {
+      var line = stream.readLine();
+      if (line == null) {
+        break;
+      }
+
+      this.handleItem(line, errStream);
+    }
   }
 }
