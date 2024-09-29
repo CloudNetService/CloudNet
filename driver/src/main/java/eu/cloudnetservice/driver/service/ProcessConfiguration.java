@@ -108,7 +108,7 @@ public record ProcessConfiguration(
      * @throws IllegalArgumentException if the given memory size is less than 50 mb.
      */
     public @NonNull Builder maxHeapMemorySize(@Range(from = 50, to = Integer.MAX_VALUE) int maxHeapMemorySize) {
-      Preconditions.checkArgument(maxHeapMemorySize > 50, "Max heap memory must be at least 50 mb");
+      Preconditions.checkArgument(maxHeapMemorySize >= 50, "Max heap memory must be at least 50 mb");
 
       this.maxHeapMemorySize = maxHeapMemorySize;
       return this;
