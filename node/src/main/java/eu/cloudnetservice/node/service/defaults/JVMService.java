@@ -34,6 +34,7 @@ import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.node.service.defaults.log.ProcessServiceLogCache;
+import eu.cloudnetservice.node.service.defaults.log.ProcessServiceLogReadScheduler;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import io.vavr.CheckedFunction1;
 import java.io.File;
@@ -80,9 +81,10 @@ public class JVMService extends AbstractService {
     @NonNull CloudServiceManager manager,
     @NonNull EventManager eventManager,
     @NonNull ServiceVersionProvider versionProvider,
-    @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
+    @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer,
+    @NonNull ProcessServiceLogReadScheduler processLogReadScheduler
   ) {
-    var logCache = new ProcessServiceLogCache(nodeConfig, configuration.serviceId());
+    var logCache = new ProcessServiceLogCache(nodeConfig, configuration.serviceId(), processLogReadScheduler);
     this(
       tickLoop,
       nodeConfig,
@@ -193,23 +195,33 @@ public class JVMService extends AbstractService {
 
   @Override
   protected void stopProcess() {
-    if (this.process != null) {
-      // try to send a shutdown command
+    var process = this.process;
+    if (process != null) {
+      // try to send a shutdown command (still needs the process instance to be present)
       this.runCommand("end");
       this.runCommand("stop");
+      this.process = null;
 
+      // try to wait for the process to terminate normally, setting the
+      // terminated flag to true if the process exited in the given time frame
+      var terminated = false;
       try {
-        // wait until the process termination seconds exceeded
-        if (this.process.waitFor(this.configuration.processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
-          this.process.exitValue(); // validation that the process terminated
-          this.process = null; // reset as there is no fall-through
-          return;
+        if (process.waitFor(this.configuration.processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+          process.exitValue(); // validation that the process terminated
+          terminated = true;
         }
       } catch (IllegalThreadStateException | InterruptedException ignored) { // force shutdown the process
       }
-      // force destroy the process now - not much we can do here more than that
-      this.process.toHandle().destroyForcibly();
-      this.process = null;
+
+      // force-destroy the process in case it didn't terminate normally
+      if (!terminated) {
+        process.toHandle().destroyForcibly();
+      }
+
+      // stop the reading process when the process exited
+      if (this.logCache instanceof ProcessServiceLogCache processServiceLogCache) {
+        processServiceLogCache.stop();
+      }
     }
   }
 
