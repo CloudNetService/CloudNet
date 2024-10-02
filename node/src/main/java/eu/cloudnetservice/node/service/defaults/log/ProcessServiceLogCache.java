@@ -21,17 +21,19 @@ import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.config.Configuration;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
   private final ProcessServiceLogReadScheduler scheduler;
 
   private volatile ProcessHandle targetProcess;
-  private BufferedReader outStreamReader;
-  private BufferedReader errStreamReader;
+  private NonBlockingReader outStreamReader;
+  private NonBlockingReader errStreamReader;
 
   public ProcessServiceLogCache(
     @NonNull Configuration configuration,
@@ -45,8 +47,8 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
   public void start(@NonNull Process process) {
     Preconditions.checkState(this.targetProcess == null);
     this.targetProcess = process.toHandle();
-    this.outStreamReader = process.inputReader(StandardCharsets.UTF_8);
-    this.errStreamReader = process.errorReader(StandardCharsets.UTF_8);
+    this.outStreamReader = new NonBlockingReader(process.inputReader(StandardCharsets.UTF_8));
+    this.errStreamReader = new NonBlockingReader(process.errorReader(StandardCharsets.UTF_8));
     this.scheduler.schedule(this);
   }
 
@@ -55,6 +57,12 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
       var outReader = this.outStreamReader;
       var errReader = this.errStreamReader;
       if (outReader != null && errReader != null) {
+        outReader.shutdown = true;
+        errReader.shutdown = true;
+        // Processes killed by the termination timeout could have remaining content in the output streams.
+        // Read all remaining content and then close the streams
+        this.readLinesFromStream(outReader, false);
+        this.readLinesFromStream(errReader, true);
         outReader.close();
         errReader.close();
         this.outStreamReader = null;
@@ -112,14 +120,66 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
     }
   }
 
-  private void readLinesFromStream(@NonNull BufferedReader stream, boolean errStream) throws IOException {
-    while (stream.ready()) {
+  private void readLinesFromStream(@NonNull NonBlockingReader stream, boolean errStream) throws IOException {
+    while (true) {
       var line = stream.readLine();
       if (line == null) {
         break;
       }
 
       this.handleItem(line, errStream);
+    }
+  }
+
+  private static class NonBlockingReader {
+
+    private final BufferedReader reader;
+    private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    private boolean shutdown = false;
+    private boolean lastCR = false;
+
+    public NonBlockingReader(BufferedReader reader) {
+      this.reader = reader;
+    }
+
+    /**
+     * Tries to read a line, if no line is available returns null
+     */
+    private synchronized @Nullable String readLine() throws IOException {
+      // Strategy: Collect everything into the buffer until we hit a newline
+      // Then return the line excluding the (CR and) BR character(s)
+      while (this.reader.ready()) {
+        var read = this.reader.read();
+        if (this.lastCR) {
+          // Make sure to skip CR when creating the line
+          if (read != '\n') {
+            this.buffer.write('\r');
+          }
+          this.lastCR = false;
+        } else if (read == '\r') {
+          this.lastCR = true;
+          // Don't append \r to buffer
+          continue;
+        }
+
+        if (read == '\n') {
+          // finished newline
+          var line = this.buffer.toString(StandardCharsets.UTF_8);
+          this.buffer.reset();
+          return line;
+        }
+        this.buffer.write(read);
+      }
+      if (this.shutdown && this.buffer.size() > 0) {
+        var line = this.buffer.toString(StandardCharsets.UTF_8);
+        this.buffer.reset();
+        return line;
+      }
+      return null;
+    }
+
+    private void close() throws IOException {
+      this.reader.close();
     }
   }
 }
