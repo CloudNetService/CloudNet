@@ -17,16 +17,22 @@
 package eu.cloudnetservice.modules.docker;
 
 import com.github.dockerjava.api.model.Frame;
-import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.node.service.defaults.log.AbstractServiceLogCache;
 import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
 
 public class DockerizedServiceLogCache extends AbstractServiceLogCache {
 
-  public DockerizedServiceLogCache(@NonNull Configuration configuration, @NonNull ServiceId associatedServiceId) {
-    super(configuration, associatedServiceId);
+  public DockerizedServiceLogCache(@NonNull Configuration configuration, @NonNull CloudService service) {
+    super(configuration, service);
+  }
+
+  @Override
+  public @NonNull ServiceConsoleLogCache update() {
+    return this;
   }
 
   public void handle(@NonNull Frame frame) {
@@ -43,7 +49,9 @@ public class DockerizedServiceLogCache extends AbstractServiceLogCache {
     if (content.contains("\n") || content.contains("\r")) {
       for (var input : content.split("\r")) {
         for (var text : input.split("\n")) {
-          super.handleItem(text, comesFromErrorStream);
+          if (!text.trim().isEmpty()) {
+            super.handleItem(text, comesFromErrorStream);
+          }
         }
       }
     }
