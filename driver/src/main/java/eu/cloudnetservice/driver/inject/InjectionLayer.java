@@ -24,6 +24,7 @@ import dev.derklaro.aerogel.binding.UninstalledBinding;
 import dev.derklaro.aerogel.binding.key.BindingKey;
 import eu.cloudnetservice.common.Named;
 import jakarta.inject.Provider;
+import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.function.Consumer;
 import lombok.NonNull;
@@ -189,19 +190,17 @@ public sealed interface InjectionLayer<I extends Injector>
    * @param <T>  the type of the class modeled by the given class object.
    * @return the constructed instance of the class type, may be null.
    * @throws NullPointerException if the given type is null.
-   * @throws AerogelException     if no binding is present and no runtime binding can be created.
    */
   @UnknownNullability
   <T> T instance(@NonNull Class<T> type);
 
   /**
-   * Convince method to create or get the instance of the given element.
+   * Convince method to create or get the instance of the given binding key.
    *
-   * @param bindingKey the element of the type to get.
-   * @param <T>     the type of the return value modeled by the given element.
+   * @param bindingKey the binding key for the instance to resolve.
+   * @param <T>        the type of the return value modeled by the given binding key.
    * @return the constructed instance of the class type, may be null.
-   * @throws NullPointerException if the given element is null.
-   * @throws AerogelException     if no binding is present and no runtime binding can be created.
+   * @throws NullPointerException if the given binding key is null.
    */
   @UnknownNullability
   <T> T instance(@NonNull BindingKey<T> bindingKey);
@@ -210,24 +209,31 @@ public sealed interface InjectionLayer<I extends Injector>
    * Convince method to create or get the instance of the given type, while allowing to specifically influence the
    * injection context.
    *
-   * @param type    the type of the element to get.
-   * @param overrides the builder to configure the injection context for the operation.
-   * @param <T>     the type of the return value modeled by the given element.
+   * @param type      the type of the element to get.
+   * @param overrides the overrides for the binding key and the value to use as override.
+   * @param <T>       the type of the return value modeled by the given element.
    * @return the constructed instance of the class type, may be null.
    * @throws NullPointerException if the given type or builder is null.
-   * @throws AerogelException     if no binding is present and no runtime binding can be created.
    */
   @UnknownNullability
   <T> T instance(@NonNull Class<T> type, @NonNull Consumer<Map<BindingKey<?>, Provider<?>>> overrides);
 
   /**
-   * Installs the binding constructed by the given bindings constructor to this injection layer.
+   * Installs the uninstalled binding into the underlying injector.
    *
-   * @param binding the constructor to install.
-   * @throws NullPointerException if the given constructor is null or the constructor constructs a null value.
+   * @param binding the binding to install.
+   * @throws NullPointerException if the given binding is null.
    */
   void install(@NonNull UninstalledBinding<?> binding);
 
+  /**
+   * Installs a dynamic binding into the underlying injector. The dynamic binding can be used to provide bindings based
+   * on the presence of annotations and other matching criteria. Dynamic bindings have a lower priority than
+   * {@link UninstalledBinding}.
+   *
+   * @param binding the dynamic binding to install.
+   * @throws NullPointerException if the given binding is null.
+   */
   void install(@NonNull DynamicBinding binding);
 
   /**
@@ -239,7 +245,7 @@ public sealed interface InjectionLayer<I extends Injector>
    * @param loader    the loader in which the file resource is located.
    * @param component the name of the component to load the autoconfiguration bindings of.
    * @throws NullPointerException if the given class loader or component name is null.
-   * @throws AerogelException     if an I/O exception occurs while loading or closing the data stream.
+   * @throws UncheckedIOException if an I/O error occurs while loading the auto config bindings.
    */
   void installAutoConfigureBindings(@NonNull ClassLoader loader, @NonNull String component);
 
