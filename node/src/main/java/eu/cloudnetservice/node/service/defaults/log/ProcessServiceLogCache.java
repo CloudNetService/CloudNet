@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.config.Configuration;
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
 
@@ -30,8 +30,8 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
   private final ProcessServiceLogReadScheduler scheduler;
 
   private volatile ProcessHandle targetProcess;
-  private BufferedReader outStreamReader;
-  private BufferedReader errStreamReader;
+  private NonBlockingLineReader outStreamReader;
+  private NonBlockingLineReader errStreamReader;
 
   public ProcessServiceLogCache(
     @NonNull Configuration configuration,
@@ -44,9 +44,13 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
   public void start(@NonNull Process process) {
     Preconditions.checkState(this.targetProcess == null);
+
+    // assumes utf-8 for output encoding
+    var charset = StandardCharsets.UTF_8;
+    this.outStreamReader = new NonBlockingLineReader(new InputStreamReader(process.getInputStream(), charset));
+    this.errStreamReader = new NonBlockingLineReader(new InputStreamReader(process.getErrorStream(), charset));
+
     this.targetProcess = process.toHandle();
-    this.outStreamReader = process.inputReader(StandardCharsets.UTF_8);
-    this.errStreamReader = process.errorReader(StandardCharsets.UTF_8);
     this.scheduler.schedule(this);
   }
 
@@ -59,6 +63,9 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
         errReader.close();
         this.outStreamReader = null;
         this.errStreamReader = null;
+
+        // drain remaining buffered lines from the readers after closing
+        this.readLinesFromStreams(outReader, errReader);
       }
 
       // no longer targeting a process, always reset the target process
@@ -81,8 +88,7 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
       // try to read all lines from both stream if content is available
       // these calls do not block in case the readers have no content
       // available yet
-      this.readLinesFromStream(outReader, false);
-      this.readLinesFromStream(errReader, true);
+      this.readLinesFromStreams(outReader, errReader);
 
       // check if the target process terminated, we can stop reading
       // the data streams in that case
@@ -112,9 +118,17 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
     }
   }
 
-  private void readLinesFromStream(@NonNull BufferedReader stream, boolean errStream) throws IOException {
-    while (stream.ready()) {
-      var line = stream.readLine();
+  private void readLinesFromStreams(
+    @NonNull NonBlockingLineReader outReader,
+    @NonNull NonBlockingLineReader errReader
+  ) throws IOException {
+    this.readLinesFromStream(outReader, false);
+    this.readLinesFromStream(errReader, true);
+  }
+
+  private void readLinesFromStream(@NonNull NonBlockingLineReader reader, boolean errStream) throws IOException {
+    while (reader.ready()) {
+      var line = reader.readLine();
       if (line == null) {
         break;
       }

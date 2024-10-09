@@ -27,6 +27,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractServiceLogCache.class);
+  protected static final Pattern ANSI_SEQUENCE_PATTERN = Pattern.compile("\u001b\\[[0-9;]*[A-Za-z]");
 
   protected final ServiceId associatedServiceId;
 
@@ -97,8 +99,12 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
   }
 
   protected void handleItem(@NonNull String entry, boolean comesFromErrorStream) {
+    // first remove all ansi sequences from the given log line, this will remove
+    // special colors but also operations like line clears that would be displayed
+    // in the console if we don't remove them
     // empty log lines could be used for some kind of formatting, but are not really
     // not useful in any way usually, therefore we don't cache them at all
+    entry = ANSI_SEQUENCE_PATTERN.matcher(entry).replaceAll("");
     if (entry.isBlank()) {
       return;
     }
