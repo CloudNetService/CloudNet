@@ -24,6 +24,7 @@
 
   <!-- variables used in the logback configuration. Can be set using system properties. -->
   <variable name="cloudnet.wrapper.log.path" value=".wrapper/logs"/>
+  <variable name="cloudnet.wrapper.log.level" value="DEBUG"/>
 
   <property name="LOG_PATTERN" value="[%d{dd.MM HH:mm:ss.SSS}] %-5level: %msg%n"/>
   <appender name="Rolling" class="RollingFileAppender">
@@ -59,7 +60,7 @@
     <target>System.err</target>
   </appender>
 
-  <root level="DEBUG">
+  <root level="${cloudnet.wrapper.log.level}">
     <appender-ref ref="Rolling"/>
     <appender-ref ref="STDOUT"/>
     <appender-ref ref="STDERR"/>

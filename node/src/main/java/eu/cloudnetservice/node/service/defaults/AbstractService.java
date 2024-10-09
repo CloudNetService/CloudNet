@@ -29,7 +29,6 @@ import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -101,7 +100,6 @@ public abstract class AbstractService implements CloudService {
   protected final TickLoop mainThread;
   protected final EventManager eventManager;
   protected final Configuration configuration;
-  protected final ServiceConsoleLogCache logCache;
   protected final CloudServiceManager cloudServiceManager;
   protected final ServiceConfiguration serviceConfiguration;
   protected final ServiceVersionProvider serviceVersionProvider;
@@ -118,6 +116,8 @@ public abstract class AbstractService implements CloudService {
   protected final Collection<ServiceRemoteInclusion> installedInclusions = ConcurrentHashMap.newKeySet();
   protected final Collection<ServiceDeployment> installedDeployments = ConcurrentHashMap.newKeySet();
 
+  protected ServiceConsoleLogCache logCache;
+
   protected volatile NetworkChannel networkChannel;
   protected volatile long connectionTimestamp = -1;
 
@@ -130,11 +130,9 @@ public abstract class AbstractService implements CloudService {
     @NonNull ServiceConfiguration configuration,
     @NonNull CloudServiceManager manager,
     @NonNull EventManager eventManager,
-    @NonNull ServiceConsoleLogCache logCache,
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
-    this.logCache = logCache;
     this.mainThread = tickLoop;
     this.configuration = nodeConfig;
     this.eventManager = eventManager;
@@ -157,7 +155,6 @@ public abstract class AbstractService implements CloudService {
       ServiceLifeCycle.PREPARED,
       configuration.propertyHolder().immutableCopy());
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED, false);
-    this.initStandardServiceLogHandler();
 
     // register the service locally for now
     manager.registerUnacceptedService(this);
@@ -783,33 +780,6 @@ public abstract class AbstractService implements CloudService {
       this.serviceId().taskName(),
       this.serviceId().name(),
       this.serviceId().nodeUniqueId()};
-  }
-
-  protected void initStandardServiceLogHandler() {
-    this.logCache.addHandler((_, line, stderr) -> {
-      for (var logTarget : this.logTargets) {
-        if (logTarget.first().equals(ChannelMessageSender.self().toTarget())) {
-          // the current target is the node this service is running on, print it directly here
-          this.eventManager.callEvent(logTarget.second(), new CloudServiceLogEntryEvent(
-            this.currentServiceInfo,
-            line,
-            stderr ? CloudServiceLogEntryEvent.StreamType.STDERR : CloudServiceLogEntryEvent.StreamType.STDOUT));
-        } else {
-          // the listener is listening remotely, send the line to the network component
-          ChannelMessage.builder()
-            .target(logTarget.first())
-            .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-            .message("screen_new_line")
-            .buffer(DataBuf.empty()
-              .writeObject(this.currentServiceInfo)
-              .writeString(logTarget.second())
-              .writeString(line)
-              .writeBoolean(stderr))
-            .build()
-            .send();
-        }
-      }
-    });
   }
 
   protected abstract void startProcess();

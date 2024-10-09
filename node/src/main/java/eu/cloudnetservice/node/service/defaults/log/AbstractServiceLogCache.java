@@ -17,8 +17,8 @@
 package eu.cloudnetservice.node.service.defaults.log;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractServiceLogCache.class);
 
-  protected final ServiceId associatedServiceId;
+  protected final CloudService service;
 
   protected final Queue<String> cachedLogMessages = new ConcurrentLinkedQueue<>();
   protected final Set<ServiceConsoleLineHandler> handlers = ConcurrentHashMap.newKeySet();
@@ -44,15 +44,15 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
   protected volatile int logCacheSize;
   protected volatile boolean alwaysPrintErrorStreamToConsole;
 
-  public AbstractServiceLogCache(@NonNull Configuration configuration, @NonNull ServiceId associatedServiceId) {
-    this.associatedServiceId = associatedServiceId;
+  public AbstractServiceLogCache(@NonNull Configuration configuration, @NonNull CloudService service) {
+    this.service = service;
     this.logCacheSize = configuration.maxServiceConsoleLogCacheSize();
     this.alwaysPrintErrorStreamToConsole = configuration.printErrorStreamLinesFromServices();
   }
 
   @Override
-  public @NonNull ServiceId associatedServiceId() {
-    return this.associatedServiceId;
+  public @NonNull CloudService service() {
+    return this.service;
   }
 
   @Override
@@ -97,26 +97,17 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
   }
 
   protected void handleItem(@NonNull String entry, boolean comesFromErrorStream) {
-    // empty log lines could be used for some kind of formatting, but are not really
-    // not useful in any way usually, therefore we don't cache them at all
-    if (entry.isBlank()) {
-      return;
+    // drain the cache
+    while (this.cachedLogMessages.size() > this.logCacheSize) {
+      this.cachedLogMessages.poll();
     }
-
-    // insert the log line into the cache, unless the cache is disabled
-    // if needed we also remove elements from the cache to stay in the provided size bounds
-    if (this.logCacheSize > 0) {
-      while (this.cachedLogMessages.size() > this.logCacheSize) {
-        this.cachedLogMessages.poll();
-      }
-
-      this.cachedLogMessages.add(entry);
-    }
-
+    // print the line to the console if enabled
     if (this.alwaysPrintErrorStreamToConsole && comesFromErrorStream) {
-      LOGGER.warn("[{}/WARN]: {}", this.associatedServiceId.name(), entry);
+      LOGGER.warn("[{}/WARN]: {}", this.service.serviceId().name(), entry);
     }
-
+    // add the line
+    this.cachedLogMessages.add(entry);
+    // call all handlers
     if (!this.handlers.isEmpty()) {
       for (var handler : this.handlers) {
         handler.handleLine(this, entry, comesFromErrorStream);
