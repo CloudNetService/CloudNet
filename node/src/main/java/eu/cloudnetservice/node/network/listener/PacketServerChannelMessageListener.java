@@ -31,9 +31,13 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class PacketServerChannelMessageListener implements PacketListener {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PacketServerChannelMessageListener.class);
 
   private final NodeMessenger messenger;
   private final EventManager eventManager;
@@ -94,7 +98,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
     if (packet.uniqueId() != null) {
       this.messenger.sendChannelMessageQueryAsync(message, comesFromWrapper)
         .orTimeout(20, TimeUnit.SECONDS)
-        .whenComplete((result, exception) -> {
+        .handle((result, exception) -> {
           // check if the handling was successful
           DataBuf responseContent;
           if (exception == null) {
@@ -119,18 +123,27 @@ public final class PacketServerChannelMessageListener implements PacketListener 
           } else {
             // just respond with nothing when an exception was thrown
             responseContent = DataBuf.empty().writeBoolean(false);
+            LOGGER.error("Unable to relay channel message {} into cluster", message, exception);
           }
 
           // send the results to the sender
           channel.sendPacket(packet.constructResponse(responseContent));
+          return null;
+        }).whenComplete((_, exception) -> {
+          // log any internal errors
+          if (exception != null) {
+            LOGGER.error("Unable to encode/send response to channel message {}", message, exception);
+          }
+
+          if (initialResponse != null) {
+            initialResponse.content().release();
+          }
         });
     } else {
       this.messenger.sendChannelMessage(message, comesFromWrapper);
-    }
-
-    // release the initial response content in case it was not send to any channel
-    if (initialResponse != null) {
-      initialResponse.content().release();
+      if (initialResponse != null) {
+        initialResponse.content().release();
+      }
     }
 
     // force release of the current message

@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.command;
 import com.github.juliarn.npclib.api.profile.Profile;
 import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.Document;
@@ -26,6 +27,7 @@ import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
+import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
@@ -580,6 +582,72 @@ public final class NPCCommand extends BaseTabExecutor {
         // sets the target group of the npc
         case "tg", "targetgroup" -> updatedNpc = NPC.builder(npc).targetGroup(args[2]).build();
 
+        case "r", "rot", "rotate" -> {
+          if (args.length < 4) {
+            sender.sendMessage("§cInvalid usage! Use §6/cn edit rotate [~]<yaw/pitch> <value>§c!");
+            return true;
+          }
+
+          // we want to use ~ as an operator to indicate whether the provided value is relative or absolute
+          var input = args[3];
+          var relative = input.startsWith("~");
+          if (relative) {
+            input = input.substring(1);
+          }
+
+          var position = npc.location();
+          var value = Doubles.tryParse(input);
+          if (value == null) {
+            sender.sendMessage(String.format("§cUnable to parse yaw or pitch from input §6%s§c.", args[3]));
+            return true;
+          }
+
+          WorldPosition updatedPosition;
+          switch (StringUtil.toLower(args[2])) {
+            case "yaw" -> {
+              var yaw = relative ? position.yaw() + value : value;
+              if (yaw < 0 || yaw > 360) {
+                sender.sendMessage("§cInvalid argument! Yaw must be between 0 and 360, got " + yaw);
+                return true;
+              }
+
+              updatedPosition = new WorldPosition(
+                position.x(),
+                position.y(),
+                position.z(),
+                yaw,
+                position.pitch(),
+                position.world(),
+                position.group());
+            }
+            case "pitch" -> {
+              var pitch = relative ? position.pitch() + value : value;
+              if (pitch < -90 || pitch > 90) {
+                sender.sendMessage("§cInvalid argument! Pitch must be between -90 and 90, got " + pitch);
+                return true;
+              }
+
+              updatedPosition = new WorldPosition(
+                position.x(),
+                position.y(),
+                position.z(),
+                position.yaw(),
+                pitch,
+                position.world(),
+                position.group());
+            }
+            default -> {
+              sender.sendMessage("§cInvalid usage! Use §6/cn edit rotate [~]<yaw/pitch> <value>§c!");
+              return true;
+            }
+          }
+
+          updatedNpc = NPC.builder(npc).location(updatedPosition).build();
+          // npcs use the position as key so the npc is not updated but rather another npc is created
+          // just delete the old npc
+          this.management.deleteNPC(npc);
+        }
+
         // unknown option
         default -> {
           sender.sendMessage(String.format("§cNo option with name §6%s §cfound!", StringUtil.toLower(args[1])));
@@ -660,6 +728,7 @@ public final class NPCCommand extends BaseTabExecutor {
       if (args.length == 2) {
         return Arrays.asList(
           "inventoryname",
+          "rotate",
           "lookatplayer",
           "imitateplayer",
           "useplayerskin",
@@ -708,6 +777,8 @@ public final class NPCCommand extends BaseTabExecutor {
             .groupConfigurations().stream()
             .map(GroupConfiguration::name)
             .toList();
+          // rotation
+          case "r", "rot", "rotate" -> List.of("yaw", "pitch");
           // item slots
           case "items" -> new ArrayList<>(VALID_ITEM_SLOTS.keySet());
           // info lines top level

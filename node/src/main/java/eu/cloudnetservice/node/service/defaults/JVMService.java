@@ -22,7 +22,12 @@ import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -32,7 +37,6 @@ import eu.cloudnetservice.node.event.service.CloudServicePostProcessStartEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
-import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.node.service.defaults.log.ProcessServiceLogCache;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import io.vavr.CheckedFunction1;
@@ -82,37 +86,9 @@ public class JVMService extends AbstractService {
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
-    var logCache = new ProcessServiceLogCache(nodeConfig, configuration.serviceId());
-    this(
-      tickLoop,
-      nodeConfig,
-      configuration,
-      manager,
-      eventManager,
-      logCache,
-      versionProvider,
-      serviceConfigurationPreparer);
-  }
-
-  protected JVMService(
-    @NonNull TickLoop tickLoop,
-    @NonNull Configuration nodeConfig,
-    @NonNull ServiceConfiguration configuration,
-    @NonNull CloudServiceManager manager,
-    @NonNull EventManager eventManager,
-    @NonNull ServiceConsoleLogCache logCache,
-    @NonNull ServiceVersionProvider versionProvider,
-    @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
-  ) {
-    super(
-      tickLoop,
-      nodeConfig,
-      configuration,
-      manager,
-      eventManager,
-      logCache,
-      versionProvider,
-      serviceConfigurationPreparer);
+    super(tickLoop, nodeConfig, configuration, manager, eventManager, versionProvider, serviceConfigurationPreparer);
+    super.logCache = new ProcessServiceLogCache(() -> this.process, nodeConfig, this);
+    this.initLogHandler();
   }
 
   @Override
@@ -255,13 +231,6 @@ public class JVMService extends AbstractService {
       // start the process and fire the post start event
       this.process = builder.start();
       this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this));
-
-      // start the log reading unless some user code changed the log cache type
-      // in that case it's up to the user to start the reading process
-      if (super.logCache instanceof ProcessServiceLogCache processServiceLogCache) {
-        processServiceLogCache.start(this.process);
-        LOGGER.debug("Started {} log cache for service {}", super.logCache.getClass(), this.serviceId());
-      }
     } catch (IOException exception) {
       LOGGER.error(
         "Unable to start process in {} with command line {}",
@@ -269,6 +238,33 @@ public class JVMService extends AbstractService {
         String.join(" ", arguments),
         exception);
     }
+  }
+
+  protected void initLogHandler() {
+    super.logCache.addHandler(($, line, stderr) -> {
+      for (var logTarget : super.logTargets) {
+        if (logTarget.first().equals(ChannelMessageSender.self().toTarget())) {
+          // the current target is the node this service is running on, print it directly here
+          this.eventManager.callEvent(logTarget.second(), new CloudServiceLogEntryEvent(
+            this.currentServiceInfo,
+            line,
+            stderr ? CloudServiceLogEntryEvent.StreamType.STDERR : CloudServiceLogEntryEvent.StreamType.STDOUT));
+        } else {
+          // the listener is listening remotely, send the line to the network component
+          ChannelMessage.builder()
+            .target(logTarget.first())
+            .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+            .message("screen_new_line")
+            .buffer(DataBuf.empty()
+              .writeObject(this.currentServiceInfo)
+              .writeString(logTarget.second())
+              .writeString(line)
+              .writeBoolean(stderr))
+            .build()
+            .send();
+        }
+      }
+    });
   }
 
   protected @Nullable Tuple2<Path, Attributes> prepareWrapperFile() {

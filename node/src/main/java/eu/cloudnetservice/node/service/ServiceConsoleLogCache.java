@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.service;
 
-import eu.cloudnetservice.driver.service.ServiceId;
 import java.util.Collection;
 import java.util.Queue;
 import lombok.NonNull;
@@ -24,11 +23,11 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public interface ServiceConsoleLogCache {
 
-  @NonNull
-  Queue<String> cachedLogMessages();
+  @NonNull Queue<String> cachedLogMessages();
 
-  @NonNull
-  ServiceId associatedServiceId();
+  @NonNull ServiceConsoleLogCache update();
+
+  @NonNull CloudService service();
 
   int logCacheSize();
 
@@ -43,6 +42,5 @@ public interface ServiceConsoleLogCache {
   void removeHandler(@NonNull ServiceConsoleLineHandler handler);
 
   @NonNull
-  @UnmodifiableView
-  Collection<ServiceConsoleLineHandler> handlers();
+  @UnmodifiableView Collection<ServiceConsoleLineHandler> handlers();
 }

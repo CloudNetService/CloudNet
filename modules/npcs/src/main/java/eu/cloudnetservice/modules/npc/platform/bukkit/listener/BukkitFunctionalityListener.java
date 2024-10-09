@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
+import com.github.juliarn.npclib.api.Npc;
 import com.github.juliarn.npclib.api.event.AttackNpcEvent;
 import com.github.juliarn.npclib.api.event.InteractNpcEvent;
 import com.github.juliarn.npclib.api.event.ShowNpcEvent;
@@ -75,6 +76,13 @@ public final class BukkitFunctionalityListener implements Listener {
   public void handleNpcShow(@NonNull ShowNpcEvent.Post event) {
     var npc = event.npc();
     var player = event.player();
+
+    // send out the head rotation that was used when spawning the npc
+    // unless the npc is configured to look directly at the player anyway
+    if (!npc.flagValueOrDefault(Npc.LOOK_AT_PLAYER)) {
+      var requestedPosition = npc.position();
+      npc.rotate(requestedPosition.yaw(), requestedPosition.pitch()).schedule(player);
+    }
 
     // enable all skin players
     npc.changeMetadata(EntityMetadataFactory.skinLayerMetaFactory(), true).schedule(player);

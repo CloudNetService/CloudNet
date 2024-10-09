@@ -40,7 +40,7 @@ import org.incendo.cloud.context.CommandInput;
 @Singleton
 @CommandAlias({"ask", "?"})
 @Permission("cloudnet.command.help")
-@Description("commnad-help-description")
+@Description("command-help-description")
 public final class HelpCommand {
 
   private static final RowedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowedFormatter.<CommandInfo>builder()

@@ -24,6 +24,7 @@
 
   <!-- variables used in the logback configuration. Can be set using system properties. -->
   <variable name="cloudnet.log.path" value="local/logs"/>
+  <variable name="cloudnet.log.level" value="DEBUG"/>
 
   <conversionRule conversionWord="levelColor"
     class="eu.cloudnetservice.node.console.log.ConsoleLevelConversion"/>
@@ -58,7 +59,7 @@
     </encoder>
   </appender>
 
-  <root level="DEBUG">
+  <root level="${cloudnet.log.level}">
     <appender-ref ref="ConsoleLogAppender"/>
     <appender-ref ref="Rolling"/>
     <appender-ref ref="QueuedConsoleLogAppender"/>

@@ -470,7 +470,7 @@ public final class TasksCommand {
   public void setMaxHeapMemory(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
-    @Argument("amount") @Range(min = "0") int amount
+    @Argument("amount") @Range(min = "50") int amount
   ) {
     this.applyChange(
       source,
