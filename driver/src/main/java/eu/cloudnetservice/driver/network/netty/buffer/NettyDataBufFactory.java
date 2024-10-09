@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.network.netty.buffer;
 
 import com.google.common.base.Preconditions;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;

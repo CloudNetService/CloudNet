@@ -16,10 +16,12 @@
 
 package eu.cloudnetservice.driver.inject;
 
-import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.InjectionContext;
 import dev.derklaro.aerogel.Injector;
-import dev.derklaro.aerogel.binding.BindingConstructor;
+import dev.derklaro.aerogel.binding.DynamicBinding;
+import dev.derklaro.aerogel.binding.UninstalledBinding;
+import dev.derklaro.aerogel.binding.key.BindingKey;
+import jakarta.inject.Provider;
+import java.util.Map;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
@@ -62,8 +64,8 @@ record UncloseableInjectionLayer<I extends Injector>(@NonNull InjectionLayer<I> 
    * {@inheritDoc}
    */
   @Override
-  public <T> @UnknownNullability T instance(@NonNull Element element) {
-    return this.parent.instance(element);
+  public <T> @UnknownNullability T instance(@NonNull BindingKey<T> bindingKey) {
+    return this.parent.instance(bindingKey);
   }
 
   /**
@@ -72,17 +74,22 @@ record UncloseableInjectionLayer<I extends Injector>(@NonNull InjectionLayer<I> 
   @Override
   public <T> @UnknownNullability T instance(
     @NonNull Class<T> type,
-    @NonNull Consumer<InjectionContext.Builder> builder
+    @NonNull Consumer<Map<BindingKey<?>, Provider<?>>> overrides
   ) {
-    return this.parent.instance(type, builder);
+    return this.parent.instance(type, overrides);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void install(@NonNull BindingConstructor constructor) {
-    this.parent.install(constructor);
+  public void install(@NonNull UninstalledBinding<?> binding) {
+    this.parent.install(binding);
+  }
+
+  @Override
+  public void install(@NonNull DynamicBinding binding) {
+    this.parent.install(binding);
   }
 
   /**

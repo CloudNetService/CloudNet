@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.service.defaults;
 
-import dev.derklaro.aerogel.PostConstruct;
-import dev.derklaro.aerogel.auto.Provides;
+
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
@@ -85,7 +85,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     handlerRegistry.registerHandler(rpcHandler);
   }
 
-  @PostConstruct
+  @Inject
   private void registerServiceChannelListener() {
     this.eventManager.registerListener(ServiceChannelMessageListener.class);
   }

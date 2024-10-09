@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.boot;
 
-import dev.derklaro.aerogel.auto.Factory;
+import dev.derklaro.aerogel.auto.annotation.Factory;
 import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.DriverEnvironment;

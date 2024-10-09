@@ -16,8 +16,7 @@
 
 package eu.cloudnetservice.node.provider;
 
-import dev.derklaro.aerogel.PostConstruct;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
@@ -96,7 +95,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     this.upgrade();
   }
 
-  @PostConstruct
+  @Inject
   private void loadGroups() {
     // load the groups
     if (Files.exists(GROUP_DIRECTORY_PATH)) {
@@ -106,7 +105,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
   }
 
-  @PostConstruct
+  @Inject
   private void registerChannelMessageListener() {
     this.eventManager.registerListener(GroupChannelMessageListener.class);
   }

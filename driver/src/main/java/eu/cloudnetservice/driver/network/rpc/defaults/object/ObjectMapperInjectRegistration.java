@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.object;
 
-import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.inject.BootLayerConfigurator;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
@@ -34,10 +33,7 @@ public final class ObjectMapperInjectRegistration implements BootLayerConfigurat
    */
   @Override
   public void configureBootLayer(@NonNull InjectionLayer<?> bootLayer) {
-    var bindingConstructor = BindingBuilder.create()
-      .bind(ObjectMapper.class)
-      .bindFully(DefaultObjectMapper.class)
-      .toInstance(DefaultObjectMapper.DEFAULT_MAPPER);
-    bootLayer.install(bindingConstructor);
+    var builder = bootLayer.injector().createBindingBuilder();
+    bootLayer.install(builder.bind(ObjectMapper.class).toInstance(DefaultObjectMapper.DEFAULT_MAPPER));
   }
 }

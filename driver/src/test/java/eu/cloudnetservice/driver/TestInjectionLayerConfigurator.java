@@ -26,6 +26,8 @@ public final class TestInjectionLayerConfigurator {
 
   public static void loadAutoconfigureBindings() {
     var bootInjectionLayer = InjectionLayer.boot();
+    // the tests re-use the same jvm and we need to clear the binding between runs
+    bootInjectionLayer.injector().bindingRegistry().unregister(_ -> true);
     bootInjectionLayer.installAutoConfigureBindings(TestInjectionLayerConfigurator.class.getClassLoader(), "driver");
   }
 }

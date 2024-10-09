@@ -17,14 +17,15 @@
 package eu.cloudnetservice.driver.inject;
 
 import com.google.common.base.Preconditions;
-import dev.derklaro.aerogel.AerogelException;
-import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.InjectionContext;
 import dev.derklaro.aerogel.Injector;
-import dev.derklaro.aerogel.SpecifiedInjector;
-import dev.derklaro.aerogel.binding.BindingConstructor;
+import dev.derklaro.aerogel.TargetedInjectorBuilder;
+import dev.derklaro.aerogel.binding.DynamicBinding;
+import dev.derklaro.aerogel.binding.UninstalledBinding;
+import dev.derklaro.aerogel.binding.key.BindingKey;
 import eu.cloudnetservice.common.Named;
-import java.util.function.BiConsumer;
+import jakarta.inject.Provider;
+import java.io.UncheckedIOException;
+import java.util.Map;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
@@ -116,10 +117,10 @@ public sealed interface InjectionLayer<I extends Injector>
    * @throws NullPointerException     if the given parent layer, name or configurator is null.
    * @throws IllegalArgumentException if the given name is invalid or the parent layer is the boot layer.
    */
-  static @NonNull InjectionLayer<SpecifiedInjector> specifiedChild(
+  static @NonNull InjectionLayer<Injector> specifiedChild(
     @NonNull InjectionLayer<? extends Injector> parent,
     @NonNull String name,
-    @NonNull BiConsumer<InjectionLayer<SpecifiedInjector>, SpecifiedInjector> configurator
+    @NonNull Consumer<TargetedInjectorBuilder> configurator
   ) {
     Preconditions.checkArgument(parent != boot(), "Parent of a specified layer cannot be the boot layer");
     return InjectionLayerProvider.specifiedChild(parent, name, configurator);
@@ -171,14 +172,16 @@ public sealed interface InjectionLayer<I extends Injector>
    * @return the name of this layer.
    */
   @Override
-  @NonNull String name();
+  @NonNull
+  String name();
 
   /**
    * Gets the underlying injector of this layer.
    *
    * @return the underlying injector of this layer.
    */
-  @NonNull I injector();
+  @NonNull
+  I injector();
 
   /**
    * Convince method to create or get the instance of the given class type.
@@ -187,41 +190,51 @@ public sealed interface InjectionLayer<I extends Injector>
    * @param <T>  the type of the class modeled by the given class object.
    * @return the constructed instance of the class type, may be null.
    * @throws NullPointerException if the given type is null.
-   * @throws AerogelException     if no binding is present and no runtime binding can be created.
    */
-  @UnknownNullability <T> T instance(@NonNull Class<T> type);
+  @UnknownNullability
+  <T> T instance(@NonNull Class<T> type);
 
   /**
-   * Convince method to create or get the instance of the given element.
+   * Convince method to create or get the instance of the given binding key.
    *
-   * @param element the element of the type to get.
-   * @param <T>     the type of the return value modeled by the given element.
+   * @param bindingKey the binding key for the instance to resolve.
+   * @param <T>        the type of the return value modeled by the given binding key.
    * @return the constructed instance of the class type, may be null.
-   * @throws NullPointerException if the given element is null.
-   * @throws AerogelException     if no binding is present and no runtime binding can be created.
+   * @throws NullPointerException if the given binding key is null.
    */
-  @UnknownNullability <T> T instance(@NonNull Element element);
+  @UnknownNullability
+  <T> T instance(@NonNull BindingKey<T> bindingKey);
 
   /**
    * Convince method to create or get the instance of the given type, while allowing to specifically influence the
    * injection context.
    *
-   * @param type    the type of the element to get.
-   * @param builder the builder to configure the injection context for the operation.
-   * @param <T>     the type of the return value modeled by the given element.
+   * @param type      the type of the element to get.
+   * @param overrides the overrides for the binding key and the value to use as override.
+   * @param <T>       the type of the return value modeled by the given element.
    * @return the constructed instance of the class type, may be null.
    * @throws NullPointerException if the given type or builder is null.
-   * @throws AerogelException     if no binding is present and no runtime binding can be created.
    */
-  @UnknownNullability <T> T instance(@NonNull Class<T> type, @NonNull Consumer<InjectionContext.Builder> builder);
+  @UnknownNullability
+  <T> T instance(@NonNull Class<T> type, @NonNull Consumer<Map<BindingKey<?>, Provider<?>>> overrides);
 
   /**
-   * Installs the binding constructed by the given bindings constructor to this injection layer.
+   * Installs the uninstalled binding into the underlying injector.
    *
-   * @param constructor the constructor to install.
-   * @throws NullPointerException if the given constructor is null or the constructor constructs a null value.
+   * @param binding the binding to install.
+   * @throws NullPointerException if the given binding is null.
    */
-  void install(@NonNull BindingConstructor constructor);
+  void install(@NonNull UninstalledBinding<?> binding);
+
+  /**
+   * Installs a dynamic binding into the underlying injector. The dynamic binding can be used to provide bindings based
+   * on the presence of annotations and other matching criteria. Dynamic bindings have a lower priority than
+   * {@link UninstalledBinding}.
+   *
+   * @param binding the dynamic binding to install.
+   * @throws NullPointerException if the given binding is null.
+   */
+  void install(@NonNull DynamicBinding binding);
 
   /**
    * Installs the autoconfiguration bindings for the given component. For this method to work the autoconfiguration
@@ -232,7 +245,7 @@ public sealed interface InjectionLayer<I extends Injector>
    * @param loader    the loader in which the file resource is located.
    * @param component the name of the component to load the autoconfiguration bindings of.
    * @throws NullPointerException if the given class loader or component name is null.
-   * @throws AerogelException     if an I/O exception occurs while loading or closing the data stream.
+   * @throws UncheckedIOException if an I/O error occurs while loading the auto config bindings.
    */
   void installAutoConfigureBindings(@NonNull ClassLoader loader, @NonNull String component);
 

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge.node;
 
-import dev.derklaro.aerogel.PostConstruct;
-import dev.derklaro.aerogel.auto.Provides;
+
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -80,7 +80,7 @@ public class NodeBridgeManagement implements BridgeManagement {
     rpcHandlerRegistry.registerHandler(rpcHandler);
   }
 
-  @PostConstruct
+  @Inject
   private void registerListener() {
     this.eventManager.registerListener(NodeBridgeChannelMessageListener.class);
     this.eventManager.registerListener(NodeSetupListener.class);

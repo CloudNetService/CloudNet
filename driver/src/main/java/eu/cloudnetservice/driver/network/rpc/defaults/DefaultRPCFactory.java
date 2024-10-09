@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.generation.DefaultRPCImplementationBuilder;

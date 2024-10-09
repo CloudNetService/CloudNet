@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.command;
 
-import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.event.DefaultEventManager;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -46,8 +45,9 @@ public final class CommandProviderTest {
   public static void initCommandProvider() {
     // install the required bindings to construct the command provider
     var layer = InjectionLayer.boot();
-    layer.install(BindingBuilder.create().bind(EventManager.class).toConstructing(DefaultEventManager.class));
-    layer.install(BindingBuilder.create().bind(CommandProvider.class).toConstructing(DefaultCommandProvider.class));
+    var builder = layer.injector().createBindingBuilder();
+    layer.install(builder.bind(EventManager.class).toConstructingClass(DefaultEventManager.class));
+    layer.install(builder.bind(CommandProvider.class).toConstructingClass(DefaultCommandProvider.class));
 
     // get the command provider instance
     commandProvider = layer.instance(CommandProvider.class);

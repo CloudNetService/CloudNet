@@ -17,9 +17,6 @@
 package eu.cloudnetservice.wrapper;
 
 import com.google.common.collect.Lists;
-import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.binding.BindingBuilder;
-import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
 import io.leangen.geantyref.TypeFactory;
@@ -47,27 +44,21 @@ public final class Main {
     var rootLogger = LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 
     // initial bindings which we cannot (or it makes no sense to) construct
-    bootInjectLayer.install(BindingBuilder.create()
-      .bind(Element.forType(org.slf4j.Logger.class).requireAnnotation(Qualifiers.named("root")))
-      .toInstance(rootLogger));
-    bootInjectLayer.install(BindingBuilder.create()
-      .bind(Element.forType(Instant.class).requireAnnotation(Qualifiers.named("startInstant")))
-      .toInstance(startInstant));
-    bootInjectLayer.install(BindingBuilder.create()
-      .bind(Element.forType(ScheduledExecutorService.class).requireAnnotation(Qualifiers.named("taskScheduler")))
+    var builder = bootInjectLayer.injector().createBindingBuilder();
+    bootInjectLayer.install(builder.bind(org.slf4j.Logger.class).qualifiedWithName("root").toInstance(rootLogger));
+    bootInjectLayer.install(builder.bind(Instant.class).qualifiedWithName("startInstant").toInstance(startInstant));
+    bootInjectLayer.install(builder
+      .bind(ScheduledExecutorService.class)
+      .qualifiedWithName("taskScheduler")
       .toInstance(Executors.newScheduledThreadPool(2)));
 
     // bind the transformer registry here - we *could* provided it by constructing, but we don't
     // want to expose the Instrumentation instance
-    bootInjectLayer.install(BindingBuilder.create()
-      .bind(ClassTransformerRegistry.class)
-      .toInstance(Premain.transformerRegistry));
+    bootInjectLayer.install(builder.bind(ClassTransformerRegistry.class).toInstance(Premain.transformerRegistry));
 
     // console arguments
     var type = TypeFactory.parameterizedClass(List.class, String.class);
-    bootInjectLayer.install(BindingBuilder.create()
-      .bind(Element.forType(type).requireAnnotation(Qualifiers.named("consoleArgs")))
-      .toInstance(Lists.newArrayList(args)));
+    bootInjectLayer.install(builder.bind(type).qualifiedWithName("consoleArgs").toInstance(Lists.newArrayList(args)));
 
     // boot the wrapper
     bootInjectLayer.instance(Wrapper.class);

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.event;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Modifier;

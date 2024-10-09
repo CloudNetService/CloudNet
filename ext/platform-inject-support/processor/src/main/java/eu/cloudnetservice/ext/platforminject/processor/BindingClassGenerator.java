@@ -25,9 +25,10 @@ import com.squareup.javapoet.TypeSpec;
 import eu.cloudnetservice.ext.platforminject.api.inject.BindingsInstaller;
 import eu.cloudnetservice.ext.platforminject.processor.util.GeantyrefUtil;
 import eu.cloudnetservice.ext.platforminject.processor.util.TypeUtil;
-import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.lang.model.element.Modifier;
 import lombok.NonNull;
@@ -39,8 +40,6 @@ final class BindingClassGenerator {
     INJECTION_LAYER,
     TypeUtil.UNBOUNDED_WILDCARD);
 
-  private static final ClassName BINDING_BUILDER = ClassName.get("dev.derklaro.aerogel.binding", "BindingBuilder");
-
   public static @NonNull TypeSpec buildBindingClass(
     @NonNull String className,
     @NonNull Collection<ParsedBindingData> bindingData
@@ -51,12 +50,14 @@ final class BindingClassGenerator {
       .addModifiers(Modifier.PUBLIC)
       .addParameter(GENERIC_INJECTION_LAYER, "l");
 
+    applyBindings.addCode(CodeBlock.of("var builder = l.injector().createBindingBuilder();"));
+
     // apply each binding
     for (var binding : bindingData) {
       // build the layer install code block for the raw types
       var rawTypesGetter = binding.providingElements().stream()
         .map(type -> CodeBlock.of("$T.class", type))
-        .collect(CodeBlock.joining(", "));
+        .collect(Collectors.toList());
 
       // build the layer install block for the generic types, if any
       var genericElements = binding.providedGenericElements();
@@ -82,20 +83,14 @@ final class BindingClassGenerator {
 
             // only add the generic constructor
             return Stream.of(genericTypeConstructor);
-          })
-          .collect(CodeBlock.joining(", "));
+          }).toList();
 
-        // concat the raw and generic bindings
-        var fullTypesGetter = CodeBlock.of("{$L, $L}", rawTypesGetter, genericTypesGetter);
 
-        // install all bindings to the layer
-        var layerInstallGenericBlock = buildLayerInstallBlock(fullTypesGetter, binding.boundElement());
-        applyBindings.addCode(layerInstallGenericBlock);
-      } else {
-        // there are only the raw bindings
-        var layerInstallRawBlock = buildLayerInstallBlock(rawTypesGetter, binding.boundElement());
-        applyBindings.addCode(layerInstallRawBlock);
+        rawTypesGetter.addAll(genericTypesGetter);
       }
+
+      var layerInstallRawBlock = buildLayerInstallBlock(rawTypesGetter, binding.boundElement());
+      applyBindings.addCode(layerInstallRawBlock);
     }
 
     // build the class
@@ -107,16 +102,19 @@ final class BindingClassGenerator {
   }
 
   private static @NonNull CodeBlock buildLayerInstallBlock(
-    @NonNull CodeBlock typeGetterBlock,
+    @NonNull List<CodeBlock> bindingBlocks,
     @NonNull ClassName boundElement
   ) {
     // build the block which actually adds the binding to the layer
-    var constructorBuild = CodeBlock.of("$T.create().bindAllFully(new $T[]$L).toConstructing($T.class)",
-      BINDING_BUILDER,
-      Type.class,
-      typeGetterBlock,
-      boundElement);
-    return CodeBlock.of("l.install($L);", constructorBuild);
+    var constructorBuild = CodeBlock.builder().add("builder.bind($L)", bindingBlocks.getFirst());
+    if (bindingBlocks.size() > 1) {
+      for (int i = 1; i < bindingBlocks.size(); i++) {
+        constructorBuild.add(".andBind($L)", bindingBlocks.get(i));
+      }
+    }
+
+    constructorBuild.add(".toConstructingClass($T.class)", boundElement);
+    return CodeBlock.of("l.install($L);", constructorBuild.build());
   }
 
   public record ParsedBindingData(

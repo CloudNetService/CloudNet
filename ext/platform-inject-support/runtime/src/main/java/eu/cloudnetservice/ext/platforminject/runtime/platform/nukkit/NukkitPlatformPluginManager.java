@@ -16,9 +16,6 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.nukkit;
 
-import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
-import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
-
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandMap;
 import cn.nukkit.inventory.CraftingManager;
@@ -28,7 +25,7 @@ import cn.nukkit.plugin.PluginManager;
 import cn.nukkit.plugin.service.ServiceManager;
 import cn.nukkit.resourcepacks.ResourcePackManager;
 import cn.nukkit.scheduler.ServerScheduler;
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
@@ -41,19 +38,23 @@ public final class NukkitPlatformPluginManager extends BasePlatformPluginManager
   }
 
   @Override
-  protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull PluginBase platformData) {
-    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
+  protected @NonNull InjectionLayer<Injector> createInjectionLayer(@NonNull PluginBase platformData) {
+    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", targetedBuilder -> {
       // install bindings for the platform
-      layer.install(createFixedBinding(platformData.getServer(), Server.class));
-      layer.install(createFixedBinding(platformData.getServer().getCommandMap(), CommandMap.class));
-      layer.install(createFixedBinding(platformData.getServer().getScheduler(), ServerScheduler.class));
-      layer.install(createFixedBinding(platformData.getServer().getPluginManager(), PluginManager.class));
-      layer.install(createFixedBinding(platformData.getServer().getServiceManager(), ServiceManager.class));
-      layer.install(createFixedBinding(platformData.getServer().getCraftingManager(), CraftingManager.class));
-      layer.install(createFixedBinding(platformData.getServer().getResourcePackManager(), ResourcePackManager.class));
+      var layer = BASE_INJECTION_LAYER;
+      var server = platformData.getServer();
+      var builder = layer.injector().createBindingBuilder();
+      layer.install(builder.bind(Server.class).toInstance(server));
+      layer.install(builder.bind(CommandMap.class).toInstance(server.getCommandMap()));
+      layer.install(builder.bind(ServerScheduler.class).toInstance(server.getScheduler()));
+      layer.install(builder.bind(PluginManager.class).toInstance(server.getPluginManager()));
+      layer.install(builder.bind(ServiceManager.class).toInstance(server.getServiceManager()));
+      layer.install(builder.bind(CraftingManager.class).toInstance(server.getCraftingManager()));
+      layer.install(builder.bind(ResourcePackManager.class).toInstance(server.getResourcePackManager()));
 
       // install the bindings which are specific to the plugin
-      injector.installSpecified(fixedBindingWithBound(platformData, PluginBase.class, Plugin.class));
+      targetedBuilder.installBinding(builder.bind(Plugin.class).toInstance(platformData));
+      targetedBuilder.installBinding(builder.bind(PluginBase.class).toInstance(platformData));
     });
   }
 }

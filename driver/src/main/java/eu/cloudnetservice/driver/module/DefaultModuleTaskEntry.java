@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.module;
 
-import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.binding.key.BindingKey;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.inject.InjectUtil;
@@ -41,7 +41,7 @@ public class DefaultModuleTaskEntry implements ModuleTaskEntry {
   protected final MethodAccessor<?> methodAccessor;
 
   // information for injection
-  protected final Element[] paramTypes;
+  protected final BindingKey<?>[] paramTypes;
   protected final InjectionLayer<?> injectionLayer;
 
   // information about the task

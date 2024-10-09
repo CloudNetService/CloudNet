@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.cluster.defaults;
 
 import com.google.common.base.Preconditions;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;

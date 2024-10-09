@@ -20,7 +20,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.command.CommandInfo;
