@@ -23,6 +23,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.defaults.JVMService;
+import eu.cloudnetservice.node.service.defaults.log.ProcessServiceLogReadScheduler;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -34,6 +35,7 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
   protected final TickLoop mainThread;
   protected final EventManager eventManager;
   protected final CloudServiceManager cloudServiceManager;
+  protected final ProcessServiceLogReadScheduler processLogReadScheduler;
 
   @Inject
   public JVMLocalCloudServiceFactory(
@@ -41,12 +43,14 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
     @NonNull Configuration nodeConfig,
     @NonNull CloudServiceManager cloudServiceManager,
     @NonNull EventManager eventManager,
-    @NonNull ServiceVersionProvider versionProvider
+    @NonNull ServiceVersionProvider versionProvider,
+    @NonNull ProcessServiceLogReadScheduler processLogReadScheduler
   ) {
     super(nodeConfig, versionProvider);
     this.mainThread = tickLoop;
     this.eventManager = eventManager;
     this.cloudServiceManager = cloudServiceManager;
+    this.processLogReadScheduler = processLogReadScheduler;
   }
 
   @Override
@@ -66,7 +70,8 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
       manager,
       this.eventManager,
       this.versionProvider,
-      preparer);
+      preparer,
+      this.processLogReadScheduler);
   }
 
   @Override

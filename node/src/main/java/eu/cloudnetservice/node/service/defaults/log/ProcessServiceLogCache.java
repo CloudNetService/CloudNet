@@ -16,70 +16,110 @@
 
 package eu.cloudnetservice.node.service.defaults.log;
 
+import com.google.common.base.Preconditions;
+import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.service.CloudService;
-import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 import lombok.NonNull;
 
 public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
-  protected final Supplier<Process> processSupplier;
+  private final ProcessServiceLogReadScheduler scheduler;
 
-  protected final byte[] buffer = new byte[2048];
-  protected final StringBuffer stringBuffer = new StringBuffer();
+  private volatile ProcessHandle targetProcess;
+  private BufferedReader outStreamReader;
+  private BufferedReader errStreamReader;
 
   public ProcessServiceLogCache(
-    @NonNull Supplier<Process> processSupplier,
     @NonNull Configuration configuration,
-    @NonNull CloudService service
+    @NonNull ServiceId associatedServiceId,
+    @NonNull ProcessServiceLogReadScheduler scheduler
   ) {
-    super(configuration, service);
-    this.processSupplier = processSupplier;
+    super(configuration, associatedServiceId);
+    this.scheduler = scheduler;
   }
 
-  @Override
-  public @NonNull ServiceConsoleLogCache update() {
-    // check if we can currently update
-    var process = this.processSupplier.get();
-    if (process != null) {
-      try {
-        this.readStream(process.getInputStream(), false);
-        this.readStream(process.getErrorStream(), true);
-      } catch (IOException exception) {
-        LOGGER.error("Exception updating content of console for service {}",
-          this.service.serviceId().name(),
-          exception);
-        // reset the string buffer
-        this.stringBuffer.setLength(0);
-      }
-    }
-    // for chaining
-    return this;
+  public void start(@NonNull Process process) {
+    Preconditions.checkState(this.targetProcess == null);
+    this.targetProcess = process.toHandle();
+    this.outStreamReader = process.inputReader(StandardCharsets.UTF_8);
+    this.errStreamReader = process.errorReader(StandardCharsets.UTF_8);
+    this.scheduler.schedule(this);
   }
 
-  protected void readStream(@NonNull InputStream stream, boolean isErrorStream) throws IOException {
-    int len;
-    while (stream.available() > 0 && (len = stream.read(this.buffer, 0, this.buffer.length)) != -1) {
-      this.stringBuffer.append(new String(this.buffer, 0, len, StandardCharsets.UTF_8));
-    }
+  public void stop() {
+    try {
+      var outReader = this.outStreamReader;
+      var errReader = this.errStreamReader;
+      if (outReader != null && errReader != null) {
+        outReader.close();
+        errReader.close();
+        this.outStreamReader = null;
+        this.errStreamReader = null;
+      }
 
-    // check if we got a result we can work with
-    var content = this.stringBuffer.toString();
-    if (content.contains("\n") || content.contains("\r")) {
-      for (var input : content.split("\r")) {
-        for (var text : input.split("\n")) {
-          if (!text.trim().isEmpty()) {
-            this.handleItem(text, isErrorStream);
-          }
-        }
+      // no longer targeting a process, always reset the target process
+      // in case something went wrong elsewhere to allow re-using this
+      // log cache in that case anyway
+      this.targetProcess = null;
+    } catch (IOException exception) {
+      LOGGER.error("Failed to close process streams of service {}", this.associatedServiceId.name(), exception);
+    }
+  }
+
+  public boolean readProcessOutputContent() {
+    try {
+      var outReader = this.outStreamReader;
+      var errReader = this.errStreamReader;
+      if (outReader == null || errReader == null) {
+        return false;
+      }
+
+      // try to read all lines from both stream if content is available
+      // these calls do not block in case the readers have no content
+      // available yet
+      this.readLinesFromStream(outReader, false);
+      this.readLinesFromStream(errReader, true);
+
+      // check if the target process terminated, we can stop reading
+      // the data streams in that case
+      // the data that was buffered is now removed from the reader and
+      // no now data will become available if the process is dead
+      var targetProcess = this.targetProcess;
+      if (targetProcess == null || !targetProcess.isAlive()) {
+        this.stop(); // call stop to ensure that the termination is properly handled (prevent state mismatch)
+        return false;
+      }
+
+      return true;
+    } catch (IOException exception) {
+      // stream close and read can happen concurrently, so in case the stream
+      // closed we don't want to log the exception but rather signal that the
+      // service was stopped. "stream closed" is the message for both the reader
+      // being closed and the file descriptor being no longer available (process terminated)
+      var message = StringUtil.toLower(exception.getMessage());
+      if (message != null && message.equals("stream closed")) {
+        this.stop(); // call stop to ensure that the termination is properly handled (prevent state mismatch)
+        LOGGER.debug("Encountered closed out/err stream for service {}, stopping", associatedServiceId);
+        return false;
+      } else {
+        LOGGER.error("Unable to read out/err stream of service {}", this.associatedServiceId, exception);
+        return true; // couldn't read this time, but maybe we can read next time?
       }
     }
+  }
 
-    // reset the string buffer
-    this.stringBuffer.setLength(0);
+  private void readLinesFromStream(@NonNull BufferedReader stream, boolean errStream) throws IOException {
+    while (stream.ready()) {
+      var line = stream.readLine();
+      if (line == null) {
+        break;
+      }
+
+      this.handleItem(line, errStream);
+    }
   }
 }
