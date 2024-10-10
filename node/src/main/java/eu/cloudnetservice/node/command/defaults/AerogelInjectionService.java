@@ -29,11 +29,15 @@ final class AerogelInjectionService implements InjectionService<CommandSource> {
 
   @Override
   public @Nullable Object handle(@NonNull InjectionRequest<CommandSource> request) {
-    // get the associated data from the input values
-    var targetClass = request.injectedClass();
-    var injectionLayer = InjectionLayer.findLayerOf(targetClass);
+    try {
+      // get the associated data from the input values
+      var targetClass = request.injectedClass();
+      var injectionLayer = InjectionLayer.findLayerOf(targetClass);
 
-    // get the instance of the given class from the injection layer
-    return injectionLayer.instance(targetClass);
+      // get the instance of the given class from the injection layer
+      return injectionLayer.instance(targetClass);
+    } catch (Exception exception) {
+      return null;
+    }
   }
 }
