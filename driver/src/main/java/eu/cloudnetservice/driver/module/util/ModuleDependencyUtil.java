@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.module.util;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.driver.module.ModuleConfiguration;
 import eu.cloudnetservice.driver.module.ModuleDependency;
 import eu.cloudnetservice.driver.module.ModuleDependencyNotFoundException;
 import eu.cloudnetservice.driver.module.ModuleDependencyOutdatedException;
@@ -77,7 +78,7 @@ public final class ModuleDependencyUtil {
     visitedNodes.add(caller);
     // we iterate over the root layer here to collect the first layer of dependencies of the module
     for (var dependingModule : caller.dependingModules()) {
-      var wrapper = associatedModuleWrapper(dependingModule, moduleProvider, caller);
+      var wrapper = associatedModuleWrapper(dependingModule, moduleProvider, caller.moduleConfiguration());
       // register the module as a root dependency of the calling module
       rootDependencyNodes.add(wrapper);
       // now we visit every dependency of the module giving in a new tree to build
@@ -109,7 +110,7 @@ public final class ModuleDependencyUtil {
     @NonNull ModuleProvider moduleProvider
   ) {
     for (var dependency : dependencies) {
-      var wrapper = associatedModuleWrapper(dependency, moduleProvider, dependencyHolder);
+      var wrapper = associatedModuleWrapper(dependency, moduleProvider, dependencyHolder.moduleConfiguration());
       // now verify that there is no circular dependency to the original caller
       Preconditions.checkArgument(
         !wrapper.module().name().equals(originalSource.module().name()),
@@ -137,22 +138,38 @@ public final class ModuleDependencyUtil {
   private static @NonNull ModuleWrapper associatedModuleWrapper(
     @NonNull ModuleDependency dependency,
     @NonNull ModuleProvider provider,
-    @NonNull ModuleWrapper dependencyHolder
+    @NonNull ModuleConfiguration dependencyHolder
   ) {
     var wrapper = provider.module(dependency.name());
     // ensure that the wrapper is present
     if (wrapper == null) {
-      throw new ModuleDependencyNotFoundException(dependency.name(), dependencyHolder.module().name());
+      throw new ModuleDependencyNotFoundException(dependency.name(), dependencyHolder.name());
     }
+    checkDependencyVersion(dependencyHolder, wrapper.moduleConfiguration(), dependency);
+    return wrapper;
+  }
+
+  /**
+   * Validates that the given {@code presentDependency} is a valid version for the {@code declaredDependency}
+   *
+   * @param requiringModule    the module that requires the dependency
+   * @param presentDependency  the module configuration of the dependency that is present
+   * @param declaredDependency the declared dependency to validate the version
+   * @throws ModuleDependencyOutdatedException if the module configuration is not valid for the declared dependency
+   */
+  public static void checkDependencyVersion(
+    @NonNull ModuleConfiguration requiringModule,
+    @NonNull ModuleConfiguration presentDependency,
+    @NonNull ModuleDependency declaredDependency
+  ) throws ModuleDependencyOutdatedException {
     // try to make a semver check
-    var dependencyVersion = SEMVER_PATTERN.matcher(dependency.version());
-    var moduleVersion = SEMVER_PATTERN.matcher(wrapper.module().version());
+    var dependencyVersion = SEMVER_PATTERN.matcher(declaredDependency.version());
+    var moduleVersion = SEMVER_PATTERN.matcher(presentDependency.version());
     // check if both of the matchers had at least one match
     if (dependencyVersion.matches() && moduleVersion.matches()) {
       // assert that the versions are compatible
-      checkDependencyVersion(dependencyHolder, dependency, dependencyVersion, moduleVersion);
+      checkDependencyVersion(requiringModule, declaredDependency, dependencyVersion, moduleVersion);
     }
-    return wrapper;
   }
 
   /**
@@ -169,11 +186,11 @@ public final class ModuleDependencyUtil {
    *                                           null.
    */
   private static void checkDependencyVersion(
-    @NonNull ModuleWrapper requiringModule,
+    @NonNull ModuleConfiguration requiringModule,
     @NonNull ModuleDependency dependency,
     @NonNull Matcher dependencyVersion,
     @NonNull Matcher moduleVersion
-  ) {
+  ) throws ModuleDependencyOutdatedException {
     // extract both major versions
     var moduleMajor = Integer.parseInt(moduleVersion.group(1));
     var dependencyMajor = Integer.parseInt(dependencyVersion.group(1));
