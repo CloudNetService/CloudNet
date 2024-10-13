@@ -4,7 +4,7 @@
 shadow = "8.3.2"
 juppiter = "0.4.0"
 spotless = "6.25.0"
-fabricLoom = "1.8.6"
+fabricLoom = "1.8.8"
 nexusPublish = "2.0.0"
 checkstyleTools = "10.18.1"
 
@@ -78,7 +78,7 @@ luckPermsApi = "5.4"
 
 # fabric platform special dependencies
 minecraft = "1.21.1"
-fabricLoader = "0.16.5"
+fabricLoader = "0.16.6"
 
 
 [libraries]

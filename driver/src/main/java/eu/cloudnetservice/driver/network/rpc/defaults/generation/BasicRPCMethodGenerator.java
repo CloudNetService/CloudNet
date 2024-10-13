@@ -112,7 +112,7 @@ final class BasicRPCMethodGenerator implements RPCMethodGenerator {
         } else {
           // unbox the primitive value
           CodeGenerationUtil.unboxPrimitive(codeBuilder, returnType.descriptorString());
-          codeBuilder.returnInstruction(returnTypeKind);
+          codeBuilder.return_(returnTypeKind);
         }
       } else {
         // cast & return the value

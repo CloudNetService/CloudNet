@@ -272,7 +272,7 @@ final class DataClassCodecGenerator {
           .aload(1)
           .aload(3)
           .checkcast(targetClassDesc)
-          .invokeInstruction(
+          .invoke(
             invocationOpcode,
             targetClassDesc,
             getterMethod.getName(),
@@ -360,7 +360,7 @@ final class DataClassCodecGenerator {
       // store the variable on the stack
       var typeKind = TypeKind.fromDescriptor(fieldType.descriptorString());
       var parameterSlot = code.allocateLocal(typeKind);
-      code.storeInstruction(typeKind, parameterSlot);
+      code.storeLocal(typeKind, parameterSlot);
 
       // store the information about the parameter
       constructorParamTypes[index] = fieldType;
@@ -376,7 +376,7 @@ final class DataClassCodecGenerator {
       var type = constructorParamTypes[index];
       var storeSlot = parameterTypesStoreSlots[index];
       var typeKind = TypeKind.fromDescriptor(type.descriptorString());
-      code.loadInstruction(typeKind, storeSlot);
+      code.loadLocal(typeKind, storeSlot);
     }
 
     // invoke the constructor and return the constructed value
