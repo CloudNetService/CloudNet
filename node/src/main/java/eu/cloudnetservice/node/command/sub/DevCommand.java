@@ -44,7 +44,7 @@ public final class DevCommand {
     var levelName = input.readString();
     var level = Level.toLevel(levelName, null);
     if (level == null) {
-      throw new ArgumentNotAvailableException(String.format("The provided log level %s does not exist.", levelName));
+      throw new ArgumentNotAvailableException(String.format("The provided log level %s does not exist", levelName));
     }
 
     return level;
