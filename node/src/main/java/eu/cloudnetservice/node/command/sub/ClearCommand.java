@@ -16,19 +16,19 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.console.Console;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
 
 @Singleton
-@CommandPermission("cloudnet.command.clear")
+@Permission("cloudnet.command.clear")
 @Description("command-clear-description")
 public final class ClearCommand {
 
-  @CommandMethod("clear")
+  @Command("clear")
   public void clearConsole(@NonNull Console console) {
     console.clearScreen();
   }

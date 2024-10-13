@@ -16,14 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.specifier.Quoted;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.io.FileUtil;
@@ -50,19 +42,25 @@ import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Queue;
+import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotation.specifier.Quoted;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @CommandAlias("v")
-@CommandPermission("cloudnet.command.version")
+@Permission("cloudnet.command.version")
 @Description("command-version-description")
 public final class VersionCommand {
 
@@ -94,8 +92,8 @@ public final class VersionCommand {
   }
 
   @Parser(suggestions = "serviceVersionType")
-  public @NonNull ServiceVersionType parseVersionType(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var versionType = this.serviceVersionProvider.serviceVersionType(input.remove());
+  public @NonNull ServiceVersionType parseVersionType(@NonNull CommandInput input) {
+    var versionType = this.serviceVersionProvider.serviceVersionType(input.readString());
     if (versionType != null) {
       return versionType;
     }
@@ -104,13 +102,13 @@ public final class VersionCommand {
   }
 
   @Suggestions("serviceVersionType")
-  public @NonNull List<String> suggestVersionType(@NonNull CommandContext<?> $, @NonNull String input) {
-    return new ArrayList<>(this.serviceVersionProvider.serviceVersionTypes().keySet());
+  public @NonNull Set<String> suggestVersionType() {
+    return this.serviceVersionProvider.serviceVersionTypes().keySet();
   }
 
   @Parser(name = "staticServiceDirectory", suggestions = "staticServices")
-  public @NonNull Path parseStaticServiceDirectory(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var suppliedName = input.remove();
+  public @NonNull Path parseStaticServiceDirectory(@NonNull CommandInput input) {
+    var suppliedName = input.readString();
     var baseDirectory = this.serviceManager.persistentServicesDirectory();
 
     // check for path traversal
@@ -126,24 +124,20 @@ public final class VersionCommand {
   }
 
   @Suggestions("staticServices")
-  public @NonNull List<String> suggestStaticServices(
-    @NonNull CommandContext<?> $,
-    @NonNull String input
-  ) {
+  public @NonNull Stream<String> suggestStaticServices() {
     var baseDirectory = this.serviceManager.persistentServicesDirectory();
     try {
       return Files.walk(baseDirectory, 1)
         .filter(Files::isDirectory)
         .filter(path -> !path.equals(baseDirectory)) // prevents the base directory to show up in the suggestions
         .map(Path::getFileName)
-        .map(Path::toString)
-        .collect(Collectors.toList());
+        .map(Path::toString);
     } catch (IOException exception) {
-      return List.of();
+      return Stream.empty();
     }
   }
 
-  @CommandMethod("version|v list [versionType]")
+  @Command("version|v list [versionType]")
   public void displayTemplateVersions(
     @NonNull CommandSource source,
     @Nullable @Argument("versionType") ServiceVersionType versionType
@@ -170,7 +164,7 @@ public final class VersionCommand {
     source.sendMessage(VERSIONS.format(versions));
   }
 
-  @CommandMethod("version|v installtemplate|it <template> <versionType> <version>")
+  @Command("version|v installtemplate|it <template> <versionType> <version>")
   public void installTemplate(
     @NonNull CommandSource source,
     @NonNull @Argument("template") ServiceTemplate serviceTemplate,
@@ -194,7 +188,7 @@ public final class VersionCommand {
     }
   }
 
-  @CommandMethod("version|v installstatic|is <serviceName> <versionType> <version>")
+  @Command("version|v installstatic|is <serviceName> <versionType> <version>")
   public void installStaticService(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "serviceName", parserName = "staticServiceDirectory") Path serviceDirectory,

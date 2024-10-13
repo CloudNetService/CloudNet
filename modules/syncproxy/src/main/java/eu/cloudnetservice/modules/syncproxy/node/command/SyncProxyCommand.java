@@ -16,13 +16,6 @@
 
 package eu.cloudnetservice.modules.syncproxy.node.command;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.specifier.Liberal;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
@@ -38,14 +31,20 @@ import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotation.specifier.Liberal;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 
 @Singleton
 @CommandAlias("sp")
-@CommandPermission("cloudnet.command.syncproxy")
+@Permission("cloudnet.command.syncproxy")
 @Description("module-syncproxy-command-description")
 public final class SyncProxyCommand {
 
@@ -62,8 +61,8 @@ public final class SyncProxyCommand {
   }
 
   @Parser(suggestions = "loginConfiguration")
-  public SyncProxyLoginConfiguration loginConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var name = input.remove();
+  public @NonNull SyncProxyLoginConfiguration loginConfigurationParser(@NonNull CommandInput input) {
+    var name = input.readString();
 
     return this.syncProxyManagement.configuration().loginConfigurations()
       .stream()
@@ -73,16 +72,15 @@ public final class SyncProxyCommand {
   }
 
   @Suggestions("loginConfiguration")
-  public List<String> suggestLoginConfigurations(CommandContext<CommandSource> $, String input) {
+  public @NonNull Stream<String> suggestLoginConfigurations() {
     return this.syncProxyManagement.configuration().loginConfigurations()
       .stream()
-      .map(SyncProxyLoginConfiguration::targetGroup)
-      .toList();
+      .map(SyncProxyLoginConfiguration::targetGroup);
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
-  public String newConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var name = input.remove();
+  public @NonNull String newConfigurationParser(@NonNull CommandInput input) {
+    var name = input.readString();
     var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
@@ -103,19 +101,18 @@ public final class SyncProxyCommand {
   }
 
   @Suggestions("newConfiguration")
-  public List<String> suggestNewLoginConfigurations(CommandContext<CommandSource> $, String input) {
+  public @NonNull Stream<String> suggestNewLoginConfigurations() {
     return this.groupProvider.groupConfigurations()
       .stream()
-      .map(Named::name)
-      .toList();
+      .map(Named::name);
   }
 
-  @CommandMethod("syncproxy|sp list")
+  @Command("syncproxy|sp list")
   public void listConfigurations(CommandSource source) {
     this.displayListConfiguration(source, this.syncProxyManagement.configuration());
   }
 
-  @CommandMethod("syncproxy|sp create entry <targetGroup>")
+  @Command("syncproxy|sp create entry <targetGroup>")
   public void createEntry(
     CommandSource source,
     @Argument(value = "targetGroup", parserName = "newConfiguration") String name
@@ -130,7 +127,7 @@ public final class SyncProxyCommand {
     source.sendMessage(I18n.trans("module-syncproxy-command-create-entry-success"));
   }
 
-  @CommandMethod("syncproxy|sp target <targetGroup>")
+  @Command("syncproxy|sp target <targetGroup>")
   public void listConfiguration(
     CommandSource source,
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration
@@ -138,7 +135,7 @@ public final class SyncProxyCommand {
     this.displayConfiguration(source, loginConfiguration);
   }
 
-  @CommandMethod("syncproxy|sp target <targetGroup> set maxPlayers <amount>")
+  @Command("syncproxy|sp target <targetGroup> set maxPlayers <amount>")
   public void setMaxPlayers(
     CommandSource source,
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
@@ -157,7 +154,7 @@ public final class SyncProxyCommand {
       amount));
   }
 
-  @CommandMethod("syncproxy|sp target <targetGroup> whitelist add <name>")
+  @Command("syncproxy|sp target <targetGroup> whitelist add <name>")
   public void addWhiteList(
     CommandSource source,
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
@@ -176,7 +173,7 @@ public final class SyncProxyCommand {
       loginConfiguration.targetGroup()));
   }
 
-  @CommandMethod("syncproxy|sp target <targetGroup> whitelist remove <name>")
+  @Command("syncproxy|sp target <targetGroup> whitelist remove <name>")
   public void removeWhiteList(
     CommandSource source,
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
@@ -195,7 +192,7 @@ public final class SyncProxyCommand {
       loginConfiguration.targetGroup()));
   }
 
-  @CommandMethod("syncproxy|sp target <targetGroup> set maintenance <enabled>")
+  @Command("syncproxy|sp target <targetGroup> set maintenance <enabled>")
   public void maintenance(
     CommandSource source,
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,

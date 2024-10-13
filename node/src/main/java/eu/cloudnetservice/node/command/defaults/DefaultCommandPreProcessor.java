@@ -16,16 +16,18 @@
 
 package eu.cloudnetservice.node.command.defaults;
 
-import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext;
-import cloud.commandframework.execution.preprocessor.CommandPreprocessor;
-import cloud.commandframework.services.types.ConsumerService;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.event.command.CommandPreProcessEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
+import org.incendo.cloud.execution.preprocessor.CommandPreprocessingContext;
+import org.incendo.cloud.execution.preprocessor.CommandPreprocessor;
+import org.incendo.cloud.services.type.ConsumerService;
 
 /**
  * {@inheritDoc}
@@ -47,8 +49,8 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
    */
   @Override
   public void accept(@NonNull CommandPreprocessingContext<CommandSource> context) {
-    var commandContext = context.getCommandContext();
-    var source = context.getCommandContext().getSender();
+    var commandContext = context.commandContext();
+    var source = commandContext.sender();
 
     // we only process command executions and not the tab complete handling
     if (commandContext.isSuggestions()) {
@@ -56,13 +58,18 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
     }
 
     // get the first argument and retrieve the command info using it
-    var rawInput = commandContext.getRawInput();
-    var firstArgument = rawInput.getFirst();
+    var rawInput = commandContext.rawInput();
+    var firstArgument = rawInput.peekString();
     var commandInfo = this.provider.command(firstArgument);
+
+    List<String> input = new ArrayList<>();
+    while (rawInput.hasRemainingInput(true)) {
+      input.add(rawInput.readString());
+    }
 
     // should never happen - just make sure
     if (commandInfo != null) {
-      var event = this.eventManager.callEvent(new CommandPreProcessEvent(rawInput, commandInfo, source, this.provider));
+      var event = this.eventManager.callEvent(new CommandPreProcessEvent(input, commandInfo, source, this.provider));
       if (event.cancelled()) {
         ConsumerService.interrupt();
       }

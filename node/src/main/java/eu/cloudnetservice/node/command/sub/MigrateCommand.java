@@ -16,13 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
@@ -35,14 +28,20 @@ import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import io.vavr.CheckedConsumer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.List;
-import java.util.Queue;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-@CommandPermission("cloudnet.command.migrate")
+@Permission("cloudnet.command.migrate")
 @Description("command-migrate-description")
 public final class MigrateCommand {
 
@@ -59,11 +58,8 @@ public final class MigrateCommand {
   }
 
   @Parser(suggestions = "databaseProvider")
-  public @NonNull NodeDatabaseProvider defaultDatabaseProviderParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var abstractDatabaseProvider = this.serviceRegistry.provider(NodeDatabaseProvider.class, input.remove());
+  public @NonNull NodeDatabaseProvider defaultDatabaseProviderParser(@NonNull CommandInput input) {
+    var abstractDatabaseProvider = this.serviceRegistry.provider(NodeDatabaseProvider.class, input.readString());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
@@ -72,14 +68,13 @@ public final class MigrateCommand {
   }
 
   @Suggestions("databaseProvider")
-  public @NonNull List<String> suggestDatabaseProvider(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull Stream<String> suggestDatabaseProvider() {
     return this.serviceRegistry.providers(NodeDatabaseProvider.class)
       .stream()
-      .map(Named::name)
-      .toList();
+      .map(Named::name);
   }
 
-  @CommandMethod(value = "migrate database|db <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
+  @Command(value = "migrate database|db <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
   public void migrateDatabase(
     @NonNull CommandSource source,
     @NonNull @Argument("database-from") NodeDatabaseProvider sourceDatabaseProvider,

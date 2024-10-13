@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.node.command.defaults;
 
-import cloud.commandframework.execution.CommandSuggestionProcessor;
-import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext;
 import com.google.common.base.Strings;
 import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.node.command.source.CommandSource;
@@ -27,43 +25,46 @@ import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.execution.preprocessor.CommandPreprocessingContext;
+import org.incendo.cloud.suggestion.Suggestion;
+import org.incendo.cloud.suggestion.SuggestionProcessor;
 
 /**
  * {@inheritDoc}
  */
 @Singleton
-final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<CommandSource> {
+final class DefaultSuggestionProcessor implements SuggestionProcessor<CommandSource> {
 
   private static final double MINIMUM_SIMILARITY = 0.7;
   private static final double MAXIMUM_SIMILARITY = 1.0;
 
   private static final StringSimilarity SIMILARITY_ALGORITHM = new JaroWinkler();
-  private static final Comparator<Map.Entry<String, Double>> SIMILARITY_COMPARATOR = Collections.reverseOrder(
+  private static final Comparator<Map.Entry<Suggestion, Double>> SIMILARITY_COMPARATOR = Collections.reverseOrder(
     Comparator.comparingDouble(Map.Entry::getValue));
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull List<String> apply(
+  public @NonNull Stream<Suggestion> process(
     @NonNull CommandPreprocessingContext<CommandSource> context,
-    @NonNull List<String> allSuggestions
+    @NonNull Stream<Suggestion> allSuggestions
   ) {
     // íf there is no input yet, just return all suggestions
-    var input = context.getInputQueue().peek();
+    var input = context.commandInput().peekString();
     if (Strings.isNullOrEmpty(input)) {
       return allSuggestions;
     }
 
     // filter out the suggestions which are the closest to what the user provided
     var lowerCasedInput = StringUtil.toLower(input);
-    var matches = allSuggestions.stream()
+    var matches = allSuggestions
       .map(suggestion -> {
-        var distance = SIMILARITY_ALGORITHM.similarity(StringUtil.toLower(suggestion), lowerCasedInput);
+        var distance = SIMILARITY_ALGORITHM.similarity(StringUtil.toLower(suggestion.suggestion()), lowerCasedInput);
         return Map.entry(suggestion, distance);
       })
       .filter(entry -> entry.getValue() >= MINIMUM_SIMILARITY)
@@ -73,14 +74,14 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
     // check if we got at least one match
     var bestMatch = matches.peek();
     if (bestMatch == null) {
-      return List.of();
+      return Stream.empty();
     }
 
     // check if the topmost match is a match of 100% - in that case only return that match
     if (bestMatch.getValue() == MAXIMUM_SIMILARITY) {
-      return List.of(bestMatch.getKey());
+      return Stream.of(bestMatch.getKey());
     } else {
-      return matches.stream().map(Map.Entry::getKey).toList();
+      return matches.stream().map(Map.Entry::getKey);
     }
   }
 }

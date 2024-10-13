@@ -16,12 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
@@ -34,14 +28,19 @@ import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.List;
-import java.util.Queue;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 
 @Singleton
 @CommandAlias({"ask", "?"})
-@CommandPermission("cloudnet.command.help")
-@Description("commnad-help-description")
+@Permission("cloudnet.command.help")
+@Description("command-help-description")
 public final class HelpCommand {
 
   private static final RowedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowedFormatter.<CommandInfo>builder()
@@ -59,8 +58,8 @@ public final class HelpCommand {
   }
 
   @Parser(suggestions = "commands")
-  public @NonNull CommandInfo defaultCommandInfoParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var command = input.remove();
+  public @NonNull CommandInfo defaultCommandInfoParser(@NonNull CommandInput input) {
+    var command = input.readString();
     var commandInfo = this.commandProvider.command(command);
     if (commandInfo == null) {
       throw new ArgumentNotAvailableException(I18n.trans("no-such-command"));
@@ -70,16 +69,16 @@ public final class HelpCommand {
   }
 
   @Suggestions("commands")
-  public @NonNull List<String> suggestCommands(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.commandProvider.commands().stream().map(Named::name).toList();
+  public @NonNull Stream<String> suggestCommands() {
+    return this.commandProvider.commands().stream().map(Named::name);
   }
 
-  @CommandMethod("help|ask|?")
+  @Command("help|ask|?")
   public void displayHelp(@NonNull CommandSource source) {
     source.sendMessage(HELP_LIST_FORMATTER.format(this.commandProvider.commands()));
   }
 
-  @CommandMethod("help|ask|? <command>")
+  @Command("help|ask|? <command>")
   public void displaySpecificHelp(@NonNull CommandSource source, @NonNull @Argument("command") CommandInfo command) {
     source.sendMessage("Names: " + command.joinNameToAliases(", "));
     source.sendMessage("Description: " + command.description());
@@ -89,7 +88,7 @@ public final class HelpCommand {
     }
   }
 
-  @CommandMethod("help|ask|? docs <command>")
+  @Command("help|ask|? docs <command>")
   public void displayCommandDocs(@NonNull CommandSource source, @NonNull @Argument("command") CommandInfo commandInfo) {
     if (commandInfo.docsUrl() == null) {
       source.sendMessage(I18n.trans("command-help-docs-no-url", commandInfo.name()));
@@ -97,5 +96,4 @@ public final class HelpCommand {
       source.sendMessage(I18n.trans("command-help-docs", commandInfo.name(), commandInfo.docsUrl()));
     }
   }
-
 }

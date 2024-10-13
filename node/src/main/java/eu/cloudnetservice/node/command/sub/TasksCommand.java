@@ -16,18 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
-import cloud.commandframework.annotations.Regex;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.specifier.Greedy;
-import cloud.commandframework.annotations.specifier.Liberal;
-import cloud.commandframework.annotations.specifier.Quoted;
-import cloud.commandframework.annotations.specifier.Range;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
@@ -64,14 +52,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotation.specifier.Greedy;
+import org.incendo.cloud.annotation.specifier.Liberal;
+import org.incendo.cloud.annotation.specifier.Quoted;
+import org.incendo.cloud.annotation.specifier.Range;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Default;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.Regex;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-@CommandPermission("cloudnet.command.tasks")
+@Permission("cloudnet.command.tasks")
 @Description("command-tasks-description")
 public final class TasksCommand {
 
@@ -94,7 +95,6 @@ public final class TasksCommand {
     .column(ServiceTask::startPort)
     .build();
 
-  private final Console console;
   private final Configuration configuration;
   private final ConsoleSetupAnimation taskSetupAnimation;
   private final ServiceTaskProvider taskProvider;
@@ -103,7 +103,6 @@ public final class TasksCommand {
 
   @Inject
   public TasksCommand(
-    @NonNull Console console,
     @NonNull EventManager eventManager,
     @NonNull Configuration configuration,
     @NonNull ServiceTaskProvider taskProvider,
@@ -111,7 +110,6 @@ public final class TasksCommand {
     @NonNull CloudServiceManager serviceManager,
     @NonNull ClusterNodeProvider clusterNodeProvider
   ) {
-    this.console = console;
     this.configuration = configuration;
     this.taskProvider = taskProvider;
     this.serviceManager = serviceManager;
@@ -176,8 +174,8 @@ public final class TasksCommand {
   }
 
   @Parser(suggestions = "serviceTask")
-  public @NonNull ServiceTask defaultTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var name = input.remove();
+  public @NonNull ServiceTask defaultTaskParser(@NonNull CommandInput input) {
+    var name = input.readString();
     var task = this.taskProvider.serviceTask(name);
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
@@ -187,13 +185,13 @@ public final class TasksCommand {
   }
 
   @Suggestions("serviceTask")
-  public @NonNull List<String> suggestTask(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.taskProvider.serviceTasks().stream().map(Named::name).toList();
+  public @NonNull Stream<String> suggestTask() {
+    return this.taskProvider.serviceTasks().stream().map(Named::name);
   }
 
   @Parser(suggestions = "ipAliasHostAddress", name = "ipAliasHostAddress")
-  public @NonNull String hostAddressParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var address = input.remove();
+  public @NonNull String hostAddressParser(@NonNull CommandInput input) {
+    var address = input.readString();
     var alias = this.configuration.ipAliases().get(address);
     // check if we can resolve the host address using our ip alias
     if (alias != null) {
@@ -210,7 +208,7 @@ public final class TasksCommand {
   }
 
   @Suggestions("ipAliasHostAddress")
-  public @NonNull List<String> suggestHostAddress(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull List<String> suggestHostAddress() {
     // all network addresses
     var hostAddresses = new ArrayList<>(NetworkUtil.availableIPAddresses());
     // all ip aliases
@@ -219,11 +217,8 @@ public final class TasksCommand {
   }
 
   @Parser(suggestions = "serviceTask")
-  public @NonNull Collection<ServiceTask> wildcardTaskParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var name = input.remove();
+  public @NonNull Collection<ServiceTask> wildcardTaskParser(@NonNull CommandInput input) {
+    var name = input.readString();
     var matchedTasks = WildcardUtil.filterWildcard(this.taskProvider.serviceTasks(), name);
     if (matchedTasks.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
@@ -233,13 +228,10 @@ public final class TasksCommand {
   }
 
   @Parser(name = "javaCommand")
-  public @NonNull Tuple2<String, JavaVersion> javaCommandParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var command = String.join(" ", input);
+  public @NonNull Tuple2<String, JavaVersion> javaCommandParser(@NonNull CommandInput input) {
+    var command = input.remainingInput();
     // we have to clear the queue as we consumed the input using String.join
-    input.clear();
+    input.cursor(input.length());
 
     var version = JavaVersionResolver.resolveFromJavaExecutable(command);
     if (version == null) {
@@ -251,8 +243,8 @@ public final class TasksCommand {
   }
 
   @Parser(name = "nodeId", suggestions = "clusterNode")
-  public @NonNull String defaultClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var nodeId = input.remove();
+  public @NonNull String defaultClusterNodeParser(@NonNull CommandInput input) {
+    var nodeId = input.readString();
     for (var node : this.clusterNodeProvider.nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         return nodeId;
@@ -262,16 +254,15 @@ public final class TasksCommand {
   }
 
   @Suggestions("clusterNode")
-  public @NonNull List<String> suggestNode(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
+  public @NonNull Stream<String> suggestNode() {
     return this.clusterNodeProvider.nodes()
       .stream()
-      .map(NetworkClusterNode::uniqueId)
-      .toList();
+      .map(NetworkClusterNode::uniqueId);
   }
 
   @Parser(name = "taskRuntime", suggestions = "taskRuntime")
-  public @NonNull String taskRuntimeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var runtime = input.remove();
+  public @NonNull String taskRuntimeParser(@NonNull CommandInput input) {
+    var runtime = input.readString();
     if (this.serviceManager.cloudServiceFactory(runtime) == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-runtime-not-found", runtime));
     }
@@ -280,26 +271,26 @@ public final class TasksCommand {
   }
 
   @Suggestions("taskRuntime")
-  public @NonNull List<String> taskRuntimeSuggester(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull List<String> taskRuntimeSuggester() {
     return List.copyOf(this.serviceManager.cloudServiceFactories().keySet());
   }
 
-  @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
-  public void taskSetup(@NonNull CommandSource source, @NonNull SpecificTaskSetup taskSetup) {
+  @Command(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
+  public void taskSetup(@NonNull SpecificTaskSetup taskSetup, @NonNull Console console) {
     // apply the questions and handle the results
     taskSetup.applyQuestions(this.taskSetupAnimation);
     this.taskSetupAnimation.addFinishHandler(() -> taskSetup.handleResults(this.taskSetupAnimation));
     // start the animation
-    this.console.startAnimation(this.taskSetupAnimation);
+    console.startAnimation(this.taskSetupAnimation);
   }
 
-  @CommandMethod("tasks reload")
+  @Command("tasks reload")
   public void reloadTasks(@NonNull CommandSource source) {
     this.taskProvider.reload();
     source.sendMessage(I18n.trans("command-tasks-reload-success"));
   }
 
-  @CommandMethod("tasks delete <name>")
+  @Command("tasks delete <name>")
   public void deleteTask(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks
@@ -310,12 +301,12 @@ public final class TasksCommand {
     }
   }
 
-  @CommandMethod("tasks list")
+  @Command("tasks list")
   public void listTasks(@NonNull CommandSource source) {
     source.sendMessage(TASK_LIST_FORMATTER.format(this.taskProvider.serviceTasks()));
   }
 
-  @CommandMethod("tasks create <name> <environment>")
+  @Command("tasks create <name> <environment>")
   public void createTask(
     @NonNull CommandSource source,
     @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("name") String taskName,
@@ -339,7 +330,7 @@ public final class TasksCommand {
     source.sendMessage(I18n.trans("command-tasks-create-task"));
   }
 
-  @CommandMethod("tasks task <name>")
+  @Command("tasks task <name>")
   public void displayTask(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks
@@ -369,7 +360,7 @@ public final class TasksCommand {
     }
   }
 
-  @CommandMethod("tasks rename <oldName> <newName>")
+  @Command("tasks rename <oldName> <newName>")
   public void renameTask(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "oldName") ServiceTask serviceTask,
@@ -385,7 +376,7 @@ public final class TasksCommand {
     }
   }
 
-  @CommandMethod("tasks task <name> set autoDeleteOnStop <enabled>")
+  @Command("tasks task <name> set autoDeleteOnStop <enabled>")
   public void setAutoDeleteOnStop(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -400,7 +391,7 @@ public final class TasksCommand {
       enabled);
   }
 
-  @CommandMethod("tasks task <name> set runtime <runtime>")
+  @Command("tasks task <name> set runtime <runtime>")
   public void setRuntime(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -415,7 +406,7 @@ public final class TasksCommand {
       runtime);
   }
 
-  @CommandMethod("tasks task <name> set nameSplitter <splitter>")
+  @Command("tasks task <name> set nameSplitter <splitter>")
   public void setNameSplitter(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -430,7 +421,7 @@ public final class TasksCommand {
       splitter);
   }
 
-  @CommandMethod("tasks task <name> set minServiceCount <amount>")
+  @Command("tasks task <name> set minServiceCount <amount>")
   public void setMinServiceCount(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -445,7 +436,7 @@ public final class TasksCommand {
       amount);
   }
 
-  @CommandMethod("tasks task <name> set hostAddress <hostAddress>")
+  @Command("tasks task <name> set hostAddress <hostAddress>")
   public void setHostAddress(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -460,7 +451,7 @@ public final class TasksCommand {
       hostAddress);
   }
 
-  @CommandMethod("tasks task <name> set maintenance <enabled>")
+  @Command("tasks task <name> set maintenance <enabled>")
   public void setMaintenance(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -475,11 +466,11 @@ public final class TasksCommand {
       enabled);
   }
 
-  @CommandMethod("tasks task <name> set maxHeapMemory <amount>")
+  @Command("tasks task <name> set maxHeapMemory <amount>")
   public void setMaxHeapMemory(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
-    @Argument("amount") @Range(min = "0") int amount
+    @Argument("amount") @Range(min = "50") int amount
   ) {
     this.applyChange(
       source,
@@ -490,7 +481,7 @@ public final class TasksCommand {
       amount);
   }
 
-  @CommandMethod("tasks task <name> set startPort <port>")
+  @Command("tasks task <name> set startPort <port>")
   public void setStartPort(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -505,7 +496,7 @@ public final class TasksCommand {
       port);
   }
 
-  @CommandMethod("tasks task <name> set staticServices|static|staticService <enabled>")
+  @Command("tasks task <name> set staticServices|static|staticService <enabled>")
   public void setStaticServices(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -520,7 +511,7 @@ public final class TasksCommand {
       enabled);
   }
 
-  @CommandMethod("tasks task <name> set environment <environment>")
+  @Command("tasks task <name> set environment <environment>")
   public void setEnvironment(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -535,7 +526,7 @@ public final class TasksCommand {
       environmentType.name());
   }
 
-  @CommandMethod("tasks task <name> set disableIpRewrite <enabled>")
+  @Command("tasks task <name> set disableIpRewrite <enabled>")
   public void setDisableIpRewrite(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -550,7 +541,7 @@ public final class TasksCommand {
       enabled);
   }
 
-  @CommandMethod("tasks task <name> set javaCommand <executable>")
+  @Command("tasks task <name> set javaCommand <executable>")
   public void setJavaCommand(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -561,11 +552,11 @@ public final class TasksCommand {
       tasks,
       ServiceTask.Builder::javaCommand,
       "command-tasks-set-property-success",
-      "node",
+      "javaCommand",
       executable.first());
   }
 
-  @CommandMethod("tasks task <name> add node <uniqueId>")
+  @Command("tasks task <name> add node <uniqueId>")
   public void addNode(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -580,7 +571,7 @@ public final class TasksCommand {
       node);
   }
 
-  @CommandMethod("tasks task <name> add group <group>")
+  @Command("tasks task <name> add group <group>")
   public void addGroup(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -595,7 +586,7 @@ public final class TasksCommand {
       group.name());
   }
 
-  @CommandMethod("tasks task <name> add deployment <deployment>")
+  @Command("tasks task <name> add deployment <deployment>")
   public void addDeployment(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -619,7 +610,7 @@ public final class TasksCommand {
       deployment);
   }
 
-  @CommandMethod("tasks task <name> add template <template>")
+  @Command("tasks task <name> add template <template>")
   public void addTemplate(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -634,16 +625,15 @@ public final class TasksCommand {
       template);
   }
 
-  @CommandMethod("tasks task <name> add inclusion <url> <path> [cacheStrategy]")
+  @Command("tasks task <name> add inclusion <url> <path> [cacheStrategy]")
   public void addInclusion(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
     @NonNull @Argument("url") String url,
     @NonNull @Argument("path") String path,
-    @NonNull @Argument(
+    @NonNull @Default(ServiceRemoteInclusion.NO_CACHE_STRATEGY) @Argument(
       value = "cacheStrategy",
-      parserName = "inclusionCacheStrategy",
-      defaultValue = ServiceRemoteInclusion.NO_CACHE_STRATEGY) String cacheStrategy
+      parserName = "inclusionCacheStrategy") String cacheStrategy
   ) {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).cacheStrategy(cacheStrategy).build();
     this.applyChange(
@@ -655,7 +645,7 @@ public final class TasksCommand {
       inclusion);
   }
 
-  @CommandMethod("tasks task <name> add jvmOption <options>")
+  @Command("tasks task <name> add jvmOption <options>")
   public void addJvmOption(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -671,7 +661,7 @@ public final class TasksCommand {
       splittedOptions);
   }
 
-  @CommandMethod("tasks task <name> add processParameter <options>")
+  @Command("tasks task <name> add processParameter <options>")
   public void addProcessParameter(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -687,7 +677,7 @@ public final class TasksCommand {
       splittedOptions);
   }
 
-  @CommandMethod("tasks task <name> remove deployment <deployment>")
+  @Command("tasks task <name> remove deployment <deployment>")
   public void removeDeployment(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -711,7 +701,7 @@ public final class TasksCommand {
       template);
   }
 
-  @CommandMethod("tasks task <name> remove template <template>")
+  @Command("tasks task <name> remove template <template>")
   public void removeTemplate(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -726,7 +716,7 @@ public final class TasksCommand {
       template);
   }
 
-  @CommandMethod("tasks task <name> remove inclusion <url> <path>")
+  @Command("tasks task <name> remove inclusion <url> <path>")
   public void removeInclusion(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -743,7 +733,7 @@ public final class TasksCommand {
       inclusion);
   }
 
-  @CommandMethod("tasks task <name> remove jvmOption <options>")
+  @Command("tasks task <name> remove jvmOption <options>")
   public void removeJvmOption(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -759,7 +749,7 @@ public final class TasksCommand {
       jvmOptions);
   }
 
-  @CommandMethod("tasks task <name> remove processParameter <options>")
+  @Command("tasks task <name> remove processParameter <options>")
   public void removeProcessParameter(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -775,7 +765,7 @@ public final class TasksCommand {
       processParameters);
   }
 
-  @CommandMethod("tasks task <name> remove group <group>")
+  @Command("tasks task <name> remove group <group>")
   public void removeGroup(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -790,7 +780,7 @@ public final class TasksCommand {
       group);
   }
 
-  @CommandMethod("tasks task <name> remove node <uniqueId>")
+  @Command("tasks task <name> remove node <uniqueId>")
   public void removeNode(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks,
@@ -805,7 +795,7 @@ public final class TasksCommand {
       node);
   }
 
-  @CommandMethod("tasks task <name> clear jvmOptions")
+  @Command("tasks task <name> clear jvmOptions")
   public void clearJvmOptions(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks
@@ -819,7 +809,7 @@ public final class TasksCommand {
       null);
   }
 
-  @CommandMethod("tasks task <name> clear processParameters")
+  @Command("tasks task <name> clear processParameters")
   public void clearProcessParameter(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks
@@ -833,7 +823,7 @@ public final class TasksCommand {
       null);
   }
 
-  @CommandMethod("tasks task <name> clear inclusions")
+  @Command("tasks task <name> clear inclusions")
   public void clearInclusions(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks
@@ -847,7 +837,7 @@ public final class TasksCommand {
       null);
   }
 
-  @CommandMethod("tasks task <name> unset javaCommand")
+  @Command("tasks task <name> unset javaCommand")
   public void unsetJavaCommand(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks
@@ -861,7 +851,7 @@ public final class TasksCommand {
       null);
   }
 
-  @CommandMethod("tasks task <name> unset hostAddress")
+  @Command("tasks task <name> unset hostAddress")
   public void unsetHostAddress(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks

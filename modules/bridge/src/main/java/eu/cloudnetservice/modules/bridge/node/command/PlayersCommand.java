@@ -16,15 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.node.command;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.specifier.Greedy;
-import cloud.commandframework.annotations.specifier.Quoted;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
@@ -45,16 +36,24 @@ import jakarta.inject.Singleton;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Queue;
 import java.util.UUID;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import org.incendo.cloud.annotation.specifier.Greedy;
+import org.incendo.cloud.annotation.specifier.Quoted;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @CommandAlias({"pl", "player"})
-@CommandPermission("cloudnet.command.players")
+@Permission("cloudnet.command.players")
 @Description("module-bridge-player-command-description")
 public class PlayersCommand {
 
@@ -70,11 +69,8 @@ public class PlayersCommand {
   }
 
   @Parser(suggestions = "onlinePlayers")
-  public @NonNull CloudPlayer defaultCloudPlayerParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var identifier = input.remove();
+  public @NonNull CloudPlayer defaultCloudPlayerParser(@NonNull CommandInput input) {
+    var identifier = input.readString();
     CloudPlayer player;
 
     try {
@@ -93,18 +89,13 @@ public class PlayersCommand {
   }
 
   @Suggestions("onlinePlayers")
-  public @NonNull List<String> suggestOnlinePlayers(@NonNull CommandContext<?> $, @NonNull String input) {
-    return this.playerManager.players().values().stream()
-      .map(Named::name)
-      .toList();
+  public @NonNull Stream<String> suggestOnlinePlayers() {
+    return this.playerManager.players().values().stream().map(Named::name);
   }
 
   @Parser(suggestions = "playerService")
-  public @NonNull ServiceInfoSnapshot playerServiceParser(
-    @NonNull CommandContext<CommandSource> $,
-    @NonNull Queue<String> input
-  ) {
-    var name = input.remove();
+  public @NonNull ServiceInfoSnapshot playerServiceParser(@NonNull CommandInput input) {
+    var name = input.readString();
     var serviceInfoSnapshot = this.serviceProvider.serviceByName(name);
     if (serviceInfoSnapshot == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
@@ -113,20 +104,16 @@ public class PlayersCommand {
   }
 
   @Suggestions("playerService")
-  public @NonNull List<String> suggestPlayerService(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
+  public @NonNull Stream<String> suggestPlayerService() {
     return this.serviceProvider.services()
       .stream()
       .filter(snapshot -> ServiceEnvironmentType.minecraftServer(snapshot.serviceId().environment()))
-      .map(Named::name)
-      .toList();
+      .map(Named::name);
   }
 
   @Parser(name = "offlinePlayer")
-  public @NonNull CloudOfflinePlayer defaultCloudOfflinePlayerParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var identifier = input.remove();
+  public @NonNull CloudOfflinePlayer defaultCloudOfflinePlayerParser(@NonNull CommandInput input) {
+    var identifier = input.readString();
     CloudOfflinePlayer player;
 
     try {
@@ -140,7 +127,6 @@ public class PlayersCommand {
         // use an offline player as we could not find an online one
         player = this.playerManager.offlinePlayer(uniqueId);
       }
-
     } catch (IllegalArgumentException exception) {
       // check if we can find a player using his name
       // try to get an online player
@@ -158,7 +144,7 @@ public class PlayersCommand {
     return player;
   }
 
-  @CommandMethod("players|player|pl online")
+  @Command("players|player|pl online")
   public void displayOnlinePlayers(@NonNull CommandSource source) {
     for (var player : this.playerManager.players().values()) {
       source.sendMessage(
@@ -170,12 +156,12 @@ public class PlayersCommand {
     source.sendMessage("=> Online players " + this.playerManager.onlineCount());
   }
 
-  @CommandMethod("players|player|pl registered")
+  @Command("players|player|pl registered")
   public void displayRegisteredCount(@NonNull CommandSource source) {
     source.sendMessage("=> Registered players " + this.playerManager.registeredCount());
   }
 
-  @CommandMethod("players|player|pl player <player>")
+  @Command("players|player|pl player <player>")
   public void displayPlayerInformation(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer offlinePlayer
@@ -205,7 +191,7 @@ public class PlayersCommand {
     }
   }
 
-  @CommandMethod("players|player|pl player <player> delete")
+  @Command("players|player|pl player <player> delete")
   public void deletePlayer(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer player
@@ -214,7 +200,7 @@ public class PlayersCommand {
     source.sendMessage(I18n.trans("module-bridge-command-players-delete-player", player.name(), player.uniqueId()));
   }
 
-  @CommandMethod("players|player|pl online <player> kick [reason]")
+  @Command("players|player|pl online <player> kick [reason]")
   public void kickPlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
@@ -238,7 +224,7 @@ public class PlayersCommand {
     }
   }
 
-  @CommandMethod("players|player|pl online <player> message <message>")
+  @Command("players|player|pl online <player> message <message>")
   public void messagePlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
@@ -249,7 +235,7 @@ public class PlayersCommand {
       I18n.trans("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
   }
 
-  @CommandMethod("players|player|pl online <player> connect <server>")
+  @Command("players|player|pl online <player> connect <server>")
   public void connectPlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,

@@ -23,6 +23,7 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -49,7 +50,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   public DefaultQueryPacketManager(@NonNull NetworkChannel networkChannel) {
     this.networkChannel = networkChannel;
     this.waitingHandlers = Caffeine.newBuilder()
-      .weakValues()
+      .expireAfterWrite(Duration.ofHours(8))
       .removalListener(this.newRemovalListener())
       .build();
   }

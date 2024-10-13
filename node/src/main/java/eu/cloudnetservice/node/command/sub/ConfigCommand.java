@@ -16,13 +16,6 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.specifier.Range;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.tuple.Tuple2;
@@ -38,12 +31,18 @@ import eu.cloudnetservice.node.config.JsonConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.List;
-import java.util.Queue;
 import lombok.NonNull;
+import org.incendo.cloud.annotation.specifier.Range;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 
 @Singleton
 @CommandAlias("cfg")
-@CommandPermission("cloudnet.command.config")
+@Permission("cloudnet.command.config")
 @Description("command-config-description")
 public final class ConfigCommand {
 
@@ -62,10 +61,9 @@ public final class ConfigCommand {
     this.groupProvider = groupProvider;
   }
 
-
   @Parser(name = "ipAlias")
-  public @NonNull String ipAliasParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var alias = input.remove();
+  public @NonNull String ipAliasParser(@NonNull CommandInput input) {
+    var alias = input.readString();
     if (this.configuration.ipAliases().containsKey(alias)) {
       throw new ArgumentNotAvailableException(I18n.trans("command-config-node-ip-alias-already-existing", alias));
     }
@@ -74,16 +72,16 @@ public final class ConfigCommand {
   }
 
   @Suggestions("ipAlias")
-  public @NonNull List<String> ipAliasSuggestions(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull List<String> ipAliasSuggestions() {
     return List.copyOf(this.configuration.ipAliases().keySet());
   }
 
   @Suggestions("whitelistedIps")
-  public @NonNull List<String> suggestWhitelistIps(@NonNull CommandContext<?> $, @NonNull String input) {
+  public @NonNull List<String> suggestWhitelistIps() {
     return List.copyOf(this.configuration.ipWhitelist());
   }
 
-  @CommandMethod("config|cfg reload")
+  @Command("config|cfg reload")
   public void reloadConfigs(@NonNull CommandSource source) {
     this.configuration.reloadFrom(JsonConfiguration.loadFromFile());
     this.taskProvider.reload();
@@ -91,13 +89,13 @@ public final class ConfigCommand {
     source.sendMessage(I18n.trans("command-config-reload-config"));
   }
 
-  @CommandMethod("config|cfg node reload")
+  @Command("config|cfg node reload")
   public void reloadNodeConfig(@NonNull CommandSource source) {
     this.configuration.reloadFrom(JsonConfiguration.loadFromFile());
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
-  @CommandMethod("config|cfg node add ip <ip>")
+  @Command("config|cfg node add ip <ip>")
   public void addIpWhitelist(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "ip", parserName = "anyHost") String ip
@@ -111,7 +109,7 @@ public final class ConfigCommand {
     source.sendMessage(I18n.trans("command-config-node-add-ip-whitelist", ip));
   }
 
-  @CommandMethod("config|cfg node remove ip <ip>")
+  @Command("config|cfg node remove ip <ip>")
   public void removeIpWhitelist(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "ip", suggestions = "whitelistedIps") String ip
@@ -125,14 +123,14 @@ public final class ConfigCommand {
     source.sendMessage(I18n.trans("command-config-node-remove-ip-whitelist", ip));
   }
 
-  @CommandMethod("config|cfg node set maxMemory <maxMemory>")
+  @Command("config|cfg node set maxMemory <maxMemory>")
   public void setMaxMemory(@NonNull CommandSource source, @Argument("maxMemory") @Range(min = "0") int maxMemory) {
     this.configuration.maxMemory(maxMemory);
     this.configuration.save();
     source.sendMessage(I18n.trans("command-config-node-set-max-memory", maxMemory));
   }
 
-  @CommandMethod("config|cfg node set javaCommand <executable>")
+  @Command("config|cfg node set javaCommand <executable>")
   public void setJavaCommand(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "executable", parserName = "javaCommand") Tuple2<String, JavaVersion> executable
@@ -144,7 +142,7 @@ public final class ConfigCommand {
       executable.second().name()));
   }
 
-  @CommandMethod("config|cfg node add ipalias|ipa <name> <hostAddress>")
+  @Command("config|cfg node add ipalias|ipa <name> <hostAddress>")
   public void addIpAlias(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "name", parserName = "ipAlias") String alias,
@@ -155,7 +153,7 @@ public final class ConfigCommand {
     source.sendMessage(I18n.trans("command-config-node-ip-alias-added", alias, hostAddress.host()));
   }
 
-  @CommandMethod("config|cfg node remove ipalias|ipa <name>")
+  @Command("config|cfg node remove ipalias|ipa <name>")
   public void removeIpAlias(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "name", suggestions = "ipAlias") String alias

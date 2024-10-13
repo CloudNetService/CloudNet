@@ -16,12 +16,6 @@
 
 package eu.cloudnetservice.modules.report.command;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.suggestions.Suggestions;
-import cloud.commandframework.context.CommandContext;
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.common.Named;
 import eu.cloudnetservice.common.language.I18n;
@@ -44,17 +38,22 @@ import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import org.incendo.cloud.annotations.Argument;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.parser.Parser;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 @CommandAlias("paste")
-@CommandPermission("cloudnet.command.paste")
+@Permission("cloudnet.command.paste")
 @Description("module-report-command-description")
 public final class ReportCommand {
 
@@ -76,11 +75,8 @@ public final class ReportCommand {
   }
 
   @Parser(suggestions = "pasteServer")
-  public @NonNull PasteServer defaultPasteServerParser(
-    @NonNull CommandContext<CommandSource> $,
-    @NonNull Queue<String> input
-  ) {
-    var name = input.remove();
+  public @NonNull PasteServer defaultPasteServerParser(@NonNull CommandInput input) {
+    var name = input.readString();
     return this.reportModule.configuration().pasteServers()
       .stream()
       .filter(server -> server.name().equalsIgnoreCase(name))
@@ -90,19 +86,15 @@ public final class ReportCommand {
   }
 
   @Suggestions("pasteServer")
-  public @NonNull List<String> suggestPasteServers(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
+  public @NonNull Stream<String> suggestPasteServers() {
     return this.reportModule.configuration().pasteServers()
       .stream()
-      .map(Named::name)
-      .toList();
+      .map(Named::name);
   }
 
   @Parser(suggestions = "service")
-  public @NonNull ServiceInfoSnapshot serviceSnapshotParser(
-    @NonNull CommandContext<CommandSource> $,
-    @NonNull Queue<String> input
-  ) {
-    var name = input.remove();
+  public @NonNull ServiceInfoSnapshot serviceSnapshotParser(@NonNull CommandInput input) {
+    var name = input.readString();
     return this.serviceProvider.services().stream()
       .filter(service -> service.name().equals(name))
       .findFirst()
@@ -110,25 +102,25 @@ public final class ReportCommand {
         () -> new ArgumentNotAvailableException(I18n.trans("module-report-command-service-not-found", name)));
   }
 
-  @CommandMethod("report|paste all [pasteServer]")
+  @Command("report|paste all [pasteServer]")
   public void pasteAll(@NonNull CommandSource source, @Nullable @Argument("pasteServer") PasteServer pasteServer) {
     var pasteContent = this.emitFullData(this.emitterRegistry.emitters());
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste general [pasteServer]")
+  @Command("report|paste general [pasteServer]")
   public void pasteGeneral(@NonNull CommandSource source, @Nullable @Argument("pasteServer") PasteServer pasteServer) {
     var pasteContent = this.emitFullData(Object.class);
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste nodes [pasteServer]")
+  @Command("report|paste nodes [pasteServer]")
   public void pasteNodes(@NonNull CommandSource source, @Nullable @Argument("pasteServer") PasteServer pasteServer) {
     var pasteContent = this.emitFullData(NodeServer.class);
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste node <node> [pasteServer]")
+  @Command("report|paste node <node> [pasteServer]")
   public void pasteNode(
     @NonNull CommandSource source,
     @NonNull @Argument("node") NodeServer node,
@@ -138,13 +130,13 @@ public final class ReportCommand {
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste services [pasteServer]")
+  @Command("report|paste services [pasteServer]")
   public void pasteServices(@NonNull CommandSource source, @Nullable @Argument("pasteServer") PasteServer pasteServer) {
     var pasteContent = this.emitFullData(ServiceInfoSnapshot.class);
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste service <service> [pasteServer]")
+  @Command("report|paste service <service> [pasteServer]")
   public void pasteService(
     @NonNull CommandSource source,
     @NonNull @Argument("service") ServiceInfoSnapshot service,
@@ -154,13 +146,13 @@ public final class ReportCommand {
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste tasks [pasteServer]")
+  @Command("report|paste tasks [pasteServer]")
   public void pasteTasks(@NonNull CommandSource source, @Nullable @Argument("pasteServer") PasteServer pasteServer) {
     var pasteContent = this.emitFullData(ServiceTask.class);
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste task <task> [pasteServer]")
+  @Command("report|paste task <task> [pasteServer]")
   public void pasteTask(
     @NonNull CommandSource source,
     @NonNull @Argument("task") ServiceTask task,
@@ -170,13 +162,13 @@ public final class ReportCommand {
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste groups [pasteServer]")
+  @Command("report|paste groups [pasteServer]")
   public void pasteGroups(@NonNull CommandSource source, @Nullable @Argument("pasteServer") PasteServer pasteServer) {
     var pasteContent = this.emitFullData(GroupConfiguration.class);
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste group <group> [pasteServer]")
+  @Command("report|paste group <group> [pasteServer]")
   public void pasteGroup(
     @NonNull CommandSource source,
     @NonNull @Argument("group") GroupConfiguration configuration,
@@ -186,13 +178,13 @@ public final class ReportCommand {
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste modules [pasteServer]")
+  @Command("report|paste modules [pasteServer]")
   public void pasteModules(@NonNull CommandSource source, @Nullable @Argument("pasteServer") PasteServer pasteServer) {
     var pasteContent = this.emitFullData(ModuleWrapper.class);
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
-  @CommandMethod("report|paste module <module> [pasteServer]")
+  @Command("report|paste module <module> [pasteServer]")
   public void pasteModule(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "existingModule") ModuleWrapper module,
