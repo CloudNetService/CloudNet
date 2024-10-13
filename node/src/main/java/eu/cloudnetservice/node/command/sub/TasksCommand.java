@@ -552,7 +552,7 @@ public final class TasksCommand {
       tasks,
       ServiceTask.Builder::javaCommand,
       "command-tasks-set-property-success",
-      "node",
+      "javaCommand",
       executable.first());
   }
 
