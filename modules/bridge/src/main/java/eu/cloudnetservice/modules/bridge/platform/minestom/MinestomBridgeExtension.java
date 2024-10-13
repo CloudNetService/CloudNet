@@ -26,6 +26,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.bungee.BungeeCordProxy;
 import net.minestom.server.extras.velocity.VelocityProxy;
@@ -67,7 +68,8 @@ public final class MinestomBridgeExtension implements PlatformEntrypoint {
   @Override
   public void onLoad() {
     this.bridgeManagement.registerServices(this.serviceRegistry);
-    this.bridgeManagement.postInit();
+
+    MinecraftServer.getSchedulerManager().scheduleNextTick(this.bridgeManagement::postInit);
 
     // force initialize the bungeecord proxy forwarding
     if (!VelocityProxy.isEnabled()) {

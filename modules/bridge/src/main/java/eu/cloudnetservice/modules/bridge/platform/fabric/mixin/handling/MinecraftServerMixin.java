@@ -23,6 +23,7 @@ import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.FabricInjectionHolder;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
@@ -32,6 +33,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -53,6 +55,12 @@ public abstract class MinecraftServerMixin implements BridgedServer {
 
   @Shadow
   public abstract String getMotd();
+
+  @Shadow
+  @Final
+  private List<Runnable> tickables;
+
+  private final Runnable cloudnet_bridge$postInitTickableTask = this::cloudnet_bridge$postInitTickable;
 
   @Inject(
     at = @At(
@@ -76,7 +84,7 @@ public abstract class MinecraftServerMixin implements BridgedServer {
       this.cloudnet_bridge$injectionHolder.serviceProvider(),
       this.cloudnet_bridge$injectionHolder.wrapperConfiguration());
     this.cloudnet_bridge$management.registerServices(this.cloudnet_bridge$injectionHolder.serviceRegistry());
-    this.cloudnet_bridge$management.postInit();
+    this.tickables.add(this.cloudnet_bridge$postInitTickableTask);
   }
 
   @Override
@@ -121,5 +129,11 @@ public abstract class MinecraftServerMixin implements BridgedServer {
   @Override
   public @NonNull FabricInjectionHolder cloudnet_bridge$injectionHolder() {
     return this.cloudnet_bridge$injectionHolder;
+  }
+
+  @Override
+  public void cloudnet_bridge$postInitTickable() {
+    this.cloudnet_bridge$management.postInit();
+    this.tickables.remove(this.cloudnet_bridge$postInitTickableTask);
   }
 }

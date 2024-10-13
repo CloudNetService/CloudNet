@@ -67,7 +67,8 @@ public final class NukkitBridgePlugin implements PlatformEntrypoint {
   @Override
   public void onLoad() {
     this.bridgeManagement.registerServices(this.serviceRegistry);
-    this.bridgeManagement.postInit();
+
+    this.plugin.getServer().getScheduler().scheduleTask(this.plugin, this.bridgeManagement::postInit);
     // register the listener
     this.pluginManager.registerEvents(this.playerListener, this.plugin);
   }
