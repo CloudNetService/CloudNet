@@ -16,20 +16,16 @@
 
 package eu.cloudnetservice.node.service;
 
-import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -86,33 +82,4 @@ public interface CloudServiceManager extends CloudServiceProvider {
 
   @NonNull
   @Unmodifiable Collection<String> defaultJvmOptions();
-
-  @ApiStatus.Internal
-  void registerLocalService(@NonNull CloudService service);
-
-  @ApiStatus.Internal
-  void unregisterLocalService(@NonNull CloudService service);
-
-  @ApiStatus.Internal
-  void registerUnacceptedService(@NonNull CloudService service);
-
-  @ApiStatus.Internal
-  @Nullable CloudService takeUnacceptedService(@NonNull UUID serviceUniqueId);
-
-  @ApiStatus.Internal
-  void forceRemoveRegisteredService(@NonNull UUID uniqueId);
-
-  @ApiStatus.Internal
-  @Nullable SpecificCloudServiceProvider registerService(
-    @NonNull ServiceInfoSnapshot snapshot,
-    @NonNull NetworkChannel source);
-
-  @ApiStatus.Internal
-  void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @Nullable NetworkChannel source);
-
-  @ApiStatus.Internal
-  @NonNull CloudService createLocalCloudService(@NonNull ServiceConfiguration serviceConfiguration);
-
-  @ApiStatus.Internal
-  @NonNull SpecificCloudServiceProvider selectOrCreateService(@NonNull ServiceTask task);
 }

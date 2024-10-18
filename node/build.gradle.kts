@@ -38,6 +38,7 @@ tasks.withType<JavaCompile> {
 
 dependencies {
   "api"(projects.driver)
+  "api"(projects.node.nodeApi)
   "api"(projects.ext.updater)
 
   // dependencies which are available for modules
