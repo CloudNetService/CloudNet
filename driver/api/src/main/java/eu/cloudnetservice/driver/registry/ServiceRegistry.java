@@ -22,64 +22,158 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * The service registry manages and provides access to service providers. Services are interfaces or abstract classes
- * which define a set of methods a provider of a service must implement. Modules and/or plugins can query
- * implementations from the registry (if one is available for the given service). If multiple service providers are
- * present for a service the plugin/module must either decide which service to use or should use the first one (first
- * registered one).
+ * The service registry manages and provides access to service providers. Services are interfaces which define a set of
+ * methods a provider of a service must implement. Modules and/or plugins can query implementations from the registry
+ * (if one is available for the given service). If multiple service providers are present for a service the caller must
+ * explicitly select one by their name or use the provider which was marked as the default for the service.
  *
  * @since 4.0
  */
 public interface ServiceRegistry {
 
+  /**
+   * Get the jvm-static singleton instance of the service registry. The returned instance is the same as retrievable
+   * from injection. If available callers should opt for using dependency injection instead.
+   *
+   * @return the jvm-static singleton instance of the service registry.
+   */
+  static @NonNull ServiceRegistry registry() {
+    return ServiceRegistryHolder.instance();
+  }
+
+  /**
+   * Registers a singleton service into this service registry. Each retrieval of the service will return an accessor to
+   * the given singleton instance to call methods on. If another service implementation with the same name is already
+   * registered, this method invocation will be ignored and the registration of the already registered provider is
+   * returned instead.
+   *
+   * @param serviceType           the type of the service with which the implementation should be associated.
+   * @param serviceName           the name of the implementation for later retrievals.
+   * @param serviceImplementation the implementation instance of the service to bind to.
+   * @param <S>                   the service type model.
+   * @return a registration to the newly or already registered service registration.
+   * @throws NullPointerException     if the service type, name or implementation is null.
+   * @throws IllegalArgumentException if the service type is not an interface, the impl is not extending the service
+   *                                  type or the service name is empty.
+   */
   @NonNull
-  <S, X extends S> ServiceRegistryRegistration<S> registerProvider(
+  <S> ServiceRegistryRegistration<S> registerProvider(
     @NonNull Class<S> serviceType,
     @NonNull String serviceName,
-    @NonNull X serviceImplementation);
+    @NonNull S serviceImplementation);
 
+  /**
+   * Registers a service into this service registry which will return a new instance on each invocation, using the
+   * public no-arg constructor in the given implementation type. If another service implementation with the same name is
+   * already registered, this method invocation will be ignored and the registration of the already registered provider
+   * is returned instead.
+   *
+   * @param serviceType        the type of the service with which the implementation should be associated.
+   * @param serviceName        the name of the implementation for later retrievals.
+   * @param implementationType the implementation type to constructor for service instances.
+   * @param <S>                the service type model.
+   * @return a registration to the newly or already registered service registration.
+   * @throws NullPointerException     if the service type, name or implementation type is null.
+   * @throws IllegalArgumentException if the service type is not an interface, the impl type is not extending the
+   *                                  service type, the service name is empty or the impl type does not contain a
+   *                                  public, accessible no-arg constructor.
+   */
   @NonNull
   <S> ServiceRegistryRegistration<S> registerProvider(
     @NonNull Class<S> serviceType,
     @NonNull String serviceName,
     @NonNull Class<? extends S> implementationType);
 
+  /**
+   * Unregisters all service registrations from this registry whose
+   * <ol>
+   *   <li>service type uses the given class loader.
+   *   <li>implementation type uses the given class loader.
+   * </ol>
+   *
+   * @param classLoader the class loader of which all associated registrations should be removed.
+   * @throws NullPointerException if the given class loader is null.
+   */
   void unregisterAll(@NonNull ClassLoader classLoader);
 
+  /**
+   * Get all service types for which an implementation was registered. Updates to the underlying collection are
+   * reflected into the returned collection, but no changes can be made to the returned collection.
+   *
+   * @return all service types for which an implementation was registered.
+   */
   @NonNull
   @UnmodifiableView
   Collection<Class<?>> registeredServiceTypes();
 
+  /**
+   * Get the registration of a service implementation based on the given service type and name.
+   *
+   * @param service the service type to retrieve an implementation of.
+   * @param name    the name of the implementation to get.
+   * @param <S>     the service type model.
+   * @return the registration of the implementation for the service type and name, null if no such registration exists.
+   * @throws NullPointerException if the given service type or name is null.
+   */
   @UnknownNullability
   <S> ServiceRegistryRegistration<S> registration(@NonNull Class<S> service, @NonNull String name);
 
+  /**
+   * Get the default registration for the given service in this service registry. The implementation might return a
+   * proxy which always returns information about the current default implementation instead of the actual default
+   * implementation registration.
+   *
+   * @param service the service to the default implementation registration of.
+   * @param <S>     the service type model.
+   * @return the registration of the default impl for the given service or null if no impl for the service is present.
+   * @throws NullPointerException if the given service type is null.
+   */
   @UnknownNullability
   <S> ServiceRegistryRegistration<S> defaultRegistration(@NonNull Class<S> service);
 
+  /**
+   * Get a view of all registrations which are present for the given service type. Updates to the underlying collection
+   * are reflected into the returned collection, but no changes can be made to the returned collection. This rule does
+   * not apply if no implementations for the service type is present in which case the implementation might return an
+   * empty collection that will not see any updates on registrations.
+   *
+   * @param service the service to get the available registrations of.
+   * @param <S>     the service type model.
+   * @return a collection of all registrations for the given service type.
+   * @throws NullPointerException if the given service type is null.
+   */
   @NonNull
   @UnmodifiableView
   <S> Collection<ServiceRegistryRegistration<S>> registrations(@NonNull Class<S> service);
 
   /**
-   * Get the provider for the given service with the given name from this registry. This method returns null if no such
-   * provider was registered previously.
-   * <p>
-   * This method will return the first provider registered with the given name if multiple providers with the same name
-   * for the given service were registered.
+   * Get the instance of a service implementation based on the given service type and name.
    *
-   * @param service the service of the provider.
-   * @param name    the name of the provider to get.
-   * @param <T>     the type of the service.
-   * @return the provider for the given service with the given name, null if no such provider was registered.
-   * @throws NullPointerException if the given service or provider name is null.
+   * @param service the service type to retrieve the implementation of.
+   * @param name    the name of the implementation to get.
+   * @param <S>     the service type model.
+   * @return the instance of the implementation for the service type and name, null if no such registration exists.
+   * @throws NullPointerException if the given service type or name is null.
    */
   @UnknownNullability
-  default <S> S provider(@NonNull Class<S> service, @NonNull String name) {
-    return this.registration(service, name).serviceInstance();
+  default <S> S instance(@NonNull Class<S> service, @NonNull String name) {
+    var registration = this.registration(service, name);
+    return registration != null ? registration.serviceInstance() : null;
   }
 
+  /**
+   * Get the instance of the default service implementation for the given service type. The implementation might decide
+   * to return a proxy so that each invocation on the returned instance will always happen on the current default
+   * implementation, even if the default changes during the lifetime of the returned instance.
+   *
+   * @param service the service type to retrieve the default implementation of.
+   * @param <S>     the service type model.
+   * @return the instance of the default implementation for the service type, null if no such registration exists.
+   * @throws NullPointerException if the given service type is null.
+   */
   @UnknownNullability
-  default <S> S defaultProvider(@NonNull Class<S> service) {
-    return this.defaultRegistration(service).serviceInstance();
+  default <S> S defaultInstance(@NonNull Class<S> service) {
+    var registration = this.defaultRegistration(service);
+    return registration != null ? registration.serviceInstance() : null;
   }
 }

@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.registry;
 
+import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistryRegistration;
@@ -42,11 +43,14 @@ public final class DefaultServiceRegistry implements ServiceRegistry {
 
   @Override
   @SuppressWarnings("unchecked")
-  public @NonNull <S, X extends S> ServiceRegistryRegistration<S> registerProvider(
+  public @NonNull <S> ServiceRegistryRegistration<S> registerProvider(
     @NonNull Class<S> serviceType,
     @NonNull String serviceName,
-    @NonNull X serviceImplementation
+    @NonNull S serviceImplementation
   ) {
+    Preconditions.checkArgument(!serviceName.isBlank(), "service name cannot be blank");
+    Preconditions.checkArgument(serviceType.isInterface(), "service type must be an interface");
+    Preconditions.checkArgument(serviceType.isAssignableFrom(serviceImplementation.getClass()), "impl extends service");
     var binding = (ServiceRegistrationsBinding<S>) this.serviceBindings.computeIfAbsent(
       serviceType,
       type -> new ServiceRegistrationsBinding<>(type, this));
@@ -60,6 +64,9 @@ public final class DefaultServiceRegistry implements ServiceRegistry {
     @NonNull String serviceName,
     @NonNull Class<? extends S> implementationType
   ) {
+    Preconditions.checkArgument(!serviceName.isBlank(), "service name cannot be blank");
+    Preconditions.checkArgument(serviceType.isInterface(), "service type must be an interface");
+    Preconditions.checkArgument(serviceType.isAssignableFrom(implementationType), "impl extends service");
     var binding = (ServiceRegistrationsBinding<S>) this.serviceBindings.computeIfAbsent(
       serviceType,
       type -> new ServiceRegistrationsBinding<>(type, this));
