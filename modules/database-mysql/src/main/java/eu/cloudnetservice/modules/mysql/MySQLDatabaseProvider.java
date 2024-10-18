@@ -66,7 +66,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
     hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
     hikariConfig.addDataSourceProperty("useLocalSessionState", "true");
-    hikariConfig.addDataSourceProperty("rewriteBatchedStatements", "true");
+    hikariConfig.addDataSourceProperty("rewriteBatchedStatements", "false");
     hikariConfig.addDataSourceProperty("cacheResultSetMetadata", "true");
     hikariConfig.addDataSourceProperty("cacheServerConfiguration", "true");
     hikariConfig.addDataSourceProperty("elideSetAutoCommits", "true");
