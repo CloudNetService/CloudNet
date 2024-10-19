@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.buffer;
 
-import eu.cloudnetservice.driver.network.netty.buffer.NettyDataBufFactory;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import lombok.NonNull;
 
 /**
@@ -37,7 +37,7 @@ public interface DataBufFactory {
    * @return the default integrated data buf factory.
    */
   static @NonNull DataBufFactory defaultFactory() {
-    return NettyDataBufFactory.INSTANCE;
+    return ServiceRegistry.registry().defaultInstance(DataBufFactory.class);
   }
 
   /**

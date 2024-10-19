@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.driver.document;
 
-import eu.cloudnetservice.driver.document.empty.EmptyDocument;
 import eu.cloudnetservice.driver.document.property.DocPropertyHolder;
 import eu.cloudnetservice.driver.document.send.DocumentSend;
 import eu.cloudnetservice.driver.document.send.element.Element;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import io.leangen.geantyref.TypeToken;
 import java.io.Externalizable;
 import java.io.OutputStream;
@@ -98,7 +98,8 @@ public interface Document extends DocPropertyHolder, Externalizable {
    * @return the jvm static empty document instance.
    */
   static @NonNull Document.Mutable emptyDocument() {
-    return EmptyDocument.INSTANCE;
+    var emptyDocumentFactory = ServiceRegistry.registry().instance(DocumentFactory.class, "empty");
+    return newDocument(emptyDocumentFactory);
   }
 
   /**

@@ -37,6 +37,7 @@ import org.jetbrains.annotations.UnmodifiableView;
  */
 @Singleton
 @Provides(ServiceRegistry.class)
+// todo(derklaro): re-add @Service handling, implement @AutoService
 public final class DefaultServiceRegistry implements ServiceRegistry {
 
   final Map<Class<?>, ServiceRegistrationsBinding<?>> serviceBindings = new ConcurrentHashMap<>();

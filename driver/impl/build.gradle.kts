@@ -15,6 +15,15 @@
  */
 
 dependencies {
-  "implementation"(libs.guava)
   "implementation"(projects.driver.driverApi)
+
+  "implementation"(libs.gson)
+  "implementation"(libs.guava)
+  "implementation"(libs.caffeine)
+  "implementation"(libs.reflexion)
+
+  "implementation"(libs.bundles.netty)
+  "implementation"(libs.nettyNativeKqueue)
+  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
+  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
 }

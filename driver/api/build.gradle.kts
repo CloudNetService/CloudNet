@@ -19,8 +19,9 @@ dependencies {
 //  "api"(projects.ext.updater)
 
 //  "api"(libs.caffeine)
-//  "api"(libs.reflexion)
+//
   "api"(libs.vavr)
+  "api"(libs.slf4jApi)
   "api"(libs.geantyref)
 //  "api"(libs.bundles.unirest)
   "api"(libs.bundles.aerogel)

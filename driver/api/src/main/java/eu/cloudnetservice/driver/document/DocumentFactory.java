@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.driver.document;
 
-import eu.cloudnetservice.driver.document.gson.GsonDocumentFactory;
 import eu.cloudnetservice.driver.document.send.DocumentSend;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.file.Path;
@@ -39,7 +39,7 @@ public interface DocumentFactory {
    * @return the jvm static document factory for json documents.
    */
   static @NonNull DocumentFactory json() {
-    return GsonDocumentFactory.INSTANCE;
+    return ServiceRegistry.registry().instance(DocumentFactory.class, "json");
   }
 
   /**

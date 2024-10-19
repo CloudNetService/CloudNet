@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.registry;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -45,7 +46,7 @@ final class ServiceRegistryHolder {
    * @return the jvm-static instance of the service registry, retrieved from the boot injection layer.
    * @see ServiceRegistry#registry()
    */
-  static ServiceRegistry instance() {
+  static @NonNull ServiceRegistry instance() {
     if (instance == null) {
       // instance is not yet initialized, do that now
       // it doesn't matter if this code is executed twice, the singleton

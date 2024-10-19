@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/*
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
@@ -54,11 +54,8 @@ dependencies {
   "implementation"(libs.gson)
   "implementation"(libs.guava)
 
-  // netty
-  "implementation"(libs.bundles.netty)
-  "implementation"(libs.nettyNativeKqueue)
-  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
-  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
+
 
   "testImplementation"(projects.common.dependencyProject.sourceSets()["main"].output)
 }
+*/

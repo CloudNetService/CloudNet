@@ -18,9 +18,13 @@ package eu.cloudnetservice.driver.network.chunk;
 
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.chunk.defaults.builder.FileChunkedPacketSenderBuilder;
 import eu.cloudnetservice.driver.network.protocol.Packet;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -39,10 +43,19 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
    * Get a new builder for a packet sender which allows to transfer a single but huge file, e.g. a zip folder in chunks
    * through the network.
    *
+   * @param filePath the path to the file that should be transferred.
    * @return a builder for file based chunked packet transfer.
+   * @throws NullPointerException     if the given file path is null.
+   * @throws IllegalArgumentException if the given file path cannot be opened for reading.
    */
-  static @NonNull FileChunkedPacketSenderBuilder forFileTransfer() {
-    return new FileChunkedPacketSenderBuilder();
+  static @NonNull ChunkedPacketSender.Builder forFileTransfer(@NonNull Path filePath) {
+    try {
+      var fileStream = Files.newInputStream(filePath, StandardOpenOption.READ);
+      var builder = ServiceRegistry.registry().defaultInstance(ChunkedPacketSender.Builder.class);
+      return builder.source(fileStream);
+    } catch (IOException exception) {
+      throw new IllegalArgumentException("Unable to open file for reading: " + filePath, exception);
+    }
   }
 
   /**
