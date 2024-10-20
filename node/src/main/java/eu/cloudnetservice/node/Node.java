@@ -33,6 +33,7 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.registry.injection.Service;
 import eu.cloudnetservice.driver.template.TemplateStorage;
@@ -241,7 +242,8 @@ public final class Node {
   @Inject
   @Order(450)
   private void executeSetupIfRequired(
-    @NonNull DefaultInstallation installation
+    @NonNull DefaultInstallation installation,
+    @NonNull ServiceTaskProvider taskProvider
   ) {
     // execute the setup if needed
     installation.executeFirstStartSetup();
