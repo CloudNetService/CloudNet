@@ -243,6 +243,7 @@ public final class Node {
   @Order(450)
   private void executeSetupIfRequired(
     @NonNull DefaultInstallation installation,
+    // we have to inject the task provider here so that it registers the default task setup when initialized
     @NonNull ServiceTaskProvider taskProvider
   ) {
     // execute the setup if needed
