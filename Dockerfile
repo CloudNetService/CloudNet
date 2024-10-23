@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk:23-jre-headless AS build
+FROM azul/zulu-openjdk:23-jdk-crac AS build
 
 COPY . /home/cloudnet-build
 WORKDIR /home/cloudnet-build
