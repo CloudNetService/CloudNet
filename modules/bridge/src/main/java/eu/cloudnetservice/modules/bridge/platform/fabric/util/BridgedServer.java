@@ -39,4 +39,6 @@ public interface BridgedServer {
   @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> cloudnet_bridge$management();
 
   @NonNull FabricInjectionHolder cloudnet_bridge$injectionHolder();
+
+  void cloudnet_bridge$postInitTickable();
 }
