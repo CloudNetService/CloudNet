@@ -61,13 +61,15 @@ tasks.withType<RemapJarTask> {
   archiveFileName.set(Files.bridge)
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   // includes all dependencies of runtimeImpl but excludes gson because we don't need it
-  from(configurations.getByName("runtimeImpl").map { if (it.isDirectory) it else zipTree(it) })
+  from(configurations.named("runtimeImpl").map { it.resolve().map { if (it.isDirectory) it else zipTree(it) }})
   exclude {
     it.file.absolutePath.contains(setOf("com", "google", "gson").joinToString(separator = File.separator))
   }
 }
 
 loom {
+  serverOnlyMinecraftJar()
+  runtimeOnlyLog4j = true
   accessWidenerPath.set(project.file("src/main/resources/cloudnet_bridge.accesswidener"))
 }
 

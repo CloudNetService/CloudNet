@@ -1,15 +1,11 @@
-FROM azul/zulu-openjdk:23-jre-headless AS build
+FROM --platform=$BUILDPLATFORM azul/zulu-openjdk:23 AS builder
+WORKDIR /build
 
-COPY . /home/cloudnet-build
-WORKDIR /home/cloudnet-build
+COPY ./ ./
+RUN chmod +x gradlew && ./gradlew -x test -x checkstyleMain -x checkstyleTest --no-daemon --stacktrace
 
-RUN chmod +x gradlew && ./gradlew -x test --no-daemon --stacktrace
-
-FROM azul/zulu-openjdk:23-jre-headless
-
-RUN mkdir -p /cloudnet
+FROM azul/zulu-openjdk-alpine:23-jre-headless
 WORKDIR /cloudnet
-VOLUME /cloudnet
 
-COPY --from=build /home/cloudnet-build/launcher/java22/build/libs/launcher.jar .
-ENTRYPOINT exec java $JAVA_OPTS -jar launcher.jar $CLOUDNET_OPTS
+COPY --from=builder /build/launcher/java22/build/libs/launcher.jar .
+ENTRYPOINT ["java", "-Xms128M", "-Xmx128M", "-XX:+PerfDisableSharedMem", "-jar", "launcher.jar"]

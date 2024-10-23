@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   cloudnet:
     build:
@@ -6,12 +5,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "1410:1410"
-      - "2812:2812"
-    env_file:
-      - .env
-    environment:
-      - JAVA_OPTS=-Xms${MEMORY}M -Xmx${MEMORY}M ${JAVA_COMPOSE_OPTS}
-      - CLOUDNET_OPTS=${CLOUDNET_COMPOSE_OPTS}
     volumes:
       - cloudnet:/cloudnet
     restart: unless-stopped
