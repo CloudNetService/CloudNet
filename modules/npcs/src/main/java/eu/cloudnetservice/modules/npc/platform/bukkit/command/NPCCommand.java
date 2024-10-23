@@ -41,6 +41,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import kong.unirest.core.Unirest;
@@ -195,6 +196,58 @@ public final class NPCCommand extends BaseTabExecutor {
           // remove the npc
           this.management.deleteNPC(npc);
           sender.sendMessage("§cThe npc was removed successfully! This may take a few seconds to show effect!");
+          return true;
+        }
+
+        case "info" -> {
+          var npc = this.getNearestNPC(player.getLocation());
+          if (npc == null) {
+            sender.sendMessage("§cNo npc in range found!"
+              + " Make sure the npc you want to get information about is in a 5 block radius.");
+            return true;
+          }
+
+          var location = npc.location();
+          var npcInformation = new StringJoiner("\n§7")
+            .add("§6--- NPC - Information ---")
+            .add("TargetGroup: §6" + npc.targetGroup())
+            .add("Location:")
+            .add("- Group: §6" + location.group())
+            .add("- World: §6" + location.world())
+            .add("- x;y;z;yaw;pitch: §6%d;%d;%d;%d;%d".formatted(
+              (int) location.x(),
+              (int) location.y(),
+              (int) location.z(),
+              (int) location.yaw(),
+              (int) location.pitch()))
+            .add("Type: §6" + npc.npcType())
+            .add("LeftClickAction: §6" + npc.leftClickAction())
+            .add("RightClickAction: §6" + npc.rightClickAction())
+
+            .add("§6--- NPC - Settings ---")
+            .add("InfoLines:");
+          for (var infoLine : npc.infoLines()) {
+            npcInformation.add("- " + infoLine);
+          }
+
+          npcInformation.add("LookAtPlayer: §6" + npc.lookAtPlayer());
+          npcInformation.add("ImitatePlayer: §6" + npc.imitatePlayer());
+          npcInformation.add("UsePlayerSkin: §6" + npc.usePlayerSkin());
+          npcInformation.add("Glowing: §6" + npc.glowingColor());
+          npcInformation.add("FlyingWithElytra: §6" + npc.flyingWithElytra());
+          npcInformation.add("Burning: §6" + npc.burning());
+          npcInformation.add("FloatingItem: §6" + npc.floatingItem());
+
+          npcInformation.add("§6--- NPC - Inventory ---");
+          npcInformation.add("InventoryName: §6" + npc.inventoryName());
+          npcInformation.add("ShowIngameServices: §6" + npc.showIngameServices());
+          npcInformation.add("ShowFullServices: §6" + npc.showFullServices());
+          npcInformation.add("Items:");
+          for (var item : npc.items().entrySet()) {
+            npcInformation.add("- " + item.getKey() + " : §6" + item.getValue());
+          }
+
+          sender.sendMessage(npcInformation.toString());
           return true;
         }
 
@@ -667,6 +720,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
     sender.sendMessage("§8> §7/cn create <targetGroup> <type> <skinOwnerName/entityType>");
     sender.sendMessage("§8> §7/cn edit <option> <value...>");
+    sender.sendMessage("§8> §7/cn info");
     sender.sendMessage("§8> §7/cn remove");
     sender.sendMessage("§8> §7/cn removeall [targetGroup]");
     sender.sendMessage("§8> §7/cn cleanup");
@@ -682,6 +736,7 @@ public final class NPCCommand extends BaseTabExecutor {
       return Arrays.asList(
         "create",
         "edit",
+        "info",
         "remove",
         "removeall",
         "cleanup",
