@@ -31,7 +31,7 @@ pluginManagement {
 rootProject.name = "cloudnet-root"
 
 // top level projects
-include("bom", "ext", "common", /*"driver",*/ "node", "wrapper-jvm", "launcher", "modules", "plugins")
+include("bom", "ext", /*"common", "driver",*/ "node", "wrapper-jvm", "launcher", "modules", "plugins")
 
 // external lib helpers
 initializeSubProjects("ext",
@@ -69,6 +69,7 @@ initializeSubProjects("launcher", "java8", "java22", "patcher")
 // driver-api, driver-impl
 initializePrefixedSubProjects("driver", "driver", "api", "impl")
 initializePrefixedSubProjects("node", "node", "api", "impl")
+initializePrefixedSubProjects("utils", "utils", "base")
 
 fun initializeSubProjects(rootProject: String, vararg names: String) {
   names.forEach {

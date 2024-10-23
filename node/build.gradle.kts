@@ -29,7 +29,6 @@ tasks.withType<Jar> {
   }
 
   from(projects.driver.sourceSets()["main"].output)
-  from(projects.common.sourceSets()["main"].output)
 }
 
 tasks.withType<JavaCompile> {

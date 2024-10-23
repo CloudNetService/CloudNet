@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * @since 4.0
  */
 @Singleton
+@Deprecated
 public final class ModuleHelper {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ModuleHelper.class);
