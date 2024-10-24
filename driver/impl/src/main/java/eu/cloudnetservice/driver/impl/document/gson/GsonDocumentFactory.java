@@ -50,7 +50,7 @@ public final class GsonDocumentFactory implements DocumentFactory {
   /**
    * Sealed constructor as there should only be one singleton gson document factory.
    */
-  private GsonDocumentFactory() {
+  public GsonDocumentFactory() {
   }
 
   /**
