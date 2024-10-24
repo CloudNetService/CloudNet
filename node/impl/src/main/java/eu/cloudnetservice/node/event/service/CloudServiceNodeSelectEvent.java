@@ -21,7 +21,6 @@ import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.NodeServer;
 import org.jetbrains.annotations.Nullable;
 
 public class CloudServiceNodeSelectEvent extends Event implements Cancelable {

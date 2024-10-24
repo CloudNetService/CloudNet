@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.boot;
 
-import ch.qos.logback.classic.Logger;
 import com.google.common.collect.Lists;
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.binding.BindingBuilder;
@@ -29,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import eu.cloudnetservice.node.Node;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class Bootstrap {

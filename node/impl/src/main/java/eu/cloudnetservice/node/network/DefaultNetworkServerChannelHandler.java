@@ -16,24 +16,24 @@
 
 package eu.cloudnetservice.node.network;
 
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
-import eu.cloudnetservice.node.service.CloudService;
-import eu.cloudnetservice.node.service.CloudServiceManager;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import lombok.NonNull;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.listener.PacketClientAuthorizationListener;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.service.InternalCloudService;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,8 +106,8 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       })
       .findFirst()
       .orElse(null);
-    if (cloudService != null) {
-      this.closeAsCloudService(cloudService, channel);
+    if (cloudService instanceof InternalCloudService internalCloudService) {
+      this.closeAsCloudService(internalCloudService, channel);
       return;
     }
 
@@ -117,7 +117,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
     }
   }
 
-  private void closeAsCloudService(@NonNull CloudService cloudService, @NonNull NetworkChannel channel) {
+  private void closeAsCloudService(@NonNull InternalCloudService cloudService, @NonNull NetworkChannel channel) {
     // reset the service channel and connection time
     cloudService.networkChannel(null);
 

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.network.packet;
 
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
 import org.jetbrains.annotations.Nullable;
 

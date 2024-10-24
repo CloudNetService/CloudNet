@@ -28,7 +28,7 @@ import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public record DataSyncHandler<T>(
+public record DefaultDataSyncHandler<T>(
   @NonNull String key,
   boolean alwaysForceApply,
   @NonNull DataConverter<T> converter,
@@ -36,7 +36,7 @@ public record DataSyncHandler<T>(
   @NonNull UnaryOperator<T> currentGetter,
   @NonNull Function<T, String> nameExtractor,
   @NonNull Supplier<Collection<T>> dataCollector
-) {
+) implements DataSyncHandler<T> {
 
   public static <T> @NonNull Builder<T> builder() {
     return new Builder<>();
@@ -64,13 +64,6 @@ public record DataSyncHandler<T>(
 
   public @NonNull Collection<T> data() {
     return this.dataCollector.get();
-  }
-
-  public interface DataConverter<T> {
-
-    void write(@NonNull DataBuf.Mutable target, @NonNull T data);
-
-    @NonNull T parse(@NonNull DataBuf input) throws Exception;
   }
 
   public static final class Builder<T> {
@@ -137,7 +130,7 @@ public record DataSyncHandler<T>(
       return this.dataCollector(() -> List.of(dataCollector.get()));
     }
 
-    public @NonNull DataSyncHandler<T> build() {
+    public @NonNull DefaultDataSyncHandler<T> build() {
       Preconditions.checkNotNull(this.key, "no key given");
       Preconditions.checkNotNull(this.writer, "no writer given");
       Preconditions.checkNotNull(this.converter, "no converter given");
@@ -145,7 +138,7 @@ public record DataSyncHandler<T>(
       Preconditions.checkNotNull(this.nameExtractor, "no name extractor given");
       Preconditions.checkNotNull(this.currentGetter, "no current value getter given");
 
-      return new DataSyncHandler<>(
+      return new DefaultDataSyncHandler<>(
         this.key,
         this.alwaysForceApply,
         this.converter,

@@ -17,14 +17,14 @@
 package eu.cloudnetservice.node.cluster.task;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.cluster.NodeServerState;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import eu.cloudnetservice.node.tick.DefaultTickLoop;
-import eu.cloudnetservice.node.cluster.NodeServerProvider;
-import eu.cloudnetservice.node.cluster.NodeServerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

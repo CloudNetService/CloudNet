@@ -18,9 +18,9 @@ package eu.cloudnetservice.node.cluster.sync;
 
 import com.google.common.primitives.Ints;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.concurrent.TaskUtil;
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Arrays;

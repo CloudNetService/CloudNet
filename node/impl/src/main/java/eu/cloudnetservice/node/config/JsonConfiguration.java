@@ -19,8 +19,6 @@ package eu.cloudnetservice.node.config;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import dev.derklaro.aerogel.auto.Factory;
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.document.Document;
@@ -28,6 +26,8 @@ import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
+import eu.cloudnetservice.utils.base.StringUtil;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -199,6 +199,7 @@ public final class JsonConfiguration implements Configuration {
     if (this.maxMemory <= 0) {
       this.maxMemory = ConfigurationUtil.get(
         "cloudnet.config.maxMemory",
+        // TODO either expose bean or expose accessor
         (int) ((ProcessSnapshot.OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512),
         Integer::parseInt);
     }

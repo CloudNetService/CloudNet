@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.node.module;
 
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.DefaultModuleProviderHandler;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleProviderHandler;
@@ -25,14 +26,13 @@ import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
-import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
 
 @Singleton

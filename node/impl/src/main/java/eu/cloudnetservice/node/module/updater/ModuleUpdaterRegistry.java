@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.module.updater;
 
-import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.ext.updater.defaults.DefaultUpdaterRegistry;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.console.animation.setup;
 
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.language.I18n;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;

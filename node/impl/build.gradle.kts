@@ -52,6 +52,8 @@ dependencies {
   "annotationProcessor"(libs.aerogelAuto)
 
   // internal libraries
+  "implementation"(libs.logbackCore)
+  "implementation"(libs.logbackClassic)
   "implementation"(libs.caffeine)
   "implementation"(libs.bundles.unirest)
   "implementation"(libs.h2)

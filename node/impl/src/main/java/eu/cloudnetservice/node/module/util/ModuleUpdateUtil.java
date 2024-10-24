@@ -17,8 +17,8 @@
 package eu.cloudnetservice.node.module.util;
 
 import dev.derklaro.aerogel.auto.Factory;
-import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Named;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,10 +26,8 @@ import java.nio.file.Path;
 import java.util.Set;
 import lombok.NonNull;
 import eu.cloudnetservice.node.module.ModulesHolder;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-@ApiStatus.Internal
 public final class ModuleUpdateUtil {
 
   private ModuleUpdateUtil() {

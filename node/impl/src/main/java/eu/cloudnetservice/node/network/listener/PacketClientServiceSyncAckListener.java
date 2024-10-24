@@ -17,16 +17,16 @@
 package eu.cloudnetservice.node.network.listener;
 
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import lombok.NonNull;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
 
 @Singleton

@@ -61,10 +61,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import eu.cloudnetservice.node.tick.DefaultTickLoop;
-import eu.cloudnetservice.node.cluster.NodeServer;
-import eu.cloudnetservice.node.cluster.NodeServerProvider;
-import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
-import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
 import eu.cloudnetservice.node.event.service.CloudServicePreForceStopEvent;
 import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
@@ -154,7 +151,7 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
     this.addServicePreparer(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER, VanillaServiceConfigurationPreparer.class);
     // cluster data sync
     dataSyncRegistry.registerHandler(
-      DataSyncHandler.<ServiceInfoSnapshot>builder()
+      DefaultDataSyncHandler.<ServiceInfoSnapshot>builder()
         .key("services")
         .alwaysForce()
         .nameExtractor(Named::name)

@@ -16,23 +16,23 @@
 
 package eu.cloudnetservice.node.network.listener;
 
-import eu.cloudnetservice.common.language.I18n;
+
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.def.PacketClientAuthorization;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.driver.service.ServiceId;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.NodeServerProvider;
-import eu.cloudnetservice.node.cluster.NodeServerState;
-import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
-import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeAuthSuccessEvent;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeReconnectEvent;
@@ -96,7 +96,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
               // check if the node is currently marked disconnected and reconnected to the network
               if (server.state() == NodeServerState.DISCONNECTED) {
                 // respond with an auth success
-                var data = this.dataSyncRegistry.prepareClusterData(true, DataSyncHandler::alwaysForceApply);
+                var data = this.dataSyncRegistry.prepareClusterData(true, DefaultDataSyncHandler::alwaysForceApply);
                 channel.sendPacket(new PacketServerAuthorizationResponse(true, true, data));
                 channel.packetRegistry().addListener(
                   NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL,

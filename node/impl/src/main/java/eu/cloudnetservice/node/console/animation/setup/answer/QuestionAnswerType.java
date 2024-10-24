@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.console.animation.setup.answer;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

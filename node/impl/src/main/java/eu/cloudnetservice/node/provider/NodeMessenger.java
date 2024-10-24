@@ -43,7 +43,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.NodeServerProvider;
 
 @Singleton
 @Provides(CloudMessenger.class)

@@ -47,8 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
-import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
 import eu.cloudnetservice.node.event.task.LocalServiceTaskAddEvent;
 import eu.cloudnetservice.node.event.task.LocalServiceTaskRemoveEvent;
 import eu.cloudnetservice.node.network.listener.message.TaskChannelMessageListener;
@@ -87,7 +86,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
     // cluster data sync
     syncRegistry.registerHandler(
-      DataSyncHandler.<ServiceTask>builder()
+      DefaultDataSyncHandler.<ServiceTask>builder()
         .key("task")
         .nameExtractor(Named::name)
         .convertObject(ServiceTask.class)

@@ -28,8 +28,6 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.NodeServerProvider;
-import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.cluster.NetworkClusterNodeInfoUpdateEvent;
 import eu.cloudnetservice.node.provider.NodeClusterNodeProvider;

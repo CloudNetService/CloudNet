@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.database.xodus;
 
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
 import java.io.File;
 import java.util.Collection;
 import jetbrains.exodus.env.Environment;

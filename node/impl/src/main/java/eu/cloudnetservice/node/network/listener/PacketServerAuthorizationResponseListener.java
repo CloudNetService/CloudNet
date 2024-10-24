@@ -16,15 +16,11 @@
 
 package eu.cloudnetservice.node.network.listener;
 
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import java.util.Objects;
-import lombok.NonNull;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
@@ -33,6 +29,10 @@ import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.NodeNetworkUtil;
 import eu.cloudnetservice.node.network.packet.PacketServerServiceSyncAckPacket;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import java.util.Objects;
+import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

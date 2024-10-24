@@ -16,23 +16,23 @@
 
 package eu.cloudnetservice.node.cluster.util;
 
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.service.CloudService;
-import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.service.InternalCloudServiceManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.NodeServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +42,13 @@ public final class NodeDisconnectHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeDisconnectHandler.class);
 
   private final EventManager eventManager;
-  private final CloudServiceManager serviceManager;
+  private final InternalCloudServiceManager serviceManager;
 
   @Inject
-  public NodeDisconnectHandler(@NonNull EventManager eventManager, @NonNull CloudServiceManager serviceManager) {
+  public NodeDisconnectHandler(
+    @NonNull EventManager eventManager,
+    @NonNull InternalCloudServiceManager serviceManager
+  ) {
     this.eventManager = eventManager;
     this.serviceManager = serviceManager;
   }

@@ -45,8 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
-import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
 import eu.cloudnetservice.node.event.group.LocalGroupConfigurationAddEvent;
 import eu.cloudnetservice.node.event.group.LocalGroupConfigurationRemoveEvent;
 import eu.cloudnetservice.node.network.listener.message.GroupChannelMessageListener;
@@ -83,7 +82,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
     // cluster data sync
     syncRegistry.registerHandler(
-      DataSyncHandler.<GroupConfiguration>builder()
+      DefaultDataSyncHandler.<GroupConfiguration>builder()
         .key("group_configuration")
         .nameExtractor(Named::name)
         .convertObject(GroupConfiguration.class)

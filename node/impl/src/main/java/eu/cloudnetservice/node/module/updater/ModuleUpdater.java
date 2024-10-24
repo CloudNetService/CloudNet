@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.module.updater;
 
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.ext.updater.Updater;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Singleton;
 import java.nio.file.StandardCopyOption;
 import kong.unirest.core.Unirest;
