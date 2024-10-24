@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.event.events.channel;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
@@ -178,7 +177,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
    */
   public void queryResponse(@Nullable ChannelMessage queryResponse) {
     Preconditions.checkArgument(this.query, "Cannot set query response of no query");
-    this.queryResponse(queryResponse == null ? null : TaskUtil.finishedFuture(queryResponse));
+    this.queryResponse(queryResponse == null ? null : CompletableFuture.completedFuture(queryResponse));
   }
 
   /**

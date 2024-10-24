@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.template;
 
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
@@ -44,7 +43,8 @@ public interface TemplateStorageProvider {
    * @return the local template storage.
    * @throws UnsupportedOperationException if the local template storage was unregistered.
    */
-  @NonNull TemplateStorage localTemplateStorage();
+  @NonNull
+  TemplateStorage localTemplateStorage();
 
   /**
    * Get the template storage with the given name, this method returns null if no storage with that name is registered.
@@ -72,7 +72,8 @@ public interface TemplateStorageProvider {
    *
    * @return the names of all template storages which are currently registered.
    */
-  @NonNull Collection<String> availableTemplateStorages();
+  @NonNull
+  Collection<String> availableTemplateStorages();
 
   /**
    * Get the names of all template storages which are currently registered on the associated node. This collection is
@@ -83,7 +84,6 @@ public interface TemplateStorageProvider {
    *
    * @return a task completed with the names of all template storages which are currently registered.
    */
-  default @NonNull CompletableFuture<Collection<String>> availableTemplateStoragesAsync() {
-    return TaskUtil.supplyAsync(this::availableTemplateStorages);
-  }
+  @NonNull
+  CompletableFuture<Collection<String>> availableTemplateStoragesAsync();
 }

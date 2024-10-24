@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.command;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;

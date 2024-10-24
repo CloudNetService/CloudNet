@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import java.util.UUID;

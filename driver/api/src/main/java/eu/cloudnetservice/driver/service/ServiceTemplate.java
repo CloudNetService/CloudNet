@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;

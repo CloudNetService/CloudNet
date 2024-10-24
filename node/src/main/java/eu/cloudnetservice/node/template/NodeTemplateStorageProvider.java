@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.template;
 
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;

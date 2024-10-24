@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.command.source;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import java.util.Collection;
 import lombok.NonNull;
 

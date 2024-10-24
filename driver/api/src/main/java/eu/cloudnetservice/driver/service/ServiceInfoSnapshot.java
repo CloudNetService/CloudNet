@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.service;
 
 import com.google.common.collect.ComparisonChain;
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.property.DefaultedDocPropertyHolder;
 import eu.cloudnetservice.driver.inject.InjectionLayer;

@@ -16,8 +16,7 @@
 
 package eu.cloudnetservice.driver.template;
 
-import eu.cloudnetservice.common.Named;
-import eu.cloudnetservice.common.concurrent.TaskUtil;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import java.io.IOException;
 import java.io.InputStream;
@@ -310,13 +309,11 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with true if the operation completed successfully, false otherwise.
    * @throws NullPointerException if the given directory or service template is null.
    */
-  default @NonNull CompletableFuture<Boolean> deployDirectoryAsync(
+  @NonNull
+  CompletableFuture<Boolean> deployDirectoryAsync(
     @NonNull ServiceTemplate target,
     @NonNull Path directory,
-    @Nullable Predicate<Path> filter
-  ) {
-    return TaskUtil.supplyAsync(() -> this.deployDirectory(target, directory, filter));
-  }
+    @Nullable Predicate<Path> filter);
 
   /**
    * Deploys all files in the given input stream to the given target template. The given input stream is expected to be
@@ -328,12 +325,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with true if the operation completed successfully, false otherwise.
    * @throws NullPointerException if the given input stream or target template is null.
    */
-  default @NonNull CompletableFuture<Boolean> deployAsync(
-    @NonNull ServiceTemplate target,
-    @NonNull InputStream inputStream
-  ) {
-    return TaskUtil.supplyAsync(() -> this.deploy(target, inputStream));
-  }
+  @NonNull
+  CompletableFuture<Boolean> deployAsync(@NonNull ServiceTemplate target, @NonNull InputStream inputStream);
 
   /**
    * Pulls the template data which is stored in this template storage to the given directory. If any file stored in the
@@ -344,9 +337,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with true if the operation completed successfully, false otherwise.
    * @throws NullPointerException if the given template or target directory is null.
    */
-  default @NonNull CompletableFuture<Boolean> pullAsync(@NonNull ServiceTemplate template, @NonNull Path directory) {
-    return TaskUtil.supplyAsync(() -> this.pull(template, directory));
-  }
+  @NonNull
+  CompletableFuture<Boolean> pullAsync(@NonNull ServiceTemplate template, @NonNull Path directory);
 
   /**
    * Pulls the data of the given template into a temporary directory and zip it. The returned input stream is a stream
@@ -359,9 +351,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with a stream which reads from the pulled and zipped template file.
    * @throws NullPointerException if the given template is null.
    */
-  default @NonNull CompletableFuture<InputStream> zipTemplateAsync(@NonNull ServiceTemplate template) {
-    return TaskUtil.supplyAsync(() -> this.zipTemplate(template));
-  }
+  @NonNull
+  CompletableFuture<InputStream> zipTemplateAsync(@NonNull ServiceTemplate template);
 
   /**
    * Pulls the data of the given template into a temporary directory and zip it. When the returned input stream is
@@ -371,12 +362,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with a stream which reads from the pulled and zipped template file.
    * @throws NullPointerException if the given template is null.
    */
-  default @NonNull CompletableFuture<ZipInputStream> openZipInputStreamAsync(@NonNull ServiceTemplate template) {
-    return TaskUtil.supplyAsync(() -> {
-      var stream = this.zipTemplate(template);
-      return stream == null ? null : new ZipInputStream(stream);
-    });
-  }
+  @NonNull
+  CompletableFuture<ZipInputStream> openZipInputStreamAsync(@NonNull ServiceTemplate template);
 
   /**
    * Deletes the given template completely from this template storage.
@@ -385,9 +372,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with true if the given template was deleted successfully, false otherwise.
    * @throws NullPointerException if the given template is null.
    */
-  default @NonNull CompletableFuture<Boolean> deleteAsync(@NonNull ServiceTemplate template) {
-    return TaskUtil.supplyAsync(() -> this.delete(template));
-  }
+  @NonNull
+  CompletableFuture<Boolean> deleteAsync(@NonNull ServiceTemplate template);
 
   /**
    * Creates the given template in this template storage if it doesn't exist already.
@@ -396,9 +382,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with true if the template was created successfully, false otherwise.
    * @throws NullPointerException if the given template is null.
    */
-  default @NonNull CompletableFuture<Boolean> createAsync(@NonNull ServiceTemplate template) {
-    return TaskUtil.supplyAsync(() -> this.create(template));
-  }
+  @NonNull
+  CompletableFuture<Boolean> createAsync(@NonNull ServiceTemplate template);
 
   /**
    * Checks if this template storage contains any data associated with the given template.
@@ -407,9 +392,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed true if this storage contains the given template, false otherwise.
    * @throws NullPointerException if the given template is null.
    */
-  default @NonNull CompletableFuture<Boolean> containsAsync(@NonNull ServiceTemplate template) {
-    return TaskUtil.supplyAsync(() -> this.contains(template));
-  }
+  @NonNull
+  CompletableFuture<Boolean> containsAsync(@NonNull ServiceTemplate template);
 
   /**
    * Creates a new output stream which appends to the file at the given path in the given template in this storage. If
@@ -422,12 +406,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with an output stream which appends to the given file in the given template.
    * @throws NullPointerException if the given template or file path is null.
    */
-  default @NonNull CompletableFuture<OutputStream> appendOutputStreamAsync(
-    @NonNull ServiceTemplate template,
-    @NonNull String path
-  ) {
-    return TaskUtil.supplyAsync(() -> this.appendOutputStream(template, path));
-  }
+  @NonNull
+  CompletableFuture<OutputStream> appendOutputStreamAsync(@NonNull ServiceTemplate template, @NonNull String path);
 
   /**
    * Creates a new output stream which overrides the content of the file at the given path in the given template in this
@@ -440,12 +420,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with an output stream which overrides to the given file in the given template.
    * @throws NullPointerException if the given template or file path is null.
    */
-  default @NonNull CompletableFuture<OutputStream> newOutputStreamAsync(
-    @NonNull ServiceTemplate template,
-    @NonNull String path
-  ) {
-    return TaskUtil.supplyAsync(() -> this.newOutputStream(template, path));
-  }
+  @NonNull
+  CompletableFuture<OutputStream> newOutputStreamAsync(@NonNull ServiceTemplate template, @NonNull String path);
 
   /**
    * Creates a new, empty file at the given path in the given template in this storage if the file didn't exist
@@ -456,9 +432,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with true if the file was created successfully, false otherwise.
    * @throws NullPointerException if the given template or path is null.
    */
-  default @NonNull CompletableFuture<Boolean> createFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return TaskUtil.supplyAsync(() -> this.createFile(template, path));
-  }
+  @NonNull
+  CompletableFuture<Boolean> createFileAsync(@NonNull ServiceTemplate template, @NonNull String path);
 
   /**
    * Creates a new, empty directory at the given path in the given template in this storage if the directory didn't
@@ -469,12 +444,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with true if the directory was created successfully, false otherwise.
    * @throws NullPointerException if the given template or path is null.
    */
-  default @NonNull CompletableFuture<Boolean> createDirectoryAsync(
-    @NonNull ServiceTemplate template,
-    @NonNull String path
-  ) {
-    return TaskUtil.supplyAsync(() -> this.createDirectory(template, path));
-  }
+  @NonNull
+  CompletableFuture<Boolean> createDirectoryAsync(@NonNull ServiceTemplate template, @NonNull String path);
 
   /**
    * Checks if a file or directory exists at the given path in the given template in this template storage.
@@ -484,9 +455,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with true if a file or directory exists at the given path, false otherwise.
    * @throws NullPointerException if the given template or path is null.
    */
-  default @NonNull CompletableFuture<Boolean> hasFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return TaskUtil.supplyAsync(() -> this.hasFile(template, path));
-  }
+  @NonNull
+  CompletableFuture<Boolean> hasFileAsync(@NonNull ServiceTemplate template, @NonNull String path);
 
   /**
    * Deletes the given file at the given path in the given template in this storage. This method is only able to delete
@@ -497,9 +467,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with true if the file at the given path was deleted successfully, false otherwise.
    * @throws NullPointerException if the given template or path is null.
    */
-  default @NonNull CompletableFuture<Boolean> deleteFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return TaskUtil.supplyAsync(() -> this.deleteFile(template, path));
-  }
+  @NonNull
+  CompletableFuture<Boolean> deleteFileAsync(@NonNull ServiceTemplate template, @NonNull String path);
 
   /**
    * Opens a new input stream to read the content of the file at the given path in the given template in this storage.
@@ -510,9 +479,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with a new input stream to read the content of the file at the given path.
    * @throws NullPointerException if the given template or template path is null.
    */
-  default @NonNull CompletableFuture<InputStream> newInputStreamAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return TaskUtil.supplyAsync(() -> this.newInputStream(template, path));
-  }
+  @NonNull
+  CompletableFuture<InputStream> newInputStreamAsync(@NonNull ServiceTemplate template, @NonNull String path);
 
   /**
    * Retrieves information about the specified file or directory at the given path in the given template in this
@@ -523,9 +491,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with an information about the file or directory at the given path.
    * @throws NullPointerException if the given template or path is null.
    */
-  default @NonNull CompletableFuture<FileInfo> fileInfoAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return TaskUtil.supplyAsync(() -> this.fileInfo(template, path));
-  }
+  @NonNull
+  CompletableFuture<FileInfo> fileInfoAsync(@NonNull ServiceTemplate template, @NonNull String path);
 
   /**
    * Lists all files in the given directory and computes a file information of them. Optionally all files in
@@ -537,13 +504,11 @@ public interface TemplateStorage extends AutoCloseable, Named {
    * @return a task completed with all files which are located in the given directory.
    * @throws NullPointerException if the given template or directory is null.
    */
-  default @NonNull CompletableFuture<Collection<FileInfo>> listFilesAsync(
+  @NonNull
+  CompletableFuture<Collection<FileInfo>> listFilesAsync(
     @NonNull ServiceTemplate template,
     @NonNull String dir,
-    boolean deep
-  ) {
-    return TaskUtil.supplyAsync(() -> this.listFiles(template, dir, deep));
-  }
+    boolean deep);
 
   /**
    * Gets a list of all templates that exist in this storage. Modifications to the collection won't have any effect.
@@ -557,9 +522,8 @@ public interface TemplateStorage extends AutoCloseable, Named {
    *
    * @return a task completed with all templates which are located in this storage.
    */
-  default @NonNull CompletableFuture<Collection<ServiceTemplate>> templatesAsync() {
-    return TaskUtil.supplyAsync(this::templates);
-  }
+  @NonNull
+  CompletableFuture<Collection<ServiceTemplate>> templatesAsync();
 
   /**
    * Closes this storage and releases all resources which are associated with it (if any). Calls which are made to this
@@ -567,10 +531,6 @@ public interface TemplateStorage extends AutoCloseable, Named {
    *
    * @return a task completed when the template storage was closed.
    */
-  default @NonNull CompletableFuture<Void> closeAsync() {
-    return TaskUtil.supplyAsync(() -> {
-      this.close();
-      return null;
-    });
-  }
+  @NonNull
+  CompletableFuture<Void> closeAsync();
 }

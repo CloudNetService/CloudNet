@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.network.chunk.event;
 
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
 import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import java.util.function.Function;

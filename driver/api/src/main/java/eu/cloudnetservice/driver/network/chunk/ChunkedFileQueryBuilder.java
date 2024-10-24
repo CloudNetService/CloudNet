@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.network.chunk;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.chunk.defaults.builder.DefaultChunkedFileQueryBuilder;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +37,7 @@ public interface ChunkedFileQueryBuilder {
    * @return a new default implementation of this builder.
    */
   static @NonNull ChunkedFileQueryBuilder create() {
-    return new DefaultChunkedFileQueryBuilder();
+    return ServiceRegistry.registry().defaultInstance(ChunkedFileQueryBuilder.class);
   }
 
   /**

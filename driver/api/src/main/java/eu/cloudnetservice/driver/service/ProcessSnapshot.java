@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.service;
 
 import com.sun.management.OperatingSystemMXBean;
-import eu.cloudnetservice.common.resource.CpuUsageResolver;
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -32,8 +31,8 @@ import lombok.NonNull;
  * storing statistics about a service / node (or anything else).
  *
  * @param pid                     the process id of the component which created the snapshot.
- * @param cpuUsage                the recent usage (in percent) of the cpu usage associated with the component process.
- * @param systemCpuUsage          the recent usage (in percent) of the hosts' system cpu the process is running on.
+ * @param cpuUsage                the recent usage of the cpu usage associated with the component process.
+ * @param systemCpuUsage          the recent usage of the hosts' system cpu the process is running on.
  * @param maxHeapMemory           the maximum heap memory space the associated process is allowed to use.
  * @param heapUsageMemory         the heap memory of all pools which the associated process is currently using.
  * @param noHeapUsageMemory       the off-heap memory of all pools which the associated process is currently using.
@@ -83,8 +82,8 @@ public record ProcessSnapshot(
   public static @NonNull ProcessSnapshot self() {
     return new ProcessSnapshot(
       ownPID(),
-      CpuUsageResolver.processCpuLoad(),
-      CpuUsageResolver.systemCpuLoad(),
+      OS_BEAN.getProcessCpuLoad(),
+      OS_BEAN.getCpuLoad(),
       MEMORY_MX_BEAN.getHeapMemoryUsage().getMax(),
       MEMORY_MX_BEAN.getHeapMemoryUsage().getUsed(),
       MEMORY_MX_BEAN.getNonHeapMemoryUsage().getUsed(),

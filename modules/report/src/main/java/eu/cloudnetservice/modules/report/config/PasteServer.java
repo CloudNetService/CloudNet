@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.report.config;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

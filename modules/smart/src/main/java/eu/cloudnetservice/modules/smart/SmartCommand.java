@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.smart;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;

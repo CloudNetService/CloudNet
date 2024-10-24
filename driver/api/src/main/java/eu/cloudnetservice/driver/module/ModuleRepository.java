@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.module;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;

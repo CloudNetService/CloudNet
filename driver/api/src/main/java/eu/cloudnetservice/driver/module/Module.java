@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.module;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;

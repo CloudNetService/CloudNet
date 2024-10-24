@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.report.command;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;

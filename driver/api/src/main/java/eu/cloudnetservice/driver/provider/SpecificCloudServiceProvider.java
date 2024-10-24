@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.provider;
 
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
@@ -317,9 +316,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a task completed with the last reported snapshot of the service, can be null as described above.
    */
-  default @NonNull CompletableFuture<ServiceInfoSnapshot> serviceInfoAsync() {
-    return TaskUtil.supplyAsync(this::serviceInfo);
-  }
+  @NonNull
+  CompletableFuture<ServiceInfoSnapshot> serviceInfoAsync();
 
   /**
    * Get if this provider is still valid. A provider which is valid
@@ -330,9 +328,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a task completed with true if this provider is still valid, false otherwise.
    */
-  default @NonNull CompletableFuture<Boolean> validAsync() {
-    return TaskUtil.supplyAsync(this::valid);
-  }
+  @NonNull
+  CompletableFuture<Boolean> validAsync();
 
   /**
    * Forces the service to update its service info and always returns a newly created snapshot of the service (other
@@ -345,9 +342,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a task completed with a newly created service snapshot, can be null as described above.
    */
-  default @NonNull CompletableFuture<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
-    return TaskUtil.supplyAsync(this::forceUpdateServiceInfo);
-  }
+  @NonNull
+  CompletableFuture<ServiceInfoSnapshot> forceUpdateServiceInfoAsync();
 
   /**
    * Adds the given service template to the inclusion queue. This does not mean that the given template will be copied
@@ -361,9 +357,8 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the given service template was enqueued.
    * @throws NullPointerException if the given service template is null.
    */
-  default @NonNull CompletableFuture<Void> addServiceTemplateAsync(@NonNull ServiceTemplate serviceTemplate) {
-    return TaskUtil.runAsync(() -> this.addServiceTemplate(serviceTemplate));
-  }
+  @NonNull
+  CompletableFuture<Void> addServiceTemplateAsync(@NonNull ServiceTemplate serviceTemplate);
 
   /**
    * Adds the given service remote inclusion to the queue. This does not mean that the inclusion gets copied directly
@@ -377,11 +372,8 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the given service remote inclusion was enqueued.
    * @throws NullPointerException if the given inclusion is null.
    */
-  default @NonNull CompletableFuture<Void> addServiceRemoteInclusionAsync(
-    @NonNull ServiceRemoteInclusion serviceRemoteInclusion
-  ) {
-    return TaskUtil.runAsync(() -> this.addServiceRemoteInclusion(serviceRemoteInclusion));
-  }
+  @NonNull
+  CompletableFuture<Void> addServiceRemoteInclusionAsync(@NonNull ServiceRemoteInclusion serviceRemoteInclusion);
 
   /**
    * Adds the given service deployment to the queue. This does not mean that the deployment gets executed directly. It
@@ -395,9 +387,8 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the given service deployment was enqueued.
    * @throws NullPointerException if the given deployment is null.
    */
-  default @NonNull CompletableFuture<Void> addServiceDeploymentAsync(@NonNull ServiceDeployment serviceDeployment) {
-    return TaskUtil.runAsync(() -> this.addServiceDeployment(serviceDeployment));
-  }
+  @NonNull
+  CompletableFuture<Void> addServiceDeploymentAsync(@NonNull ServiceDeployment serviceDeployment);
 
   /**
    * Get all log messages which are currently cached on the node this service is running on. Modifications to the
@@ -408,9 +399,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a task completed with all cached service log messages on the node the service is running on.
    */
-  default @NonNull CompletableFuture<Queue<String>> cachedLogMessagesAsync() {
-    return TaskUtil.supplyAsync(this::cachedLogMessages);
-  }
+  @NonNull
+  CompletableFuture<Queue<String>> cachedLogMessagesAsync();
 
   /**
    * Enables or disabled the screen event handling. When the log events get enabled an event will be called on the given
@@ -418,17 +408,13 @@ public interface SpecificCloudServiceProvider {
    * which the listener need to listen in order to receive the events, set this to {@code *} to call all event
    * listeners.
    *
-   * @param sender the sender who should receive the log events.
-   * @param channel   the event channel to call the log entry event in.
+   * @param sender  the sender who should receive the log events.
+   * @param channel the event channel to call the log entry event in.
    * @return a task completed with true if the log events were enabled for the sender, false if they got disabled.
    * @throws NullPointerException if either the given message sender or channel is null.
    */
-  default @NonNull CompletableFuture<Boolean> toggleScreenEventsAsync(
-    @NonNull ChannelMessageSender sender,
-    @NonNull String channel
-  ) {
-    return TaskUtil.supplyAsync(() -> this.toggleScreenEvents(sender, channel));
-  }
+  @NonNull
+  CompletableFuture<Boolean> toggleScreenEventsAsync(@NonNull ChannelMessageSender sender, @NonNull String channel);
 
   /**
    * Sets the service lifecycle to stopped and executes the appropriate actions to change to the stopped state.
@@ -463,9 +449,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a task completed when the service was restarted.
    */
-  default @NonNull CompletableFuture<Void> restartAsync() {
-    return TaskUtil.runAsync(this::restart);
-  }
+  @NonNull
+  CompletableFuture<Void> restartAsync();
 
   /**
    * Requests a change of the service lifecycle to the given one. This method has no effect if to the given lifecycle
@@ -475,9 +460,8 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the lifecycle change was tried.
    * @throws NullPointerException if the given lifecycle is null.
    */
-  default @NonNull CompletableFuture<Void> updateLifecycleAsync(@NonNull ServiceLifeCycle lifeCycle) {
-    return TaskUtil.runAsync(() -> this.updateLifecycle(lifeCycle));
-  }
+  @NonNull
+  CompletableFuture<Void> updateLifecycleAsync(@NonNull ServiceLifeCycle lifeCycle);
 
   /**
    * Stops the service if it is currently running marks it as deleted. Other than the delete method, in this case all
@@ -488,9 +472,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a task completed when the service files were deleted.
    */
-  default @NonNull CompletableFuture<Void> deleteFilesAsync() {
-    return TaskUtil.runAsync(this::deleteFiles);
-  }
+  @NonNull
+  CompletableFuture<Void> deleteFilesAsync();
 
   /**
    * Executes the given command on the service if it is running. The given command line will be sent to stdin directly.
@@ -499,9 +482,8 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the command was send to the service.
    * @throws NullPointerException if the given command line is null.
    */
-  default @NonNull CompletableFuture<Void> runCommandAsync(@NonNull String command) {
-    return TaskUtil.runAsync(() -> this.runCommand(command));
-  }
+  @NonNull
+  CompletableFuture<Void> runCommandAsync(@NonNull String command);
 
   /**
    * Copies all queued templates onto the service without further checks. Note that this can lead to errors if you try
@@ -512,9 +494,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a task completed when the waiting service templates were included.
    */
-  default @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync() {
-    return TaskUtil.runAsync(() -> this.includeWaitingServiceTemplates());
-  }
+  @NonNull
+  CompletableFuture<Void> includeWaitingServiceTemplatesAsync();
 
   /**
    * Copies all queued templates onto the service without further checks. Note that this can lead to errors if you try
@@ -527,9 +508,8 @@ public interface SpecificCloudServiceProvider {
    * @param force if the inclusions of the templates should be forced.
    * @return a task completed when the waiting service templates were included.
    */
-  default @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync(boolean force) {
-    return TaskUtil.runAsync(() -> this.includeWaitingServiceTemplates(force));
-  }
+  @NonNull
+  CompletableFuture<Void> includeWaitingServiceTemplatesAsync(boolean force);
 
   /**
    * Downloads and copies all waiting inclusions onto the service without further checks. Note that this can lead to
@@ -537,9 +517,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a task completed when the waiting service inclusions were included.
    */
-  default @NonNull CompletableFuture<Void> includeWaitingServiceInclusionsAsync() {
-    return TaskUtil.runAsync(this::includeWaitingServiceInclusions);
-  }
+  @NonNull
+  CompletableFuture<Void> includeWaitingServiceInclusionsAsync();
 
   /**
    * Executes all deployments which were previously added to the associated service and optionally removes them once
@@ -548,9 +527,8 @@ public interface SpecificCloudServiceProvider {
    * @param removeDeployments if the deployments should get removed after executing them.
    * @return a task completed when all waiting service deployments were executed.
    */
-  default @NonNull CompletableFuture<Void> deployResourcesAsync(boolean removeDeployments) {
-    return TaskUtil.runAsync(() -> this.deployResources(removeDeployments));
-  }
+  @NonNull
+  CompletableFuture<Void> deployResourcesAsync(boolean removeDeployments);
 
   /**
    * Executes all deployments which were previously added to the associated service and removes them once they were
@@ -558,9 +536,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a task completed when all waiting service deployments were executed.
    */
-  default @NonNull CompletableFuture<Void> executeAndRemoveDeploymentsAsync() {
-    return this.deployResourcesAsync(true);
-  }
+  @NonNull
+  CompletableFuture<Void> executeAndRemoveDeploymentsAsync();
 
   /**
    * Updates the properties of the current service info to include all properties set in the given document. All
@@ -574,7 +551,6 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the update request was received and processed by the node the service runs on.
    * @throws NullPointerException if the given properties document is null.
    */
-  default @NonNull CompletableFuture<Void> updatePropertiesAsync(@NonNull Document properties) {
-    return TaskUtil.runAsync(() -> this.updateProperties(properties));
-  }
+  @NonNull
+  CompletableFuture<Void> updatePropertiesAsync(@NonNull Document properties);
 }

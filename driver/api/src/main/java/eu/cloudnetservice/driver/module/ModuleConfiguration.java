@@ -16,9 +16,8 @@
 
 package eu.cloudnetservice.driver.module;
 
-import eu.cloudnetservice.common.Named;
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.jvm.JavaVersion;
+import eu.cloudnetservice.driver.base.JavaVersion;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.document.Document;
 import java.nio.file.Path;
 import lombok.NonNull;
@@ -88,7 +87,7 @@ public record ModuleConfiguration(
       return baseDirectory.resolve(this.name);
     } else {
       // get the data folder of this module from the root directory of the cloud
-      return FileUtil.resolve(Path.of(""), this.dataFolder.split("/"));
+      return Path.of("", this.dataFolder.split("/"));
     }
   }
 

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.cluster;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.NetworkChannel;

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.provider;
 
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -91,9 +90,8 @@ public interface CloudMessenger {
    * @return a task completed when all channel messages were sent.
    * @throws NullPointerException if the given channel message is null.
    */
-  default @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
-    return TaskUtil.runAsync(() -> this.sendChannelMessage(channelMessage));
-  }
+  @NonNull
+  CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage);
 
   /**
    * Sends the given channel message to all of its targets and waits for all responses to be present or the query to
@@ -103,11 +101,8 @@ public interface CloudMessenger {
    * @return a task completed with all responses from all network components which responded in time.
    * @throws NullPointerException if the given channel message is null.
    */
-  default @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
-    @NonNull ChannelMessage message
-  ) {
-    return TaskUtil.supplyAsync(() -> this.sendChannelMessageQuery(message));
-  }
+  @NonNull
+  CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage message);
 
   /**
    * Sends the given channel message to all of its targets and waits for all responses to be present or the query to
@@ -118,9 +113,6 @@ public interface CloudMessenger {
    * @return a task completed with the first response to the given channel message, can be null if no target responded.
    * @throws NullPointerException if the given channel message is null.
    */
-  default @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
-    @NonNull ChannelMessage channelMessage
-  ) {
-    return TaskUtil.supplyAsync(() -> this.sendSingleChannelMessageQuery(channelMessage));
-  }
+  @NonNull
+  CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage);
 }

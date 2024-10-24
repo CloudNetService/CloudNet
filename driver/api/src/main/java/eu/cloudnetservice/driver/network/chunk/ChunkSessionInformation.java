@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.network.chunk;
 import com.google.common.base.Utf8;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufable;
-import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -75,15 +74,13 @@ public final class ChunkSessionInformation implements DataBufable {
   @ApiStatus.Internal
   public int packetSizeBytes() {
     var channelBytes = Utf8.encodedLength(this.transferChannel);
-    var channelBytesLengthSize = NettyUtil.varIntBytes(channelBytes);
     var transferBytes = this.transferInformation.readableBytes();
-    var transferInfoLengthSize = NettyUtil.varIntBytes(transferBytes);
     return Byte.BYTES              // nullable
       + Integer.BYTES              // chunk size
       + (Long.BYTES * 2)           // session id
-      + channelBytesLengthSize     // channel name
+      + 5                          // channel name (max length)
       + channelBytes
-      + transferInfoLengthSize     // extra transfer info
+      + 5                          // extra transfer info (max length)
       + transferBytes;
   }
 

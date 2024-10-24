@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.network.rpc.handler;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.rpc.defaults.handler.DefaultRPCInvocationContext;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -28,15 +27,6 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 public interface RPCInvocationContext {
-
-  /**
-   * Get a new builder instance for a rpc invocation context.
-   *
-   * @return a new invocation context builder.
-   */
-  static @NonNull Builder builder() {
-    return new DefaultRPCInvocationContext.Builder();
-  }
 
   /**
    * Get the name of the method which should be invoked during the current rpc processing.

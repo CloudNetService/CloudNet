@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.version;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.common.jvm.JavaVersion;
 import eu.cloudnetservice.driver.document.Document;
 import java.util.Collections;

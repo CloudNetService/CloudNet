@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.provider;
 
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCChained;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
@@ -197,9 +196,8 @@ public interface CloudServiceProvider {
    *
    * @return a task completed with all services which are registered in the cluster.
    */
-  default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesAsync() {
-    return TaskUtil.supplyAsync(this::services);
-  }
+  @NonNull
+  CompletableFuture<Collection<ServiceInfoSnapshot>> servicesAsync();
 
   /**
    * Gets all services which are currently registered and running in the cluster. Modifications to the returned
@@ -207,9 +205,8 @@ public interface CloudServiceProvider {
    *
    * @return a task completed with all services which are registered and running in the cluster.
    */
-  default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> runningServicesAsync() {
-    return TaskUtil.supplyAsync(this::runningServices);
-  }
+  @NonNull
+  CompletableFuture<Collection<ServiceInfoSnapshot>> runningServicesAsync();
 
   /**
    * Gets all services which are currently registered in the cluster and belong to the given task. Modifications to the
@@ -219,9 +216,8 @@ public interface CloudServiceProvider {
    * @return a task completed with all services currently registered in the cluster and belonging to the given task.
    * @throws NullPointerException if the given task name is null.
    */
-  default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByTaskAsync(@NonNull String taskName) {
-    return TaskUtil.supplyAsync(() -> this.servicesByTask(taskName));
-  }
+  @NonNull
+  CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByTaskAsync(@NonNull String taskName);
 
   /**
    * Gets all services which are currently registered in the cluster and belong to the given environment. Modifications
@@ -231,9 +227,8 @@ public interface CloudServiceProvider {
    * @return a task completed with all services currently registered in the cluster, belonging to the given environment.
    * @throws NullPointerException if the given environment is null.
    */
-  default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(@NonNull String environment) {
-    return TaskUtil.supplyAsync(() -> this.servicesByEnvironment(environment));
-  }
+  @NonNull
+  CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(@NonNull String environment);
 
   /**
    * Gets all services which are currently registered in the cluster and belong to the given group. Modifications to the
@@ -243,18 +238,16 @@ public interface CloudServiceProvider {
    * @return a task completed with all services currently registered in the cluster and belonging to the given group.
    * @throws NullPointerException if the given group name is null.
    */
-  default @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByGroupAsync(@NonNull String group) {
-    return TaskUtil.supplyAsync(() -> this.servicesByGroup(group));
-  }
+  @NonNull
+  CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByGroupAsync(@NonNull String group);
 
   /**
    * Gets the amount of services which are currently registered within the cluster.
    *
    * @return a task completed with the amount of services which are currently registered within the cluster.
    */
-  default @NonNull CompletableFuture<Integer> serviceCountAsync() {
-    return TaskUtil.supplyAsync(this::serviceCount);
-  }
+  @NonNull
+  CompletableFuture<Integer> serviceCountAsync();
 
   /**
    * Get the amount of services which are currently registered within the cluster and belong to the given group.
@@ -263,9 +256,8 @@ public interface CloudServiceProvider {
    * @return a task completed with the amount of services currently registered, belonging the given group.
    * @throws NullPointerException if the given group name is null.
    */
-  default @NonNull CompletableFuture<Integer> serviceCountByGroupAsync(@NonNull String group) {
-    return TaskUtil.supplyAsync(() -> this.serviceCountByGroup(group));
-  }
+  @NonNull
+  CompletableFuture<Integer> serviceCountByGroupAsync(@NonNull String group);
 
   /**
    * Get the amount of services which are currently registered within the cluster and belong to the given task.
@@ -274,9 +266,8 @@ public interface CloudServiceProvider {
    * @return a task completed with the amount of services currently registered, belonging the given task.
    * @throws NullPointerException if the given task name is null.
    */
-  default @NonNull CompletableFuture<Integer> serviceCountByTaskAsync(@NonNull String taskName) {
-    return TaskUtil.supplyAsync(() -> this.serviceCountByTask(taskName));
-  }
+  @NonNull
+  CompletableFuture<Integer> serviceCountByTaskAsync(@NonNull String taskName);
 
   /**
    * Gets the current snapshot of the service with the given name. This method returns null if no service with the given
@@ -289,9 +280,8 @@ public interface CloudServiceProvider {
    * @return a task completed with the current snapshot of the service or null if the service is not registered.
    * @throws NullPointerException if the given service name is null.
    */
-  default @NonNull CompletableFuture<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name) {
-    return TaskUtil.supplyAsync(() -> this.serviceByName(name));
-  }
+  @NonNull
+  CompletableFuture<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name);
 
   /**
    * Gets the current snapshot of the service with the given unique id. This method returns null if no service with the
@@ -304,7 +294,6 @@ public interface CloudServiceProvider {
    * @return a task completed with the current snapshot of the service or null if the service is not registered.
    * @throws NullPointerException if the given service unique id is null.
    */
-  default @NonNull CompletableFuture<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId) {
-    return TaskUtil.supplyAsync(() -> this.service(uniqueId));
-  }
+  @NonNull
+  CompletableFuture<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId);
 }

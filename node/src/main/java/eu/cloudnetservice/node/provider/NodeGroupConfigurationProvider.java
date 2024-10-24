@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.provider;
 
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;

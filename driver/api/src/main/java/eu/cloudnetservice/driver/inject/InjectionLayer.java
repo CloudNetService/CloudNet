@@ -23,7 +23,7 @@ import dev.derklaro.aerogel.InjectionContext;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import dev.derklaro.aerogel.binding.BindingConstructor;
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.NonNull;

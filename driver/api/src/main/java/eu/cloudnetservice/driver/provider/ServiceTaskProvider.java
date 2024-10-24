@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.provider;
 
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -104,9 +103,8 @@ public interface ServiceTaskProvider {
    *
    * @return a task completed when the provider was reloaded successfully.
    */
-  default @NonNull CompletableFuture<Void> reloadAsync() {
-    return TaskUtil.runAsync(this::reload);
-  }
+  @NonNull
+  CompletableFuture<Void> reloadAsync();
 
   /**
    * Get all task configurations which are registered within the cluster. The backing collection will be updated if a
@@ -115,9 +113,8 @@ public interface ServiceTaskProvider {
    *
    * @return a task completed with all registered task configurations within the cluster.
    */
-  default @NonNull CompletableFuture<Collection<ServiceTask>> serviceTasksAsync() {
-    return TaskUtil.supplyAsync(this::serviceTasks);
-  }
+  @NonNull
+  CompletableFuture<Collection<ServiceTask>> serviceTasksAsync();
 
   /**
    * Get a task configuration which has the given name and is registered within the cluster. This method returns null if
@@ -127,9 +124,8 @@ public interface ServiceTaskProvider {
    * @return a task completed with the task configuration which has the given name or null if such task exists.
    * @throws NullPointerException if the given name is null.
    */
-  default @NonNull CompletableFuture<ServiceTask> serviceTaskAsync(@NonNull String name) {
-    return TaskUtil.supplyAsync(() -> this.serviceTask(name));
-  }
+  @NonNull
+  CompletableFuture<ServiceTask> serviceTaskAsync(@NonNull String name);
 
   /**
    * Adds a new task configuration by caching the given object, creating the task file and syncing the change to all
@@ -140,9 +136,8 @@ public interface ServiceTaskProvider {
    * @return a task completed with true if the task configuration was registered or updated, false otherwise.
    * @throws NullPointerException if the given task configuration is null.
    */
-  default @NonNull CompletableFuture<Boolean> addServiceTaskAsync(@NonNull ServiceTask serviceTask) {
-    return TaskUtil.supplyAsync(() -> this.addServiceTask(serviceTask));
-  }
+  @NonNull
+  CompletableFuture<Boolean> addServiceTaskAsync(@NonNull ServiceTask serviceTask);
 
   /**
    * Deletes the task configuration with the given name on the local node and all other nodes in the cluster by removing
@@ -154,9 +149,8 @@ public interface ServiceTaskProvider {
    * @return a task completed when the service task with the given name was removed.
    * @throws NullPointerException if the given task name is null.
    */
-  default @NonNull CompletableFuture<Void> removeServiceTaskByNameAsync(@NonNull String name) {
-    return TaskUtil.runAsync(() -> this.removeServiceTaskByName(name));
-  }
+  @NonNull
+  CompletableFuture<Void> removeServiceTaskByNameAsync(@NonNull String name);
 
   /**
    * Deletes the task configuration with the given name on the local node and all other nodes in the cluster by removing
@@ -168,7 +162,6 @@ public interface ServiceTaskProvider {
    * @return a task completed when the given service task was removed.
    * @throws NullPointerException if the given task name is null.
    */
-  default @NonNull CompletableFuture<Void> removeServiceTaskAsync(@NonNull ServiceTask serviceTask) {
-    return TaskUtil.runAsync(() -> this.removeServiceTask(serviceTask));
-  }
+  @NonNull
+  CompletableFuture<Void> removeServiceTaskAsync(@NonNull ServiceTask serviceTask);
 }

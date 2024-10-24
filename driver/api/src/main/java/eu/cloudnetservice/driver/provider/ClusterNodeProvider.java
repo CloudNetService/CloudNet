@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.provider;
 
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.command.CommandInfo;
@@ -166,9 +165,8 @@ public interface ClusterNodeProvider {
    *
    * @return a task completed with all registered commands.
    */
-  default @NonNull CompletableFuture<Collection<CommandInfo>> consoleCommandsAsync() {
-    return TaskUtil.supplyAsync(this::consoleCommands);
-  }
+  @NonNull
+  CompletableFuture<Collection<CommandInfo>> consoleCommandsAsync();
 
   /**
    * Get an information about a specific registered command on the current node. This method returns null if no command
@@ -178,9 +176,8 @@ public interface ClusterNodeProvider {
    * @return a task completed with the info of the command with the given name or null if no such command exists.
    * @throws NullPointerException if the given command name is null.
    */
-  default @NonNull CompletableFuture<CommandInfo> consoleCommandAsync(@NonNull String name) {
-    return TaskUtil.supplyAsync(() -> this.consoleCommand(name));
-  }
+  @NonNull
+  CompletableFuture<CommandInfo> consoleCommandAsync(@NonNull String name);
 
   /**
    * Gets all tab complete results for the next argument in the provided command line. An empty command line will list
@@ -193,9 +190,8 @@ public interface ClusterNodeProvider {
    * @return a task completed with the suggestions for further input based on the current command line.
    * @throws NullPointerException if the given command line is null.
    */
-  default @NonNull CompletableFuture<Collection<String>> consoleTabCompleteResultsAsync(@NonNull String commandLine) {
-    return TaskUtil.supplyAsync(() -> this.consoleTabCompleteResults(commandLine));
-  }
+  @NonNull
+  CompletableFuture<Collection<String>> consoleTabCompleteResultsAsync(@NonNull String commandLine);
 
   /**
    * Sends the given command line to the current node and returns the output of the command from the execution. Only
@@ -206,9 +202,8 @@ public interface ClusterNodeProvider {
    * @return a task completed with all lines send to the command sender associated with this method call.
    * @throws NullPointerException if the given command line is null.
    */
-  default @NonNull CompletableFuture<Collection<String>> sendCommandLineAsync(@NonNull String commandLine) {
-    return TaskUtil.supplyAsync(() -> this.sendCommandLine(commandLine));
-  }
+  @NonNull
+  CompletableFuture<Collection<String>> sendCommandLineAsync(@NonNull String commandLine);
 
   /**
    * Gets all nodes which are currently registered on the current node. As per the CloudNet cluster contract, each node
@@ -218,9 +213,8 @@ public interface ClusterNodeProvider {
    *
    * @return a task completed with all nodes which are registered on the current node.
    */
-  default @NonNull CompletableFuture<Collection<NetworkClusterNode>> nodesAsync() {
-    return TaskUtil.supplyAsync(this::nodes);
-  }
+  @NonNull
+  CompletableFuture<Collection<NetworkClusterNode>> nodesAsync();
 
   /**
    * Get the network cluster node object association from the given node unique id registered on the current node. This
@@ -230,9 +224,8 @@ public interface ClusterNodeProvider {
    * @return a task completed with the cluster node object associated with the given unique id or null if unknown.
    * @throws NullPointerException if the given unique id is null.
    */
-  default @NonNull CompletableFuture<NetworkClusterNode> nodeAsync(@NonNull String uniqueId) {
-    return TaskUtil.supplyAsync(() -> this.node(uniqueId));
-  }
+  @NonNull
+  CompletableFuture<NetworkClusterNode> nodeAsync(@NonNull String uniqueId);
 
   /**
    * Adds a new node on the current node and synchronizes the change into the cluster. This method has no effect if a
@@ -246,9 +239,8 @@ public interface ClusterNodeProvider {
    * @return a task completed with true if the node was registered successfully, false otherwise.
    * @throws NullPointerException if the given node to register is null.
    */
-  default @NonNull CompletableFuture<Boolean> addNodeAsync(@NonNull NetworkClusterNode node) {
-    return TaskUtil.supplyAsync(() -> this.addNode(node));
-  }
+  @NonNull
+  CompletableFuture<Boolean> addNodeAsync(@NonNull NetworkClusterNode node);
 
   /**
    * Removes the given node on the current node and synchronizes the change into the cluster. This method has no effect
@@ -262,9 +254,8 @@ public interface ClusterNodeProvider {
    * @return a task completed with true if the node was removed successfully, false otherwise.
    * @throws NullPointerException if the given node unique id is null.
    */
-  default @NonNull CompletableFuture<Boolean> removeNodeAsync(@NonNull String uniqueId) {
-    return TaskUtil.supplyAsync(() -> this.removeNode(uniqueId));
-  }
+  @NonNull
+  CompletableFuture<Boolean> removeNodeAsync(@NonNull String uniqueId);
 
   /**
    * Get the network cluster node snapshots of all nodes which are currently connected to the current node. A node might
@@ -275,9 +266,8 @@ public interface ClusterNodeProvider {
    *
    * @return a task completed with the snapshot of all nodes which are currently connected to the current node.
    */
-  default @NonNull CompletableFuture<Collection<NodeInfoSnapshot>> nodeInfoSnapshotsAsync() {
-    return TaskUtil.supplyAsync(this::nodeInfoSnapshots);
-  }
+  @NonNull
+  CompletableFuture<Collection<NodeInfoSnapshot>> nodeInfoSnapshotsAsync();
 
   /**
    * Get the network cluster node snapshot of the node with the given unique id. This method returns null either if no
@@ -288,7 +278,6 @@ public interface ClusterNodeProvider {
    * @return a task completed with the snapshot of the node or null if the node is not registered or connected.
    * @throws NullPointerException if the given node unique id is null.
    */
-  default @NonNull CompletableFuture<NodeInfoSnapshot> nodeInfoSnapshotAsync(@NonNull String uniqueId) {
-    return TaskUtil.supplyAsync(() -> this.nodeInfoSnapshot(uniqueId));
-  }
+  @NonNull
+  CompletableFuture<NodeInfoSnapshot> nodeInfoSnapshotAsync(@NonNull String uniqueId);
 }

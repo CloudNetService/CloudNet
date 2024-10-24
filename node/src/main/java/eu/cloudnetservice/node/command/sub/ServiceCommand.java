@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.command.sub;
 
 import com.google.common.base.Splitter;
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.language.I18n;

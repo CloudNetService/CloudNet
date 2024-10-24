@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.service;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import java.lang.management.ThreadInfo;
 import lombok.NonNull;
 
@@ -49,7 +49,7 @@ public record ThreadSnapshot(
    */
   public static @NonNull ThreadSnapshot from(@NonNull Thread thread) {
     return new ThreadSnapshot(
-      thread.getId(),
+      thread.threadId(),
       thread.getPriority(),
       thread.isDaemon(),
       thread.getName(),

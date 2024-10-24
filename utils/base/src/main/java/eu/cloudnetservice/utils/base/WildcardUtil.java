@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.utils.base;
 
-import eu.cloudnetservice.common.Named;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Pattern;
@@ -32,6 +31,7 @@ import org.jetbrains.annotations.VisibleForTesting;
  *
  * @since 4.0
  */
+// todo: move into node
 public final class WildcardUtil {
 
   // all "group" chars which are supported by regex. This array is sorted!

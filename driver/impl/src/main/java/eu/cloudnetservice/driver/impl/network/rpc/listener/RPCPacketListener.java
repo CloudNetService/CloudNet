@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.rpc.listener;
 
+import eu.cloudnetservice.driver.impl.network.rpc.handler.DefaultRPCInvocationContext;
 import eu.cloudnetservice.driver.impl.network.rpc.handler.util.RPCExceptionUtil;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -266,7 +267,7 @@ public final class RPCPacketListener implements PacketListener {
     // read data from buffer, this must be in order it's written to the buffer
     var methodName = content.readString();
     var methodDescriptor = content.readString();
-    return RPCInvocationContext.builder()
+    return new DefaultRPCInvocationContext.Builder()
       .methodName(methodName)
       .methodDescriptor(methodDescriptor)
       .argumentInformation(content) // might be unsafe, but we cannot slice the argument data due to the unknown size

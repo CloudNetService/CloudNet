@@ -16,12 +16,13 @@
 
 package eu.cloudnetservice.utils.base.util;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import java.util.Arrays;
 import java.util.Collection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+// todo: move into node
 public class WildcardUtilTest {
 
   private static final String VALID_PATTERN = "Lobby-56*";

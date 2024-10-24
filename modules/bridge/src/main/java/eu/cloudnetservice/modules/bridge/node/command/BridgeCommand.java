@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.node.command;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;

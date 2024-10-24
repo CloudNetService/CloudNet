@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.node.listener;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
