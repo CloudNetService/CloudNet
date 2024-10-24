@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.impl.network.rpc.sender;
 
 import eu.cloudnetservice.driver.impl.network.rpc.DefaultRPCProvider;
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCClassMetadata;
 import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCClassMetadata;
 import eu.cloudnetservice.driver.impl.network.rpc.rpc.DefaultRPC;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;

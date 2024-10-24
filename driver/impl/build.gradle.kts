@@ -15,12 +15,14 @@
  */
 
 dependencies {
+  "implementation"(projects.utils.utilsBase)
   "implementation"(projects.driver.driverApi)
 
   "implementation"(libs.gson)
   "implementation"(libs.guava)
   "implementation"(libs.caffeine)
   "implementation"(libs.reflexion)
+  "implementation"(libs.bundles.unirest)
 
   "implementation"(libs.bundles.netty)
   "implementation"(libs.nettyNativeKqueue)

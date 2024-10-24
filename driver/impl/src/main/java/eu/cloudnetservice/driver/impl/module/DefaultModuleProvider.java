@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.module;
+package eu.cloudnetservice.driver.impl.module;
 
 import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.Element;
@@ -24,6 +24,16 @@ import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.module.Module;
+import eu.cloudnetservice.driver.module.ModuleConfiguration;
+import eu.cloudnetservice.driver.module.ModuleConfigurationNotFoundException;
+import eu.cloudnetservice.driver.module.ModuleDependency;
+import eu.cloudnetservice.driver.module.ModuleDependencyLoader;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleProvider;
+import eu.cloudnetservice.driver.module.ModuleProviderHandler;
+import eu.cloudnetservice.driver.module.ModuleWrapper;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import io.vavr.Tuple2;
 import jakarta.inject.Singleton;
 import java.io.BufferedInputStream;
@@ -222,9 +232,9 @@ public class DefaultModuleProvider implements ModuleProvider {
       // try to load and create the main class instance
       var mainModuleClass = loader.loadClass(moduleConfiguration.main());
       // check if the main class is an instance of the IModule class
-      if (!Module.class.isAssignableFrom(mainModuleClass)) {
+      if (!eu.cloudnetservice.driver.module.Module.class.isAssignableFrom(mainModuleClass)) {
         throw new AssertionError(String.format("Module main class %s is not assignable from %s",
-          mainModuleClass.getCanonicalName(), Module.class.getCanonicalName()));
+          mainModuleClass.getCanonicalName(), eu.cloudnetservice.driver.module.Module.class.getCanonicalName()));
       }
 
       // create an instance of the class and the main module wrapper

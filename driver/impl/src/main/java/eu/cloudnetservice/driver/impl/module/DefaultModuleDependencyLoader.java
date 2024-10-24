@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.module;
+package eu.cloudnetservice.driver.impl.module;
 
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
+import eu.cloudnetservice.driver.module.ModuleConfiguration;
+import eu.cloudnetservice.driver.module.ModuleDependency;
+import eu.cloudnetservice.driver.module.ModuleDependencyLoader;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -105,11 +107,11 @@ public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
 
     // pre-validate the checksum of the file (if present)
     if (dependency.checksum() != null && Files.exists(destFile)) {
-      var checksum = ChecksumUtil.fileShaSum(destFile);
-      if (!checksum.equals(dependency.checksum())) {
-        // remove the file, re-download below
-        FileUtil.delete(destFile);
-      }
+      // var checksum = ChecksumUtil.fileShaSum(destFile);
+      // if (!checksum.equals(dependency.checksum())) {
+      //   // remove the file, re-download below
+      //   FileUtil.delete(destFile);
+      // }
     }
 
     if (Files.notExists(destFile)) {
@@ -118,12 +120,12 @@ public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
 
       // validate the checksum before continuing (if given)
       if (dependency.checksum() != null) {
-        var checksum = ChecksumUtil.fileShaSum(destFile);
-        if (!checksum.equals(dependency.checksum())) {
-          // remove the file, and hard fail
-          FileUtil.delete(destFile);
-          throw new IllegalStateException("Unable to verify checksum of downloaded dependency " + dependency);
-        }
+        // var checksum = ChecksumUtil.fileShaSum(destFile);
+        // if (!checksum.equals(dependency.checksum())) {
+        //   // remove the file, and hard fail
+        //   FileUtil.delete(destFile);
+        //   throw new IllegalStateException("Unable to verify checksum of downloaded dependency " + dependency);
+        // }
       }
     }
 

@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;

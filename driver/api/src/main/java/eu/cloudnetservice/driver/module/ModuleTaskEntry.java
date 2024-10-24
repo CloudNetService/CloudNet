@@ -33,23 +33,25 @@ public interface ModuleTaskEntry {
    * The associated module wrapper this task was detected by.
    *
    * @return the associated module wrapper to this task.
-   * @see DefaultModuleWrapper#resolveModuleTasks(Module)
    */
-  @NonNull ModuleWrapper moduleWrapper();
+  @NonNull
+  ModuleWrapper moduleWrapper();
 
   /**
    * The module (or module main class) this task was detected in.
    *
    * @return the associated module to this task.
    */
-  @NonNull Module module();
+  @NonNull
+  Module module();
 
   /**
    * The annotation holding the information about this task.
    *
    * @return the task information.
    */
-  @NonNull ModuleTask taskInfo();
+  @NonNull
+  ModuleTask taskInfo();
 
   /**
    * Get the full method signature of the detected method. This must not be in the standard java signature declaration
@@ -57,7 +59,8 @@ public interface ModuleTaskEntry {
    *
    * @return a unique descriptor of the method in the main module class.
    */
-  @NonNull String fullMethodSignature();
+  @NonNull
+  String fullMethodSignature();
 
   /**
    * Fires this module task.

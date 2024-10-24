@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.impl.network.rpc.generation;
 
 import com.google.common.hash.Hashing;
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCClassMetadata;
 import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCClassMetadata;
 import java.lang.classfile.ClassBuilder;
 import java.lang.classfile.CodeBuilder;
 import java.lang.constant.ClassDesc;

@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.module;
+package eu.cloudnetservice.driver.impl.module;
 
 import dev.derklaro.aerogel.Element;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.inject.InjectUtil;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.module.Module;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.ModuleTaskEntry;
+import eu.cloudnetservice.driver.module.ModuleWrapper;
 import java.lang.reflect.Method;
 import lombok.NonNull;
 

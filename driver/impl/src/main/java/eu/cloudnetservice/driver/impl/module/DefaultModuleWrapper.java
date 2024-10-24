@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.module;
+package eu.cloudnetservice.driver.impl.module;
 
 import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import eu.cloudnetservice.driver.module.util.ModuleDependencyUtil;
+import eu.cloudnetservice.driver.module.Module;
+import eu.cloudnetservice.driver.module.ModuleConfiguration;
+import eu.cloudnetservice.driver.module.ModuleDependency;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleProvider;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.ModuleTaskEntry;
+import eu.cloudnetservice.driver.module.ModuleWrapper;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.URI;
@@ -59,7 +66,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
 
   private final URL source;
   private final URI sourceUri;
-  private final Module module;
+  private final eu.cloudnetservice.driver.module.Module module;
   private final Path dataDirectory;
   private final ModuleProvider provider;
   private final URLClassLoader classLoader;
@@ -87,7 +94,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    */
   public DefaultModuleWrapper(
     @NonNull URL source,
-    @NonNull Module module,
+    @NonNull eu.cloudnetservice.driver.module.Module module,
     @NonNull Path dataDirectory,
     @NonNull ModuleProvider provider,
     @NonNull URLClassLoader classLoader,
@@ -129,7 +136,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Module module() {
+  public @NonNull eu.cloudnetservice.driver.module.Module module() {
     return this.module;
   }
 

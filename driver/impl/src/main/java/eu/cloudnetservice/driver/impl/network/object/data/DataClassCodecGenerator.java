@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.impl.network.object.data;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCFieldGetter;
+import eu.cloudnetservice.utils.base.CodeGenerationUtil;
 import java.lang.classfile.ClassFile;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.Opcode;

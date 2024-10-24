@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.impl.network.chunk.network;
 
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;

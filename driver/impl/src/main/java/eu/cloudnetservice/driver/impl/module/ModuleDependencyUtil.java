@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.module.util;
+package eu.cloudnetservice.driver.impl.module;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.module.ModuleDependency;

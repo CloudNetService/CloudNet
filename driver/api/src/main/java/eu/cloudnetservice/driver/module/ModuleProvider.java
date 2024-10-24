@@ -41,7 +41,8 @@ public interface ModuleProvider {
    * @return the base directory of this module provider.
    * @see #moduleDirectoryPath(Path)
    */
-  @NonNull Path moduleDirectoryPath();
+  @NonNull
+  Path moduleDirectoryPath();
 
   /**
    * Sets the base directory of this module provider. It will be used to provide the data directory for modules which
@@ -72,13 +73,12 @@ public interface ModuleProvider {
 
   /**
    * Get the module dependency loader. It's used to load all dependencies of all modules.
-   * <p>This handler is by default {@link DefaultModuleDependencyLoader}.</p>
    *
    * @return the module provider handler used for this provider.
    * @see #moduleDependencyLoader(ModuleDependencyLoader)
-   * @see DefaultModuleDependencyLoader
    */
-  @NonNull ModuleDependencyLoader moduleDependencyLoader();
+  @NonNull
+  ModuleDependencyLoader moduleDependencyLoader();
 
   /**
    * Sets the module dependency loader which should be used by this provider.
@@ -86,7 +86,6 @@ public interface ModuleProvider {
    * @param moduleDependencyLoader the module dependency loader to use.
    * @throws NullPointerException if moduleDependencyLoader is null.
    * @see #moduleDependencyLoader()
-   * @see DefaultModuleDependencyLoader
    */
   void moduleDependencyLoader(@NonNull ModuleDependencyLoader moduleDependencyLoader);
 
@@ -97,7 +96,8 @@ public interface ModuleProvider {
    * @see ModuleLifeCycle
    */
   @NonNull
-  @Unmodifiable Collection<ModuleWrapper> modules();
+  @Unmodifiable
+  Collection<ModuleWrapper> modules();
 
   /**
    * Get all loaded, started, stopped modules provided by this provider which have the specific given group.
@@ -109,7 +109,8 @@ public interface ModuleProvider {
    * @see ModuleLifeCycle
    */
   @NonNull
-  @Unmodifiable Collection<ModuleWrapper> modules(@NonNull String group);
+  @Unmodifiable
+  Collection<ModuleWrapper> modules(@NonNull String group);
 
   /**
    * Get a module by the given name.
@@ -125,12 +126,11 @@ public interface ModuleProvider {
    *
    * @param url the url to load the module from.
    * @return the loaded module or null if checks failed or a module from this url is already loaded.
-   * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
-   *                                                      module.json.
-   * @throws NullPointerException                         if required properties are missing in dependency or repository
-   *                                                      information.
-   * @throws AssertionError                               if any exception occurs during the load of the module.
-   * @throws NullPointerException                         if url is null.
+   * @throws ModuleConfigurationNotFoundException if the file associated with the url doesn't contain a module.json.
+   * @throws NullPointerException                 if required properties are missing in dependency or repository
+   *                                              information.
+   * @throws AssertionError                       if any exception occurs during the load of the module.
+   * @throws NullPointerException                 if url is null.
    */
   @Nullable ModuleWrapper loadModule(@NonNull URL url);
 
@@ -139,12 +139,11 @@ public interface ModuleProvider {
    *
    * @param path the path to load the module from.
    * @return the loaded module or null if checks failed or a module from this path is already loaded.
-   * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
-   *                                                      module.json.
-   * @throws NullPointerException                         if required properties are missing in dependency or repository
-   *                                                      information.
-   * @throws AssertionError                               if any exception occurs during the load of the module.
-   * @throws NullPointerException                         if path is null.
+   * @throws ModuleConfigurationNotFoundException if the file associated with the url doesn't contain a module.json.
+   * @throws NullPointerException                 if required properties are missing in dependency or repository
+   *                                              information.
+   * @throws AssertionError                       if any exception occurs during the load of the module.
+   * @throws NullPointerException                 if path is null.
    * @see #loadModule(URL)
    */
   @Nullable ModuleWrapper loadModule(@NonNull Path path);
@@ -156,7 +155,8 @@ public interface ModuleProvider {
    * @see ModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NonNull ModuleProvider loadAll();
+  @NonNull
+  ModuleProvider loadAll();
 
   /**
    * Starts all modules which are loaded by this provided and can change to the started state.
@@ -165,7 +165,8 @@ public interface ModuleProvider {
    * @see ModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NonNull ModuleProvider startAll();
+  @NonNull
+  ModuleProvider startAll();
 
   /**
    * Reloads all modules which are loaded by this provided and can change to the started state.
@@ -174,7 +175,8 @@ public interface ModuleProvider {
    * @see ModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NonNull ModuleProvider reloadAll();
+  @NonNull
+  ModuleProvider reloadAll();
 
   /**
    * Stops all modules which are loaded by this provided and can change to the stopped state.
@@ -183,7 +185,8 @@ public interface ModuleProvider {
    * @see ModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NonNull ModuleProvider stopAll();
+  @NonNull
+  ModuleProvider stopAll();
 
   /**
    * Unloads all modules which are loaded by this provided and can change to the unloaded state.
@@ -192,7 +195,8 @@ public interface ModuleProvider {
    * @see ModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NonNull ModuleProvider unloadAll();
+  @NonNull
+  ModuleProvider unloadAll();
 
   /**
    * Called by an {@link ModuleWrapper} when the module is about to change its lifecycle state.

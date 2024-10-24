@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.impl.network.netty.buffer;
 
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
+import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import io.netty5.buffer.Buffer;
 import java.nio.charset.StandardCharsets;

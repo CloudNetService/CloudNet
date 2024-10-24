@@ -19,6 +19,8 @@ package eu.cloudnetservice.driver.impl.network.netty.server;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.impl.network.netty.NettyOptionSettingChannelInitializer;
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
+import eu.cloudnetservice.driver.impl.network.protocol.DefaultPacketListenerRegistry;
+import eu.cloudnetservice.driver.impl.network.scheduler.NetworkTaskScheduler;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;

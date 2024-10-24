@@ -16,13 +16,12 @@
 
 package eu.cloudnetservice.driver.impl.network.chunk;
 
-import eu.cloudnetservice.common.concurrent.TaskUtil;
+import eu.cloudnetservice.driver.impl.network.chunk.network.ChunkedPacket;
 import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
-import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
-import eu.cloudnetservice.driver.network.chunk.network.ChunkedPacket;
 import eu.cloudnetservice.driver.network.protocol.Packet;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;

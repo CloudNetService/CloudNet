@@ -15,28 +15,9 @@
  */
 
 dependencies {
-//  "api"(projects.common)
-//  "api"(projects.ext.updater)
-
-//  "api"(libs.caffeine)
-//
   "api"(libs.vavr)
   "api"(libs.slf4jApi)
   "api"(libs.geantyref)
   "api"(libs.bundles.aerogel)
-
-  // processing
-//  "annotationProcessor"(libs.aerogelAuto)
-
-  // internal libraries
-//  "implementation"(libs.gson)
   "implementation"(libs.guava)
-
-  // netty
-//  "implementation"(libs.bundles.netty)
-//  "implementation"(libs.nettyNativeKqueue)
-//  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
-//  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
-
-//  "testImplementation"(projects.common.dependencyProject.sourceSets()["main"].output)
 }

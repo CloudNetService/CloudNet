@@ -18,6 +18,7 @@ package eu.cloudnetservice.driver.impl.network.rpc.generation;
 
 import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
+import eu.cloudnetservice.utils.base.CodeGenerationUtil;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;

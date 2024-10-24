@@ -19,6 +19,8 @@ package eu.cloudnetservice.driver.impl.network.netty;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.impl.network.netty.buffer.NettyNioBufferReleasingAllocator;
+import eu.cloudnetservice.driver.impl.network.scheduler.NetworkTaskScheduler;
+import eu.cloudnetservice.driver.impl.network.scheduler.ScalingNetworkTaskScheduler;
 import io.netty5.buffer.Buffer;
 import io.netty5.buffer.BufferAllocator;
 import io.netty5.buffer.BufferUtil;

@@ -39,6 +39,10 @@ import lombok.NonNull;
  */
 public interface ChunkedPacketSender extends ChunkedPacketProvider {
 
+  static @NonNull ChunkedPacketSender.Builder forStreamTransfer() {
+    return ServiceRegistry.registry().defaultInstance(ChunkedPacketSender.Builder.class);
+  }
+
   /**
    * Get a new builder for a packet sender which allows to transfer a single but huge file, e.g. a zip folder in chunks
    * through the network.

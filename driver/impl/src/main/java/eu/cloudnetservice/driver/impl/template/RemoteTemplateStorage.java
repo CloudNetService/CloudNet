@@ -25,6 +25,10 @@ import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
+import eu.cloudnetservice.utils.base.io.FileUtil;
+import eu.cloudnetservice.utils.base.io.ListenableOutputStream;
+import eu.cloudnetservice.utils.base.io.ZipUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -105,7 +109,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate target,
     @NonNull InputStream inputStream
   ) {
-    return ChunkedPacketSender.forFileTransfer()
+    return ChunkedPacketSender.forStreamTransfer()
       .source(inputStream)
       .transferChannel("deploy_service_template")
       .withExtraData(DataBuf.empty().writeString(this.name).writeObject(target).writeBoolean(true))
@@ -174,8 +178,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
   ) throws IOException {
     return new ListenableOutputStream<>(
       Files.newOutputStream(localPath),
-      _ -> ChunkedPacketSender.forFileTransfer()
-        .forFile(localPath)
+      _ -> ChunkedPacketSender.forFileTransfer(localPath)
         .transferChannel("deploy_single_file")
         .toChannels(this.networkClient.firstChannel())
         .withExtraData(DataBuf.empty()

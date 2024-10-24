@@ -29,6 +29,7 @@ import eu.cloudnetservice.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.Objects;

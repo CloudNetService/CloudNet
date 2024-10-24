@@ -23,8 +23,8 @@ import dev.derklaro.aerogel.auto.runtime.AutoAnnotationRegistry;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.binding.BindingConstructor;
 import dev.derklaro.aerogel.util.Qualifiers;
-import eu.cloudnetservice.common.util.StringUtil;
 import io.leangen.geantyref.TypeFactory;
+import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -281,7 +281,7 @@ final class InjectionLayerProvider {
     }
 
     // validate that the boot layer name is never used twice
-    var normalizedName = StringUtil.toLower(name);
+    var normalizedName = name.toLowerCase(Locale.ROOT);
     if (normalizedName.equals("boot") || normalizedName.equals("ext")) {
       throw new IllegalArgumentException(
         "The \"boot\" or \"ext\" injection layer name is reserved and cannot be used twice");

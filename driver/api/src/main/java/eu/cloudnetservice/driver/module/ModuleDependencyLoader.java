@@ -26,7 +26,6 @@ import lombok.NonNull;
  * Note: The module dependency loader is not loading any of the downloaded dependencies, they are just downloaded and
  * stored in the libs' directory.
  *
- * @see DefaultModuleProvider#DEFAULT_LIB_DIR
  * @see ModuleDependency
  * @see ModuleConfiguration
  * @since 4.0

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.module;
+package eu.cloudnetservice.driver.impl.module;
 
 import com.google.common.collect.ObjectArrays;
 import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.inject.InjectionLayerHolder;
+import eu.cloudnetservice.driver.module.Module;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;

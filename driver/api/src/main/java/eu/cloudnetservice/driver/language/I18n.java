@@ -19,8 +19,6 @@ package eu.cloudnetservice.driver.language;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.resource.ResourceResolver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -73,26 +71,27 @@ public final class I18n {
    * @param clazzSource the source which tries to register all language files.
    * @throws NullPointerException if the given class source is null.
    */
-  public static void loadFromLangPath(@NonNull Class<?> clazzSource) {
-    var resourcePath = Path.of(ResourceResolver.resolveCodeSourceOfClass(clazzSource));
-    FileUtil.openZipFile(resourcePath, fs -> {
-      // get the language directory
-      var langDir = fs.getPath("lang/");
-      if (Files.notExists(langDir) || !Files.isDirectory(langDir)) {
-        throw new IllegalStateException("lang/ must be an existing directory inside the jar to load");
-      }
-      // visit each file and register it as a language source
-      FileUtil.walkFileTree(langDir, ($, sub) -> {
-        // try to load and register the language file
-        try (var stream = Files.newInputStream(sub)) {
-          var lang = sub.getFileName().toString().replace(".properties", "");
-          addLanguageFile(lang, stream, clazzSource.getClassLoader());
-        } catch (IOException exception) {
-          LOGGER.error("Unable to open language file for reading @ {}", sub, exception);
-        }
-      }, false, "*.properties");
-    });
-  }
+  // todo(derklaro): move into some form of impl
+  // public static void loadFromLangPath(@NonNull Class<?> clazzSource) {
+  //   var resourcePath = Path.of(ResourceResolver.resolveCodeSourceOfClass(clazzSource));
+  //   FileUtil.openZipFile(resourcePath, fs -> {
+  //     // get the language directory
+  //     var langDir = fs.getPath("lang/");
+  //     if (Files.notExists(langDir) || !Files.isDirectory(langDir)) {
+  //       throw new IllegalStateException("lang/ must be an existing directory inside the jar to load");
+  //     }
+  //     // visit each file and register it as a language source
+  //     FileUtil.walkFileTree(langDir, ($, sub) -> {
+  //       // try to load and register the language file
+  //       try (var stream = Files.newInputStream(sub)) {
+  //         var lang = sub.getFileName().toString().replace(".properties", "");
+  //         addLanguageFile(lang, stream, clazzSource.getClassLoader());
+  //       } catch (IOException exception) {
+  //         LOGGER.error("Unable to open language file for reading @ {}", sub, exception);
+  //       }
+  //     }, false, "*.properties");
+  //   });
+  // }
 
   /**
    * Registers the language properties file at the given path to the given language and loader source.

@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.network.rpc.introspec;
 
 import eu.cloudnetservice.driver.base.Named;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import lombok.NonNull;
@@ -65,6 +66,14 @@ public interface RPCMethodMetadata extends Named {
    */
   @NonNull
   Type[] parameterTypes();
+
+  /**
+   * Get the method type of the method.
+   *
+   * @return the method type of the method.
+   */
+  @NonNull
+  MethodType methodType();
 
   /**
    * Get the class in which the method is defined.

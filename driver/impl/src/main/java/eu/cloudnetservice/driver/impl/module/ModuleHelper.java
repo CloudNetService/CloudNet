@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.impl.util;
+package eu.cloudnetservice.driver.impl.module;
 
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.resource.ResourceResolver;
-import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.utils.base.StringUtil;
+import eu.cloudnetservice.utils.base.io.FileUtil;
+import eu.cloudnetservice.utils.base.resource.ResourceResolver;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.IOException;
