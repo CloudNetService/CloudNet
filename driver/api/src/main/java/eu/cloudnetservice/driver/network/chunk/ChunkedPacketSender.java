@@ -39,6 +39,11 @@ import lombok.NonNull;
  */
 public interface ChunkedPacketSender extends ChunkedPacketProvider {
 
+  /**
+   * Get a new builder for a packet sender which allows to transfer a stream of data in chunks through the network.
+   *
+   * @return a builder for a chunked data transfer.
+   */
   static @NonNull ChunkedPacketSender.Builder forStreamTransfer() {
     return ServiceRegistry.registry().defaultInstance(ChunkedPacketSender.Builder.class);
   }
@@ -55,8 +60,7 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
   static @NonNull ChunkedPacketSender.Builder forFileTransfer(@NonNull Path filePath) {
     try {
       var fileStream = Files.newInputStream(filePath, StandardOpenOption.READ);
-      var builder = ServiceRegistry.registry().defaultInstance(ChunkedPacketSender.Builder.class);
-      return builder.source(fileStream);
+      return forStreamTransfer().source(fileStream);
     } catch (IOException exception) {
       throw new IllegalArgumentException("Unable to open file for reading: " + filePath, exception);
     }
