@@ -18,7 +18,6 @@ package eu.cloudnetservice.node.command.sub;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
@@ -45,7 +44,7 @@ public final class DevCommand {
     var levelName = input.readString();
     var level = Level.toLevel(levelName, null);
     if (level == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-dev-log-level-not-found"));
+      throw new ArgumentNotAvailableException(String.format("The provided log level %s does not exist", levelName));
     }
 
     return level;
@@ -60,7 +59,7 @@ public final class DevCommand {
   public void setLogLevel(@NonNull CommandSource source, @NonNull @Argument("level") Level level) {
     var rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     if (rootLogger instanceof Logger logbackLogger) {
-      source.sendMessage(I18n.trans("command-dev-log-level-set", level.toString()));
+      source.sendMessage(String.format("The log level was set to %s", level));
       logbackLogger.setLevel(level);
     }
   }

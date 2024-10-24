@@ -20,7 +20,9 @@ import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.CodeElement;
+import java.lang.classfile.CodeModel;
 import java.lang.classfile.CodeTransform;
+import java.lang.reflect.AccessFlag;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import lombok.NonNull;
@@ -94,6 +96,15 @@ public final class BukkitCommodoreTransformer implements ClassTransformer {
      */
     @Override
     public void atEnd(@NonNull CodeBuilder builder) {
+      // get if the method we're transforming is static or not, this changed in 1.21.1
+      // if the method is non-static we need to load a different slot to get the raw bytecode
+      // argument that was supplied to the method
+      // see https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/commits/0a7bd6c81a33cfaaa2f4d2456c6b237792f38fe6
+      var methodModel = builder.original()
+        .flatMap(CodeModel::parent)
+        .orElseThrow(() -> new IllegalStateException("original method not preset on remap"));
+      var transformMethodIsStatic = methodModel.flags().has(AccessFlag.STATIC);
+
       // inserts a try block using the captured instructions that are in the original method
       // inserts a no-op catch block & a return instruction after the catch block to return the raw input data
       // this is needed as sometimes there are labels generated after the last return instruction in the
@@ -106,7 +117,8 @@ public final class BukkitCommodoreTransformer implements ClassTransformer {
           this.methodElements::forEach,
           catchBuilder -> catchBuilder.catchingAll(_ -> {
           }))
-        .aload(0).areturn();
+        .aload(transformMethodIsStatic ? 0 : 1)
+        .areturn();
     }
   }
 }

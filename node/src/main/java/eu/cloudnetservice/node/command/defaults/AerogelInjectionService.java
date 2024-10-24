@@ -23,25 +23,20 @@ import lombok.NonNull;
 import org.incendo.cloud.injection.InjectionRequest;
 import org.incendo.cloud.injection.InjectionService;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 final class AerogelInjectionService implements InjectionService<CommandSource> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AerogelInjectionService.class);
-
   @Override
   public @Nullable Object handle(@NonNull InjectionRequest<CommandSource> request) {
-    // get the associated data from the input values
-    var targetClass = request.injectedClass();
-    var injectionLayer = InjectionLayer.findLayerOf(targetClass);
-
-    // get the instance of the given class from the injection layer
     try {
+      // get the associated data from the input values
+      var targetClass = request.injectedClass();
+      var injectionLayer = InjectionLayer.findLayerOf(targetClass);
+
+      // get the instance of the given class from the injection layer
       return injectionLayer.instance(targetClass);
     } catch (Exception exception) {
-      LOGGER.trace("Unable to construct type {} using aerogel injection service", request.injectedClass(), exception);
       return null;
     }
   }
