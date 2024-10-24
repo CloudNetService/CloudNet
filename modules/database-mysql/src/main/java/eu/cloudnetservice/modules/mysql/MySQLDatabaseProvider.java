@@ -132,7 +132,6 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     try (var con = this.connection(); var statement = con.prepareStatement(query)) {
       // write all parameters
       for (var i = 0; i < objects.length; i++) {
-        statement.setObject();
         statement.setString(i + 1, Objects.toString(objects[i]));
       }
 
