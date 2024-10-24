@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.module;
 
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.module.ModulePostInstallDependencyEvent;
@@ -31,6 +30,7 @@ import eu.cloudnetservice.driver.event.events.module.ModulePreReloadEvent;
 import eu.cloudnetservice.driver.event.events.module.ModulePreStartEvent;
 import eu.cloudnetservice.driver.event.events.module.ModulePreStopEvent;
 import eu.cloudnetservice.driver.event.events.module.ModulePreUnloadEvent;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

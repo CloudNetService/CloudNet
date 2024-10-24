@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.impl.network.rpc.sender;
 
 import eu.cloudnetservice.driver.impl.network.rpc.DefaultRPCProvider;
 import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCClassMetadata;
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
 import eu.cloudnetservice.driver.impl.network.rpc.rpc.DefaultRPC;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
@@ -133,7 +133,7 @@ public final class DefaultRPCSender extends DefaultRPCProvider implements RPCSen
    * @throws NullPointerException     if the given method metadata or argument array is null.
    * @throws IllegalArgumentException if the parameter count mismatches.
    */
-  private @NonNull RPC invokeMethod(@NonNull RPCMethodMetadata method, Object... args) {
+  private @NonNull RPC invokeMethod(@NonNull DefaultRPCMethodMetadata method, Object... args) {
     var expectedArgCount = method.methodType().parameterCount();
     if (expectedArgCount != args.length) {
       // argument count for invocation does not match

@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.impl.network.rpc.generation.RPCInternalInstance
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCChained;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCNoResult;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCTimeout;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import io.leangen.geantyref.GenericTypeReflector;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.GenericArrayType;
@@ -53,7 +54,7 @@ import org.jetbrains.annotations.Nullable;
  * @param chainMetadata          the metadata for chain implementation, if annotated with {@link RPCChained}.
  * @since 4.0
  */
-public record RPCMethodMetadata(
+public record DefaultRPCMethodMetadata(
   boolean concrete,
   boolean asyncReturnType,
   boolean compilerGenerated,
@@ -66,7 +67,7 @@ public record RPCMethodMetadata(
   @NonNull Class<?> definingClass,
   @Nullable Duration executionTimeout,
   @Nullable MethodChainMetadata chainMetadata
-) {
+) implements RPCMethodMetadata {
 
   /**
    * Constructs and validates a rpc method metadata based on the properties of the given method.
@@ -76,7 +77,7 @@ public record RPCMethodMetadata(
    * @throws NullPointerException  if the given method is null.
    * @throws IllegalStateException if some precondition, to ensure functionality with rpc, fails.
    */
-  static @NonNull RPCMethodMetadata fromMethod(@NonNull Method method) {
+  static @NonNull DefaultRPCMethodMetadata fromMethod(@NonNull Method method) {
     // interpret rpc annotations
     var chainedAnnotation = method.getAnnotation(RPCChained.class);
     var executionResultIgnored = method.isAnnotationPresent(RPCNoResult.class);
@@ -100,7 +101,7 @@ public record RPCMethodMetadata(
 
     var concrete = !Modifier.isAbstract(method.getModifiers());
     var methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
-    return new RPCMethodMetadata(
+    return new DefaultRPCMethodMetadata(
       concrete,
       unwrappedFutureReturnType != null,
       method.isSynthetic(),

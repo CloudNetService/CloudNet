@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.impl.network.rpc.generation;
 
 import com.google.common.hash.Hashing;
 import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCClassMetadata;
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
 import java.lang.classfile.ClassBuilder;
 import java.lang.classfile.CodeBuilder;
 import java.lang.constant.ClassDesc;
@@ -124,7 +124,7 @@ final class RPCGenerationContext {
    * @return the name of the final descriptor field to access it.
    * @throws NullPointerException if the given method metadata is null.
    */
-  public @NonNull String registerTypeDescriptorField(@NonNull RPCMethodMetadata methodMetadata) {
+  public @NonNull String registerTypeDescriptorField(@NonNull DefaultRPCMethodMetadata methodMetadata) {
     var descriptorField = TypeDescriptorField.forMethod(methodMetadata);
     this.typeDescriptorFields.add(descriptorField);
     return descriptorField.name();
@@ -176,7 +176,7 @@ final class RPCGenerationContext {
      * @return the generated descriptor field information.
      * @throws NullPointerException if the given method metadata is null.
      */
-    public static @NonNull TypeDescriptorField forMethod(@NonNull RPCMethodMetadata methodMetadata) {
+    public static @NonNull TypeDescriptorField forMethod(@NonNull DefaultRPCMethodMetadata methodMetadata) {
       var descriptor = methodMetadata.methodType().descriptorString();
       var hashedDescriptor = Hashing.murmur3_128().hashString(descriptor, StandardCharsets.UTF_8).toString();
       var fieldName = String.format("rpc_td_%s_%s", methodMetadata.name(), hashedDescriptor);

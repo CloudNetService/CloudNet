@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.impl.network.rpc.rpc;
 
 import eu.cloudnetservice.driver.impl.network.rpc.DefaultRPCProvider;
 import eu.cloudnetservice.driver.impl.network.rpc.RPCRequestPacket;
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.object.ObjectMapper;
@@ -28,6 +28,7 @@ import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.introspec.RPCMethodMetadata;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.Objects;
@@ -51,7 +52,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
   private final Supplier<NetworkChannel> channelSupplier;
 
   private final Object[] arguments;
-  private final RPCMethodMetadata targetMethod;
+  private final DefaultRPCMethodMetadata targetMethod;
 
   private boolean dropResult;
   private Duration executionTimeout;
@@ -78,7 +79,7 @@ public final class DefaultRPC extends DefaultRPCProvider implements RPC {
     @NonNull RPCSender sender,
     @NonNull Supplier<NetworkChannel> channelSupplier,
     @Nullable Duration executionTimeout,
-    @NonNull RPCMethodMetadata targetMethod,
+    @NonNull DefaultRPCMethodMetadata targetMethod,
     @NonNull Object[] arguments
   ) {
     super(targetClass, sourceFactory, objectMapper, dataBufFactory);

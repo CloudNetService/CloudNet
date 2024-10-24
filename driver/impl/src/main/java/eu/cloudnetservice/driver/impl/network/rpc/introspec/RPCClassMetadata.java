@@ -54,7 +54,7 @@ public final class RPCClassMetadata {
   private final Class<?> target;
   private final Duration rpcTimeout;
 
-  private final Table<String, String, RPCMethodMetadata> methods; // name, desc -> method
+  private final Table<String, String, DefaultRPCMethodMetadata> methods; // name, desc -> method
 
   /**
    * Constructs a new class metadata instance with the given target class.
@@ -79,7 +79,7 @@ public final class RPCClassMetadata {
   private RPCClassMetadata(
     @NonNull Class<?> target,
     @Nullable Duration rpcTimeout,
-    @NonNull Table<String, String, RPCMethodMetadata> methods
+    @NonNull Table<String, String, DefaultRPCMethodMetadata> methods
   ) {
     this.target = target;
     this.rpcTimeout = rpcTimeout;
@@ -158,7 +158,7 @@ public final class RPCClassMetadata {
       // ignore members that cannot be overridden anyway
       if (this.methodVisibleToRoot(method)) {
         if (!method.isAnnotationPresent(RPCIgnore.class) && !STANDARD_IGNORED_METHOD_FILTER.test(method)) {
-          var metadata = RPCMethodMetadata.fromMethod(method);
+          var metadata = DefaultRPCMethodMetadata.fromMethod(method);
           var methodDescriptor = metadata.methodType().descriptorString();
           if (!this.methods.contains(metadata.name(), methodDescriptor)) {
             // only register each method once, starting at the highest point in the tree
@@ -258,7 +258,7 @@ public final class RPCClassMetadata {
    * @return all methods that can be used for rpc in the target class.
    */
   @UnmodifiableView
-  public @NonNull Collection<RPCMethodMetadata> methods() {
+  public @NonNull Collection<DefaultRPCMethodMetadata> methods() {
     return Collections.unmodifiableCollection(this.methods.values());
   }
 
@@ -299,7 +299,7 @@ public final class RPCClassMetadata {
    * @return the method metas that matched the given filter.
    * @throws NullPointerException if the given filter is null.
    */
-  public @NonNull List<RPCMethodMetadata> findMethods(@NonNull Predicate<RPCMethodMetadata> filter) {
+  public @NonNull List<DefaultRPCMethodMetadata> findMethods(@NonNull Predicate<DefaultRPCMethodMetadata> filter) {
     return this.methods.values().stream().filter(filter).toList();
   }
 
@@ -311,7 +311,7 @@ public final class RPCClassMetadata {
    * @return the meta of the method with the given name and descriptor, of null if no such method exists.
    * @throws NullPointerException if the given name or type descriptor is null.
    */
-  public @Nullable RPCMethodMetadata findMethod(@NonNull String name, @NonNull TypeDescriptor typeDescriptor) {
+  public @Nullable DefaultRPCMethodMetadata findMethod(@NonNull String name, @NonNull TypeDescriptor typeDescriptor) {
     return this.methods.get(name, typeDescriptor.descriptorString());
   }
 }

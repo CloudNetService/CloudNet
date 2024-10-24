@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.rpc.generation;
 
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
 import java.lang.classfile.CodeBuilder;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
@@ -43,6 +43,6 @@ sealed interface RPCMethodGenerator permits BasicRPCMethodGenerator, ChainedRPCM
     @NonNull CodeBuilder codeBuilder,
     @NonNull ClassDesc generatingClass,
     @NonNull RPCGenerationContext context,
-    @NonNull RPCMethodMetadata targetMethod,
+    @NonNull DefaultRPCMethodMetadata targetMethod,
     @NonNull MethodTypeDesc targetMethodDesc);
 }

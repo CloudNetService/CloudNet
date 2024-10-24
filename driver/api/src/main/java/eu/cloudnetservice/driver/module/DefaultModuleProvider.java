@@ -21,11 +21,10 @@ import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.auto.Provides;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.jvm.JavaVersion;
-import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import io.vavr.Tuple2;
 import jakarta.inject.Singleton;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -218,7 +217,7 @@ public class DefaultModuleProvider implements ModuleProvider {
       var repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
       var dependencies = this.loadDependencies(repositories, moduleConfiguration);
       // create the class loader for the module
-      var loader = new ModuleURLClassLoader(url, dependencies.first(), moduleLayer);
+      var loader = new ModuleURLClassLoader(url, dependencies._1(), moduleLayer);
       loader.registerGlobally();
       // try to load and create the main class instance
       var mainModuleClass = loader.loadClass(moduleConfiguration.main());
@@ -231,7 +230,7 @@ public class DefaultModuleProvider implements ModuleProvider {
       // create an instance of the class and the main module wrapper
       var moduleInstance = (Module) moduleLayer.instance(mainModuleClass);
       var moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
-        this, loader, dependencies.second(), moduleConfiguration, moduleLayer);
+        this, loader, dependencies._2(), moduleConfiguration, moduleLayer);
       // initialize the module instance now
       moduleInstance.init(loader, moduleWrapper, moduleConfiguration);
       // register the module, load it and return the created wrapper

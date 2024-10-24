@@ -56,10 +56,10 @@ public record ProcessSnapshot(
 ) implements Cloneable {
 
   // init them here to reduce lookup load as the get calls will trigger a full re-scan for the bean
-  public static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
-  public static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
-  public static final ClassLoadingMXBean CLASS_LOADING_MX_BEAN = ManagementFactory.getClassLoadingMXBean();
-  public static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+  private static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
+  private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
+  private static final ClassLoadingMXBean CLASS_LOADING_MX_BEAN = ManagementFactory.getClassLoadingMXBean();
+  private static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
   private static final long OWN_PID = ProcessHandle.current().pid();
   private static final ProcessSnapshot EMPTY = new ProcessSnapshot(

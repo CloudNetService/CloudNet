@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.rpc.generation;
 
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
@@ -52,7 +52,7 @@ final class BasicRPCMethodGenerator implements RPCMethodGenerator {
     @NonNull CodeBuilder codeBuilder,
     @NonNull ClassDesc generatingClass,
     @NonNull RPCGenerationContext context,
-    @NonNull RPCMethodMetadata targetMethod,
+    @NonNull DefaultRPCMethodMetadata targetMethod,
     @NonNull MethodTypeDesc targetMethodDesc
   ) {
     var typeDescriptorFieldName = context.registerTypeDescriptorField(targetMethod);

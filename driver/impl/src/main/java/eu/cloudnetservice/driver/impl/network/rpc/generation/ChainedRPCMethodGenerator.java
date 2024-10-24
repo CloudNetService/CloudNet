@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.rpc.generation;
 
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.TypeKind;
@@ -43,7 +43,7 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
     @NonNull CodeBuilder codeBuilder,
     @NonNull ClassDesc generatingClass,
     @NonNull RPCGenerationContext context,
-    @NonNull RPCMethodMetadata targetMethod,
+    @NonNull DefaultRPCMethodMetadata targetMethod,
     @NonNull MethodTypeDesc targetMethodDesc
   ) {
     // validate that the parameter mappings of the rpc chain meta are valid
@@ -93,7 +93,7 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
     @NonNull CodeBuilder codeBuilder,
     @NonNull ClassDesc generatingClass,
     @NonNull RPCGenerationContext context,
-    @NonNull RPCMethodMetadata targetMethod
+    @NonNull DefaultRPCMethodMetadata targetMethod
   ) {
     var typeDescriptorFieldName = context.registerTypeDescriptorField(targetMethod);
     codeBuilder
@@ -190,7 +190,7 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
   private void validateConstructorArgumentMapping(
     int[] paramMappings,
     @NonNull Class<?> chainBaseType,
-    @NonNull RPCMethodMetadata targetMethod
+    @NonNull DefaultRPCMethodMetadata targetMethod
   ) {
     var constructors = chainBaseType.getDeclaredConstructors();
     for (var constructor : constructors) {
@@ -225,7 +225,7 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
    */
   private void validateConstructorArgumentMapping(
     int[] paramMappings,
-    @NonNull RPCMethodMetadata targetMethod,
+    @NonNull DefaultRPCMethodMetadata targetMethod,
     @NonNull Constructor<?> targetConstructor
   ) {
     var requiredParameterCount = paramMappings.length / 2;

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.rpc.handler.invoker;
 
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
 import java.lang.classfile.ClassFile;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.ConstantDescs;
@@ -46,7 +46,7 @@ public final class MethodInvokerGenerator {
   // method type for the generated no-args constructor in a MethodInvoker impl
   private static final MethodType MI_CONSTRUCTOR_TYPE = MethodType.methodType(void.class);
 
-  public static @NonNull MethodInvoker makeMethodInvoker(@NonNull RPCMethodMetadata targetMethod) {
+  public static @NonNull MethodInvoker makeMethodInvoker(@NonNull DefaultRPCMethodMetadata targetMethod) {
     // generate the name of the class, format: "<original class name>$RPCInvoker$<method name>"
     var ownerClassDesc = ClassDesc.ofDescriptor(targetMethod.definingClass().descriptorString());
     var classDesc = ownerClassDesc.nested("RPCInvoker", targetMethod.name());

@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.impl.network.rpc.DefaultRPCProvider;
 import eu.cloudnetservice.driver.impl.network.rpc.handler.invoker.MethodInvoker;
 import eu.cloudnetservice.driver.impl.network.rpc.handler.invoker.MethodInvokerGenerator;
 import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCClassMetadata;
-import eu.cloudnetservice.driver.impl.network.rpc.introspec.RPCMethodMetadata;
+import eu.cloudnetservice.driver.impl.network.rpc.introspec.DefaultRPCMethodMetadata;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.object.ObjectMapper;
@@ -54,7 +54,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
 
   private final Object boundInstance;
   private final RPCClassMetadata targetClassMeta;
-  private final Cache<RPCMethodMetadata, MethodInvoker> methodInvokerCache;
+  private final Cache<DefaultRPCMethodMetadata, MethodInvoker> methodInvokerCache;
 
   /**
    * Constructs a new rpc handler instance.
@@ -189,7 +189,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
    * @return a method invoker for the given target method.
    * @throws NullPointerException if the given method metadata is null.
    */
-  private @NonNull Try<MethodInvoker> getOrCreateMethodInvoker(@NonNull RPCMethodMetadata methodMetadata) {
+  private @NonNull Try<MethodInvoker> getOrCreateMethodInvoker(@NonNull DefaultRPCMethodMetadata methodMetadata) {
     return Try.of(() -> this.methodInvokerCache.get(methodMetadata, MethodInvokerGenerator::makeMethodInvoker));
   }
 
@@ -204,7 +204,7 @@ final class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
    * @throws NullPointerException if the given target method or argument buffer is null.
    */
   private @Nullable Object[] deserializeMethodArguments(
-    @NonNull RPCMethodMetadata targetMethod,
+    @NonNull DefaultRPCMethodMetadata targetMethod,
     @NonNull DataBuf encodedArgumentsBuffer
   ) {
     try {
