@@ -16,9 +16,7 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.fabric;
 
-import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
-
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
@@ -31,10 +29,13 @@ public final class FabricPlatformPluginManager extends BasePlatformPluginManager
   }
 
   @Override
-  protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull Object platformData) {
+  protected @NonNull InjectionLayer<Injector> createInjectionLayer(@NonNull Object platformData) {
     return InjectionLayer.specifiedChild(
       BASE_INJECTION_LAYER,
       "plugin",
-      (layer, injector) -> injector.installSpecified(fixedBindingWithBound(platformData, platformData.getClass())));
+      targetedBuilder -> {
+        var bindingBuilder = BASE_INJECTION_LAYER.injector().createBindingBuilder();
+        targetedBuilder.installBinding(bindingBuilder.bind(Object.class).toInstance(platformData));
+      });
   }
 }

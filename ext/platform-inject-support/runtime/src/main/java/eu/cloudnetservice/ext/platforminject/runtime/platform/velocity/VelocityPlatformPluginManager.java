@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.velocity;
 
-import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
-
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.plugin.PluginContainer;
@@ -25,10 +23,7 @@ import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.ChannelRegistrar;
 import com.velocitypowered.api.scheduler.Scheduler;
-import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.SpecifiedInjector;
-import dev.derklaro.aerogel.binding.BindingBuilder;
-import dev.derklaro.aerogel.util.Qualifiers;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.mapping.PlatformedContainer;
@@ -42,22 +37,25 @@ final class VelocityPlatformPluginManager
   }
 
   @Override
-  protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(
+  protected @NonNull InjectionLayer<Injector> createInjectionLayer(
     @NonNull PlatformedContainer<PluginContainer, ProxyServer> platformData
   ) {
-    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
+    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", targetedBuilder -> {
       // install bindings for the platform
-      layer.install(createFixedBinding(platformData.platformInstance(), ProxyServer.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getScheduler(), Scheduler.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getEventManager(), EventManager.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getPluginManager(), PluginManager.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getCommandManager(), CommandManager.class));
-      layer.install(createFixedBinding(platformData.platformInstance().getChannelRegistrar(), ChannelRegistrar.class));
+      var layer = BASE_INJECTION_LAYER;
+      var bindingBuilder = layer.injector().createBindingBuilder();
+      var proxyServer = platformData.platformInstance();
+      layer.install(bindingBuilder.bind(ProxyServer.class).toInstance(proxyServer));
+      layer.install(bindingBuilder.bind(Scheduler.class).toInstance(proxyServer.getScheduler()));
+      layer.install(bindingBuilder.bind(EventManager.class).toInstance(proxyServer.getEventManager()));
+      layer.install(bindingBuilder.bind(PluginManager.class).toInstance(proxyServer.getPluginManager()));
+      layer.install(bindingBuilder.bind(CommandManager.class).toInstance(proxyServer.getCommandManager()));
+      layer.install(bindingBuilder.bind(ChannelRegistrar.class).toInstance(proxyServer.getChannelRegistrar()));
 
       // install the bindings which are specific to the plugin
-      injector.installSpecified(createFixedBinding(platformData.container(), PluginContainer.class));
-      injector.installSpecified(BindingBuilder.create()
-        .bind(Element.forType(Object.class).requireAnnotation(Qualifiers.named("plugin")))
+      targetedBuilder.installBinding(bindingBuilder.bind(PluginContainer.class).toInstance(platformData.container()));
+      targetedBuilder.installBinding(bindingBuilder.bind(Object.class)
+        .qualifiedWithName("plugin")
         .toInstance(platformData.pluginInstance()));
     });
   }

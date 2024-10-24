@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.ext.platforminject.api.defaults;
 
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.PlatformPluginInfo;
@@ -25,7 +25,7 @@ import lombok.NonNull;
 public record DefaultPlatformPluginInfo<I, T, P extends PlatformEntrypoint>(
   @NonNull I id,
   @NonNull T platformData,
-  @NonNull InjectionLayer<SpecifiedInjector> injectionLayer,
+  @NonNull InjectionLayer<Injector> injectionLayer,
   @NonNull P platformPluginInstance,
   @NonNull Class<? extends PlatformEntrypoint> platformPluginClass
 ) implements PlatformPluginInfo<I, T, P> {

@@ -16,10 +16,7 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.bukkit;
 
-import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
-import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
-
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.defaults.BasePlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
@@ -40,17 +37,21 @@ public final class BukkitPlatformPluginManager extends BasePlatformPluginManager
   }
 
   @Override
-  protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull JavaPlugin platformData) {
-    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
+  protected @NonNull InjectionLayer<Injector> createInjectionLayer(@NonNull JavaPlugin platformData) {
+    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", targetedBuilder -> {
       // install bindings for the platform
-      layer.install(createFixedBinding(platformData.getServer(), Server.class));
-      layer.install(createFixedBinding(platformData.getServer().getScheduler(), BukkitScheduler.class));
-      layer.install(createFixedBinding(platformData.getServer().getPluginManager(), PluginManager.class));
-      layer.install(createFixedBinding(platformData.getServer().getServicesManager(), ServicesManager.class));
-      layer.install(createFixedBinding(platformData.getServer().getScoreboardManager(), ScoreboardManager.class));
+      var layer = BASE_INJECTION_LAYER;
+      var builder = layer.injector().createBindingBuilder();
+      layer.install(builder.bind(Server.class).toInstance(platformData.getServer()));
+      layer.install(builder.bind(BukkitScheduler.class).toInstance(platformData.getServer().getScheduler()));
+      layer.install(builder.bind(PluginManager.class).toInstance(platformData.getServer().getPluginManager()));
+      layer.install(builder.bind(ServicesManager.class).toInstance(platformData.getServer().getServicesManager()));
+      layer.install(builder.bind(ScoreboardManager.class).toInstance(platformData.getServer().getScoreboardManager()));
 
       // install the bindings which are specific to the plugin
-      injector.installSpecified(fixedBindingWithBound(platformData, Plugin.class, PluginBase.class, JavaPlugin.class));
+      targetedBuilder.installBinding(builder.bind(Plugin.class).toInstance(platformData));
+      targetedBuilder.installBinding(builder.bind(PluginBase.class).toInstance(platformData));
+      targetedBuilder.installBinding(builder.bind(JavaPlugin.class).toInstance(platformData));
     });
   }
 }

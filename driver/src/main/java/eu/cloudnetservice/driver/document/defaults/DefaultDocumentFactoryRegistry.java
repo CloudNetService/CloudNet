@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.document.defaults;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.document.DocumentFactoryRegistry;
 import eu.cloudnetservice.driver.document.empty.EmptyDocumentFactory;

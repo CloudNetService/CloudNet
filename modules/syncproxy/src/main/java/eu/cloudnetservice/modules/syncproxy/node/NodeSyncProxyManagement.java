@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy.node;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
