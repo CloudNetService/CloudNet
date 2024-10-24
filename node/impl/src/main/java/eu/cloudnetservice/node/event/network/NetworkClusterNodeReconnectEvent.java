@@ -14,4 +14,23 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.node.event.network;
 
+import eu.cloudnetservice.driver.event.events.network.NetworkEvent;
+import eu.cloudnetservice.driver.network.NetworkChannel;
+import lombok.NonNull;
+import eu.cloudnetservice.node.cluster.NodeServer;
+
+public class NetworkClusterNodeReconnectEvent extends NetworkEvent {
+
+  private final NodeServer node;
+
+  public NetworkClusterNodeReconnectEvent(@NonNull NodeServer node, @NonNull NetworkChannel channel) {
+    super(channel);
+    this.node = node;
+  }
+
+  public @NonNull NodeServer node() {
+    return this.node;
+  }
+}

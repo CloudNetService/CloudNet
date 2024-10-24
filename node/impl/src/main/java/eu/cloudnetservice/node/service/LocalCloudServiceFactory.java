@@ -14,4 +14,17 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.node.service;
 
+import eu.cloudnetservice.driver.base.Named;
+import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import lombok.NonNull;
+
+public interface LocalCloudServiceFactory extends Named {
+
+  @NonNull
+  CloudService createCloudService(@NonNull CloudServiceManager manager,
+    @NonNull ServiceConfiguration configuration);
+}

@@ -14,4 +14,22 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.node.command.sub;
 
+import jakarta.inject.Singleton;
+import lombok.NonNull;
+import eu.cloudnetservice.node.command.annotation.Description;
+import eu.cloudnetservice.node.console.Console;
+import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
+
+@Singleton
+@Permission("cloudnet.command.clear")
+@Description("command-clear-description")
+public final class ClearCommand {
+
+  @Command("clear")
+  public void clearConsole(@NonNull Console console) {
+    console.clearScreen();
+  }
+}

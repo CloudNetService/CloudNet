@@ -16,13 +16,15 @@
 
 package eu.cloudnetservice.node.command;
 
+import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.command.CommandInfo;
-import eu.cloudnetservice.node.command.source.CommandSource;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import lombok.NonNull;
+import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.console.Console;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -107,6 +109,19 @@ public interface CommandProvider {
    * @throws NullPointerException if classLoader is null.
    */
   void unregister(@NonNull ClassLoader classLoader);
+
+  /**
+   * Registers the console input and tab complete handler for the given console.
+   *
+   * @param console the console to register the handlers for.
+   * @throws NullPointerException if console is null.
+   */
+  void registerConsoleHandler(@NonNull Console console);
+
+  /**
+   * Registers the default commands of the cloudnet node.
+   */
+  void registerDefaultCommands();
 
   /**
    * Looks for a registered command with the given root name or alias.

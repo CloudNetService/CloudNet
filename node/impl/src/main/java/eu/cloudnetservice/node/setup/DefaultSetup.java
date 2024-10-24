@@ -14,4 +14,15 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.node.setup;
 
+import lombok.NonNull;
+import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+
+public interface DefaultSetup {
+
+  void applyQuestions(@NonNull ConsoleSetupAnimation animation);
+
+  default void handleResults(@NonNull ConsoleSetupAnimation animation) {
+  }
+}

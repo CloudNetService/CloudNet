@@ -15,5 +15,5 @@
  */
 
 dependencies {
-  api(projects.driver)
+  api(projects.driver.driverApi)
 }

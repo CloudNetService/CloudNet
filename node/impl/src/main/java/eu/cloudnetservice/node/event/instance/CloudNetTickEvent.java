@@ -14,4 +14,21 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.node.event.instance;
 
+import eu.cloudnetservice.driver.event.Event;
+import lombok.NonNull;
+import eu.cloudnetservice.node.tick.DefaultTickLoop;
+
+public final class CloudNetTickEvent extends Event {
+
+  private final DefaultTickLoop ticker;
+
+  public CloudNetTickEvent(@NonNull DefaultTickLoop ticker) {
+    this.ticker = ticker;
+  }
+
+  public @NonNull DefaultTickLoop ticker() {
+    return this.ticker;
+  }
+}

@@ -23,7 +23,6 @@ dependencies {
   "api"(libs.vavr)
   "api"(libs.slf4jApi)
   "api"(libs.geantyref)
-//  "api"(libs.bundles.unirest)
   "api"(libs.bundles.aerogel)
 
   // processing

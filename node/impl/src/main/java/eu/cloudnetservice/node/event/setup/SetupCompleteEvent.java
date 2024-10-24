@@ -14,4 +14,14 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.node.event.setup;
 
+import lombok.NonNull;
+import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+
+public class SetupCompleteEvent extends SetupEvent {
+
+  public SetupCompleteEvent(@NonNull ConsoleSetupAnimation setup) {
+    super(setup);
+  }
+}

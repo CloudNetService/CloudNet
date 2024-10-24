@@ -14,4 +14,13 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.node.service;
 
+import eu.cloudnetservice.node.service.CloudService;
+import lombok.NonNull;
+
+@FunctionalInterface
+public interface ServiceConfigurationPreparer {
+
+  void configure(@NonNull CloudService cloudService);
+}

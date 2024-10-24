@@ -14,4 +14,18 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.node.module.updater;
 
+import java.nio.file.Path;
+import java.util.Map;
+import lombok.NonNull;
+import eu.cloudnetservice.node.module.ModulesHolder;
+
+public record ModuleUpdaterContext(
+  @NonNull ModulesHolder modules,
+  @NonNull Map<Path, String> moduleNames,
+  @NonNull String updaterRepo,
+  @NonNull String updaterBranch
+) {
+
+}

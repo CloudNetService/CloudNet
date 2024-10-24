@@ -14,6 +14,56 @@
  * limitations under the License.
  */
 
-dependencies {
-  api(projects.node)
+tasks.withType<Jar> {
+  dependsOn(":wrapper-jvm:shadowJar")
+
+  archiveFileName.set(Files.node)
+
+  from("../wrapper-jvm/build/libs") {
+    include(Files.wrapper)
+  }
+
+  doFirst {
+    from(exportCnlFile(Files.nodeCnl))
+    from(exportLanguageFileInformation())
+  }
+
+  from(projects.driver.sourceSets()["main"].output)
 }
+
+tasks.withType<JavaCompile> {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/node.aero")
+}
+
+dependencies {
+  "api"(projects.driver.driverImpl)
+  "api"(projects.node.nodeApi)
+  "api"(projects.ext.updater)
+
+  "implementation"(projects.utils.utilsBase)
+
+  // dependencies which are available for modules
+  "api"(libs.guava)
+  "api"(libs.bundles.cloud) {
+    exclude(group = "org.incendo", module = "cloud-core")
+  }
+
+  // processing
+  "annotationProcessor"(libs.aerogelAuto)
+
+  // internal libraries
+  "implementation"(libs.caffeine)
+  "implementation"(libs.bundles.unirest)
+  "implementation"(libs.h2)
+  "implementation"(libs.gson)
+  "implementation"(libs.gulf)
+  "implementation"(libs.xodus)
+  "implementation"(libs.jansi)
+  "implementation"(libs.bundles.jline)
+  "implementation"(libs.stringSimilarity)
+
+  "compileOnly"(libs.bundles.netty)
+  "implementation"(libs.bundles.nightConfig)
+}
+
+applyJarMetadata("eu.cloudnetservice.node.boot.Bootstrap", "eu.cloudnetservice.node")
