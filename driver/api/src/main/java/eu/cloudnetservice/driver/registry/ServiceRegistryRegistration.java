@@ -16,16 +16,14 @@
 
 package eu.cloudnetservice.driver.registry;
 
+import eu.cloudnetservice.driver.base.Named;
 import jakarta.inject.Provider;
 import lombok.NonNull;
 
-public interface ServiceRegistryRegistration<S> extends Provider<S> {
+public interface ServiceRegistryRegistration<S> extends Provider<S>, Named {
 
   @NonNull
   Class<S> serviceType();
-
-  @NonNull
-  String serviceName();
 
   @NonNull
   S serviceInstance();

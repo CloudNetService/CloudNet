@@ -61,4 +61,9 @@ record NewInstanceServiceRegistration<S>(
   public @NonNull S get() {
     return this.serviceInstance();
   }
+
+  @Override
+  public @NonNull String name() {
+    return this.serviceName;
+  }
 }

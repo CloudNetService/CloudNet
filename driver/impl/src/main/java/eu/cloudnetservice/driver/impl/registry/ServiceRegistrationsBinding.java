@@ -156,7 +156,7 @@ final class ServiceRegistrationsBinding<S> {
 
   public boolean unregisterRegistration(@NonNull ServiceRegistryRegistration<S> registration) {
     return this.executeInWriteLock(() -> {
-      var removed = this.registrationsByName.remove(registration.serviceName(), registration);
+      var removed = this.registrationsByName.remove(registration.name(), registration);
       if (removed) {
         if (this.registrationsByName.isEmpty()) {
           // there are no more registrations left in this binding, so this binding became obsolete

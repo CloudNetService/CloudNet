@@ -32,9 +32,9 @@ record ProxiedServiceRegistration<S>(
 ) implements ServiceRegistryRegistration<S> {
 
   @Override
-  public @NonNull String serviceName() {
+  public @NonNull String name() {
     var delegate = this.delegateSupplier.get();
-    return delegate.serviceName();
+    return delegate.name();
   }
 
   @Override
