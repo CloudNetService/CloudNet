@@ -41,7 +41,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
   /**
    * Sealed constructor as there should only be one singleton empty document factory.
    */
-  private EmptyDocumentFactory() {
+  public EmptyDocumentFactory() {
   }
 
   /**
@@ -57,7 +57,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable parse(byte[] data) {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 
   /**
@@ -65,7 +65,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable parse(@NonNull Path path) {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 
   /**
@@ -73,7 +73,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable parse(@NonNull String data) {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 
   /**
@@ -81,7 +81,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable parse(@NonNull Reader reader) {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 
   /**
@@ -89,7 +89,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable parse(@NonNull InputStream stream) {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 
   /**
@@ -97,7 +97,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable parse(@NonNull DataBuf dataBuf) {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 
   /**
@@ -105,7 +105,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable newDocument() {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 
   /**
@@ -113,7 +113,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable newDocument(@Nullable Object wrapped) {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 
   /**
@@ -121,7 +121,7 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable newDocument(@NonNull String key, @Nullable Object value) {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 
   /**
@@ -129,6 +129,6 @@ public final class EmptyDocumentFactory implements DocumentFactory {
    */
   @Override
   public @NonNull Document.Mutable receive(@NonNull DocumentSend send) {
-    return Document.emptyDocument();
+    return EmptyDocument.INSTANCE;
   }
 }
