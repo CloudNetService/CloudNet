@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.language;
+package eu.cloudnetservice.driver.impl.language;
 
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.utils.base.StringUtil;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -52,12 +53,12 @@ public class I18nTest {
 
   @Test
   void testMessageFormatting() {
-    var directory = Path.of("node/src/main/resources/lang");
+    var directory = Path.of("node/impl/src/main/resources/lang");
     Assertions.assertTrue(Files.exists(directory));
     // walk the lang directory and try to parse all translations to check if there are no unclosed formatting characters
     FileUtil.walkFileTree(
       directory,
-      (root, sub) -> I18n.addLanguageFile("test_TEST", sub, I18nTest.class.getClassLoader()),
+      (_, sub) -> I18n.addLanguageFile("test_TEST", sub, I18nTest.class.getClassLoader()),
       true);
   }
 }
