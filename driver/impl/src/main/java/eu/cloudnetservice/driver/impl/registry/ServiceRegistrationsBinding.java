@@ -69,11 +69,11 @@ final class ServiceRegistrationsBinding<S> {
   }
 
   public boolean registrationValid(@NonNull ServiceRegistryRegistration<S> registration) {
-    return this.executeInReadLock(() -> this.registrationsByName.containsValue(registration));
+    return this.executeInReadLock(() -> !this.obsolete && this.registrationsByName.containsValue(registration));
   }
 
   public boolean registrationIsDefault(@NonNull ServiceRegistryRegistration<S> registration) {
-    return this.executeInReadLock(() -> this.defaultRegistrationRef == registration);
+    return this.executeInReadLock(() -> !this.obsolete && this.defaultRegistrationRef == registration);
   }
 
   public void markAsDefaultRegistration(@NonNull ServiceRegistryRegistration<S> registration) {

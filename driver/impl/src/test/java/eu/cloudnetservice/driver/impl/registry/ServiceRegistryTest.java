@@ -16,90 +16,212 @@
 
 package eu.cloudnetservice.driver.impl.registry;
 
-import eu.cloudnetservice.driver.inject.InjectionLayer;
+import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.net.URLClassLoader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public final class ServiceRegistryTest {
-/*
+
   @Test
-  public void testDefaultRegistry() {
-    var registry = new DefaultServiceRegistry(InjectionLayer.boot());
+  void testServiceRegisterPreconditions() {
+    var registry = new DefaultServiceRegistry();
+    var nameNotBlank = Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> registry.registerProvider(ServiceA.class, "", new ServiceAImpl1()));
+    Assertions.assertEquals("service name cannot be blank", nameNotBlank.getMessage());
 
-    registry
-      .registerProvider(A.class, "b", new B())
-      .registerProvider(A.class, "c", new C());
+    var notAnInterface = Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> registry.registerProvider(String.class, "test", ""));
+    Assertions.assertEquals("service type must be an interface", notAnInterface.getMessage());
 
-    Assertions.assertEquals(2, registry.providers(A.class).size());
-    Assertions.assertEquals(10, registry.provider(A.class, "b").value());
-    Assertions.assertEquals(21, registry.provider(A.class, "c").value());
-
-    registry.unregisterProvider(A.class, "b");
-
-    Assertions.assertEquals(1, registry.providers(A.class).size());
-    Assertions.assertTrue(registry.hasProvider(A.class, "c"));
-    Assertions.assertFalse(registry.hasProvider(A.class, "b"));
-
-    registry.unregisterAll();
-
-    Assertions.assertEquals(0, registry.providedServices().size());
-
-    var b = new B();
-    registry.registerProvider(A.class, "b", b);
-
-    Assertions.assertEquals(1, registry.providers(A.class).size());
-    registry.unregisterAll(ServiceRegistryTest.class.getClassLoader());
-
-    Assertions.assertEquals(0, registry.providers(A.class).size());
-    registry.unregisterAll();
+    var noNoArgsConstructor = Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> registry.registerProvider(ServiceA.class, "test", ServiceAImpl2.class));
+    Assertions.assertEquals(
+      "Service implementation must have a public no-args constructor",
+      noNoArgsConstructor.getMessage());
   }
 
   @Test
-  public void testRegistryInjection() {
-    var registry = new DefaultServiceRegistry(InjectionLayer.boot());
-    var instanceB = new B();
+  void testServiceUnregisterByClassLoader() {
+    var registry = new DefaultServiceRegistry();
+    var someClassLoader = new URLClassLoader(new URL[0]);
+    var serviceAFakeInstance = (ServiceA) Proxy.newProxyInstance(
+      someClassLoader,
+      new Class[]{ServiceA.class},
+      (proxy, method, args) -> switch (method.getName()) {
+        case "hashCode" -> 123456789;
+        case "equals" -> args[0] == proxy;
+        case "toString" -> "FakeInstanceServiceA";
+        default -> throw new IllegalArgumentException(method.getName());
+      });
 
-    registry.registerProvider(A.class, "b", instanceB);
-    registry.registerProvider(A.class, "c", new B());
+    var realARegistration = registry.registerProvider(ServiceA.class, "real", new ServiceAImpl1());
+    var realBRegistration = registry.registerProvider(ServiceB.class, "real", new ServiceBImpl1());
+    var fakeARegistration = registry.registerProvider(ServiceA.class, "fake", serviceAFakeInstance);
 
-    var serviceD = InjectionLayer.boot().instance(D.class);
-    Assertions.assertNotNull(serviceD.withoutSpecialName());
+    var serviceTypes = registry.registeredServiceTypes();
+    Assertions.assertTrue(serviceTypes.contains(ServiceA.class));
+    Assertions.assertTrue(serviceTypes.contains(ServiceB.class));
+    Assertions.assertTrue(realARegistration.valid());
+    Assertions.assertTrue(realBRegistration.valid());
+    Assertions.assertTrue(fakeARegistration.valid());
 
-    Assertions.assertNotNull(serviceD.specialNameB());
-    Assertions.assertSame(instanceB, serviceD.specialNameB());
+    registry.unregisterAll(someClassLoader); // only our fake instance is loaded by this class loader
+    Assertions.assertNull(registry.registration(ServiceA.class, "fake"));
+    Assertions.assertTrue(serviceTypes.contains(ServiceA.class));
+    Assertions.assertTrue(serviceTypes.contains(ServiceB.class));
+    Assertions.assertTrue(realARegistration.valid());
+    Assertions.assertTrue(realBRegistration.valid());
+    Assertions.assertFalse(fakeARegistration.valid());
 
-    Assertions.assertNotSame(instanceB, serviceD.specialNameC());
-
-    Assertions.assertNull(serviceD.nonExistent());
+    registry.unregisterAll(ServiceA.class.getClassLoader());
+    Assertions.assertFalse(serviceTypes.contains(ServiceA.class));
+    Assertions.assertFalse(serviceTypes.contains(ServiceB.class));
+    Assertions.assertFalse(realARegistration.valid());
+    Assertions.assertFalse(realBRegistration.valid());
+    Assertions.assertFalse(fakeARegistration.valid());
   }
 
-  private record D(
-    @Service A withoutSpecialName,
-    @Service(name = "b") A specialNameB,
-    @Service(name = "c") A specialNameC,
-    @Service(name = "non-existing") A nonExistent
-  ) {
+  @Test
+  void testNonSingletonProviderReturnsNewInstance() {
+    var registry = new DefaultServiceRegistry();
+    registry.registerProvider(ServiceA.class, "ns", ServiceAImpl1.class);
+    registry.registerProvider(ServiceA.class, "s", new ServiceAImpl1());
+
+    var nsInstance1 = registry.instance(ServiceA.class, "ns");
+    var nsInstance2 = registry.instance(ServiceA.class, "ns");
+    Assertions.assertNotSame(nsInstance1, nsInstance2);
+    Assertions.assertFalse(Proxy.isProxyClass(nsInstance1.getClass()));
+    Assertions.assertFalse(Proxy.isProxyClass(nsInstance2.getClass()));
+
+    var sInstance1 = registry.instance(ServiceA.class, "s");
+    var sInstance2 = registry.instance(ServiceA.class, "s");
+    Assertions.assertSame(sInstance1, sInstance2);
+    Assertions.assertFalse(Proxy.isProxyClass(sInstance1.getClass()));
+    Assertions.assertFalse(Proxy.isProxyClass(sInstance2.getClass()));
+  }
+
+  @Test
+  void testDefaultRegistrationIsProxiedForNonSingletonProvider() {
+    var registry = new DefaultServiceRegistry();
+    var registration1 = registry.registerProvider(ServiceB.class, "1", new ServiceBImpl1());
+    Assertions.assertTrue(registration1.valid());
+    Assertions.assertTrue(registration1.defaultService());
+
+    var registration2 = registry.registerProvider(ServiceB.class, "2", new ServiceBImpl2());
+    Assertions.assertTrue(registration2.valid());
+    Assertions.assertFalse(registration2.defaultService());
+
+    var defaultProxy = registry.defaultInstance(ServiceB.class);
+    Assertions.assertTrue(Proxy.isProxyClass(defaultProxy.getClass()));
+    Assertions.assertEquals("hello", defaultProxy.world());
+
+    registration2.markAsDefaultService();
+    Assertions.assertFalse(registration1.defaultService());
+    Assertions.assertTrue(registration2.defaultService());
+    Assertions.assertEquals("world", defaultProxy.world());
+  }
+
+  @Test
+  void testDefaultServiceAutomaticallyChangedWhenCurrentDefaultIsUnregistered() {
+    var registry = new DefaultServiceRegistry();
+    var registration1 = registry.registerProvider(ServiceB.class, "1", new ServiceBImpl1());
+    Assertions.assertTrue(registration1.valid());
+    Assertions.assertTrue(registration1.defaultService());
+
+    var registration2 = registry.registerProvider(ServiceB.class, "2", new ServiceBImpl2());
+    Assertions.assertTrue(registration2.valid());
+    Assertions.assertFalse(registration2.defaultService());
+
+    var defaultRegistration = registry.defaultRegistration(ServiceB.class);
+    Assertions.assertTrue(defaultRegistration.valid());
+    Assertions.assertTrue(defaultRegistration.defaultService());
+    Assertions.assertEquals("1", defaultRegistration.name());
+
+    var defaultInstance = defaultRegistration.serviceInstance();
+    Assertions.assertTrue(Proxy.isProxyClass(defaultInstance.getClass()));
+    Assertions.assertEquals("hello", defaultInstance.world());
+
+    Assertions.assertTrue(registration1.unregister());
+    Assertions.assertFalse(registration1.unregister());
+    Assertions.assertFalse(registration1.valid());
+    Assertions.assertFalse(registration1.defaultService());
+
+    Assertions.assertTrue(registration2.valid());
+    Assertions.assertTrue(registration2.defaultService());
+    Assertions.assertEquals("2", defaultRegistration.name());
+    Assertions.assertEquals("world", defaultInstance.world());
+
+    Assertions.assertTrue(registration2.unregister());
+    Assertions.assertFalse(registration2.unregister());
+    Assertions.assertFalse(registration2.valid());
+    Assertions.assertFalse(registration2.defaultService());
+    Assertions.assertFalse(defaultRegistration.valid());
+    Assertions.assertEquals("world", defaultInstance.world());
+  }
+
+  @Test
+  void testAllValidRegistrationsCanBeRetrieved() {
+    var registry = new DefaultServiceRegistry();
+    var registration1 = registry.registerProvider(ServiceA.class, "1", new ServiceAImpl1());
+    var registration2 = registry.registerProvider(ServiceA.class, "2", new ServiceAImpl1());
+    var registration3 = registry.registerProvider(ServiceA.class, "3", new ServiceAImpl2("world"));
+
+    var registrations = registry.registrations(ServiceA.class);
+    Assertions.assertEquals(3, registrations.size());
+    Assertions.assertTrue(registrations.contains(registration1));
+    Assertions.assertTrue(registrations.contains(registration2));
+    Assertions.assertTrue(registrations.contains(registration3));
+
+    Assertions.assertTrue(registration2.unregister());
+    Assertions.assertEquals(2, registrations.size());
+    Assertions.assertTrue(registrations.contains(registration1));
+    Assertions.assertFalse(registrations.contains(registration2));
+    Assertions.assertTrue(registrations.contains(registration3));
+
+    Assertions.assertTrue(registration3.unregister());
+    Assertions.assertEquals(1, registrations.size());
+    Assertions.assertTrue(registrations.contains(registration1));
+    Assertions.assertFalse(registrations.contains(registration2));
+    Assertions.assertFalse(registrations.contains(registration3));
+  }
+
+  public interface ServiceA {
 
   }
 
-  private interface A {
+  public interface ServiceB {
 
-    int value();
+    String world();
   }
 
-  private static class B implements A {
+  public static class ServiceAImpl1 implements ServiceA {
 
-    @Override
-    public int value() {
-      return 10;
+  }
+
+  public static class ServiceAImpl2 implements ServiceA {
+
+    public ServiceAImpl2(String world) {
     }
   }
 
-  private static class C implements A {
+  public static class ServiceBImpl1 implements ServiceB {
 
     @Override
-    public int value() {
-      return 21;
+    public String world() {
+      return "hello";
     }
-  }*/
+  }
+
+  public static class ServiceBImpl2 implements ServiceB {
+
+    @Override
+    public String world() {
+      return "world";
+    }
+  }
 }
