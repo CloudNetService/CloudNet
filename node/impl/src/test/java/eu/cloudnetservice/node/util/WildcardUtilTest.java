@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.utils.base.util;
+package eu.cloudnetservice.node.util;
 
 import eu.cloudnetservice.driver.base.Named;
 import java.util.Arrays;
