@@ -36,7 +36,6 @@ import io.netty5.handler.ssl.SslProvider;
 import io.netty5.util.ResourceLeakDetector;
 import java.util.concurrent.Executors;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -44,7 +43,6 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public final class NettyUtil {
 
   private static final int PACKET_DISPATCH_THREADS;

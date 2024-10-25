@@ -24,14 +24,12 @@ import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.MethodType;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A utility class to generate and define an invoker for a method in the runtime.
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public final class MethodInvokerGenerator {
 
   // constants for use with method invoker

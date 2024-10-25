@@ -29,14 +29,12 @@ import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import java.lang.invoke.TypeDescriptor;
 import java.util.function.Supplier;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The default implementation of an RPC sender.
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public final class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
   private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);

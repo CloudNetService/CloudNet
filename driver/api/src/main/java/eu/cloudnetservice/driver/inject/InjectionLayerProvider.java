@@ -29,12 +29,14 @@ import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Internal utility to provide injection layers.
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 final class InjectionLayerProvider {
 
   // the boot layer registry

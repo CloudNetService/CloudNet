@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * This module url class loader is a unique url class loader for each module. Loading a class using this ClassLoader
@@ -38,7 +37,6 @@ import org.jetbrains.annotations.ApiStatus;
  * @see Module
  * @since 4.0
  */
-@ApiStatus.Internal
 public class ModuleURLClassLoader extends URLClassLoader implements InjectionLayerHolder<SpecifiedInjector> {
 
   /**

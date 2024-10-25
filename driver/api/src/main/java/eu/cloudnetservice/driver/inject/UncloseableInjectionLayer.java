@@ -22,6 +22,7 @@ import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.binding.BindingConstructor;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * @param <I>    the type of injector used by the parent layer.
  * @since 4.0
  */
+@ApiStatus.Internal
 record UncloseableInjectionLayer<I extends Injector>(@NonNull InjectionLayer<I> parent) implements InjectionLayer<I> {
 
   /**

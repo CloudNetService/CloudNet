@@ -20,7 +20,6 @@ import eu.cloudnetservice.driver.impl.network.rpc.listener.RPCPacketListener;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.exception.RPCExecutionException;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -28,7 +27,6 @@ import org.jetbrains.annotations.Contract;
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public final class RPCExceptionUtil {
 
   // stacktrace element array used for all exceptions without a stacktrace captured on the remote

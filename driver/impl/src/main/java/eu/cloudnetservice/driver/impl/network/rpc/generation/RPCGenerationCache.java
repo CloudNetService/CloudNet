@@ -24,14 +24,12 @@ import eu.cloudnetservice.driver.impl.network.rpc.sender.DefaultRPCSender;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import java.time.Duration;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The cache for rpc implementation generations to prevent multiple generations for the same class.
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public final class RPCGenerationCache {
 
   private final Cache<CacheKey, RPCInternalInstanceFactory> cachedGeneratedImplementation = Caffeine.newBuilder()

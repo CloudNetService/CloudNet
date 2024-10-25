@@ -24,9 +24,7 @@ import io.netty5.util.concurrent.Future;
 import io.netty5.util.concurrent.Promise;
 import io.netty5.util.concurrent.PromiseCombiner;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
-@ApiStatus.Internal
 public final class VarInt32FramePrepender extends ChannelHandlerAdapter {
 
   public static final VarInt32FramePrepender INSTANCE = new VarInt32FramePrepender();

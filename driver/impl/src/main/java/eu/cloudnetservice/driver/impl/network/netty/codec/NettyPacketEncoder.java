@@ -23,7 +23,6 @@ import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.MessageToByteEncoder;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * An internal implementation of the packet encoder used for client to server communication.
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.ApiStatus;
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
 
   public static final NettyPacketEncoder INSTANCE = new NettyPacketEncoder();

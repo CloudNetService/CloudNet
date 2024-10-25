@@ -25,6 +25,7 @@ import dev.derklaro.aerogel.binding.BindingConstructor;
 import dev.derklaro.aerogel.internal.context.util.ContextInstanceResolveHelper;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * @param <I>          the type of injector this layer uses.
  * @since 4.0
  */
+@ApiStatus.Internal
 record DefaultInjectionLayer<I extends Injector>(
   @NonNull I injector,
   @NonNull AutoAnnotationRegistry autoRegistry,

@@ -19,14 +19,12 @@ package eu.cloudnetservice.driver.impl.network.object.data;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.object.ObjectMapper;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The blueprint of the internally generated class to serialize & deserialize the fields of an object into a buffer.
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public interface DataClassCodec {
 
   /**

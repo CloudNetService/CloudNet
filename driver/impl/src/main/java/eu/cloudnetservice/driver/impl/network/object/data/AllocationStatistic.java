@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.impl.network.object.data;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A holder for a statistic about the amount of bytes being allocated during another call. This can be used to reduce
@@ -26,7 +25,6 @@ import org.jetbrains.annotations.ApiStatus;
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 final class AllocationStatistic {
 
   private static final VarHandle STATISTIC_HOLDER_UPDATER;

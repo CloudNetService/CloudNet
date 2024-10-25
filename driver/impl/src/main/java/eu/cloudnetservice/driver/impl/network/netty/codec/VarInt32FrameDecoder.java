@@ -21,9 +21,7 @@ import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.ByteToMessageDecoder;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
-@ApiStatus.Internal
 public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
 
   /**

@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -55,7 +54,6 @@ public final class EmptyDocument implements Document.Mutable, DefaultedDocProper
    * Constructs an empty document instance. This constructor is public to all serialization of this document and should
    * not be called. Obtain the singleton instance of this implementation via {@link Document#emptyDocument()}.
    */
-  @ApiStatus.Internal
   public EmptyDocument() {
   }
 

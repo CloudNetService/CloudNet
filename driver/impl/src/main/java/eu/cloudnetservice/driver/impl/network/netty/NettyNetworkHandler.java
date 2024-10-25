@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<BasePacket> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NettyNetworkHandler.class);

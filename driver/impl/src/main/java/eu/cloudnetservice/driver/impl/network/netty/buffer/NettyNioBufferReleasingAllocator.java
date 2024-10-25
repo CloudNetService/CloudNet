@@ -32,7 +32,6 @@ import java.lang.invoke.MethodType;
 import java.nio.ByteBuffer;
 import java.util.function.Supplier;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public final class NettyNioBufferReleasingAllocator implements BufferAllocator, AllocatorControl {
 
   private final ByteBufferMemoryManager manager;

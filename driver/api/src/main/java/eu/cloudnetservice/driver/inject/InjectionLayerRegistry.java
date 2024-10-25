@@ -21,6 +21,7 @@ import io.vavr.Tuple2;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
+@ApiStatus.Internal
 final class InjectionLayerRegistry {
 
   // use a linked queue here to prevent calls to hashCode on the hint - that could (depending on

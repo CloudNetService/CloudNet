@@ -26,14 +26,12 @@ import io.netty5.channel.Channel;
 import io.netty5.util.concurrent.Promise;
 import io.netty5.util.concurrent.PromiseCombiner;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The default netty based implementation of a network channel.
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements NetworkChannel {
 
   private final Channel channel;

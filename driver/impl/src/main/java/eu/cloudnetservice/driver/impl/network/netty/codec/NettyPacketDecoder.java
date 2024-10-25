@@ -24,7 +24,6 @@ import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.ByteToMessageDecoder;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NettyPacketDecoder.class);

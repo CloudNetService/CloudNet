@@ -22,7 +22,6 @@ import io.netty5.channel.ChannelOption;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A custom channel initializer implementation which activates option in the given channel during the initialization if
@@ -30,7 +29,6 @@ import org.jetbrains.annotations.ApiStatus;
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public class NettyOptionSettingChannelInitializer extends ChannelInitializer<Channel> {
 
   private final Map<ChannelOption<?>, Object> options = new LinkedHashMap<>();

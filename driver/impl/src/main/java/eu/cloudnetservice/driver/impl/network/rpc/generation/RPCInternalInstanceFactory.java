@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@ApiStatus.Internal
 public sealed class RPCInternalInstanceFactory {
 
   // ImplementationClass(Supplier, RPCSender, ChainableRPC, Object[])
