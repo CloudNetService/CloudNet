@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.rpc.handler;
 
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.impl.network.rpc.DefaultRPCFactory;
@@ -35,6 +36,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+@EnableServicesInject
 public class RPCNetworkHandlingTest {
 
   @Test

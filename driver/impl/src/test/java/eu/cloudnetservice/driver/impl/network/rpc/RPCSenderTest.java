@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.rpc;
 
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import java.lang.constant.ConstantDescs;
@@ -24,6 +25,7 @@ import java.util.IntSummaryStatistics;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+@EnableServicesInject
 public class RPCSenderTest {
 
   @Test

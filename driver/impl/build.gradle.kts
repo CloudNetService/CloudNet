@@ -28,4 +28,10 @@ dependencies {
   "implementation"(libs.nettyNativeKqueue)
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
+
+  "annotationProcessor"(libs.aerogelAuto)
+}
+
+tasks.withType<JavaCompile> {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/driver.aero")
 }

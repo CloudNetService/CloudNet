@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.chunk;
 
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.chunk.splitter.NetworkChannelsPacketSplitter;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
+@EnableServicesInject
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ChunkedPacketSenderTest {
 
@@ -52,7 +54,7 @@ public class ChunkedPacketSenderTest {
     var sessionId = UUID.randomUUID();
     DataBuf dataBuf = DataBuf.empty().writeString("hello").writeInt(10).writeString("world");
 
-    Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forFileTransfer()
+    Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forStreamTransfer()
       .chunkSize(256)
       .withExtraData(dataBuf)
       .sessionUniqueId(sessionId)
@@ -81,7 +83,7 @@ public class ChunkedPacketSenderTest {
       .mapToObj(_ -> this.mockNetworkChannel(packet -> this.validatePacket(packet, sessionId, packetSplits, chunkData)))
       .collect(Collectors.toList()));
 
-    Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forFileTransfer()
+    Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forStreamTransfer()
       .chunkSize(256)
       .withExtraData(dataBuf)
       .sessionUniqueId(sessionId)

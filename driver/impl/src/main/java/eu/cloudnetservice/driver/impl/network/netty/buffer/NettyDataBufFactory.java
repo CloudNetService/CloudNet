@@ -45,7 +45,7 @@ public class NettyDataBufFactory implements DataBufFactory {
    * this factory. In normal cases {@link DataBufFactory#defaultFactory()} should be used to obtain the instance of this
    * factory.
    */
-  protected NettyDataBufFactory() {
+  public NettyDataBufFactory() {
   }
 
   /**

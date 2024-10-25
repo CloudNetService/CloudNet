@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.protocol;
 
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+@EnableServicesInject
 public class DefaultQueryPacketManagerTest {
 
   @Test

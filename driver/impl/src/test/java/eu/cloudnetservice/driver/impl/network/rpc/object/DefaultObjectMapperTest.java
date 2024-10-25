@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.impl.network.rpc.object;
 
 import com.google.common.collect.Maps;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.impl.TestInjectionLayerConfigurator;
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -56,7 +56,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -65,6 +64,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@EnableServicesInject
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DefaultObjectMapperTest {
 
@@ -247,11 +247,6 @@ public class DefaultObjectMapperTest {
       Arguments.of(OffsetDateTime.of(LocalDateTime.of(2058, 8, 15, 23, 12), ZoneOffset.ofHours(-5))),
       Arguments.of(OffsetDateTime.of(LocalDateTime.of(1986, 4, 26, 1, 23, 44), ZoneOffset.ofHours(3)))
     );
-  }
-
-  @BeforeAll
-  static void setupBootInjectionLayer() {
-    TestInjectionLayerConfigurator.loadAutoconfigureBindings();
   }
 
   @Order(0)

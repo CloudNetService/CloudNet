@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.rpc.registry;
 
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.impl.network.rpc.DefaultRPCFactory;
 import eu.cloudnetservice.driver.impl.network.rpc.handler.DefaultRPCHandlerRegistry;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+@EnableServicesInject
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DefaultRPCHandlerRegistryTest {
 

@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.impl;
+package eu.cloudnetservice.driver.impl.junit;
 
-import eu.cloudnetservice.driver.inject.InjectionLayer;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public final class TestInjectionLayerConfigurator {
+@Inherited
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(EnableServicesInjectExtension.class)
+public @interface EnableServicesInject {
 
-  private TestInjectionLayerConfigurator() {
-    throw new UnsupportedOperationException();
-  }
-
-  public static void loadAutoconfigureBindings() {
-    var bootInjectionLayer = InjectionLayer.boot();
-    bootInjectionLayer.installAutoConfigureBindings(TestInjectionLayerConfigurator.class.getClassLoader(), "driver");
-  }
 }

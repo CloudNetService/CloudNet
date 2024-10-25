@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.rpc.handler;
 
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.impl.network.rpc.DefaultRPCFactory;
@@ -39,6 +40,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
+@EnableServicesInject
 public class RPCPacketListenerTest {
 
   static Packet craftRPCRequest(

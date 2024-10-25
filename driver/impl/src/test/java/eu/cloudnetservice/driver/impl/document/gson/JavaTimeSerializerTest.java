@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.driver.impl.document.gson;
 
+import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -30,6 +32,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@EnableServicesInject
 public class JavaTimeSerializerTest {
 
   static Stream<Arguments> timeClassProvider() {
@@ -88,7 +91,7 @@ public class JavaTimeSerializerTest {
   @ParameterizedTest
   @MethodSource("timeClassProvider")
   public void testTimeClassSerializationWithJson(Object timeInstance) {
-    var document = new GsonDocumentFactory().newDocument("time", timeInstance);
+    var document = DocumentFactory.json().newDocument("time", timeInstance);
     var readTimeInstance = document.readObject("time", timeInstance.getClass());
 
     Assertions.assertNotNull(readTimeInstance);

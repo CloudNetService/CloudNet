@@ -17,8 +17,7 @@
 package eu.cloudnetservice.driver.impl.document;
 
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.impl.document.empty.EmptyDocument;
-import eu.cloudnetservice.driver.impl.document.gson.GsonDocumentFactory;
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.rpc.object.AllPrimitiveTypesDataClass;
 import eu.cloudnetservice.driver.service.ProcessConfiguration;
 import io.leangen.geantyref.TypeFactory;
@@ -30,16 +29,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@EnableServicesInject
 public class DocumentTest {
 
   static Stream<Arguments> documentTypeProvider() {
-    return Stream.of(Arguments.of(new GsonDocumentFactory().newDocument()));
+    return Stream.of(Arguments.of(Document.newJsonDocument()));
   }
 
   static Stream<Arguments> documentTypeFactoryNameProvider() {
     return Stream.of(
-      Arguments.of("json", new GsonDocumentFactory().newDocument()),
-      Arguments.of("empty", EmptyDocument.INSTANCE));
+      Arguments.of("json", Document.newJsonDocument()),
+      Arguments.of("empty", Document.emptyDocument()));
   }
 
   @ParameterizedTest
@@ -142,7 +142,7 @@ public class DocumentTest {
   @ParameterizedTest
   @MethodSource("documentTypeProvider")
   void testAppendDocument(Document.Mutable document) {
-    var someDocument = new GsonDocumentFactory().newDocument();
+    var someDocument = Document.newJsonDocument();
     someDocument.append("stringA", "Hello");
     someDocument.append("stringB", "World");
     document.append("someDoc", someDocument);
@@ -154,7 +154,7 @@ public class DocumentTest {
     var readDocument = document.readDocument("someDoc");
     Assertions.assertEquals(someDocument, readDocument);
 
-    var defaultDocument = new GsonDocumentFactory().newDocument().append("hello", "world");
+    var defaultDocument = Document.newJsonDocument().append("hello", "world");
     var readOtherDocument = document.readDocument("someOtherDoc", defaultDocument);
     Assertions.assertEquals(defaultDocument, readOtherDocument);
   }
@@ -162,7 +162,7 @@ public class DocumentTest {
   @ParameterizedTest
   @MethodSource("documentTypeProvider")
   void testAppendDocumentTree(Document.Mutable document) {
-    var someOtherDocument = new GsonDocumentFactory().newDocument();
+    var someOtherDocument = Document.newJsonDocument();
     someOtherDocument.append("stringA", "Hello");
     someOtherDocument.append("stringB", "World");
 
@@ -271,13 +271,13 @@ public class DocumentTest {
     Assertions.assertNull(innerClassInstance.deserializedIgnoredField());
 
     // check manual deserialization
-    var serializedDocumentValueClass = new GsonDocumentFactory().newDocument()
-      .append("innerClass", new GsonDocumentFactory().newDocument()
+    var serializedDocumentValueClass = Document.newJsonDocument()
+      .append("innerClass", Document.newJsonDocument()
         .append("worldHello", "Test1")
         .append("fullyIgnoredField", "YepTree")
         .append("serializedIgnoredField", "Google")
         .append("deserializedIgnoredField", "Bing"))
-      .append("excludedInnerClass", new GsonDocumentFactory().newDocument());
+      .append("excludedInnerClass", Document.newJsonDocument());
 
     var valueTestClassInstance = serializedDocumentValueClass.toInstanceOf(DocumentValueTestClass.class);
     Assertions.assertNotNull(valueTestClassInstance);

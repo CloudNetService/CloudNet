@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.netty.codec;
 
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+@EnableServicesInject
 public class NettyPacketCodecTest {
 
   @Test

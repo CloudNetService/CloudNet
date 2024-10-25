@@ -20,10 +20,9 @@ import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.document.SerialisationStyle;
 import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
-import eu.cloudnetservice.driver.impl.document.empty.EmptyDocument;
-import eu.cloudnetservice.driver.impl.document.gson.GsonDocumentFactory;
-import eu.cloudnetservice.driver.impl.network.netty.buffer.NettyDataBufFactory;
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.rpc.object.AllPrimitiveTypesDataClass;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,6 +42,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@EnableServicesInject
 public class DocumentSerialisationTest {
 
   @TempDir(cleanup = CleanupMode.ON_SUCCESS)
@@ -50,36 +50,36 @@ public class DocumentSerialisationTest {
 
   static Stream<Arguments> serialisationInputSource() {
     return Stream.of(
-      Arguments.of(new GsonDocumentFactory().newDocument(), StandardSerialisationStyle.PRETTY),
+      Arguments.of(Document.newJsonDocument(), StandardSerialisationStyle.PRETTY),
       Arguments.of(
-        new GsonDocumentFactory().newDocument()
+        Document.newJsonDocument()
           .append("test", 1234)
           .append("world", 5.999)
           .append("boolean", false)
           .append("hello", "world"),
         StandardSerialisationStyle.COMPACT),
       Arguments.of(
-        new GsonDocumentFactory().newDocument()
+        Document.newJsonDocument()
           .append("google", "Bing")
           .append("world", new AllPrimitiveTypesDataClass()),
         StandardSerialisationStyle.PRETTY),
       Arguments.of(
-        new GsonDocumentFactory().newDocument()
+        Document.newJsonDocument()
           .appendTree(new AllPrimitiveTypesDataClass())
           .append("cloud", List.of("Ben?", "Yes", "No", "HoHoHoHo"))
           .append("world", Map.of("hello", "world", "this", "is", "insane", "!")),
         StandardSerialisationStyle.PRETTY),
       Arguments.of(
-        new GsonDocumentFactory().newDocument()
+        Document.newJsonDocument()
           .appendNull("testing")
           .appendTree(new AllPrimitiveTypesDataClass())
           .append("key", List.of("the", "best", "value"))
-          .append("other", new GsonDocumentFactory().newDocument().append("hello", "world")),
+          .append("other", Document.newJsonDocument().append("hello", "world")),
         StandardSerialisationStyle.COMPACT));
   }
 
   static Stream<Arguments> documentTypeProvider() {
-    return Stream.of(Arguments.of(new GsonDocumentFactory().newDocument(), EmptyDocument.INSTANCE));
+    return Stream.of(Arguments.of(Document.newJsonDocument(), Document.emptyDocument()));
   }
 
   @Test
@@ -125,7 +125,7 @@ public class DocumentSerialisationTest {
   @ParameterizedTest
   @MethodSource("serialisationInputSource")
   void testDataBufSerialisation(Document input, SerialisationStyle style) {
-    try (var buf = NettyDataBufFactory.INSTANCE.createEmpty()) {
+    try (var buf = DataBuf.empty()) {
       Assertions.assertDoesNotThrow(() -> input.writeTo(buf, style));
 
       var deserialized = Assertions.assertDoesNotThrow(() -> DocumentFactory.json().parse(buf));

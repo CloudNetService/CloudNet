@@ -18,6 +18,7 @@ package eu.cloudnetservice.driver.impl.document;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.property.DocProperty;
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.service.ProcessConfiguration;
 import io.leangen.geantyref.TypeFactory;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@EnableServicesInject
 public class DocumentPropertyTest {
 
   @ParameterizedTest

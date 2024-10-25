@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.impl.network.rpc.generation.api;
 
 import eu.cloudnetservice.driver.database.Database;
-import eu.cloudnetservice.driver.impl.TestInjectionLayerConfigurator;
+import eu.cloudnetservice.driver.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.impl.network.rpc.DefaultRPCFactory;
 import eu.cloudnetservice.driver.impl.network.rpc.generation.RPCInternalInstanceFactory;
@@ -29,16 +29,11 @@ import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCInvocationResult;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+@EnableServicesInject
 public class RPCImplementationGeneratorTest {
-
-  @BeforeAll
-  static void setupBootInjectionLayer() {
-    TestInjectionLayerConfigurator.loadAutoconfigureBindings();
-  }
 
   @Test
   void testFullGeneration() {
