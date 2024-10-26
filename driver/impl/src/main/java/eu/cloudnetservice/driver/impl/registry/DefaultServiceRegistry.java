@@ -18,9 +18,16 @@ package eu.cloudnetservice.driver.impl.registry;
 
 import com.google.common.base.Preconditions;
 import dev.derklaro.aerogel.auto.Provides;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistryRegistration;
+import eu.cloudnetservice.utils.base.io.FileUtil;
+import eu.cloudnetservice.utils.base.resource.ResourceResolver;
 import jakarta.inject.Singleton;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +49,47 @@ public final class DefaultServiceRegistry implements ServiceRegistry {
 
   final Map<Class<?>, ServiceRegistrationsBinding<?>> serviceBindings = new ConcurrentHashMap<>();
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public void discoverServices(@NonNull Class<?> owner) {
+    ResourceResolver.openCodeSourceRoot(owner, basePath -> {
+      var autoServicesDirectory = basePath.resolve("autoservices");
+      FileUtil.walkFileTree(autoServicesDirectory, (_, filePath) -> {
+        try (var dataInput = new DataInputStream(Files.newInputStream(filePath, StandardOpenOption.READ))) {
+          while (dataInput.available() > 0) {
+            var serviceMapping = AutoServiceMapping.deserialize(owner, dataInput);
+            if (serviceMapping.singletonService()) {
+              // singleton service (= one instance per jvm lifetime), resolve the instance now using injection
+              var injectionLayer = InjectionLayer.findLayerOf(owner);
+              var serviceInstance = injectionLayer.instance(serviceMapping.implementationType());
+              var serviceType = (Class<Object>) serviceMapping.serviceType();
+              var registration = this.registerProvider(serviceType, serviceMapping.serviceName(), serviceInstance);
+              if (serviceMapping.markServiceAsDefault()) {
+                registration.markAsDefaultService();
+              }
+            } else {
+              // constructing provider (= construct a new service instance on each invocation)
+              var serviceType = (Class<Object>) serviceMapping.serviceType();
+              var implType = (Class<Object>) serviceMapping.implementationType();
+              var registration = this.registerConstructingProvider(serviceType, serviceMapping.serviceName(), implType);
+              if (serviceMapping.markServiceAsDefault()) {
+                registration.markAsDefaultService();
+              }
+            }
+          }
+        } catch (IOException | ClassNotFoundException exception) {
+          throw new IllegalStateException("Unable to deserialize auto service mappings", exception);
+        }
+      }, false);
+    });
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("unchecked")
   public @NonNull <S> ServiceRegistryRegistration<S> registerProvider(
@@ -58,9 +106,12 @@ public final class DefaultServiceRegistry implements ServiceRegistry {
     return binding.register(serviceName, serviceImplementation);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("unchecked")
-  public @NonNull <S> ServiceRegistryRegistration<S> registerProvider(
+  public @NonNull <S> ServiceRegistryRegistration<S> registerConstructingProvider(
     @NonNull Class<S> serviceType,
     @NonNull String serviceName,
     @NonNull Class<? extends S> implementationType
@@ -74,6 +125,9 @@ public final class DefaultServiceRegistry implements ServiceRegistry {
     return binding.register(serviceName, implementationType);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void unregisterAll(@NonNull ClassLoader classLoader) {
     var iterator = this.serviceBindings.entrySet().iterator();
@@ -97,12 +151,18 @@ public final class DefaultServiceRegistry implements ServiceRegistry {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @UnmodifiableView
   public @NonNull Collection<Class<?>> registeredServiceTypes() {
     return Collections.unmodifiableCollection(this.serviceBindings.keySet());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @UnknownNullability
   @SuppressWarnings("unchecked")
@@ -111,6 +171,9 @@ public final class DefaultServiceRegistry implements ServiceRegistry {
     return binding != null ? binding.findRegistrationByName(name) : null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @UnknownNullability
   @SuppressWarnings("unchecked")
@@ -119,6 +182,9 @@ public final class DefaultServiceRegistry implements ServiceRegistry {
     return binding != null ? binding.defaultRegistrationProxy() : null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @UnmodifiableView
   @SuppressWarnings("unchecked")

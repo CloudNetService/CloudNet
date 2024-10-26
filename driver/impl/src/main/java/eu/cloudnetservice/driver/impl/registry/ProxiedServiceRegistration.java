@@ -25,18 +25,36 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A service registration that is just a proxy to another service registration and returns a proxy to that service
+ * instance when the instance is retrieved. This way, for example, the default service registration can be updated
+ * without having to get the default instance every time as the proxy just always delegates to the current default
+ * registration.
+ *
+ * @param serviceType      the type of the service that is implemented by this registration.
+ * @param binding          the binding in which this registration is registered.
+ * @param delegateSupplier the supplier to get the service registration to which this registration delegates.
+ * @param <S>              the type modeling the implemented service.
+ * @since 4.0
+ */
 record ProxiedServiceRegistration<S>(
   @NonNull Class<S> serviceType,
   @NonNull ServiceRegistrationsBinding<S> binding,
   @NonNull Supplier<ServiceRegistryRegistration<S>> delegateSupplier
 ) implements ServiceRegistryRegistration<S> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String name() {
     var delegate = this.delegateSupplier.get();
     return delegate.name();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("unchecked")
   public @NonNull S serviceInstance() {
@@ -63,16 +81,25 @@ record ProxiedServiceRegistration<S>(
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean defaultService() {
     return true; // is always the default service
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void markAsDefaultService() {
     // is always the default service
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean valid() {
     // only becomes invalid if the binding becomes invalid, in all other
@@ -80,12 +107,18 @@ record ProxiedServiceRegistration<S>(
     return this.binding.valid();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean unregister() {
     var delegate = this.delegateSupplier.get();
     return this.binding.unregisterRegistration(delegate);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull S get() {
     return this.serviceInstance();
@@ -95,6 +128,9 @@ record ProxiedServiceRegistration<S>(
     @NonNull Supplier<Object> delegateSupplier
   ) implements InvocationHandler {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @Nullable Object invoke(
       @NonNull Object proxy,

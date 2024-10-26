@@ -15,24 +15,5 @@
  */
 
 dependencies {
-  "implementation"(projects.utils.utilsBase)
   "implementation"(projects.driver.driverApi)
-
-  "implementation"(libs.gson)
-  "implementation"(libs.guava)
-  "implementation"(libs.caffeine)
-  "implementation"(libs.reflexion)
-  "implementation"(libs.bundles.unirest)
-
-  "implementation"(libs.bundles.netty)
-  "implementation"(libs.nettyNativeKqueue)
-  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
-  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
-
-  "annotationProcessor"(libs.aerogelAuto)
-  "annotationProcessor"(projects.driver.driverAp)
-}
-
-tasks.withType<JavaCompile> {
-  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/driver.aero")
 }

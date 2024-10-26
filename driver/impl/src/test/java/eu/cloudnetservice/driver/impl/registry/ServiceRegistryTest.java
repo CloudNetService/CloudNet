@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.driver.impl.registry;
 
+import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,7 +41,7 @@ public final class ServiceRegistryTest {
 
     var noNoArgsConstructor = Assertions.assertThrows(
       IllegalArgumentException.class,
-      () -> registry.registerProvider(ServiceA.class, "test", ServiceAImpl2.class));
+      () -> registry.registerConstructingProvider(ServiceA.class, "test", ServiceAImpl2.class));
     Assertions.assertEquals(
       "Service implementation must have a public no-args constructor",
       noNoArgsConstructor.getMessage());
@@ -89,7 +91,7 @@ public final class ServiceRegistryTest {
   @Test
   void testNonSingletonProviderReturnsNewInstance() {
     var registry = new DefaultServiceRegistry();
-    registry.registerProvider(ServiceA.class, "ns", ServiceAImpl1.class);
+    registry.registerConstructingProvider(ServiceA.class, "ns", ServiceAImpl1.class);
     registry.registerProvider(ServiceA.class, "s", new ServiceAImpl1());
 
     var nsInstance1 = registry.instance(ServiceA.class, "ns");
@@ -188,6 +190,16 @@ public final class ServiceRegistryTest {
     Assertions.assertTrue(registrations.contains(registration1));
     Assertions.assertFalse(registrations.contains(registration2));
     Assertions.assertFalse(registrations.contains(registration3));
+  }
+
+  @Test
+  void testAutoServiceDiscoveryAndRegistration() {
+    var registry = new DefaultServiceRegistry();
+    registry.discoverServices(DefaultServiceRegistry.class);
+
+    var registeredServices = registry.registeredServiceTypes();
+    Assertions.assertTrue(registeredServices.contains(DataBufFactory.class));
+    Assertions.assertTrue(registeredServices.contains(DocumentFactory.class));
   }
 
   public interface ServiceA {

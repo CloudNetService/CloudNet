@@ -16,8 +16,11 @@
 
 package eu.cloudnetservice.utils.base.resource;
 
+import eu.cloudnetservice.utils.base.io.FileUtil;
+import io.vavr.CheckedConsumer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import lombok.NonNull;
 
 /**
@@ -84,6 +87,37 @@ public final class ResourceResolver {
 
     // construct the uri from the cleaned url
     return URI.create(strippedUrl);
+  }
+
+  /**
+   * Finds the code source of the caller and passes it to the given consumer. The passed path can either be the root of
+   * a zip file system (if the code source is located in a jar) or the absolute path to a directory on the system (if
+   * the source is a file on the default file system).
+   *
+   * @param caller   the class to get the parent location of.
+   * @param consumer the consumer to which the code source root path should be passed.
+   * @throws NullPointerException  if the given caller or consumer is null.
+   * @throws IllegalStateException if an exception occurs while executing the given consumer.
+   */
+  public static void openCodeSourceRoot(@NonNull Class<?> caller, @NonNull CheckedConsumer<Path> consumer) {
+    try {
+      var codeSource = resolveCodeSourceOfClass(caller);
+      var codeSourcePath = Path.of(codeSource);
+      if (codeSource.getScheme().equals("jar")) {
+        // the code source is a jar file, we need to open a zip file
+        // system of that jar and pass the root path of that to the caller
+        FileUtil.openZipFile(codeSourcePath, fs -> {
+          var rootPath = fs.getPath("");
+          consumer.accept(rootPath);
+        });
+      } else {
+        // the code source is not a jar, presumably it's a file on the default file system
+        // maybe there are more cases which aren't handled by this method
+        consumer.accept(codeSourcePath);
+      }
+    } catch (Throwable throwable) {
+      throw new IllegalStateException("Issue while handling code source of " + caller, throwable);
+    }
   }
 
   /**

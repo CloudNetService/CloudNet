@@ -20,19 +20,55 @@ import eu.cloudnetservice.driver.base.Named;
 import jakarta.inject.Provider;
 import lombok.NonNull;
 
+/**
+ * A registration for a service in a service registration.
+ *
+ * @param <S> the type of the service.
+ * @since 4.0
+ */
 public interface ServiceRegistryRegistration<S> extends Provider<S>, Named {
 
+  /**
+   * Get the service type that this registration is associated with.
+   *
+   * @return the service type.
+   */
   @NonNull
   Class<S> serviceType();
 
+  /**
+   * Get an instance of the service implementation represented by this registration.
+   *
+   * @return an instance of the service registration represented by this registration.
+   */
   @NonNull
   S serviceInstance();
 
+  /**
+   * Get if this registration is the default registration for the service.
+   *
+   * @return true if this registration is the default for the service, false otherwise.
+   */
   boolean defaultService();
 
+  /**
+   * Marks this registration as the default for the service type.
+   *
+   * @throws IllegalStateException if this registration is no longer valid.
+   */
   void markAsDefaultService();
 
+  /**
+   * Get if this registration is still valid, which means that this registration was not unregistered yet.
+   *
+   * @return true if this registration is still valid, false otherwise.
+   */
   boolean valid();
 
+  /**
+   * Unregisters this registration.
+   *
+   * @return true if this registration was unregistered, false otherwise.
+   */
   boolean unregister();
 }

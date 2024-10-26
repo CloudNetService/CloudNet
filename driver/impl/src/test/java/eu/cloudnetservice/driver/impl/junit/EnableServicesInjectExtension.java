@@ -18,16 +18,8 @@ package eu.cloudnetservice.driver.impl.junit;
 
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.document.DocumentFactory;
-import eu.cloudnetservice.driver.impl.document.empty.EmptyDocumentFactory;
-import eu.cloudnetservice.driver.impl.document.gson.GsonDocumentFactory;
-import eu.cloudnetservice.driver.impl.network.chunk.builder.DefaultChunkedFileQueryBuilder;
-import eu.cloudnetservice.driver.impl.network.chunk.builder.DefaultChunkedPacketSenderBuilder;
-import eu.cloudnetservice.driver.impl.network.netty.buffer.NettyDataBufFactory;
+import eu.cloudnetservice.driver.impl.registry.DefaultServiceRegistry;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.chunk.ChunkedFileQueryBuilder;
-import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -102,14 +94,7 @@ public final class EnableServicesInjectExtension
 
     // setup default services for testing
     var serviceRegistry = bootInjectionLayer.instance(ServiceRegistry.class);
-    serviceRegistry.registerProvider(DataBufFactory.class, "netty", new NettyDataBufFactory());
-    serviceRegistry.registerProvider(DocumentFactory.class, "json", new GsonDocumentFactory());
-    serviceRegistry.registerProvider(DocumentFactory.class, "empty", new EmptyDocumentFactory());
-    serviceRegistry.registerProvider(ChunkedFileQueryBuilder.class, "default", DefaultChunkedFileQueryBuilder.class);
-    serviceRegistry.registerProvider(
-      ChunkedPacketSender.Builder.class,
-      "default",
-      DefaultChunkedPacketSenderBuilder.class);
+    serviceRegistry.discoverServices(DefaultServiceRegistry.class);
 
     // setup injection stuff that depends on the services being initialized
     bootInjectionLayer.install(BindingBuilder.create()

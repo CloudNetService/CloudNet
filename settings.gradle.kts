@@ -67,7 +67,7 @@ initializeSubProjects("modules",
 initializeSubProjects("launcher", "java8", "java22", "patcher")
 
 // driver-api, driver-impl
-initializePrefixedSubProjects("driver", "driver", "api", "impl")
+initializePrefixedSubProjects("driver", "driver", "api", "impl", "ap")
 initializePrefixedSubProjects("node", "node", "api", "impl")
 initializePrefixedSubProjects("utils", "utils", "base")
 
