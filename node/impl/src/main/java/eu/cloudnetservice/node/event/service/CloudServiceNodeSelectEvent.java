@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.event.service;
 import eu.cloudnetservice.driver.event.Cancelable;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;

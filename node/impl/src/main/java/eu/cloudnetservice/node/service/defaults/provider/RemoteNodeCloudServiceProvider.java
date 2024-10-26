@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.service.defaults.provider;
 
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCInvocationTarget;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 

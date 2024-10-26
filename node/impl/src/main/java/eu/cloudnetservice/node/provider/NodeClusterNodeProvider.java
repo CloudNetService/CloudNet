@@ -17,20 +17,23 @@
 package eu.cloudnetservice.node.provider;
 
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.command.CommandInfo;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
+import eu.cloudnetservice.node.cluster.NodeServer;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
@@ -142,6 +145,56 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
   }
 
   @Override
+  public @NonNull CompletableFuture<Collection<CommandInfo>> consoleCommandsAsync() {
+    return TaskUtil.supplyAsync(this::consoleCommands);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<CommandInfo> consoleCommandAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.consoleCommand(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<String>> consoleTabCompleteResultsAsync(@NonNull String commandLine) {
+    return TaskUtil.supplyAsync(() -> this.consoleTabCompleteResults(commandLine));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<String>> sendCommandLineAsync(@NonNull String commandLine) {
+    return TaskUtil.supplyAsync(() -> this.sendCommandLine(commandLine));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<NetworkClusterNode>> nodesAsync() {
+    return TaskUtil.supplyAsync(this::nodes);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<NetworkClusterNode> nodeAsync(@NonNull String uniqueId) {
+    return TaskUtil.supplyAsync(() -> this.node(uniqueId));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> addNodeAsync(@NonNull NetworkClusterNode node) {
+    return TaskUtil.supplyAsync(() -> this.addNode(node));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> removeNodeAsync(@NonNull String uniqueId) {
+    return TaskUtil.supplyAsync(() -> this.removeNode(uniqueId));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<NodeInfoSnapshot>> nodeInfoSnapshotsAsync() {
+    return TaskUtil.supplyAsync(this::nodeInfoSnapshots);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<NodeInfoSnapshot> nodeInfoSnapshotAsync(@NonNull String uniqueId) {
+    return TaskUtil.supplyAsync(() -> this.nodeInfoSnapshot(uniqueId));
+  }
+
+  @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var driverCommandSource = new DriverCommandSource();
     TaskUtil.getOrDefault(this.commandProvider.execute(driverCommandSource, commandLine), null);
@@ -149,8 +202,8 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
   }
 
   @Override
-  public @Nullable CommandInfo consoleCommand(@NonNull String commandLine) {
-    return this.commandProvider.command(commandLine);
+  public @Nullable CommandInfo consoleCommand(@NonNull String name) {
+    return this.commandProvider.command(name);
   }
 
   @Override

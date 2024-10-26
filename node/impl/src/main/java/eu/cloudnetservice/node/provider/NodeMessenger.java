@@ -18,17 +18,17 @@ package eu.cloudnetservice.node.provider;
 
 import com.google.common.collect.Iterables;
 import dev.derklaro.aerogel.auto.Provides;
-import eu.cloudnetservice.common.concurrent.CountingTask;
-import eu.cloudnetservice.common.concurrent.TaskUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
+import eu.cloudnetservice.driver.impl.network.standard.ChannelMessagePacket;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.def.PacketServerChannelMessage;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
-import eu.cloudnetservice.driver.provider.defaults.DefaultMessenger;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.utils.base.concurrent.CountingTask;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -43,10 +43,11 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @Provides(CloudMessenger.class)
-public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
+public class NodeMessenger implements CloudMessenger {
 
   protected static final Type COL_MSG = TypeFactory.parameterizedClass(Collection.class, ChannelMessage.class);
 
@@ -75,8 +76,25 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   }
 
   @Override
+  public @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
+    @NonNull ChannelMessage channelMessage
+  ) {
+    return TaskUtil.supplyAsync(() -> this.sendSingleChannelMessageQuery(channelMessage));
+  }
+
+  @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return TaskUtil.getOrDefault(this.sendChannelMessageQueryAsync(channelMessage), Duration.ofSeconds(20), List.of());
+  }
+
+  @Override
+  public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
+    return Iterables.getFirst(this.sendChannelMessageQuery(channelMessage), null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
+    return TaskUtil.runAsync(() -> this.sendChannelMessage(channelMessage));
   }
 
   public void sendChannelMessage(@NonNull ChannelMessage message, boolean allowClusterRedirect) {
@@ -89,7 +107,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       message.content().acquire();
 
       // construct and send the packet
-      var packet = new PacketServerChannelMessage(message, false);
+      var packet = new ChannelMessagePacket(message, false);
       if (message.sendSync()) {
         channel.sendPacketSync(packet);
       } else {
@@ -123,7 +141,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         // that means when the message was written to all channels it's released unless someone acquired it before
         message.content().acquire();
 
-        channel.sendQueryAsync(new PacketServerChannelMessage(message, false)).whenComplete((packet, th) -> {
+        channel.sendQueryAsync(new ChannelMessagePacket(message, false)).whenComplete((packet, th) -> {
           // check if we got an actual result from the request
           if (th == null && packet.readable()) {
             // add all resulting messages we got

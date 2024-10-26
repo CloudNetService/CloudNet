@@ -19,16 +19,17 @@ package eu.cloudnetservice.node.setup;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.sun.management.OperatingSystemMXBean;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.impl.module.DefaultModuleProvider;
 import eu.cloudnetservice.driver.language.I18n;
-import eu.cloudnetservice.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.HostAndPort;
-import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.lang.management.ManagementFactory;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashSet;
@@ -54,6 +55,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     .add("127.0.1.1")
     .addAll(NetworkUtil.availableIPAddresses())
     .build();
+  private static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
   private final ModulesHolder modulesHolder;
   private final ModuleProvider moduleProvider;
@@ -143,7 +145,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<Integer>builder()
           .parser(this.parsers.ranged(128, Integer.MAX_VALUE))
           .possibleResults("128", "512", "1024", "2048", "4096", "8192", "16384", "32768", "65536")
-          .recommendation((int) ((ProcessSnapshot.OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512)))
+          .recommendation((int) ((OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512)))
         .build(),
       // default installed modules
       QuestionListEntry.<Collection<ModuleEntry>>builder()

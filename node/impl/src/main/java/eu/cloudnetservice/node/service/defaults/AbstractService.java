@@ -46,6 +46,7 @@ import eu.cloudnetservice.node.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.utils.base.StringUtil;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.resource.CpuUsageResolver;
 import io.vavr.Tuple2;
@@ -60,6 +61,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
@@ -236,6 +238,101 @@ public abstract class AbstractService implements InternalCloudService {
   @Override
   public void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle) {
     this.updateLifecycle(lifeCycle, this.serviceConfiguration().autoDeleteOnStop());
+  }
+
+  @Override
+  public @NonNull CompletableFuture<ServiceInfoSnapshot> serviceInfoAsync() {
+    return TaskUtil.supplyAsync(this::serviceInfo);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> validAsync() {
+    return TaskUtil.supplyAsync(this::valid);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
+    return TaskUtil.supplyAsync(this::forceUpdateServiceInfo);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> addServiceTemplateAsync(@NonNull ServiceTemplate serviceTemplate) {
+    return TaskUtil.runAsync(() -> this.addServiceTemplate(serviceTemplate));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> addServiceRemoteInclusionAsync(
+    @NonNull ServiceRemoteInclusion serviceRemoteInclusion
+  ) {
+    return TaskUtil.runAsync(() -> this.addServiceRemoteInclusion(serviceRemoteInclusion));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> addServiceDeploymentAsync(@NonNull ServiceDeployment serviceDeployment) {
+    return TaskUtil.runAsync(() -> this.addServiceDeployment(serviceDeployment));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Queue<String>> cachedLogMessagesAsync() {
+    return TaskUtil.supplyAsync(this::cachedLogMessages);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> toggleScreenEventsAsync(
+    @NonNull ChannelMessageSender sender,
+    @NonNull String channel
+  ) {
+    return TaskUtil.supplyAsync(() -> this.toggleScreenEvents(sender, channel));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> restartAsync() {
+    return TaskUtil.runAsync(this::restart);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> updateLifecycleAsync(@NonNull ServiceLifeCycle lifeCycle) {
+    return TaskUtil.runAsync(() -> this.updateLifecycle(lifeCycle));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> deleteFilesAsync() {
+    return TaskUtil.runAsync(this::deleteFiles);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> runCommandAsync(@NonNull String command) {
+    return TaskUtil.runAsync(() -> this.runCommand(command));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync() {
+    return TaskUtil.runAsync(this::includeWaitingServiceTemplates);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync(boolean force) {
+    return TaskUtil.runAsync(() -> this.includeWaitingServiceTemplates(force));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> includeWaitingServiceInclusionsAsync() {
+    return TaskUtil.runAsync(this::includeWaitingServiceInclusions);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> deployResourcesAsync(boolean removeDeployments) {
+    return TaskUtil.runAsync(() -> this.deployResources(removeDeployments));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> removeAndExecuteDeploymentsAsync() {
+    return TaskUtil.runAsync(this::removeAndExecuteDeployments);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> updatePropertiesAsync(@NonNull Document properties) {
+    return TaskUtil.runAsync(() -> this.updateProperties(properties));
   }
 
   protected void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle, boolean switchToDeletedOnStop) {

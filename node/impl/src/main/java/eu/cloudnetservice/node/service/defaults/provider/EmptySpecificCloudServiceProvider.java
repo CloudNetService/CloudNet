@@ -27,6 +27,7 @@ import eu.cloudnetservice.driver.service.ServiceTemplate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -125,5 +126,99 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
 
   @Override
   public void updateProperties(@NonNull Document properties) {
+  }
+
+  @Override
+  public @NonNull CompletableFuture<ServiceInfoSnapshot> serviceInfoAsync() {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> validAsync() {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> addServiceTemplateAsync(@NonNull ServiceTemplate serviceTemplate) {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> addServiceRemoteInclusionAsync(
+    @NonNull ServiceRemoteInclusion serviceRemoteInclusion
+  ) {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> addServiceDeploymentAsync(@NonNull ServiceDeployment serviceDeployment) {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Queue<String>> cachedLogMessagesAsync() {
+    return CompletableFuture.completedFuture(new LinkedBlockingDeque<>());
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> toggleScreenEventsAsync(@NonNull ChannelMessageSender sender,
+    @NonNull String channel
+  ) {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> restartAsync() {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> updateLifecycleAsync(@NonNull ServiceLifeCycle lifeCycle) {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> deleteFilesAsync() {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> runCommandAsync(@NonNull String command) {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync() {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync(boolean force) {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> includeWaitingServiceInclusionsAsync() {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> deployResourcesAsync(boolean removeDeployments) {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> removeAndExecuteDeploymentsAsync() {
+    return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> updatePropertiesAsync(@NonNull Document properties) {
+    return CompletableFuture.completedFuture(null);
   }
 }

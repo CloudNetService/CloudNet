@@ -537,7 +537,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when all waiting service deployments were executed.
    */
   @NonNull
-  CompletableFuture<Void> executeAndRemoveDeploymentsAsync();
+  CompletableFuture<Void> removeAndExecuteDeploymentsAsync();
 
   /**
    * Updates the properties of the current service info to include all properties set in the given document. All

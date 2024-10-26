@@ -20,7 +20,11 @@ import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.event.instance.CloudNetTickEvent;
+import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
+import eu.cloudnetservice.node.service.InternalCloudServiceManager;
 import eu.cloudnetservice.utils.base.concurrent.ListenableTask;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
@@ -34,8 +38,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
-import eu.cloudnetservice.node.event.instance.CloudNetTickEvent;
-import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +55,7 @@ public final class DefaultTickLoop implements TickLoop, Scheduler {
 
   private final EventManager eventManager;
   private final ServiceTaskProvider taskProvider;
-  private final CloudServiceManager serviceManager;
+  private final InternalCloudServiceManager serviceManager;
   private final NodeServerProvider nodeServerProvider;
   private final Provider<DefaultShutdownHandler> shutdownHandlerProvider;
 
@@ -69,7 +71,7 @@ public final class DefaultTickLoop implements TickLoop, Scheduler {
   public DefaultTickLoop(
     @NonNull EventManager eventManager,
     @NonNull ServiceTaskProvider taskProvider,
-    @NonNull CloudServiceManager serviceManager,
+    @NonNull InternalCloudServiceManager serviceManager,
     @NonNull NodeServerProvider nodeServerProvider,
     @NonNull Provider<DefaultShutdownHandler> shutdownHandlerProvider
   ) {
@@ -227,7 +229,7 @@ public final class DefaultTickLoop implements TickLoop, Scheduler {
           .count();
         // check if we need to start a service
         if (task.minServiceCount() > runningServiceCount) {
-          //TODO  this.serviceManager.selectOrCreateService(task).start();
+          this.serviceManager.selectOrCreateService(task).start();
         }
       }
     }

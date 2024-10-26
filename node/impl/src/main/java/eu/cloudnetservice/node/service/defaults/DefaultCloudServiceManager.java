@@ -41,12 +41,25 @@ import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
+import eu.cloudnetservice.node.event.service.CloudServicePreForceStopEvent;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.InternalCloudService;
 import eu.cloudnetservice.node.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
+import eu.cloudnetservice.node.service.defaults.config.BungeeConfigurationPreparer;
+import eu.cloudnetservice.node.service.defaults.config.LimboLoohpServiceConfigurationPreparer;
+import eu.cloudnetservice.node.service.defaults.config.NukkitConfigurationPreparer;
+import eu.cloudnetservice.node.service.defaults.config.VanillaServiceConfigurationPreparer;
+import eu.cloudnetservice.node.service.defaults.config.VelocityConfigurationPreparer;
+import eu.cloudnetservice.node.service.defaults.config.WaterdogPEConfigurationPreparer;
+import eu.cloudnetservice.node.service.defaults.factory.JVMLocalCloudServiceFactory;
+import eu.cloudnetservice.node.service.defaults.provider.EmptySpecificCloudServiceProvider;
+import eu.cloudnetservice.node.service.defaults.provider.RemoteNodeCloudServiceProvider;
+import eu.cloudnetservice.node.tick.DefaultTickLoop;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import io.vavr.Tuple2;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -61,22 +74,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import eu.cloudnetservice.node.tick.DefaultTickLoop;
-import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
-import eu.cloudnetservice.node.event.service.CloudServicePreForceStopEvent;
-import eu.cloudnetservice.node.service.defaults.config.BungeeConfigurationPreparer;
-import eu.cloudnetservice.node.service.defaults.config.LimboLoohpServiceConfigurationPreparer;
-import eu.cloudnetservice.node.service.defaults.config.NukkitConfigurationPreparer;
-import eu.cloudnetservice.node.service.defaults.config.VanillaServiceConfigurationPreparer;
-import eu.cloudnetservice.node.service.defaults.config.VelocityConfigurationPreparer;
-import eu.cloudnetservice.node.service.defaults.config.WaterdogPEConfigurationPreparer;
-import eu.cloudnetservice.node.service.defaults.factory.JVMLocalCloudServiceFactory;
-import eu.cloudnetservice.node.service.defaults.provider.EmptySpecificCloudServiceProvider;
-import eu.cloudnetservice.node.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -277,6 +279,58 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
   @Override
   public @Nullable ServiceInfoSnapshot service(@NonNull UUID uniqueId) {
     return this.serviceProvider(uniqueId).serviceInfo();
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesAsync() {
+    return TaskUtil.supplyAsync(this::services);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> runningServicesAsync() {
+    return TaskUtil.supplyAsync(this::runningServices);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByTaskAsync(@NonNull String taskName) {
+    return TaskUtil.supplyAsync(() -> this.servicesByTask(taskName));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(
+    @NonNull String environment
+  ) {
+    return TaskUtil.supplyAsync(() -> this.servicesByEnvironment(environment));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<ServiceInfoSnapshot>> servicesByGroupAsync(@NonNull String group) {
+    return TaskUtil.supplyAsync(() -> this.servicesByGroup(group));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Integer> serviceCountAsync() {
+    return TaskUtil.supplyAsync(this::serviceCount);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Integer> serviceCountByGroupAsync(@NonNull String group) {
+    return TaskUtil.supplyAsync(() -> this.serviceCountByGroup(group));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Integer> serviceCountByTaskAsync(@NonNull String taskName) {
+    return TaskUtil.supplyAsync(() -> this.serviceCountByTask(taskName));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.serviceByName(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId) {
+    return TaskUtil.supplyAsync(() -> this.service(uniqueId));
   }
 
   @Override
@@ -535,14 +589,14 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
   }
 
   @Override
-  public @NonNull CloudService createLocalCloudService(@NonNull ServiceConfiguration configuration) {
+  public @NonNull InternalCloudService createLocalCloudService(@NonNull ServiceConfiguration configuration) {
     // get the cloud service factory for the configuration
     var factory = this.cloudServiceFactory(configuration.runtime());
     if (factory == null) {
       throw new IllegalArgumentException("No service factory for runtime " + configuration.runtime());
     }
     // create the new service using the factory
-    return factory.createCloudService(this, configuration);
+    return (InternalCloudService) factory.createCloudService(this, configuration);
   }
 
   @Override

@@ -20,24 +20,19 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
-import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
-import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.service.CloudServicePostProcessStartEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.node.service.InternalCloudServiceManager;
+import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.log.ProcessServiceLogCache;
 import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
@@ -55,8 +50,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -171,7 +164,7 @@ public class JVMService extends AbstractService {
     arguments.addAll(this.serviceConfiguration().processConfig().processParameters());
 
     // try to start the process like that
-    this.doStartProcess(arguments, wrapperInformation._1(), applicationInformation._1());
+    this.doStartProcess(arguments);
   }
 
   @Override
@@ -211,98 +204,6 @@ public class JVMService extends AbstractService {
   }
 
   @Override
-  public @NonNull CompletableFuture<ServiceInfoSnapshot> serviceInfoAsync() {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Boolean> validAsync() {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> addServiceTemplateAsync(@NonNull ServiceTemplate serviceTemplate) {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> addServiceRemoteInclusionAsync(
-    @NonNull ServiceRemoteInclusion serviceRemoteInclusion) {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> addServiceDeploymentAsync(@NonNull ServiceDeployment serviceDeployment) {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Queue<String>> cachedLogMessagesAsync() {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Boolean> toggleScreenEventsAsync(@NonNull ChannelMessageSender sender,
-    @NonNull String channel) {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> restartAsync() {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> updateLifecycleAsync(@NonNull ServiceLifeCycle lifeCycle) {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> deleteFilesAsync() {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> runCommandAsync(@NonNull String command) {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync() {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> includeWaitingServiceTemplatesAsync(boolean force) {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> includeWaitingServiceInclusionsAsync() {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> deployResourcesAsync(boolean removeDeployments) {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> executeAndRemoveDeploymentsAsync() {
-    return null;
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> updatePropertiesAsync(@NonNull Document properties) {
-    return null;
-  }
-
-  @Override
   public @NonNull String runtime() {
     return "jvm";
   }
@@ -312,11 +213,7 @@ public class JVMService extends AbstractService {
     return this.process != null && this.process.toHandle().isAlive();
   }
 
-  protected void doStartProcess(
-    @NonNull List<String> arguments,
-    @NonNull Path wrapperPath,
-    @NonNull Path applicationFilePath
-  ) {
+  protected void doStartProcess(@NonNull List<String> arguments) {
     try {
       // prepare the builder and apply the environment variables to it
       var builder = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile());

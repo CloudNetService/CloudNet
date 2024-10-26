@@ -19,18 +19,24 @@ package eu.cloudnetservice.node.provider;
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.base.Named;
-import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
+import eu.cloudnetservice.node.event.group.LocalGroupConfigurationAddEvent;
+import eu.cloudnetservice.node.event.group.LocalGroupConfigurationRemoveEvent;
+import eu.cloudnetservice.node.network.listener.message.GroupChannelMessageListener;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -43,12 +49,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
-import eu.cloudnetservice.node.event.group.LocalGroupConfigurationAddEvent;
-import eu.cloudnetservice.node.event.group.LocalGroupConfigurationRemoveEvent;
-import eu.cloudnetservice.node.network.listener.message.GroupChannelMessageListener;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -167,6 +170,40 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
       .buffer(DataBuf.empty().writeObject(groupConfiguration))
       .build()
       .send();
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> reloadAsync() {
+    return TaskUtil.runAsync(this::reload);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<GroupConfiguration>> groupConfigurationsAsync() {
+    return TaskUtil.supplyAsync(this::groupConfigurations);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.groupConfiguration(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> addGroupConfigurationAsync(
+    @NonNull GroupConfiguration groupConfiguration
+  ) {
+    return TaskUtil.supplyAsync(() -> this.addGroupConfiguration(groupConfiguration));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
+    return TaskUtil.runAsync(() -> this.removeGroupConfigurationByName(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> removeGroupConfigurationAsync(
+    @NonNull GroupConfiguration groupConfiguration
+  ) {
+    return TaskUtil.runAsync(() -> this.removeGroupConfiguration(groupConfiguration));
   }
 
   public void addGroupConfigurationSilently(@NonNull GroupConfiguration groupConfiguration) {
