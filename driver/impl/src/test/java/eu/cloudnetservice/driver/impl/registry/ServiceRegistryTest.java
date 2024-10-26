@@ -17,7 +17,10 @@
 package eu.cloudnetservice.driver.impl.registry;
 
 import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.registry.Service;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -202,6 +205,21 @@ public final class ServiceRegistryTest {
     Assertions.assertTrue(registeredServices.contains(DocumentFactory.class));
   }
 
+  @Test
+  void testInjectionOfServices() {
+    var bootLayer = InjectionLayer.boot(); // configures the @Service annotation
+    bootLayer.installAutoConfigureBindings(ServiceRegistryTest.class.getClassLoader(), "driver");
+
+    var registry = bootLayer.instance(ServiceRegistry.class);
+    registry.registerProvider(ServiceA.class, "1", new ServiceAImpl1());
+    registry.registerProvider(ServiceB.class, "1", new ServiceBImpl1());
+    registry.registerProvider(ServiceB.class, "test", new ServiceBImpl2());
+
+    var instance = bootLayer.instance(SomeClassThatNeedServices.class);
+    Assertions.assertEquals("hello", instance.serBDef().world());
+    Assertions.assertEquals("world", instance.serBTest().world());
+  }
+
   public interface ServiceA {
 
   }
@@ -235,5 +253,9 @@ public final class ServiceRegistryTest {
     public String world() {
       return "world";
     }
+  }
+
+  public record SomeClassThatNeedServices(@Service ServiceB serBDef, @Service(name = "test") ServiceB serBTest) {
+
   }
 }
