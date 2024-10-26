@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.network.rpc;
 
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.object.ObjectMapper;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 

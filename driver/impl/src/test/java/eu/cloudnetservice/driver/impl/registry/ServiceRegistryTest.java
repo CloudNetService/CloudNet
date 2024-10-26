@@ -97,17 +97,17 @@ public final class ServiceRegistryTest {
     registry.registerConstructingProvider(ServiceA.class, "ns", ServiceAImpl1.class);
     registry.registerProvider(ServiceA.class, "s", new ServiceAImpl1());
 
-    var nsInstance1 = registry.instance(ServiceA.class, "ns");
-    var nsInstance2 = registry.instance(ServiceA.class, "ns");
-    Assertions.assertNotSame(nsInstance1, nsInstance2);
-    Assertions.assertFalse(Proxy.isProxyClass(nsInstance1.getClass()));
-    Assertions.assertFalse(Proxy.isProxyClass(nsInstance2.getClass()));
+    var nonSingletonInstance1 = registry.instance(ServiceA.class, "ns");
+    var nonSingletonInstance2 = registry.instance(ServiceA.class, "ns");
+    Assertions.assertNotSame(nonSingletonInstance1, nonSingletonInstance2);
+    Assertions.assertFalse(Proxy.isProxyClass(nonSingletonInstance1.getClass()));
+    Assertions.assertFalse(Proxy.isProxyClass(nonSingletonInstance2.getClass()));
 
-    var sInstance1 = registry.instance(ServiceA.class, "s");
-    var sInstance2 = registry.instance(ServiceA.class, "s");
-    Assertions.assertSame(sInstance1, sInstance2);
-    Assertions.assertFalse(Proxy.isProxyClass(sInstance1.getClass()));
-    Assertions.assertFalse(Proxy.isProxyClass(sInstance2.getClass()));
+    var singletonInstance1 = registry.instance(ServiceA.class, "s");
+    var singletonInstance2 = registry.instance(ServiceA.class, "s");
+    Assertions.assertSame(singletonInstance1, singletonInstance2);
+    Assertions.assertFalse(Proxy.isProxyClass(singletonInstance1.getClass()));
+    Assertions.assertFalse(Proxy.isProxyClass(singletonInstance2.getClass()));
   }
 
   @Test
