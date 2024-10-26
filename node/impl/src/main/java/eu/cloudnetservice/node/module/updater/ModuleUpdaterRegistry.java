@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.module.updater;
 
 import eu.cloudnetservice.driver.document.DocumentFactory;
-import eu.cloudnetservice.driver.module.DefaultModuleProvider;
+import eu.cloudnetservice.driver.impl.module.DefaultModuleProvider;
 import eu.cloudnetservice.ext.updater.defaults.DefaultUpdaterRegistry;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Singleton;

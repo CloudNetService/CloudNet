@@ -17,9 +17,9 @@
 package eu.cloudnetservice.node.module;
 
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.impl.module.DefaultModuleProviderHandler;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.language.I18n;
-import eu.cloudnetservice.driver.module.DefaultModuleProviderHandler;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleProviderHandler;
 import eu.cloudnetservice.driver.module.ModuleWrapper;

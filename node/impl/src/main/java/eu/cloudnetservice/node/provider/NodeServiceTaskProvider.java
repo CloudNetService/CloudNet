@@ -40,6 +40,7 @@ import eu.cloudnetservice.node.network.listener.message.TaskChannelMessageListen
 import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.setup.DefaultTaskSetup;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
@@ -53,6 +54,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -169,6 +171,36 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       .buffer(DataBuf.empty().writeObject(serviceTask))
       .build()
       .send();
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> reloadAsync() {
+    return TaskUtil.runAsync(this::reload);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<ServiceTask>> serviceTasksAsync() {
+    return TaskUtil.supplyAsync(this::serviceTasks);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<ServiceTask> serviceTaskAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.serviceTask(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> addServiceTaskAsync(@NonNull ServiceTask serviceTask) {
+    return TaskUtil.supplyAsync(() -> this.addServiceTask(serviceTask));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> removeServiceTaskByNameAsync(@NonNull String name) {
+    return TaskUtil.runAsync(() -> this.removeServiceTaskByName(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> removeServiceTaskAsync(@NonNull ServiceTask serviceTask) {
+    return TaskUtil.runAsync(() -> this.removeServiceTask(serviceTask));
   }
 
   public void addPermanentServiceTaskSilently(@NonNull ServiceTask serviceTask) {

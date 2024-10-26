@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.module.updater;
 
+import eu.cloudnetservice.driver.impl.module.DefaultModuleProvider;
 import eu.cloudnetservice.driver.language.I18n;
-import eu.cloudnetservice.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.ext.updater.Updater;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
