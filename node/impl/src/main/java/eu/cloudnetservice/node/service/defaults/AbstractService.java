@@ -40,10 +40,11 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.InternalCloudService;
 import eu.cloudnetservice.node.service.InternalCloudServiceManager;
+import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
+import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.resource.CpuUsageResolver;
@@ -66,6 +67,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiPredicate;
 import java.util.regex.Pattern;
+import kong.unirest.core.Unirest;
+import kong.unirest.core.UnirestException;
 import lombok.NonNull;
 import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.config.Configuration;
@@ -77,8 +80,6 @@ import eu.cloudnetservice.node.event.service.CloudServicePreLifecycleEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePreLoadInclusionEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePrePrepareEvent;
 import eu.cloudnetservice.node.event.service.CloudServiceTemplateLoadEvent;
-import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
-import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -385,7 +386,6 @@ public abstract class AbstractService implements InternalCloudService {
 
           // we've installed the inclusion successfully
           this.installedInclusions.add(inclusion);
-          //TODO what about unirest ?
         } catch (UnirestException exception) {
           LOGGER.warn(
             "Unable to download inclusion from {} to {}",
@@ -764,7 +764,6 @@ public abstract class AbstractService implements InternalCloudService {
 
   protected void downloadInclusionFile(@NonNull ServiceRemoteInclusion inclusion, @NonNull Path destination) {
     // prepare the connection from which we load the inclusion
-    // TODO uni rest dings
     var request = Unirest.get(inclusion.url());
     // put the given http headers
     var headers = inclusion.readPropertyOrDefault(ServiceRemoteInclusion.HEADERS, Map.of());

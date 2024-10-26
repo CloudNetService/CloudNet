@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.service.defaults;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.common.cache.Cache;
 import com.google.common.collect.ComparisonChain;
 import dev.derklaro.aerogel.PostConstruct;
 import dev.derklaro.aerogel.auto.Provides;
@@ -38,10 +38,15 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.node.cluster.NodeServer;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.InternalCloudService;
 import eu.cloudnetservice.node.service.InternalCloudServiceManager;
+import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
+import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import io.vavr.Tuple2;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -63,8 +68,6 @@ import lombok.NonNull;
 import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
 import eu.cloudnetservice.node.event.service.CloudServicePreForceStopEvent;
-import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
-import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.BungeeConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.LimboLoohpServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.config.NukkitConfigurationPreparer;
@@ -104,7 +107,7 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
   protected final RPCImplementationBuilder.InstanceAllocator<? extends SpecificCloudServiceProvider> specificProviderAllocator;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
-  protected final Cache<UUID, CloudService> localUnacceptedServices = Caffeine.newBuilder()
+  protected final Cache<UUID, InternalCloudService> localUnacceptedServices = Caffeine.newBuilder()
     .expireAfterWrite(Duration.ofMinutes(1))
     .build();
 
@@ -455,7 +458,7 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
   }
 
   @Override
-  public void registerLocalService(@NonNull CloudService service) {
+  public void registerLocalService(@NonNull InternalCloudService service) {
     this.knownServices.putIfAbsent(service.serviceId().uniqueId(), service);
   }
 
@@ -465,12 +468,12 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
   }
 
   @Override
-  public void registerUnacceptedService(@NonNull CloudService service) {
+  public void registerUnacceptedService(@NonNull InternalCloudService service) {
     this.localUnacceptedServices.put(service.serviceId().uniqueId(), service);
   }
 
   @Override
-  public @Nullable CloudService takeUnacceptedService(@NonNull UUID serviceUniqueId) {
+  public @Nullable InternalCloudService takeUnacceptedService(@NonNull UUID serviceUniqueId) {
     // this is the correct way to invalidate & get the value associated with the id in the cache
     // see https://stackoverflow.com/a/67994912/13008679
     return this.localUnacceptedServices.asMap().remove(serviceUniqueId);

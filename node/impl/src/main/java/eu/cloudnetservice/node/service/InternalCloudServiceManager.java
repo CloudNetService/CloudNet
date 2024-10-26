@@ -21,22 +21,19 @@ import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.node.service.CloudService;
-import eu.cloudnetservice.node.service.CloudServiceManager;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public interface InternalCloudServiceManager extends CloudServiceManager {
 
-  void registerLocalService(@NonNull CloudService service);
+  void registerLocalService(@NonNull InternalCloudService service);
 
   void unregisterLocalService(@NonNull CloudService service);
 
-  void registerUnacceptedService(@NonNull CloudService service);
+  void registerUnacceptedService(@NonNull InternalCloudService service);
 
-  @Nullable CloudService takeUnacceptedService(@NonNull UUID serviceUniqueId);
+  @Nullable InternalCloudService takeUnacceptedService(@NonNull UUID serviceUniqueId);
 
   void forceRemoveRegisteredService(@NonNull UUID uniqueId);
 
@@ -46,8 +43,9 @@ public interface InternalCloudServiceManager extends CloudServiceManager {
 
   void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @Nullable NetworkChannel source);
 
-  @NonNull InternalCloudService createLocalCloudService(@NonNull ServiceConfiguration serviceConfiguration);
+  @NonNull
+  InternalCloudService createLocalCloudService(@NonNull ServiceConfiguration serviceConfiguration);
 
-  @NonNull SpecificCloudServiceProvider selectOrCreateService(@NonNull ServiceTask task);
-
+  @NonNull
+  SpecificCloudServiceProvider selectOrCreateService(@NonNull ServiceTask task);
 }

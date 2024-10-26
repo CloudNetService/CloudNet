@@ -19,17 +19,13 @@ package eu.cloudnetservice.node.service;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public interface InternalCloudService extends CloudService {
 
-  @ApiStatus.Internal
   void networkChannel(@Nullable NetworkChannel channel);
 
-  @ApiStatus.Internal
   void handleServiceRegister();
 
-  @ApiStatus.Internal
   void updateServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

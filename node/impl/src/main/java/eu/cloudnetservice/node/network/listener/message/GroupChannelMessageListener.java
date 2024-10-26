@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.event.events.group.GroupConfigurationAddEvent;
 import eu.cloudnetservice.driver.event.events.group.GroupConfigurationRemoveEvent;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

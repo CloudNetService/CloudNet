@@ -18,6 +18,8 @@ package eu.cloudnetservice.node.service.defaults.log;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
+import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Queue;
@@ -26,8 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
-import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

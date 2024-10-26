@@ -17,10 +17,10 @@
 package eu.cloudnetservice.node.network.chunk;
 
 import eu.cloudnetservice.driver.event.EventListener;
-import eu.cloudnetservice.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
+import eu.cloudnetservice.driver.impl.network.chunk.DefaultFileChunkedPacketHandler;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
-import eu.cloudnetservice.driver.network.chunk.defaults.DefaultFileChunkedPacketHandler;
+import eu.cloudnetservice.driver.network.chunk.event.ChunkedPacketSessionOpenEvent;
 import eu.cloudnetservice.driver.network.chunk.event.FileQueryRequestEvent;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;

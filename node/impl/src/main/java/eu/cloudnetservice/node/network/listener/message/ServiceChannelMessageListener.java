@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.network.listener.message;
 
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -25,15 +24,15 @@ import eu.cloudnetservice.driver.event.events.service.CloudServiceDeferredStateE
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.node.service.CloudServiceManager;
-import jakarta.inject.Inject;
+import eu.cloudnetservice.node.service.InternalCloudServiceManager;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.slf4j.Logger;
@@ -44,29 +43,19 @@ public final class ServiceChannelMessageListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceChannelMessageListener.class);
 
-  private final EventManager eventManager;
-  private final CloudServiceManager serviceManager;
-  private final CloudServiceFactory cloudServiceFactory;
-
-  @Inject
-  public ServiceChannelMessageListener(
+  @EventListener
+  public void handleChannelMessage(
+    @NonNull ChannelMessageReceiveEvent event,
     @NonNull EventManager eventManager,
-    @NonNull CloudServiceManager serviceManager,
+    @NonNull InternalCloudServiceManager serviceManager,
     @NonNull CloudServiceFactory cloudServiceFactory
   ) {
-    this.eventManager = eventManager;
-    this.serviceManager = serviceManager;
-    this.cloudServiceFactory = cloudServiceFactory;
-  }
-
-  @EventListener
-  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // request to start a service
         case "node_to_head_start_service" -> {
           var configuration = event.content().readObject(ServiceConfiguration.class);
-          event.queryResponse(this.cloudServiceFactory.createCloudServiceAsync(configuration)
+          event.queryResponse(cloudServiceFactory.createCloudServiceAsync(configuration)
             .thenApply(service -> ChannelMessage.buildResponseFor(event.channelMessage())
               .buffer(DataBuf.empty().writeObject(service))
               .build()));
@@ -77,13 +66,13 @@ public final class ServiceChannelMessageListener {
         // means that the cache ttl on the target node exceeded
         case "node_to_head_node_unaccepted_service_ttl_exceeded" -> {
           var serviceUniqueId = event.content().readUniqueId();
-          this.serviceManager.forceRemoveRegisteredService(serviceUniqueId);
+          serviceManager.forceRemoveRegisteredService(serviceUniqueId);
         }
 
         // request to start a service on the local node
         case "head_node_to_node_start_service" -> {
           var configuration = event.content().readObject(ServiceConfiguration.class);
-          var service = this.serviceManager.createLocalCloudService(configuration);
+          var service = serviceManager.createLocalCloudService(configuration);
 
           event.binaryResponse(DataBuf.empty().writeObject(ServiceCreateResult.created(service.serviceInfo())));
         }
@@ -91,7 +80,7 @@ public final class ServiceChannelMessageListener {
         // publish the service info of a created service to the cluster
         case "head_node_to_node_finish_service_registration" -> {
           var serviceUniqueId = event.content().readUniqueId();
-          var service = this.serviceManager.takeUnacceptedService(serviceUniqueId);
+          var service = serviceManager.takeUnacceptedService(serviceUniqueId);
 
           if (service != null) {
             // service is still locally present, finish the registration of it
@@ -99,7 +88,7 @@ public final class ServiceChannelMessageListener {
           } else {
             // service is no longer locally present as unaccepted
             // re-check if the service was already moved to registered
-            var registeredService = this.serviceManager.localCloudService(serviceUniqueId);
+            var registeredService = serviceManager.localCloudService(serviceUniqueId);
             if (registeredService == null) {
               // send this as feedback to the head node in order to remove the registered service from there as well
               ChannelMessage.builder()
@@ -117,8 +106,8 @@ public final class ServiceChannelMessageListener {
         case "update_service_info" -> {
           var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
-          this.serviceManager.handleServiceUpdate(snapshot, event.networkChannel());
-          this.eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
+          serviceManager.handleServiceUpdate(snapshot, event.networkChannel());
+          eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
         }
 
         // update of a service lifecycle in the network
@@ -126,8 +115,8 @@ public final class ServiceChannelMessageListener {
           var lifeCycle = event.content().readObject(ServiceLifeCycle.class);
           var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
-          this.serviceManager.handleServiceUpdate(snapshot, event.networkChannel());
-          this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
+          serviceManager.handleServiceUpdate(snapshot, event.networkChannel());
+          eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         }
 
         // call the event for a new line in the log of the service
@@ -139,7 +128,7 @@ public final class ServiceChannelMessageListener {
             ? CloudServiceLogEntryEvent.StreamType.STDERR
             : CloudServiceLogEntryEvent.StreamType.STDOUT;
 
-          this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line, type));
+          eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line, type));
         }
 
         // a deferred service start result is available, call the event
@@ -147,7 +136,7 @@ public final class ServiceChannelMessageListener {
           var creationId = event.content().readUniqueId();
           var createResult = event.content().readObject(ServiceCreateResult.class);
 
-          this.eventManager.callEvent(new CloudServiceDeferredStateEvent(creationId, createResult));
+          eventManager.callEvent(new CloudServiceDeferredStateEvent(creationId, createResult));
         }
 
         // none of our business

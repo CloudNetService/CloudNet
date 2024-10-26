@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.event.events.task.ServiceTaskAddEvent;
 import eu.cloudnetservice.driver.event.events.task.ServiceTaskRemoveEvent;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

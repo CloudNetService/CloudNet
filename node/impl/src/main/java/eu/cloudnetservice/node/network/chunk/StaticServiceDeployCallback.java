@@ -16,12 +16,13 @@
 
 package eu.cloudnetservice.node.network.chunk;
 
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.io.ZipUtil;
-import eu.cloudnetservice.common.language.I18n;
+
+import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
-import eu.cloudnetservice.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.utils.base.io.FileUtil;
+import eu.cloudnetservice.utils.base.io.ZipUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.InputStream;

@@ -18,20 +18,20 @@ package eu.cloudnetservice.node.service.defaults.config;
 
 import com.electronwill.nightconfig.core.ConfigFormat;
 import com.electronwill.nightconfig.core.file.FileConfig;
-import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
-import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractServiceConfigurationPreparer implements ServiceConfigurationPreparer {
 
-  protected static final Logger LOGGER = LoggerFactory.getLogger(ServiceConfigurationPreparer.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractServiceConfigurationPreparer.class);
 
   protected final ServiceTaskProvider taskProvider;
 

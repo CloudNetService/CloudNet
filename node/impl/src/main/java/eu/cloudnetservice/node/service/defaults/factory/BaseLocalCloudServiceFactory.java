@@ -18,10 +18,10 @@ package eu.cloudnetservice.node.service.defaults.factory;
 
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
 import java.util.Objects;
 import lombok.NonNull;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
 import eu.cloudnetservice.node.util.NetworkUtil;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 

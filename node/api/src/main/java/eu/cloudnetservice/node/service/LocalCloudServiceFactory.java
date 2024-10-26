@@ -22,6 +22,5 @@ import lombok.NonNull;
 
 public interface LocalCloudServiceFactory extends Named {
 
-  @NonNull CloudService createCloudService(@NonNull CloudServiceManager manager,
-    @NonNull ServiceConfiguration configuration);
+  @NonNull CloudService createCloudService(@NonNull CloudServiceManager manager, @NonNull ServiceConfiguration configuration);
 }
