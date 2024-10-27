@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.cluster.sync;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.registry.AutoService;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
@@ -66,7 +67,8 @@ public record DefaultDataSyncHandler<T>(
     return this.dataCollector.get();
   }
 
-  public static final class Builder<T> {
+  @AutoService(services = DataSyncHandler.Builder.class, name = "default", singleton = false)
+  public static final class Builder<T> implements DataSyncHandler.Builder<T> {
 
     private String key;
     private boolean alwaysForceApply;

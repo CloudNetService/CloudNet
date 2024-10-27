@@ -17,6 +17,8 @@
 package eu.cloudnetservice.node.cluster.sync;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -27,8 +29,9 @@ import org.jetbrains.annotations.Nullable;
 
 public interface DataSyncHandler<T> {
 
-  static <T> @NonNull DataSyncHandler.Builder<T> builder() {
-    return new DataSyncHandler.Builder<>();
+  static <T> DataSyncHandler.@NonNull Builder<T> builder() {
+    //noinspection unchecked
+    return ServiceRegistry.registry().defaultInstance(DataSyncHandler.Builder.class);
   }
 
   @NonNull
@@ -68,6 +71,40 @@ public interface DataSyncHandler<T> {
 
     void write(@NonNull DataBuf.Mutable target, @NonNull T2 data);
 
-    @NonNull T2 parse(@NonNull DataBuf input) throws Exception;
+    @NonNull
+    T2 parse(@NonNull DataBuf input) throws Exception;
+  }
+
+  interface Builder<T> {
+
+    @NonNull
+    Builder<T> key(@NonNull String key);
+
+    @NonNull
+    Builder<T> alwaysForce();
+
+    @NonNull
+    Builder<T> converter(@NonNull DataSyncHandler.DataConverter<T> converter);
+
+    @NonNull
+    Builder<T> convertObject(@NonNull Type type);
+
+    @NonNull
+    Builder<T> writer(@NonNull Consumer<T> writer);
+
+    @NonNull
+    Builder<T> currentGetter(@NonNull UnaryOperator<T> currentGetter);
+
+    @NonNull
+    Builder<T> nameExtractor(@NonNull Function<T, String> nameExtractor);
+
+    @NonNull
+    Builder<T> dataCollector(@NonNull Supplier<Collection<T>> dataCollector);
+
+    @NonNull
+    Builder<T> singletonCollector(@NonNull Supplier<T> dataCollector);
+
+    @NonNull
+    DataSyncHandler<T> build();
   }
 }
