@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.wrapper.network.chunk;
 
-import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.event.EventListener;
-import eu.cloudnetservice.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
-import eu.cloudnetservice.driver.network.chunk.defaults.DefaultFileChunkedPacketHandler;
+import eu.cloudnetservice.driver.impl.network.chunk.DefaultFileChunkedPacketHandler;
+import eu.cloudnetservice.driver.network.chunk.event.ChunkedPacketSessionOpenEvent;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import lombok.NonNull;
 
 public final class TemplateStorageCallbackListener {

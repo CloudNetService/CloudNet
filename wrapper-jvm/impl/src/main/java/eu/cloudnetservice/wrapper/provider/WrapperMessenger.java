@@ -16,12 +16,14 @@
 
 package eu.cloudnetservice.wrapper.provider;
 
+import com.google.common.collect.Iterables;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.impl.network.standard.ChannelMessagePacket;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.def.PacketServerChannelMessage;
+import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
-import eu.cloudnetservice.driver.provider.defaults.DefaultMessenger;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -29,11 +31,13 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @Provides(CloudMessenger.class)
-public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
+public class WrapperMessenger implements CloudMessenger {
 
   private static final Type MESSAGES = TypeFactory.parameterizedClass(Collection.class, ChannelMessage.class);
 
@@ -47,19 +51,41 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
   @Override
   public void sendChannelMessage(@NonNull ChannelMessage channelMessage) {
     if (channelMessage.sendSync()) {
-      this.networkClient.sendPacketSync(new PacketServerChannelMessage(channelMessage, true));
+      this.networkClient.sendPacketSync(new ChannelMessagePacket(channelMessage, true));
     } else {
-      this.networkClient.sendPacket(new PacketServerChannelMessage(channelMessage, true));
+      this.networkClient.sendPacket(new ChannelMessagePacket(channelMessage, true));
     }
   }
 
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    Collection<ChannelMessage> response = this.networkClient.firstChannel()
-      .sendQueryAsync(new PacketServerChannelMessage(channelMessage, true))
-      .join()
-      .content()
-      .readObject(MESSAGES);
-    return Objects.requireNonNullElse(response, List.of());
+    // TODO: use TaskUtil.getOrDefault?
+    return this.sendChannelMessageQueryAsync(channelMessage).join();
+  }
+
+  @Override
+  public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
+    return Iterables.getFirst(this.sendChannelMessageQuery(channelMessage), null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
+    return TaskUtil.runAsync(() -> this.sendChannelMessage(channelMessage));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
+    @NonNull ChannelMessage message
+  ) {
+    return this.networkClient.firstChannel().sendQueryAsync(new ChannelMessagePacket(message, true))
+      .thenApply(Packet::content)
+      .thenApply(data -> Objects.requireNonNullElse(data.readObject(MESSAGES), List.of()));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
+    @NonNull ChannelMessage message
+  ) {
+    return this.sendChannelMessageQueryAsync(message).thenApply(resp -> Iterables.getFirst(resp, null));
   }
 }

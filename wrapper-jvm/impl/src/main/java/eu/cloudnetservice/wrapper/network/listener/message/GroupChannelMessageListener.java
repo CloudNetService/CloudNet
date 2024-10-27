@@ -19,28 +19,28 @@ package eu.cloudnetservice.wrapper.network.listener.message;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
-import eu.cloudnetservice.driver.event.events.task.ServiceTaskAddEvent;
-import eu.cloudnetservice.driver.event.events.task.ServiceTaskRemoveEvent;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.driver.event.events.group.GroupConfigurationAddEvent;
+import eu.cloudnetservice.driver.event.events.group.GroupConfigurationRemoveEvent;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.service.GroupConfiguration;
 import lombok.NonNull;
 
-public final class TaskChannelMessageListener {
+public final class GroupChannelMessageListener {
 
   @EventListener
-  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event, @NonNull EventManager eventManager) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event, @NonNull EventManager eventManager) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
-        // add task
-        case "add_service_task" -> {
-          var task = event.content().readObject(ServiceTask.class);
-          eventManager.callEvent(new ServiceTaskAddEvent(task));
+        // add group
+        case "add_group_configuration" -> {
+          var configuration = event.content().readObject(GroupConfiguration.class);
+          eventManager.callEvent(new GroupConfigurationAddEvent(configuration));
         }
 
-        // remove task
-        case "remove_service_task" -> {
-          var task = event.content().readObject(ServiceTask.class);
-          eventManager.callEvent(new ServiceTaskRemoveEvent(task));
+        // remove group
+        case "remove_group_configuration" -> {
+          var configuration = event.content().readObject(GroupConfiguration.class);
+          eventManager.callEvent(new GroupConfigurationRemoveEvent(configuration));
         }
 
         // none of our business

@@ -17,15 +17,15 @@
 package eu.cloudnetservice.wrapper;
 
 import dev.derklaro.aerogel.Order;
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.module.DefaultModuleProviderHandler;
+import eu.cloudnetservice.driver.impl.module.DefaultModuleProviderHandler;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.impl.network.chunk.ChunkedSessionRegistry;
+import eu.cloudnetservice.driver.impl.network.chunk.network.ChunkedPacketListener;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.chunk.defaults.ChunkedSessionRegistry;
-import eu.cloudnetservice.driver.network.chunk.defaults.factory.EventChunkHandlerFactory;
-import eu.cloudnetservice.driver.network.chunk.network.ChunkedPacketListener;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.chunk.event.EventChunkHandlerFactory;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ApplicationPostStartEvent;
 import eu.cloudnetservice.wrapper.event.ApplicationPreStartEvent;

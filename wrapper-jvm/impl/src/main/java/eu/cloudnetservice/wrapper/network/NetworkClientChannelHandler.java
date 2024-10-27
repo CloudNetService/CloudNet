@@ -20,10 +20,10 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelInitEvent;
+import eu.cloudnetservice.driver.impl.network.standard.AuthorizationPacket;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.PacketClientAuthorization;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
@@ -48,8 +48,8 @@ public final class NetworkClientChannelHandler implements NetworkChannelHandler 
       return;
     }
 
-    channel.sendPacket(new PacketClientAuthorization(
-      PacketClientAuthorization.PacketAuthorizationType.WRAPPER_TO_NODE,
+    channel.sendPacket(new AuthorizationPacket(
+      AuthorizationPacket.PacketAuthorizationType.WRAPPER_TO_NODE,
       DataBuf.empty()
         .writeString(this.wrapperConfiguration.connectionKey())
         .writeObject(this.wrapperConfiguration.serviceConfiguration().serviceId())));

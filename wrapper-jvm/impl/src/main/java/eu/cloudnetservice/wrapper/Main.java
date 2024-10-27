@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class Main {
@@ -44,7 +45,7 @@ public final class Main {
     bootInjectLayer.installAutoConfigureBindings(Main.class.getClassLoader(), "driver");
     bootInjectLayer.installAutoConfigureBindings(Main.class.getClassLoader(), "wrapper");
 
-    var rootLogger = LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    var rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
     // initial bindings which we cannot (or it makes no sense to) construct
     bootInjectLayer.install(BindingBuilder.create()

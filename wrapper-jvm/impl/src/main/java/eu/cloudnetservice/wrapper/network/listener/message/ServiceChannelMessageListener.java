@@ -24,8 +24,8 @@ import eu.cloudnetservice.driver.event.events.service.CloudServiceDeferredStateE
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;

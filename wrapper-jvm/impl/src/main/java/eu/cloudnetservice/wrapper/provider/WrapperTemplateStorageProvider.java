@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper.provider;
 
 import eu.cloudnetservice.driver.ComponentInfo;
+import eu.cloudnetservice.driver.impl.template.RemoteTemplateStorage;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
@@ -25,7 +26,6 @@ import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
-import eu.cloudnetservice.driver.template.defaults.RemoteTemplateStorage;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;

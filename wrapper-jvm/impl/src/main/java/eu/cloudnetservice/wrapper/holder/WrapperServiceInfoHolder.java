@@ -21,19 +21,16 @@ import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.driver.util.VarHandleUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.event.ServiceInfoSnapshotPublishEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
 import lombok.NonNull;
 
 /**
@@ -45,33 +42,11 @@ import lombok.NonNull;
 @Provides(ServiceInfoHolder.class)
 public final class WrapperServiceInfoHolder implements ServiceInfoHolder {
 
-  private static final VarHandle LAST_INFO_VAR_HANDLE;
-  private static final VarHandle CURRENT_INFO_VARHANDLE;
-
-  static {
-    var lookup = MethodHandles.lookup();
-    // the handle to change the last service snapshot
-    LAST_INFO_VAR_HANDLE = VarHandleUtil.lookup(
-      lookup,
-      WrapperServiceInfoHolder.class,
-      "lastServiceInfoSnapshot",
-      ServiceInfoSnapshot.class);
-    // the handle to change the current service snapshot
-    CURRENT_INFO_VARHANDLE = VarHandleUtil.lookup(
-      lookup,
-      WrapperServiceInfoHolder.class,
-      "currentServiceInfoSnapshot",
-      ServiceInfoSnapshot.class);
-  }
-
   private final EventManager eventManager;
   private final WrapperConfiguration configuration;
 
-  // both of these fields are only accessed from the associated var handles
-  @SuppressWarnings({"FieldCanBeLocal", "unused", "FieldMayBeFinal"})
-  private ServiceInfoSnapshot lastServiceInfoSnapshot;
-  @SuppressWarnings({"FieldCanBeLocal", "unused", "FieldMayBeFinal"})
-  private ServiceInfoSnapshot currentServiceInfoSnapshot;
+  private volatile ServiceInfoSnapshot lastServiceInfoSnapshot;
+  private volatile ServiceInfoSnapshot currentServiceInfoSnapshot;
 
   @Inject
   private WrapperServiceInfoHolder(@NonNull EventManager eventManager, @NonNull WrapperConfiguration configuration) {
@@ -104,7 +79,7 @@ public final class WrapperServiceInfoHolder implements ServiceInfoHolder {
    */
   @Override
   public @NonNull ServiceInfoSnapshot serviceInfo() {
-    return (ServiceInfoSnapshot) CURRENT_INFO_VARHANDLE.getAcquire(this);
+    return this.currentServiceInfoSnapshot;
   }
 
   /**
@@ -112,7 +87,7 @@ public final class WrapperServiceInfoHolder implements ServiceInfoHolder {
    */
   @Override
   public @NonNull ServiceInfoSnapshot lastServiceInfo() {
-    return (ServiceInfoSnapshot) LAST_INFO_VAR_HANDLE.getAcquire(this);
+    return this.lastServiceInfoSnapshot;
   }
 
   /**
@@ -191,7 +166,7 @@ public final class WrapperServiceInfoHolder implements ServiceInfoHolder {
     this.eventManager.callEvent(new ServiceInfoSnapshotPublishEvent(serviceInfoSnapshot));
 
     // update the current & last snapshot
-    var lastSnapshot = (ServiceInfoSnapshot) CURRENT_INFO_VARHANDLE.getAndSetRelease(this, serviceInfoSnapshot);
-    LAST_INFO_VAR_HANDLE.setRelease(this, lastSnapshot);
+    this.lastServiceInfoSnapshot = this.currentServiceInfoSnapshot;
+    this.currentServiceInfoSnapshot = serviceInfoSnapshot;
   }
 }
