@@ -30,13 +30,13 @@ import lombok.NonNull;
 import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
 
 @Singleton
-public final class PacketClientServiceSyncAckListener implements PacketListener {
+public final class ServiceSyncAckPacketListener implements PacketListener {
 
   private final DataSyncRegistry dataSyncRegistry;
   private final NodeServerProvider nodeServerProvider;
 
   @Inject
-  public PacketClientServiceSyncAckListener(
+  public ServiceSyncAckPacketListener(
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull NodeServerProvider nodeServerProvider
   ) {

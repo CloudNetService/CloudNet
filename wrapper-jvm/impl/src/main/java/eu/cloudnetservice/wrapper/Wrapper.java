@@ -31,8 +31,8 @@ import eu.cloudnetservice.wrapper.event.ApplicationPostStartEvent;
 import eu.cloudnetservice.wrapper.event.ApplicationPreStartEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import eu.cloudnetservice.wrapper.network.chunk.TemplateStorageCallbackListener;
-import eu.cloudnetservice.wrapper.network.listener.PacketAuthorizationResponseListener;
-import eu.cloudnetservice.wrapper.network.listener.PacketServerChannelMessageListener;
+import eu.cloudnetservice.wrapper.network.listener.AuthorizationPacketListener;
+import eu.cloudnetservice.wrapper.network.listener.ChannelMessagePacketListener;
 import eu.cloudnetservice.wrapper.network.listener.message.GroupChannelMessageListener;
 import eu.cloudnetservice.wrapper.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.wrapper.network.listener.message.TaskChannelMessageListener;
@@ -100,7 +100,7 @@ public final class Wrapper {
   ) {
     // create a new condition and the auth listener
     var currentThread = Thread.currentThread();
-    var listener = new PacketAuthorizationResponseListener(currentThread);
+    var listener = new AuthorizationPacketListener(currentThread);
 
     // register the listener to the packet registry and connect to the target listener
     networkClient.packetRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
@@ -132,7 +132,7 @@ public final class Wrapper {
       new ChunkedPacketListener(chunkedSessionRegistry, new EventChunkHandlerFactory(eventManager)));
     networkClient.packetRegistry().addListener(
       NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
-      PacketServerChannelMessageListener.class);
+      ChannelMessagePacketListener.class);
   }
 
   @Inject

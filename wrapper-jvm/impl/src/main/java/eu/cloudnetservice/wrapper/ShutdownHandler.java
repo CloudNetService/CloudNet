@@ -18,7 +18,6 @@ package eu.cloudnetservice.wrapper;
 
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
@@ -31,19 +30,16 @@ final class ShutdownHandler {
 
   private final NetworkClient networkClient;
   private final ModuleProvider moduleProvider;
-  private final ServiceRegistry serviceRegistry;
   private final ExecutorService scheduledExecutor;
 
   @Inject
   public ShutdownHandler(
     @NonNull NetworkClient networkClient,
     @NonNull ModuleProvider moduleProvider,
-    @NonNull ServiceRegistry serviceRegistry,
     @NonNull @Named("taskScheduler") ScheduledExecutorService scheduledExecutor
   ) {
     this.networkClient = networkClient;
     this.moduleProvider = moduleProvider;
-    this.serviceRegistry = serviceRegistry;
     this.scheduledExecutor = scheduledExecutor;
   }
 
@@ -54,7 +50,6 @@ final class ShutdownHandler {
     }
 
     this.moduleProvider.unloadAll();
-    this.serviceRegistry.unregisterAll();
     this.scheduledExecutor.shutdownNow();
   }
 }

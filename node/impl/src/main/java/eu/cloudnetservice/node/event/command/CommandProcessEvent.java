@@ -20,8 +20,6 @@ import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.Event;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.command.CommandProvider;
-import eu.cloudnetservice.node.command.source.CommandSource;
 
 class CommandProcessEvent extends Event {
 

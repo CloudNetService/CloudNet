@@ -35,16 +35,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public final class PacketServerChannelMessageListener implements PacketListener {
+public final class ChannelMessagePacketListener implements PacketListener {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PacketServerChannelMessageListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ChannelMessagePacketListener.class);
 
   private final NodeMessenger messenger;
   private final EventManager eventManager;
   private final ComponentInfo componentInfo;
 
   @Inject
-  public PacketServerChannelMessageListener(
+  public ChannelMessagePacketListener(
     @NonNull NodeMessenger messenger,
     @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo

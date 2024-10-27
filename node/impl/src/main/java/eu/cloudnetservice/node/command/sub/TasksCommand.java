@@ -30,6 +30,7 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.util.WildcardUtil;
 import eu.cloudnetservice.utils.base.column.ColumnFormatter;
@@ -47,7 +48,6 @@ import java.util.stream.Stream;
 import lombok.NonNull;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
-import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
@@ -552,8 +552,8 @@ public final class TasksCommand {
       tasks,
       ServiceTask.Builder::javaCommand,
       "command-tasks-set-property-success",
-      "javaCommand",
-      executable.first());
+      "eu/cloudnetservice/node",
+      executable._1());
   }
 
   @Command("tasks task <name> add node <uniqueId>")

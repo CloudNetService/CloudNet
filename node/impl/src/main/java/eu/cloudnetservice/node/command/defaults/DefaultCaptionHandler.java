@@ -20,7 +20,6 @@ import eu.cloudnetservice.common.language.I18n;
 import jakarta.inject.Singleton;
 import java.util.List;
 import lombok.NonNull;
-import eu.cloudnetservice.node.command.source.CommandSource;
 import org.incendo.cloud.caption.Caption;
 import org.incendo.cloud.caption.CaptionFormatter;
 import org.incendo.cloud.caption.CaptionProvider;

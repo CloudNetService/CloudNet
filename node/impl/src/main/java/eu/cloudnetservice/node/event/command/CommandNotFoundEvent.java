@@ -17,8 +17,8 @@
 package eu.cloudnetservice.node.event.command;
 
 import eu.cloudnetservice.driver.event.Event;
-import lombok.NonNull;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import lombok.NonNull;
 
 public final class CommandNotFoundEvent extends Event {
 

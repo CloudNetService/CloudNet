@@ -16,16 +16,16 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import eu.cloudnetservice.common.jvm.JavaVersion;
-import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.driver.base.JavaVersion;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.node.command.source.CommandSource;
+import io.vavr.Tuple2;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import eu.cloudnetservice.node.command.annotation.Description;
-import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressAnimation;
 import org.incendo.cloud.annotation.specifier.Range;
@@ -58,7 +58,7 @@ public final class CreateCommand {
     }
 
     if (javaCommand != null) {
-      configurationBuilder.javaCommand(javaCommand.first());
+      configurationBuilder.javaCommand(javaCommand._1());
     }
 
     if (nodeId != null) {

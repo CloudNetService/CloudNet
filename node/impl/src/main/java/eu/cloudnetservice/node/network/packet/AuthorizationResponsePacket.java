@@ -16,19 +16,19 @@
 
 package eu.cloudnetservice.node.network.packet;
 
-import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
-import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
-public final class PacketServerServiceSyncAckPacket extends BasePacket {
+public final class AuthorizationResponsePacket extends BasePacket {
 
-  public PacketServerServiceSyncAckPacket(@NonNull NodeInfoSnapshot info, @NonNull DataBuf localData) {
+  public AuthorizationResponsePacket(boolean success, boolean reconnect, @Nullable DataBuf extraData) {
     super(
-      NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL,
+      NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
       DataBuf.empty()
-        .writeObject(info)
-        .writeDataBuf(localData));
+        .writeBoolean(success)
+        .writeBoolean(reconnect)
+        .writeObject(extraData));
   }
 }

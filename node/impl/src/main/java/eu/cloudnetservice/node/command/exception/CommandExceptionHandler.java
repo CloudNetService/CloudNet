@@ -16,9 +16,13 @@
 
 package eu.cloudnetservice.node.command.exception;
 
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.node.command.CommandProvider;
+import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.event.command.CommandInvalidSyntaxEvent;
+import eu.cloudnetservice.node.event.command.CommandNotFoundEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.ArrayList;
@@ -26,10 +30,6 @@ import java.util.List;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import eu.cloudnetservice.node.command.CommandProvider;
-import eu.cloudnetservice.node.command.source.CommandSource;
-import eu.cloudnetservice.node.event.command.CommandInvalidSyntaxEvent;
-import eu.cloudnetservice.node.event.command.CommandNotFoundEvent;
 import org.incendo.cloud.component.CommandComponent;
 import org.incendo.cloud.exception.ArgumentParseException;
 import org.incendo.cloud.exception.CommandParseException;

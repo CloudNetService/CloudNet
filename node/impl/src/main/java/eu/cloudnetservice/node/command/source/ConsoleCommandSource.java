@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.node.command.source;
 
+import eu.cloudnetservice.driver.registry.AutoService;
+import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
 import org.slf4j.Logger;
@@ -24,9 +26,10 @@ import org.slf4j.LoggerFactory;
 /**
  * {@inheritDoc}
  */
+@Singleton
+@AutoService(services = CommandSource.class, name = "console")
 public class ConsoleCommandSource implements CommandSource {
 
-  public static final ConsoleCommandSource INSTANCE = new ConsoleCommandSource();
   private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleCommandSource.class);
 
   /**

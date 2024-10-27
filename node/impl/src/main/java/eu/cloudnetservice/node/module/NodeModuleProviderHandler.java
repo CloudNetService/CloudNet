@@ -33,7 +33,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.command.CommandProvider;
 
 @Singleton
 public final class NodeModuleProviderHandler extends DefaultModuleProviderHandler implements ModuleProviderHandler {

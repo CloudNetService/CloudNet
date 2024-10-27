@@ -28,7 +28,7 @@ import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.network.NodeNetworkUtil;
-import eu.cloudnetservice.node.network.packet.PacketServerServiceSyncAckPacket;
+import eu.cloudnetservice.node.network.packet.ServiceSyncAckPacket;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Objects;
@@ -37,9 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public final class PacketServerAuthorizationResponseListener implements PacketListener {
+public final class AuthorizationResponsePacketListener implements PacketListener {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PacketServerAuthorizationResponseListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationResponsePacketListener.class);
 
   private final Configuration configuration;
   private final NodeNetworkUtil networkUtil;
@@ -47,7 +47,7 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
   private final NodeServerProvider nodeServerProvider;
 
   @Inject
-  public PacketServerAuthorizationResponseListener(
+  public AuthorizationResponsePacketListener(
     @NonNull Configuration configuration,
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull DataSyncRegistry dataSyncRegistry,
@@ -90,7 +90,7 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
           var data = this.dataSyncRegistry.prepareClusterData(
             true,
             DataSyncHandler::alwaysForceApply);
-          channel.sendPacketSync(new PacketServerServiceSyncAckPacket(local.nodeInfoSnapshot(), data));
+          channel.sendPacketSync(new ServiceSyncAckPacket(local.nodeInfoSnapshot(), data));
 
           // close the old channel
           // little hack to prevent some disconnect handling firring in the channel if the state was not set before

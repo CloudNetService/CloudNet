@@ -20,8 +20,6 @@ import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.Cancelable;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.command.CommandProvider;
-import eu.cloudnetservice.node.command.source.CommandSource;
 
 /**
  * This event is called before the actual processing of the given command is done. To cancel the execution of the

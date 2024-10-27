@@ -17,9 +17,9 @@
 package eu.cloudnetservice.node.event.command;
 
 import eu.cloudnetservice.driver.event.Event;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import java.util.List;
 import lombok.NonNull;
-import eu.cloudnetservice.node.command.source.CommandSource;
 
 public final class CommandInvalidSyntaxEvent extends Event {
 

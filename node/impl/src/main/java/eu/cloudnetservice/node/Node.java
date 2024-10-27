@@ -39,7 +39,6 @@ import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.task.LocalNodeUpdateTask;
 import eu.cloudnetservice.node.cluster.task.NodeDisconnectTrackerTask;
-import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.util.HeaderReader;

@@ -16,22 +16,23 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import eu.cloudnetservice.common.resource.CpuUsageResolver;
-import eu.cloudnetservice.common.resource.ResourceFormatter;
 import eu.cloudnetservice.driver.CloudNetVersion;
-import eu.cloudnetservice.driver.service.ProcessSnapshot;
-import jakarta.inject.Singleton;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.RuntimeMXBean;
-import java.util.List;
-import java.util.regex.Pattern;
-import lombok.NonNull;
 import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.utils.base.resource.CpuUsageResolver;
+import eu.cloudnetservice.utils.base.resource.ResourceFormatter;
+import jakarta.inject.Singleton;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.lang.management.ThreadMXBean;
+import java.util.List;
+import java.util.regex.Pattern;
+import lombok.NonNull;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.Flag;
 import org.incendo.cloud.annotations.Permission;
@@ -45,6 +46,7 @@ public final class MeCommand {
   private static final Pattern UUID_REPLACE_PATTERN = Pattern.compile("-\\w{4}-");
 
   private static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
+  private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
   private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
 
   private static final String UPDATE_BRANCH = System.getProperty("cloudnet.updateBranch", "release");
@@ -85,7 +87,7 @@ public final class MeCommand {
         + nodeInfoSnapshot.reservedMemory()
         + "/"
         + nodeInfoSnapshot.maxMemory() + " MB",
-      "Threads: " + ProcessSnapshot.THREAD_MX_BEAN.getThreadCount(),
+      "Threads: " + THREAD_MX_BEAN.getThreadCount(),
       "Heap usage: "
         + (MEMORY_MX_BEAN.getHeapMemoryUsage().getUsed() / (1024 * 1024))
         + "/"

@@ -27,7 +27,7 @@ import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.network.listener.PacketClientAuthorizationListener;
+import eu.cloudnetservice.node.network.listener.AuthorizationPacketListener;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.InternalCloudService;
 import eu.cloudnetservice.node.util.NetworkUtil;
@@ -75,7 +75,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       // add the auth listener
       channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
-        PacketClientAuthorizationListener.class);
+        AuthorizationPacketListener.class);
 
       LOGGER.debug(I18n.trans("server-network-channel-init",
         channel.serverAddress(),

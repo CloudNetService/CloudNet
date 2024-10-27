@@ -29,12 +29,12 @@ import java.util.Set;
 import lombok.NonNull;
 
 @Singleton
-public final class PacketServerChannelMessageListener implements PacketListener {
+public final class ChannelMessagePacketListener implements PacketListener {
 
   private final EventManager eventManager;
 
   @Inject
-  public PacketServerChannelMessageListener(@NonNull EventManager eventManager) {
+  public ChannelMessagePacketListener(@NonNull EventManager eventManager) {
     this.eventManager = eventManager;
   }
 

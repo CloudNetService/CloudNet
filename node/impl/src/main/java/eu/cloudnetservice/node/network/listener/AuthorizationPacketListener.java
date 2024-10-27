@@ -40,14 +40,14 @@ import eu.cloudnetservice.node.event.network.NetworkClusterNodeAuthSuccessEvent;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeReconnectEvent;
 import eu.cloudnetservice.node.event.network.NetworkServiceAuthSuccessEvent;
 import eu.cloudnetservice.node.network.NodeNetworkUtil;
-import eu.cloudnetservice.node.network.packet.PacketServerAuthorizationResponse;
+import eu.cloudnetservice.node.network.packet.AuthorizationResponsePacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public final class PacketClientAuthorizationListener implements PacketListener {
+public final class AuthorizationPacketListener implements PacketListener {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PacketClientAuthorizationListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationPacketListener.class);
 
   private final EventManager eventManager;
   private final Configuration configuration;
@@ -57,7 +57,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
   private final CloudServiceManager cloudServiceManager;
 
   @Inject
-  public PacketClientAuthorizationListener(
+  public AuthorizationPacketListener(
     @NonNull EventManager eventManager,
     @NonNull Configuration configuration,
     @NonNull NodeNetworkUtil networkUtil,
@@ -99,17 +99,17 @@ public final class PacketClientAuthorizationListener implements PacketListener {
               if (server.state() == NodeServerState.DISCONNECTED) {
                 // respond with an auth success
                 var data = this.dataSyncRegistry.prepareClusterData(true, DataSyncHandler::alwaysForceApply);
-                channel.sendPacket(new PacketServerAuthorizationResponse(true, true, data));
+                channel.sendPacket(new AuthorizationResponsePacket(true, true, data));
                 channel.packetRegistry().addListener(
                   NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL,
-                  PacketClientServiceSyncAckListener.class);
+                  ServiceSyncAckPacketListener.class);
                 // reset the state of the server
                 server.state(NodeServerState.SYNCING);
                 // call the node reconnect success event
                 this.eventManager.callEvent(new NetworkClusterNodeReconnectEvent(server, channel));
               } else {
                 // reply with a default auth success
-                channel.sendPacket(new PacketServerAuthorizationResponse(true, false, null));
+                channel.sendPacket(new AuthorizationResponsePacket(true, false, null));
                 // set the state of the node for further handling
                 server.channel(channel);
                 server.state(NodeServerState.READY);
@@ -140,7 +140,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
             channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
             this.networkUtil.addDefaultPacketListeners(channel.packetRegistry());
             // successful auth
-            channel.sendPacket(new PacketServerAuthorizationResponse(true, false, null));
+            channel.sendPacket(new AuthorizationResponsePacket(true, false, null));
             // call the auth success event
             this.eventManager.callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
             var serviceId = service.serviceId();
@@ -159,7 +159,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
       }
     }
     // auth not successful
-    channel.sendPacketSync(new PacketServerAuthorizationResponse(false, false, null));
+    channel.sendPacketSync(new AuthorizationResponsePacket(false, false, null));
     channel.close();
   }
 }

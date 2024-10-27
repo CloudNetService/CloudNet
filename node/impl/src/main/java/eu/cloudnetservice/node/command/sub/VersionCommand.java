@@ -16,15 +16,16 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowedFormatter;
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.jvm.JavaVersion;
-import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.tuple.Tuple2;
-import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.driver.base.JavaVersion;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.utils.base.StringUtil;
+import eu.cloudnetservice.utils.base.column.ColumnFormatter;
+import eu.cloudnetservice.utils.base.column.RowedFormatter;
+import eu.cloudnetservice.utils.base.io.FileUtil;
+import io.vavr.Tuple2;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.IOException;
@@ -40,7 +41,6 @@ import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
-import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.util.JavaVersionResolver;
 import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
@@ -69,11 +69,11 @@ public final class VersionCommand {
       .defaultFormatter(ColumnFormatter.builder()
         .columnTitles("Target", "Name", "Deprecated", "Min Java", "Max Java")
         .build())
-      .column(pair -> pair.first().name())
-      .column(pair -> pair.second().name())
-      .column(pair -> pair.second().deprecated())
-      .column(pair -> pair.second().minJavaVersion().orElse(JavaVersion.JAVA_23).name())
-      .column(pair -> pair.second().maxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
+      .column(pair -> pair._1().name())
+      .column(pair -> pair._2().name())
+      .column(pair -> pair._2().deprecated())
+      .column(pair -> pair._2().minJavaVersion().orElse(JavaVersion.JAVA_23).name())
+      .column(pair -> pair._2().maxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
       .build();
 
   private final DefaultTickLoop tickLoop;

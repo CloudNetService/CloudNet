@@ -23,12 +23,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 import lombok.NonNull;
 
-public final class PacketAuthorizationResponseListener implements PacketListener {
+public final class AuthorizationPacketListener implements PacketListener {
 
   private final Thread blockedThread;
   private final AtomicBoolean result;
 
-  public PacketAuthorizationResponseListener(@NonNull Thread blockedThread) {
+  public AuthorizationPacketListener(@NonNull Thread blockedThread) {
     this.blockedThread = blockedThread;
     this.result = new AtomicBoolean(false);
   }

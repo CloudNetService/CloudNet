@@ -17,9 +17,10 @@
 package eu.cloudnetservice.node.command.sub;
 
 import eu.cloudnetservice.driver.base.Named;
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import io.vavr.CheckedConsumer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -27,7 +28,6 @@ import java.util.stream.Stream;
 import lombok.NonNull;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
-import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import org.incendo.cloud.annotations.Argument;
@@ -59,7 +59,7 @@ public final class MigrateCommand {
 
   @Parser(suggestions = "databaseProvider")
   public @NonNull NodeDatabaseProvider defaultDatabaseProviderParser(@NonNull CommandInput input) {
-    var abstractDatabaseProvider = this.serviceRegistry.provider(NodeDatabaseProvider.class, input.readString());
+    var abstractDatabaseProvider = this.serviceRegistry.instance(NodeDatabaseProvider.class, input.readString());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
@@ -69,7 +69,7 @@ public final class MigrateCommand {
 
   @Suggestions("databaseProvider")
   public @NonNull Stream<String> suggestDatabaseProvider() {
-    return this.serviceRegistry.providers(NodeDatabaseProvider.class)
+    return this.serviceRegistry.registrations(NodeDatabaseProvider.class)
       .stream()
       .map(Named::name);
   }

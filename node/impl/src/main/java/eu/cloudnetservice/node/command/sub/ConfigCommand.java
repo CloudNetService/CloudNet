@@ -16,12 +16,13 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import eu.cloudnetservice.common.jvm.JavaVersion;
-import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.tuple.Tuple2;
+import eu.cloudnetservice.driver.base.JavaVersion;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.node.command.source.CommandSource;
+import io.vavr.Tuple2;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.List;
@@ -29,7 +30,6 @@ import lombok.NonNull;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
-import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.config.JsonConfiguration;
 import org.incendo.cloud.annotation.specifier.Range;
@@ -135,11 +135,11 @@ public final class ConfigCommand {
     @NonNull CommandSource source,
     @NonNull @Argument(value = "executable", parserName = "javaCommand") Tuple2<String, JavaVersion> executable
   ) {
-    this.configuration.javaCommand(executable.first());
+    this.configuration.javaCommand(executable._1());
     this.configuration.save();
     source.sendMessage(I18n.trans("command-config-node-set-java-command",
-      executable.first(),
-      executable.second().name()));
+      executable._1(),
+      executable._2().name()));
   }
 
   @Command("config|cfg node add ipalias|ipa <name> <hostAddress>")

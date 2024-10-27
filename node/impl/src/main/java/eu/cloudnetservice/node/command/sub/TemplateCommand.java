@@ -19,14 +19,15 @@ package eu.cloudnetservice.node.command.sub;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import eu.cloudnetservice.driver.base.Named;
-import eu.cloudnetservice.common.column.ColumnFormatter;
-import eu.cloudnetservice.common.column.RowedFormatter;
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
+import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.utils.base.column.ColumnFormatter;
+import eu.cloudnetservice.utils.base.column.RowedFormatter;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.IOException;
@@ -40,7 +41,6 @@ import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
-import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.template.TemplateStorageUtil;
 import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
@@ -174,8 +174,8 @@ public final class TemplateCommand {
     Collection<ServiceTemplate> templates;
     // get all templates if no specific template is given
     if (templateStorage == null) {
-      templates = this.serviceRegistry.providers(TemplateStorage.class).stream()
-        .flatMap(storage -> storage.templates().stream())
+      templates = this.serviceRegistry.registrations(TemplateStorage.class).stream()
+        .flatMap(provider -> provider.serviceInstance().templates().stream())
         .toList();
     } else {
       templates = templateStorage.templates();

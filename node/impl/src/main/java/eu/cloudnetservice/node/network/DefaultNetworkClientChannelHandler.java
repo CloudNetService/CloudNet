@@ -33,7 +33,7 @@ import jakarta.inject.Singleton;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.network.listener.PacketServerAuthorizationResponseListener;
+import eu.cloudnetservice.node.network.listener.AuthorizationResponsePacketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
       // add the result handler for the auth
       channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
-        PacketServerAuthorizationResponseListener.class);
+        AuthorizationResponsePacketListener.class);
       // send the authentication request
       channel.sendPacket(new AuthorizationPacket(
         AuthorizationPacket.PacketAuthorizationType.NODE_TO_NODE,

@@ -29,7 +29,7 @@ import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.network.listener.PacketServerChannelMessageListener;
+import eu.cloudnetservice.node.network.listener.ChannelMessagePacketListener;
 
 @Singleton
 public final class NodeNetworkUtil {
@@ -48,7 +48,7 @@ public final class NodeNetworkUtil {
   }
 
   public void addDefaultPacketListeners(@NonNull PacketListenerRegistry registry) {
-    registry.addListener(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, PacketServerChannelMessageListener.class);
+    registry.addListener(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, ChannelMessagePacketListener.class);
     registry.addListener(NetworkConstants.INTERNAL_RPC_COM_CHANNEL, RPCPacketListener.class);
 
     var chunkedListener = new ChunkedPacketListener(
