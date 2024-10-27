@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.version.execute;
 
+import eu.cloudnetservice.node.version.information.VersionInstaller;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 import lombok.NonNull;
-import eu.cloudnetservice.node.version.information.VersionInstaller;
 
 /**
  * Interface for install steps when downloading and patching server software
@@ -28,7 +28,8 @@ import eu.cloudnetservice.node.version.information.VersionInstaller;
 @FunctionalInterface
 public interface InstallStepExecutor {
 
-  @NonNull Set<Path> execute(
+  @NonNull
+  Set<Path> execute(
     @NonNull VersionInstaller installer,
     @NonNull Path workingDirectory,
     @NonNull Set<Path> files) throws IOException;

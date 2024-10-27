@@ -17,10 +17,6 @@
 package eu.cloudnetservice.node.version.execute;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Set;
-import lombok.NonNull;
 import eu.cloudnetservice.node.version.execute.defaults.BuildStepExecutor;
 import eu.cloudnetservice.node.version.execute.defaults.CopyFilterStepExecutor;
 import eu.cloudnetservice.node.version.execute.defaults.DeployStepExecutor;
@@ -30,6 +26,10 @@ import eu.cloudnetservice.node.version.execute.defaults.PaperApiVersionFetchStep
 import eu.cloudnetservice.node.version.execute.defaults.SpongeApiVersionFetchStepExecutor;
 import eu.cloudnetservice.node.version.execute.defaults.UnzipStepExecutor;
 import eu.cloudnetservice.node.version.information.VersionInstaller;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Set;
+import lombok.NonNull;
 
 public enum InstallStep {
 

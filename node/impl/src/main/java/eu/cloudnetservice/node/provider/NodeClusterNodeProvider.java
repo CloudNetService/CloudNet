@@ -30,6 +30,8 @@ import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.command.source.DriverCommandSource;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -37,8 +39,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
-import eu.cloudnetservice.node.command.source.DriverCommandSource;
-import eu.cloudnetservice.node.config.Configuration;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton

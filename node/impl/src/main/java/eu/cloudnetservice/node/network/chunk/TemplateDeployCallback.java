@@ -20,11 +20,11 @@ import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
+import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.InputStream;
 import lombok.NonNull;
-import eu.cloudnetservice.node.tick.DefaultTickLoop;
 
 @Singleton
 final class TemplateDeployCallback implements ChunkedPacketHandler.Callback {

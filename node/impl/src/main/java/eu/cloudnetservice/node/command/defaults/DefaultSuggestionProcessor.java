@@ -17,7 +17,8 @@
 package eu.cloudnetservice.node.command.defaults;
 
 import com.google.common.base.Strings;
-import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.utils.base.StringUtil;
 import info.debatty.java.stringsimilarity.JaroWinkler;
 import info.debatty.java.stringsimilarity.interfaces.StringSimilarity;
 import jakarta.inject.Singleton;

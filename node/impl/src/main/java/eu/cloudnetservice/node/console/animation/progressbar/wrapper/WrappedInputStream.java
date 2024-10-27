@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.node.console.animation.progressbar.wrapper;
 
+import eu.cloudnetservice.node.console.Console;
+import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressAnimation;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import lombok.NonNull;
-import eu.cloudnetservice.node.console.Console;
-import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressAnimation;
 
 public final class WrappedInputStream extends FilterInputStream {
 

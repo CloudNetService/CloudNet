@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.impl.event.DefaultEventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.defaults.DefaultCommandProvider;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.DriverCommandSource;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.util.Arrays;

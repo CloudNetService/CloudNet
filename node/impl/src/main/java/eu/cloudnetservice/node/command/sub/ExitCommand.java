@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.node.command.sub;
 
+import eu.cloudnetservice.node.command.annotation.CommandAlias;
+import eu.cloudnetservice.node.command.annotation.Description;
+import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import eu.cloudnetservice.node.tick.DefaultShutdownHandler;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.tick.DefaultShutdownHandler;
-import eu.cloudnetservice.node.command.annotation.CommandAlias;
-import eu.cloudnetservice.node.command.annotation.Description;
-import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.Permission;
 import org.incendo.cloud.processors.confirmation.annotation.Confirmation;

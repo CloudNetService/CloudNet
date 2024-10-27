@@ -17,12 +17,12 @@
 package eu.cloudnetservice.node.database.sql;
 
 import com.github.benmanes.caffeine.cache.RemovalListener;
+import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import io.vavr.CheckedFunction1;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import lombok.NonNull;
-import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.database.NodeDatabaseProvider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;

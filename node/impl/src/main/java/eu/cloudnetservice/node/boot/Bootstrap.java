@@ -21,13 +21,13 @@ import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.node.Node;
 import io.leangen.geantyref.TypeFactory;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
-import eu.cloudnetservice.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

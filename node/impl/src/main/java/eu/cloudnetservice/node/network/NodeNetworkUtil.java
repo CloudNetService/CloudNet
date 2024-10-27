@@ -26,10 +26,10 @@ import eu.cloudnetservice.driver.impl.network.rpc.listener.RPCPacketListener;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.chunk.event.EventChunkHandlerFactory;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
+import eu.cloudnetservice.node.network.listener.ChannelMessagePacketListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.network.listener.ChannelMessagePacketListener;
 
 @Singleton
 public final class NodeNetworkUtil {

@@ -24,14 +24,14 @@ import eu.cloudnetservice.driver.impl.network.netty.client.NettyNetworkClient;
 import eu.cloudnetservice.driver.impl.network.netty.server.NettyNetworkServer;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
+import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.network.DefaultNetworkClientChannelHandler;
+import eu.cloudnetservice.node.network.DefaultNetworkServerChannelHandler;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import lombok.NonNull;
-import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.network.DefaultNetworkClientChannelHandler;
-import eu.cloudnetservice.node.network.DefaultNetworkServerChannelHandler;
 
 @SuppressWarnings("unused") // methods are used for automatic binding detection
 final class BootFactories {

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.event.instance;
 
 import eu.cloudnetservice.driver.event.Event;
-import eu.cloudnetservice.node.TickLoop;
+import eu.cloudnetservice.node.tick.TickLoop;
 import lombok.NonNull;
 
 public class CloudNetTickServiceStartEvent extends Event {

@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.module.updater;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.impl.module.DefaultModuleProvider;
 import eu.cloudnetservice.ext.updater.defaults.DefaultUpdaterRegistry;
+import eu.cloudnetservice.node.module.ModulesHolder;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
@@ -26,7 +27,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
-import eu.cloudnetservice.node.module.ModulesHolder;
 
 @Singleton
 public final class ModuleUpdaterRegistry extends DefaultUpdaterRegistry<ModuleUpdaterContext, ModulesHolder> {

@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.node.console;
 
+import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
+import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
+import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import lombok.NonNull;
-import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
-import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
-import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -31,7 +31,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface Console extends AutoCloseable {
 
   @UnmodifiableView
-  @NonNull Collection<AbstractConsoleAnimation> runningAnimations();
+  @NonNull
+  Collection<AbstractConsoleAnimation> runningAnimations();
 
   void startAnimation(@NonNull AbstractConsoleAnimation animation);
 
@@ -42,7 +43,8 @@ public interface Console extends AutoCloseable {
   boolean printingEnabled();
 
   @Unmodifiable
-  @NonNull Collection<String> commandHistory();
+  @NonNull
+  Collection<String> commandHistory();
 
   void commandHistory(@Nullable Collection<String> history);
 
@@ -71,17 +73,21 @@ public interface Console extends AutoCloseable {
 
   void removeTabCompleteHandler(@NonNull UUID uniqueId);
 
-  @NonNull Console writeRaw(@NonNull Supplier<String> rawText);
+  @NonNull
+  Console writeRaw(@NonNull Supplier<String> rawText);
 
-  @NonNull Console forceWriteLine(@NonNull String text);
+  @NonNull
+  Console forceWriteLine(@NonNull String text);
 
-  @NonNull Console writeLine(@NonNull String text);
+  @NonNull
+  Console writeLine(@NonNull String text);
 
   boolean usingMatchingHistoryComplete();
 
   void usingMatchingHistoryComplete(boolean matchingHistoryComplete);
 
-  @NonNull String prompt();
+  @NonNull
+  String prompt();
 
   void prompt(@NonNull String prompt);
 

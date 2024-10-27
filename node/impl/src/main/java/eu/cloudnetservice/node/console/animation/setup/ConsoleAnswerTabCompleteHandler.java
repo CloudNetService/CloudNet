@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.node.console.animation.setup;
 
+import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
 
 final class ConsoleAnswerTabCompleteHandler extends ConsoleTabCompleteHandler {
 

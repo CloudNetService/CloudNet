@@ -27,12 +27,12 @@ import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import lombok.NonNull;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.cluster.NetworkClusterNodeInfoUpdateEvent;
 import eu.cloudnetservice.node.provider.NodeClusterNodeProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.console.animation.progressbar.wrapper;
 
-import java.util.Iterator;
-import lombok.NonNull;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressAnimation;
+import java.util.Iterator;
+import lombok.NonNull;
 
 public final class WrappedIterator<T> implements Iterator<T> {
 

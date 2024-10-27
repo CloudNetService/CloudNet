@@ -24,10 +24,10 @@ import eu.cloudnetservice.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
 
 @Singleton
 public final class ServiceSyncAckPacketListener implements PacketListener {

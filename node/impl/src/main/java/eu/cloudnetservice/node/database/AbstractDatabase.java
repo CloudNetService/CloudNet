@@ -19,8 +19,13 @@ package eu.cloudnetservice.node.database;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractDatabase implements LocalDatabase, Database {
 
@@ -53,6 +58,64 @@ public abstract class AbstractDatabase implements LocalDatabase, Database {
         break;
       }
     }
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Long> documentCountAsync() {
+    return TaskUtil.supplyAsync(this::documentCount);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> clearAsync() {
+    return TaskUtil.runAsync(this::clear);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Map<String, Document>> entriesAsync() {
+    return TaskUtil.supplyAsync(this::entries);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<Document>> documentsAsync() {
+    return TaskUtil.supplyAsync(this::documents);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<String>> keysAsync() {
+    return TaskUtil.supplyAsync(this::keys);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<Document>> findAsync(@NonNull Map<String, String> filters) {
+    return TaskUtil.supplyAsync(() -> this.find(filters));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<Document>> findAsync(
+    @NonNull String fieldName,
+    @Nullable String fieldValue
+  ) {
+    return TaskUtil.supplyAsync(() -> this.find(fieldName, fieldValue));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> deleteAsync(@NonNull String key) {
+    return TaskUtil.supplyAsync(() -> this.delete(key));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Document> getAsync(@NonNull String key) {
+    return TaskUtil.supplyAsync(() -> this.get(key));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> containsAsync(@NonNull String key) {
+    return TaskUtil.supplyAsync(() -> this.contains(key));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> insertAsync(@NonNull String key, @NonNull Document document) {
+    return TaskUtil.supplyAsync(() -> this.insert(key, document));
   }
 
   protected @NonNull String serializeDocumentToJsonString(@NonNull Document document) {

@@ -21,12 +21,12 @@ import ch.qos.logback.core.ConsoleAppender;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.node.event.log.LoggingEntryEvent;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import eu.cloudnetservice.node.event.log.LoggingEntryEvent;
 
 /**
  * A logging handler for developers, that can easy handle and get the logging outputs from this node instance

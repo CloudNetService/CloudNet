@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.database.sql;
 
-import lombok.NonNull;
 import eu.cloudnetservice.node.database.AbstractDatabase;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
 @Deprecated

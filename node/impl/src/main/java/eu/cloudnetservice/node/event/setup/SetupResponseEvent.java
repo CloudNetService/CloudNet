@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.node.event.setup;
 
-import lombok.NonNull;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SetupResponseEvent extends SetupEvent {

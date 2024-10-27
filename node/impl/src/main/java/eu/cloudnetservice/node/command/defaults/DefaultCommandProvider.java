@@ -24,27 +24,12 @@ import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.language.I18n;
-import eu.cloudnetservice.utils.base.StringUtil;
-import io.leangen.geantyref.TypeToken;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ConcurrentHashMap;
-import lombok.NonNull;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.annotation.Documentation;
 import eu.cloudnetservice.node.command.exception.CommandExceptionHandler;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.sub.ClearCommand;
 import eu.cloudnetservice.node.command.sub.ClusterCommand;
 import eu.cloudnetservice.node.command.sub.ConfigCommand;
@@ -63,6 +48,23 @@ import eu.cloudnetservice.node.command.sub.VersionCommand;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
 import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
+import eu.cloudnetservice.utils.base.StringUtil;
+import io.leangen.geantyref.TypeToken;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+import lombok.NonNull;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.annotations.AnnotationParser;
 import org.incendo.cloud.key.CloudKey;
@@ -240,10 +242,6 @@ public final class DefaultCommandProvider implements CommandProvider {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void registerConsoleHandler(@NonNull Console console) {
     // command handling
     console.addCommandHandler(UUID.randomUUID(), new ConsoleInputHandler() {
@@ -271,10 +269,6 @@ public final class DefaultCommandProvider implements CommandProvider {
     });
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void registerDefaultCommands() {
     this.register(TemplateCommand.class);
     this.register(VersionCommand.class);

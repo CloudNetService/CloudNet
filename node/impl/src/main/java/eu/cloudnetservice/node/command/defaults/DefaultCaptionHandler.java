@@ -16,7 +16,8 @@
 
 package eu.cloudnetservice.node.command.defaults;
 
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
 import java.util.List;
 import lombok.NonNull;

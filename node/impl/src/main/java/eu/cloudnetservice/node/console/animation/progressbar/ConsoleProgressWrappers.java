@@ -17,6 +17,9 @@
 package eu.cloudnetservice.node.console.animation.progressbar;
 
 import com.google.common.primitives.Longs;
+import eu.cloudnetservice.node.console.Console;
+import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedInputStream;
+import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedIterator;
 import io.vavr.CheckedConsumer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -25,9 +28,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
-import eu.cloudnetservice.node.console.Console;
-import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedInputStream;
-import eu.cloudnetservice.node.console.animation.progressbar.wrapper.WrappedIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

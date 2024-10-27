@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
+import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
+import eu.cloudnetservice.node.version.information.VersionInstaller;
 import eu.cloudnetservice.utils.base.StringUtil;
 import io.leangen.geantyref.TypeFactory;
 import io.vavr.Tuple2;
@@ -29,8 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.NonNull;
-import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
-import eu.cloudnetservice.node.version.information.VersionInstaller;
 
 public class CopyFilterStepExecutor implements InstallStepExecutor {
 

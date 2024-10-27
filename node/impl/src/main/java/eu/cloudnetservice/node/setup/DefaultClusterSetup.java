@@ -20,6 +20,11 @@ import com.google.common.collect.Lists;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
+import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
+import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Arrays;
@@ -27,11 +32,6 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
-import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
-import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
-import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 
 @Singleton
 public class DefaultClusterSetup implements DefaultSetup {

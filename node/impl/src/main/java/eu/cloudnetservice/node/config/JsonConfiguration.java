@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.config;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.sun.management.OperatingSystemMXBean;
 import dev.derklaro.aerogel.auto.Factory;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
@@ -25,10 +26,13 @@ import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
-import eu.cloudnetservice.driver.service.ProcessSnapshot;
+import eu.cloudnetservice.node.setup.DefaultConfigSetup;
+import eu.cloudnetservice.node.setup.DefaultInstallation;
+import eu.cloudnetservice.node.util.NetworkUtil;
 import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Singleton;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -40,15 +44,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import lombok.NonNull;
-import eu.cloudnetservice.node.setup.DefaultConfigSetup;
-import eu.cloudnetservice.node.setup.DefaultInstallation;
-import eu.cloudnetservice.node.util.NetworkUtil;
 
 @Singleton
 public final class JsonConfiguration implements Configuration {
 
   public static final Path CONFIG_FILE_PATH = Path.of(
     System.getProperty("cloudnet.config.json.path", "config.json"));
+
+  private static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
   private static final Function<String, SSLConfiguration> SSL_CONFIG_PARSER = value -> {
     var values = value.split(";");
@@ -200,7 +203,7 @@ public final class JsonConfiguration implements Configuration {
       this.maxMemory = ConfigurationUtil.get(
         "cloudnet.config.maxMemory",
         // TODO either expose bean or expose accessor
-        (int) ((ProcessSnapshot.OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512),
+        (int) ((OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512),
         Integer::parseInt);
     }
 

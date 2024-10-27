@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.module.updater;
 
+import eu.cloudnetservice.node.module.ModulesHolder;
 import java.nio.file.Path;
 import java.util.Map;
 import lombok.NonNull;
-import eu.cloudnetservice.node.module.ModulesHolder;
 
 public record ModuleUpdaterContext(
   @NonNull ModulesHolder modules,

@@ -16,4 +16,5 @@
 
 dependencies {
   api(projects.driver.driverApi)
+  compileOnlyApi(libs.bundles.cloud)
 }

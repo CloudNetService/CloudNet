@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
+import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
+import eu.cloudnetservice.node.version.information.VersionInstaller;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -38,9 +41,6 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
-import eu.cloudnetservice.node.version.information.VersionInstaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

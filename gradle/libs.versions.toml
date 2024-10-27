@@ -25,6 +25,7 @@ javapoet = "1.13.0"
 # console
 jline = "3.28.0"
 cloud = "2.0.0-cn1"
+cloudApi = "2.0.0"
 cloudConfirmation = "1.0.0-rc.1"
 stringSimilarity = "2.0.0"
 
@@ -107,6 +108,10 @@ nightConfigJson = { group = "com.electronwill.night-config", name = "json", vers
 cloudCore = { group = "com.github.CloudNetService.cloud-command-framework", name = "cloud-core", version.ref = "cloud" }
 cloudAnnotations = { group = "com.github.CloudNetService.cloud-command-framework", name = "cloud-annotations", version.ref = "cloud" }
 cloudConfirmationProcessor = { group = "org.incendo", name = "cloud-processors-confirmation", version.ref = "cloudConfirmation" }
+
+# cloud api to expose in node api
+cloudCoreApi = { group = "org.incendo", name = "cloud-core", version.ref = "cloudApi"}
+cloudAnnotationsApi = { group = "org.incendo", name = "cloud-annotations", version.ref = "cloudApi" }
 
 # junit
 junitApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
@@ -206,6 +211,7 @@ unirest = ["unirest", "unirestGson"]
 mysql = ["mysqlConnector", "hikariCp"]
 jline = ["jlineReader", "jlineTerminal"]
 cloud = ["cloudCore", "cloudAnnotations", "cloudConfirmationProcessor"]
+cloudApi = ["cloudCoreApi", "cloudAnnotationsApi"]
 netty = ["nettyHandler"]
 junit = ["junitApi", "junitParams", "junitEngine"]
 dockerJava = ["dockerJavaApi", "dockerJavaHttpclient5"]

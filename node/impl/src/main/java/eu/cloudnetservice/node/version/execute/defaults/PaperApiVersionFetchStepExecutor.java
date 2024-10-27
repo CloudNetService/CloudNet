@@ -18,6 +18,9 @@ package eu.cloudnetservice.node.version.execute.defaults;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.node.version.ServiceVersionType;
+import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
+import eu.cloudnetservice.node.version.information.VersionInstaller;
 import eu.cloudnetservice.utils.base.StringUtil;
 import io.leangen.geantyref.TypeFactory;
 import java.lang.reflect.Type;
@@ -26,9 +29,6 @@ import java.util.Collections;
 import java.util.Set;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
-import eu.cloudnetservice.node.version.ServiceVersionType;
-import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
-import eu.cloudnetservice.node.version.information.VersionInstaller;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 

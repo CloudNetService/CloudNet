@@ -24,10 +24,6 @@ import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import io.vavr.Tuple2;
-import jakarta.inject.Inject;
-import java.util.Set;
-import lombok.NonNull;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
@@ -37,6 +33,10 @@ import eu.cloudnetservice.node.version.ServiceVersion;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.node.version.information.TemplateVersionInstaller;
+import io.vavr.Tuple2;
+import jakarta.inject.Inject;
+import java.util.Set;
+import lombok.NonNull;
 
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
 

@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-import jakarta.inject.Singleton;
-import lombok.NonNull;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.console.Console;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.Permission;
 

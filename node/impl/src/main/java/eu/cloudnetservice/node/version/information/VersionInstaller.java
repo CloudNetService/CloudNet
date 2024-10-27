@@ -17,12 +17,12 @@
 package eu.cloudnetservice.node.version.information;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.version.ServiceVersion;
-import eu.cloudnetservice.node.version.ServiceVersionType;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class VersionInstaller {

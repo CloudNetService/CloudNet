@@ -21,10 +21,10 @@ import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

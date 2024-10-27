@@ -16,13 +16,21 @@
 
 package eu.cloudnetservice.node.command.sub;
 
-
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.command.annotation.CommandAlias;
+import eu.cloudnetservice.node.command.annotation.Description;
+import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
+import eu.cloudnetservice.node.module.ModuleEntry;
+import eu.cloudnetservice.node.module.ModulesHolder;
+import eu.cloudnetservice.node.module.util.ModuleUpdateUtil;
 import eu.cloudnetservice.utils.base.column.ColumnFormatter;
 import eu.cloudnetservice.utils.base.column.RowedFormatter;
 import eu.cloudnetservice.utils.base.io.FileUtil;
@@ -35,15 +43,6 @@ import java.nio.file.Path;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
-import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.command.annotation.CommandAlias;
-import eu.cloudnetservice.node.command.annotation.Description;
-import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
-import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
-import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
-import eu.cloudnetservice.node.module.ModuleEntry;
-import eu.cloudnetservice.node.module.ModulesHolder;
-import eu.cloudnetservice.node.module.util.ModuleUpdateUtil;
 import org.incendo.cloud.annotation.specifier.Greedy;
 import org.incendo.cloud.annotation.specifier.Quoted;
 import org.incendo.cloud.annotations.Argument;

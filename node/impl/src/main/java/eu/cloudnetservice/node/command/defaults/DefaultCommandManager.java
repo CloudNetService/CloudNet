@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.command.defaults;
 
+import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
 import java.util.concurrent.Executors;
 import lombok.NonNull;

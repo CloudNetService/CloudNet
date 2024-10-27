@@ -18,16 +18,16 @@ package eu.cloudnetservice.node.service.defaults.factory;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.InternalCloudServiceManager;
+import eu.cloudnetservice.node.service.defaults.JVMService;
+import eu.cloudnetservice.node.tick.DefaultTickLoop;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.tick.DefaultTickLoop;
-import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.service.defaults.JVMService;
-import eu.cloudnetservice.node.version.ServiceVersionProvider;
 
 @Singleton
 public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {

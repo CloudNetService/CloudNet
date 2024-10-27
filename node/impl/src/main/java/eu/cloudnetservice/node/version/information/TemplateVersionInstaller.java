@@ -19,13 +19,13 @@ package eu.cloudnetservice.node.version.information;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
+import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.utils.base.StringUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.version.ServiceVersion;
-import eu.cloudnetservice.node.version.ServiceVersionType;
 import org.jetbrains.annotations.Nullable;
 
 public final class TemplateVersionInstaller extends VersionInstaller {

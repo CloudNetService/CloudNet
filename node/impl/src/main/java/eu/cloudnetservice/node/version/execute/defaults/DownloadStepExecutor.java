@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.node.version.execute.defaults;
 
+import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
+import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
+import eu.cloudnetservice.node.version.information.VersionInstaller;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,9 +28,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.NonNull;
-import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
-import eu.cloudnetservice.node.version.execute.InstallStepExecutor;
-import eu.cloudnetservice.node.version.information.VersionInstaller;
 
 public class DownloadStepExecutor implements InstallStepExecutor {
 

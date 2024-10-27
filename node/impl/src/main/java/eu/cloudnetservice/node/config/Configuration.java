@@ -30,41 +30,51 @@ public interface Configuration {
 
   boolean fileExists();
 
-  @NonNull Configuration load();
+  @NonNull
+  Configuration load();
 
-  @NonNull Configuration save();
+  @NonNull
+  Configuration save();
 
   void reloadFrom(@NonNull Configuration configuration);
 
-  @NonNull String language();
+  @NonNull
+  String language();
 
   void language(@NonNull String language);
 
-  @NonNull String hostAddress();
+  @NonNull
+  String hostAddress();
 
   void hostAddress(@NonNull String hostAddress);
 
-  @NonNull Map<String, String> ipAliases();
+  @NonNull
+  Map<String, String> ipAliases();
 
   void ipAliases(@NonNull Map<String, String> alias);
 
-  @NonNull NetworkClusterNode identity();
+  @NonNull
+  NetworkClusterNode identity();
 
   void identity(@NonNull NetworkClusterNode identity);
 
-  @NonNull NetworkCluster clusterConfig();
+  @NonNull
+  NetworkCluster clusterConfig();
 
   void clusterConfig(@NonNull NetworkCluster clusterConfig);
 
-  @NonNull Collection<String> ipWhitelist();
+  @NonNull
+  Collection<String> ipWhitelist();
 
   void ipWhitelist(@NonNull Collection<String> whitelist);
 
-  @NonNull SSLConfiguration clientSSLConfig();
+  @NonNull
+  SSLConfiguration clientSSLConfig();
 
   void clientSSLConfig(@NonNull SSLConfiguration clientSslConfig);
 
-  @NonNull SSLConfiguration serverSSLConfig();
+  @NonNull
+  SSLConfiguration serverSSLConfig();
 
   void serverSSLConfig(@NonNull SSLConfiguration serverSslConfig);
 
@@ -88,7 +98,8 @@ public interface Configuration {
 
   void runBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
 
-  @NonNull String javaCommand();
+  @NonNull
+  String javaCommand();
 
   void javaCommand(@NonNull String javaCommand);
 
@@ -100,8 +111,8 @@ public interface Configuration {
 
   void forceInitialClusterDataSync(boolean forceInitialClusterDataSync);
 
-  @NonNull Document properties();
+  @NonNull
+  Document properties();
 
   void properties(@NonNull Document properties);
-
 }

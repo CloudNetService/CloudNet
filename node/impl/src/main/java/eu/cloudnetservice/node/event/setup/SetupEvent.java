@@ -17,8 +17,8 @@
 package eu.cloudnetservice.node.event.setup;
 
 import eu.cloudnetservice.driver.event.Event;
-import lombok.NonNull;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+import lombok.NonNull;
 
 public class SetupEvent extends Event {
 

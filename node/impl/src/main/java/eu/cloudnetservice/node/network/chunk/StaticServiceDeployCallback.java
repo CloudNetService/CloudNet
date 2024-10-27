@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.network.chunk;
 
-
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;

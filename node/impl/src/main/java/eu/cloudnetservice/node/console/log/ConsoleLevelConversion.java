@@ -19,8 +19,8 @@ package eu.cloudnetservice.node.console.log;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.pattern.CompositeConverter;
-import lombok.NonNull;
 import eu.cloudnetservice.node.console.ConsoleColor;
+import lombok.NonNull;
 
 public class ConsoleLevelConversion extends CompositeConverter<ILoggingEvent> {
 

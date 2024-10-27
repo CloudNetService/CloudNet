@@ -22,7 +22,10 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.time.Duration;
+import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,5 +62,20 @@ public abstract class NodeDatabaseProvider implements DatabaseProvider, Named, A
   @Override
   public void close() throws Exception {
     this.databaseCache.invalidateAll();
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<String>> databaseNamesAsync() {
+    return TaskUtil.supplyAsync(this::databaseNames);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> deleteDatabaseAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.deleteDatabase(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Boolean> containsDatabaseAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.containsDatabase(name));
   }
 }

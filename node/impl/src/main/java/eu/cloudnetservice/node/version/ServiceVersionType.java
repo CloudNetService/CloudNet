@@ -18,10 +18,10 @@ package eu.cloudnetservice.node.version;
 
 import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.service.ServiceEnvironment;
+import eu.cloudnetservice.node.version.execute.InstallStep;
 import java.util.Collection;
 import java.util.List;
 import lombok.NonNull;
-import eu.cloudnetservice.node.version.execute.InstallStep;
 import org.jetbrains.annotations.Nullable;
 
 public class ServiceVersionType extends ServiceEnvironment {

@@ -17,6 +17,9 @@
 package eu.cloudnetservice.node.database.xodus;
 
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.database.util.LocalDatabaseUtil;
 import java.io.File;
 import java.util.Collection;
 import jetbrains.exodus.env.Environment;
@@ -24,9 +27,6 @@ import jetbrains.exodus.env.EnvironmentConfig;
 import jetbrains.exodus.env.Environments;
 import jetbrains.exodus.env.StoreConfig;
 import lombok.NonNull;
-import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.database.NodeDatabaseProvider;
-import eu.cloudnetservice.node.database.util.LocalDatabaseUtil;
 
 public class XodusDatabaseProvider extends NodeDatabaseProvider {
 

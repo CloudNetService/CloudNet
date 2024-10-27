@@ -22,6 +22,12 @@ import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.util.JavaVersionResolver;
+import eu.cloudnetservice.node.util.NetworkUtil;
+import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.utils.base.StringUtil;
 import io.vavr.Tuple2;
 import jakarta.inject.Inject;
@@ -30,12 +36,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import lombok.NonNull;
-import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.util.JavaVersionResolver;
-import eu.cloudnetservice.node.util.NetworkUtil;
-import eu.cloudnetservice.node.version.ServiceVersion;
-import eu.cloudnetservice.node.version.ServiceVersionProvider;
-import eu.cloudnetservice.node.version.ServiceVersionType;
 
 @Singleton
 public final class Parsers {

@@ -17,6 +17,11 @@
 package eu.cloudnetservice.node.console;
 
 import dev.derklaro.aerogel.auto.Provides;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
+import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
+import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
+import eu.cloudnetservice.node.console.handler.Toggleable;
 import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,11 +40,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import lombok.NonNull;
-import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
-import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
-import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
-import eu.cloudnetservice.node.console.handler.Toggleable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jline.jansi.Ansi;
@@ -387,17 +387,20 @@ public final class JLine3Console implements Console {
   }
 
   @ApiStatus.Internal
-  @NonNull LineReader lineReader() {
+  @NonNull
+  LineReader lineReader() {
     return this.lineReader;
   }
 
   @ApiStatus.Internal
-  @NonNull Map<UUID, ConsoleInputHandler> consoleInputHandler() {
+  @NonNull
+  Map<UUID, ConsoleInputHandler> consoleInputHandler() {
     return this.consoleInputHandler;
   }
 
   @ApiStatus.Internal
-  @NonNull Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandlers() {
+  @NonNull
+  Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandlers() {
     return this.tabCompleteHandler;
   }
 

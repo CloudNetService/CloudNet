@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.database.xodus;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.node.database.AbstractDatabase;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +34,6 @@ import jetbrains.exodus.bindings.StringBinding;
 import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.Store;
 import lombok.NonNull;
-import eu.cloudnetservice.node.database.AbstractDatabase;
 import org.jetbrains.annotations.Nullable;
 
 public class XodusDatabase extends AbstractDatabase {

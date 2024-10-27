@@ -39,6 +39,7 @@ import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.task.LocalNodeUpdateTask;
 import eu.cloudnetservice.node.cluster.task.NodeDisconnectTrackerTask;
+import eu.cloudnetservice.node.command.defaults.DefaultCommandProvider;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.util.HeaderReader;
@@ -51,6 +52,7 @@ import eu.cloudnetservice.node.module.NodeModuleProviderHandler;
 import eu.cloudnetservice.node.module.updater.ModuleUpdater;
 import eu.cloudnetservice.node.module.updater.ModuleUpdaterRegistry;
 import eu.cloudnetservice.node.network.chunk.FileDeployCallbackListener;
+import eu.cloudnetservice.node.network.chunk.FileQueryChannelMessageListener;
 import eu.cloudnetservice.node.setup.DefaultInstallation;
 import eu.cloudnetservice.node.template.LocalTemplateStorage;
 import eu.cloudnetservice.node.tick.DefaultShutdownHandler;
@@ -95,7 +97,7 @@ public final class Node {
   @Inject
   @Order(0)
   private void initLanguage(@NonNull Configuration configuration) {
-    I18n.loadFromLangPath(Node.class);
+    //TODO I18n.loadFromLangPath(Node.class);
     I18n.language(configuration.language());
   }
 
@@ -361,7 +363,7 @@ public final class Node {
 
   @Inject
   @Order(650)
-  private void registerDefaultCommands(@NonNull CommandProvider commandProvider, @NonNull Console console) {
+  private void registerDefaultCommands(@NonNull DefaultCommandProvider commandProvider, @NonNull Console console) {
     // register the default commands
     LOGGER.info(I18n.trans("start-commands"));
     commandProvider.registerDefaultCommands();

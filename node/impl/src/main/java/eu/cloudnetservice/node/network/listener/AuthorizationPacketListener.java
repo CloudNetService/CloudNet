@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.network.listener;
 
-
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
@@ -30,17 +29,17 @@ import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
-import eu.cloudnetservice.node.service.CloudServiceManager;
-import eu.cloudnetservice.node.service.InternalCloudService;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import lombok.NonNull;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeAuthSuccessEvent;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeReconnectEvent;
 import eu.cloudnetservice.node.event.network.NetworkServiceAuthSuccessEvent;
 import eu.cloudnetservice.node.network.NodeNetworkUtil;
 import eu.cloudnetservice.node.network.packet.AuthorizationResponsePacket;
+import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.service.InternalCloudService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

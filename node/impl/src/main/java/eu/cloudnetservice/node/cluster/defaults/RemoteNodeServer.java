@@ -31,6 +31,7 @@ import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.cluster.util.NodeDisconnectHandler;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import java.lang.reflect.Type;
@@ -41,7 +42,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.util.NodeDisconnectHandler;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 

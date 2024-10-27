@@ -26,6 +26,15 @@ import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
+import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
+import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
+import eu.cloudnetservice.node.module.ModuleEntry;
+import eu.cloudnetservice.node.module.ModulesHolder;
+import eu.cloudnetservice.node.util.NetworkUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -36,15 +45,6 @@ import java.util.HashSet;
 import java.util.Set;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
-import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
-import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
-import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
-import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
-import eu.cloudnetservice.node.module.ModuleEntry;
-import eu.cloudnetservice.node.module.ModulesHolder;
-import eu.cloudnetservice.node.util.NetworkUtil;
 
 @Singleton
 public class DefaultConfigSetup extends DefaultClusterSetup {

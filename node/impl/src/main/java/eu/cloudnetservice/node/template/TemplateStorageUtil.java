@@ -20,11 +20,11 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
+import eu.cloudnetservice.node.event.template.ServiceTemplateInstallEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.IOException;
 import lombok.NonNull;
-import eu.cloudnetservice.node.event.template.ServiceTemplateInstallEvent;
 
 /**
  * An util class to prepare created templates with needed files

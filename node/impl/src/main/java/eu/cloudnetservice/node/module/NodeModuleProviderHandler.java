@@ -29,6 +29,7 @@ import eu.cloudnetservice.driver.network.NetworkServer;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.command.CommandProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;

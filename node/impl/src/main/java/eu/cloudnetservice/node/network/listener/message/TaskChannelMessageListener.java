@@ -23,10 +23,10 @@ import eu.cloudnetservice.driver.event.events.task.ServiceTaskAddEvent;
 import eu.cloudnetservice.driver.event.events.task.ServiceTaskRemoveEvent;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.node.provider.NodeServiceTaskProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.provider.NodeServiceTaskProvider;
 
 @Singleton
 public final class TaskChannelMessageListener {

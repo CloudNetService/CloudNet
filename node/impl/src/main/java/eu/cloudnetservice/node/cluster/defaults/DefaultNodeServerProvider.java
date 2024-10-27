@@ -36,6 +36,7 @@ import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.network.listener.message.NodeChannelMessageListener;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -47,7 +48,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
-import eu.cloudnetservice.node.network.listener.message.NodeChannelMessageListener;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton

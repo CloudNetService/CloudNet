@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.command.defaults;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 import org.incendo.cloud.injection.InjectionRequest;

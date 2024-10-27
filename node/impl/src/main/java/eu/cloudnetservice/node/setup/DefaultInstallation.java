@@ -18,6 +18,9 @@ package eu.cloudnetservice.node.setup;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.node.console.Console;
+import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+import eu.cloudnetservice.node.log.QueuedConsoleLogAppender;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.LinkedList;
@@ -25,9 +28,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.LockSupport;
 import lombok.NonNull;
-import eu.cloudnetservice.node.console.Console;
-import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
-import eu.cloudnetservice.node.log.QueuedConsoleLogAppender;
 
 @Singleton
 public final class DefaultInstallation {

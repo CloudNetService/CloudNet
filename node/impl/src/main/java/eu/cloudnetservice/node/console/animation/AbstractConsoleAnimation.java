@@ -17,11 +17,11 @@
 package eu.cloudnetservice.node.console.animation;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.node.console.Console;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.console.Console;
 import org.jline.jansi.Ansi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

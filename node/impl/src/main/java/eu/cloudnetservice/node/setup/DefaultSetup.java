@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.node.setup;
 
-import lombok.NonNull;
 import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+import lombok.NonNull;
 
 public interface DefaultSetup {
 

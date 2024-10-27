@@ -16,8 +16,10 @@
 
 package eu.cloudnetservice.node.database.h2;
 
-import eu.cloudnetservice.common.io.FileUtil;
-import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
+import eu.cloudnetservice.utils.base.StringUtil;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import io.vavr.CheckedFunction1;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -28,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import lombok.NonNull;
-import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
 import org.h2.Driver;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;

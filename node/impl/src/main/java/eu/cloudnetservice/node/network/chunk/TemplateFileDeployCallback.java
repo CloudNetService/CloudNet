@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.network.chunk;
 
-
 import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.driver.service.ServiceTemplate;

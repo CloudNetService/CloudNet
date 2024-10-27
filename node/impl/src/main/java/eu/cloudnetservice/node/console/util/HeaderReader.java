@@ -17,12 +17,12 @@
 package eu.cloudnetservice.node.console.util;
 
 import com.google.common.io.CharStreams;
+import eu.cloudnetservice.node.console.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import lombok.NonNull;
-import eu.cloudnetservice.node.console.Console;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

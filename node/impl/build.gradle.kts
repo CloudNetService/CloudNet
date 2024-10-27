@@ -15,7 +15,8 @@
  */
 
 tasks.withType<Jar> {
-  dependsOn(":wrapper-jvm:shadowJar")
+  // TODO re add when wrapper and platform inject is ready
+  /*dependsOn(":wrapper-jvm:wrapper-jvm-impl:shadowJar")
 
   archiveFileName.set(Files.node)
 
@@ -28,7 +29,7 @@ tasks.withType<Jar> {
     from(exportLanguageFileInformation())
   }
 
-  from(projects.driver.sourceSets()["main"].output)
+  from(projects.driver.sourceSets()["main"].output)*/
 }
 
 tasks.withType<JavaCompile> {
@@ -60,6 +61,7 @@ dependencies {
   "implementation"(libs.jansi)
   "implementation"(libs.caffeine)
   "implementation"(libs.bundles.jline)
+  "implementation"(libs.bundles.cloud)
   "implementation"(libs.bundles.unirest)
   "implementation"(libs.stringSimilarity)
   "implementation"(libs.bundles.nightConfig)

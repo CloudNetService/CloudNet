@@ -19,8 +19,8 @@ package eu.cloudnetservice.node.console.log;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import lombok.NonNull;
 import eu.cloudnetservice.node.console.Console;
+import lombok.NonNull;
 
 public class ConsoleLogAppender extends ConsoleAppender<ILoggingEvent> {
 

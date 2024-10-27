@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.service.defaults.log;
 
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import java.io.IOException;
@@ -23,7 +24,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 import lombok.NonNull;
-import eu.cloudnetservice.node.config.Configuration;
 
 public class ProcessServiceLogCache extends AbstractServiceLogCache {
 

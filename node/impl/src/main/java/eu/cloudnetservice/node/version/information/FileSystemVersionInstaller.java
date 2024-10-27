@@ -17,6 +17,8 @@
 package eu.cloudnetservice.node.version.information;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionType;
 import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.io.IOException;
@@ -25,8 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import lombok.NonNull;
-import eu.cloudnetservice.node.version.ServiceVersion;
-import eu.cloudnetservice.node.version.ServiceVersionType;
 import org.jetbrains.annotations.Nullable;
 
 public final class FileSystemVersionInstaller extends VersionInstaller {

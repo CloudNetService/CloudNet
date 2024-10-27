@@ -18,6 +18,8 @@ package eu.cloudnetservice.node.database.h2;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.node.database.sql.SQLDatabase;
+import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,8 +31,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
-import eu.cloudnetservice.node.database.sql.SQLDatabase;
-import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
 import org.jetbrains.annotations.Nullable;
 
 public final class H2Database extends SQLDatabase {

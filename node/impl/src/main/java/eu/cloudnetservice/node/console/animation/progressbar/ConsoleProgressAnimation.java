@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.node.console.animation.progressbar;
 
-import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
+import eu.cloudnetservice.utils.base.StringUtil;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.NonNull;
-import eu.cloudnetservice.node.console.animation.AbstractConsoleAnimation;
 import org.jetbrains.annotations.Range;
 
 /**

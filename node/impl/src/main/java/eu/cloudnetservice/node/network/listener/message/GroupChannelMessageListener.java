@@ -23,10 +23,10 @@ import eu.cloudnetservice.driver.event.events.group.GroupConfigurationAddEvent;
 import eu.cloudnetservice.driver.event.events.group.GroupConfigurationRemoveEvent;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
+import eu.cloudnetservice.node.provider.NodeGroupConfigurationProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.provider.NodeGroupConfigurationProvider;
 
 @Singleton
 public final class GroupChannelMessageListener {
