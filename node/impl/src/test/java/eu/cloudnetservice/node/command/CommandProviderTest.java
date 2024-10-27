@@ -17,14 +17,14 @@
 package eu.cloudnetservice.node.command;
 
 import dev.derklaro.aerogel.binding.BindingBuilder;
-import eu.cloudnetservice.common.concurrent.TaskUtil;
-import eu.cloudnetservice.driver.event.DefaultEventManager;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.impl.event.DefaultEventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.defaults.DefaultCommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.DriverCommandSource;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionException;

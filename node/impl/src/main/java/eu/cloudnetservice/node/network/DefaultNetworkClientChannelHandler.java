@@ -16,16 +16,18 @@
 
 package eu.cloudnetservice.node.network;
 
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.impl.network.standard.AuthorizationPacket;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.def.PacketClientAuthorization;
 import eu.cloudnetservice.driver.network.protocol.Packet;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.node.cluster.NodeServerState;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.concurrent.atomic.AtomicLong;
@@ -67,8 +69,8 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         PacketServerAuthorizationResponseListener.class);
       // send the authentication request
-      channel.sendPacket(new PacketClientAuthorization(
-        PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
+      channel.sendPacket(new AuthorizationPacket(
+        AuthorizationPacket.PacketAuthorizationType.NODE_TO_NODE,
         DataBuf.empty()
           .writeUniqueId(this.configuration.clusterConfig().clusterId())
           .writeObject(this.configuration.identity())));

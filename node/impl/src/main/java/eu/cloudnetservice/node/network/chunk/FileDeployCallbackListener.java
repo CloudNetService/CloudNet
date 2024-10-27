@@ -73,7 +73,7 @@ public final class FileDeployCallbackListener {
         try {
           var zipInputStream = storage.zipTemplate(template);
           if (zipInputStream != null) {
-            var responseHandler = ChunkedPacketSender.forFileTransfer().source(zipInputStream);
+            var responseHandler = ChunkedPacketSender.forStreamTransfer().source(zipInputStream);
             event.responseHandler(responseHandler);
           }
         } catch (IOException _) {
@@ -84,7 +84,7 @@ public final class FileDeployCallbackListener {
           var filePath = event.requestData().readString();
           var fileInputStream = storage.newInputStream(template, filePath);
           if (fileInputStream != null) {
-            var responseHandler = ChunkedPacketSender.forFileTransfer().source(fileInputStream);
+            var responseHandler = ChunkedPacketSender.forStreamTransfer().source(fileInputStream);
             event.responseHandler(responseHandler);
           }
         } catch (IOException _) {

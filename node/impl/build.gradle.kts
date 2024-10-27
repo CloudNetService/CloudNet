@@ -52,20 +52,22 @@ dependencies {
   "annotationProcessor"(libs.aerogelAuto)
 
   // internal libraries
-  "implementation"(libs.logbackCore)
-  "implementation"(libs.logbackClassic)
-  "implementation"(libs.caffeine)
-  "implementation"(libs.bundles.unirest)
+
   "implementation"(libs.h2)
   "implementation"(libs.gson)
   "implementation"(libs.gulf)
   "implementation"(libs.xodus)
   "implementation"(libs.jansi)
+  "implementation"(libs.caffeine)
   "implementation"(libs.bundles.jline)
+  "implementation"(libs.bundles.unirest)
   "implementation"(libs.stringSimilarity)
+  "implementation"(libs.bundles.nightConfig)
+
+  "implementation"(libs.logbackCore)
+  "implementation"(libs.logbackClassic)
 
   "compileOnly"(libs.bundles.netty)
-  "implementation"(libs.bundles.nightConfig)
 }
 
 applyJarMetadata("eu.cloudnetservice.node.boot.Bootstrap", "eu.cloudnetservice.node")

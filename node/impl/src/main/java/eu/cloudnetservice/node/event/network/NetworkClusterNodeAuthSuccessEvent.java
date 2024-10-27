@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.event.network;
 
 import eu.cloudnetservice.driver.event.events.network.NetworkEvent;
 import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.node.cluster.NodeServer;
 import lombok.NonNull;
 
 public final class NetworkClusterNodeAuthSuccessEvent extends NetworkEvent {

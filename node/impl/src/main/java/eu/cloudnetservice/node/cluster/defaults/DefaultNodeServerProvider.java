@@ -187,7 +187,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
     var channels = this.connectedNodeChannels();
     if (!channels.isEmpty()) {
       // send the template chunked to the cluster
-      return ChunkedPacketSender.forFileTransfer()
+      return ChunkedPacketSender.forStreamTransfer()
         .transferChannel("deploy_service_template")
         .withExtraData(
           DataBuf.empty().writeString(template.storageName()).writeObject(template).writeBoolean(overwrite))
@@ -210,7 +210,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
     var channels = this.connectedNodeChannels();
     if (!channels.isEmpty()) {
       // send the template chunked to the cluster
-      return ChunkedPacketSender.forFileTransfer()
+      return ChunkedPacketSender.forStreamTransfer()
         .transferChannel("deploy_static_service")
         .withExtraData(DataBuf.empty().writeString(name).writeBoolean(overwrite))
         .toChannels(channels)

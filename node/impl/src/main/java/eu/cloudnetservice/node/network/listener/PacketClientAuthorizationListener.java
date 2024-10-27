@@ -20,6 +20,7 @@ package eu.cloudnetservice.node.network.listener;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
+import eu.cloudnetservice.driver.impl.network.standard.AuthorizationPacket;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.Packet;
@@ -27,12 +28,13 @@ import eu.cloudnetservice.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
+import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.service.InternalCloudService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import eu.cloudnetservice.node.cluster.sync.DefaultDataSyncHandler;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeAuthSuccessEvent;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeReconnectEvent;
@@ -45,7 +47,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public final class PacketClientAuthorizationListener implements PacketListener {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PacketServerAuthorizationResponseListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PacketClientAuthorizationListener.class);
 
   private final EventManager eventManager;
   private final Configuration configuration;
@@ -74,7 +76,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     // read the core data
-    var type = packet.content().readObject(PacketClientAuthorization.PacketAuthorizationType.class);
+    var type = packet.content().readObject(AuthorizationPacket.PacketAuthorizationType.class);
     try (var content = packet.content().readDataBuf()) {
       // handle the authorization
       switch (type) {
@@ -96,7 +98,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
               // check if the node is currently marked disconnected and reconnected to the network
               if (server.state() == NodeServerState.DISCONNECTED) {
                 // respond with an auth success
-                var data = this.dataSyncRegistry.prepareClusterData(true, DefaultDataSyncHandler::alwaysForceApply);
+                var data = this.dataSyncRegistry.prepareClusterData(true, DataSyncHandler::alwaysForceApply);
                 channel.sendPacket(new PacketServerAuthorizationResponse(true, true, data));
                 channel.packetRegistry().addListener(
                   NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL,
@@ -127,7 +129,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
           var connectionKey = content.readString();
           var id = content.readObject(ServiceId.class);
           // get the cloud service associated with the service id
-          var service = this.cloudServiceManager.localCloudService(id.uniqueId());
+          var service = (InternalCloudService) this.cloudServiceManager.localCloudService(id.uniqueId());
           // we can only accept the connection if the service is present, and the connection key is correct
           if (service != null && service.connectionKey().equals(connectionKey)) {
             // update the cloud service
