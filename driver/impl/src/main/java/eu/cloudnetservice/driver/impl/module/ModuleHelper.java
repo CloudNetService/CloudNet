@@ -135,7 +135,6 @@ public final class ModuleHelper {
    *   <li>Registered services in the {@link ServiceRegistry}</li>
    *   <li>Registered bindings for the {@link DefaultObjectMapper#DEFAULT_MAPPER}</li>
    *   <li>Registered rpc handlers in the {@link RPCHandlerRegistry}</li>
-   *   <li>Registered language files in {@link I18n}</li>
    *   <li>Registered packet listeners in the {@link eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry}</li>
    * </ul>
    *
@@ -152,7 +151,7 @@ public final class ModuleHelper {
     // remove rpc handlers
     this.rpcHandlerRegistry.unregisterHandlers(classLoader);
     // remove registered languages
-    I18n.unregisterLanguageFiles(classLoader);
+    I18n.i18n().unregisterProviders(classLoader);
     // remove all packet listeners
     this.networkClient.packetRegistry().removeListeners(classLoader);
     for (var channel : this.networkClient.channels()) {

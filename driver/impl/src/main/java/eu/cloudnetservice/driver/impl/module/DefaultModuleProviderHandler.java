@@ -83,7 +83,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
   @Override
   public void handlePostModuleLoad(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostLoadEvent(this.moduleProvider, moduleWrapper));
-    LOGGER.info(I18n.trans("cloudnet-post-load-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
+    LOGGER.info(I18n.i18n().translate("cloudnet-post-load-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
   /**
@@ -104,7 +104,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
   @Override
   public void handlePostModuleStart(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostStartEvent(this.moduleProvider, moduleWrapper));
-    LOGGER.info(I18n.trans("cloudnet-post-start-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
+    LOGGER.info(I18n.i18n().translate("cloudnet-post-start-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
   /**
@@ -121,7 +121,8 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
   @Override
   public void handlePostModuleReload(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostReloadEvent(this.moduleProvider, moduleWrapper));
-    LOGGER.info(I18n.trans("cloudnet-post-reload-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
+    LOGGER.info(
+      I18n.i18n().translate("cloudnet-post-reload-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
   /**
@@ -141,7 +142,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
     this.eventManager.unregisterListeners(moduleWrapper.classLoader());
 
     this.callEvent(new ModulePostStopEvent(this.moduleProvider, moduleWrapper));
-    LOGGER.info(I18n.trans("cloudnet-post-stop-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
+    LOGGER.info(I18n.i18n().translate("cloudnet-post-stop-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
   /**
@@ -158,7 +159,8 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
   @Override
   public void handlePostModuleUnload(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostUnloadEvent(this.moduleProvider, moduleWrapper));
-    LOGGER.info(I18n.trans("cloudnet-post-unload-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
+    LOGGER.info(
+      I18n.i18n().translate("cloudnet-post-unload-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
   /**
@@ -181,7 +183,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
     @NonNull ModuleDependency dependency
   ) {
     this.callEvent(new ModulePostInstallDependencyEvent(this.moduleProvider, configuration, dependency));
-    LOGGER.debug(I18n.trans("Dependency {}:{}:{} for module {}:{}:{} was successfully installed",
+    LOGGER.debug(I18n.i18n().translate("Dependency {}:{}:{} for module {}:{}:{} was successfully installed",
       dependency.group(),
       dependency.name(),
       dependency.version(),

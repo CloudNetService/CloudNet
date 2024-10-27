@@ -16,243 +16,99 @@
 
 package eu.cloudnetservice.driver.language;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.SetMultimap;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.MessageFormat;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import java.util.Collection;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * The main entry point for localization made in the CloudNet system. Language files can be registered in multiple ways
- * to this registry. Multiple language files for the same language will be combined to one entry and can be translated.
- * If multiple language files with the same language key are registered, the first registered language file will be used
- * to translate the requested key.
- * <p>
- * Unregistering language files can be done via the class loader which must be given for message loading.
+ * A registry for translations in different languages. One language is selected as the default language and used to
+ * translate all translation requests. Translations can take a variable number of arguments, but can also be fixed which
+ * means that they don't take any argument at all. How translations are loaded and messages are formatted is the
+ * responsibility of a {@link TranslationProvider}.
  *
  * @since 4.0
  */
-public final class I18n {
+public interface I18n {
 
-  // https://regex101.com/r/syFEig/1
-  private static final Pattern MESSAGE_FORMAT = Pattern.compile("\\{(.+?)\\$.+?\\$}");
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(I18n.class);
-  private static final SetMultimap<String, Entry> REGISTERED_ENTRIES = Multimaps.newSetMultimap(
-    new ConcurrentHashMap<>(),
-    ConcurrentHashMap::newKeySet);
-  private static final AtomicReference<String> CURRENT_LANGUAGE = new AtomicReference<>("en_US");
-
-  private I18n() {
-    throw new UnsupportedOperationException();
+  /**
+   * Get the current default implementation of this translator interface from the service registry. Where possibly
+   * injection should be preferred over using this method.
+   *
+   * @return the current default implementation of this translator interface from the service registry.
+   */
+  static @NonNull I18n i18n() {
+    return ServiceRegistry.registry().defaultInstance(I18n.class);
   }
 
   /**
-   * Loads all language files which are located in the jar at given class source and registers them to the loader of the
-   * given class. All language files in the jar must be located in the {@code lang/} directory and their extension must
-   * be properties. Subdirectories are ignored by this method.
+   * Get the current selected language. If no language was selected specifically, the {@code en-US} locale is returned.
    *
-   * @param clazzSource the source which tries to register all language files.
-   * @throws NullPointerException if the given class source is null.
+   * @return the current selected language.
    */
-  // todo(derklaro): move into some form of impl
-  // public static void loadFromLangPath(@NonNull Class<?> clazzSource) {
-  //   var resourcePath = Path.of(ResourceResolver.resolveCodeSourceOfClass(clazzSource));
-  //   FileUtil.openZipFile(resourcePath, fs -> {
-  //     // get the language directory
-  //     var langDir = fs.getPath("lang/");
-  //     if (Files.notExists(langDir) || !Files.isDirectory(langDir)) {
-  //       throw new IllegalStateException("lang/ must be an existing directory inside the jar to load");
-  //     }
-  //     // visit each file and register it as a language source
-  //     FileUtil.walkFileTree(langDir, ($, sub) -> {
-  //       // try to load and register the language file
-  //       try (var stream = Files.newInputStream(sub)) {
-  //         var lang = sub.getFileName().toString().replace(".properties", "");
-  //         addLanguageFile(lang, stream, clazzSource.getClassLoader());
-  //       } catch (IOException exception) {
-  //         LOGGER.error("Unable to open language file for reading @ {}", sub, exception);
-  //       }
-  //     }, false, "*.properties");
-  //   });
-  // }
+  @NonNull
+  Locale selectedLanguage();
 
   /**
-   * Registers the language properties file at the given path to the given language and loader source.
+   * Sets the given locale as the current selected language. Future translations calls will use translations from the
+   * given language. This method does no checks if translations for the given language are present.
    *
-   * @param lang   the language to register the file to.
-   * @param file   the location of the language file to load.
-   * @param source the class loader to which the requester belongs.
-   * @throws NullPointerException if either the given language, file or loader is null.
-   */
-  public static void addLanguageFile(@NonNull String lang, @NonNull Path file, @NonNull ClassLoader source) {
-    try (var inputStream = Files.newInputStream(file)) {
-      addLanguageFile(lang, inputStream, source);
-    } catch (IOException exception) {
-      LOGGER.error("Exception while reading language file", exception);
-    }
-  }
-
-  /**
-   * Registers the language properties file which must be loadable from the given stream to the given language and
-   * loader source. This method uses utf-8 to decode the stream.
-   *
-   * @param lang   the language to register the file to.
-   * @param stream the stream from which the properties should get loaded.
-   * @param source the class loader to which the requester belongs.
-   * @throws NullPointerException if either the given language, stream or loader is null.
-   */
-  public static void addLanguageFile(@NonNull String lang, @NonNull InputStream stream, @NonNull ClassLoader source) {
-    try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-      // load the properties
-      var properties = new Properties();
-      properties.load(reader);
-      // register all language keys
-      addLanguageFile(lang, properties, source);
-    } catch (IOException exception) {
-      LOGGER.error("Exception while reading language file", exception);
-    }
-  }
-
-  /**
-   * Registers the language properties file to the given language and loader source.
-   *
-   * @param lang    the language to register the file to.
-   * @param entries the entries of the language file to register.
-   * @param source  the class loader to which the requester belongs.
-   * @throws NullPointerException if either the given language, entries or loader is null.
-   */
-  public static void addLanguageFile(@NonNull String lang, @NonNull Properties entries, @NonNull ClassLoader source) {
-    var messageFormats = ImmutableMap.<String, ThreadLocal<MessageFormat>>builder();
-    // register for each property key the associated value wrapped by a MessageFormat for later formatting
-    // this also unwraps message formatting keys for easier translation like {0$service$} to {0}
-    for (var key : entries.stringPropertyNames()) {
-      var format = MESSAGE_FORMAT.matcher(entries.getProperty(key)).replaceAll("{$1}");
-      messageFormats.put(key, ThreadLocal.withInitial(() -> new MessageFormat(format, Locale.ROOT)));
-    }
-
-    // register all translations for the language
-    REGISTERED_ENTRIES.put(lang, new Entry(source, messageFormats.build()));
-    LOGGER.debug("Registering language file {} with {} translations", lang, entries.size());
-  }
-
-  /**
-   * Unregisters all language files which were registered by providing the given class loader.
-   *
-   * @param loader the loader to unregister the language files of.
-   * @throws NullPointerException if the given loader is null.
-   */
-  public static void unregisterLanguageFiles(@NonNull ClassLoader loader) {
-    for (var entry : REGISTERED_ENTRIES.entries()) {
-      if (entry.getValue().source().equals(loader)) {
-        REGISTERED_ENTRIES.remove(entry.getKey(), entry.getValue());
-      }
-    }
-  }
-
-  /**
-   * Tries to translate the given message key using all currently registered language files for the language this
-   * registry currently uses. This method uses the first language entry which can translate the given key, ignoring all
-   * duplicate keys.
-   * <p>
-   * This method will never return null. However, it does return a string which either indicates that no language files
-   * are registered for the current language, or that no registered entry is able to translate the given key.
-   *
-   * @param messageKey the key of the message to translate.
-   * @param args       the arguments for the translation.
-   * @throws NullPointerException if either the given key or argument array is null.
-   */
-  public static String trans(@NonNull String messageKey, @NonNull Object... args) {
-    // check if there is at least one entry for the current language
-    var entries = REGISTERED_ENTRIES.get(I18n.language());
-    if (entries.isEmpty()) {
-      return String.format("<no language entry for %s>", I18n.language());
-    }
-
-    // use the first entry which is able to translate the given entry
-    for (var entry : entries) {
-      var result = entry.tryTranslate(messageKey, args);
-      if (result != null) {
-        // successful translate
-        return result;
-      }
-    }
-
-    // fallthrough if no registered entry can translate the message
-    return String.format("<no entry to translate \"%s\" in language \"%s\">", messageKey, I18n.language());
-  }
-
-  /**
-   * Get the current language to which each message will be translated.
-   *
-   * @return the current message of this manager.
-   */
-  public static @NonNull String language() {
-    return I18n.CURRENT_LANGUAGE.get();
-  }
-
-  /**
-   * Gets all the names of the known languages to this translation manager.
-   *
-   * @return the names of all known languages.
-   */
-  public static @NonNull Collection<String> knownLanguages() {
-    return I18n.REGISTERED_ENTRIES.keys();
-  }
-
-  /**
-   * Sets the current message to which all messages should get translated. There is no check made if any message is
-   * registered for the given language.
-   * <p>
-   * This method doesn't change to the given language silently if the language is not associated with a translation
-   * file.
-   *
-   * @param language the language this manager should use.
+   * @param language the language to set as the current selected language.
    * @throws NullPointerException if the given language is null.
    */
-  public static void language(@NonNull String language) {
-    // validate that the language is known before changing it
-    if (REGISTERED_ENTRIES.containsKey(language)) {
-      I18n.CURRENT_LANGUAGE.set(language);
-    }
-  }
+  void selectLanguage(@NonNull Locale language);
 
   /**
-   * A registered entry in this registry mapping the loader source and all messages of it.
+   * Get a view of the locales for which a translation provider was registered.
    *
-   * @since 4.0
+   * @return a view of the locales for which a translation provider was registered.
    */
-  private record Entry(@NonNull ClassLoader source, @NonNull Map<String, ThreadLocal<MessageFormat>> languageEntries) {
+  @NonNull
+  @UnmodifiableView
+  Collection<Locale> availableLanguages();
 
-    /**
-     * Tries to translate the given key and formats it with the given arguments. If no mapping for the given key is
-     * registered this method simply returns null.
-     *
-     * @param key  the key to translate.
-     * @param args the arguments to use during translation.
-     * @return the translated message for the given key or null if the given key is unknown.
-     * @throws NullPointerException if the given key of argument array is null.
-     */
-    public @Nullable String tryTranslate(@NonNull String key, @NonNull Object... args) {
-      // try to get the associated format with the key
-      var format = this.languageEntries.get(key);
-      return format == null ? null : format.get().format(args);
-    }
-  }
+  /**
+   * Returns the translated message for the given translation key based on the current selected language, optionally
+   * inserting the given arguments into the message. If no translation can be provided for the key in the selected
+   * language, a fallback message is returned instead.
+   *
+   * @param key  the key of the translation to get.
+   * @param args the arguments which can optionally be embedded into the translation.
+   * @return the translated message for the given key in the current language.
+   * @throws NullPointerException     if the given translation key or arguments array is null.
+   * @throws IllegalArgumentException if the translation cannot be formatted with the given arguments.
+   */
+  @NonNull
+  String translate(@NonNull String key, Object... args);
+
+  /**
+   * Registers a translation provider into this registry. Translation providers are called in registration order when a
+   * translation is requested, returning the translated message from the first provider that can provide it. The caller
+   * of this method is marked as the owner of the translation provider. This information will be used when a request is
+   * made to unregister all translation providers by their class loader.
+   *
+   * @param language the language for which the provider should be registered.
+   * @param provider the provider to register into this registry for the given language.
+   * @throws NullPointerException   if the given language or provider is null.
+   * @throws IllegalCallerException if the caller of the method cannot be resolved.
+   */
+  void registerProvider(@NonNull Locale language, @NonNull TranslationProvider provider);
+
+  /**
+   * Unregisters the given provider for the given language from this registry.
+   *
+   * @param language the language for which the provider was registered.
+   * @param provider the provider to unregister from this registry.
+   * @throws NullPointerException if the given language or provider is null.
+   */
+  void unregisterProvider(@NonNull Locale language, @NonNull TranslationProvider provider);
+
+  /**
+   * Unregisters all providers from this registry whose owner class was loaded by the given class loader.
+   *
+   * @param classLoader the class loader of the owner of the providers to be unregistered.
+   * @throws NullPointerException if the given class loader is null.
+   */
+  void unregisterProviders(@NonNull ClassLoader classLoader);
 }
