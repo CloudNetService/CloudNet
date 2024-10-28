@@ -40,9 +40,9 @@ public record QuestionAnswerType<T>(
   private static final BiFunction<QuestionAnswerType<?>, String, String> DEFAULT_INVALID_SUPPLIER = (type, $) -> {
     // check if there are possible results
     if (type.possibleAnswers().isEmpty()) {
-      return I18n.trans("ca-question-list-invalid-default");
+      return I18n.i18n().translate("ca-question-list-invalid-default");
     } else {
-      return I18n.trans("ca-question-list-question-list", String.join(", ", type.possibleAnswers()));
+      return I18n.i18n().translate("ca-question-list-question-list", String.join(", ", type.possibleAnswers()));
     }
   };
 
@@ -140,7 +140,7 @@ public record QuestionAnswerType<T>(
     }
 
     public @NonNull Builder<T> translatedInvalidInputMessage(@NonNull String messageTranslationKey) {
-      return this.invalidInputHandler((__, ___) -> I18n.trans(messageTranslationKey));
+      return this.invalidInputHandler((__, ___) -> I18n.i18n().translate(messageTranslationKey));
     }
 
     public @NonNull QuestionAnswerType<T> build() {

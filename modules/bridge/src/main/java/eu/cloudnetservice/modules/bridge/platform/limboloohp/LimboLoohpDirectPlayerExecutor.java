@@ -106,7 +106,7 @@ final class LimboLoohpDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       try {
         player.sendPluginMessage(Key.key(key), data);
       } catch (IOException e) {
-        LOGGER.error(I18n.trans("module-bridge-plugin-message-sending-failed", key), e);
+        LOGGER.error(i18n.translate("module-bridge-plugin-message-sending-failed", key), e);
       }
     });
   }

@@ -112,12 +112,15 @@ public final class ServiceCommand {
   }
 
   @Parser(suggestions = "service")
-  public @NonNull Collection<ServiceInfoSnapshot> wildcardServiceParser(@NonNull CommandInput input) {
+  public @NonNull Collection<ServiceInfoSnapshot> wildcardServiceParser(
+    @NonNull I18n i18n,
+    @NonNull CommandInput input
+  ) {
     var name = input.readString();
     var knownServices = this.cloudServiceProvider.services();
     var matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-service-service-not-found"));
     }
 
     return matchedServices;
@@ -193,6 +196,7 @@ public final class ServiceCommand {
 
   @Command("service|ser <name> copy|cp")
   public void copyService(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "name") Collection<ServiceInfoSnapshot> services,
     @Nullable @Flag("template") ServiceTemplate template,
@@ -210,7 +214,7 @@ public final class ServiceCommand {
         .orElse(null);
 
       if (template == null) {
-        source.sendMessage(I18n.trans("command-service-copy-no-default-template", service.serviceId().name()));
+        source.sendMessage(i18n.translate("command-service-copy-no-default-template", service.serviceId().name()));
         return;
       }
     }
@@ -225,7 +229,7 @@ public final class ServiceCommand {
       .withDefaultExclusions()
       .build());
     serviceProvider.removeAndExecuteDeployments();
-    source.sendMessage(I18n.trans("command-service-copy-success", service.serviceId().name(), template));
+    source.sendMessage(i18n.translate("command-service-copy-success", service.serviceId().name(), template));
   }
 
   @Command("service|ser <name> delete|del")
@@ -240,6 +244,7 @@ public final class ServiceCommand {
 
   @Command(value = "service|ser <name> screen|toggle", requiredSender = ConsoleCommandSource.class)
   public void toggleScreens(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
@@ -248,44 +253,47 @@ public final class ServiceCommand {
         for (var cachedLogMessage : matchedService.provider().cachedLogMessages()) {
           LOGGER.info("&b[{}] {}", matchedService.name(), cachedLogMessage);
         }
-        source.sendMessage(I18n.trans("command-service-toggle-enabled", matchedService.name()));
+        source.sendMessage(i18n.translate("command-service-toggle-enabled", matchedService.name()));
       } else {
-        source.sendMessage(I18n.trans("command-service-toggle-disabled", matchedService.name()));
+        source.sendMessage(i18n.translate("command-service-toggle-disabled", matchedService.name()));
       }
     }
   }
 
   @Command("service|ser <name> includeInclusions")
   public void includeInclusions(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
     for (var matchedService : matchedServices) {
       matchedService.provider().includeWaitingServiceInclusions();
     }
-    source.sendMessage(I18n.trans("command-service-include-inclusion-success"));
+    source.sendMessage(i18n.translate("command-service-include-inclusion-success"));
   }
 
   @Command("service|ser <name> includeTemplates")
   public void includeTemplates(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
     for (var matchedService : matchedServices) {
       matchedService.provider().includeWaitingServiceTemplates();
     }
-    source.sendMessage(I18n.trans("command-service-include-templates-success"));
+    source.sendMessage(i18n.translate("command-service-include-templates-success"));
   }
 
   @Command("service|ser <name> deployResources")
   public void deployResources(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
     for (var matchedService : matchedServices) {
       matchedService.provider().removeAndExecuteDeployments();
     }
-    source.sendMessage(I18n.trans("command-service-deploy-deployment-success"));
+    source.sendMessage(i18n.translate("command-service-deploy-deployment-success"));
   }
 
   @Command("service|ser <name> command|cmd <command>")
@@ -301,6 +309,7 @@ public final class ServiceCommand {
 
   @Command("service|ser <name> add deployment <deployment>")
   public void addDeployment(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @NonNull @Argument("deployment") ServiceTemplate template,
@@ -317,11 +326,12 @@ public final class ServiceCommand {
     for (var matchedService : matchedServices) {
       matchedService.provider().addServiceDeployment(deployment);
     }
-    source.sendMessage(I18n.trans("command-service-add-deployment-success", deployment.template().fullName()));
+    source.sendMessage(i18n.translate("command-service-add-deployment-success", deployment.template().fullName()));
   }
 
   @Command("service|ser <name> add template <template>")
   public void addTemplate(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @NonNull @Argument("template") ServiceTemplate template
@@ -329,11 +339,12 @@ public final class ServiceCommand {
     for (var matchedService : matchedServices) {
       matchedService.provider().addServiceTemplate(template);
     }
-    source.sendMessage(I18n.trans("command-service-add-template-success", template.fullName()));
+    source.sendMessage(i18n.translate("command-service-add-template-success", template.fullName()));
   }
 
   @Command("service|ser <name> add inclusion <url> <path>")
   public void addInclusion(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @NonNull @Argument("url") String url,
@@ -343,7 +354,7 @@ public final class ServiceCommand {
     for (var matchedService : matchedServices) {
       matchedService.provider().addServiceRemoteInclusion(remoteInclusion);
     }
-    source.sendMessage(I18n.trans("command-service-add-inclusion-success", remoteInclusion.toString()));
+    source.sendMessage(i18n.translate("command-service-add-inclusion-success", remoteInclusion.toString()));
   }
 
   @EventListener(channel = "service:screen")

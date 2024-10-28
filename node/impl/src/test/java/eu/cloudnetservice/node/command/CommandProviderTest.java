@@ -24,6 +24,7 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.defaults.DefaultCommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.DriverCommandSource;
+import eu.cloudnetservice.node.junit.EnableServicesInject;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Iterables;
 
+@EnableServicesInject
 public final class CommandProviderTest {
 
   private static CommandProvider commandProvider;

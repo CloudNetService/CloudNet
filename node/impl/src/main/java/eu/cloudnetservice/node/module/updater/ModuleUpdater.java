@@ -33,6 +33,12 @@ public final class ModuleUpdater implements Updater<ModuleUpdaterContext> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ModuleUpdater.class);
 
+  private final I18n i18n;
+
+  public ModuleUpdater(@NonNull I18n i18n) {
+    this.i18n = i18n;
+  }
+
   @Override
   public void executeUpdates(@NonNull ModuleUpdaterContext context, boolean onlyIfRequired) {
     if (!onlyIfRequired) {
@@ -52,7 +58,7 @@ public final class ModuleUpdater implements Updater<ModuleUpdaterContext> {
               // validate the checksum now
               var newModuleChecksum = ChecksumUtil.fileShaSum(file);
               if (!moduleEntry.sha3256().equals(newModuleChecksum)) {
-                LOGGER.warn(I18n.trans("cloudnet-load-modules-invalid-checksum", moduleName));
+                LOGGER.warn(this.i18n.translate("cloudnet-load-modules-invalid-checksum", moduleName));
                 FileUtil.delete(file);
               }
             }

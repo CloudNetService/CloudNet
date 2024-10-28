@@ -42,11 +42,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDataSyncRegistry.class);
 
+  private final I18n i18n;
   private final Console console;
   private final Map<String, DataSyncHandler<?>> handlers = new ConcurrentHashMap<>();
 
   @Inject
-  public DefaultDataSyncRegistry(@NonNull Console console) {
+  public DefaultDataSyncRegistry(@NonNull I18n i18n, @NonNull Console console) {
+    this.i18n = i18n;
     this.console = console;
   }
 
@@ -153,13 +155,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
             }
 
             // print out the possibilities the user has now
-            LOGGER.warn(I18n.trans("cluster-sync-change-decision-question"));
+            LOGGER.warn(this.i18n.translate("cluster-sync-change-decision-question"));
             // wait for the decision and apply
             switch (this.waitForCorrectMergeInput(this.console)) {
               case 1 -> {
                 // accept theirs - write the change
                 handler.write(data);
-                LOGGER.info(I18n.trans("cluster-sync-accepted-theirs"));
+                LOGGER.info(this.i18n.translate("cluster-sync-accepted-theirs"));
               }
               case 2 -> {
                 // accept yours - check if we already have a result buf
@@ -168,11 +170,11 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
                 }
                 // write the current data to the result buf
                 this.serializeData(current, handler, result);
-                LOGGER.info(I18n.trans("cluster-sync-accept-yours"));
+                LOGGER.info(this.i18n.translate("cluster-sync-accept-yours"));
               }
               case 3 ->
                 // skip the current change
-                LOGGER.info(I18n.trans("cluster-sync-skip"));
+                LOGGER.info(this.i18n.translate("cluster-sync-skip"));
               default -> {
                 // cannot happen
               }

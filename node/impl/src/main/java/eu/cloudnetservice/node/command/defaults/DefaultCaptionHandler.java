@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.command.defaults;
 
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.List;
 import lombok.NonNull;
@@ -28,6 +29,13 @@ import org.incendo.cloud.caption.CaptionVariable;
 
 @Singleton
 final class DefaultCaptionHandler implements CaptionProvider<CommandSource>, CaptionFormatter<CommandSource, String> {
+
+  private final I18n i18n;
+
+  @Inject
+  DefaultCaptionHandler(@NonNull I18n i18n) {
+    this.i18n = i18n;
+  }
 
   @Override
   public @NonNull String provide(@NonNull Caption caption, @NonNull CommandSource recipient) {
@@ -42,6 +50,6 @@ final class DefaultCaptionHandler implements CaptionProvider<CommandSource>, Cap
     @NonNull String caption,
     @NonNull List<CaptionVariable> variables
   ) {
-    return I18n.trans(caption, variables.stream().map(CaptionVariable::value).toArray());
+    return this.i18n.translate(caption, variables.stream().map(CaptionVariable::value).toArray());
   }
 }

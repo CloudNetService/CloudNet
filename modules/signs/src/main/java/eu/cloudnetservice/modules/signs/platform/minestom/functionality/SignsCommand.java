@@ -49,7 +49,7 @@ public class SignsCommand extends Command {
     public @NonNull String parse(@NonNull CommandSender sender, @NonNull String input) throws ArgumentSyntaxException {
       var template = ServiceTemplate.parse(input);
       if (template == null) {
-        throw new ArgumentSyntaxException(I18n.trans("command-template-not-valid"), input, -1);
+        throw new ArgumentSyntaxException(i18n.translate("command-template-not-valid"), input, -1);
       }
 
       return template.toString();
@@ -97,7 +97,7 @@ public class SignsCommand extends Command {
           .stream()
           .filter(group -> group.name().equalsIgnoreCase(input))
           .findFirst()
-          .orElseThrow(() -> new ArgumentSyntaxException(I18n.trans("command-general-group-does-not-exist"), input, -1))
+          .orElseThrow(() -> new ArgumentSyntaxException(i18n.translate("command-general-group-does-not-exist"), input, -1))
           .name();
       }
     };

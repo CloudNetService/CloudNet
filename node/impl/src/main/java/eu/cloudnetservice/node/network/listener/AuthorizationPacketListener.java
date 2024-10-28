@@ -48,6 +48,7 @@ public final class AuthorizationPacketListener implements PacketListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationPacketListener.class);
 
+  private final I18n i18n;
   private final EventManager eventManager;
   private final Configuration configuration;
   private final NodeNetworkUtil networkUtil;
@@ -57,6 +58,7 @@ public final class AuthorizationPacketListener implements PacketListener {
 
   @Inject
   public AuthorizationPacketListener(
+    @NonNull I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull Configuration configuration,
     @NonNull NodeNetworkUtil networkUtil,
@@ -64,6 +66,7 @@ public final class AuthorizationPacketListener implements PacketListener {
     @NonNull NodeServerProvider nodeServerProvider,
     @NonNull CloudServiceManager cloudServiceManager
   ) {
+    this.i18n = i18n;
     this.eventManager = eventManager;
     this.configuration = configuration;
     this.networkUtil = networkUtil;
@@ -143,7 +146,7 @@ public final class AuthorizationPacketListener implements PacketListener {
             // call the auth success event
             this.eventManager.callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
             var serviceId = service.serviceId();
-            LOGGER.info(I18n.trans("cloudnet-service-networking-connected",
+            LOGGER.info(this.i18n.translate("cloudnet-service-networking-connected",
               serviceId.uniqueId(),
               serviceId.taskName(),
               serviceId.name(),

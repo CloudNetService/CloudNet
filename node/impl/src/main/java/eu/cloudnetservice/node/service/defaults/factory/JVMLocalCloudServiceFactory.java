@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.service.defaults.factory;
 
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
@@ -32,12 +33,14 @@ import lombok.NonNull;
 @Singleton
 public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
 
+  protected final I18n i18n;
   protected final DefaultTickLoop mainThread;
   protected final EventManager eventManager;
   protected final CloudServiceManager cloudServiceManager;
 
   @Inject
   public JVMLocalCloudServiceFactory(
+    @NonNull I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
     @NonNull CloudServiceManager cloudServiceManager,
@@ -45,6 +48,7 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
     @NonNull ServiceVersionProvider versionProvider
   ) {
     super(nodeConfig, versionProvider);
+    this.i18n = i18n;
     this.mainThread = tickLoop;
     this.eventManager = eventManager;
     this.cloudServiceManager = cloudServiceManager;
@@ -61,6 +65,7 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
     var preparer = manager.servicePreparer(config.serviceId().environment());
     // create the service
     return new JVMService(
+      this.i18n,
       this.mainThread,
       this.configuration,
       config,

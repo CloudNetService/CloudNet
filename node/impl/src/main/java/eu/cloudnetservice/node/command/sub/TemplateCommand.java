@@ -92,10 +92,10 @@ public final class TemplateCommand {
   }
 
   @Parser(suggestions = "serviceTemplate")
-  public @NonNull ServiceTemplate defaultServiceTemplateParser(@NonNull CommandInput input) {
+  public @NonNull ServiceTemplate defaultServiceTemplateParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var template = ServiceTemplate.parse(input.readString());
     if (template == null || template.findStorage() == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-template-not-valid"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-template-not-valid"));
     }
     return template;
   }
@@ -110,11 +110,11 @@ public final class TemplateCommand {
   }
 
   @Parser
-  public @NonNull TemplateStorage defaultTemplateStorageParser(@NonNull CommandInput input) {
+  public @NonNull TemplateStorage defaultTemplateStorageParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var storage = input.readString();
     var templateStorage = this.templateStorageProvider.templateStorage(storage);
     if (templateStorage == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-template-storage-not-found", storage));
+      throw new ArgumentNotAvailableException(i18n.translate("command-template-storage-not-found", storage));
     }
 
     return templateStorage;
@@ -127,15 +127,16 @@ public final class TemplateCommand {
 
   @Parser(suggestions = "version")
   public @NonNull ServiceVersion defaultVersionParser(
-    @NonNull CommandContext<?> context,
-    @NonNull CommandInput input
+    @NonNull I18n i18n,
+    @NonNull CommandInput input,
+    @NonNull CommandContext<?> context
   ) {
     var version = input.readString();
     ServiceVersionType type = context.get("versionType");
 
     var serviceVersion = type.version(version);
     if (serviceVersion == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-template-invalid-version"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-template-invalid-version"));
     }
 
     return serviceVersion;
@@ -151,14 +152,17 @@ public final class TemplateCommand {
   }
 
   @Parser(suggestions = "serviceEnvironments")
-  public @NonNull ServiceEnvironmentType defaultServiceEnvironmentTypeParser(@NonNull CommandInput input) {
+  public @NonNull ServiceEnvironmentType defaultServiceEnvironmentTypeParser(
+    @NonNull I18n i18n,
+    @NonNull CommandInput input
+  ) {
     var env = input.readString();
     var type = this.serviceVersionProvider.environmentType(env);
     if (type != null) {
       return type;
     }
 
-    throw new ArgumentNotAvailableException(I18n.trans("command-template-environment-not-found", env));
+    throw new ArgumentNotAvailableException(i18n.translate("command-template-environment-not-found", env));
   }
 
   @Suggestions("serviceEnvironments")
@@ -185,28 +189,33 @@ public final class TemplateCommand {
   }
 
   @Command("template|t delete|rm|del <template>")
-  public void deleteTemplate(@NonNull CommandSource source, @NonNull @Argument("template") ServiceTemplate template) {
+  public void deleteTemplate(
+    @NonNull I18n i18n,
+    @NonNull CommandSource source,
+    @NonNull @Argument("template") ServiceTemplate template
+  ) {
     var templateStorage = template.storage();
     if (!templateStorage.contains(template)) {
-      source.sendMessage(I18n.trans("command-template-delete-template-not-found",
+      source.sendMessage(i18n.translate("command-template-delete-template-not-found",
         template.fullName(),
         template.storageName()));
       return;
     }
 
     templateStorage.delete(template);
-    source.sendMessage(I18n.trans("command-template-delete-success", template.toString(), templateStorage.name()));
+    source.sendMessage(i18n.translate("command-template-delete-success", template.toString(), templateStorage.name()));
   }
 
   @Command("template|t create <template> <environment>")
   public void createTemplate(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("template") ServiceTemplate template,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     var templateStorage = template.storage();
     if (templateStorage.contains(template)) {
-      source.sendMessage(I18n.trans("command-template-create-template-already-exists",
+      source.sendMessage(i18n.translate("command-template-create-template-already-exists",
         template.fullName(),
         template.storageName()));
       return;
@@ -214,21 +223,23 @@ public final class TemplateCommand {
 
     try {
       if (this.storageUtil.createAndPrepareTemplate(template, template.storage(), environmentType)) {
-        source.sendMessage(I18n.trans("command-template-create-success", template.fullName(), template.storageName()));
+        source.sendMessage(
+          i18n.translate("command-template-create-success", template.fullName(), template.storageName()));
       }
     } catch (IOException exception) {
-      source.sendMessage(I18n.trans("command-template-create-failed", template.fullName(), template.storageName()));
+      source.sendMessage(i18n.translate("command-template-create-failed", template.fullName(), template.storageName()));
     }
   }
 
   @Command("template|t copy|cp <sourceTemplate> <targetTemplate>")
   public void copyTemplate(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("sourceTemplate") ServiceTemplate sourceTemplate,
     @NonNull @Argument("targetTemplate") ServiceTemplate targetTemplate
   ) {
     if (sourceTemplate.equals(targetTemplate)) {
-      source.sendMessage(I18n.trans("command-template-copy-same-source-and-target"));
+      source.sendMessage(i18n.translate("command-template-copy-same-source-and-target"));
       return;
     }
 
@@ -236,20 +247,20 @@ public final class TemplateCommand {
     var targetStorage = targetTemplate.storage();
 
     this.tickLoop.runTask(() -> {
-      source.sendMessage(I18n.trans("command-template-copy", sourceTemplate, targetTemplate));
+      source.sendMessage(i18n.translate("command-template-copy", sourceTemplate, targetTemplate));
 
       targetStorage.delete(targetTemplate);
       targetStorage.create(targetTemplate);
       try (var stream = sourceStorage.openZipInputStream(sourceTemplate)) {
         if (stream == null) {
-          source.sendMessage(I18n.trans("command-template-copy-failed"));
+          source.sendMessage(i18n.translate("command-template-copy-failed"));
           return;
         }
 
         targetStorage.deploy(targetTemplate, stream);
-        source.sendMessage(I18n.trans("command-template-copy-success", sourceTemplate, targetTemplate));
+        source.sendMessage(i18n.translate("command-template-copy-success", sourceTemplate, targetTemplate));
       } catch (IOException exception) {
-        source.sendMessage(I18n.trans("command-template-copy-failed"));
+        source.sendMessage(i18n.translate("command-template-copy-failed"));
       }
     });
   }

@@ -83,7 +83,7 @@ public class PlayersCommand {
     }
 
     if (player == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-players-player-not-online"));
+      throw new ArgumentNotAvailableException(i18n.translate("module-bridge-command-players-player-not-online"));
     }
     return player;
   }
@@ -98,7 +98,7 @@ public class PlayersCommand {
     var name = input.readString();
     var serviceInfoSnapshot = this.serviceProvider.serviceByName(name);
     if (serviceInfoSnapshot == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-service-service-not-found"));
     }
     return serviceInfoSnapshot;
   }
@@ -139,7 +139,7 @@ public class PlayersCommand {
     }
 
     if (player == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-players-player-not-registered"));
+      throw new ArgumentNotAvailableException(i18n.translate("module-bridge-command-players-player-not-registered"));
     }
     return player;
   }
@@ -197,7 +197,7 @@ public class PlayersCommand {
     @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer player
   ) {
     this.playerManager.deleteCloudOfflinePlayer(player);
-    source.sendMessage(I18n.trans("module-bridge-command-players-delete-player", player.name(), player.uniqueId()));
+    source.sendMessage(i18n.translate("module-bridge-command-players-delete-player", player.name(), player.uniqueId()));
   }
 
   @Command("players|player|pl online <player> kick [reason]")
@@ -212,7 +212,7 @@ public class PlayersCommand {
       : ComponentFormats.BUNGEE_TO_ADVENTURE.convert(reason);
     this.playerExecutor(player).kick(reasonComponent);
 
-    source.sendMessage(I18n.trans("module-bridge-command-players-kick-player",
+    source.sendMessage(i18n.translate("module-bridge-command-players-kick-player",
       player.name(),
       player.uniqueId(),
       reason == null ? "No reason given" : reason));
@@ -220,7 +220,7 @@ public class PlayersCommand {
     if (force) {
       // force the logout of the player and remove the player from the cache
       this.playerManager.logoutPlayer(player);
-      source.sendMessage(I18n.trans("module-bridge-command-players-kick-player-force"));
+      source.sendMessage(i18n.translate("module-bridge-command-players-kick-player-force"));
     }
   }
 
@@ -232,7 +232,7 @@ public class PlayersCommand {
   ) {
     this.playerExecutor(player).sendChatMessage(ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message));
     source.sendMessage(
-      I18n.trans("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
+      i18n.translate("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
   }
 
   @Command("players|player|pl online <player> connect <server>")
@@ -245,10 +245,10 @@ public class PlayersCommand {
       this.playerExecutor(player).connect(server.name());
 
       source.sendMessage(
-        I18n.trans("module-bridge-command-players-send-player-server", player.name(), player.uniqueId()));
+        i18n.translate("module-bridge-command-players-send-player-server", player.name(), player.uniqueId()));
     } else {
       source.sendMessage(
-        I18n.trans("module-bridge-command-players-send-player-server-not-found", player.name(), player.uniqueId()));
+        i18n.translate("module-bridge-command-players-send-player-server-not-found", player.name(), player.uniqueId()));
     }
   }
 

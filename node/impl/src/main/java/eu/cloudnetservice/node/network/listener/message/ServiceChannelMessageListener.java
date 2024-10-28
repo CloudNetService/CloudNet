@@ -147,13 +147,13 @@ public final class ServiceChannelMessageListener {
   }
 
   @EventListener
-  public void handleRemoteLifecycleChanges(@NonNull CloudServiceLifecycleChangeEvent event) {
+  public void handleRemoteLifecycleChanges(@NonNull CloudServiceLifecycleChangeEvent event, @NonNull I18n i18n) {
     var id = event.serviceInfo().serviceId();
     var replacements = new Object[]{id.uniqueId(), id.taskName(), id.name(), id.nodeUniqueId()};
 
     switch (event.newLifeCycle()) {
-      case RUNNING -> LOGGER.info(I18n.trans("cloudnet-service-post-start-message-different-node", replacements));
-      case STOPPED -> LOGGER.info(I18n.trans("cloudnet-service-post-stop-message-different-node", replacements));
+      case RUNNING -> LOGGER.info(i18n.translate("cloudnet-service-post-start-message-different-node", replacements));
+      case STOPPED -> LOGGER.info(i18n.translate("cloudnet-service-post-stop-message-different-node", replacements));
       default -> {
       }
     }

@@ -50,11 +50,17 @@ public class CommandExceptionHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CommandExceptionHandler.class);
 
+  private final I18n i18n;
   private final CommandProvider commandProvider;
   private final EventManager eventManager;
 
   @Inject
-  public CommandExceptionHandler(@NonNull CommandProvider commandProvider, @NonNull EventManager eventManager) {
+  public CommandExceptionHandler(
+    @NonNull I18n i18n,
+    @NonNull CommandProvider commandProvider,
+    @NonNull EventManager eventManager
+  ) {
+    this.i18n = i18n;
     this.commandProvider = commandProvider;
     this.eventManager = eventManager;
   }
@@ -115,7 +121,7 @@ public class CommandExceptionHandler {
         var event = this.eventManager.callEvent(new CommandNotFoundEvent(
           source,
           noSuchCommandException.suppliedCommand(),
-          I18n.trans("no-such-command")));
+          this.i18n.translate("no-such-command")));
         // send the response of the event
         source.sendMessage(event.response());
       } else {

@@ -41,6 +41,7 @@ public final class AuthorizationResponsePacketListener implements PacketListener
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationResponsePacketListener.class);
 
+  private final I18n i18n;
   private final Configuration configuration;
   private final NodeNetworkUtil networkUtil;
   private final DataSyncRegistry dataSyncRegistry;
@@ -48,11 +49,13 @@ public final class AuthorizationResponsePacketListener implements PacketListener
 
   @Inject
   public AuthorizationResponsePacketListener(
+    @NonNull I18n i18n,
     @NonNull Configuration configuration,
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull NodeServerProvider nodeServerProvider
   ) {
+    this.i18n = i18n;
     this.configuration = configuration;
     this.networkUtil = networkUtil;
     this.dataSyncRegistry = dataSyncRegistry;
@@ -109,6 +112,6 @@ public final class AuthorizationResponsePacketListener implements PacketListener
     }
 
     channel.close();
-    LOGGER.warn(I18n.trans("cluster-server-networking-authorization-failed", channel.serverAddress()));
+    LOGGER.warn(this.i18n.translate("cluster-server-networking-authorization-failed", channel.serverAddress()));
   }
 }

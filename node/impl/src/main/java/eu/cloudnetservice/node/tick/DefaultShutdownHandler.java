@@ -42,6 +42,7 @@ public final class DefaultShutdownHandler implements ShutdownHandler {
   public static final String SHUTDOWN_THREAD_NAME = "CloudNet Shutdown Thread";
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultShutdownHandler.class);
 
+  private final I18n i18n;
   private final Console console;
   private final ModuleProvider moduleProvider;
   private final CloudServiceManager serviceManager;
@@ -58,6 +59,7 @@ public final class DefaultShutdownHandler implements ShutdownHandler {
 
   @Inject
   public DefaultShutdownHandler(
+    @NonNull I18n i18n,
     @NonNull Console console,
     @NonNull ModuleProvider moduleProvider,
     @NonNull CloudServiceManager serviceManager,
@@ -68,6 +70,7 @@ public final class DefaultShutdownHandler implements ShutdownHandler {
     @NonNull NetworkServer networkServer,
     @NonNull NodeDatabaseProvider databaseProvider
   ) {
+    this.i18n = i18n;
     this.console = console;
     this.moduleProvider = moduleProvider;
     this.serviceManager = serviceManager;
@@ -82,27 +85,27 @@ public final class DefaultShutdownHandler implements ShutdownHandler {
   public void shutdown() {
     if (DefaultTickLoop.RUNNING.getAndSet(false)) {
       try {
-        LOGGER.info(I18n.trans("stop-application"));
+        LOGGER.info(this.i18n.translate("stop-application"));
 
         // stop task execution
         this.scheduledExecutor.shutdownNow();
         this.serviceVersionProvider.interruptInstallSteps();
 
         // interrupt the connection to other nodes
-        LOGGER.info(I18n.trans("stop-node-connections"));
+        LOGGER.info(this.i18n.translate("stop-node-connections"));
         this.nodeServerProvider.close();
 
         // close all services
-        LOGGER.info(I18n.trans("stop-services"));
+        LOGGER.info(this.i18n.translate("stop-services"));
         this.serviceManager.deleteAllCloudServices();
 
         // close all networking listeners
-        LOGGER.info(I18n.trans("stop-network-components"));
+        LOGGER.info(this.i18n.translate("stop-network-components"));
         this.networkClient.close();
         this.networkServer.close();
 
         // close all the other providers
-        LOGGER.info(I18n.trans("stop-providers"));
+        LOGGER.info(this.i18n.translate("stop-providers"));
         this.databaseProvider.close();
 
         // stop & unload all modules
@@ -110,7 +113,7 @@ public final class DefaultShutdownHandler implements ShutdownHandler {
         this.moduleProvider.unloadAll();
 
         // remove temp directory
-        LOGGER.info(I18n.trans("stop-delete-temp"));
+        LOGGER.info(this.i18n.translate("stop-delete-temp"));
         FileUtil.delete(FileUtil.TEMP_DIR);
 
         // close console

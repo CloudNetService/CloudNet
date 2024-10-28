@@ -119,10 +119,10 @@ public final class ClusterCommand {
   }
 
   @Parser(suggestions = "clusterNodeServer")
-  public @NonNull NodeServer defaultClusterNodeServerParser(@NonNull CommandInput input) {
+  public @NonNull NodeServer defaultClusterNodeServerParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var nodeServer = this.nodeServerProvider.node(input.readString());
     if (nodeServer == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-cluster-node-not-found"));
     }
 
     return nodeServer;
@@ -134,11 +134,11 @@ public final class ClusterCommand {
   }
 
   @Parser(suggestions = "networkClusterNode")
-  public @NonNull NetworkClusterNode defaultNetworkClusterNodeParser(@NonNull CommandInput input) {
+  public @NonNull NetworkClusterNode defaultNetworkClusterNodeParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var nodeId = input.readString();
     var clusterNode = this.clusterNodeProvider.node(nodeId);
     if (clusterNode == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-cluster-node-not-found"));
     }
 
     return clusterNode;
@@ -150,30 +150,30 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "anyHostAndPort")
-  public @NonNull HostAndPort defaultHostAndPortParser(@NonNull CommandInput input) {
+  public @NonNull HostAndPort defaultHostAndPortParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var address = input.readString();
     var hostAndPort = NetworkUtil.parseHostAndPort(address, true);
     if (hostAndPort == null || NetworkUtil.checkWildcard(hostAndPort)) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-any-host-and-port-invalid", address));
+      throw new ArgumentNotAvailableException(i18n.translate("command-any-host-and-port-invalid", address));
     }
 
     return hostAndPort;
   }
 
   @Parser(name = "assignableHostAndPort", suggestions = "assignableHostAndPort")
-  public @NonNull HostAndPort assignableHostAndPortParser(@NonNull CommandInput input) {
+  public @NonNull HostAndPort assignableHostAndPortParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var address = input.readInput();
     var hostAndPort = NetworkUtil.parseHostAndPort(address, false);
     // check if we can parse a host and port form the given input
     if (hostAndPort == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-any-host-invalid", address));
+      throw new ArgumentNotAvailableException(i18n.translate("command-any-host-invalid", address));
     }
     // check if we can assign the parsed host and port
     if (NetworkUtil.checkAssignable(hostAndPort) && !NetworkUtil.checkWildcard(hostAndPort)) {
       return hostAndPort;
     }
 
-    throw new ArgumentNotAvailableException(I18n.trans("command-assignable-host-invalid", address));
+    throw new ArgumentNotAvailableException(i18n.translate("command-assignable-host-invalid", address));
   }
 
   @Suggestions("assignableHostAndPort")
@@ -182,22 +182,22 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "anyHost")
-  public @NonNull String anyHostParser(@NonNull CommandInput input) {
+  public @NonNull String anyHostParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var address = input.readString();
     var hostAndPort = NetworkUtil.parseHostAndPort(address, false);
     if (hostAndPort == null || NetworkUtil.checkWildcard(hostAndPort)) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-any-host-invalid", address));
+      throw new ArgumentNotAvailableException(i18n.translate("command-any-host-invalid", address));
     }
 
     return hostAndPort.host();
   }
 
   @Parser(name = "noNodeId", suggestions = "clusterNode")
-  public @NonNull String noClusterNodeParser(@NonNull CommandInput input) {
+  public @NonNull String noClusterNodeParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var nodeId = input.readString();
     for (var node : this.configuration.clusterConfig().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
-        throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
+        throw new ArgumentNotAvailableException(i18n.translate("command-tasks-node-not-found"));
       }
     }
 
@@ -205,13 +205,13 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "staticService", suggestions = "staticService")
-  public @NonNull String staticServiceParser(@NonNull CommandInput input) {
+  public @NonNull String staticServiceParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var name = input.readString();
     if (this.serviceProvider.serviceByName(name) != null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-push-static-service-running"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-cluster-push-static-service-running"));
     }
     if (!Files.exists(this.serviceProvider.persistentServicesDirectory().resolve(name))) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-push-static-service-not-found"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-cluster-push-static-service-not-found"));
     }
     return name;
   }
@@ -234,21 +234,23 @@ public final class ClusterCommand {
 
   @Command("cluster|clu add <nodeId> <host>")
   public void addNodeToCluster(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
     @NonNull @Argument(value = "host", parserName = "anyHostAndPort") HostAndPort hostAndPort
   ) {
     this.clusterNodeProvider.addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
-    source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId));
+    source.sendMessage(i18n.translate("command-cluster-add-node-success", nodeId));
   }
 
   @Command("cluster|clu remove <nodeId>")
   public void removeNodeFromCluster(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("nodeId") NetworkClusterNode node
   ) {
     this.clusterNodeProvider.removeNode(node.uniqueId());
-    source.sendMessage(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
+    source.sendMessage(i18n.translate("command-cluster-remove-node-success", node.uniqueId()));
   }
 
   @Command("cluster|clu nodes")
@@ -263,38 +265,44 @@ public final class ClusterCommand {
 
   @Command("cluster|clu node <nodeId> set drain <enabled>")
   public void drainNode(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "nodeId") NodeServer nodeServer,
     @Argument("enabled") boolean enabled
   ) {
     nodeServer.drain(enabled);
-    source.sendMessage(I18n.trans("command-cluster-node-set-drain", enabled ? 1 : 0, nodeServer.info().uniqueId()));
+    source.sendMessage(i18n.translate("command-cluster-node-set-drain", enabled ? 1 : 0, nodeServer.info().uniqueId()));
   }
 
   @Command("cluster|clu sync")
-  public void sync(@NonNull CommandSource source) {
-    source.sendMessage(I18n.trans("command-cluster-start-sync"));
+  public void sync(@NonNull I18n i18n, @NonNull CommandSource source) {
+    source.sendMessage(i18n.translate("command-cluster-start-sync"));
     // perform a cluster sync that takes care of tasks, groups and more
     this.nodeServerProvider.syncDataIntoCluster();
   }
 
   @Command("cluster|clu push templates [template]")
-  public void pushTemplates(@NonNull CommandSource source, @Nullable @Argument("template") ServiceTemplate template) {
+  public void pushTemplates(
+    @NonNull I18n i18n,
+    @NonNull CommandSource source,
+    @Nullable @Argument("template") ServiceTemplate template
+  ) {
     // check if we need to push all templates or just a specific one
     if (template == null) {
       var localStorage = this.templateStorageProvider.localTemplateStorage();
       // resolve and push all local templates
       for (var localTemplate : localStorage.templates()) {
-        this.pushTemplate(source, localTemplate);
+        this.pushTemplate(i18n, source, localTemplate);
       }
     } else {
       // only push the specific template that was given
-      this.pushTemplate(source, template);
+      this.pushTemplate(i18n, source, template);
     }
   }
 
   @Command("cluster|clu push staticServices [service]")
   public void pushStaticServices(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @Nullable @Argument(value = "service", parserName = "staticService") String service,
     @Flag("overwrite") boolean overwrite
@@ -304,15 +312,16 @@ public final class ClusterCommand {
     if (service == null) {
       // resolve all existing static services, that are not running and push them
       for (var serviceName : this.resolveAllStaticServices()) {
-        this.pushStaticService(source, staticServicePath.resolve(serviceName), serviceName, overwrite);
+        this.pushStaticService(i18n, source, staticServicePath.resolve(serviceName), serviceName, overwrite);
       }
     } else {
       // only push the specific static service that was given
-      this.pushStaticService(source, staticServicePath.resolve(service), service, overwrite);
+      this.pushStaticService(i18n, source, staticServicePath.resolve(service), service, overwrite);
     }
   }
 
   private void pushStaticService(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull Path servicePath,
     @NonNull String serviceName,
@@ -321,25 +330,25 @@ public final class ClusterCommand {
     // zip the whole directory into a stream
     var stream = ZipUtil.zipToStream(servicePath);
     // notify the source about the deployment
-    source.sendMessage(I18n.trans("command-cluster-push-static-service-starting"));
+    source.sendMessage(i18n.translate("command-cluster-push-static-service-starting"));
     // deploy the static service into the cluster
     this.nodeServerProvider.deployStaticServiceToCluster(serviceName, stream, overwrite)
       .thenAccept(transferStatus -> {
         if (transferStatus == TransferStatus.FAILURE) {
           // the transfer failed
-          source.sendMessage(I18n.trans("command-cluster-push-static-service-failed"));
+          source.sendMessage(i18n.translate("command-cluster-push-static-service-failed"));
         } else {
           // the transfer was successful
-          source.sendMessage(I18n.trans("command-cluster-push-static-service-success"));
+          source.sendMessage(i18n.translate("command-cluster-push-static-service-success"));
         }
       });
   }
 
-  private void pushTemplate(@NonNull CommandSource source, @NonNull ServiceTemplate template) {
+  private void pushTemplate(@NonNull I18n i18n, @NonNull CommandSource source, @NonNull ServiceTemplate template) {
     var templateName = template.toString();
     try {
       source.sendMessage(
-        I18n.trans("command-cluster-push-template-compress", templateName));
+        i18n.translate("command-cluster-push-template-compress", templateName));
       // compress the template and create an InputStream
       var inputStream = template.storage().zipTemplate(template);
       // check if the template really exists in the given storage
@@ -348,7 +357,7 @@ public final class ClusterCommand {
         this.nodeServerProvider.deployTemplateToCluster(template, inputStream, true).whenComplete((status, ex) -> {
           if (ex != null || status == TransferStatus.FAILURE) {
             // the transfer failed
-            source.sendMessage(I18n.trans("command-cluster-push-template-failed", templateName));
+            source.sendMessage(i18n.translate("command-cluster-push-template-failed", templateName));
 
             // print the detailed exception, if available
             if (ex != null) {
@@ -356,11 +365,11 @@ public final class ClusterCommand {
             }
           } else {
             // the transfer was successful
-            source.sendMessage(I18n.trans("command-cluster-push-template-success", templateName));
+            source.sendMessage(i18n.translate("command-cluster-push-template-success", templateName));
           }
         });
       } else {
-        source.sendMessage(I18n.trans("command-template-not-found", templateName));
+        source.sendMessage(i18n.translate("command-template-not-found", templateName));
       }
     } catch (IOException exception) {
       LOGGER.error("An exception occurred while compressing template {}", templateName, exception);

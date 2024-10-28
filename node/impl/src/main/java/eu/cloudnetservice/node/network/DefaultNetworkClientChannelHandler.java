@@ -43,6 +43,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
   private static final AtomicLong CONNECTION_COUNTER = new AtomicLong();
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkClientChannelHandler.class);
 
+  private final I18n i18n;
   private final EventManager eventManager;
   private final NodeNetworkUtil networkUtil;
   private final Configuration configuration;
@@ -50,11 +51,13 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
   @Inject
   public DefaultNetworkClientChannelHandler(
+    @NonNull I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull Configuration configuration,
     @NonNull NodeServerProvider nodeServerProvider
   ) {
+    this.i18n = i18n;
     this.eventManager = eventManager;
     this.networkUtil = networkUtil;
     this.configuration = configuration;
@@ -75,7 +78,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
           .writeUniqueId(this.configuration.clusterConfig().clusterId())
           .writeObject(this.configuration.identity())));
 
-      LOGGER.debug(I18n.trans("client-network-channel-init",
+      LOGGER.debug(this.i18n.translate("client-network-channel-init",
         channel.serverAddress(),
         channel.clientAddress().host()));
     } else {
@@ -93,7 +96,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
     CONNECTION_COUNTER.decrementAndGet();
     this.eventManager.callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
 
-    LOGGER.debug(I18n.trans("client-network-channel-close",
+    LOGGER.debug(this.i18n.translate("client-network-channel-close",
       channel.serverAddress(),
       channel.clientAddress()));
 

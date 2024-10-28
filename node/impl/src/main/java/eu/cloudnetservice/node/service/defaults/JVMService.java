@@ -78,6 +78,7 @@ public class JVMService extends AbstractService {
   protected volatile Process process;
 
   public JVMService(
+    @NonNull I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
     @NonNull ServiceConfiguration configuration,
@@ -86,7 +87,15 @@ public class JVMService extends AbstractService {
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
-    super(tickLoop, nodeConfig, configuration, manager, eventManager, versionProvider, serviceConfigurationPreparer);
+    super(
+      i18n,
+      tickLoop,
+      nodeConfig,
+      configuration,
+      manager,
+      eventManager,
+      versionProvider,
+      serviceConfigurationPreparer);
     super.logCache = new ProcessServiceLogCache(() -> this.process, nodeConfig, this);
     this.initLogHandler();
   }
@@ -104,7 +113,7 @@ public class JVMService extends AbstractService {
     // load the application file information if possible
     var applicationInformation = this.prepareApplicationFile(environmentType);
     if (applicationInformation == null) {
-      LOGGER.error(I18n.trans("cloudnet-service-jar-file-not-found-error", this.serviceReplacement()));
+      LOGGER.error(i18n.translate("cloudnet-service-jar-file-not-found-error", this.serviceReplacement()));
       return;
     }
 
@@ -139,7 +148,7 @@ public class JVMService extends AbstractService {
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
     arguments.add("-javaagent:" + wrapperInformation._1().toAbsolutePath());
-    arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
+    arguments.add("-Dcloudnet.wrapper.messages.language=" + super.i18n.selectedLanguage().toLanguageTag());
 
     // fabric specific class path
     arguments.add(String.format("-Dfabric.systemLibraries=%s", classPath));

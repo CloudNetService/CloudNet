@@ -52,11 +52,11 @@ public class SmartCommand {
   public @NonNull ServiceTask smartTaskParser(@NonNull CommandInput input) {
     var task = this.taskProvider.serviceTask(input.readString());
     if (task == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-tasks-task-not-found"));
     }
     // only allow tasks with the smart config
     if (!task.propertyHolder().contains("smartConfig")) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-smart-command-task-no-entry", task.name()));
+      throw new ArgumentNotAvailableException(i18n.translate("module-smart-command-task-no-entry", task.name()));
     }
     return task;
   }
@@ -76,7 +76,7 @@ public class SmartCommand {
     @Argument("enabled") boolean enabled
   ) {
     this.updateSmart(task, config -> config.enabled(enabled));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "enabled", task.name(),
       enabled));
@@ -89,7 +89,7 @@ public class SmartCommand {
     @Argument("priority") int priority
   ) {
     this.updateSmart(task, config -> config.priority(priority));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "priority",
       task.name(),
@@ -103,7 +103,7 @@ public class SmartCommand {
     @Argument("amount") int maxServices
   ) {
     this.updateSmart(task, config -> config.maxServices(maxServices));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "maxServices",
       task.name(),
@@ -118,7 +118,7 @@ public class SmartCommand {
   ) {
     this.updateSmart(task, config -> config.preparedServices(preparedServices));
     source.sendMessage(
-      I18n.trans(
+      i18n.translate(
         "command-tasks-set-property-success",
         "preparedServices",
         task.name(),
@@ -133,7 +133,7 @@ public class SmartCommand {
   ) {
     this.updateSmart(task, config -> config.smartMinServiceCount(smartMinServiceCount));
     source.sendMessage(
-      I18n.trans(
+      i18n.translate(
         "command-tasks-set-property-success",
         "smartMinServiceCount",
         task.name(),
@@ -148,7 +148,7 @@ public class SmartCommand {
   ) {
     this.updateSmart(task, config -> config.splitLogicallyOverNodes(enabled));
     source.sendMessage(
-      I18n.trans(
+      i18n.translate(
         "command-tasks-set-property-success",
         "splitLogicallyOverNodes",
         task.name(),
@@ -162,7 +162,7 @@ public class SmartCommand {
     @Argument("enabled") boolean enabled
   ) {
     this.updateSmart(task, config -> config.directTemplatesAndInclusionsSetup(enabled));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "directTemplatesAndInclusionsSetup",
       task.name(),
@@ -176,7 +176,7 @@ public class SmartCommand {
     @NonNull @Argument("installer") SmartServiceTaskConfig.TemplateInstaller installer
   ) {
     this.updateSmart(task, config -> config.templateInstaller(installer));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "templateInstaller",
       task.name(),
@@ -190,7 +190,7 @@ public class SmartCommand {
     @Argument("seconds") int seconds
   ) {
     this.updateSmart(task, config -> config.autoStopTimeByUnusedServiceInSeconds(seconds));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "autoStopTimeByUnusedServiceInSeconds",
       task.name(),
@@ -204,7 +204,7 @@ public class SmartCommand {
     @Argument("percent") @Range(min = "0", max = "100") int percent
   ) {
     this.updateSmart(task, config -> config.percentOfPlayersToCheckShouldStop(percent));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "percentOfPlayersToCheckShouldStop",
       task.name(),
@@ -218,7 +218,7 @@ public class SmartCommand {
     @Argument("seconds") int seconds
   ) {
     this.updateSmart(task, config -> config.forAnewInstanceDelayTimeInSeconds(seconds));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "forAnewInstanceDelayTimeInSeconds",
       task.name(),
@@ -232,7 +232,7 @@ public class SmartCommand {
     @Argument("percent") @Range(min = "0", max = "100") int percent
   ) {
     this.updateSmart(task, config -> config.percentOfPlayersForANewServiceByInstance(percent));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "percentOfPlayersForANewServiceByInstance",
       task.name(),

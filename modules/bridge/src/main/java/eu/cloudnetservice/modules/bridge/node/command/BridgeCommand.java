@@ -65,13 +65,13 @@ public class BridgeCommand {
     var name = input.readString();
     var group = this.groupConfigurationProvider.groupConfiguration(name);
     if (group == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-general-group-does-not-exist"));
     }
     var fallbacks = this.bridgeManagement.configuration().fallbackConfigurations()
       .stream();
     // don't allow duplicated entries
     if (fallbacks.anyMatch(fallback -> fallback.targetGroup().equals(group.name()))) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-entry-already-exists"));
+      throw new ArgumentNotAvailableException(i18n.translate("module-bridge-command-entry-already-exists"));
     }
     return group;
   }
@@ -99,7 +99,7 @@ public class BridgeCommand {
     configuration.fallbackConfigurations().add(fallbackConfiguration);
     // save and update the configuration
     this.bridgeManagement.configuration(configuration);
-    source.sendMessage(I18n.trans("module-bridge-command-create-entry-success"));
+    source.sendMessage(i18n.translate("module-bridge-command-create-entry-success"));
   }
 
   @Command("bridge task <task> set requiredPermission <permission>")
@@ -112,7 +112,7 @@ public class BridgeCommand {
       this.taskProvider.addServiceTask(ServiceTask.builder(task)
         .modifyProperties(properties -> properties.append("requiredPermission", permission))
         .build());
-      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+      source.sendMessage(i18n.translate("command-tasks-set-property-success",
         "requiredPermission",
         task.name(),
         permission));

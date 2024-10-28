@@ -106,17 +106,17 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "modulePath", suggestions = "modulePath")
-  public @NonNull Path modulePathParser(@NonNull CommandInput input) {
+  public @NonNull Path modulePathParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var fileName = input.readString();
     // resolve the path to the module
     var path = this.provider.moduleDirectoryPath().resolve(fileName);
     // check if the file exists
     if (Files.notExists(path)) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-modules-module-file-not-found", fileName));
+      throw new ArgumentNotAvailableException(i18n.translate("command-modules-module-file-not-found", fileName));
     }
     // dont allow directories
     if (Files.isDirectory(path)) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-modules-module-not-a-file", fileName));
+      throw new ArgumentNotAvailableException(i18n.translate("command-modules-module-not-a-file", fileName));
     }
 
     return path;
@@ -137,12 +137,12 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "existingModule", suggestions = "existingModule")
-  public @NonNull ModuleWrapper existingModuleParser(@NonNull CommandInput input) {
+  public @NonNull ModuleWrapper existingModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-loaded", moduleName));
+        i18n.translate("command-modules-module-not-loaded", moduleName));
     }
     return wrapper;
   }
@@ -155,12 +155,12 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "toStartModule", suggestions = "toStartModule")
-  public @NonNull ModuleWrapper loadedModuleParser(@NonNull CommandInput input) {
+  public @NonNull ModuleWrapper loadedModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-loaded", moduleName));
+        i18n.translate("command-modules-module-not-loaded", moduleName));
     }
     return wrapper;
   }
@@ -173,17 +173,17 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "toReloadModule", suggestions = "toReloadModule")
-  public @NonNull ModuleWrapper reloadedModuleParser(@NonNull CommandInput input) {
+  public @NonNull ModuleWrapper reloadedModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-started", moduleName));
+        i18n.translate("command-modules-module-not-started", moduleName));
     }
 
     if (wrapper.moduleConfiguration().runtimeModule()) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-runtime-module", moduleName));
+        i18n.translate("command-modules-module-runtime-module", moduleName));
     }
     return wrapper;
   }
@@ -197,12 +197,12 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "toStopModule", suggestions = "toStopModule")
-  public @NonNull ModuleWrapper stoppedModuleParser(@NonNull CommandInput input) {
+  public @NonNull ModuleWrapper stoppedModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED)) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-started", moduleName));
+        i18n.translate("command-modules-module-not-started", moduleName));
     }
     return wrapper;
   }
@@ -215,17 +215,17 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "toUnloadModule", suggestions = "toUnloadModule")
-  public @NonNull ModuleWrapper unloadedModuleParser(@NonNull CommandInput input) {
+  public @NonNull ModuleWrapper unloadedModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-stopped", moduleName));
+        i18n.translate("command-modules-module-not-stopped", moduleName));
     }
     // runtime modules are unloaded on cloud stop only
     if (wrapper.moduleConfiguration().runtimeModule()) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-runtime-module", moduleName));
+        i18n.translate("command-modules-module-runtime-module", moduleName));
     }
     return wrapper;
   }
@@ -239,24 +239,24 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "availableModule", suggestions = "availableModules")
-  public @NonNull ModuleEntry availableModuleParser(@NonNull CommandInput input) {
+  public @NonNull ModuleEntry availableModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     // get the module entry for the given name
     var name = input.readString();
     var entry = this.availableModules
       .findByName(name)
       .orElseThrow(
-        () -> new ArgumentNotAvailableException(I18n.trans("command-modules-no-such-installable-module", name)));
+        () -> new ArgumentNotAvailableException(i18n.translate("command-modules-no-such-installable-module", name)));
 
     // fast path: check if the module with the given name is already loaded
     if (this.provider.module(name) != null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-modules-module-already-installed", name));
+      throw new ArgumentNotAvailableException(i18n.translate("command-modules-module-already-installed", name));
     }
 
     // slower but needed check: ensure that no module file with the same module inside already exists. This is needed
     // as you can unload modules which will remove them from the provider, but not from the disk. When restarting this
     // could lead to a module being loaded twice
     if (ModuleUpdateUtil.findPathOfModule(this.provider.moduleDirectoryPath(), name) != null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-modules-module-already-installed", name));
+      throw new ArgumentNotAvailableException(i18n.translate("command-modules-module-already-installed", name));
     }
 
     // all clear - proceed to installation
@@ -295,6 +295,7 @@ public final class ModulesCommand {
 
   @Command(value = "modules|module load <module>", requiredSender = ConsoleCommandSource.class)
   public void loadModule(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "modulePath") @Quoted Path path
   ) {
@@ -302,12 +303,13 @@ public final class ModulesCommand {
     var wrapper = this.provider.loadModule(path);
     // if the wrapper is null, the module is already loaded
     if (wrapper == null) {
-      source.sendMessage(I18n.trans("command-modules-module-already-loaded", path));
+      source.sendMessage(i18n.translate("command-modules-module-already-loaded", path));
     }
   }
 
   @Command(value = "modules|module install <module>", requiredSender = ConsoleCommandSource.class)
   public void installModule(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "availableModule") @Greedy ModuleEntry entry,
     @Flag(value = "noChecksumValidation") boolean noChecksumValidation
@@ -317,7 +319,7 @@ public final class ModulesCommand {
       .filter(depend -> this.provider.module(depend) == null)
       .collect(Collectors.toSet());
     if (!missingModules.isEmpty()) {
-      source.sendMessage(I18n.trans("command-modules-install-missing-depend",
+      source.sendMessage(i18n.translate("command-modules-install-missing-depend",
         entry.name(),
         String.join(", ", missingModules)));
       return;
@@ -332,15 +334,15 @@ public final class ModulesCommand {
     if (!Node.DEV_MODE && !checksum.equals(entry.sha3256())) {
       // the checksum validation skip is only available for official modules
       if (entry.official() && noChecksumValidation) {
-        source.sendMessage(I18n.trans("command-module-skipping-checksum-fail", entry.name()));
+        source.sendMessage(i18n.translate("command-module-skipping-checksum-fail", entry.name()));
       } else {
         // remove the suspicious file
         FileUtil.delete(target);
         // send a message that the validation can be skipped if the module is official
         if (entry.official()) {
-          source.sendMessage(I18n.trans("command-modules-checksum-validation-skippable", entry.name()));
+          source.sendMessage(i18n.translate("command-modules-checksum-validation-skippable", entry.name()));
         } else {
-          source.sendMessage(I18n.trans("cloudnet-install-modules-invalid-checksum", entry.name()));
+          source.sendMessage(i18n.translate("cloudnet-install-modules-invalid-checksum", entry.name()));
         }
         return;
       }
@@ -349,13 +351,13 @@ public final class ModulesCommand {
     // load the module
     var wrapper = this.provider.loadModule(target);
     if (wrapper == null) {
-      source.sendMessage(I18n.trans("command-modules-module-already-loaded", target));
+      source.sendMessage(i18n.translate("command-modules-module-already-loaded", target));
       return;
     }
 
     // start the module
     wrapper.startModule();
-    source.sendMessage(I18n.trans("command-modules-module-installed", wrapper.moduleConfiguration().name()));
+    source.sendMessage(i18n.translate("command-modules-module-installed", wrapper.moduleConfiguration().name()));
   }
 
   @Command(value = "modules|module start <module>", requiredSender = ConsoleCommandSource.class)
@@ -396,6 +398,7 @@ public final class ModulesCommand {
 
   @Command(value = "modules|module uninstall <module>", requiredSender = ConsoleCommandSource.class)
   public void uninstallModule(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "existingModule") ModuleWrapper wrapper
   ) {
@@ -403,9 +406,9 @@ public final class ModulesCommand {
     wrapper.unloadModule();
     try {
       Files.delete(Path.of(wrapper.uri()));
-      source.sendMessage(I18n.trans("command-modules-module-uninstall", wrapper.module().name()));
+      source.sendMessage(i18n.translate("command-modules-module-uninstall", wrapper.module().name()));
     } catch (IOException exception) {
-      source.sendMessage(I18n.trans("command-modules-module-uninstall-failed", wrapper.module().name()));
+      source.sendMessage(i18n.translate("command-modules-module-uninstall-failed", wrapper.module().name()));
       LOGGER.warn("Exception while uninstalling module {}", wrapper.module().name(), exception);
     }
   }

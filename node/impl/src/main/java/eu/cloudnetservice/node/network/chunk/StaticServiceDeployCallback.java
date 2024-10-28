@@ -35,10 +35,12 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StaticServiceDeployCallback.class);
 
+  private final I18n i18n;
   private final CloudServiceManager cloudServiceManager;
 
   @Inject
-  public StaticServiceDeployCallback(@NonNull CloudServiceManager cloudServiceManager) {
+  public StaticServiceDeployCallback(@NonNull I18n i18n, @NonNull CloudServiceManager cloudServiceManager) {
+    this.i18n = i18n;
     this.cloudServiceManager = cloudServiceManager;
   }
 
@@ -56,7 +58,7 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
       var servicePath = this.cloudServiceManager.persistentServicesDirectory().resolve(service);
       // check if the service path exists, and we can overwrite it
       if (Files.exists(servicePath) && !overwriteService) {
-        LOGGER.error(I18n.trans("command-cluster-push-static-service-existing", service));
+        LOGGER.error(this.i18n.translate("command-cluster-push-static-service-existing", service));
         return true;
       }
 
@@ -66,9 +68,9 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
       FileUtil.createDirectory(servicePath);
       // extract the received data to the given path of the service
       ZipUtil.extract(dataInput, servicePath);
-      LOGGER.info(I18n.trans("command-cluster-push-static-service-received-success", service));
+      LOGGER.info(this.i18n.translate("command-cluster-push-static-service-received-success", service));
     } else {
-      LOGGER.error(I18n.trans("command-cluster-push-static-service-running-remote", service));
+      LOGGER.error(this.i18n.translate("command-cluster-push-static-service-running-remote", service));
     }
 
     return true;

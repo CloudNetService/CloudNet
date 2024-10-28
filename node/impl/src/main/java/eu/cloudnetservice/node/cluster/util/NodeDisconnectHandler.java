@@ -41,14 +41,17 @@ public final class NodeDisconnectHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeDisconnectHandler.class);
 
+  private final I18n i18n;
   private final EventManager eventManager;
   private final InternalCloudServiceManager serviceManager;
 
   @Inject
   public NodeDisconnectHandler(
+    @NonNull I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull InternalCloudServiceManager serviceManager
   ) {
+    this.i18n = i18n;
     this.eventManager = eventManager;
     this.serviceManager = serviceManager;
   }
@@ -94,6 +97,6 @@ public final class NodeDisconnectHandler {
       }
     }
 
-    LOGGER.info(I18n.trans("cluster-server-networking-disconnected", server.name()));
+    LOGGER.info(this.i18n.translate("cluster-server-networking-disconnected", server.name()));
   }
 }

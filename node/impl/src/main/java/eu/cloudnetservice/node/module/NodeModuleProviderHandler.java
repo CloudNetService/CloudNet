@@ -42,6 +42,7 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
   private final NetworkServer networkServer;
   private final RPCHandlerRegistry rpcHandlerRegistry;
 
+  private final I18n i18n;
   private final CommandProvider commandProvider;
   private final DataSyncRegistry dataSyncRegistry;
 
@@ -54,6 +55,7 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     @NonNull EventManager eventManager,
     @NonNull CommandProvider commandProvider,
     @NonNull ServiceRegistry serviceRegistry,
+    @NonNull I18n i18n,
     @NonNull DataSyncRegistry dataSyncRegistry
   ) {
     super(eventManager, moduleProvider, serviceRegistry);
@@ -62,6 +64,7 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     this.networkServer = networkServer;
     this.rpcHandlerRegistry = rpcHandlerRegistry;
     this.commandProvider = commandProvider;
+    this.i18n = i18n;
     this.dataSyncRegistry = dataSyncRegistry;
   }
 
@@ -84,7 +87,7 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     // unregister all object mappers which are registered
     DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.classLoader());
     // unregister all language files
-    I18n.unregisterLanguageFiles(moduleWrapper.classLoader());
+    this.i18n.unregisterProviders(moduleWrapper.classLoader());
   }
 
   private void removeListeners(@NonNull Collection<NetworkChannel> channels, @NonNull ClassLoader loader) {

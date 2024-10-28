@@ -42,6 +42,7 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
@@ -57,17 +58,20 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     .build();
   private static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
+  private final I18n i18n;
   private final ModulesHolder modulesHolder;
   private final ModuleProvider moduleProvider;
 
   @Inject
   public DefaultConfigSetup(
     @NonNull Parsers parsers,
+    @NonNull I18n i18n,
     @NonNull ModulesHolder modulesHolder,
     @NonNull Configuration configuration,
     @NonNull ModuleProvider moduleProvider
   ) {
     super(parsers, configuration);
+    this.i18n = i18n;
     this.modulesHolder = modulesHolder;
     this.moduleProvider = moduleProvider;
   }
@@ -79,20 +83,21 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     // apply the questions
     animation.addEntries(
       // language
-      QuestionListEntry.<String>builder()
+      QuestionListEntry.<Locale>builder()
         .key("language")
         .question(() -> "Welcome to the CloudNet Setup! Please choose the language you want to use")
-        .answerType(QuestionAnswerType.<String>builder()
-          .recommendation(I18n.language())
-          .possibleResults(I18n.knownLanguages())
+        .answerType(QuestionAnswerType.<Locale>builder()
+          .recommendation(this.i18n.selectedLanguage())
+          .possibleResults(this.i18n.availableLanguages().stream().map(Locale::toLanguageTag).toList())
           .parser(input -> {
-            if (I18n.knownLanguages().contains(input)) {
-              return input;
+            var locale = Locale.forLanguageTag(input);
+            if (this.i18n.availableLanguages().contains(locale)) {
+              return locale;
             } else {
               throw Parsers.ParserException.INSTANCE;
             }
           })
-          .addResultListener((__, language) -> I18n.language(language)))
+          .addResultListener((__, language) -> this.i18n.selectLanguage(language)))
         .build(),
       // eula agreement
       QuestionListEntry.<Boolean>builder()

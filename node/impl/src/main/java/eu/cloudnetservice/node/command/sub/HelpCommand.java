@@ -58,11 +58,11 @@ public final class HelpCommand {
   }
 
   @Parser(suggestions = "commands")
-  public @NonNull CommandInfo defaultCommandInfoParser(@NonNull CommandInput input) {
+  public @NonNull CommandInfo defaultCommandInfoParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var command = input.readString();
     var commandInfo = this.commandProvider.command(command);
     if (commandInfo == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("no-such-command"));
+      throw new ArgumentNotAvailableException(i18n.translate("no-such-command"));
     }
 
     return commandInfo;
@@ -89,11 +89,15 @@ public final class HelpCommand {
   }
 
   @Command("help|ask|? docs <command>")
-  public void displayCommandDocs(@NonNull CommandSource source, @NonNull @Argument("command") CommandInfo commandInfo) {
+  public void displayCommandDocs(
+    @NonNull I18n i18n,
+    @NonNull CommandSource source,
+    @NonNull @Argument("command") CommandInfo commandInfo
+  ) {
     if (commandInfo.docsUrl() == null) {
-      source.sendMessage(I18n.trans("command-help-docs-no-url", commandInfo.name()));
+      source.sendMessage(i18n.translate("command-help-docs-no-url", commandInfo.name()));
     } else {
-      source.sendMessage(I18n.trans("command-help-docs", commandInfo.name(), commandInfo.docsUrl()));
+      source.sendMessage(i18n.translate("command-help-docs", commandInfo.name(), commandInfo.docsUrl()));
     }
   }
 }

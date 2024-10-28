@@ -92,13 +92,13 @@ public final class VersionCommand {
   }
 
   @Parser(suggestions = "serviceVersionType")
-  public @NonNull ServiceVersionType parseVersionType(@NonNull CommandInput input) {
+  public @NonNull ServiceVersionType parseVersionType(@NonNull I18n i18n, @NonNull CommandInput input) {
     var versionType = this.serviceVersionProvider.serviceVersionType(input.readString());
     if (versionType != null) {
       return versionType;
     }
 
-    throw new ArgumentNotAvailableException(I18n.trans("command-template-invalid-version-type"));
+    throw new ArgumentNotAvailableException(i18n.translate("command-template-invalid-version-type"));
   }
 
   @Suggestions("serviceVersionType")
@@ -107,7 +107,7 @@ public final class VersionCommand {
   }
 
   @Parser(name = "staticServiceDirectory", suggestions = "staticServices")
-  public @NonNull Path parseStaticServiceDirectory(@NonNull CommandInput input) {
+  public @NonNull Path parseStaticServiceDirectory(@NonNull I18n i18n, @NonNull CommandInput input) {
     var suppliedName = input.readString();
     var baseDirectory = this.serviceManager.persistentServicesDirectory();
 
@@ -120,7 +120,7 @@ public final class VersionCommand {
       return serviceDirectory;
     }
 
-    throw new ArgumentNotAvailableException(I18n.trans("command-version-static-service-invalid"));
+    throw new ArgumentNotAvailableException(i18n.translate("command-version-static-service-invalid"));
   }
 
   @Suggestions("staticServices")
@@ -166,6 +166,7 @@ public final class VersionCommand {
 
   @Command("version|v installtemplate|it <template> <versionType> <version>")
   public void installTemplate(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("template") ServiceTemplate serviceTemplate,
     @NonNull @Argument("versionType") ServiceVersionType versionType,
@@ -176,6 +177,7 @@ public final class VersionCommand {
   ) {
     // try to build the installer based on the supplied information
     var installer = this.buildVersionInstaller(
+      i18n,
       source,
       () -> TemplateVersionInstaller.builder().toTemplate(serviceTemplate),
       versionType,
@@ -184,12 +186,13 @@ public final class VersionCommand {
       forceInstall,
       noCache);
     if (installer != null) {
-      this.executeInstallation(source, installer, forceInstall);
+      this.executeInstallation(i18n, source, installer, forceInstall);
     }
   }
 
   @Command("version|v installstatic|is <serviceName> <versionType> <version>")
   public void installStaticService(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "serviceName", parserName = "staticServiceDirectory") Path serviceDirectory,
     @NonNull @Argument("versionType") ServiceVersionType versionType,
@@ -200,6 +203,7 @@ public final class VersionCommand {
   ) {
     // try to build the installer based on the supplied information
     var installer = this.buildVersionInstaller(
+      i18n,
       source,
       () -> FileSystemVersionInstaller.builder().workingDirectory(serviceDirectory),
       versionType,
@@ -208,11 +212,12 @@ public final class VersionCommand {
       forceInstall,
       noCache);
     if (installer != null) {
-      this.executeInstallation(source, installer, forceInstall);
+      this.executeInstallation(i18n, source, installer, forceInstall);
     }
   }
 
   private @Nullable VersionInstaller buildVersionInstaller(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull Supplier<VersionInstaller.Builder<? extends VersionInstaller, ?>> factory,
     @NonNull ServiceVersionType versionType,
@@ -225,14 +230,14 @@ public final class VersionCommand {
     var resolvedExecutable = executable == null ? "java" : executable;
     var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
     if (javaVersion == null) {
-      source.sendMessage(I18n.trans("command-tasks-setup-question-javacommand-invalid"));
+      source.sendMessage(i18n.translate("command-tasks-setup-question-javacommand-invalid"));
       return null;
     }
 
     // check if the given version is installable
     var fullVersionName = versionType.name() + "-" + serviceVersion.name();
     if (!versionType.canInstall(serviceVersion, javaVersion)) {
-      source.sendMessage(I18n.trans("command-version-install-wrong-java",
+      source.sendMessage(i18n.translate("command-version-install-wrong-java",
         fullVersionName,
         javaVersion.name()));
       // just yolo it - if requested
@@ -250,14 +255,19 @@ public final class VersionCommand {
       .build();
   }
 
-  private void executeInstallation(@NonNull CommandSource source, @NonNull VersionInstaller installer, boolean force) {
+  private void executeInstallation(
+    @NonNull I18n i18n,
+    @NonNull CommandSource source,
+    @NonNull VersionInstaller installer,
+    boolean force
+  ) {
     this.tickLoop.runTask(() -> {
-      source.sendMessage(I18n.trans("command-version-install-try"));
+      source.sendMessage(i18n.translate("command-version-install-try"));
 
       if (this.serviceVersionProvider.installServiceVersion(installer, force)) {
-        source.sendMessage(I18n.trans("command-version-install-success"));
+        source.sendMessage(i18n.translate("command-version-install-success"));
       } else {
-        source.sendMessage(I18n.trans("command-version-install-failed"));
+        source.sendMessage(i18n.translate("command-version-install-failed"));
       }
     });
   }

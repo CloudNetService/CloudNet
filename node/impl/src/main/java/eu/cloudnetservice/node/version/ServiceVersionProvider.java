@@ -70,13 +70,16 @@ public class ServiceVersionProvider {
   private final Map<String, ServiceVersionType> serviceVersionTypes = new ConcurrentHashMap<>();
   private final Map<String, ServiceEnvironmentType> serviceEnvironmentTypes = new ConcurrentHashMap<>();
 
+  private final I18n i18n;
   private final ConsoleProgressWrappers consoleProgressWrappers;
 
   @Inject
   public ServiceVersionProvider(
+    @NonNull I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull ConsoleProgressWrappers consoleProgressWrappers
   ) {
+    this.i18n = i18n;
     this.consoleProgressWrappers = consoleProgressWrappers;
 
     eventManager.registerListener(new TemplatePrepareListener());
@@ -169,7 +172,7 @@ public class ServiceVersionProvider {
     }
 
     if (installer.serviceVersion().deprecated()) {
-      LOGGER.warn(I18n.trans("versions-installer-deprecated-version"));
+      LOGGER.warn(this.i18n.translate("versions-installer-deprecated-version"));
     }
 
     try {

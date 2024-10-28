@@ -195,7 +195,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
         future.thenAccept(detail -> {
           // check if the record was created
           if (detail != null) {
-            LOGGER.info(I18n.trans(
+            LOGGER.info(i18n.translate(
               "module-cloudflare-create-dns-record-for-service",
               pair.first().domainName(),
               nodeConfig.identity().uniqueId(),
@@ -261,7 +261,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
           recordManager.createRecord(NODE_RECORDS_ID, entry, record).thenAccept(detail -> {
             // check if the record was created
             if (detail != null) {
-              LOGGER.info(I18n.trans(
+              LOGGER.info(i18n.translate(
                 "module-cloudflare-create-dns-record-for-service",
                 entry.domainName(),
                 nodeConfig.identity().uniqueId(),

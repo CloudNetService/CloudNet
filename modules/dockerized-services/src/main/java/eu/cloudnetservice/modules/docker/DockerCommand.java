@@ -56,7 +56,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     this.updateTaskDockerConfig(
       task,
       ($, builder) -> builder.javaImage(new DockerImage(repository, tag, registry, platform)));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "javaImage",
       task.name(),
@@ -66,7 +66,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
   @Command("docker task <task> remove image")
   public void removeImage(@NonNull CommandSource source, @Argument("task") @NonNull ServiceTask task) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.javaImage(null));
-    source.sendMessage(I18n.trans("command-tasks-set-property-success", "javaImage", task.name(), "null"));
+    source.sendMessage(i18n.translate("command-tasks-set-property-success", "javaImage", task.name(), "null"));
   }
 
   @Command("docker task <task> add bind <bind>")
@@ -76,7 +76,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("bind") String bind
   ) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.addBind(bind));
-    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "bind", task.name(), bind));
+    source.sendMessage(i18n.translate("command-tasks-add-collection-property", "bind", task.name(), bind));
   }
 
   @Command("docker task <task> clear binds")
@@ -85,7 +85,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("task") @NonNull ServiceTask task
   ) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.binds(Set.of()));
-    source.sendMessage(I18n.trans("command-tasks-clear-property", "binds", task.name()));
+    source.sendMessage(i18n.translate("command-tasks-clear-property", "binds", task.name()));
   }
 
   @Command("docker task <task> remove bind <bind>")
@@ -97,7 +97,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     this.updateTaskDockerConfig(task, (config, builder) -> builder.binds(config.binds().stream()
       .filter(entry -> !entry.equals(bind))
       .collect(Collectors.toSet())));
-    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "bind", task.name(), bind));
+    source.sendMessage(i18n.translate("command-tasks-remove-collection-property", "bind", task.name(), bind));
   }
 
   @Command("docker task <task> add volume <volume>")
@@ -107,7 +107,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("volume") String volume
   ) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.addVolume(volume));
-    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "volume", task.name(), volume));
+    source.sendMessage(i18n.translate("command-tasks-add-collection-property", "volume", task.name(), volume));
   }
 
   @Command("docker task <task> clear volumes")
@@ -116,7 +116,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("task") @NonNull ServiceTask task
   ) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.volumes(Set.of()));
-    source.sendMessage(I18n.trans("command-tasks-clear-property", "volumes", task.name()));
+    source.sendMessage(i18n.translate("command-tasks-clear-property", "volumes", task.name()));
   }
 
   @Command("docker task <task> remove volume <volume>")
@@ -128,7 +128,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     this.updateTaskDockerConfig(task, (config, builder) -> builder.volumes(config.volumes().stream()
       .filter(entry -> !entry.equals(volume))
       .collect(Collectors.toSet())));
-    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "volume", task.name(), volume));
+    source.sendMessage(i18n.translate("command-tasks-remove-collection-property", "volume", task.name(), volume));
   }
 
   @Command("docker task <task> add port <port> [protocol]")
@@ -140,7 +140,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
   ) {
     var exposedPort = new ExposedPort(port, protocol == null ? InternetProtocol.DEFAULT : protocol);
     this.updateTaskDockerConfig(task, ($, builder) -> builder.addExposedPort(exposedPort));
-    source.sendMessage(I18n.trans("command-tasks-add-collection-property", "exposedPort", task.name(), exposedPort));
+    source.sendMessage(i18n.translate("command-tasks-add-collection-property", "exposedPort", task.name(), exposedPort));
   }
 
   @Command("docker task <task> clear ports")
@@ -149,7 +149,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("task") @NonNull ServiceTask task
   ) {
     this.updateTaskDockerConfig(task, ($, builder) -> builder.exposedPorts(Set.of()));
-    source.sendMessage(I18n.trans("command-tasks-clear-property", "exposedPorts", task.name()));
+    source.sendMessage(i18n.translate("command-tasks-clear-property", "exposedPorts", task.name()));
   }
 
   @Command("docker task <task> remove port <port> [protocol]")
@@ -162,13 +162,13 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     this.updateTaskDockerConfig(task, (config, builder) -> builder.exposedPorts(config.exposedPorts().stream()
       .filter(entry -> entry.getPort() != port && (protocol == null || !protocol.equals(entry.getProtocol())))
       .collect(Collectors.toSet())));
-    source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "exposedPort", task.name(), port));
+    source.sendMessage(i18n.translate("command-tasks-remove-collection-property", "exposedPort", task.name(), port));
   }
 
   @Command("docker config network <network>")
   public void setNetwork(@NonNull CommandSource source, @Argument("network") @NonNull String network) {
     this.updateDockerConfig(($, builder) -> builder.network(network));
-    source.sendMessage(I18n.trans("module-docker-command-set-success", "network", network));
+    source.sendMessage(i18n.translate("module-docker-command-set-success", "network", network));
   }
 
   @Command("docker config image <repository> [tag]")
@@ -180,7 +180,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Flag("platform") @Quoted @Nullable String platform
   ) {
     this.updateDockerConfig(($, builder) -> builder.javaImage(new DockerImage(repository, tag, registry, platform)));
-    source.sendMessage(I18n.trans(
+    source.sendMessage(i18n.translate(
       "module-docker-command-set-success",
       "javaImage",
       String.format("%s:%s", repository, tag)));
@@ -199,7 +199,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
       .registryUsername(user)
       .registryEmail(email)
       .registryPassword(password));
-    source.sendMessage(I18n.trans("module-docker-command-set-success", "registry", registry));
+    source.sendMessage(i18n.translate("module-docker-command-set-success", "registry", registry));
   }
 
   @Command("docker config remove registry")
@@ -209,19 +209,19 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
       .registryUsername(null)
       .registryEmail(null)
       .registryPassword(null));
-    source.sendMessage(I18n.trans("module-docker-command-remove-success", "registry"));
+    source.sendMessage(i18n.translate("module-docker-command-remove-success", "registry"));
   }
 
   @Command("docker config user <user>")
   public void setUser(@NonNull CommandSource source, @Argument("user") @Greedy @NonNull String user) {
     this.updateDockerConfig(($, builder) -> builder.user(user));
-    source.sendMessage(I18n.trans("module-docker-command-set-success", "user", user));
+    source.sendMessage(i18n.translate("module-docker-command-set-success", "user", user));
   }
 
   @Command("docker config remove user")
   public void removeUser(@NonNull CommandSource source) {
     this.updateDockerConfig(($, builder) -> builder.user(null));
-    source.sendMessage(I18n.trans("module-docker-command-remove-success", "user"));
+    source.sendMessage(i18n.translate("module-docker-command-remove-success", "user"));
   }
 
   @Command("docker config add bind <bind>")
@@ -230,13 +230,13 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     @Argument("bind") String bind
   ) {
     this.updateDockerConfig(($, builder) -> builder.addBind(bind));
-    source.sendMessage(I18n.trans("module-docker-command-add-collection-property", "bind", bind));
+    source.sendMessage(i18n.translate("module-docker-command-add-collection-property", "bind", bind));
   }
 
   @Command("docker config clear binds")
   public void clearBinds(@NonNull CommandSource source) {
     this.updateDockerConfig(($, builder) -> builder.binds(Set.of()));
-    source.sendMessage(I18n.trans("module-docker-command-clear-collection-property", "binds"));
+    source.sendMessage(i18n.translate("module-docker-command-clear-collection-property", "binds"));
   }
 
   @Command("docker config remove bind <bind>")
@@ -244,19 +244,19 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     this.updateDockerConfig((config, builder) -> builder.binds(config.binds().stream()
       .filter(entry -> !entry.equals(bind))
       .collect(Collectors.toSet())));
-    source.sendMessage(I18n.trans("module-docker-command-remove-collection-property", "bind", bind));
+    source.sendMessage(i18n.translate("module-docker-command-remove-collection-property", "bind", bind));
   }
 
   @Command("docker config add volume <volume>")
   public void addVolume(@NonNull CommandSource source, @Argument("volume") String volume) {
     this.updateDockerConfig(($, builder) -> builder.addVolume(volume));
-    source.sendMessage(I18n.trans("module-docker-command-add-collection-property", "volume", volume));
+    source.sendMessage(i18n.translate("module-docker-command-add-collection-property", "volume", volume));
   }
 
   @Command("docker config clear volumes")
   public void clearVolumes(@NonNull CommandSource source) {
     this.updateDockerConfig(($, builder) -> builder.volumes(Set.of()));
-    source.sendMessage(I18n.trans("module-docker-command-clear-collection-property", "volumes"));
+    source.sendMessage(i18n.translate("module-docker-command-clear-collection-property", "volumes"));
   }
 
   @Command("docker config remove volume <volume>")
@@ -264,7 +264,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     this.updateDockerConfig((config, builder) -> builder.volumes(config.volumes().stream()
       .filter(entry -> !entry.equals(volume))
       .collect(Collectors.toSet())));
-    source.sendMessage(I18n.trans("module-docker-command-remove-collection-property", "volume", volume));
+    source.sendMessage(i18n.translate("module-docker-command-remove-collection-property", "volume", volume));
   }
 
   @Command("docker config add port <port> [protocol]")
@@ -275,13 +275,13 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
   ) {
     var exposedPort = new ExposedPort(port, protocol == null ? InternetProtocol.DEFAULT : protocol);
     this.updateDockerConfig(($, builder) -> builder.addExposedPort(exposedPort));
-    source.sendMessage(I18n.trans("module-docker-command-add-collection-property", "exposedPort", exposedPort));
+    source.sendMessage(i18n.translate("module-docker-command-add-collection-property", "exposedPort", exposedPort));
   }
 
   @Command("docker config clear ports")
   public void clearExposedPorts(@NonNull CommandSource source) {
     this.updateDockerConfig(($, builder) -> builder.exposedPorts(Set.of()));
-    source.sendMessage(I18n.trans("module-docker-command-clear-collection-property", "exposedPorts"));
+    source.sendMessage(i18n.translate("module-docker-command-clear-collection-property", "exposedPorts"));
   }
 
   @Command("docker config remove port <port> [protocol]")
@@ -293,7 +293,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     this.updateDockerConfig((config, builder) -> builder.exposedPorts(config.exposedPorts().stream()
       .filter(entry -> entry.getPort() != port && (protocol == null || !protocol.equals(entry.getProtocol())))
       .collect(Collectors.toSet())));
-    source.sendMessage(I18n.trans("module-docker-command-remove-collection-property", "exposedPort", port));
+    source.sendMessage(i18n.translate("module-docker-command-remove-collection-property", "exposedPort", port));
   }
 
   private void updateTaskDockerConfig(

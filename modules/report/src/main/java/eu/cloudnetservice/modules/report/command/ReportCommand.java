@@ -82,7 +82,7 @@ public final class ReportCommand {
       .filter(server -> server.name().equalsIgnoreCase(name))
       .findFirst()
       .orElseThrow(
-        () -> new ArgumentNotAvailableException(I18n.trans("module-report-command-paste-server-not-found", name)));
+        () -> new ArgumentNotAvailableException(i18n.translate("module-report-command-paste-server-not-found", name)));
   }
 
   @Suggestions("pasteServer")
@@ -99,7 +99,7 @@ public final class ReportCommand {
       .filter(service -> service.name().equals(name))
       .findFirst()
       .orElseThrow(
-        () -> new ArgumentNotAvailableException(I18n.trans("module-report-command-service-not-found", name)));
+        () -> new ArgumentNotAvailableException(i18n.translate("module-report-command-service-not-found", name)));
   }
 
   @Command("report|paste all [pasteServer]")
@@ -237,10 +237,10 @@ public final class ReportCommand {
       if (exception != null) {
         // failed to upload data
         LOGGER.error("Unable to post paste data to {} ({})", pasteServer.baseUrl(), pasteServer.name(), exception);
-        source.sendMessage(I18n.trans("module-report-command-paste-failed", pasteServer.baseUrl()));
+        source.sendMessage(i18n.translate("module-report-command-paste-failed", pasteServer.baseUrl()));
       } else {
         // successfully uploaded data
-        source.sendMessage(I18n.trans("module-report-command-paste-success", pasteServer.baseUrl() + pasteKey));
+        source.sendMessage(i18n.translate("module-report-command-paste-success", pasteServer.baseUrl() + pasteKey));
       }
     });
   }

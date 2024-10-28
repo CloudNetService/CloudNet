@@ -43,6 +43,7 @@ import org.jline.jansi.Ansi;
 public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
   // injected data
+  private final I18n i18n;
   private final EventManager eventManager;
   private final QueuedConsoleLogAppender logHandler;
 
@@ -72,6 +73,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   private boolean cancellable = true;
 
   public ConsoleSetupAnimation(
+    @NonNull I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull QueuedConsoleLogAppender logHandler,
     @Nullable String header,
@@ -81,6 +83,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     super(25);
 
     // injected values
+    this.i18n = i18n;
     this.eventManager = eventManager;
     this.logHandler = logHandler;
 
@@ -165,9 +168,9 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
 
     // print a general explanation of the setup process
-    console.forceWriteLine("&e" + I18n.trans("ca-question-list-explain"));
+    console.forceWriteLine("&e" + this.i18n.translate("ca-question-list-explain"));
     if (this.cancellable()) {
-      console.forceWriteLine("&e" + I18n.trans("ca-question-list-cancel"));
+      console.forceWriteLine("&e" + this.i18n.translate("ca-question-list-cancel"));
     }
 
     // disable all commands of the console
@@ -200,7 +203,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       this.console.commandHistory(answerType.possibleAnswers());
 
       // collect the possible answers to one string
-      var answers = I18n.trans("ca-question-list-possible-answers-list",
+      var answers = this.i18n.translate("ca-question-list-possible-answers-list",
         String.join(", ", answerType.possibleAnswers()));
       // write the answers to the console
       for (var line : this.updateCursor("&r" + entry.question().get() + " &r> &e" + answers)) {
@@ -301,7 +304,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   @Override
   public void resetConsole() {
     if (this.cancelled) {
-      super.console().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
+      super.console().forceWriteLine("&c" + this.i18n.translate("ca-question-list-cancelled"));
       this.eventManager.callEvent(new SetupCancelledEvent(this));
     } else {
       // print the footer if supplied

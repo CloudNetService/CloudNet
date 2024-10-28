@@ -63,7 +63,7 @@ public final class NodeChannelMessageListener {
   }
 
   @EventListener
-  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event, @NonNull I18n i18n) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // update a single node info snapshot
@@ -103,7 +103,7 @@ public final class NodeChannelMessageListener {
           this.nodeInfoProvider.addNodeSilently(node);
 
           // inform the user
-          LOGGER.info(I18n.trans("command-cluster-add-node-success", node.uniqueId()));
+          LOGGER.info(i18n.translate("command-cluster-add-node-success", node.uniqueId()));
         }
 
         // handle the removal of a cluster node from other nodes
@@ -113,7 +113,7 @@ public final class NodeChannelMessageListener {
           this.nodeInfoProvider.removeNodeSilently(node);
 
           // remove the node
-          LOGGER.info(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
+          LOGGER.info(i18n.translate("command-cluster-remove-node-success", node.uniqueId()));
         }
 
         // handles the shutdown of a cluster node

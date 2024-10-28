@@ -71,16 +71,19 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeServiceTaskProvider.class);
 
+  private final I18n i18n;
   private final EventManager eventManager;
   private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
 
   @Inject
   public NodeServiceTaskProvider(
+    @NonNull I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull RPCFactory rpcFactory,
     @NonNull DataSyncRegistry syncRegistry,
     @NonNull RPCHandlerRegistry handlerRegistry
   ) {
+    this.i18n = i18n;
     this.eventManager = eventManager;
 
     // rpc
@@ -277,7 +280,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
         if (javaVersion != JavaVersion.JAVA_23) {
           task = ServiceTask.builder(task).javaCommand(null).build();
-          LOGGER.warn(I18n.trans("cloudnet-load-task-unsupported-java-version", taskName));
+          LOGGER.warn(this.i18n.translate("cloudnet-load-task-unsupported-java-version", taskName));
         }
       }
 

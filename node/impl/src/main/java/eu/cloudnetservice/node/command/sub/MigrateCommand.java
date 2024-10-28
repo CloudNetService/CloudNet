@@ -58,11 +58,11 @@ public final class MigrateCommand {
   }
 
   @Parser(suggestions = "databaseProvider")
-  public @NonNull NodeDatabaseProvider defaultDatabaseProviderParser(@NonNull CommandInput input) {
+  public @NonNull NodeDatabaseProvider defaultDatabaseProviderParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var abstractDatabaseProvider = this.serviceRegistry.instance(NodeDatabaseProvider.class, input.readString());
 
     if (abstractDatabaseProvider == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-migrate-unknown-database-provider"));
     }
     return abstractDatabaseProvider;
   }
@@ -76,13 +76,14 @@ public final class MigrateCommand {
 
   @Command(value = "migrate database|db <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
   public void migrateDatabase(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("database-from") NodeDatabaseProvider sourceDatabaseProvider,
     @NonNull @Argument("database-to") NodeDatabaseProvider targetDatabaseProvider,
     @Flag("chunk-size") Integer chunkSize
   ) {
     if (sourceDatabaseProvider.equals(targetDatabaseProvider)) {
-      source.sendMessage(I18n.trans("command-migrate-source-equals-target"));
+      source.sendMessage(i18n.translate("command-migrate-source-equals-target"));
       return;
     }
 
@@ -90,15 +91,15 @@ public final class MigrateCommand {
       chunkSize = DEFAULT_CHUNK_SIZE;
     }
 
-    if (!this.executeIfNotCurrentProvider(sourceDatabaseProvider, NodeDatabaseProvider::init)
-      || !this.executeIfNotCurrentProvider(targetDatabaseProvider, NodeDatabaseProvider::init)) {
+    if (!this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, NodeDatabaseProvider::init)
+      || !this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, NodeDatabaseProvider::init)) {
       return;
     }
 
     try {
       for (var databaseName : sourceDatabaseProvider.databaseNames()) {
         source.sendMessage(
-          I18n.trans("command-migrate-current-database", databaseName));
+          i18n.translate("command-migrate-current-database", databaseName));
 
         var sourceDatabase = sourceDatabaseProvider.database(databaseName);
         var targetDatabase = targetDatabaseProvider.database(databaseName);
@@ -106,19 +107,20 @@ public final class MigrateCommand {
         sourceDatabase.iterate(targetDatabase::insert, chunkSize);
       }
     } catch (Exception exception) {
-      LOGGER.error(I18n.trans("command-migrate-database-connection-failed"), exception);
+      LOGGER.error(i18n.translate("command-migrate-database-connection-failed"), exception);
       return;
     }
 
-    this.executeIfNotCurrentProvider(sourceDatabaseProvider, NodeDatabaseProvider::close);
-    this.executeIfNotCurrentProvider(targetDatabaseProvider, NodeDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, NodeDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, NodeDatabaseProvider::close);
 
-    source.sendMessage(I18n.trans("command-migrate-success",
+    source.sendMessage(i18n.translate("command-migrate-success",
       sourceDatabaseProvider.name(),
       targetDatabaseProvider.name()));
   }
 
   private boolean executeIfNotCurrentProvider(
+    @NonNull I18n i18n,
     @NonNull NodeDatabaseProvider sourceProvider,
     @NonNull CheckedConsumer<NodeDatabaseProvider> handler
   ) {
@@ -126,7 +128,7 @@ public final class MigrateCommand {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {
-        LOGGER.error(I18n.trans("command-migrate-database-connection-failed"), throwable);
+        LOGGER.error(i18n.translate("command-migrate-database-connection-failed"), throwable);
         return false;
       }
     }

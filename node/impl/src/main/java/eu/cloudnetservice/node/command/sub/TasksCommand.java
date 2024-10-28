@@ -95,6 +95,7 @@ public final class TasksCommand {
     .column(ServiceTask::startPort)
     .build();
 
+  private final I18n i18n;
   private final Configuration configuration;
   private final ConsoleSetupAnimation taskSetupAnimation;
   private final ServiceTaskProvider taskProvider;
@@ -103,6 +104,7 @@ public final class TasksCommand {
 
   @Inject
   public TasksCommand(
+    @NonNull I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull Configuration configuration,
     @NonNull ServiceTaskProvider taskProvider,
@@ -110,11 +112,13 @@ public final class TasksCommand {
     @NonNull CloudServiceManager serviceManager,
     @NonNull ClusterNodeProvider clusterNodeProvider
   ) {
+    this.i18n = i18n;
     this.configuration = configuration;
     this.taskProvider = taskProvider;
     this.serviceManager = serviceManager;
     this.clusterNodeProvider = clusterNodeProvider;
     this.taskSetupAnimation = new ConsoleSetupAnimation(
+      this.i18n,
       eventManager,
       logHandler,
       TASK_SETUP_HEADER,
@@ -174,11 +178,11 @@ public final class TasksCommand {
   }
 
   @Parser(suggestions = "serviceTask")
-  public @NonNull ServiceTask defaultTaskParser(@NonNull CommandInput input) {
+  public @NonNull ServiceTask defaultTaskParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var task = this.taskProvider.serviceTask(name);
     if (task == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-tasks-task-not-found"));
     }
 
     return task;
@@ -190,7 +194,7 @@ public final class TasksCommand {
   }
 
   @Parser(suggestions = "ipAliasHostAddress", name = "ipAliasHostAddress")
-  public @NonNull String hostAddressParser(@NonNull CommandInput input) {
+  public @NonNull String hostAddressParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var address = input.readString();
     var alias = this.configuration.ipAliases().get(address);
     // check if we can resolve the host address using our ip alias
@@ -201,7 +205,7 @@ public final class TasksCommand {
     var hostAndPort = NetworkUtil.parseAssignableHostAndPort(address, false);
     if (hostAndPort == null || NetworkUtil.checkWildcard(hostAndPort)) {
       // could not parse
-      throw new ArgumentNotAvailableException(I18n.trans("command-tasks-unknown-host-address-or-alias", address));
+      throw new ArgumentNotAvailableException(i18n.translate("command-tasks-unknown-host-address-or-alias", address));
     }
 
     return hostAndPort.host();
@@ -217,18 +221,18 @@ public final class TasksCommand {
   }
 
   @Parser(suggestions = "serviceTask")
-  public @NonNull Collection<ServiceTask> wildcardTaskParser(@NonNull CommandInput input) {
+  public @NonNull Collection<ServiceTask> wildcardTaskParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var matchedTasks = WildcardUtil.filterWildcard(this.taskProvider.serviceTasks(), name);
     if (matchedTasks.isEmpty()) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-tasks-task-not-found"));
     }
 
     return matchedTasks;
   }
 
   @Parser(name = "javaCommand")
-  public @NonNull Tuple2<String, JavaVersion> javaCommandParser(@NonNull CommandInput input) {
+  public @NonNull Tuple2<String, JavaVersion> javaCommandParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var command = input.remainingInput();
     // we have to clear the queue as we consumed the input using String.join
     input.cursor(input.length());
@@ -236,21 +240,21 @@ public final class TasksCommand {
     var version = JavaVersionResolver.resolveFromJavaExecutable(command);
     if (version == null) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-tasks-setup-question-javacommand-invalid"));
+        i18n.translate("command-tasks-setup-question-javacommand-invalid"));
     }
 
     return new Tuple2<>(command, version);
   }
 
   @Parser(name = "nodeId", suggestions = "clusterNode")
-  public @NonNull String defaultClusterNodeParser(@NonNull CommandInput input) {
+  public @NonNull String defaultClusterNodeParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var nodeId = input.readString();
     for (var node : this.clusterNodeProvider.nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         return nodeId;
       }
     }
-    throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
+    throw new ArgumentNotAvailableException(i18n.translate("command-tasks-node-not-found"));
   }
 
   @Suggestions("clusterNode")
@@ -261,10 +265,10 @@ public final class TasksCommand {
   }
 
   @Parser(name = "taskRuntime", suggestions = "taskRuntime")
-  public @NonNull String taskRuntimeParser(@NonNull CommandInput input) {
+  public @NonNull String taskRuntimeParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var runtime = input.readString();
     if (this.serviceManager.cloudServiceFactory(runtime) == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-tasks-runtime-not-found", runtime));
+      throw new ArgumentNotAvailableException(i18n.translate("command-tasks-runtime-not-found", runtime));
     }
 
     return runtime;
@@ -285,19 +289,20 @@ public final class TasksCommand {
   }
 
   @Command("tasks reload")
-  public void reloadTasks(@NonNull CommandSource source) {
+  public void reloadTasks(@NonNull I18n i18n, @NonNull CommandSource source) {
     this.taskProvider.reload();
-    source.sendMessage(I18n.trans("command-tasks-reload-success"));
+    source.sendMessage(i18n.translate("command-tasks-reload-success"));
   }
 
   @Command("tasks delete <name>")
   public void deleteTask(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks
   ) {
     for (var serviceTask : tasks) {
       this.taskProvider.removeServiceTask(serviceTask);
-      source.sendMessage(I18n.trans("command-tasks-delete-task", serviceTask.name()));
+      source.sendMessage(i18n.translate("command-tasks-delete-task", serviceTask.name()));
     }
   }
 
@@ -308,12 +313,13 @@ public final class TasksCommand {
 
   @Command("tasks create <name> <environment>")
   public void createTask(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("name") String taskName,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     if (this.taskProvider.serviceTask(taskName) != null) {
-      source.sendMessage(I18n.trans("command-tasks-task-already-existing", taskName));
+      source.sendMessage(i18n.translate("command-tasks-task-already-existing", taskName));
       return;
     }
 
@@ -327,7 +333,7 @@ public final class TasksCommand {
       .startPort(environmentType.defaultStartPort())
       .build();
     this.taskProvider.addServiceTask(serviceTask);
-    source.sendMessage(I18n.trans("command-tasks-create-task"));
+    source.sendMessage(i18n.translate("command-tasks-create-task"));
   }
 
   @Command("tasks task <name>")
@@ -362,17 +368,18 @@ public final class TasksCommand {
 
   @Command("tasks rename <oldName> <newName>")
   public void renameTask(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "oldName") ServiceTask serviceTask,
     @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("newName") String newName
   ) {
     if (this.taskProvider.serviceTask(newName) != null) {
-      source.sendMessage(I18n.trans("command-tasks-task-already-existing", newName));
+      source.sendMessage(i18n.translate("command-tasks-task-already-existing", newName));
     } else {
       // create a copy with the new name and remove the old task
       this.taskProvider.removeServiceTask(serviceTask);
       this.taskProvider.addServiceTask(ServiceTask.builder(serviceTask).name(newName).build());
-      source.sendMessage(I18n.trans("command-tasks-task-rename-success", serviceTask.name(), newName));
+      source.sendMessage(i18n.translate("command-tasks-task-rename-success", serviceTask.name(), newName));
     }
   }
 
@@ -876,7 +883,7 @@ public final class TasksCommand {
     for (var task : tasks) {
       var builder = ServiceTask.builder(task);
       consumer.andThen((result, $) -> this.taskProvider.addServiceTask(result.build())).accept(builder, newValue);
-      source.sendMessage(I18n.trans(translation, property, task.name(), newValue));
+      source.sendMessage(this.i18n.translate(translation, property, task.name(), newValue));
     }
   }
 }

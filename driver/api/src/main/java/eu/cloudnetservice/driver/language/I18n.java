@@ -33,7 +33,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface I18n {
 
   /**
-   * Get the current default implementation of this translator interface from the service registry. Where possibly
+   * Get the current default implementation of this translator interface from the service registry. Where possible
    * injection should be preferred over using this method.
    *
    * @return the current default implementation of this translator interface from the service registry.

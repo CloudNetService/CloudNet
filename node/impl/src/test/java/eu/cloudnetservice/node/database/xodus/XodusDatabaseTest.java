@@ -17,6 +17,8 @@
 package eu.cloudnetservice.node.database.xodus;
 
 import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.node.junit.EnableServicesInject;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+@EnableServicesInject
 class XodusDatabaseTest {
 
   private static final Path BASE_DIRECTORY = Path.of("build", "tmp", "xodus").toAbsolutePath();
@@ -35,7 +38,7 @@ class XodusDatabaseTest {
 
   @BeforeEach
   void setup() {
-    this.databaseProvider = new XodusDatabaseProvider(BASE_DIRECTORY.toFile(), false);
+    this.databaseProvider = new XodusDatabaseProvider(I18n.i18n(), BASE_DIRECTORY.toFile(), false);
     this.databaseProvider.init();
   }
 

@@ -15,10 +15,11 @@
  */
 
 tasks.withType<Jar> {
-  // TODO re add when wrapper and platform inject is ready
-  /*dependsOn(":wrapper-jvm:wrapper-jvm-impl:shadowJar")
-
   archiveFileName.set(Files.node)
+  from(projects.driver.driverApi.sourceSets()["main"].output)
+  from(projects.driver.driverImpl.sourceSets()["main"].output)
+
+  /*dependsOn(":wrapper-jvm:wrapper-jvm-impl:shadowJar")
 
   from("../wrapper-jvm/build/libs") {
     include(Files.wrapper)
@@ -28,8 +29,7 @@ tasks.withType<Jar> {
     from(exportCnlFile(Files.nodeCnl))
     from(exportLanguageFileInformation())
   }
-
-  from(projects.driver.sourceSets()["main"].output)*/
+*/
 }
 
 tasks.withType<JavaCompile> {

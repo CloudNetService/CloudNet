@@ -67,13 +67,13 @@ public class SignCommand {
     var name = input.readString();
     var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-general-group-does-not-exist"));
     }
 
     if (this.signManagement.signsConfiguration().entries()
       .stream()
       .anyMatch(entry -> entry.targetGroup().equalsIgnoreCase(name))) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-sign-command-create-entry-group-already-exists"));
+      throw new ArgumentNotAvailableException(i18n.translate("module-sign-command-create-entry-group-already-exists"));
     }
 
     return name;
@@ -106,6 +106,6 @@ public class SignCommand {
     this.signManagement.signsConfiguration(SignsConfiguration.builder(this.signManagement.signsConfiguration())
       .modifyEntries(entries -> entries.add(entry))
       .build());
-    source.sendMessage(I18n.trans("module-sign-command-create-entry-success"));
+    source.sendMessage(i18n.translate("module-sign-command-create-entry-success"));
   }
 }

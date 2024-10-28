@@ -100,6 +100,7 @@ public abstract class AbstractService implements InternalCloudService {
   protected final Path pluginDirectory;
   protected final Path serviceDirectory;
 
+  protected final I18n i18n;
   protected final DefaultTickLoop mainThread;
   protected final EventManager eventManager;
   protected final Configuration configuration;
@@ -128,6 +129,7 @@ public abstract class AbstractService implements InternalCloudService {
   protected volatile ServiceInfoSnapshot currentServiceInfo;
 
   protected AbstractService(
+    @NonNull I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
     @NonNull ServiceConfiguration configuration,
@@ -136,6 +138,7 @@ public abstract class AbstractService implements InternalCloudService {
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
+    this.i18n = i18n;
     this.mainThread = tickLoop;
     this.configuration = nodeConfig;
     this.eventManager = eventManager;
@@ -350,7 +353,7 @@ public abstract class AbstractService implements InternalCloudService {
             this.doDelete();
             // update the current service info
             this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
-            LOGGER.info(I18n.trans("cloudnet-service-post-delete-message", this.serviceReplacement()));
+            LOGGER.info(this.i18n.translate("cloudnet-service-post-delete-message", this.serviceReplacement()));
           }
         }
 
@@ -362,7 +365,7 @@ public abstract class AbstractService implements InternalCloudService {
               this.startProcess();
               // update the current service info
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.RUNNING);
-              LOGGER.info(I18n.trans("cloudnet-service-post-start-message", this.serviceReplacement()));
+              LOGGER.info(this.i18n.translate("cloudnet-service-post-start-message", this.serviceReplacement()));
             }
           }
         }
@@ -374,7 +377,7 @@ public abstract class AbstractService implements InternalCloudService {
               this.doDelete();
               // update the current service info
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
-              LOGGER.info(I18n.trans("cloudnet-service-post-stop-message", this.serviceReplacement()));
+              LOGGER.info(this.i18n.translate("cloudnet-service-post-stop-message", this.serviceReplacement()));
             } else if (this.lifeCycle() == ServiceLifeCycle.RUNNING) {
               this.stopProcess();
               this.doRemoveFilesAfterStop();
@@ -390,7 +393,7 @@ public abstract class AbstractService implements InternalCloudService {
           this.installedInclusions.clear();
           this.installedDeployments.clear();
 
-          LOGGER.info(I18n.trans("cloudnet-service-post-prepared-message", this.serviceReplacement()));
+          LOGGER.info(this.i18n.translate("cloudnet-service-post-prepared-message", this.serviceReplacement()));
         }
         default -> throw new IllegalStateException("Unhandled ServiceLifeCycle: " + lifeCycle);
       }
@@ -763,7 +766,7 @@ public abstract class AbstractService implements InternalCloudService {
       if (this.configuration.runBlockedServiceStartTryLaterAutomatic()) {
         this.mainThread.runTask(this::start);
       } else {
-        LOGGER.info(I18n.trans("cloudnet-service-manager-max-memory-error"));
+        LOGGER.info(this.i18n.translate("cloudnet-service-manager-max-memory-error"));
       }
       // no starting now
       return false;
@@ -774,7 +777,7 @@ public abstract class AbstractService implements InternalCloudService {
       if (this.configuration.runBlockedServiceStartTryLaterAutomatic()) {
         this.mainThread.runTask(this::start);
       } else {
-        LOGGER.info(I18n.trans("cloudnet-service-manager-cpu-usage-to-high-error"));
+        LOGGER.info(this.i18n.translate("cloudnet-service-manager-cpu-usage-to-high-error"));
       }
       // no starting now
       return false;

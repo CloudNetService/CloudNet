@@ -68,7 +68,7 @@ public final class SyncProxyCommand {
       .stream()
       .filter(login -> login.targetGroup().equals(name)).findFirst()
       .orElseThrow(
-        () -> new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist")));
+        () -> new ArgumentNotAvailableException(i18n.translate("command-general-group-does-not-exist")));
   }
 
   @Suggestions("loginConfiguration")
@@ -83,19 +83,19 @@ public final class SyncProxyCommand {
     var name = input.readString();
     var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-general-group-does-not-exist"));
     }
 
     if (this.syncProxyManagement.configuration().loginConfigurations()
       .stream()
       .anyMatch(login -> login.targetGroup().equalsIgnoreCase(name))) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-already-exists"));
+      throw new ArgumentNotAvailableException(i18n.translate("module-syncproxy-command-create-entry-group-already-exists"));
     }
 
     if (this.syncProxyManagement.configuration().tabListConfigurations()
       .stream()
       .anyMatch(tabList -> tabList.targetGroup().equalsIgnoreCase(name))) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-already-exists"));
+      throw new ArgumentNotAvailableException(i18n.translate("module-syncproxy-command-create-entry-group-already-exists"));
     }
     return name;
   }
@@ -124,7 +124,7 @@ public final class SyncProxyCommand {
       .modifyLoginConfigurations(logins -> logins.add(loginConfiguration))
       .modifyTabListConfigurations(tabLists -> tabLists.add(tabListConfiguration)));
 
-    source.sendMessage(I18n.trans("module-syncproxy-command-create-entry-success"));
+    source.sendMessage(i18n.translate("module-syncproxy-command-create-entry-success"));
   }
 
   @Command("syncproxy|sp target <targetGroup>")
@@ -149,7 +149,7 @@ public final class SyncProxyCommand {
       logins.add(config);
     }));
 
-    source.sendMessage(I18n.trans("module-syncproxy-command-set-maxplayers",
+    source.sendMessage(i18n.translate("module-syncproxy-command-set-maxplayers",
       loginConfiguration.targetGroup(),
       amount));
   }
@@ -168,7 +168,7 @@ public final class SyncProxyCommand {
       logins.add(config);
     }));
 
-    source.sendMessage(I18n.trans("module-syncproxy-command-add-whitelist-entry",
+    source.sendMessage(i18n.translate("module-syncproxy-command-add-whitelist-entry",
       name,
       loginConfiguration.targetGroup()));
   }
@@ -187,7 +187,7 @@ public final class SyncProxyCommand {
       logins.add(config);
     }));
 
-    source.sendMessage(I18n.trans("module-syncproxy-command-remove-whitelist-entry",
+    source.sendMessage(i18n.translate("module-syncproxy-command-remove-whitelist-entry",
       name,
       loginConfiguration.targetGroup()));
   }
@@ -206,7 +206,7 @@ public final class SyncProxyCommand {
       logins.add(config);
     }));
 
-    source.sendMessage(I18n.trans("module-syncproxy-command-set-maintenance",
+    source.sendMessage(i18n.translate("module-syncproxy-command-set-maintenance",
       loginConfiguration.targetGroup(),
       enabled ? 1 : 0));
   }

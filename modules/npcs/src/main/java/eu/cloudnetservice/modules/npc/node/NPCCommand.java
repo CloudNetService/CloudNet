@@ -67,13 +67,13 @@ public class NPCCommand {
     var name = input.readString();
     var configuration = this.groupConfigurationProvider.groupConfiguration(name);
     if (configuration == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-general-group-does-not-exist"));
     }
 
     if (this.npcManagement.npcConfiguration().entries()
       .stream()
       .anyMatch(entry -> entry.targetGroup().equalsIgnoreCase(name))) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-npc-command-create-entry-group-already-exists"));
+      throw new ArgumentNotAvailableException(i18n.translate("module-npc-command-create-entry-group-already-exists"));
     }
     return name;
   }
@@ -101,6 +101,6 @@ public class NPCCommand {
     var entry = NPCConfigurationEntry.builder().targetGroup(targetGroup).build();
     this.npcManagement.npcConfiguration().entries().add(entry);
     this.npcManagement.npcConfiguration(this.npcManagement.npcConfiguration());
-    source.sendMessage(I18n.trans("module-npc-command-create-entry-success"));
+    source.sendMessage(i18n.translate("module-npc-command-create-entry-success"));
   }
 }

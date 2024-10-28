@@ -42,6 +42,7 @@ public final class CreateCommand {
 
   @Command("create by <task> <amount>")
   public void createByTask(
+    @NonNull I18n i18n,
     @NonNull Console console,
     @NonNull CommandSource source,
     @NonNull @Argument("task") ServiceTask task,
@@ -72,6 +73,7 @@ public final class CreateCommand {
     if (amount >= 10) {
       // display with progress animation
       this.startServices(
+        i18n,
         console,
         source,
         configurationBuilder.build(),
@@ -80,11 +82,12 @@ public final class CreateCommand {
         startService);
     } else {
       // start without progress animation
-      this.startServices(console, source, configurationBuilder.build(), null, amount, startService);
+      this.startServices(i18n, console, source, configurationBuilder.build(), null, amount, startService);
     }
   }
 
   private void startServices(
+    @NonNull I18n i18n,
     @NonNull Console console,
     @NonNull CommandSource source,
     @NonNull ServiceConfiguration configuration,
@@ -92,7 +95,7 @@ public final class CreateCommand {
     int amount,
     boolean start
   ) {
-    source.sendMessage(I18n.trans("command-create-by-task-starting", configuration.serviceId().taskName(), amount));
+    source.sendMessage(i18n.translate("command-create-by-task-starting", configuration.serviceId().taskName(), amount));
     // start the progress animation if needed
     if (animation != null && !console.animationRunning()) {
       console.startAnimation(animation);
@@ -103,7 +106,7 @@ public final class CreateCommand {
       var createResult = configuration.createNewService();
       // stop creating new services if the creation failed once
       if (createResult.state() == ServiceCreateResult.State.FAILED) {
-        source.sendMessage(I18n.trans("command-create-by-task-failed"));
+        source.sendMessage(i18n.translate("command-create-by-task-failed"));
         // stop the animation
         if (animation != null) {
           animation.stepToEnd();
@@ -121,7 +124,7 @@ public final class CreateCommand {
     }
     // print the finish message if no other progress indication is there
     if (animation == null) {
-      source.sendMessage(I18n.trans("command-create-by-task-success"));
+      source.sendMessage(i18n.translate("command-create-by-task-success"));
     }
   }
 }

@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) implements Runnable {
+public record NodeDisconnectTrackerTask(@NonNull I18n i18n, @NonNull NodeServerProvider provider) implements Runnable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeDisconnectTrackerTask.class);
 
@@ -60,7 +60,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
             this.provider.selectHeadNode();
           }
           // warn about that
-          LOGGER.warn(I18n.trans("cluster-server-soft-disconnect", server.name(), updateDelay));
+          LOGGER.warn(this.i18n.translate("cluster-server-soft-disconnect", server.name(), updateDelay));
         }
       }
 
@@ -76,7 +76,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
         if (disconnectMs >= HARD_DISCONNECT_MS_DELAY) {
           // close hard
           server.close();
-          LOGGER.warn(I18n.trans(
+          LOGGER.warn(this.i18n.translate(
             "cluster-server-hard-disconnect",
             server.name(),
             HARD_DISCONNECT_MS_DELAY,

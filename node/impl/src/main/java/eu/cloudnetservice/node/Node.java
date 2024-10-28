@@ -27,6 +27,7 @@ import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.language.PropertiesTranslationProvider;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkServer;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
@@ -58,17 +59,22 @@ import eu.cloudnetservice.node.template.LocalTemplateStorage;
 import eu.cloudnetservice.node.tick.DefaultShutdownHandler;
 import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.io.LogOutputStream;
+import eu.cloudnetservice.utils.base.resource.ResourceResolver;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
@@ -85,6 +91,27 @@ public final class Node {
   public static final boolean AUTO_UPDATE = Boolean.getBoolean("cloudnet.auto.update");
   private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
+  public static void loadTranslations(@NonNull I18n i18n) {
+    var resourcePath = Path.of(ResourceResolver.resolveCodeSourceOfClass(Node.class));
+    FileUtil.openZipFile(resourcePath, fs -> {
+      // get the language directory
+      var langDir = fs.getPath("lang/");
+      if (Files.notExists(langDir) || !Files.isDirectory(langDir)) {
+        throw new IllegalStateException("lang/ must be an existing directory inside the jar to load");
+      }
+      // visit each file and register it as a language source
+      FileUtil.walkFileTree(langDir, ($, sub) -> {
+        // try to load and register the language file
+        try (var stream = Files.newInputStream(sub)) {
+          var lang = sub.getFileName().toString().replace(".properties", "");
+          i18n.registerProvider(Locale.forLanguageTag(lang), PropertiesTranslationProvider.fromProperties(stream));
+        } catch (IOException exception) {
+          LOGGER.error("Unable to open language file for reading @ {}", sub, exception);
+        }
+      }, false, "*.properties");
+    });
+  }
+
   @Inject
   @Order(0)
   private void initializeLogging(@NonNull @Named("root") Logger rootLogger) {
@@ -96,9 +123,9 @@ public final class Node {
 
   @Inject
   @Order(0)
-  private void initLanguage(@NonNull Configuration configuration) {
-    //TODO I18n.loadFromLangPath(Node.class);
-    I18n.language(configuration.language());
+  private void initLanguage(@NonNull Configuration configuration, @NonNull I18n i18n) {
+    loadTranslations(i18n);
+    i18n.selectLanguage(Locale.forLanguageTag(configuration.language()));
   }
 
   @Inject
@@ -119,10 +146,10 @@ public final class Node {
 
   @Inject
   @Order(150)
-  private void loadServiceVersions(@NonNull ServiceVersionProvider serviceVersionProvider) {
+  private void loadServiceVersions(@NonNull I18n i18n, @NonNull ServiceVersionProvider serviceVersionProvider) {
     // load the service versions
     serviceVersionProvider.loadDefaultVersionTypes();
-    LOGGER.info(I18n.trans("start-version-provider", serviceVersionProvider.serviceVersionTypes().size()));
+    LOGGER.info(i18n.translate("start-version-provider", serviceVersionProvider.serviceVersionTypes().size()));
   }
 
   @Inject
@@ -138,7 +165,11 @@ public final class Node {
 
   @Inject
   @Order(250)
-  private void registerDefaultServices(@NonNull ServiceRegistry serviceRegistry, @NonNull Configuration configuration) {
+  private void registerDefaultServices(
+    @NonNull I18n i18n,
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull Configuration configuration
+  ) {
     // local template storage
     var localStoragePath = Path.of(System.getProperty("cloudnet.storage.local", "local/templates"));
     serviceRegistry.registerProvider(TemplateStorage.class, "local", new LocalTemplateStorage(localStoragePath));
@@ -149,12 +180,13 @@ public final class Node {
     serviceRegistry.registerProvider(
       NodeDatabaseProvider.class,
       "xodus",
-      new XodusDatabaseProvider(dbDirectory, runsInCluster));
+      new XodusDatabaseProvider(i18n, dbDirectory, runsInCluster));
   }
 
   @Inject
   @Order(300)
   private void convertDatabase(
+    @NonNull I18n i18n,
     @NonNull Configuration configuration,
     @NonNull @Service(name = "xodus") NodeDatabaseProvider xodusProvider
   ) throws Exception { // TODO: remove in 4.1
@@ -189,6 +221,7 @@ public final class Node {
   @Inject
   @Order(350)
   private void updateAndLoadModules(
+    @NonNull I18n i18n,
     @NonNull ModulesHolder modulesHolder,
     @NonNull ModuleProvider moduleProvider,
     @NonNull ModuleUpdater moduleUpdater,
@@ -196,7 +229,7 @@ public final class Node {
   ) throws Exception {
     // apply all module updates if we're not running in dev mode
     if (!DEV_MODE) {
-      LOGGER.info(I18n.trans("start-module-updater"));
+      LOGGER.info(i18n.translate("start-module-updater"));
       updaterRegistry.registerUpdater(moduleUpdater);
       updaterRegistry.runUpdater(modulesHolder, !AUTO_UPDATE);
     }
@@ -208,6 +241,7 @@ public final class Node {
   @Inject
   @Order(400)
   private void initializeDatabaseProvider(
+    @NonNull I18n i18n,
     @NonNull Configuration configuration,
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull InjectionLayer<?> bootLayer,
@@ -238,7 +272,7 @@ public final class Node {
     rpcHandlerRegistry.registerHandler(dbProviderHandler);
 
     // notify the user about the selected database
-    LOGGER.info(I18n.trans("start-connect-database", provider.name()));
+    LOGGER.info(i18n.translate("start-connect-database", provider.name()));
   }
 
   @Inject
@@ -267,11 +301,12 @@ public final class Node {
   @Inject
   @Order(550)
   private void bindNetworkListeners(
+    @NonNull I18n i18n,
     @NonNull Configuration configuration,
     @NonNull NetworkServer networkServer
   ) throws InterruptedException {
     // print out some network information, more for debug reasons in normal cases
-    LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
+    LOGGER.info(i18n.translate("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
 
     // network server init
     var connectionCounter = new AtomicInteger();
@@ -279,10 +314,10 @@ public final class Node {
       networkServer.addListener(listener).handle(($, exception) -> {
         // check if the bind failed
         if (exception != null) {
-          LOGGER.info(I18n.trans("network-listener-bound-exceptionally", listener, exception.getMessage()));
+          LOGGER.info(i18n.translate("network-listener-bound-exceptionally", listener, exception.getMessage()));
         } else {
           connectionCounter.incrementAndGet();
-          LOGGER.info(I18n.trans("network-listener-bound", listener));
+          LOGGER.info(i18n.translate("network-listener-bound", listener));
         }
 
         // prevent the exception from being thrown
@@ -292,7 +327,7 @@ public final class Node {
 
     // we can hard stop here if no network listener was bound - the wrappers will not be able to connect to the node
     if (connectionCounter.get() == 0) {
-      LOGGER.error(I18n.trans("startup-failed-no-network-listener-bound"));
+      LOGGER.error(i18n.translate("startup-failed-no-network-listener-bound"));
       // wait a bit, then stop
       Thread.sleep(5000);
       System.exit(1);
@@ -301,7 +336,7 @@ public final class Node {
 
   @Inject
   @Order(600)
-  private void establishNodeConnections(@NonNull NodeServerProvider nodeServerProvider) {
+  private void establishNodeConnections(@NonNull I18n i18n, @NonNull NodeServerProvider nodeServerProvider) {
     // network client init
     var nodeConnections = new Phaser(1);
     Collection<BooleanSupplier> waitingNodeAvailableSuppliers = new LinkedList<>();
@@ -315,11 +350,11 @@ public final class Node {
       nodeConnections.register();
 
       // try to connect to the node
-      LOGGER.info(I18n.trans("start-node-connection-try", node.info().uniqueId()));
+      LOGGER.info(i18n.translate("start-node-connection-try", node.info().uniqueId()));
       node.connect().whenComplete(($, exception) -> {
         if (exception != null) {
           // the connection couldn't be established
-          LOGGER.warn(I18n.trans("start-node-connection-failure", node.info().uniqueId(), exception.getMessage()));
+          LOGGER.warn(i18n.translate("start-node-connection-failure", node.info().uniqueId(), exception.getMessage()));
         } else {
           // wait for the node connection to become available
           waitingNodeAvailableSuppliers.add(node::available);
@@ -336,7 +371,7 @@ public final class Node {
     // now we can wait for all nodes to become available (if needed)
     if (!waitingNodeAvailableSuppliers.isEmpty()) {
       // notify the user that we're waiting
-      LOGGER.info(I18n.trans("start-node-connection-waiting", waitingNodeAvailableSuppliers.size()));
+      LOGGER.info(i18n.translate("start-node-connection-waiting", waitingNodeAvailableSuppliers.size()));
 
       var waitStartInstant = Instant.now();
       while (!waitingNodeAvailableSuppliers.isEmpty()) {
@@ -363,9 +398,13 @@ public final class Node {
 
   @Inject
   @Order(650)
-  private void registerDefaultCommands(@NonNull DefaultCommandProvider commandProvider, @NonNull Console console) {
+  private void registerDefaultCommands(
+    @NonNull I18n i18n,
+    @NonNull DefaultCommandProvider commandProvider,
+    @NonNull Console console
+  ) {
     // register the default commands
-    LOGGER.info(I18n.trans("start-commands"));
+    LOGGER.info(i18n.translate("start-commands"));
     commandProvider.registerDefaultCommands();
     commandProvider.registerConsoleHandler(console);
   }
@@ -378,10 +417,10 @@ public final class Node {
 
   @Inject
   @Order(750)
-  private void requestClusterDataIfNeeded(@NonNull NodeServerProvider nodeServerProvider) {
+  private void requestClusterDataIfNeeded(@NonNull I18n i18n, @NonNull NodeServerProvider nodeServerProvider) {
     // we are now connected to all nodes - request the full cluster data set if the head node is not the current one
     if (!nodeServerProvider.localNode().head()) {
-      LOGGER.info(I18n.trans("start-requesting-data"));
+      LOGGER.info(i18n.translate("start-requesting-data"));
       ChannelMessage.builder()
         .message("request_initial_cluster_data")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -420,6 +459,7 @@ public final class Node {
   @Inject
   @Order(Integer.MAX_VALUE)
   private void finishStartup(
+    @NonNull I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull EventManager eventManager,
     @NonNull FileDeployCallbackListener callbackListener,
@@ -431,7 +471,7 @@ public final class Node {
     eventManager.registerListener(FileQueryChannelMessageListener.class);
 
     // notify that we are done & start the main tick loop
-    LOGGER.info(I18n.trans("start-done", Duration.between(startInstant, Instant.now()).toMillis()));
+    LOGGER.info(i18n.translate("start-done", Duration.between(startInstant, Instant.now()).toMillis()));
     tickLoop.start();
   }
 }

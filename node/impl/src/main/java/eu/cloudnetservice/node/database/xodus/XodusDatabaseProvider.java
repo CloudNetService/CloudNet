@@ -30,6 +30,7 @@ import lombok.NonNull;
 
 public class XodusDatabaseProvider extends NodeDatabaseProvider {
 
+  protected final I18n i18n;
   protected final boolean runsInCluster;
   protected final File databaseDirectory;
 
@@ -37,9 +38,10 @@ public class XodusDatabaseProvider extends NodeDatabaseProvider {
 
   protected Environment environment;
 
-  public XodusDatabaseProvider(@NonNull File databaseDirectory, boolean runsInCluster) {
+  public XodusDatabaseProvider(@NonNull I18n i18n, @NonNull File databaseDirectory, boolean runsInCluster) {
     super(DEFAULT_REMOVAL_LISTENER);
 
+    this.i18n = i18n;
     this.runsInCluster = runsInCluster;
     this.databaseDirectory = databaseDirectory;
 
@@ -53,7 +55,7 @@ public class XodusDatabaseProvider extends NodeDatabaseProvider {
   @Override
   public boolean init() {
     if (this.runsInCluster) {
-      LocalDatabaseUtil.bigWarningThatEveryoneCanSee(I18n.trans("cluster-local-db-warning"));
+      LocalDatabaseUtil.bigWarningThatEveryoneCanSee(this.i18n.translate("cluster-local-db-warning"));
     }
 
     this.environment = Environments.newInstance(this.databaseDirectory, this.environmentConfig);

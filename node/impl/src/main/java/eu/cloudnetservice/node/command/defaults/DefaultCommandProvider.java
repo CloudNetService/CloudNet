@@ -88,6 +88,7 @@ public final class DefaultCommandProvider implements CommandProvider {
   private static final CloudKey<String> DESCRIPTION_KEY = CloudKey.of("cloudnet:description", String.class);
   private static final CloudKey<String> DOCUMENTATION_KEY = CloudKey.of("cloudnet:documentation", String.class);
 
+  private final I18n i18n;
   private final CommandExceptionHandler exceptionHandler;
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
@@ -95,6 +96,7 @@ public final class DefaultCommandProvider implements CommandProvider {
 
   @Inject
   private DefaultCommandProvider(
+    @NonNull I18n i18n,
     @NonNull DefaultCommandManager commandManager,
     @NonNull AerogelInjectionService injectionService,
     @NonNull CommandExceptionHandler exceptionHandler,
@@ -103,7 +105,7 @@ public final class DefaultCommandProvider implements CommandProvider {
     @NonNull DefaultCommandPostProcessor commandPostProcessor,
     @NonNull DefaultCaptionHandler captionHandler
   ) {
-    // init command manager and annotation parser
+    this.i18n = i18n;
     this.commandManager = commandManager;
     this.commandManager.captionRegistry().registerProvider(captionHandler);
     this.commandManager.captionFormatter(captionHandler);
@@ -122,7 +124,7 @@ public final class DefaultCommandProvider implements CommandProvider {
       if (!description.value().trim().isEmpty()) {
         // check if we have to translate the value
         if (description.translatable()) {
-          return builder.meta(DESCRIPTION_KEY, I18n.trans(description.value()));
+          return builder.meta(DESCRIPTION_KEY, this.i18n.translate(description.value()));
         }
         // just the raw description
         return builder.meta(DESCRIPTION_KEY, description.value());
@@ -198,7 +200,7 @@ public final class DefaultCommandProvider implements CommandProvider {
       // retrieve our own description processed by the @Description annotation
       var description = cloudCommand.commandMeta().getOrSupplyDefault(
         DESCRIPTION_KEY,
-        () -> I18n.trans("command-no-description"));
+        () -> this.i18n.translate("command-no-description"));
       // retrieve the aliases processed by the @CommandAlias annotation
       var aliases = cloudCommand.commandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
       // retrieve the documentation url processed by the @Documentation annotation
@@ -316,8 +318,9 @@ public final class DefaultCommandProvider implements CommandProvider {
     ConfirmationBuilderModifier.install(this.annotationParser);
     var configuration = ConfirmationConfiguration.<CommandSource>builder()
       .cache(CaffeineCache.of(Caffeine.newBuilder().expireAfterWrite(Duration.ofSeconds(30)).build()))
-      .noPendingCommandNotifier(sender -> sender.sendMessage(I18n.trans("command-confirmation-no-requests")))
-      .confirmationRequiredNotifier((sender, _) -> sender.sendMessage(I18n.trans("command-confirmation-required")))
+      .noPendingCommandNotifier(sender -> sender.sendMessage(this.i18n.translate("command-confirmation-no-requests")))
+      .confirmationRequiredNotifier(
+        (sender, _) -> sender.sendMessage(this.i18n.translate("command-confirmation-required")))
       .build();
     var confirmationManager = ConfirmationManager.confirmationManager(configuration);
     this.commandManager.registerCommandPostProcessor(confirmationManager.createPostprocessor());

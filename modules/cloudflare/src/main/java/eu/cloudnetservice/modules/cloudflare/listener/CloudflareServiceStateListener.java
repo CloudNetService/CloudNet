@@ -61,7 +61,7 @@ public final class CloudflareServiceStateListener {
           .thenAccept(detail -> {
             // print out the info about the record if it was created successfully
             if (detail != null) {
-              LOGGER.info(I18n.trans(
+              LOGGER.info(i18n.translate(
                 "module-cloudflare-create-dns-record-for-service",
                 entry.domainName(),
                 event.service().serviceId().name(),
@@ -81,7 +81,7 @@ public final class CloudflareServiceStateListener {
           this.recordManager.deleteRecord(record).thenAccept(deleted -> {
             // print a message if the record was deleted successfully
             if (deleted) {
-              LOGGER.info(I18n.trans(
+              LOGGER.info(i18n.translate(
                 "module-cloudflare-delete-dns-record-for-service",
                 entry.domainName(),
                 event.service().serviceId().name(),

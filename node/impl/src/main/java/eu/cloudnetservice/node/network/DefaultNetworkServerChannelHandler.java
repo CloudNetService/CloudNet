@@ -42,6 +42,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkServerChannelHandler.class);
 
+  private final I18n i18n;
   private final EventManager eventManager;
   private final NodeNetworkUtil networkUtil;
   private final Configuration configuration;
@@ -50,12 +51,14 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
 
   @Inject
   public DefaultNetworkServerChannelHandler(
+    @NonNull I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull Configuration configuration,
     @NonNull NodeServerProvider nodeServerProvider,
     @NonNull CloudServiceManager cloudServiceManager
   ) {
+    this.i18n = i18n;
     this.eventManager = eventManager;
     this.networkUtil = networkUtil;
     this.configuration = configuration;
@@ -77,7 +80,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         AuthorizationPacketListener.class);
 
-      LOGGER.debug(I18n.trans("server-network-channel-init",
+      LOGGER.debug(this.i18n.translate("server-network-channel-init",
         channel.serverAddress(),
         channel.clientAddress()));
     } else {
@@ -94,7 +97,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
   public void handleChannelClose(@NonNull NetworkChannel channel) {
     this.eventManager.callEvent(new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
-    LOGGER.debug(I18n.trans("server-network-channel-close",
+    LOGGER.debug(this.i18n.translate("server-network-channel-close",
       channel.serverAddress(),
       channel.clientAddress()));
 
@@ -121,7 +124,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
     // reset the service channel and connection time
     cloudService.networkChannel(null);
 
-    LOGGER.info(I18n.trans("cloudnet-service-networking-disconnected",
+    LOGGER.info(this.i18n.translate("cloudnet-service-networking-disconnected",
       cloudService.serviceId().uniqueId(),
       cloudService.serviceId().taskName(),
       cloudService.serviceId().name(),

@@ -39,6 +39,8 @@ import java.util.Set;
 import lombok.NonNull;
 
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
+  
+  private final I18n i18n;
 
   @Inject
   public SpecificTaskSetup(
@@ -46,9 +48,11 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     @NonNull TemplateStorageUtil storageUtil,
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull GroupConfigurationProvider groupProvider,
-    @NonNull ServiceVersionProvider serviceVersionProvider
+    @NonNull ServiceVersionProvider serviceVersionProvider,
+    @NonNull I18n i18n
   ) {
     super(parsers, storageUtil, taskProvider, groupProvider, serviceVersionProvider);
+    this.i18n = i18n;
   }
 
   @Override
@@ -170,6 +174,6 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     // create a group with the same name
     var groupConfiguration = GroupConfiguration.builder().name(name).build();
     this.groupProvider.addGroupConfiguration(groupConfiguration);
-    LOGGER.info(I18n.trans("command-tasks-setup-create-success", task.name()));
+    LOGGER.info(this.i18n.translate("command-tasks-setup-create-success", task.name()));
   }
 }

@@ -43,7 +43,7 @@ public record QuestionListEntry<T>(
     }
 
     public @NonNull Builder<T> translatedQuestion(@NonNull String questionTranslationKey, @NonNull Object... args) {
-      return this.question(() -> I18n.trans(questionTranslationKey, args));
+      return this.question(() -> I18n.i18n().translate(questionTranslationKey, args));
     }
 
     public @NonNull Builder<T> question(@NonNull Supplier<String> question) {

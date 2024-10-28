@@ -61,11 +61,11 @@ public final class GroupsCommand {
   }
 
   @Parser(suggestions = "groupConfiguration")
-  public @NonNull GroupConfiguration defaultGroupParser(@NonNull CommandInput input) {
+  public @NonNull GroupConfiguration defaultGroupParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
+      throw new ArgumentNotAvailableException(i18n.translate("command-general-group-does-not-exist"));
     }
 
     return configuration;
@@ -77,14 +77,16 @@ public final class GroupsCommand {
   }
 
   @Parser(name = "inclusionCacheStrategy", suggestions = "inclusionCacheStrategy")
-  public @NonNull String inclusionCacheStrategyParser(@NonNull CommandInput input) {
+  public @NonNull String inclusionCacheStrategyParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var strategy = input.readString();
     if (strategy.equals(ServiceRemoteInclusion.NO_CACHE_STRATEGY) ||
       strategy.equals(ServiceRemoteInclusion.KEEP_UNTIL_RESTART_STRATEGY)) {
       return strategy;
     }
 
-    throw new ArgumentNotAvailableException(I18n.trans("command-tasks-inclusion-cache-strategy-not-found", strategy));
+    throw new ArgumentNotAvailableException(i18n.translate(
+      "command-tasks-inclusion-cache-strategy-not-found",
+      strategy));
   }
 
   @Suggestions("inclusionCacheStrategy")
@@ -93,25 +95,33 @@ public final class GroupsCommand {
   }
 
   @Command("groups delete <name>")
-  public void deleteGroup(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration configuration) {
+  public void deleteGroup(
+    @NonNull I18n i18n,
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") GroupConfiguration configuration
+  ) {
     this.groupProvider.removeGroupConfiguration(configuration);
-    source.sendMessage(I18n.trans("command-groups-delete-group"));
+    source.sendMessage(i18n.translate("command-groups-delete-group"));
   }
 
   @Command("groups create <name>")
-  public void createGroup(@NonNull CommandSource source, @NonNull @Argument("name") String groupName) {
+  public void createGroup(
+    @NonNull I18n i18n,
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") String groupName
+  ) {
     if (this.groupProvider.groupConfiguration(groupName) != null) {
-      source.sendMessage(I18n.trans("command-groups-group-already-existing", groupName));
+      source.sendMessage(i18n.translate("command-groups-group-already-existing", groupName));
     } else {
       this.groupProvider.addGroupConfiguration(GroupConfiguration.builder().name(groupName).build());
-      source.sendMessage(I18n.trans("command-groups-create-success", groupName));
+      source.sendMessage(i18n.translate("command-groups-create-success", groupName));
     }
   }
 
   @Command("groups reload")
-  public void reloadGroups(@NonNull CommandSource source) {
+  public void reloadGroups(@NonNull I18n i18n, @NonNull CommandSource source) {
     this.groupProvider.reload();
-    source.sendMessage(I18n.trans("command-groups-reload-success"));
+    source.sendMessage(i18n.translate("command-groups-reload-success"));
   }
 
   @Command("groups list")
@@ -140,28 +150,30 @@ public final class GroupsCommand {
 
   @Command("groups rename <oldName> <newName>")
   public void renameGroup(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "oldName") GroupConfiguration group,
     @NonNull @Argument("newName") String newName
   ) {
     if (this.groupProvider.groupConfiguration(newName) != null) {
-      source.sendMessage(I18n.trans("command-groups-group-already-existing", newName));
+      source.sendMessage(i18n.translate("command-groups-group-already-existing", newName));
     } else {
       // create a copy with the new name and remove the old group
       this.groupProvider.removeGroupConfiguration(group);
       this.groupProvider.addGroupConfiguration(GroupConfiguration.builder(group).name(newName).build());
-      source.sendMessage(I18n.trans("command-groups-rename-success", group.name(), newName));
+      source.sendMessage(i18n.translate("command-groups-rename-success", group.name(), newName));
     }
   }
 
   @Command("groups group <name> add environment <environment>")
   public void addEnvironment(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     this.updateGroup(group, builder -> builder.modifyTargetEnvironments(env -> env.add(environmentType.name())));
-    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+    source.sendMessage(i18n.translate("command-groups-add-collection-property",
       "environment",
       environmentType.name(),
       group.name()));
@@ -169,6 +181,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add deployment <deployment>")
   public void addDeployment(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("deployment") ServiceTemplate template,
@@ -183,7 +196,7 @@ public final class GroupsCommand {
       .withDefaultExclusions()
       .build();
     this.updateGroup(group, builder -> builder.modifyDeployments(deployments -> deployments.add(deployment)));
-    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+    source.sendMessage(i18n.translate("command-groups-add-collection-property",
       "deployment",
       deployment.template(),
       group.name()));
@@ -191,12 +204,13 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add template <template>")
   public void addTemplate(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("template") ServiceTemplate template
   ) {
     this.updateGroup(group, builder -> builder.modifyTemplates(templates -> templates.add(template)));
-    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+    source.sendMessage(i18n.translate("command-groups-add-collection-property",
       "template",
       template,
       group.name()));
@@ -204,6 +218,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add inclusion <url> <path> [cacheStrategy]")
   public void addInclusion(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("url") String url,
@@ -219,7 +234,7 @@ public final class GroupsCommand {
       .cacheStrategy(cacheStrategy)
       .build();
     this.updateGroup(group, builder -> builder.modifyInclusions(inclusions -> inclusions.add(inclusion)));
-    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+    source.sendMessage(i18n.translate("command-groups-add-collection-property",
       "inclusion",
       inclusion,
       group.name()));
@@ -227,13 +242,14 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add jvmOption <options>")
   public void addJvmOption(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Greedy @Argument("options") String jvmOptions
   ) {
     var splittedOptions = List.of(jvmOptions.split(" "));
     this.updateGroup(group, builder -> builder.modifyJvmOptions(options -> options.addAll(splittedOptions)));
-    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+    source.sendMessage(i18n.translate("command-groups-add-collection-property",
       "jvmOption",
       jvmOptions,
       group.name()));
@@ -241,6 +257,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add processParameter <options>")
   public void addProcessParameter(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Greedy @Argument("options") String processParameters
@@ -249,7 +266,7 @@ public final class GroupsCommand {
     this.updateGroup(
       group,
       builder -> builder.modifyProcessParameters(parameters -> parameters.addAll(splittedOptions)));
-    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+    source.sendMessage(i18n.translate("command-groups-add-collection-property",
       "processParameter",
       processParameters,
       group.name()));
@@ -257,12 +274,13 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove environment <environment>")
   public void removeEnvironment(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     this.updateGroup(group, builder -> builder.modifyTargetEnvironments(env -> env.remove(environmentType.name())));
-    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+    source.sendMessage(i18n.translate("command-groups-remove-collection-property",
       "environment",
       environmentType.name(),
       group.name()));
@@ -270,6 +288,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove deployment <deployment>")
   public void removeDeployment(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("deployment") ServiceTemplate template,
@@ -285,7 +304,7 @@ public final class GroupsCommand {
       .build();
 
     this.updateGroup(group, builder -> builder.modifyDeployments(deployments -> deployments.remove(deployment)));
-    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+    source.sendMessage(i18n.translate("command-groups-remove-collection-property",
       "deployment",
       deployment.template(),
       group.name()));
@@ -293,12 +312,13 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove template <template>")
   public void removeTemplate(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("template") ServiceTemplate template
   ) {
     this.updateGroup(group, builder -> builder.modifyTemplates(templates -> templates.remove(template)));
-    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+    source.sendMessage(i18n.translate("command-groups-remove-collection-property",
       "template",
       template,
       group.name()));
@@ -306,6 +326,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove inclusion <url> <path>")
   public void removeInclusion(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("url") String url,
@@ -313,7 +334,7 @@ public final class GroupsCommand {
   ) {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
     this.updateGroup(group, builder -> builder.modifyInclusions(inclusions -> inclusions.remove(inclusion)));
-    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+    source.sendMessage(i18n.translate("command-groups-remove-collection-property",
       "inclusion",
       inclusion,
       group.name()));
@@ -321,13 +342,14 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove jvmOption <options>")
   public void removeJvmOption(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Greedy @Argument(value = "options") String jvmOptions
   ) {
     var splittedOptions = List.of(jvmOptions.split(" "));
     this.updateGroup(group, builder -> builder.modifyJvmOptions(options -> options.removeAll(splittedOptions)));
-    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+    source.sendMessage(i18n.translate("command-groups-remove-collection-property",
       "jvmOptions",
       jvmOptions,
       group.name()));
@@ -335,6 +357,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove processParameter <options>")
   public void removeProcessParameter(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Greedy @Argument("options") String processParameters
@@ -343,38 +366,44 @@ public final class GroupsCommand {
     this.updateGroup(
       group,
       builder -> builder.modifyProcessParameters(parameters -> parameters.removeAll(splittedOptions)));
-    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+    source.sendMessage(i18n.translate("command-groups-remove-collection-property",
       "processParameter",
       processParameters,
       group.name()));
   }
 
   @Command("groups group <name> clear jvmOptions")
-  public void clearJvmOptions(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration group) {
+  public void clearJvmOptions(
+    @NonNull I18n i18n,
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") GroupConfiguration group
+  ) {
     this.updateGroup(group, builder -> builder.modifyJvmOptions(Collection::clear));
-    source.sendMessage(I18n.trans("command-groups-clear-property",
+    source.sendMessage(i18n.translate("command-groups-clear-property",
       "jvmOptions",
       group.name()));
   }
 
   @Command("groups group <name> clear processParameters")
   public void clearProcessParameters(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group
   ) {
     this.updateGroup(group, builder -> builder.modifyProcessParameters(Collection::clear));
-    source.sendMessage(I18n.trans("command-groups-clear-property",
+    source.sendMessage(i18n.translate("command-groups-clear-property",
       "processParameters",
       group.name()));
   }
 
   @Command("groups group <name> clear inclusions")
   public void clearInclusions(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group
   ) {
     this.updateGroup(group, builder -> builder.modifyInclusions(Collection::clear));
-    source.sendMessage(I18n.trans("command-groups-clear-property",
+    source.sendMessage(i18n.translate("command-groups-clear-property",
       "inclusions",
       group.name()));
   }

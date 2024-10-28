@@ -23,9 +23,12 @@ import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.impl.network.chunk.ChunkedSessionRegistry;
 import eu.cloudnetservice.driver.impl.network.chunk.network.ChunkedPacketListener;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.language.PropertiesTranslationProvider;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.chunk.event.EventChunkHandlerFactory;
+import eu.cloudnetservice.utils.base.io.FileUtil;
+import eu.cloudnetservice.utils.base.resource.ResourceResolver;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ApplicationPostStartEvent;
 import eu.cloudnetservice.wrapper.event.ApplicationPreStartEvent;
@@ -42,12 +45,15 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
@@ -68,11 +74,32 @@ public final class Wrapper {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Wrapper.class);
 
+  public static void loadTranslations(@NonNull I18n i18n) {
+    var resourcePath = Path.of(ResourceResolver.resolveCodeSourceOfClass(Wrapper.class));
+    FileUtil.openZipFile(resourcePath, fs -> {
+      // get the language directory
+      var langDir = fs.getPath("lang/");
+      if (Files.notExists(langDir) || !Files.isDirectory(langDir)) {
+        throw new IllegalStateException("lang/ must be an existing directory inside the jar to load");
+      }
+      // visit each file and register it as a language source
+      FileUtil.walkFileTree(langDir, ($, sub) -> {
+        // try to load and register the language file
+        try (var stream = Files.newInputStream(sub)) {
+          var lang = sub.getFileName().toString().replace(".properties", "");
+          i18n.registerProvider(Locale.forLanguageTag(lang), PropertiesTranslationProvider.fromProperties(stream));
+        } catch (IOException exception) {
+          LOGGER.error("Unable to open language file for reading @ {}", sub, exception);
+        }
+      }, false, "*.properties");
+    });
+  }
+
   @Inject
   @Order(100)
-  private void initI18n() {
-    I18n.loadFromLangPath(Wrapper.class);
-    I18n.language(System.getProperty("cloudnet.wrapper.messages.language", "en_US"));
+  private void initI18n(@NonNull I18n i18n) {
+    loadTranslations(i18n);
+    i18n.selectLanguage(Locale.forLanguageTag(System.getProperty("cloudnet.wrapper.messages.language", "en_US")));
   }
 
   @Inject
