@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.docker.config;
 
-import com.github.dockerjava.api.model.ExposedPort;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,7 +29,7 @@ public record DockerConfiguration(
   @NonNull DockerImage javaImage,
   @NonNull Set<String> volumes,
   @NonNull Set<String> binds,
-  @NonNull Set<ExposedPort> exposedPorts,
+  @NonNull Set<DockerPortMapping> exposedPorts,
   @NonNull String dockerHost,
   @Nullable String dockerCertPath,
   @Nullable String registryUsername,
@@ -71,7 +70,7 @@ public record DockerConfiguration(
 
     private Set<String> volumes = new HashSet<>();
     private Set<String> binds = new HashSet<>();
-    private Set<ExposedPort> exposedPorts = new HashSet<>();
+    private Set<DockerPortMapping> exposedPorts = new HashSet<>();
 
     private String dockerCertPath;
     private String registryUsername;
@@ -120,12 +119,12 @@ public record DockerConfiguration(
       return this;
     }
 
-    public @NonNull Builder exposedPorts(@NonNull Collection<ExposedPort> exposedPorts) {
+    public @NonNull Builder exposedPorts(@NonNull Collection<DockerPortMapping> exposedPorts) {
       this.exposedPorts = new HashSet<>(exposedPorts);
       return this;
     }
 
-    public @NonNull Builder addExposedPort(@NonNull ExposedPort port) {
+    public @NonNull Builder addExposedPort(@NonNull DockerPortMapping port) {
       this.exposedPorts.add(port);
       return this;
     }
@@ -166,9 +165,9 @@ public record DockerConfiguration(
         this.factoryName,
         this.network,
         this.javaImage,
-        this.volumes,
-        this.binds,
-        this.exposedPorts,
+        Set.copyOf(this.volumes),
+        Set.copyOf(this.binds),
+        Set.copyOf(this.exposedPorts),
         this.dockerHost,
         this.dockerCertPath,
         this.registryUsername,

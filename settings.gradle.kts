@@ -72,6 +72,7 @@ initializePrefixedSubProjects("node", "node", "api", "impl")
 initializePrefixedSubProjects("driver", "driver", "api", "impl", "ap")
 initializePrefixedSubProjects("wrapper-jvm", "wrapper-jvm", "api", "impl")
 initializePrefixedSubProjects("modules:bridge", "bridge", "api", "impl")
+initializePrefixedSubProjects("modules:dockerized-services", "dockerized-services", "api", "impl")
 
 fun initializeSubProjects(rootProject: String, vararg names: String) {
   names.forEach {

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.docker.config;
 
-import com.github.dockerjava.api.model.ExposedPort;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.NonNull;
@@ -26,7 +25,7 @@ public record TaskDockerConfig(
   @Nullable DockerImage javaImage,
   @NonNull Set<String> volumes,
   @NonNull Set<String> binds,
-  @NonNull Set<ExposedPort> exposedPorts
+  @NonNull Set<DockerPortMapping> exposedPorts
 ) {
 
   public static @NonNull Builder builder() {
@@ -46,7 +45,7 @@ public record TaskDockerConfig(
     private DockerImage javaImage;
     private Set<String> volumes = new HashSet<>();
     private Set<String> binds = new HashSet<>();
-    private Set<ExposedPort> exposedPorts = new HashSet<>();
+    private Set<DockerPortMapping> exposedPorts = new HashSet<>();
 
     public @NonNull Builder javaImage(@Nullable DockerImage javaImage) {
       this.javaImage = javaImage;
@@ -73,18 +72,22 @@ public record TaskDockerConfig(
       return this;
     }
 
-    public @NonNull Builder addExposedPort(@NonNull ExposedPort port) {
+    public @NonNull Builder addExposedPort(@NonNull DockerPortMapping port) {
       this.exposedPorts.add(port);
       return this;
     }
 
-    public @NonNull Builder exposedPorts(@NonNull Set<ExposedPort> exposedPorts) {
+    public @NonNull Builder exposedPorts(@NonNull Set<DockerPortMapping> exposedPorts) {
       this.exposedPorts = new HashSet<>(exposedPorts);
       return this;
     }
 
     public @NonNull TaskDockerConfig build() {
-      return new TaskDockerConfig(this.javaImage, this.volumes, this.binds, this.exposedPorts);
+      return new TaskDockerConfig(
+        this.javaImage,
+        Set.copyOf(this.volumes),
+        Set.copyOf(this.binds),
+        Set.copyOf(this.exposedPorts));
     }
   }
 }

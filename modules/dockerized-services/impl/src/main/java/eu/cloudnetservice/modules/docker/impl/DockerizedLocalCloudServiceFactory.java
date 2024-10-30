@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.docker;
+package eu.cloudnetservice.modules.docker.impl;
 
 import com.github.dockerjava.api.DockerClient;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
-import eu.cloudnetservice.node.TickLoop;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.service.defaults.factory.BaseLocalCloudServiceFactory;
+import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -33,7 +35,8 @@ import lombok.NonNull;
 @Singleton
 public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
 
-  protected final TickLoop mainThread;
+  protected final I18n i18n;
+  protected final DefaultTickLoop mainThread;
   protected final EventManager eventManager;
   protected final DockerClient dockerClient;
   protected final DockerConfiguration dockerConfiguration;
@@ -41,7 +44,8 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
 
   @Inject
   public DockerizedLocalCloudServiceFactory(
-    @NonNull TickLoop tickLoop,
+    @NonNull I18n i18n,
+    @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
     @NonNull CloudServiceManager cloudServiceManager,
     @NonNull EventManager eventManager,
@@ -50,6 +54,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     @NonNull DockerConfiguration configuration
   ) {
     super(nodeConfig, versionProvider);
+    this.i18n = i18n;
     this.mainThread = tickLoop;
     this.eventManager = eventManager;
     this.cloudServiceManager = cloudServiceManager;
@@ -68,10 +73,11 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     var preparer = manager.servicePreparer(config.serviceId().environment());
     // create the service
     return new DockerizedService(
+      this.i18n,
       this.mainThread,
       this.configuration,
       config,
-      manager,
+      (InternalCloudServiceManager) manager,
       this.eventManager,
       this.versionProvider,
       preparer,

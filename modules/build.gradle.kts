@@ -40,8 +40,8 @@ subprojects {
   }
 
   dependencies {
-    "compileOnly"(rootProject.projects.node)
-    "testImplementation"(rootProject.projects.node)
+    "compileOnly"(rootProject.projects.node.nodeApi)
+    "testImplementation"(rootProject.projects.node.nodeApi)
 
     // generation for platform main classes
     "compileOnly"(rootProject.projects.ext.platformInjectSupport.platformInjectApi)

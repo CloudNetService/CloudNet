@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.docker;
+package eu.cloudnetservice.modules.docker.impl;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
@@ -27,29 +27,31 @@ import com.github.dockerjava.api.model.Capability;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.InternetProtocol;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
+import eu.cloudnetservice.modules.docker.config.DockerPortMapping;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
-import eu.cloudnetservice.node.TickLoop;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.service.CloudServicePostProcessStartEvent;
-import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.defaults.JVMService;
+import eu.cloudnetservice.node.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.version.ServiceVersionProvider;
+import eu.cloudnetservice.utils.base.StringUtil;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +59,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -94,17 +97,26 @@ public class DockerizedService extends JVMService {
   protected volatile ResultCallback<?> stdHolder;
 
   protected DockerizedService(
-    @NonNull TickLoop tickLoop,
+    @NonNull I18n i18n,
+    @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
     @NonNull ServiceConfiguration configuration,
-    @NonNull CloudServiceManager manager,
+    @NonNull InternalCloudServiceManager manager,
     @NonNull EventManager eventManager,
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer,
     @NonNull DockerClient dockerClient,
     @NonNull DockerConfiguration dockerConfiguration
   ) {
-    super(tickLoop, nodeConfig, configuration, manager, eventManager, versionProvider, serviceConfigurationPreparer);
+    super(
+      i18n,
+      tickLoop,
+      nodeConfig,
+      configuration,
+      manager,
+      eventManager,
+      versionProvider,
+      serviceConfigurationPreparer);
 
     this.dockerClient = dockerClient;
     this.configuration = dockerConfiguration;
@@ -164,12 +176,22 @@ public class DockerizedService extends JVMService {
         this.configuration.javaImage());
       var taskExposedPorts = Objects.requireNonNullElse(
         this.readFromTaskConfig(TaskDockerConfig::exposedPorts),
-        Set.<ExposedPort>of());
+        Set.<DockerPortMapping>of());
 
       // combine the task options with the global options
       var volumes = this.collectVolumes();
       var binds = this.collectBinds(wrapperPath);
-      var exposedPorts = Lists.newArrayList(Iterables.concat(taskExposedPorts, this.configuration.exposedPorts()));
+      var exposedPorts = Stream.of(taskExposedPorts, this.configuration.exposedPorts())
+        .flatMap(Collection::stream)
+        .map(portMapping -> {
+          var internetProtocol = switch (portMapping.protocol()) {
+            case TCP -> InternetProtocol.TCP;
+            case UDP -> InternetProtocol.UDP;
+            case SCTP -> InternetProtocol.SCTP;
+          };
+          return new ExposedPort(portMapping.port(), internetProtocol);
+        })
+        .collect(Collectors.toList());
 
       // build the environment variables
       var env = this.serviceConfiguration().environmentVariables().entrySet().stream()

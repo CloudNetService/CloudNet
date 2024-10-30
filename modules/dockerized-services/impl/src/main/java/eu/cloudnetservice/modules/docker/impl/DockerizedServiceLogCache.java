@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.docker;
+package eu.cloudnetservice.modules.docker.impl;
 
 import com.github.dockerjava.api.model.Frame;
 import eu.cloudnetservice.node.config.Configuration;
