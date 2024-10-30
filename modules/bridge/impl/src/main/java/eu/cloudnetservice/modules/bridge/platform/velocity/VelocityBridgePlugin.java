@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.bridge.platform.velocity;
 
 import com.velocitypowered.api.proxy.ProxyServer;
+import eu.cloudnetservice.driver.impl.module.ModuleHelper;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityCloudCommand;

@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;

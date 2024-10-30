@@ -21,10 +21,10 @@ import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializ
 
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
+import io.vavr.Tuple2;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
@@ -72,11 +72,11 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
     this.playerSupplier.get().stream()
       .filter(Objects::nonNull)
       .map(player -> new Tuple2<>(player, this.management.fallback(player)))
-      .filter(pair -> pair.second().isPresent())
-      .map(p -> new Tuple2<>(p.first(), this.proxyServer.getServerInfo(p.second().get().name())))
-      .filter(pair -> pair.second() != null)
+      .filter(pair -> pair._2().isPresent())
+      .map(p -> new Tuple2<>(p._1(), this.proxyServer.getServerInfo(p._2().get().name())))
+      .filter(pair -> pair._2() != null)
       .findFirst()
-      .ifPresent(pair -> pair.first().connect(pair.second()));
+      .ifPresent(pair -> pair._1().connect(pair._2()));
   }
 
   @Override

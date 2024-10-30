@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.bridge.player;
+plugins {
+  alias(libs.plugins.juppiter) apply false
+}
 
-import java.util.UUID;
-import lombok.NonNull;
-
-/**
- * The service player represents a player that is currently connected to a cloudnet service.
- *
- * @param uniqueId the unique id of the player.
- * @param name     the name of the player.
- * @since 4.0
- */
-public record ServicePlayer(@NonNull UUID uniqueId, @NonNull String name) implements Comparable<ServicePlayer> {
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int compareTo(@NonNull ServicePlayer o) {
-    return this.name().compareTo(o.name());
-  }
+dependencies {
+  "api"(libs.adventureApi)
+  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
 }

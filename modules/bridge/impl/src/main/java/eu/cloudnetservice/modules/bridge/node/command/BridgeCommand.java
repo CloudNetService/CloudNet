@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.bridge.node.command;
 
 import eu.cloudnetservice.driver.base.Named;
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
@@ -61,7 +61,7 @@ public class BridgeCommand {
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")
-  public GroupConfiguration bridgeGroupParser(@NonNull CommandInput input) {
+  public GroupConfiguration bridgeGroupParser(@NonNull I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var group = this.groupConfigurationProvider.groupConfiguration(name);
     if (group == null) {
@@ -86,6 +86,7 @@ public class BridgeCommand {
 
   @Command("bridge create entry <targetGroup>")
   public void createBridgeEntry(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "targetGroup", parserName = "bridgeGroups") GroupConfiguration group
   ) {
@@ -104,6 +105,7 @@ public class BridgeCommand {
 
   @Command("bridge task <task> set requiredPermission <permission>")
   public void setRequiredPermission(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("task") Collection<ServiceTask> serviceTasks,
     @NonNull @Argument("permission") String permission

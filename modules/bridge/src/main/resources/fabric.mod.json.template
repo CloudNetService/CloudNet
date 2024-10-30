@@ -1,7 +1,0 @@
-{
-  "license": "Apache 2.0",
-  "mixins": [
-    "cloudnet_bridge.mixins.json"
-  ],
-  "accessWidener": "cloudnet_bridge.accesswidener"
-}

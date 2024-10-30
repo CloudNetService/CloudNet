@@ -18,8 +18,10 @@ package eu.cloudnetservice.modules.bridge.node.player;
 
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerProvider;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,5 +53,25 @@ final class NodePlayerProvider implements PlayerProvider {
   @Override
   public int count() {
     return (int) this.playerSupplier.get().count();
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<CloudPlayer>> playersAsync() {
+    return TaskUtil.supplyAsync(this::players);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<UUID>> uniqueIdsAsync() {
+    return TaskUtil.supplyAsync(this::uniqueIds);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Collection<String>> namesAsync() {
+    return TaskUtil.supplyAsync(this::names);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Integer> countAsync() {
+    return TaskUtil.supplyAsync(this::count);
   }
 }

@@ -17,11 +17,12 @@
 package eu.cloudnetservice.modules.bridge.node.command;
 
 import eu.cloudnetservice.driver.base.Named;
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
@@ -68,7 +69,7 @@ public class PlayersCommand {
   }
 
   @Parser(suggestions = "onlinePlayers")
-  public @NonNull CloudPlayer defaultCloudPlayerParser(@NonNull CommandInput input) {
+  public @NonNull CloudPlayer defaultCloudPlayerParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var identifier = input.readString();
     CloudPlayer player;
 
@@ -93,7 +94,7 @@ public class PlayersCommand {
   }
 
   @Parser(suggestions = "playerService")
-  public @NonNull ServiceInfoSnapshot playerServiceParser(@NonNull CommandInput input) {
+  public @NonNull ServiceInfoSnapshot playerServiceParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var name = input.readString();
     var serviceInfoSnapshot = this.serviceProvider.serviceByName(name);
     if (serviceInfoSnapshot == null) {
@@ -111,7 +112,7 @@ public class PlayersCommand {
   }
 
   @Parser(name = "offlinePlayer")
-  public @NonNull CloudOfflinePlayer defaultCloudOfflinePlayerParser(@NonNull CommandInput input) {
+  public @NonNull CloudOfflinePlayer defaultCloudOfflinePlayerParser(@NonNull CommandInput input, @NonNull I18n i18n) {
     var identifier = input.readString();
     CloudOfflinePlayer player;
 
@@ -192,6 +193,7 @@ public class PlayersCommand {
 
   @Command("players|player|pl player <player> delete")
   public void deletePlayer(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer player
   ) {
@@ -201,6 +203,7 @@ public class PlayersCommand {
 
   @Command("players|player|pl online <player> kick [reason]")
   public void kickPlayer(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
     @Nullable @Quoted @Argument("reason") String reason,
@@ -225,6 +228,7 @@ public class PlayersCommand {
 
   @Command("players|player|pl online <player> message <message>")
   public void messagePlayer(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Greedy @Argument("message") String message
@@ -236,6 +240,7 @@ public class PlayersCommand {
 
   @Command("players|player|pl online <player> connect <server>")
   public void connectPlayer(
+    @NonNull I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Argument("server") ServiceInfoSnapshot server

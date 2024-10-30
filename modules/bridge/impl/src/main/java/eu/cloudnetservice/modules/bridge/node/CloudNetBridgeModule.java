@@ -21,11 +21,11 @@ import static eu.cloudnetservice.modules.bridge.BridgeManagement.BRIDGE_PLAYER_D
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;

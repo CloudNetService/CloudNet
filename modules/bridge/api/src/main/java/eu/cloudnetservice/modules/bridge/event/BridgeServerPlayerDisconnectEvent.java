@@ -19,9 +19,6 @@ package eu.cloudnetservice.modules.bridge.event;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
-import java.time.Duration;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import lombok.NonNull;
 
 /**

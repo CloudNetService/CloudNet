@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.bridge.platform.waterdog;
 
 import dev.waterdog.waterdogpe.ProxyServer;
+import eu.cloudnetservice.driver.impl.module.ModuleHelper;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import eu.cloudnetservice.modules.bridge.platform.waterdog.command.WaterDogPECloudCommand;

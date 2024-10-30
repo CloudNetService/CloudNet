@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import jakarta.inject.Inject;

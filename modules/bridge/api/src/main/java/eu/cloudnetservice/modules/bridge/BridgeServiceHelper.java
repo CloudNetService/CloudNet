@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import eu.cloudnetservice.common.resource.ResourceFormatter;
-import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
@@ -27,6 +25,7 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
@@ -155,7 +154,7 @@ public final class BridgeServiceHelper {
     value = value.replace("%max_heap_usage%", Long.toString(service.processSnapshot().maxHeapMemory()));
     value = value.replace(
       "%cpu_usage%",
-      ResourceFormatter.formatTwoDigitPrecision(service.processSnapshot().cpuUsage()));
+      String.format("%.2f", service.processSnapshot().cpuUsage()));
 
     // bridge information
     var online = service.readProperty(BridgeDocProperties.IS_ONLINE);
@@ -267,7 +266,7 @@ public final class BridgeServiceHelper {
       return false;
     } else {
       // value is present, check if the string contains one of the ingame string values
-      var loweredValue = StringUtil.toLower(value);
+      var loweredValue = value.toLowerCase(Locale.ROOT);
       return loweredValue.contains("ingame") || loweredValue.contains("running") || loweredValue.contains("playing");
     }
   }

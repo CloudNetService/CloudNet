@@ -19,10 +19,10 @@ package eu.cloudnetservice.modules.bridge.platform.velocity;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
-import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
+import io.vavr.Tuple2;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -72,11 +72,11 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
     this.playerSupplier.get().stream()
       .filter(Objects::nonNull)
       .map(player -> new Tuple2<>(player, this.management.fallback(player)))
-      .filter(pair -> pair.second().isPresent())
-      .map(pair -> new Tuple2<>(pair.first(), this.proxyServer.getServer(pair.second().get().name())))
-      .filter(pair -> pair.second().isPresent())
+      .filter(pair -> pair._2().isPresent())
+      .map(pair -> new Tuple2<>(pair._1(), this.proxyServer.getServer(pair._2().get().name())))
+      .filter(pair -> pair._2().isPresent())
       .findFirst()
-      .ifPresent(pair -> pair.first().createConnectionRequest(pair.second().get()).fireAndForget());
+      .ifPresent(pair -> pair._1().createConnectionRequest(pair._2().get()).fireAndForget());
   }
 
   @Override

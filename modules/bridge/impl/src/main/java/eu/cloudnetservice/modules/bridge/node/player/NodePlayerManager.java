@@ -50,6 +50,7 @@ import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.List;
@@ -57,6 +58,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -288,6 +290,68 @@ public class NodePlayerManager implements PlayerManager {
       .send();
     // call the update event locally
     this.eventManager.callEvent(new BridgeDeleteCloudOfflinePlayerEvent(cloudOfflinePlayer));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Integer> onlineCountAsync() {
+    return TaskUtil.supplyAsync(this::onlineCount);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Long> registeredCountAsync() {
+    return TaskUtil.supplyAsync(this::registeredCount);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<CloudPlayer> onlinePlayersAsync(@NonNull UUID uniqueId) {
+    return TaskUtil.supplyAsync(() -> this.onlinePlayer(uniqueId));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<CloudPlayer> firstOnlinePlayerAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.firstOnlinePlayer(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<List<CloudPlayer>> onlinePlayersAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.onlinePlayers(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<List<CloudPlayer>> environmentOnlinePlayersAsync(@NonNull ServiceEnvironmentType env) {
+    return TaskUtil.supplyAsync(() -> this.environmentOnlinePlayers(env));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<CloudOfflinePlayer> offlinePlayerAsync(@NonNull UUID uniqueId) {
+    return TaskUtil.supplyAsync(() -> this.offlinePlayer(uniqueId));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<CloudOfflinePlayer> firstOfflinePlayerAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.firstOfflinePlayer(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<List<CloudOfflinePlayer>> offlinePlayersAsync(@NonNull String name) {
+    return TaskUtil.supplyAsync(() -> this.offlinePlayers(name));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> updateOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
+    return TaskUtil.runAsync(() -> this.updateOfflinePlayer(cloudOfflinePlayer));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> updateOnlinePlayerAsync(@NonNull CloudPlayer cloudPlayer) {
+    return TaskUtil.runAsync(() -> this.updateOnlinePlayer(cloudPlayer));
+  }
+
+  @Override
+  public @NonNull CompletableFuture<Void> deleteCloudOfflinePlayerAsync(
+    @NonNull CloudOfflinePlayer cloudOfflinePlayer
+  ) {
+    return TaskUtil.runAsync(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
   }
 
   @Override

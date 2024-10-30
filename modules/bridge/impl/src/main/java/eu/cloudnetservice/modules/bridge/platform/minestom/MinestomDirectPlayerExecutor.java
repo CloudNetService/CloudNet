@@ -31,13 +31,16 @@ import org.jetbrains.annotations.Nullable;
 final class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
   private final CommandManager commandManager;
+  private final Supplier<MinestomPermissionChecker> permissionChecker;
 
   public MinestomDirectPlayerExecutor(
+    @NonNull Supplier<MinestomPermissionChecker> permissionChecker,
     @NonNull CommandManager commandManager,
     @NonNull UUID uniqueId,
     @NonNull Supplier<? extends Collection<? extends Player>> supplier
   ) {
     super(uniqueId, supplier);
+    this.permissionChecker = permissionChecker;
     this.commandManager = commandManager;
   }
 
@@ -79,7 +82,7 @@ final class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
-      if (permission == null || player.hasPermission(permission)) {
+      if (permission == null || this.permissionChecker.get().hasPermission(player, permission)) {
         player.sendMessage(message);
       }
     });

@@ -18,19 +18,20 @@ package eu.cloudnetservice.modules.bridge.platform;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
+import eu.cloudnetservice.driver.impl.network.rpc.generation.RPCInternalInstanceFactory;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.network.rpc.defaults.generation.RPCInternalInstanceFactory;
-import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallback;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
@@ -47,6 +48,7 @@ import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import io.vavr.Tuple2;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
@@ -229,11 +231,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       // get all services we have cached of the task
       .map(fallback -> new Tuple2<>(fallback, this.anyTaskService(fallback.task(), profile, currentServerName)))
       // filter out all fallbacks that have no services
-      .filter(possibility -> possibility.second().isPresent())
+      .filter(possibility -> possibility._2().isPresent())
       // get the first possibility with the highest priority
-      .min(Comparator.comparing(Tuple2::first))
+      .min(Comparator.comparing(Tuple2::_1))
       // extract the target service
-      .map(Tuple2::second)
+      .map(Tuple2::_2)
       // add the service to the tried ones
       .map(service -> {
         // we cannot flat-map because of the orElseGet

@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.bridge.rpc;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
-import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
+import eu.cloudnetservice.driver.network.object.ObjectMapper;
+import eu.cloudnetservice.driver.network.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.Objects;
