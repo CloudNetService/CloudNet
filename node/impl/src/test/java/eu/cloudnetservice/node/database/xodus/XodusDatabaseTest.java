@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.database.xodus;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.node.impl.database.xodus.XodusDatabaseProvider;
 import eu.cloudnetservice.node.junit.EnableServicesInject;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.nio.file.Path;

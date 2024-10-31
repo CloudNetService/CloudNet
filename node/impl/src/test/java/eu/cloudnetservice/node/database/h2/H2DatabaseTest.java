@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.database.h2;
 
 import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.node.impl.database.h2.H2DatabaseProvider;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.nio.file.Path;
 import java.util.ArrayList;

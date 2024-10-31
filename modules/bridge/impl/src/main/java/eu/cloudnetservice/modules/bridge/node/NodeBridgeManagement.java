@@ -35,7 +35,7 @@ import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.bridge.node.listener.NodeSetupListener;
 import eu.cloudnetservice.modules.bridge.node.network.NodeBridgeChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
-import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import eu.cloudnetservice.node.impl.module.listener.PluginIncludeListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collections;

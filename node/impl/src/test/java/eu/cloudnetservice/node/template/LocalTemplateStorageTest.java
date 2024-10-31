@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.template;
 
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.FileInfo;
+import eu.cloudnetservice.node.impl.template.LocalTemplateStorage;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

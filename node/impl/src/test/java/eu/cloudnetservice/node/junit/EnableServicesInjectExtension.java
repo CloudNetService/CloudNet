@@ -20,7 +20,7 @@ import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.impl.Node;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
