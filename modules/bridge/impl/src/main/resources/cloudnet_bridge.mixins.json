@@ -3,13 +3,13 @@
   "compatibilityLevel": "JAVA_16",
   "package": "eu.cloudnetservice.modules.bridge.platform.fabric.mixin",
   "server": [
-    "forwarding.ClientIntentionPacketMixin",
-    "forwarding.CompressionThresholdMixin",
-    "forwarding.ServerHandshakePacketListenerMixin",
-    "forwarding.ServerLoginPacketListenerMixin",
-    "handling.MinecraftServerMixin",
-    "handling.PlayerListMixin",
-    "payload.CustomPayloadMixin"
+    "eu.cloudnetservice.modules.impl.platform.fabric.mixin.forwarding.ClientIntentionPacketMixin",
+    "eu.cloudnetservice.modules.impl.platform.fabric.mixin.forwarding.CompressionThresholdMixin",
+    "eu.cloudnetservice.modules.impl.platform.fabric.mixin.forwarding.ServerHandshakePacketListenerMixin",
+    "eu.cloudnetservice.modules.impl.platform.fabric.mixin.forwarding.ServerLoginPacketListenerMixin",
+    "eu.cloudnetservice.modules.impl.platform.fabric.mixin.handling.MinecraftServerMixin",
+    "eu.cloudnetservice.modules.impl.platform.fabric.mixin.handling.PlayerListMixin",
+    "eu.cloudnetservice.modules.impl.platform.fabric.mixin.payload.CustomPayloadMixin"
   ],
   "injectors": {
     "defaultRequire": 1
