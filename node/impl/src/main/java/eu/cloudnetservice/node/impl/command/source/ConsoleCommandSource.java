@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.impl.command.source;
 
 import eu.cloudnetservice.driver.registry.AutoService;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
 import java.util.Collection;
 import lombok.NonNull;

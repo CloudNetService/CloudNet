@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.node.command.CommandProvider;
+import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.event.command.CommandInvalidSyntaxEvent;
 import eu.cloudnetservice.node.event.command.CommandNotFoundEvent;

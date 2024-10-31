@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.impl.command.source;
 
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

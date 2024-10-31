@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.impl.service;
 
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.node.service.CloudService;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 

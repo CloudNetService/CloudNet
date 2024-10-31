@@ -21,6 +21,8 @@ import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.CloudServiceManager;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;

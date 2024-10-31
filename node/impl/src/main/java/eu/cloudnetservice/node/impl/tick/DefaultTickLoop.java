@@ -25,6 +25,8 @@ import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.event.instance.CloudNetTickEvent;
 import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
 import eu.cloudnetservice.node.impl.service.InternalCloudServiceManager;
+import eu.cloudnetservice.node.tick.Scheduler;
+import eu.cloudnetservice.node.tick.TickLoop;
 import eu.cloudnetservice.utils.base.concurrent.ListenableTask;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;

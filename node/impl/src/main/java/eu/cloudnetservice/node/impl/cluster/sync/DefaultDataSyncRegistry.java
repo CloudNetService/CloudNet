@@ -20,6 +20,8 @@ import com.google.common.primitives.Ints;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.impl.cluster.sync.prettyprint.GulfHelper;
 import eu.cloudnetservice.node.impl.cluster.sync.prettyprint.GulfPrettyPrint;
 import eu.cloudnetservice.node.impl.console.Console;

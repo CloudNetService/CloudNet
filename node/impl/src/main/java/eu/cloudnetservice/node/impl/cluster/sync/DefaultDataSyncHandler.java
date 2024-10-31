@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.cluster.sync;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.registry.AutoService;
+import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;

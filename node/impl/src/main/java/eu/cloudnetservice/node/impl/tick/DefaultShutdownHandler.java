@@ -26,6 +26,7 @@ import eu.cloudnetservice.node.impl.console.Console;
 import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import eu.cloudnetservice.node.tick.ShutdownHandler;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
