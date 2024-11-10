@@ -32,6 +32,7 @@ import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
+import eu.cloudnetservice.modules.bridge.impl.InternalBridgeManagement;
 import eu.cloudnetservice.modules.bridge.impl.node.listener.NodeSetupListener;
 import eu.cloudnetservice.modules.bridge.impl.node.network.NodeBridgeChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
@@ -42,8 +43,8 @@ import java.util.Collections;
 import lombok.NonNull;
 
 @Singleton
-@Provides(BridgeManagement.class)
-public class NodeBridgeManagement implements BridgeManagement {
+@Provides({InternalBridgeManagement.class, BridgeManagement.class})
+public class NodeBridgeManagement implements InternalBridgeManagement {
 
   private final EventManager eventManager;
   private final PlayerManager playerManager;

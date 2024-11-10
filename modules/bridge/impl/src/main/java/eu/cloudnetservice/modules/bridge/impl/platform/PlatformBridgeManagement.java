@@ -36,6 +36,7 @@ import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallback;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
+import eu.cloudnetservice.modules.bridge.impl.InternalBridgeManagement;
 import eu.cloudnetservice.modules.bridge.impl.platform.fallback.FallbackProfile;
 import eu.cloudnetservice.modules.bridge.impl.platform.listener.PlatformChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.impl.platform.listener.PlatformInformationListener;
@@ -67,7 +68,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement {
+public abstract class PlatformBridgeManagement<P, I> implements InternalBridgeManagement {
 
   protected static final Predicate<ServiceInfoSnapshot> CONNECTED_SERVICE_TESTER = service -> service.connected()
     && service.lifeCycle() == ServiceLifeCycle.RUNNING

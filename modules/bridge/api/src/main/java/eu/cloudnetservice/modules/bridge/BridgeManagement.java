@@ -16,10 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The bridge management is a shared management for all platform dependent bridge implementations.
@@ -49,20 +47,4 @@ public interface BridgeManagement {
    * @throws NullPointerException if the given configuration is null.
    */
   void configuration(@NonNull BridgeConfiguration configuration);
-
-  /**
-   * Registers all services provided by this bridge management to the given service registry.
-   *
-   * @param registry the registry to register the services in.
-   * @throws NullPointerException if the given registry is null.
-   */
-  void registerServices(@NonNull ServiceRegistry registry);
-
-  /**
-   * Execute the post initialization of the bridge management. Populating the caches and applying startup time actions.
-   * <p>
-   * Note: This method should not be used as part of the api and is for internal use only.
-   */
-  @ApiStatus.Internal
-  void postInit();
 }

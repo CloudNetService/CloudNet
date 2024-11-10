@@ -30,6 +30,7 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
+import eu.cloudnetservice.modules.bridge.impl.InternalBridgeManagement;
 import eu.cloudnetservice.modules.bridge.impl.node.command.BridgeCommand;
 import eu.cloudnetservice.modules.bridge.impl.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.impl.rpc.TitleObjectSerializer;
@@ -183,7 +184,7 @@ public final class CloudNetBridgeModule extends DriverModule {
       injectionLayer,
       BridgeConfiguration.class,
       BridgeConfiguration::new,
-      BridgeManagement.class,
+      InternalBridgeManagement.class,
       DocumentFactory.json());
     management.registerServices(serviceRegistry);
     management.postInit();
