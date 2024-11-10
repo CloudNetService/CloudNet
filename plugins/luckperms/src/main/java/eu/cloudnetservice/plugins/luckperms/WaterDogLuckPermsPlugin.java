@@ -30,6 +30,7 @@ import net.luckperms.api.LuckPermsProvider;
   name = "CloudNet-LuckPerms",
   version = "@version@",
   authors = "CloudNetService",
+  pluginFileNames = "waterdog.yml",
   dependencies = @Dependency(name = "LuckPerms"),
   description = "Brings LuckPerms support to all server platforms"
 )
