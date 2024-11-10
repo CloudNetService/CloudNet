@@ -48,7 +48,6 @@ import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
-import eu.cloudnetservice.node.impl.database.LocalDatabase;
 import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import jakarta.inject.Inject;

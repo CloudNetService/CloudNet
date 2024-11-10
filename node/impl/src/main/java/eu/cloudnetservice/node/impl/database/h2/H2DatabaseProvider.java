@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.impl.database.h2;
 
-import eu.cloudnetservice.node.impl.database.LocalDatabase;
+import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.impl.database.sql.SQLDatabaseProvider;
 import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql;
+package eu.cloudnetservice.modules.mysql.impl;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -50,7 +50,7 @@ class MySQLDatabaseTest {
     this.databaseProvider = new MySQLDatabaseProvider(new MySQLConfiguration(
       "test",
       "test",
-      "mysql",
+      "eu/cloudnetservice/modules/mysql/impl",
       List.of(new MySQLConnectionEndpoint(
         "cn_testing",
         new HostAndPort(this.mysqlContainer.getHost(), this.mysqlContainer.getFirstMappedPort())))),

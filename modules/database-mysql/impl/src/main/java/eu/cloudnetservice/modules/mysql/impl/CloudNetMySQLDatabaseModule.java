@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql;
+package eu.cloudnetservice.modules.mysql.impl;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
@@ -25,7 +25,7 @@ import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
-import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.util.List;
@@ -57,7 +57,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
       () -> new MySQLConfiguration(
         "root",
         "123456",
-        "mysql",
+        "eu/cloudnetservice/modules/mysql/config/impl",
         List.of(new MySQLConnectionEndpoint("cloudnet", new HostAndPort("127.0.0.1", 3306)))),
       DocumentFactory.json());
 
@@ -69,6 +69,9 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
-    serviceRegistry.unregisterProvider(NodeDatabaseProvider.class, this.configuration.databaseServiceName());
+    var service = serviceRegistry.registration(NodeDatabaseProvider.class, this.configuration.databaseServiceName());
+    if (service != null) {
+      service.unregister();
+    }
   }
 }

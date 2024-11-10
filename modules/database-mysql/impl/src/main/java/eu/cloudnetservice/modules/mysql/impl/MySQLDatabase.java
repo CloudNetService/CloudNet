@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql;
+package eu.cloudnetservice.modules.mysql.impl;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
-import eu.cloudnetservice.node.database.sql.SQLDatabase;
-import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.sql.SQLDatabase;
+import eu.cloudnetservice.node.impl.database.sql.SQLDatabaseProvider;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql;
+package eu.cloudnetservice.modules.mysql.impl;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.sql.SQLDatabaseProvider;
 import io.vavr.CheckedFunction1;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -82,7 +82,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
-    return this.databaseCache.get(name, $ -> new MySQLDatabase(this, name));
+    return this.databaseCache.get(name, _ -> new MySQLDatabase(this, name));
   }
 
   @Override

@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.database;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
+import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.util.Collection;
 import java.util.Map;

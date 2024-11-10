@@ -22,6 +22,7 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.time.Duration;
 import java.util.Collection;

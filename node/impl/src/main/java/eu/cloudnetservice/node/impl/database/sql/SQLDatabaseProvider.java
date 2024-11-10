@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.impl.database.sql;
 
 import com.github.benmanes.caffeine.cache.RemovalListener;
-import eu.cloudnetservice.node.impl.database.LocalDatabase;
+import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import io.vavr.CheckedFunction1;
 import java.sql.Connection;
