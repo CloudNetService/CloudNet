@@ -22,14 +22,12 @@ import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowedFormatter;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.resource.ResourceFormatter;
-import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.common.util.WildcardUtil;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
@@ -51,7 +49,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.incendo.cloud.annotation.specifier.Greedy;
@@ -126,6 +123,16 @@ public final class ServiceCommand {
     return matchedServices;
   }
 
+  @Parser(suggestions = "service")
+  public @NonNull ServiceInfoSnapshot serviceSnapshotParser(@NonNull CommandInput input) {
+    var name = input.readString();
+    return this.cloudServiceProvider.services().stream()
+      .filter(service -> service.name().equals(name))
+      .findFirst()
+      .orElseThrow(
+        () -> new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found", name)));
+  }
+
   @Command("service|ser list|l")
   public void displayServices(
     @NonNull CommandSource source,
@@ -197,50 +204,38 @@ public final class ServiceCommand {
   @Command("service|ser <name> copy|cp")
   public void copyService(
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "name") Collection<ServiceInfoSnapshot> services,
+    @NonNull @Argument(value = "name") ServiceInfoSnapshot service,
     @Nullable @Flag("template") ServiceTemplate template,
     @Nullable @Flag("excludes") @Quoted String excludes,
     @Nullable @Flag("includes") @Quoted String includes,
     @Flag("case-sensitive") boolean caseSensitive
   ) {
-    // associate all services with a template
-    Collection<Tuple2<SpecificCloudServiceProvider, ServiceTemplate>> targets = services.stream()
-      .map(service -> {
-        if (template != null) {
-          return new Tuple2<>(service.provider(), template);
-        } else {
-          // find a matching template
-          return service.configuration().templates().stream()
-            .filter(st -> st.prefix().equalsIgnoreCase(service.serviceId().taskName()))
-            .filter(st -> st.name().equalsIgnoreCase("default"))
-            .map(st -> new Tuple2<>(service.provider(), st))
-            .findFirst()
-            .orElse(null);
-        }
-      })
-      .collect(Collectors.toSet());
-    // check if we found a result
-    if (targets.isEmpty()) {
+    var serviceProvider = service.provider();
+    var defaultTemplate = serviceProvider.installedTemplates().stream()
+      .filter(st -> st.prefix().equalsIgnoreCase(service.serviceId().taskName()))
+      .filter(st -> st.name().equalsIgnoreCase("default"))
+      .findFirst()
+      .orElse(null);
+    if (template == null && defaultTemplate == null) {
       source.sendMessage(I18n.trans("command-service-copy-no-default-template"));
       return;
     }
+
     // split on a semicolon and try to fix the patterns the user entered
     var parsedExcludes = parseDeploymentPatterns(excludes, caseSensitive);
     var parsedIncludes = parseDeploymentPatterns(includes, caseSensitive);
-    for (var target : targets) {
-      target.first().addServiceDeployment(ServiceDeployment.builder()
-        .template(target.second())
-        .excludes(parsedExcludes)
-        .includes(parsedIncludes)
-        .withDefaultExclusions()
-        .build());
-      target.first().removeAndExecuteDeployments();
-      // send a message for each service we did copy the template of
-      //noinspection ConstantConditions
-      source.sendMessage(I18n.trans("command-service-copy-success",
-        target.first().serviceInfo().name(),
-        target.second().toString()));
-    }
+    serviceProvider.addServiceDeployment(ServiceDeployment.builder()
+      .template(Objects.requireNonNullElse(template, defaultTemplate))
+      .excludes(parsedExcludes)
+      .includes(parsedIncludes)
+      .withDefaultExclusions()
+      .build());
+    serviceProvider.removeAndExecuteDeployments();
+    // send a message for each service we did copy the template of
+    //noinspection ConstantConditions
+    source.sendMessage(I18n.trans("command-service-copy-success",
+      service.serviceId().name(),
+      Objects.requireNonNullElse(template, defaultTemplate)));
   }
 
   @Command("service|ser <name> delete|del")
