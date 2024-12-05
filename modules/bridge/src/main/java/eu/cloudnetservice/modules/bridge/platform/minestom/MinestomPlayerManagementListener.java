@@ -28,7 +28,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
-import net.minestom.server.event.player.AsyncPlayerPreLoginEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 
@@ -52,12 +51,16 @@ public final class MinestomPlayerManagementListener {
     // listen on these events and redirect them into the methods
     var node = EventNode.type("cloudnet-bridge", EventFilter.PLAYER);
     eventHandler.addChild(node
-      .addListener(AsyncPlayerPreLoginEvent.class, this::handleLogin)
+      .addListener(PlayerSpawnEvent.class, this::handleLogin)
       .addListener(PlayerSpawnEvent.class, this::handleJoin)
       .addListener(PlayerDisconnectEvent.class, this::handleDisconnect));
   }
 
-  private void handleLogin(@NonNull AsyncPlayerPreLoginEvent event) {
+  private void handleLogin(@NonNull PlayerSpawnEvent event) {
+    if (!event.isFirstSpawn()) {
+      return;
+    }
+
     var player = event.getPlayer();
     var task = this.management.selfTask();
     // check if the current task is present
@@ -75,7 +78,7 @@ public final class MinestomPlayerManagementListener {
       var permission = task.propertyHolder().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
         this.management.configuration().handleMessage(
-          player.getLocale(),
+          player.,
           "server-join-cancel-because-permission",
           ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
           player::kick);

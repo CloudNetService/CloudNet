@@ -57,7 +57,8 @@ import org.jetbrains.annotations.Nullable;
 @ProvidesFor(platform = "minestom", types = {PlatformBridgeManagement.class, BridgeManagement.class})
 public final class MinestomBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
 
-  private static final BiFunction<Player, String, Boolean> PERM_FUNCTION = Player::hasPermission;
+  private static final BiFunction<Player, String, Boolean> PERM_FUNCTION = (player, _) -> player.getPermissionLevel()
+    > 0;
 
   private final CommandManager commandManager;
   private final ConnectionManager connectionManager;
@@ -131,7 +132,10 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
 
   @Override
   public boolean isOnAnyFallbackInstance(@NonNull Player player) {
-    return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.serverName(), null, player::hasPermission);
+    return this.isOnAnyFallbackInstance(
+      this.ownNetworkServiceInfo.serverName(),
+      null,
+      _ -> player.getPermissionLevel() > 0);
   }
 
   @Override
@@ -141,7 +145,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
 
   @Override
   public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull Player player, @Nullable String currServer) {
-    return this.fallback(player.getUuid(), currServer, null, player::hasPermission);
+    return this.fallback(player.getUuid(), currServer, null, _ -> player.getPermissionLevel() > 0);
   }
 
   @Override
