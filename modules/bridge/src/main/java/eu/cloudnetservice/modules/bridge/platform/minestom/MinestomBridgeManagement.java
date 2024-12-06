@@ -40,9 +40,11 @@ import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
@@ -57,12 +59,10 @@ import org.jetbrains.annotations.Nullable;
 @ProvidesFor(platform = "minestom", types = {PlatformBridgeManagement.class, BridgeManagement.class})
 public final class MinestomBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
 
-  private static final BiFunction<Player, String, Boolean> PERM_FUNCTION = (player, _) -> player.getPermissionLevel()
-    > 0;
-
   private final CommandManager commandManager;
   private final ConnectionManager connectionManager;
   private final PlayerExecutor directGlobalExecutor;
+  private final Supplier<MinestomPermissionChecker> permissionChecker;
 
   @Inject
   public MinestomBridgeManagement(
@@ -71,6 +71,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     @NonNull NetworkClient networkClient,
     @NonNull CommandManager commandManager,
     @NonNull GlobalEventHandler eventHandler,
+    @NonNull ServiceRegistry serviceRegistry,
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ConnectionManager connectionManager,
@@ -90,7 +91,13 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     // init fields
     this.commandManager = commandManager;
     this.connectionManager = connectionManager;
+
+    this.permissionChecker = () -> Objects.requireNonNullElse(
+      serviceRegistry.firstProvider(MinestomPermissionChecker.class),
+      ((player, _) -> player.getPermissionLevel() > 0));
+
     this.directGlobalExecutor = new MinestomDirectPlayerExecutor(
+      this.permissionChecker,
       commandManager,
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       connectionManager::getOnlinePlayers);
@@ -127,7 +134,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
 
   @Override
   public @NonNull BiFunction<Player, String, Boolean> permissionFunction() {
-    return PERM_FUNCTION;
+    return this.permissionChecker.get()::hasPermission;
   }
 
   @Override
@@ -163,6 +170,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
       : new MinestomDirectPlayerExecutor(
+        this.permissionChecker,
         this.commandManager,
         uniqueId,
         () -> Collections.singleton(this.connectionManager.getOnlinePlayerByUuid(uniqueId)));
