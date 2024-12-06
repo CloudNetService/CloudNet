@@ -90,6 +90,7 @@
       "versions": [
         {
           "name": "1.21.4",
+          "cacheFiles": false,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -330,8 +331,8 @@
       ],
       "versions": [
         {
-          "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21.3/latest/download",
+          "name": "1.21.4",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.4/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
