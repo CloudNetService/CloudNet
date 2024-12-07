@@ -14,28 +14,19 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.influx.publish;
+package eu.cloudnetservice.modules.influx.impl.util;
 
-import java.io.Closeable;
-import java.util.Collection;
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
 import lombok.NonNull;
 
-public interface PublisherRegistry extends Closeable {
+public final class PointUtil {
 
-  @NonNull PublisherRegistry registerPublisher(@NonNull Class<? extends Publisher> publisher);
+  private PointUtil() {
+    throw new UnsupportedOperationException();
+  }
 
-  @NonNull PublisherRegistry registerPublisher(@NonNull Publisher publisher);
-
-  @NonNull PublisherRegistry unregisterPublisher(@NonNull Publisher publisher);
-
-  @NonNull PublisherRegistry unregisterPublishers(@NonNull ClassLoader loader);
-
-  @NonNull Collection<Publisher> registeredPublishers();
-
-  void publishData();
-
-  void scheduleTask(int delayTicks);
-
-  @Override
-  void close();
+  public static @NonNull Point point(@NonNull String measurement) {
+    return Point.measurement(measurement).time(System.currentTimeMillis(), WritePrecision.MS);
+  }
 }

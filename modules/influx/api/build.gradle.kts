@@ -14,21 +14,6 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.tick;
-
-import lombok.NonNull;
-
-public interface TickLoop {
-
-  int TPS = 10;
-
-  @NonNull Scheduler scheduler();
-
-  boolean running();
-
-  void pause();
-
-  void resume();
-
-  long currentTick();
+dependencies {
+  "compileOnly"(libs.influxClient)
 }

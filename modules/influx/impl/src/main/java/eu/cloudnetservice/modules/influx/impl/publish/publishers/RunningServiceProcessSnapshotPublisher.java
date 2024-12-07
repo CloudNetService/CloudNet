@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.influx.publish.publishers;
+package eu.cloudnetservice.modules.influx.impl.publish.publishers;
 
 import com.influxdb.client.write.Point;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
+import eu.cloudnetservice.modules.influx.impl.util.PointUtil;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
-import eu.cloudnetservice.modules.influx.util.PointUtil;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Singleton;
 import java.util.Collection;

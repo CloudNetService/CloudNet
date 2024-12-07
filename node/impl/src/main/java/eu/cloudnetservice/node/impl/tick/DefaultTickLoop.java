@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 @Provides({TickLoop.class, Scheduler.class})
 public final class DefaultTickLoop implements TickLoop, Scheduler {
 
-  public static final int TPS = 10;
   public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
 
   // exposed to the package for internal use
@@ -141,7 +140,7 @@ public final class DefaultTickLoop implements TickLoop, Scheduler {
 
   @Override
   public @NonNull Scheduler scheduler() {
-    return null;
+    return this;
   }
 
   public boolean running() {

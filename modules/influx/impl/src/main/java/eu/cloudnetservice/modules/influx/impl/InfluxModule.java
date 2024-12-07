@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.influx;
+package eu.cloudnetservice.modules.influx.impl;
 
 import com.influxdb.client.InfluxDBClientFactory;
 import eu.cloudnetservice.driver.document.DocumentFactory;
@@ -22,11 +22,12 @@ import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.modules.influx.InfluxConfiguration;
+import eu.cloudnetservice.modules.influx.impl.publish.defaults.DefaultPublisherRegistry;
+import eu.cloudnetservice.modules.influx.impl.publish.publishers.ConnectedNodeInfoPublisher;
+import eu.cloudnetservice.modules.influx.impl.publish.publishers.RunningServiceProcessSnapshotPublisher;
 import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
-import eu.cloudnetservice.modules.influx.publish.defaults.DefaultPublisherRegistry;
-import eu.cloudnetservice.modules.influx.publish.publishers.ConnectedNodeInfoPublisher;
-import eu.cloudnetservice.modules.influx.publish.publishers.RunningServiceProcessSnapshotPublisher;
-import eu.cloudnetservice.node.TickLoop;
+import eu.cloudnetservice.node.tick.Scheduler;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 
@@ -34,7 +35,7 @@ import lombok.NonNull;
 public final class InfluxModule extends DriverModule {
 
   @ModuleTask
-  public void start(@NonNull ServiceRegistry serviceRegistry, @NonNull TickLoop mainThread) {
+  public void start(@NonNull ServiceRegistry serviceRegistry, @NonNull Scheduler mainThread) {
     // read the config and connect to influx
     var conf = this.readConfig(
       InfluxConfiguration.class,
@@ -58,6 +59,6 @@ public final class InfluxModule extends DriverModule {
       .registerPublisher(ConnectedNodeInfoPublisher.class)
       .registerPublisher(RunningServiceProcessSnapshotPublisher.class);
     // start the emitting task
-    reg.scheduleTask(conf.publishDelaySeconds() * TickLoop.TPS);
+    reg.scheduleTask(conf.publishDelaySeconds());
   }
 }

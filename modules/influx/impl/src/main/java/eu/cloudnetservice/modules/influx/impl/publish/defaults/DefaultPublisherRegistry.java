@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.influx.publish.defaults;
+package eu.cloudnetservice.modules.influx.impl.publish.defaults;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.WriteApiBlocking;
@@ -22,7 +22,8 @@ import com.influxdb.exceptions.InfluxException;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
-import eu.cloudnetservice.node.TickLoop;
+import eu.cloudnetservice.node.tick.Scheduler;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,15 +36,15 @@ public class DefaultPublisherRegistry implements PublisherRegistry {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPublisherRegistry.class);
 
-  private final TickLoop mainThread;
+  private final Scheduler mainThread;
   private final WriteApiBlocking writeApi;
   private final InfluxDBClient influxClient;
   private final List<Publisher> publishers = new LinkedList<>();
 
   private Future<?> publishFuture;
 
-  public DefaultPublisherRegistry(@NonNull InfluxDBClient influxClient, @NonNull TickLoop tickLoop) {
-    this.mainThread = tickLoop;
+  public DefaultPublisherRegistry(@NonNull InfluxDBClient influxClient, @NonNull Scheduler scheduler) {
+    this.mainThread = scheduler;
     this.influxClient = influxClient;
     this.writeApi = influxClient.getWriteApiBlocking();
   }
@@ -99,11 +100,11 @@ public class DefaultPublisherRegistry implements PublisherRegistry {
   }
 
   @Override
-  public void scheduleTask(int delayTicks) {
+  public void scheduleTask(int delaySeconds) {
     this.publishFuture = this.mainThread.scheduleTask(() -> {
       this.publishData();
       return null;
-    }, delayTicks);
+    }, Duration.ofSeconds(delaySeconds));
   }
 
   @Override
