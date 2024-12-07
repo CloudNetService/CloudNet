@@ -229,7 +229,7 @@ public class JVMService extends AbstractService {
   ) {
     try {
       // prepare the builder and apply the environment variables to it
-      var builder = new ProcessBuilder(arguments).inheritIO().directory(this.serviceDirectory.toFile());
+      var builder = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile());
       for (var entry : this.serviceConfiguration().environmentVariables().entrySet()) {
         // there is no consensus forcing the key of an environment variable to be uppercase
         // however, docker rejects environment variables with a non-uppercase key, so to keep
