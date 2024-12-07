@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.wrapper.transform.spark;
+package eu.cloudnetservice.wrapper.impl.transform.spark;
 
-import eu.cloudnetservice.common.util.StringUtil;
+import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import java.lang.classfile.ClassBuilder;
 import java.lang.classfile.ClassElement;

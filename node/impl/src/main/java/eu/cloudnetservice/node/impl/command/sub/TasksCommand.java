@@ -560,7 +560,7 @@ public final class TasksCommand {
       tasks,
       ServiceTask.Builder::javaCommand,
       "command-tasks-set-property-success",
-      "eu/cloudnetservice/node",
+      "node",
       executable._1());
   }
 
@@ -575,7 +575,7 @@ public final class TasksCommand {
       tasks,
       (builder, $) -> builder.modifyAssociatedNodes(col -> col.add(node)),
       "command-tasks-add-collection-property",
-      "eu/cloudnetservice/node",
+      "node",
       node);
   }
 
@@ -799,7 +799,7 @@ public final class TasksCommand {
       tasks,
       (builder, $) -> builder.modifyAssociatedNodes(col -> col.remove(node)),
       "command-tasks-remove-collection-property",
-      "eu/cloudnetservice/node",
+      "node",
       node);
   }
 

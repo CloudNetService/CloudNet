@@ -51,7 +51,7 @@ public final class CreateCommand {
     @Flag("start") boolean startService,
     @Nullable @Flag("id") Integer id,
     @Nullable @Flag(value = "javaCommand", parserName = "javaCommand") Tuple2<String, JavaVersion> javaCommand,
-    @Nullable @Flag("eu/cloudnetservice/node") String nodeId,
+    @Nullable @Flag("node") String nodeId,
     @Nullable @Flag("memory") Integer memory
   ) {
     var configurationBuilder = ServiceConfiguration.builder(task);
