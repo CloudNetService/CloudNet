@@ -13,3 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+tasks.withType<Jar> {
+  archiveFileName.set(Files.storageS3)
+}
+
+dependencies {
+  "moduleLibrary"(libs.awsSdk)
+  "compileOnly"(projects.utils.utilsBase)
+  "implementation"(projects.modules.storageS3.storageS3Api)
+}
+
+moduleJson {
+  author = "CloudNetService"
+  name = "CloudNet-Storage-S3"
+  main = "eu.cloudnetservice.modules.s3.S3TemplateStorageModule"
+  description = "CloudNet extension, which includes the s3 storage system"
+  runtimeModule = true
+  storesSensitiveData = true
+}
