@@ -23,7 +23,9 @@ dependencies {
 
   "compileOnly"(libs.caffeine)
   "compileOnly"(projects.node.nodeImpl)
-  "testCompileOnly"(projects.node.nodeImpl)
+
+  "testCompileOnly"(libs.caffeine)
+  "testImplementation"(projects.node.nodeImpl)
 
   "implementation"(projects.modules.databaseMongodb.databaseMongodbApi)
 }

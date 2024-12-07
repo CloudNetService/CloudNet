@@ -17,10 +17,3 @@ dependencies {
   "api"(libs.adventureApi)
   "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
 }
-
-moduleJson {
-  name = "CloudNet-Bridge"
-  author = "CloudNetService"
-  main = "eu.cloudnetservice.modules.bridge.node.CloudNetBridgeModule"
-  description = "Bridges service software support between all supported versions for easy CloudNet plugin development"
-}

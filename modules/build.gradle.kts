@@ -21,10 +21,12 @@ plugins {
 }
 
 subprojects {
-  apply(plugin = "eu.cloudnetservice.juppiter")
+  if (name.endsWith("impl")) {
+    apply(plugin = "eu.cloudnetservice.juppiter")
 
-  configurations {
-    getByName("testImplementation").extendsFrom(getByName("moduleLibrary"))
+    configurations {
+      getByName("testImplementation").extendsFrom(getByName("moduleLibrary"))
+    }
   }
 
   repositories {

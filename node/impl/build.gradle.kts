@@ -19,9 +19,9 @@ tasks.withType<Jar> {
   from(projects.driver.driverApi.sourceSets()["main"].output)
   from(projects.driver.driverImpl.sourceSets()["main"].output)
 
-  /*dependsOn(":wrapper-jvm:wrapper-jvm-impl:shadowJar")
+  dependsOn(":wrapper-jvm:wrapper-jvm-impl:shadowJar")
 
-  from("../wrapper-jvm/build/libs") {
+  from("../../wrapper-jvm/impl/build/libs") {
     include(Files.wrapper)
   }
 
@@ -29,7 +29,6 @@ tasks.withType<Jar> {
     from(exportCnlFile(Files.nodeCnl))
     from(exportLanguageFileInformation())
   }
-*/
 }
 
 tasks.withType<JavaCompile> {

@@ -23,12 +23,13 @@ dependencies {
     exclude("com.google.protobuf")
   }
 
-  compileOnly(libs.caffeine)
-  compileOnly(projects.node.nodeImpl)
+  "compileOnly"(libs.caffeine)
+  "compileOnly"(projects.node.nodeImpl)
 
-  api(projects.modules.databaseMysql.databaseMysqlApi)
+  "api"(projects.modules.databaseMysql.databaseMysqlApi)
 
-  testCompileOnly(projects.node.nodeImpl)
+  "testCompileOnly"(libs.caffeine)
+  "testImplementation"(projects.node.nodeImpl)
 }
 
 moduleJson {
