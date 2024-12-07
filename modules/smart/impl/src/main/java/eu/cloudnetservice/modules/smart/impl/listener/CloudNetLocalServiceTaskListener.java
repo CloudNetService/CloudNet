@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.smart.listener;
+package eu.cloudnetservice.modules.smart.impl.listener;
 
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.service.ServiceTask;

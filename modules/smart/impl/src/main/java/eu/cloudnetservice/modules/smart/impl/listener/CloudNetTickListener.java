@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.smart.listener;
+package eu.cloudnetservice.modules.smart.impl.listener;
 
-import eu.cloudnetservice.common.tuple.Tuple2;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -26,13 +25,14 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
-import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
-import eu.cloudnetservice.modules.smart.util.SmartUtil;
+import eu.cloudnetservice.modules.smart.impl.CloudNetSmartModule;
+import eu.cloudnetservice.modules.smart.impl.util.SmartUtil;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.event.instance.CloudNetTickServiceStartEvent;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import io.vavr.Tuple2;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
@@ -233,8 +233,8 @@ public final class CloudNetTickListener {
       .map(node -> new Tuple2<>(node, services.stream()
         .filter(service -> service.serviceId().nodeUniqueId().equals(node.info().uniqueId()))
         .count()))
-      .min(Comparator.comparingLong(Tuple2::second))
-      .map(Tuple2::first)
+      .min(Comparator.comparingLong(Tuple2::_2))
+      .map(Tuple2::_1)
       .orElse(null);
   }
 }

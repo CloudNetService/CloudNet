@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.smart.listener;
+package eu.cloudnetservice.modules.smart.impl.listener;
 
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.driver.event.EventListener;
@@ -23,8 +23,8 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
+import eu.cloudnetservice.modules.smart.impl.CloudNetSmartModule;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePrePrepareEvent;
 import eu.cloudnetservice.node.service.CloudService;

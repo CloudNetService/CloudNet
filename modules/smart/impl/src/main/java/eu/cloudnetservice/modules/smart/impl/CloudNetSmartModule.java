@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.smart;
+package eu.cloudnetservice.modules.smart.impl;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
@@ -22,9 +22,10 @@ import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.modules.smart.listener.CloudNetLocalServiceListener;
-import eu.cloudnetservice.modules.smart.listener.CloudNetLocalServiceTaskListener;
-import eu.cloudnetservice.modules.smart.listener.CloudNetTickListener;
+import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
+import eu.cloudnetservice.modules.smart.impl.listener.CloudNetLocalServiceListener;
+import eu.cloudnetservice.modules.smart.impl.listener.CloudNetLocalServiceTaskListener;
+import eu.cloudnetservice.modules.smart.impl.listener.CloudNetTickListener;
 import eu.cloudnetservice.node.command.CommandProvider;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
