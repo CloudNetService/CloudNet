@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mongodb;
+package eu.cloudnetservice.modules.mongodb.impl;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
 import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
@@ -85,6 +85,6 @@ public class MongoDBDatabaseProvider extends NodeDatabaseProvider {
 
   @Override
   public @NonNull String name() {
-    return "mongodb";
+    return "eu/cloudnetservice/modules/mongodb/impl";
   }
 }

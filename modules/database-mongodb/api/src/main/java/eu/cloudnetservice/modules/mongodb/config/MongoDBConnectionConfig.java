@@ -41,7 +41,7 @@ public class MongoDBConnectionConfig {
 
   public MongoDBConnectionConfig() {
     this(
-      "mongodb",
+      "eu/cloudnetservice/modules/mongodb",
       "127.0.0.1",
       27017,
       "admin",

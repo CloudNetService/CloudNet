@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mongodb;
+package eu.cloudnetservice.modules.mongodb.impl;
 
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
-import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
 
@@ -46,6 +46,9 @@ public class CloudNetMongoDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
-    serviceRegistry.unregisterProvider(NodeDatabaseProvider.class, this.config.databaseServiceName());
+    var registration = serviceRegistry.registration(NodeDatabaseProvider.class, this.config.databaseServiceName());
+    if (registration != null) {
+      registration.unregister();
+    }
   }
 }

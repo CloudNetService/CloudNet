@@ -74,6 +74,7 @@ initializePrefixedSubProjects("wrapper-jvm", "wrapper-jvm", "api", "impl")
 initializePrefixedSubProjects("modules:bridge", "bridge", "api", "impl")
 initializePrefixedSubProjects("modules:cloudflare", "cloudflare", "api", "impl")
 initializePrefixedSubProjects("modules:database-mysql", "database-mysql", "api", "impl")
+initializePrefixedSubProjects("modules:database-mongodb", "database-mongodb", "api", "impl")
 initializePrefixedSubProjects("modules:dockerized-services", "dockerized-services", "api", "impl")
 
 fun initializeSubProjects(rootProject: String, vararg names: String) {

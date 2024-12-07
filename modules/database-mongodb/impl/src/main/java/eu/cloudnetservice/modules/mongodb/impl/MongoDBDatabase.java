@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mongodb;
+package eu.cloudnetservice.modules.mongodb.impl;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -24,8 +24,8 @@ import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
-import eu.cloudnetservice.node.database.AbstractDatabase;
-import eu.cloudnetservice.node.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractDatabase;
+import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
