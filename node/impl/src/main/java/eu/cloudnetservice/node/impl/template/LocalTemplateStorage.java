@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.template;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.FileInfo;
 import eu.cloudnetservice.driver.template.TemplateStorage;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.io.ZipUtil;
 import java.io.IOException;
@@ -249,6 +250,7 @@ public class LocalTemplateStorage implements TemplateStorage {
         .map(path -> {
           var relative = this.storageDirectory.relativize(path);
           return ServiceTemplate.builder()
+            .storage(this.name())
             .prefix(relative.getName(0).toString())
             .name(relative.getName(1).toString())
             .build();
@@ -269,7 +271,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NonNull Path directory,
     @Nullable Predicate<Path> filter
   ) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.deployDirectory(target, directory, filter));
   }
 
   @Override
@@ -277,37 +279,37 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate target,
     @NonNull InputStream inputStream
   ) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.deploy(target, inputStream));
   }
 
   @Override
   public @NonNull CompletableFuture<Boolean> pullAsync(@NonNull ServiceTemplate template, @NonNull Path directory) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.pull(template, directory));
   }
 
   @Override
   public @NonNull CompletableFuture<InputStream> zipTemplateAsync(@NonNull ServiceTemplate template) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.zipTemplate(template));
   }
 
   @Override
   public @NonNull CompletableFuture<ZipInputStream> openZipInputStreamAsync(@NonNull ServiceTemplate template) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.openZipInputStream(template));
   }
 
   @Override
   public @NonNull CompletableFuture<Boolean> deleteAsync(@NonNull ServiceTemplate template) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.delete(template));
   }
 
   @Override
   public @NonNull CompletableFuture<Boolean> createAsync(@NonNull ServiceTemplate template) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.create(template));
   }
 
   @Override
   public @NonNull CompletableFuture<Boolean> containsAsync(@NonNull ServiceTemplate template) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.contains(template));
   }
 
   @Override
@@ -315,7 +317,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate template,
     @NonNull String path
   ) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.appendOutputStream(template, path));
   }
 
   @Override
@@ -323,55 +325,62 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate template,
     @NonNull String path
   ) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.newOutputStream(template, path));
   }
 
   @Override
   public @NonNull CompletableFuture<Boolean> createFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.createFile(template, path));
   }
 
   @Override
-  public @NonNull CompletableFuture<Boolean> createDirectoryAsync(@NonNull ServiceTemplate template,
-    @NonNull String path) {
-    return null;
+  public @NonNull CompletableFuture<Boolean> createDirectoryAsync(
+    @NonNull ServiceTemplate template,
+    @NonNull String path
+  ) {
+    return TaskUtil.supplyAsync(() -> this.createDirectory(template, path));
   }
 
   @Override
   public @NonNull CompletableFuture<Boolean> hasFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.hasFile(template, path));
   }
 
   @Override
   public @NonNull CompletableFuture<Boolean> deleteFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.deleteFile(template, path));
   }
 
   @Override
-  public @NonNull CompletableFuture<InputStream> newInputStreamAsync(@NonNull ServiceTemplate template,
-    @NonNull String path) {
-    return null;
+  public @NonNull CompletableFuture<InputStream> newInputStreamAsync(
+    @NonNull ServiceTemplate template,
+    @NonNull String path
+  ) {
+    return TaskUtil.supplyAsync(() -> this.newInputStream(template, path));
   }
 
   @Override
   public @NonNull CompletableFuture<FileInfo> fileInfoAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return null;
+    return TaskUtil.supplyAsync(() -> this.fileInfo(template, path));
   }
 
   @Override
-  public @NonNull CompletableFuture<Collection<FileInfo>> listFilesAsync(@NonNull ServiceTemplate template,
-    @NonNull String dir, boolean deep) {
-    return null;
+  public @NonNull CompletableFuture<Collection<FileInfo>> listFilesAsync(
+    @NonNull ServiceTemplate template,
+    @NonNull String dir,
+    boolean deep
+  ) {
+    return TaskUtil.supplyAsync(() -> this.listFiles(template, dir, deep));
   }
 
   @Override
   public @NonNull CompletableFuture<Collection<ServiceTemplate>> templatesAsync() {
-    return null;
+    return TaskUtil.supplyAsync(this::templates);
   }
 
   @Override
   public @NonNull CompletableFuture<Void> closeAsync() {
-    return null;
+    return CompletableFuture.completedFuture(null);
   }
 
   protected @NonNull Path getTemplatePath(@NonNull ServiceTemplate template) {
