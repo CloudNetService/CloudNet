@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.labymod.node;
+package eu.cloudnetservice.modules.labymod.impl.platform;
 
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -24,15 +24,18 @@ import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 @Singleton
-final class NodeLabyModListener {
+public class PlatformLabyModListener {
 
   @EventListener
-  public void handleConfigUpdate(@NonNull ChannelMessageReceiveEvent event, @NonNull NodeLabyModManagement management) {
+  public void handleConfigUpdate(
+    @NonNull ChannelMessageReceiveEvent event,
+    @NonNull PlatformLabyModManagement labyModManagement
+  ) {
+    // handle incoming channel messages on the labymod channel
     if (event.channel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)
       && LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.message())) {
-      // read the configuration & write it
-      var configuration = event.content().readObject(LabyModConfiguration.class);
-      management.configurationSilently(configuration);
+      // update the configuration locally
+      labyModManagement.setConfigurationSilently(event.content().readObject(LabyModConfiguration.class));
     }
   }
 }

@@ -14,47 +14,54 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.labymod.platform.bungeecord;
+package eu.cloudnetservice.modules.labymod.impl.platform.velocity;
 
+import com.velocitypowered.api.plugin.PluginContainer;
+import com.velocitypowered.api.proxy.messages.ChannelRegistrar;
+import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.util.ModuleHelper;
+import eu.cloudnetservice.driver.impl.module.ModuleHelper;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
-import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModListener;
+import eu.cloudnetservice.modules.labymod.LabyModManagement;
+import eu.cloudnetservice.modules.labymod.impl.platform.PlatformLabyModListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.api.plugin.PluginManager;
 
 @Singleton
 @PlatformPlugin(
-  platform = "bungeecord",
+  platform = "velocity",
   name = "CloudNet-LabyMod",
   authors = "CloudNetService",
   version = "@version@",
   description = "Displays LabyMod DiscordRPC information when playing on cloudnet a server",
   dependencies = @Dependency(name = "CloudNet-Bridge")
 )
-public class BungeeCordLabyModPlugin implements PlatformEntrypoint {
+public class VelocityLabyModPlugin implements PlatformEntrypoint {
 
-  private final ModuleHelper moduleHelper;
   private final EventManager eventManager;
+  private final ModuleHelper moduleHelper;
 
   @Inject
-  public BungeeCordLabyModPlugin(@NonNull EventManager eventManager, @NonNull ModuleHelper moduleHelper) {
+  public VelocityLabyModPlugin(@NonNull EventManager eventManager, @NonNull ModuleHelper moduleHelper) {
     this.eventManager = eventManager;
     this.moduleHelper = moduleHelper;
   }
 
   @Inject
   public void registerPlatformListener(
-    @NonNull Plugin plugin,
-    @NonNull PluginManager manager,
-    @NonNull BungeeCordLabyModListener listener
+    @NonNull PluginContainer plugin,
+    @NonNull VelocityLabyModListener listener,
+    @NonNull com.velocitypowered.api.event.EventManager eventManager
   ) {
-    manager.registerListener(plugin, listener);
+    eventManager.register(plugin, listener);
+  }
+
+  @Inject
+  public void registerPluginChannel(@NonNull ChannelRegistrar channelRegistrar) {
+    channelRegistrar.register(new LegacyChannelIdentifier(LabyModManagement.LABYMOD_CLIENT_CHANNEL));
   }
 
   @Override

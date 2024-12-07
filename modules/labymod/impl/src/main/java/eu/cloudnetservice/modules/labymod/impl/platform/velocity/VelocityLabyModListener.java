@@ -14,36 +14,35 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.labymod.platform.bungeecord;
+package eu.cloudnetservice.modules.labymod.impl.platform.velocity;
 
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.PluginMessageEvent;
+import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
-import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
+import eu.cloudnetservice.modules.labymod.impl.platform.PlatformLabyModManagement;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.PluginMessageEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
 
 @Singleton
-public final class BungeeCordLabyModListener implements Listener {
+public final class VelocityLabyModListener {
 
   private final PlatformLabyModManagement labyModManagement;
 
   @Inject
-  public BungeeCordLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
+  public VelocityLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
   }
 
-  @EventHandler
+  @Subscribe
   public void handlePluginMessage(@NonNull PluginMessageEvent event) {
     var configuration = this.labyModManagement.configuration();
-    if (configuration.enabled() && event.getTag().equals(LabyModManagement.LABYMOD_CLIENT_CHANNEL)) {
-      if (event.getSender() instanceof ProxiedPlayer player) {
+    if (configuration.enabled() && event.getIdentifier().getId().equals(LabyModManagement.LABYMOD_CLIENT_CHANNEL)) {
+      if (event.getSource() instanceof Player player) {
         this.labyModManagement.handleIncomingClientMessage(
           player.getUniqueId(),
-          player.getServer() == null ? null : player.getServer().getInfo().getName(),
+          player.getCurrentServer().map(server -> server.getServerInfo().getName()).orElse(null),
           event.getData());
       }
     }

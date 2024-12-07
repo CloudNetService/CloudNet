@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.labymod.platform;
+package eu.cloudnetservice.modules.labymod.impl.platform;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.NetworkClient;
@@ -22,9 +22,9 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
-import eu.cloudnetservice.driver.registry.injection.Service;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import eu.cloudnetservice.modules.bridge.impl.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;

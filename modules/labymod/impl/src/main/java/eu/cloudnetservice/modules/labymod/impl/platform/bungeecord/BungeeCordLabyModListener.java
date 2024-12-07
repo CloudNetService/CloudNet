@@ -14,35 +14,36 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.labymod.platform.velocity;
+package eu.cloudnetservice.modules.labymod.impl.platform.bungeecord;
 
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.PluginMessageEvent;
-import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
-import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
+import eu.cloudnetservice.modules.labymod.impl.platform.PlatformLabyModManagement;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
 
 @Singleton
-public final class VelocityLabyModListener {
+public final class BungeeCordLabyModListener implements Listener {
 
   private final PlatformLabyModManagement labyModManagement;
 
   @Inject
-  public VelocityLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
+  public BungeeCordLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
   }
 
-  @Subscribe
+  @EventHandler
   public void handlePluginMessage(@NonNull PluginMessageEvent event) {
     var configuration = this.labyModManagement.configuration();
-    if (configuration.enabled() && event.getIdentifier().getId().equals(LabyModManagement.LABYMOD_CLIENT_CHANNEL)) {
-      if (event.getSource() instanceof Player player) {
+    if (configuration.enabled() && event.getTag().equals(LabyModManagement.LABYMOD_CLIENT_CHANNEL)) {
+      if (event.getSender() instanceof ProxiedPlayer player) {
         this.labyModManagement.handleIncomingClientMessage(
           player.getUniqueId(),
-          player.getCurrentServer().map(server -> server.getServerInfo().getName()).orElse(null),
+          player.getServer() == null ? null : player.getServer().getInfo().getName(),
           event.getData());
       }
     }

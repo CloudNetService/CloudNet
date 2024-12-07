@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.labymod.node;
+package eu.cloudnetservice.modules.labymod.impl.node;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.impl.module.ModuleHelper;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.driver.util.ModuleHelper;
 import eu.cloudnetservice.modules.labymod.config.LabyModBanner;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.modules.labymod.config.LabyModPermissions;
 import eu.cloudnetservice.modules.labymod.config.LabyModServiceDisplay;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
-import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
+import eu.cloudnetservice.node.impl.module.listener.PluginIncludeListener;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;

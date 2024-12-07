@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.labymod.node;
+package eu.cloudnetservice.modules.labymod.impl.node;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
