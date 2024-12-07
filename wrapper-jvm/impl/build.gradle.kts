@@ -48,9 +48,10 @@ dependencies {
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)
+  "annotationProcessor"(projects.driver.driverAp)
 }
 
 applyJarMetadata(
-  "eu.cloudnetservice.wrapper.Main",
+  "eu.cloudnetservice.wrapper.impl.Main",
   "eu.cloudnetservice.wrapper",
-  "eu.cloudnetservice.wrapper.Premain")
+  "eu.cloudnetservice.wrapper.impl.Premain")

@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -49,7 +50,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull GroupConfigurationProvider groupProvider,
     @NonNull ServiceVersionProvider serviceVersionProvider,
-    @NonNull I18n i18n
+    @NonNull @Service I18n i18n
   ) {
     super(parsers, storageUtil, taskProvider, groupProvider, serviceVersionProvider);
     this.i18n = i18n;

@@ -20,6 +20,7 @@ import eu.cloudnetservice.utils.base.io.FileUtil;
 import io.vavr.CheckedConsumer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
 
@@ -103,7 +104,7 @@ public final class ResourceResolver {
     try {
       var codeSource = resolveCodeSourceOfClass(caller);
       var codeSourcePath = Path.of(codeSource);
-      if (codeSource.getScheme().equals("jar")) {
+      if (codeSource.getScheme().equals("jar") || !Files.isDirectory(codeSourcePath)) {
         // the code source is a jar file, we need to open a zip file
         // system of that jar and pass the root path of that to the caller
         FileUtil.openZipFile(codeSourcePath, fs -> {

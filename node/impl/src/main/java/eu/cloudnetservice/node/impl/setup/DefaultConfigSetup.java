@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.impl.module.DefaultModuleProvider;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import eu.cloudnetservice.node.impl.Node;
 import eu.cloudnetservice.node.impl.config.Configuration;
@@ -65,7 +66,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
   @Inject
   public DefaultConfigSetup(
     @NonNull Parsers parsers,
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull ModulesHolder modulesHolder,
     @NonNull Configuration configuration,
     @NonNull ModuleProvider moduleProvider
@@ -87,7 +88,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .key("language")
         .question(() -> "Welcome to the CloudNet Setup! Please choose the language you want to use")
         .answerType(QuestionAnswerType.<Locale>builder()
-          .recommendation(this.i18n.selectedLanguage())
+          .recommendation(this.i18n.selectedLanguage().toLanguageTag())
           .possibleResults(this.i18n.availableLanguages().stream().map(Locale::toLanguageTag).toList())
           .parser(input -> {
             var locale = Locale.forLanguageTag(input);

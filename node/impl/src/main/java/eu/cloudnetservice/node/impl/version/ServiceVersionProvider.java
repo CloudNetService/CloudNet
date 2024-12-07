@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.node.impl.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.node.impl.template.listener.TemplatePrepareListener;
@@ -75,7 +76,7 @@ public class ServiceVersionProvider {
 
   @Inject
   public ServiceVersionProvider(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull ConsoleProgressWrappers consoleProgressWrappers
   ) {

@@ -17,8 +17,9 @@
 package eu.cloudnetservice.node.impl.database.xodus;
 
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import eu.cloudnetservice.node.impl.database.util.LocalDatabaseUtil;
 import java.io.File;
 import java.util.Collection;
@@ -28,7 +29,7 @@ import jetbrains.exodus.env.Environments;
 import jetbrains.exodus.env.StoreConfig;
 import lombok.NonNull;
 
-public class XodusDatabaseProvider extends NodeDatabaseProvider {
+public class XodusDatabaseProvider extends AbstractNodeDatabaseProvider {
 
   protected final I18n i18n;
   protected final boolean runsInCluster;
@@ -38,7 +39,7 @@ public class XodusDatabaseProvider extends NodeDatabaseProvider {
 
   protected Environment environment;
 
-  public XodusDatabaseProvider(@NonNull I18n i18n, @NonNull File databaseDirectory, boolean runsInCluster) {
+  public XodusDatabaseProvider(@NonNull @Service I18n i18n, @NonNull File databaseDirectory, boolean runsInCluster) {
     super(DEFAULT_REMOVAL_LISTENER);
 
     this.i18n = i18n;

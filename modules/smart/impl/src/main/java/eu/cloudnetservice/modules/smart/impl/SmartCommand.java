@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.smart.impl;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -50,7 +51,7 @@ public class SmartCommand {
   }
 
   @Parser(name = "smartTask", suggestions = "smartTask")
-  public @NonNull ServiceTask smartTaskParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ServiceTask smartTaskParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var task = this.taskProvider.serviceTask(input.readString());
     if (task == null) {
       throw new ArgumentNotAvailableException(i18n.translate("command-tasks-task-not-found"));
@@ -72,7 +73,7 @@ public class SmartCommand {
 
   @Command("smart task <task> enabled <enabled>")
   public void enable(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("enabled") boolean enabled
@@ -86,7 +87,7 @@ public class SmartCommand {
 
   @Command("smart task <task> priority <priority>")
   public void priority(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("priority") int priority
@@ -101,7 +102,7 @@ public class SmartCommand {
 
   @Command("smart task <task> maxServices <amount>")
   public void maxServices(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("amount") int maxServices
@@ -116,7 +117,7 @@ public class SmartCommand {
 
   @Command("smart task <task> preparedServices <amount>")
   public void preparedServices(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("amount") int preparedServices
@@ -132,7 +133,7 @@ public class SmartCommand {
 
   @Command("smart task <task> smartMinServiceCount <amount>")
   public void smartMinServiceCount(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("amount") int smartMinServiceCount
@@ -148,7 +149,7 @@ public class SmartCommand {
 
   @Command("smart task <task> splitLogicallyOverNodes <enabled>")
   public void splitLogicallyOverNodes(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("enabled") boolean enabled
@@ -164,7 +165,7 @@ public class SmartCommand {
 
   @Command("smart task <task> directTemplatesAndInclusionsSetup <enabled>")
   public void directTemplatesAndInclusionsSetup(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("enabled") boolean enabled
@@ -179,7 +180,7 @@ public class SmartCommand {
 
   @Command("smart task <task> templateInstaller <installer>")
   public void templateInstaller(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @NonNull @Argument("installer") SmartServiceTaskConfig.TemplateInstaller installer
@@ -194,7 +195,7 @@ public class SmartCommand {
 
   @Command("smart task <task> autoStopTimeByUnusedServiceInSeconds <seconds>")
   public void autoStopTimeByUnusedServiceInSeconds(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("seconds") int seconds
@@ -209,7 +210,7 @@ public class SmartCommand {
 
   @Command("smart task <task> percentOfPlayersToCheckShouldStopTheService <percent>")
   public void percentOfPlayersToCheckShouldStopTheService(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("percent") @Range(min = "0", max = "100") int percent
@@ -224,7 +225,7 @@ public class SmartCommand {
 
   @Command("smart task <task> forAnewInstanceDelayTimeInSeconds <seconds>")
   public void forAnewInstanceDelayTimeInSeconds(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("seconds") int seconds
@@ -239,7 +240,7 @@ public class SmartCommand {
 
   @Command("smart task <task> percentOfPlayersForANewServiceByInstance <percent>")
   public void percentOfPlayersForANewServiceByInstance(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
     @Argument("percent") @Range(min = "0", max = "100") int percent

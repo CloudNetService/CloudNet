@@ -25,7 +25,7 @@ import com.mongodb.client.model.Updates;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.impl.database.AbstractDatabase;
-import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,7 +49,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   protected MongoDBDatabase(
     @NonNull String name,
     @NonNull MongoCollection<org.bson.Document> collection,
-    @NonNull NodeDatabaseProvider provider
+    @NonNull AbstractNodeDatabaseProvider provider
   ) {
     super(name, provider);
 

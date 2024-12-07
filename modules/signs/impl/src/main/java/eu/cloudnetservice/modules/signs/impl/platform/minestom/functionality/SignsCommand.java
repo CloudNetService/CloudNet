@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.signs.impl.platform.minestom.functionality;
 
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.modules.bridge.platform.minestom.MinestomBridgeManagement;
 import eu.cloudnetservice.modules.signs.Sign;
@@ -52,7 +53,7 @@ public class SignsCommand extends Command {
 
   @Inject
   public SignsCommand(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull MinestomSignManagement signManagement,
     @NonNull GroupConfigurationProvider groupProvider,
     @NonNull MinestomBridgeManagement bridgeManagement
@@ -77,7 +78,7 @@ public class SignsCommand extends Command {
     this.addConditionalSyntax(defaultCondition, this::handleCleanupAll, CLEANUP_ALL_LITERAL);
   }
 
-  private @NonNull Argument<String> createTemplatePathArgument(@NonNull I18n i18n) {
+  private @NonNull Argument<String> createTemplatePathArgument(@NonNull @Service I18n i18n) {
     return new ArgumentString("templatePath") {
       @Override
       public @NonNull String parse(@NonNull CommandSender sender, @NonNull String input) throws ArgumentSyntaxException {
@@ -92,7 +93,7 @@ public class SignsCommand extends Command {
   }
 
   private @NonNull ArgumentString createTargetGroupArgument(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull GroupConfigurationProvider groupProvider
   ) {
     return new ArgumentString("targetGroup") {

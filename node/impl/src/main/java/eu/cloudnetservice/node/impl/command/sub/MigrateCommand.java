@@ -19,12 +19,13 @@ package eu.cloudnetservice.node.impl.command.sub;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.impl.command.source.ConsoleCommandSource;
-import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import io.vavr.CheckedConsumer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -58,8 +59,8 @@ public final class MigrateCommand {
   }
 
   @Parser(suggestions = "databaseProvider")
-  public @NonNull NodeDatabaseProvider defaultDatabaseProviderParser(@NonNull I18n i18n, @NonNull CommandInput input) {
-    var abstractDatabaseProvider = this.serviceRegistry.instance(NodeDatabaseProvider.class, input.readString());
+  public @NonNull AbstractNodeDatabaseProvider defaultDatabaseProviderParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
+    var abstractDatabaseProvider = this.serviceRegistry.instance(AbstractNodeDatabaseProvider.class, input.readString());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(i18n.translate("command-migrate-unknown-database-provider"));
@@ -69,17 +70,17 @@ public final class MigrateCommand {
 
   @Suggestions("databaseProvider")
   public @NonNull Stream<String> suggestDatabaseProvider() {
-    return this.serviceRegistry.registrations(NodeDatabaseProvider.class)
+    return this.serviceRegistry.registrations(AbstractNodeDatabaseProvider.class)
       .stream()
       .map(Named::name);
   }
 
   @Command(value = "migrate database|db <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
   public void migrateDatabase(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument("database-from") NodeDatabaseProvider sourceDatabaseProvider,
-    @NonNull @Argument("database-to") NodeDatabaseProvider targetDatabaseProvider,
+    @NonNull @Argument("database-from") AbstractNodeDatabaseProvider sourceDatabaseProvider,
+    @NonNull @Argument("database-to") AbstractNodeDatabaseProvider targetDatabaseProvider,
     @Flag("chunk-size") Integer chunkSize
   ) {
     if (sourceDatabaseProvider.equals(targetDatabaseProvider)) {
@@ -91,8 +92,8 @@ public final class MigrateCommand {
       chunkSize = DEFAULT_CHUNK_SIZE;
     }
 
-    if (!this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, NodeDatabaseProvider::init)
-      || !this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, NodeDatabaseProvider::init)) {
+    if (!this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, AbstractNodeDatabaseProvider::init)
+      || !this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, AbstractNodeDatabaseProvider::init)) {
       return;
     }
 
@@ -111,8 +112,8 @@ public final class MigrateCommand {
       return;
     }
 
-    this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, NodeDatabaseProvider::close);
-    this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, NodeDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, AbstractNodeDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, AbstractNodeDatabaseProvider::close);
 
     source.sendMessage(i18n.translate("command-migrate-success",
       sourceDatabaseProvider.name(),
@@ -120,9 +121,9 @@ public final class MigrateCommand {
   }
 
   private boolean executeIfNotCurrentProvider(
-    @NonNull I18n i18n,
-    @NonNull NodeDatabaseProvider sourceProvider,
-    @NonNull CheckedConsumer<NodeDatabaseProvider> handler
+    @NonNull @Service I18n i18n,
+    @NonNull AbstractNodeDatabaseProvider sourceProvider,
+    @NonNull CheckedConsumer<AbstractNodeDatabaseProvider> handler
   ) {
     if (!this.databaseProvider.equals(sourceProvider)) {
       try {

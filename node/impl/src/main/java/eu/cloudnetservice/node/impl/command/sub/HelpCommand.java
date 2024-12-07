@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.command.sub;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -58,7 +59,7 @@ public final class HelpCommand {
   }
 
   @Parser(suggestions = "commands")
-  public @NonNull CommandInfo defaultCommandInfoParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull CommandInfo defaultCommandInfoParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var command = input.readString();
     var commandInfo = this.commandProvider.command(command);
     if (commandInfo == null) {
@@ -90,7 +91,7 @@ public final class HelpCommand {
 
   @Command("help|ask|? docs <command>")
   public void displayCommandDocs(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("command") CommandInfo commandInfo
   ) {

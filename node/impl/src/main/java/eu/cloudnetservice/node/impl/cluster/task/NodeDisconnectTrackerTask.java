@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.impl.cluster.task;
 
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.impl.cluster.util.QueuedNetworkChannel;
@@ -29,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public record NodeDisconnectTrackerTask(@NonNull I18n i18n, @NonNull NodeServerProvider provider) implements Runnable {
+public record NodeDisconnectTrackerTask(@NonNull @Service I18n i18n, @NonNull NodeServerProvider provider) implements Runnable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeDisconnectTrackerTask.class);
 

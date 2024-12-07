@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.command.sub;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -61,7 +62,7 @@ public final class GroupsCommand {
   }
 
   @Parser(suggestions = "groupConfiguration")
-  public @NonNull GroupConfiguration defaultGroupParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull GroupConfiguration defaultGroupParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
@@ -77,7 +78,7 @@ public final class GroupsCommand {
   }
 
   @Parser(name = "inclusionCacheStrategy", suggestions = "inclusionCacheStrategy")
-  public @NonNull String inclusionCacheStrategyParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull String inclusionCacheStrategyParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var strategy = input.readString();
     if (strategy.equals(ServiceRemoteInclusion.NO_CACHE_STRATEGY) ||
       strategy.equals(ServiceRemoteInclusion.KEEP_UNTIL_RESTART_STRATEGY)) {
@@ -96,7 +97,7 @@ public final class GroupsCommand {
 
   @Command("groups delete <name>")
   public void deleteGroup(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration configuration
   ) {
@@ -106,7 +107,7 @@ public final class GroupsCommand {
 
   @Command("groups create <name>")
   public void createGroup(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") String groupName
   ) {
@@ -119,7 +120,7 @@ public final class GroupsCommand {
   }
 
   @Command("groups reload")
-  public void reloadGroups(@NonNull I18n i18n, @NonNull CommandSource source) {
+  public void reloadGroups(@NonNull @Service I18n i18n, @NonNull CommandSource source) {
     this.groupProvider.reload();
     source.sendMessage(i18n.translate("command-groups-reload-success"));
   }
@@ -150,7 +151,7 @@ public final class GroupsCommand {
 
   @Command("groups rename <oldName> <newName>")
   public void renameGroup(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "oldName") GroupConfiguration group,
     @NonNull @Argument("newName") String newName
@@ -167,7 +168,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add environment <environment>")
   public void addEnvironment(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
@@ -181,7 +182,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add deployment <deployment>")
   public void addDeployment(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("deployment") ServiceTemplate template,
@@ -204,7 +205,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add template <template>")
   public void addTemplate(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("template") ServiceTemplate template
@@ -218,7 +219,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add inclusion <url> <path> [cacheStrategy]")
   public void addInclusion(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("url") String url,
@@ -242,7 +243,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add jvmOption <options>")
   public void addJvmOption(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Greedy @Argument("options") String jvmOptions
@@ -257,7 +258,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> add processParameter <options>")
   public void addProcessParameter(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Greedy @Argument("options") String processParameters
@@ -274,7 +275,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove environment <environment>")
   public void removeEnvironment(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
@@ -288,7 +289,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove deployment <deployment>")
   public void removeDeployment(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("deployment") ServiceTemplate template,
@@ -312,7 +313,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove template <template>")
   public void removeTemplate(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("template") ServiceTemplate template
@@ -326,7 +327,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove inclusion <url> <path>")
   public void removeInclusion(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("url") String url,
@@ -342,7 +343,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove jvmOption <options>")
   public void removeJvmOption(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Greedy @Argument(value = "options") String jvmOptions
@@ -357,7 +358,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> remove processParameter <options>")
   public void removeProcessParameter(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Greedy @Argument("options") String processParameters
@@ -374,7 +375,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> clear jvmOptions")
   public void clearJvmOptions(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group
   ) {
@@ -386,7 +387,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> clear processParameters")
   public void clearProcessParameters(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group
   ) {
@@ -398,7 +399,7 @@ public final class GroupsCommand {
 
   @Command("groups group <name> clear inclusions")
   public void clearInclusions(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group
   ) {

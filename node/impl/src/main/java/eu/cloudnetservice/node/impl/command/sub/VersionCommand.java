@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.impl.command.sub;
 
 import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -92,7 +93,7 @@ public final class VersionCommand {
   }
 
   @Parser(suggestions = "serviceVersionType")
-  public @NonNull ServiceVersionType parseVersionType(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ServiceVersionType parseVersionType(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var versionType = this.serviceVersionProvider.serviceVersionType(input.readString());
     if (versionType != null) {
       return versionType;
@@ -107,7 +108,7 @@ public final class VersionCommand {
   }
 
   @Parser(name = "staticServiceDirectory", suggestions = "staticServices")
-  public @NonNull Path parseStaticServiceDirectory(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull Path parseStaticServiceDirectory(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var suppliedName = input.readString();
     var baseDirectory = this.serviceManager.persistentServicesDirectory();
 
@@ -166,7 +167,7 @@ public final class VersionCommand {
 
   @Command("version|v installtemplate|it <template> <versionType> <version>")
   public void installTemplate(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("template") ServiceTemplate serviceTemplate,
     @NonNull @Argument("versionType") ServiceVersionType versionType,
@@ -192,7 +193,7 @@ public final class VersionCommand {
 
   @Command("version|v installstatic|is <serviceName> <versionType> <version>")
   public void installStaticService(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "serviceName", parserName = "staticServiceDirectory") Path serviceDirectory,
     @NonNull @Argument("versionType") ServiceVersionType versionType,
@@ -217,7 +218,7 @@ public final class VersionCommand {
   }
 
   private @Nullable VersionInstaller buildVersionInstaller(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull Supplier<VersionInstaller.Builder<? extends VersionInstaller, ?>> factory,
     @NonNull ServiceVersionType versionType,
@@ -256,7 +257,7 @@ public final class VersionCommand {
   }
 
   private void executeInstallation(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull VersionInstaller installer,
     boolean force

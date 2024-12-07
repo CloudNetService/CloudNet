@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.event.cluster.NetworkClusterNodeInfoUpdateEvent;
@@ -63,7 +64,7 @@ public final class NodeChannelMessageListener {
   }
 
   @EventListener
-  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event, @NonNull I18n i18n) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event, @NonNull @Service I18n i18n) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // update a single node info snapshot

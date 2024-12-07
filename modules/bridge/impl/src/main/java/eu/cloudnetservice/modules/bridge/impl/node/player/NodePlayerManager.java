@@ -49,7 +49,7 @@ import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -74,7 +74,7 @@ public class NodePlayerManager implements PlayerManager {
   protected final String databaseName;
   protected final EventManager eventManager;
   protected final CommandProvider commandProvider;
-  protected final NodeDatabaseProvider nodeDatabaseProvider;
+  protected final AbstractNodeDatabaseProvider nodeDatabaseProvider;
 
   protected final Map<UUID, CloudPlayer> onlinePlayers = new ConcurrentHashMap<>();
   protected final PlayerProvider allPlayerProvider = new NodePlayerProvider(() -> this.onlinePlayers.values().stream());
@@ -99,7 +99,7 @@ public class NodePlayerManager implements PlayerManager {
     @NonNull CommandProvider commandProvider,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull RPCHandlerRegistry handlerRegistry,
-    @NonNull NodeDatabaseProvider nodeDatabaseProvider
+    @NonNull AbstractNodeDatabaseProvider nodeDatabaseProvider
   ) {
     this.databaseName = BridgeManagement.BRIDGE_PLAYER_DB_NAME;
     this.eventManager = eventManager;

@@ -20,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
@@ -92,7 +93,7 @@ public final class TemplateCommand {
   }
 
   @Parser(suggestions = "serviceTemplate")
-  public @NonNull ServiceTemplate defaultServiceTemplateParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ServiceTemplate defaultServiceTemplateParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var template = ServiceTemplate.parse(input.readString());
     if (template == null || template.findStorage() == null) {
       throw new ArgumentNotAvailableException(i18n.translate("command-template-not-valid"));
@@ -110,7 +111,7 @@ public final class TemplateCommand {
   }
 
   @Parser
-  public @NonNull TemplateStorage defaultTemplateStorageParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull TemplateStorage defaultTemplateStorageParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var storage = input.readString();
     var templateStorage = this.templateStorageProvider.templateStorage(storage);
     if (templateStorage == null) {
@@ -127,7 +128,7 @@ public final class TemplateCommand {
 
   @Parser(suggestions = "version")
   public @NonNull ServiceVersion defaultVersionParser(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandInput input,
     @NonNull CommandContext<?> context
   ) {
@@ -153,7 +154,7 @@ public final class TemplateCommand {
 
   @Parser(suggestions = "serviceEnvironments")
   public @NonNull ServiceEnvironmentType defaultServiceEnvironmentTypeParser(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandInput input
   ) {
     var env = input.readString();
@@ -190,7 +191,7 @@ public final class TemplateCommand {
 
   @Command("template|t delete|rm|del <template>")
   public void deleteTemplate(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("template") ServiceTemplate template
   ) {
@@ -208,7 +209,7 @@ public final class TemplateCommand {
 
   @Command("template|t create <template> <environment>")
   public void createTemplate(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("template") ServiceTemplate template,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
@@ -233,7 +234,7 @@ public final class TemplateCommand {
 
   @Command("template|t copy|cp <sourceTemplate> <targetTemplate>")
   public void copyTemplate(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("sourceTemplate") ServiceTemplate sourceTemplate,
     @NonNull @Argument("targetTemplate") ServiceTemplate targetTemplate

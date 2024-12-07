@@ -69,7 +69,7 @@ public final class ReportCommand {
 
   @Inject
   public ReportCommand(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CloudNetReportModule reportModule,
     @NonNull CloudServiceProvider serviceProvider,
     @NonNull @Service EmitterRegistry emitterRegistry
@@ -81,7 +81,7 @@ public final class ReportCommand {
   }
 
   @Parser(suggestions = "pasteServer")
-  public @NonNull PasteServer defaultPasteServerParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull PasteServer defaultPasteServerParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     return this.reportModule.configuration().pasteServers()
       .stream()

@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.impl.config.Configuration;
@@ -51,7 +52,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
   @Inject
   public DefaultNetworkClientChannelHandler(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull Configuration configuration,

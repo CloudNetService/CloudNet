@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.command.sub;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
@@ -41,7 +42,7 @@ public final class DevCommand {
   private static final List<String> LOG_LEVEL = List.of("OFF", "ERROR", "WARN", "INFO", "DEBUG", "TRACE");
 
   @Parser(suggestions = "logLevel")
-  public @NonNull Level logLevelParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull Level logLevelParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var levelName = input.readString();
     var level = Level.toLevel(levelName, null);
     if (level == null) {
@@ -57,7 +58,7 @@ public final class DevCommand {
   }
 
   @Command("dev set logLevel <level>")
-  public void setLogLevel(@NonNull I18n i18n, @NonNull CommandSource source, @NonNull @Argument("level") Level level) {
+  public void setLogLevel(@NonNull @Service I18n i18n, @NonNull CommandSource source, @NonNull @Argument("level") Level level) {
     var rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     if (rootLogger instanceof Logger logbackLogger) {
       source.sendMessage(String.format("The log level was set to %s", level));

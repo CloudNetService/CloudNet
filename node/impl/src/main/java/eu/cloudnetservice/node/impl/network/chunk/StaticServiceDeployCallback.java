@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.network.chunk;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.io.ZipUtil;
@@ -39,7 +40,7 @@ final class StaticServiceDeployCallback implements ChunkedPacketHandler.Callback
   private final CloudServiceManager cloudServiceManager;
 
   @Inject
-  public StaticServiceDeployCallback(@NonNull I18n i18n, @NonNull CloudServiceManager cloudServiceManager) {
+  public StaticServiceDeployCallback(@NonNull @Service I18n i18n, @NonNull CloudServiceManager cloudServiceManager) {
     this.i18n = i18n;
     this.cloudServiceManager = cloudServiceManager;
   }

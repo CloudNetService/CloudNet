@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.impl.command.sub;
 
 import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -42,7 +43,7 @@ public final class CreateCommand {
 
   @Command("create by <task> <amount>")
   public void createByTask(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull Console console,
     @NonNull CommandSource source,
     @NonNull @Argument("task") ServiceTask task,
@@ -87,7 +88,7 @@ public final class CreateCommand {
   }
 
   private void startServices(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull Console console,
     @NonNull CommandSource source,
     @NonNull ServiceConfiguration configuration,

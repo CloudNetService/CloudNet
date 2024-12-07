@@ -28,6 +28,7 @@ import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -147,7 +148,7 @@ public final class ServiceChannelMessageListener {
   }
 
   @EventListener
-  public void handleRemoteLifecycleChanges(@NonNull CloudServiceLifecycleChangeEvent event, @NonNull I18n i18n) {
+  public void handleRemoteLifecycleChanges(@NonNull CloudServiceLifecycleChangeEvent event, @NonNull @Service I18n i18n) {
     var id = event.serviceInfo().serviceId();
     var replacements = new Object[]{id.uniqueId(), id.taskName(), id.name(), id.nodeUniqueId()};
 

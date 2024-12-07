@@ -18,8 +18,8 @@
   <import class="ch.qos.logback.classic.filter.ThresholdFilter"/>
   <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
   <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
-  <import class="eu.cloudnetservice.eu.cloudnetservice.node.log.QueuedConsoleLogAppender"/>
-  <import class="eu.cloudnetservice.eu.cloudnetservice.node.console.log.ConsoleLogAppender"/>
+  <import class="eu.cloudnetservice.node.impl.log.QueuedConsoleLogAppender"/>
+  <import class="eu.cloudnetservice.node.impl.console.log.ConsoleLogAppender"/>
   <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
 
   <!-- variables used in the logback configuration. Can be set using system properties. -->
@@ -27,7 +27,7 @@
   <variable name="cloudnet.log.level" value="DEBUG"/>
 
   <conversionRule conversionWord="levelColor"
-    class="eu.cloudnetservice.eu.cloudnetservice.node.console.log.ConsoleLevelConversion"/>
+    class="eu.cloudnetservice.node.impl.console.log.ConsoleLevelConversion"/>
   <property name="CONSOLE_PATTERN"
     value="%gray([%boldWhite(%d{dd.MM HH:mm:ss.SSS}%gray(]))) %gray(%levelColor(%-5level%gray(:))) %msg%n"/>
   <appender name="ConsoleLogAppender" class="ConsoleLogAppender">

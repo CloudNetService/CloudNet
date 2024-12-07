@@ -37,7 +37,7 @@ import eu.cloudnetservice.modules.bridge.impl.rpc.TitleObjectSerializer;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
-import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
@@ -73,7 +73,7 @@ public final class CloudNetBridgeModule extends DriverModule {
   @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)
   public void convertOldDatabaseEntries(
     @NonNull ServiceVersionProvider versionProvider,
-    @NonNull NodeDatabaseProvider databaseProvider
+    @NonNull AbstractNodeDatabaseProvider databaseProvider
   ) {
     // read the first player from the database - if the first player is valid we don't need to take a look at the other
     // players in the database as they were already converted

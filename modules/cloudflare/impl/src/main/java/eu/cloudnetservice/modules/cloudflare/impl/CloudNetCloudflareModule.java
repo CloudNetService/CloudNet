@@ -25,6 +25,7 @@ import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfiguration;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
@@ -132,7 +133,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
   public void handleReload(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CloudFlareRecordManager recordManager,
     @NonNull Configuration nodeConfig
   ) {
@@ -252,7 +253,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
   }
 
   private void createRecordsForEntries(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull Configuration nodeConfig,
     @NonNull CloudFlareRecordManager recordManager,
     @NonNull Collection<CloudflareConfigurationEntry> entries

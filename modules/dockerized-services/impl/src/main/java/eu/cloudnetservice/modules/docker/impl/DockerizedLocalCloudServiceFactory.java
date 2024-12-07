@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.docker.impl;
 import com.github.dockerjava.api.DockerClient;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.node.impl.config.Configuration;
@@ -44,7 +45,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
 
   @Inject
   public DockerizedLocalCloudServiceFactory(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
     @NonNull CloudServiceManager cloudServiceManager,

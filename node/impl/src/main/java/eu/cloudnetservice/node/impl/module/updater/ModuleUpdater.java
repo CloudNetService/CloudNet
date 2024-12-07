@@ -18,9 +18,11 @@ package eu.cloudnetservice.node.impl.module.updater;
 
 import eu.cloudnetservice.driver.impl.module.DefaultModuleProvider;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.ext.updater.Updater;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.nio.file.StandardCopyOption;
 import kong.unirest.core.Unirest;
@@ -35,7 +37,8 @@ public final class ModuleUpdater implements Updater<ModuleUpdaterContext> {
 
   private final I18n i18n;
 
-  public ModuleUpdater(@NonNull I18n i18n) {
+  @Inject
+  public ModuleUpdater(@NonNull @Service I18n i18n) {
     this.i18n = i18n;
   }
 

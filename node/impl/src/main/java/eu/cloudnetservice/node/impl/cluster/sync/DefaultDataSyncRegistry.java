@@ -20,6 +20,7 @@ import com.google.common.primitives.Ints;
 import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.impl.cluster.sync.prettyprint.GulfHelper;
@@ -49,7 +50,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   private final Map<String, DataSyncHandler<?>> handlers = new ConcurrentHashMap<>();
 
   @Inject
-  public DefaultDataSyncRegistry(@NonNull I18n i18n, @NonNull Console console) {
+  public DefaultDataSyncRegistry(@NonNull @Service I18n i18n, @NonNull Console console) {
     this.i18n = i18n;
     this.console = console;
   }

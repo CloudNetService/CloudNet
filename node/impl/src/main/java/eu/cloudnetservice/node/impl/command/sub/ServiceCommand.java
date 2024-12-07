@@ -24,6 +24,8 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
@@ -113,7 +115,7 @@ public final class ServiceCommand {
 
   @Parser(suggestions = "service")
   public @NonNull Collection<ServiceInfoSnapshot> wildcardServiceParser(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandInput input
   ) {
     var name = input.readString();
@@ -196,7 +198,7 @@ public final class ServiceCommand {
 
   @Command("service|ser <name> copy|cp")
   public void copyService(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "name") Collection<ServiceInfoSnapshot> services,
     @Nullable @Flag("template") ServiceTemplate template,
@@ -244,7 +246,7 @@ public final class ServiceCommand {
 
   @Command(value = "service|ser <name> screen|toggle", requiredSender = ConsoleCommandSource.class)
   public void toggleScreens(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
@@ -262,7 +264,7 @@ public final class ServiceCommand {
 
   @Command("service|ser <name> includeInclusions")
   public void includeInclusions(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
@@ -274,7 +276,7 @@ public final class ServiceCommand {
 
   @Command("service|ser <name> includeTemplates")
   public void includeTemplates(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
@@ -286,7 +288,7 @@ public final class ServiceCommand {
 
   @Command("service|ser <name> deployResources")
   public void deployResources(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
@@ -309,7 +311,7 @@ public final class ServiceCommand {
 
   @Command("service|ser <name> add deployment <deployment>")
   public void addDeployment(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @NonNull @Argument("deployment") ServiceTemplate template,
@@ -331,7 +333,7 @@ public final class ServiceCommand {
 
   @Command("service|ser <name> add template <template>")
   public void addTemplate(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @NonNull @Argument("template") ServiceTemplate template
@@ -344,7 +346,7 @@ public final class ServiceCommand {
 
   @Command("service|ser <name> add inclusion <url> <path>")
   public void addInclusion(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @NonNull @Argument("url") String url,

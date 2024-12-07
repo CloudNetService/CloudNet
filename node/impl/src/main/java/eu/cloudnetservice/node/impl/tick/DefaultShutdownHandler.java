@@ -21,9 +21,10 @@ import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.impl.console.Console;
-import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.tick.ShutdownHandler;
@@ -56,11 +57,11 @@ public final class DefaultShutdownHandler implements ShutdownHandler {
   private final NetworkServer networkServer;
 
   // database stuff
-  private final NodeDatabaseProvider databaseProvider;
+  private final AbstractNodeDatabaseProvider databaseProvider;
 
   @Inject
   public DefaultShutdownHandler(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull Console console,
     @NonNull ModuleProvider moduleProvider,
     @NonNull CloudServiceManager serviceManager,
@@ -69,7 +70,7 @@ public final class DefaultShutdownHandler implements ShutdownHandler {
     @NonNull ServiceVersionProvider serviceVersionProvider,
     @NonNull NetworkClient networkClient,
     @NonNull NetworkServer networkServer,
-    @NonNull NodeDatabaseProvider databaseProvider
+    @NonNull AbstractNodeDatabaseProvider databaseProvider
   ) {
     this.i18n = i18n;
     this.console = console;

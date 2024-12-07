@@ -21,6 +21,7 @@ import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
@@ -49,7 +50,7 @@ public final class AuthorizationResponsePacketListener implements PacketListener
 
   @Inject
   public AuthorizationResponsePacketListener(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull Configuration configuration,
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull DataSyncRegistry dataSyncRegistry,

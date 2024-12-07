@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.node.impl.command.defaults;
 
+import dev.derklaro.aerogel.Element;
+import dev.derklaro.aerogel.internal.jakarta.JakartaBridge;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
@@ -32,10 +34,17 @@ final class AerogelInjectionService implements InjectionService<CommandSource> {
     try {
       // get the associated data from the input values
       var targetClass = request.injectedClass();
+      var annotations = request.annotationAccessor().annotations();
+
+      var element = annotations.stream()
+        .filter(JakartaBridge::isQualifierAnnotation)
+        .findFirst()
+        .map(Element.forType(targetClass)::requireAnnotation)
+        .orElseGet(() -> Element.forType(targetClass));
       var injectionLayer = InjectionLayer.findLayerOf(targetClass);
 
       // get the instance of the given class from the injection layer
-      return injectionLayer.instance(targetClass);
+      return injectionLayer.instance(element);
     } catch (Exception exception) {
       return null;
     }

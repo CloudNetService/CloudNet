@@ -30,6 +30,7 @@ import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
@@ -129,7 +130,7 @@ public abstract class AbstractService implements InternalCloudService {
   protected volatile ServiceInfoSnapshot currentServiceInfo;
 
   protected AbstractService(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
     @NonNull ServiceConfiguration configuration,

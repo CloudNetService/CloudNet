@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -106,7 +107,7 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "modulePath", suggestions = "modulePath")
-  public @NonNull Path modulePathParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull Path modulePathParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var fileName = input.readString();
     // resolve the path to the module
     var path = this.provider.moduleDirectoryPath().resolve(fileName);
@@ -137,7 +138,7 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "existingModule", suggestions = "existingModule")
-  public @NonNull ModuleWrapper existingModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ModuleWrapper existingModuleParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null) {
@@ -155,7 +156,7 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "toStartModule", suggestions = "toStartModule")
-  public @NonNull ModuleWrapper loadedModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ModuleWrapper loadedModuleParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)) {
@@ -173,7 +174,7 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "toReloadModule", suggestions = "toReloadModule")
-  public @NonNull ModuleWrapper reloadedModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ModuleWrapper reloadedModuleParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)) {
@@ -197,7 +198,7 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "toStopModule", suggestions = "toStopModule")
-  public @NonNull ModuleWrapper stoppedModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ModuleWrapper stoppedModuleParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED)) {
@@ -215,7 +216,7 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "toUnloadModule", suggestions = "toUnloadModule")
-  public @NonNull ModuleWrapper unloadedModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ModuleWrapper unloadedModuleParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var moduleName = input.readString();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
@@ -239,7 +240,7 @@ public final class ModulesCommand {
   }
 
   @Parser(name = "availableModule", suggestions = "availableModules")
-  public @NonNull ModuleEntry availableModuleParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ModuleEntry availableModuleParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     // get the module entry for the given name
     var name = input.readString();
     var entry = this.availableModules
@@ -295,7 +296,7 @@ public final class ModulesCommand {
 
   @Command(value = "modules|module load <module>", requiredSender = ConsoleCommandSource.class)
   public void loadModule(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "modulePath") @Quoted Path path
   ) {
@@ -309,7 +310,7 @@ public final class ModulesCommand {
 
   @Command(value = "modules|module install <module>", requiredSender = ConsoleCommandSource.class)
   public void installModule(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "availableModule") @Greedy ModuleEntry entry,
     @Flag(value = "noChecksumValidation") boolean noChecksumValidation
@@ -398,7 +399,7 @@ public final class ModulesCommand {
 
   @Command(value = "modules|module uninstall <module>", requiredSender = ConsoleCommandSource.class)
   public void uninstallModule(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "module", parserName = "existingModule") ModuleWrapper wrapper
   ) {

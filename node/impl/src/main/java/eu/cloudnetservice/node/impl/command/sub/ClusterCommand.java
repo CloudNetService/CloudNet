@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
 import eu.cloudnetservice.node.cluster.NodeServer;
@@ -119,7 +120,7 @@ public final class ClusterCommand {
   }
 
   @Parser(suggestions = "clusterNodeServer")
-  public @NonNull NodeServer defaultClusterNodeServerParser(@NonNull CommandInput input, @NonNull I18n i18n) {
+  public @NonNull NodeServer defaultClusterNodeServerParser(@NonNull CommandInput input, @NonNull @Service I18n i18n) {
     var nodeServer = this.nodeServerProvider.node(input.readString());
     if (nodeServer == null) {
       throw new ArgumentNotAvailableException(i18n.translate("command-cluster-node-not-found"));
@@ -150,7 +151,7 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "anyHostAndPort")
-  public @NonNull HostAndPort defaultHostAndPortParser(@NonNull CommandInput input, @NonNull I18n i18n) {
+  public @NonNull HostAndPort defaultHostAndPortParser(@NonNull CommandInput input, @NonNull @Service I18n i18n) {
     var address = input.readString();
     var hostAndPort = NetworkUtil.parseHostAndPort(address, true);
     if (hostAndPort == null || NetworkUtil.checkWildcard(hostAndPort)) {
@@ -161,7 +162,7 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "assignableHostAndPort", suggestions = "assignableHostAndPort")
-  public @NonNull HostAndPort assignableHostAndPortParser(@NonNull CommandInput input, @NonNull I18n i18n) {
+  public @NonNull HostAndPort assignableHostAndPortParser(@NonNull CommandInput input, @NonNull @Service I18n i18n) {
     var address = input.readInput();
     var hostAndPort = NetworkUtil.parseHostAndPort(address, false);
     // check if we can parse a host and port form the given input
@@ -182,7 +183,7 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "anyHost")
-  public @NonNull String anyHostParser(@NonNull CommandInput input, @NonNull I18n i18n) {
+  public @NonNull String anyHostParser(@NonNull CommandInput input, @NonNull @Service I18n i18n) {
     var address = input.readString();
     var hostAndPort = NetworkUtil.parseHostAndPort(address, false);
     if (hostAndPort == null || NetworkUtil.checkWildcard(hostAndPort)) {
@@ -193,7 +194,7 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "noNodeId", suggestions = "clusterNode")
-  public @NonNull String noClusterNodeParser(@NonNull CommandInput input, @NonNull I18n i18n) {
+  public @NonNull String noClusterNodeParser(@NonNull CommandInput input, @NonNull @Service I18n i18n) {
     var nodeId = input.readString();
     for (var node : this.configuration.clusterConfig().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
@@ -205,7 +206,7 @@ public final class ClusterCommand {
   }
 
   @Parser(name = "staticService", suggestions = "staticService")
-  public @NonNull String staticServiceParser(@NonNull CommandInput input, @NonNull I18n i18n) {
+  public @NonNull String staticServiceParser(@NonNull CommandInput input, @NonNull @Service I18n i18n) {
     var name = input.readString();
     if (this.serviceProvider.serviceByName(name) != null) {
       throw new ArgumentNotAvailableException(i18n.translate("command-cluster-push-static-service-running"));
@@ -234,7 +235,7 @@ public final class ClusterCommand {
 
   @Command("cluster|clu add <nodeId> <host>")
   public void addNodeToCluster(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
     @NonNull @Argument(value = "host", parserName = "anyHostAndPort") HostAndPort hostAndPort
@@ -245,7 +246,7 @@ public final class ClusterCommand {
 
   @Command("cluster|clu remove <nodeId>")
   public void removeNodeFromCluster(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("nodeId") NetworkClusterNode node
   ) {
@@ -265,7 +266,7 @@ public final class ClusterCommand {
 
   @Command("cluster|clu node <nodeId> set drain <enabled>")
   public void drainNode(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "nodeId") NodeServer nodeServer,
     @Argument("enabled") boolean enabled
@@ -275,7 +276,7 @@ public final class ClusterCommand {
   }
 
   @Command("cluster|clu sync")
-  public void sync(@NonNull I18n i18n, @NonNull CommandSource source) {
+  public void sync(@NonNull @Service I18n i18n, @NonNull CommandSource source) {
     source.sendMessage(i18n.translate("command-cluster-start-sync"));
     // perform a cluster sync that takes care of tasks, groups and more
     this.nodeServerProvider.syncDataIntoCluster();
@@ -283,7 +284,7 @@ public final class ClusterCommand {
 
   @Command("cluster|clu push templates [template]")
   public void pushTemplates(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @Nullable @Argument("template") ServiceTemplate template
   ) {
@@ -302,7 +303,7 @@ public final class ClusterCommand {
 
   @Command("cluster|clu push staticServices [service]")
   public void pushStaticServices(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @Nullable @Argument(value = "service", parserName = "staticService") String service,
     @Flag("overwrite") boolean overwrite
@@ -321,7 +322,7 @@ public final class ClusterCommand {
   }
 
   private void pushStaticService(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull Path servicePath,
     @NonNull String serviceName,
@@ -344,7 +345,7 @@ public final class ClusterCommand {
       });
   }
 
-  private void pushTemplate(@NonNull I18n i18n, @NonNull CommandSource source, @NonNull ServiceTemplate template) {
+  private void pushTemplate(@NonNull @Service I18n i18n, @NonNull CommandSource source, @NonNull ServiceTemplate template) {
     var templateName = template.toString();
     try {
       source.sendMessage(

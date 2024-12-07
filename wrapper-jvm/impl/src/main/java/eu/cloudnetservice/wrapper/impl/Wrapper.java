@@ -27,6 +27,7 @@ import eu.cloudnetservice.driver.language.PropertiesTranslationProvider;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.chunk.event.EventChunkHandlerFactory;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.resource.ResourceResolver;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
@@ -74,7 +75,7 @@ public final class Wrapper {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Wrapper.class);
 
-  public static void loadTranslations(@NonNull I18n i18n) {
+  public static void loadTranslations(@NonNull @Service I18n i18n) {
     var resourcePath = Path.of(ResourceResolver.resolveCodeSourceOfClass(Wrapper.class));
     FileUtil.openZipFile(resourcePath, fs -> {
       // get the language directory
@@ -97,7 +98,7 @@ public final class Wrapper {
 
   @Inject
   @Order(100)
-  private void initI18n(@NonNull I18n i18n) {
+  private void initI18n(@NonNull @Service I18n i18n) {
     loadTranslations(i18n);
     i18n.selectLanguage(Locale.forLanguageTag(System.getProperty("cloudnet.wrapper.messages.language", "en_US")));
   }

@@ -21,6 +21,7 @@ import dev.derklaro.aerogel.Element;
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import dev.derklaro.aerogel.util.Qualifiers;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.node.impl.Node;
 import io.leangen.geantyref.TypeFactory;
 import java.time.Instant;
@@ -42,8 +43,10 @@ public final class Bootstrap {
 
     // initialize injector & install all autoconfigure bindings
     var bootInjectLayer = InjectionLayer.boot();
-    bootInjectLayer.installAutoConfigureBindings(Bootstrap.class.getClassLoader(), "eu/cloudnetservice/node");
+    bootInjectLayer.installAutoConfigureBindings(Bootstrap.class.getClassLoader(), "node");
     bootInjectLayer.installAutoConfigureBindings(Bootstrap.class.getClassLoader(), "driver");
+
+    ServiceRegistry.registry().discoverServices(Node.class);
 
     var rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 

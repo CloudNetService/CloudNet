@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.cloudflare.impl.listener;
 
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
@@ -51,7 +52,7 @@ public final class CloudflareServiceStateListener {
   }
 
   @EventListener
-  public void handlePostStart(@NonNull I18n i18n, @NonNull CloudServicePostLifecycleEvent event) {
+  public void handlePostStart(@NonNull @Service I18n i18n, @NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
         // create the new record
@@ -73,7 +74,7 @@ public final class CloudflareServiceStateListener {
   }
 
   @EventListener
-  public void handlePostStop(@NonNull I18n i18n, @NonNull CloudServicePostLifecycleEvent event) {
+  public void handlePostStop(@NonNull @Service I18n i18n, @NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.STOPPED || event.newLifeCycle() == ServiceLifeCycle.DELETED) {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
         // delete all records of the service

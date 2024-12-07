@@ -25,7 +25,7 @@ import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
-import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.util.List;
@@ -62,14 +62,14 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
       DocumentFactory.json());
 
     serviceRegistry.registerProvider(
-      NodeDatabaseProvider.class,
+      AbstractNodeDatabaseProvider.class,
       this.configuration.databaseServiceName(),
       new MySQLDatabaseProvider(this.configuration, null));
   }
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
-    var service = serviceRegistry.registration(NodeDatabaseProvider.class, this.configuration.databaseServiceName());
+    var service = serviceRegistry.registration(AbstractNodeDatabaseProvider.class, this.configuration.databaseServiceName());
     if (service != null) {
       service.unregister();
     }

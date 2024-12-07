@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChang
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
@@ -47,7 +48,7 @@ public final class NodeDisconnectHandler {
 
   @Inject
   public NodeDisconnectHandler(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull InternalCloudServiceManager serviceManager
   ) {

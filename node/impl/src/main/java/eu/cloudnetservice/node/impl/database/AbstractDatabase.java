@@ -31,9 +31,9 @@ import org.jetbrains.annotations.Nullable;
 public abstract class AbstractDatabase implements LocalDatabase, Database {
 
   protected final String name;
-  protected final NodeDatabaseProvider databaseProvider;
+  protected final AbstractNodeDatabaseProvider databaseProvider;
 
-  protected AbstractDatabase(@NonNull String name, @NonNull NodeDatabaseProvider databaseProvider) {
+  protected AbstractDatabase(@NonNull String name, @NonNull AbstractNodeDatabaseProvider databaseProvider) {
     this.name = name;
     this.databaseProvider = databaseProvider;
   }

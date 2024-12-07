@@ -45,6 +45,7 @@ import eu.cloudnetservice.node.impl.command.defaults.DefaultCommandProvider;
 import eu.cloudnetservice.node.impl.config.Configuration;
 import eu.cloudnetservice.node.impl.console.Console;
 import eu.cloudnetservice.node.impl.console.util.HeaderReader;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import eu.cloudnetservice.node.impl.database.h2.H2DatabaseProvider;
 import eu.cloudnetservice.node.impl.database.xodus.XodusDatabaseProvider;
@@ -103,7 +104,7 @@ public final class Node {
       FileUtil.walkFileTree(langDir, ($, sub) -> {
         // try to load and register the language file
         try (var stream = Files.newInputStream(sub)) {
-          var lang = sub.getFileName().toString().replace(".properties", "");
+          var lang = sub.getFileName().toString().replace('_', '-').replace(".properties", "");
           i18n.registerProvider(Locale.forLanguageTag(lang), PropertiesTranslationProvider.fromProperties(stream));
         } catch (IOException exception) {
           LOGGER.error("Unable to open language file for reading @ {}", sub, exception);
@@ -123,9 +124,9 @@ public final class Node {
 
   @Inject
   @Order(0)
-  private void initLanguage(@NonNull Configuration configuration, @NonNull I18n i18n) {
+  private void initLanguage(@NonNull Configuration configuration, @NonNull @Service I18n i18n) {
     loadTranslations(i18n);
-    i18n.selectLanguage(Locale.forLanguageTag(configuration.language()));
+    i18n.selectLanguage(Locale.forLanguageTag(configuration.language().replace('_', '-')));
   }
 
   @Inject
@@ -146,7 +147,8 @@ public final class Node {
 
   @Inject
   @Order(150)
-  private void loadServiceVersions(@NonNull I18n i18n, @NonNull ServiceVersionProvider serviceVersionProvider) {
+  private void loadServiceVersions(@NonNull @Service I18n i18n,
+    @NonNull ServiceVersionProvider serviceVersionProvider) {
     // load the service versions
     serviceVersionProvider.loadDefaultVersionTypes();
     LOGGER.info(i18n.translate("start-version-provider", serviceVersionProvider.serviceVersionTypes().size()));
@@ -166,7 +168,7 @@ public final class Node {
   @Inject
   @Order(250)
   private void registerDefaultServices(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull Configuration configuration
   ) {
@@ -186,7 +188,7 @@ public final class Node {
   @Inject
   @Order(300)
   private void convertDatabase(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull Configuration configuration,
     @NonNull @Service(name = "xodus") NodeDatabaseProvider xodusProvider
   ) throws Exception { // TODO: remove in 4.1
@@ -221,7 +223,7 @@ public final class Node {
   @Inject
   @Order(350)
   private void updateAndLoadModules(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull ModulesHolder modulesHolder,
     @NonNull ModuleProvider moduleProvider,
     @NonNull ModuleUpdater moduleUpdater,
@@ -241,7 +243,7 @@ public final class Node {
   @Inject
   @Order(400)
   private void initializeDatabaseProvider(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull Configuration configuration,
     @NonNull ServiceRegistry serviceRegistry,
     @NonNull InjectionLayer<?> bootLayer,
@@ -263,7 +265,7 @@ public final class Node {
 
     // bind the provider for dependency injection
     var binding = BindingBuilder.create()
-      .bindAll(DatabaseProvider.class, NodeDatabaseProvider.class)
+      .bindAll(DatabaseProvider.class, NodeDatabaseProvider.class, AbstractNodeDatabaseProvider.class)
       .toInstance(provider);
     bootLayer.install(binding);
 
@@ -301,7 +303,7 @@ public final class Node {
   @Inject
   @Order(550)
   private void bindNetworkListeners(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull Configuration configuration,
     @NonNull NetworkServer networkServer
   ) throws InterruptedException {
@@ -336,7 +338,7 @@ public final class Node {
 
   @Inject
   @Order(600)
-  private void establishNodeConnections(@NonNull I18n i18n, @NonNull NodeServerProvider nodeServerProvider) {
+  private void establishNodeConnections(@NonNull @Service I18n i18n, @NonNull NodeServerProvider nodeServerProvider) {
     // network client init
     var nodeConnections = new Phaser(1);
     Collection<BooleanSupplier> waitingNodeAvailableSuppliers = new LinkedList<>();
@@ -399,7 +401,7 @@ public final class Node {
   @Inject
   @Order(650)
   private void registerDefaultCommands(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull DefaultCommandProvider commandProvider,
     @NonNull Console console
   ) {
@@ -417,7 +419,7 @@ public final class Node {
 
   @Inject
   @Order(750)
-  private void requestClusterDataIfNeeded(@NonNull I18n i18n, @NonNull NodeServerProvider nodeServerProvider) {
+  private void requestClusterDataIfNeeded(@NonNull @Service I18n i18n, @NonNull NodeServerProvider nodeServerProvider) {
     // we are now connected to all nodes - request the full cluster data set if the head node is not the current one
     if (!nodeServerProvider.localNode().head()) {
       LOGGER.info(i18n.translate("start-requesting-data"));
@@ -459,7 +461,7 @@ public final class Node {
   @Inject
   @Order(Integer.MAX_VALUE)
   private void finishStartup(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull EventManager eventManager,
     @NonNull FileDeployCallbackListener callbackListener,

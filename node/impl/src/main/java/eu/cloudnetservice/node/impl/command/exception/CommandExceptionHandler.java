@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.command.exception;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
@@ -57,7 +58,7 @@ public class CommandExceptionHandler {
 
   @Inject
   public CommandExceptionHandler(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandProvider commandProvider,
     @NonNull EventManager eventManager
   ) {

@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.signs.impl.node;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
@@ -63,7 +64,7 @@ public class SignCommand {
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
-  public @NonNull String newConfigurationParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull String newConfigurationParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
@@ -96,7 +97,7 @@ public class SignCommand {
 
   @Command("sign|signs create entry <targetGroup>")
   public void createEntry(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "targetGroup", parserName = "newConfiguration") String targetGroup,
     @Flag("nukkit") boolean nukkit

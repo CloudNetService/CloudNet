@@ -16,67 +16,16 @@
 
 package eu.cloudnetservice.node.impl.database;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.RemovalListener;
-import com.github.benmanes.caffeine.cache.Scheduler;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
-import java.time.Duration;
-import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public abstract class NodeDatabaseProvider implements DatabaseProvider, Named, AutoCloseable {
+public interface NodeDatabaseProvider extends DatabaseProvider, Named, AutoCloseable {
 
-  protected static final Logger LOGGER = LoggerFactory.getLogger(NodeDatabaseProvider.class);
-  protected static final RemovalListener<String, LocalDatabase> DEFAULT_REMOVAL_LISTENER = (key, value, cause) -> {
-    // close the database instance that was removed, unless the database instance was garbage collected
-    if (value != null) {
-      try {
-        value.close();
-      } catch (Exception exception) {
-        LOGGER.error("Exception closing removed database instance {}", value.name(), exception);
-      }
-    }
-  };
-
-  protected final Cache<String, LocalDatabase> databaseCache;
-
-  protected NodeDatabaseProvider(@NonNull RemovalListener<String, LocalDatabase> removalListener) {
-    this.databaseCache = Caffeine.newBuilder()
-      .scheduler(Scheduler.systemScheduler())
-      .expireAfterAccess(Duration.ofMinutes(5))
-      .removalListener(removalListener)
-      .build();
-  }
-
-  public abstract boolean init() throws Exception;
+  boolean init() throws Exception;
 
   @Override
-  public abstract @NonNull LocalDatabase database(@NonNull String name);
-
-  @Override
-  public void close() throws Exception {
-    this.databaseCache.invalidateAll();
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Collection<String>> databaseNamesAsync() {
-    return TaskUtil.supplyAsync(this::databaseNames);
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Boolean> deleteDatabaseAsync(@NonNull String name) {
-    return TaskUtil.supplyAsync(() -> this.deleteDatabase(name));
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Boolean> containsDatabaseAsync(@NonNull String name) {
-    return TaskUtil.supplyAsync(() -> this.containsDatabase(name));
-  }
+  @NonNull
+  LocalDatabase database(@NonNull String name);
 }

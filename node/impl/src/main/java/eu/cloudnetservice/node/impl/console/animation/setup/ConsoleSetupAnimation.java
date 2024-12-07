@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.impl.console.animation.setup;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.impl.console.Console;
 import eu.cloudnetservice.node.impl.console.animation.AbstractConsoleAnimation;
 import eu.cloudnetservice.node.impl.console.animation.setup.answer.QuestionAnswerType;
@@ -73,7 +74,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   private boolean cancellable = true;
 
   public ConsoleSetupAnimation(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull QueuedConsoleLogAppender logHandler,
     @Nullable String header,

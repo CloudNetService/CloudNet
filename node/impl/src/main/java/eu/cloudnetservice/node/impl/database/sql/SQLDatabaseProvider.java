@@ -18,7 +18,7 @@ package eu.cloudnetservice.node.impl.database.sql;
 
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import io.vavr.CheckedFunction1;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 @Deprecated
 @ApiStatus.ScheduledForRemoval(inVersion = "4.1")
-public abstract class SQLDatabaseProvider extends NodeDatabaseProvider {
+public abstract class SQLDatabaseProvider extends AbstractNodeDatabaseProvider {
 
   protected static final String[] TABLE_TYPE = new String[]{"TABLE"};
   protected static final Logger LOGGER = LoggerFactory.getLogger(SQLDatabaseProvider.class);

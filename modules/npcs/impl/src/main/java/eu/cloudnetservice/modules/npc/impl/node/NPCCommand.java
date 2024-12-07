@@ -63,7 +63,7 @@ public class NPCCommand {
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
-  public @NonNull String newConfigurationParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull String newConfigurationParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var configuration = this.groupConfigurationProvider.groupConfiguration(name);
     if (configuration == null) {
@@ -95,7 +95,7 @@ public class NPCCommand {
 
   @Command("npc|npcs create entry <targetGroup>")
   public void createEntry(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "targetGroup", parserName = "newConfiguration") String targetGroup
   ) {

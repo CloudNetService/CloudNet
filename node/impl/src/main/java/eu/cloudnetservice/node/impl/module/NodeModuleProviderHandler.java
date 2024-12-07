@@ -27,6 +27,7 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.node.command.CommandProvider;
@@ -55,7 +56,7 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     @NonNull EventManager eventManager,
     @NonNull CommandProvider commandProvider,
     @NonNull ServiceRegistry serviceRegistry,
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull DataSyncRegistry dataSyncRegistry
   ) {
     super(eventManager, moduleProvider, serviceRegistry);

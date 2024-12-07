@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.impl.command.defaults;
 
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -33,7 +34,7 @@ final class DefaultCaptionHandler implements CaptionProvider<CommandSource>, Cap
   private final I18n i18n;
 
   @Inject
-  DefaultCaptionHandler(@NonNull I18n i18n) {
+  DefaultCaptionHandler(@NonNull @Service I18n i18n) {
     this.i18n = i18n;
   }
 

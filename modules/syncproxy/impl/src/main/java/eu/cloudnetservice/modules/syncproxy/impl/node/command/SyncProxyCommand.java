@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.syncproxy.impl.node.command;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyLoginConfiguration;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyMotd;
@@ -62,7 +63,7 @@ public final class SyncProxyCommand {
 
   @Parser(suggestions = "loginConfiguration")
   public @NonNull SyncProxyLoginConfiguration loginConfigurationParser(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandInput input
   ) {
     var name = input.readString();
@@ -82,7 +83,7 @@ public final class SyncProxyCommand {
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
-  public @NonNull String newConfigurationParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull String newConfigurationParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var configuration = this.groupProvider.groupConfiguration(name);
     if (configuration == null) {
@@ -119,7 +120,7 @@ public final class SyncProxyCommand {
 
   @Command("syncproxy|sp create entry <targetGroup>")
   public void createEntry(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "targetGroup", parserName = "newConfiguration") String name
   ) {
@@ -143,7 +144,7 @@ public final class SyncProxyCommand {
 
   @Command("syncproxy|sp target <targetGroup> set maxPlayers <amount>")
   public void setMaxPlayers(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("amount") int amount
@@ -163,7 +164,7 @@ public final class SyncProxyCommand {
 
   @Command("syncproxy|sp target <targetGroup> whitelist add <name>")
   public void addWhiteList(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @NonNull @Argument("name") String name
@@ -183,7 +184,7 @@ public final class SyncProxyCommand {
 
   @Command("syncproxy|sp target <targetGroup> whitelist remove <name>")
   public void removeWhiteList(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @NonNull @Argument("name") String name
@@ -203,7 +204,7 @@ public final class SyncProxyCommand {
 
   @Command("syncproxy|sp target <targetGroup> set maintenance <enabled>")
   public void maintenance(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("enabled") @Liberal boolean enabled

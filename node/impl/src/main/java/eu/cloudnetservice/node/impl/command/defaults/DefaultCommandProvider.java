@@ -24,6 +24,7 @@ import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -96,7 +97,7 @@ public final class DefaultCommandProvider implements CommandProvider {
 
   @Inject
   private DefaultCommandProvider(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull DefaultCommandManager commandManager,
     @NonNull AerogelInjectionService injectionService,
     @NonNull CommandExceptionHandler exceptionHandler,

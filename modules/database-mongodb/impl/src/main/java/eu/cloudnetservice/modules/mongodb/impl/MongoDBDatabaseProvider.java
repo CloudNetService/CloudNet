@@ -21,14 +21,14 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
 import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.NonNull;
 
-public class MongoDBDatabaseProvider extends NodeDatabaseProvider {
+public class MongoDBDatabaseProvider extends AbstractNodeDatabaseProvider {
 
   protected final MongoDBConnectionConfig config;
 

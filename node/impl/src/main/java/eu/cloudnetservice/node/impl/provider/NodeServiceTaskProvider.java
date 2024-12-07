@@ -30,6 +30,7 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
@@ -77,7 +78,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Inject
   public NodeServiceTaskProvider(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull RPCFactory rpcFactory,
     @NonNull DataSyncRegistry syncRegistry,

@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceConfigurationBase;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
@@ -104,7 +105,7 @@ public final class TasksCommand {
 
   @Inject
   public TasksCommand(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull EventManager eventManager,
     @NonNull Configuration configuration,
     @NonNull ServiceTaskProvider taskProvider,
@@ -178,7 +179,7 @@ public final class TasksCommand {
   }
 
   @Parser(suggestions = "serviceTask")
-  public @NonNull ServiceTask defaultTaskParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull ServiceTask defaultTaskParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var task = this.taskProvider.serviceTask(name);
     if (task == null) {
@@ -194,7 +195,7 @@ public final class TasksCommand {
   }
 
   @Parser(suggestions = "ipAliasHostAddress", name = "ipAliasHostAddress")
-  public @NonNull String hostAddressParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull String hostAddressParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var address = input.readString();
     var alias = this.configuration.ipAliases().get(address);
     // check if we can resolve the host address using our ip alias
@@ -221,7 +222,7 @@ public final class TasksCommand {
   }
 
   @Parser(suggestions = "serviceTask")
-  public @NonNull Collection<ServiceTask> wildcardTaskParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull Collection<ServiceTask> wildcardTaskParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var name = input.readString();
     var matchedTasks = WildcardUtil.filterWildcard(this.taskProvider.serviceTasks(), name);
     if (matchedTasks.isEmpty()) {
@@ -232,7 +233,7 @@ public final class TasksCommand {
   }
 
   @Parser(name = "javaCommand")
-  public @NonNull Tuple2<String, JavaVersion> javaCommandParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull Tuple2<String, JavaVersion> javaCommandParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var command = input.remainingInput();
     // we have to clear the queue as we consumed the input using String.join
     input.cursor(input.length());
@@ -247,7 +248,7 @@ public final class TasksCommand {
   }
 
   @Parser(name = "nodeId", suggestions = "clusterNode")
-  public @NonNull String defaultClusterNodeParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull String defaultClusterNodeParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var nodeId = input.readString();
     for (var node : this.clusterNodeProvider.nodes()) {
       if (node.uniqueId().equals(nodeId)) {
@@ -265,7 +266,7 @@ public final class TasksCommand {
   }
 
   @Parser(name = "taskRuntime", suggestions = "taskRuntime")
-  public @NonNull String taskRuntimeParser(@NonNull I18n i18n, @NonNull CommandInput input) {
+  public @NonNull String taskRuntimeParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var runtime = input.readString();
     if (this.serviceManager.cloudServiceFactory(runtime) == null) {
       throw new ArgumentNotAvailableException(i18n.translate("command-tasks-runtime-not-found", runtime));
@@ -289,14 +290,14 @@ public final class TasksCommand {
   }
 
   @Command("tasks reload")
-  public void reloadTasks(@NonNull I18n i18n, @NonNull CommandSource source) {
+  public void reloadTasks(@NonNull @Service I18n i18n, @NonNull CommandSource source) {
     this.taskProvider.reload();
     source.sendMessage(i18n.translate("command-tasks-reload-success"));
   }
 
   @Command("tasks delete <name>")
   public void deleteTask(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> tasks
   ) {
@@ -313,7 +314,7 @@ public final class TasksCommand {
 
   @Command("tasks create <name> <environment>")
   public void createTask(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("name") String taskName,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
@@ -368,7 +369,7 @@ public final class TasksCommand {
 
   @Command("tasks rename <oldName> <newName>")
   public void renameTask(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "oldName") ServiceTask serviceTask,
     @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("newName") String newName

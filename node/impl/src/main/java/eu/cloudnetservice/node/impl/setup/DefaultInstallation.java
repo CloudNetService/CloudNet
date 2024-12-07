@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.setup;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.impl.console.Console;
 import eu.cloudnetservice.node.impl.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.impl.log.QueuedConsoleLogAppender;
@@ -42,7 +43,7 @@ public final class DefaultInstallation {
 
   @Inject
   public DefaultInstallation(
-    @NonNull I18n i18n,
+    @NonNull @Service I18n i18n,
     @NonNull Console console,
     @NonNull EventManager eventManager,
     @NonNull QueuedConsoleLogAppender logHandler

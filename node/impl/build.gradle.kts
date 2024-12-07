@@ -16,6 +16,8 @@
 
 tasks.withType<Jar> {
   archiveFileName.set(Files.node)
+  from(projects.node.nodeApi.sourceSets()["main"].output)
+  from(projects.utils.utilsBase.sourceSets()["main"].output)
   from(projects.driver.driverApi.sourceSets()["main"].output)
   from(projects.driver.driverImpl.sourceSets()["main"].output)
 
@@ -50,6 +52,7 @@ dependencies {
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)
+  "annotationProcessor"(projects.driver.driverAp)
 
   // internal libraries
 
@@ -71,4 +74,4 @@ dependencies {
   "compileOnly"(libs.bundles.netty)
 }
 
-applyJarMetadata("eu.cloudnetservice.node.boot.Bootstrap", "eu.cloudnetservice.node")
+applyJarMetadata("eu.cloudnetservice.node.impl.boot.Bootstrap", "eu.cloudnetservice.node")
