@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.dns;
+package eu.cloudnetservice.modules.cloudflare.impl.dns;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;

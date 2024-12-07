@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare.cloudflare;
+package eu.cloudnetservice.modules.cloudflare.impl.dns;
 
-import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
-import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
-import lombok.NonNull;
+public enum DnsType {
 
-public record DnsRecordDetail(
-  @NonNull String id,
-  @NonNull DnsRecord dnsRecord,
-  @NonNull CloudflareConfigurationEntry configurationEntry
-) {
-
+  A,
+  AAAA,
+  HTTPS,
+  TXT,
+  SRV,
+  LOC,
+  MX,
+  NS,
+  SPF,
+  CERT,
+  DNSKEY,
+  DS,
+  NAPTR,
+  SMIMEA,
+  SSHFP,
+  SVCB,
+  TLSA,
+  URI
 }

@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.cloudflare;
+package eu.cloudnetservice.modules.cloudflare.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.common.tuple.Tuple2;
-import eu.cloudnetservice.common.util.StringUtil;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareRecordManager;
-import eu.cloudnetservice.modules.cloudflare.cloudflare.DnsRecordDetail;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfiguration;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.config.CloudflareGroupConfiguration;
-import eu.cloudnetservice.modules.cloudflare.dns.DnsRecord;
-import eu.cloudnetservice.modules.cloudflare.dns.DnsType;
-import eu.cloudnetservice.modules.cloudflare.listener.CloudflareServiceStateListener;
+import eu.cloudnetservice.modules.cloudflare.impl.cloudflare.CloudFlareRecordManager;
+import eu.cloudnetservice.modules.cloudflare.impl.cloudflare.DnsRecordDetail;
+import eu.cloudnetservice.modules.cloudflare.impl.dns.DnsRecord;
+import eu.cloudnetservice.modules.cloudflare.impl.dns.DnsType;
+import eu.cloudnetservice.modules.cloudflare.impl.listener.CloudflareServiceStateListener;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.util.NetworkUtil;
+import eu.cloudnetservice.node.impl.util.NetworkUtil;
+import eu.cloudnetservice.utils.base.StringUtil;
+import io.vavr.Tuple2;
 import jakarta.inject.Singleton;
 import java.net.Inet6Address;
 import java.util.Collection;
@@ -99,17 +99,17 @@ public final class CloudNetCloudflareModule extends DriverModule {
         var expectedName = String.format("%s.%s", entry.entryName(), entry.domainName());
         recordManager.listRecords(entry).thenAccept(records -> {
           var existingRecord = records.stream()
-            .filter(record -> record.type().equals(hostInformation.first().name())
-              && record.name().equalsIgnoreCase(expectedName) && record.content().equals(hostInformation.second()))
+            .filter(record -> record.type().equals(hostInformation._1().name())
+              && record.name().equalsIgnoreCase(expectedName) && record.content().equals(hostInformation._2()))
             .findFirst()
             .orElse(null);
 
           // check if the record exists or create a new record
           if (existingRecord == null) {
             recordManager.createRecord(NODE_RECORDS_ID, entry, new DnsRecord(
-              hostInformation.first(),
+              hostInformation._1(),
               expectedName,
-              hostInformation.second(),
+              hostInformation._2(),
               1,
               false,
               Document.newJsonDocument()));
@@ -131,7 +131,11 @@ public final class CloudNetCloudflareModule extends DriverModule {
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
-  public void handleReload(@NonNull CloudFlareRecordManager recordManager, @NonNull Configuration nodeConfig) {
+  public void handleReload(
+    @NonNull I18n i18n,
+    @NonNull CloudFlareRecordManager recordManager,
+    @NonNull Configuration nodeConfig
+  ) {
     // store the old entries for later comparison
     var oldEntries = this.cloudflareConfiguration.entries();
 
@@ -156,8 +160,8 @@ public final class CloudNetCloudflareModule extends DriverModule {
     // without comparing the group-based record creation configurations
     stillExistingEntries.stream()
       .filter(Predicate.not(pair -> {
-        var newEntry = pair.first();
-        var oldEntry = pair.second();
+        var newEntry = pair._1();
+        var oldEntry = pair._2();
 
         // compare the entries if they might equal
         return Objects.equals(newEntry.authenticationMethod(), oldEntry.authenticationMethod())
@@ -167,7 +171,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
           && Objects.equals(newEntry.zoneId(), oldEntry.zoneId())
           && Objects.equals(newEntry.domainName(), oldEntry.domainName());
       }))
-      .map(Tuple2::first)
+      .map(Tuple2::_1)
       .map(newConfigEntry -> nodeRecordEntries.stream()
         .filter(entry -> CloudflareConfigurationEntry.mightEqual(entry.configurationEntry(), newConfigEntry))
         .findFirst()
@@ -175,20 +179,20 @@ public final class CloudNetCloudflareModule extends DriverModule {
         .orElseGet(() -> new Tuple2<>(newConfigEntry, null)))
       .forEach(pair -> {
         // try to build a dns record for the entry
-        var record = this.buildRecord(pair.first());
+        var record = this.buildRecord(pair._1());
         if (record == null) {
           return;
         }
 
         // patch or create a new record based on the information we've collected
         CompletableFuture<DnsRecordDetail> future;
-        if (pair.second() == null) {
+        if (pair._2() == null) {
           // no previous record found, create a new one
-          future = recordManager.createRecord(NODE_RECORDS_ID, pair.first(), record);
+          future = recordManager.createRecord(NODE_RECORDS_ID, pair._1(), record);
         } else {
           // previous record found, remove the tracked one & patch the existing one
-          trackedEntries.remove(NODE_RECORDS_ID, pair.second());
-          future = recordManager.patchRecord(NODE_RECORDS_ID, pair.second(), record);
+          trackedEntries.remove(NODE_RECORDS_ID, pair._2());
+          future = recordManager.patchRecord(NODE_RECORDS_ID, pair._2(), record);
         }
 
         // add a listener to the future to print out a nice message
@@ -197,7 +201,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
           if (detail != null) {
             LOGGER.info(i18n.translate(
               "module-cloudflare-create-dns-record-for-service",
-              pair.first().domainName(),
+              pair._1().domainName(),
               nodeConfig.identity().uniqueId(),
               detail.id()));
           }
@@ -207,9 +211,9 @@ public final class CloudNetCloudflareModule extends DriverModule {
     // filter out all newly added entries and create records for them
     var addedEntries = newEntries.stream()
       .filter(entry -> !oldEntries.contains(entry) && stillExistingEntries.stream()
-        .noneMatch(pair -> Objects.equals(pair.second().entryName(), entry.entryName())))
+        .noneMatch(pair -> Objects.equals(pair._2().entryName(), entry.entryName())))
       .toList();
-    this.createRecordsForEntries(nodeConfig, recordManager, addedEntries);
+    this.createRecordsForEntries(i18n, nodeConfig, recordManager, addedEntries);
   }
 
   @ModuleTask(order = 64, lifecycle = ModuleLifeCycle.STOPPED)
@@ -248,6 +252,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
   }
 
   private void createRecordsForEntries(
+    @NonNull I18n i18n,
     @NonNull Configuration nodeConfig,
     @NonNull CloudFlareRecordManager recordManager,
     @NonNull Collection<CloudflareConfigurationEntry> entries
@@ -282,9 +287,9 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
     // create a new record for the entry
     return new DnsRecord(
-      address.first(),
+      address._1(),
       String.format("%s.%s", entry.entryName(), entry.domainName()),
-      address.second(),
+      address._2(),
       1,
       false,
       Document.newJsonDocument());
