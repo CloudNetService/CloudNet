@@ -14,7 +14,7 @@ dependencies {
 moduleJson {
   author = "CloudNetService"
   name = "CloudNet-CloudFlare"
-  main = "eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule"
+  main = "eu.cloudnetservice.modules.cloudflare.impl.CloudNetCloudflareModule"
   description = "Node extension for automatic creation of SRV entries for proxy services"
   storesSensitiveData = true
 }

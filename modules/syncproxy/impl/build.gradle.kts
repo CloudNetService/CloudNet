@@ -44,7 +44,7 @@ dependencies {
 moduleJson {
   author = "CloudNetService"
   name = "CloudNet-SyncProxy"
-  main = "eu.cloudnetservice.modules.syncproxy.node.CloudNetSyncProxyModule"
+  main = "eu.cloudnetservice.modules.syncproxy.impl.node.CloudNetSyncProxyModule"
   description = "CloudNet extension which serves proxy utils with CloudNet support"
   // depend on internal modules
   dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {

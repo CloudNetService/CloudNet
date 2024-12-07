@@ -30,7 +30,7 @@ dependencies {
 moduleJson {
   name = "CloudNet-Influx"
   author = "CloudNetService"
-  main = "eu.cloudnetservice.modules.influx.InfluxModule"
+  main = "eu.cloudnetservice.modules.influx.impl.InfluxModule"
   description = "CloudNet extension which periodically writes stats data into an InfluxDB"
   runtimeModule = true
   storesSensitiveData = true

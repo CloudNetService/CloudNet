@@ -33,7 +33,7 @@ dependencies {
 moduleJson {
   author = "CloudNetService"
   name = "CloudNet-Database-MongoDB"
-  main = "eu.cloudnetservice.modules.mongodb.CloudNetMongoDatabaseModule"
+  main = "eu.cloudnetservice.modules.mongodb.impl.CloudNetMongoDatabaseModule"
   description = "CloudNet extension, which includes the database support for MongoDB"
   runtimeModule = true
   storesSensitiveData = true

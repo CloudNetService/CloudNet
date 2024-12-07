@@ -75,7 +75,7 @@ dependencies {
 moduleJson {
   name = "CloudNet-NPCs"
   author = "CloudNetService"
-  main = "eu.cloudnetservice.modules.npc.node.CloudNetNPCModule"
+  main = "eu.cloudnetservice.modules.npc.impl.node.CloudNetNPCModule"
   description = "CloudNet extension which adds NPCs for server selection"
   // depend on internal modules
   dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {

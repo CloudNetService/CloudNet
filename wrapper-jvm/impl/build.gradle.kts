@@ -44,6 +44,8 @@ dependencies {
   // internal libraries
   "implementation"(libs.gson)
   "implementation"(libs.guava)
+  "implementation"(libs.logbackCore)
+  "implementation"(libs.logbackClassic)
   "implementation"(projects.utils.utilsBase)
 
   // processing

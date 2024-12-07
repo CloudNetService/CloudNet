@@ -35,7 +35,7 @@ dependencies {
 moduleJson {
   author = "CloudNetService"
   name = "CloudNet-Database-MySQL"
-  main = "eu.cloudnetservice.modules.mysql.CloudNetMySQLDatabaseModule"
+  main = "eu.cloudnetservice.modules.mysql.impl.CloudNetMySQLDatabaseModule"
   description = "CloudNet extension, which includes the database support for MySQL and MariaDB"
   minJavaVersionId = JavaVersion.VERSION_11
   runtimeModule = true

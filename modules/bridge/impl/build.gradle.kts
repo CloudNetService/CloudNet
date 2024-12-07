@@ -45,6 +45,7 @@ dependencies {
   "runtimeImpl"(libs.bundles.adventure)
   "runtimeImpl"(projects.ext.adventureHelper)
   "runtimeImpl"(libs.adventureSerializerBungee)
+  "runtimeImpl"(projects.modules.bridge.bridgeApi)
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)
@@ -63,6 +64,7 @@ tasks.withType<Jar> {
 tasks.withType<RemapJarTask> {
   // depend on adventure helper jar task
   dependsOn(":ext:adventure-helper:jar")
+  dependsOn(":modules:bridge:bridge-api:jar")
   // base setup
   archiveFileName.set(Files.bridge)
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -80,6 +82,6 @@ loom {
 moduleJson {
   name = "CloudNet-Bridge"
   author = "CloudNetService"
-  main = "eu.cloudnetservice.modules.bridge.node.CloudNetBridgeModule"
+  main = "eu.cloudnetservice.modules.bridge.impl.node.CloudNetBridgeModule"
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development"
 }

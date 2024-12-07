@@ -28,6 +28,6 @@ dependencies {
 moduleJson {
   name = "CloudNet-Report"
   author = "CloudNetService"
-  main = "eu.cloudnetservice.modules.report.CloudNetReportModule"
+  main = "eu.cloudnetservice.modules.report.impl.CloudNetReportModule"
   description = "Node extension to automatically report and paste a snapshot of the current CloudNet runtime"
 }
