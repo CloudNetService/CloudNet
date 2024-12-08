@@ -91,7 +91,6 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerProvider(PlatformBridgeManagement.class, "NukkitBridgeManagement", this);
   }
 
   @Override

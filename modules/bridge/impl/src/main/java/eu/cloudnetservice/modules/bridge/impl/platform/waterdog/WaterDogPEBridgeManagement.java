@@ -109,7 +109,6 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerProvider(PlatformBridgeManagement.class, "WaterDogPEBridgeManagement", this);
   }
 
   @Override

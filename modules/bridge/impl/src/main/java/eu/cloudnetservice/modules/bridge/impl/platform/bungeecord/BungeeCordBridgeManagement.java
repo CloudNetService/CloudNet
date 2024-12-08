@@ -102,7 +102,6 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
   @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerProvider(PlatformBridgeManagement.class, "BungeeCordBridgeManagement", this);
   }
 
   @Override

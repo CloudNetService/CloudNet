@@ -92,7 +92,6 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
   @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerProvider(PlatformBridgeManagement.class, "FabricBridgeManagement", this);
   }
 
   @Override

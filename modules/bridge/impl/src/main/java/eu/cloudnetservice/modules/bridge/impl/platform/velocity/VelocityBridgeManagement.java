@@ -109,7 +109,6 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerProvider(PlatformBridgeManagement.class, "VelocityBridgeManagement", this);
   }
 
   @Override

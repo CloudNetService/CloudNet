@@ -108,7 +108,6 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerProvider(PlatformBridgeManagement.class, "SpongeBridgeManagement", this);
   }
 
   @Override

@@ -114,7 +114,6 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
   @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerProvider(PlatformBridgeManagement.class, "MinestomBridgeManagement", this);
   }
 
   @Override

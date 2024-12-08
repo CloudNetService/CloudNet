@@ -96,7 +96,6 @@ final class LimboLoohpBridgeManagement extends PlatformBridgeManagement<Player, 
   @Override
   public void registerServices(@NonNull ServiceRegistry registry) {
     registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerProvider(PlatformBridgeManagement.class, "LimboLoohpBridgeManagement", this);
   }
 
   @Override
