@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.report.impl.emitter.defaults;
 
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import jakarta.inject.Singleton;
@@ -27,6 +28,7 @@ import java.util.Set;
 import lombok.NonNull;
 
 @Singleton
+@AutoService(services = ReportDataEmitter.class, name = "ThreadInfo")
 public final class ThreadInfoDataEmitter implements ReportDataEmitter {
 
   private static final int DUMP_STACK_DEPTH = 15;

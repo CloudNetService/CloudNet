@@ -17,7 +17,9 @@
 package eu.cloudnetservice.modules.report.impl.emitter.defaults;
 
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.impl.emitter.SpecificReportDataEmitter;
 import jakarta.inject.Inject;
@@ -26,6 +28,7 @@ import java.util.Collection;
 import lombok.NonNull;
 
 @Singleton
+@AutoService(services = ReportDataEmitter.class, name = "ServiceTasks")
 public final class ServiceTasksDataEmitter extends SpecificReportDataEmitter<ServiceTask> {
 
   private final ServiceTaskProvider serviceTaskProvider;
@@ -34,6 +37,11 @@ public final class ServiceTasksDataEmitter extends SpecificReportDataEmitter<Ser
   public ServiceTasksDataEmitter(@NonNull ServiceTaskProvider serviceTaskProvider) {
     super((writer, tasks) -> writer.appendString("Tasks (").appendInt(tasks.size()).appendString("):"));
     this.serviceTaskProvider = serviceTaskProvider;
+  }
+
+  @Override
+  public @NonNull Class<ServiceTask> emittingType() {
+    return ServiceTask.class;
   }
 
   @Override

@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.report.impl.emitter.defaults;
 
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import eu.cloudnetservice.utils.base.column.ColumnFormatter;
@@ -34,6 +35,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
+@AutoService(services = ReportDataEmitter.class, name = "HeapDump")
 public final class HeapDumpDataEmitter implements ReportDataEmitter {
 
   // https://regex101.com/r/yAG1eb/1

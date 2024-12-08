@@ -17,7 +17,9 @@
 package eu.cloudnetservice.modules.report.impl.emitter.defaults;
 
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.impl.emitter.SpecificReportDataEmitter;
 import jakarta.inject.Inject;
@@ -26,6 +28,7 @@ import java.util.Collection;
 import lombok.NonNull;
 
 @Singleton
+@AutoService(services = ReportDataEmitter.class, name = "ServiceInfo")
 public final class ServiceInfoDataEmitter extends SpecificReportDataEmitter<ServiceInfoSnapshot> {
 
   private final CloudServiceProvider cloudServiceProvider;
@@ -34,6 +37,11 @@ public final class ServiceInfoDataEmitter extends SpecificReportDataEmitter<Serv
   public ServiceInfoDataEmitter(@NonNull CloudServiceProvider cloudServiceProvider) {
     super((writer, snapshots) -> writer.appendString("Services (").appendInt(snapshots.size()).appendString("):"));
     this.cloudServiceProvider = cloudServiceProvider;
+  }
+
+  @Override
+  public @NonNull Class<ServiceInfoSnapshot> emittingType() {
+    return ServiceInfoSnapshot.class;
   }
 
   @Override

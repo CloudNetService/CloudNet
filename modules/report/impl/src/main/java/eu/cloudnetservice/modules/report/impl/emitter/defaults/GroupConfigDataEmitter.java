@@ -17,7 +17,9 @@
 package eu.cloudnetservice.modules.report.impl.emitter.defaults;
 
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
+import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.impl.emitter.SpecificReportDataEmitter;
 import jakarta.inject.Inject;
@@ -26,6 +28,7 @@ import java.util.Collection;
 import lombok.NonNull;
 
 @Singleton
+@AutoService(services = ReportDataEmitter.class, name = "GroupConfig")
 public final class GroupConfigDataEmitter extends SpecificReportDataEmitter<GroupConfiguration> {
 
   private final GroupConfigurationProvider groupConfigurationProvider;
@@ -34,6 +37,11 @@ public final class GroupConfigDataEmitter extends SpecificReportDataEmitter<Grou
   public GroupConfigDataEmitter(@NonNull GroupConfigurationProvider groupConfigurationProvider) {
     super((writer, groups) -> writer.appendString("Groups (").appendInt(groups.size()).appendString("):"));
     this.groupConfigurationProvider = groupConfigurationProvider;
+  }
+
+  @Override
+  public @NonNull Class<GroupConfiguration> emittingType() {
+    return GroupConfiguration.class;
   }
 
   @Override

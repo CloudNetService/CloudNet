@@ -52,7 +52,7 @@ public final class CloudflareServiceStateListener {
   }
 
   @EventListener
-  public void handlePostStart(@NonNull @Service I18n i18n, @NonNull CloudServicePostLifecycleEvent event) {
+  public void handlePostStart(@NonNull CloudServicePostLifecycleEvent event, @NonNull @Service I18n i18n) {
     if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
         // create the new record
@@ -74,7 +74,7 @@ public final class CloudflareServiceStateListener {
   }
 
   @EventListener
-  public void handlePostStop(@NonNull @Service I18n i18n, @NonNull CloudServicePostLifecycleEvent event) {
+  public void handlePostStop(@NonNull CloudServicePostLifecycleEvent event, @NonNull @Service I18n i18n) {
     if (event.newLifeCycle() == ServiceLifeCycle.STOPPED || event.newLifeCycle() == ServiceLifeCycle.DELETED) {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
         // delete all records of the service

@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.report.impl.emitter.defaults;
 
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import eu.cloudnetservice.node.config.Configuration;
@@ -23,6 +24,7 @@ import jakarta.inject.Singleton;
 import lombok.NonNull;
 
 @Singleton
+@AutoService(services = ReportDataEmitter.class, name = "LocalNodeConfig")
 public record LocalNodeConfigDataEmitter(@NonNull Configuration configuration) implements ReportDataEmitter {
 
   @Override

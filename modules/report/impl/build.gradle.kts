@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  alias(libs.plugins.shadow)
+}
+
 tasks.withType<Jar> {
   archiveFileName.set(Files.report)
 }
@@ -23,6 +27,8 @@ dependencies {
   "compileOnly"(libs.unirest)
   "compileOnly"(projects.utils.utilsBase)
   "implementation"(projects.modules.report.reportApi)
+
+  "annotationProcessor"(projects.driver.driverAp)
 }
 
 moduleJson {

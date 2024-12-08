@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.report.impl.emitter.defaults;
 
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import jakarta.inject.Singleton;
@@ -26,6 +27,7 @@ import oshi.SystemInfo;
 import oshi.util.FormatUtil;
 
 @Singleton
+@AutoService(services = ReportDataEmitter.class, name = "SystemInfo")
 public final class SystemInfoDataEmitter implements ReportDataEmitter {
 
   private static final SystemInfo SYSTEM_INFO = new SystemInfo();

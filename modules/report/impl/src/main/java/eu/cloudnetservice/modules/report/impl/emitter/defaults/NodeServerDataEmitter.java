@@ -17,6 +17,8 @@
 package eu.cloudnetservice.modules.report.impl.emitter.defaults;
 
 import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.registry.AutoService;
+import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.impl.emitter.SpecificReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.util.ReportConstants;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 
 @Singleton
+@AutoService(services = ReportDataEmitter.class, name = "NodeServer")
 public final class NodeServerDataEmitter extends SpecificReportDataEmitter<NodeServer> {
 
   private final NodeServerProvider nodeServerProvider;
@@ -39,6 +42,11 @@ public final class NodeServerDataEmitter extends SpecificReportDataEmitter<NodeS
   public NodeServerDataEmitter(@NonNull NodeServerProvider nodeServerProvider) {
     super((writer, nodes) -> writer.appendString("Node Servers (").appendInt(nodes.size()).appendString("):"));
     this.nodeServerProvider = nodeServerProvider;
+  }
+
+  @Override
+  public @NonNull Class<NodeServer> emittingType() {
+    return NodeServer.class;
   }
 
   @Override

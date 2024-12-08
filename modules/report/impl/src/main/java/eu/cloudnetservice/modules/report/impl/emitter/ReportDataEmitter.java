@@ -18,8 +18,11 @@ package eu.cloudnetservice.modules.report.impl.emitter;
 
 import lombok.NonNull;
 
-@FunctionalInterface
 public interface ReportDataEmitter {
+
+  default @NonNull Class<?> emittingType() {
+    return Object.class;
+  }
 
   @NonNull ReportDataWriter emitData(@NonNull ReportDataWriter writer);
 }

@@ -20,27 +20,11 @@ import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
-import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.driver.service.GroupConfiguration;
-import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.report.config.PasteServer;
 import eu.cloudnetservice.modules.report.config.ReportConfiguration;
 import eu.cloudnetservice.modules.report.impl.command.ReportCommand;
-import eu.cloudnetservice.modules.report.impl.emitter.EmitterRegistry;
-import eu.cloudnetservice.modules.report.impl.emitter.defaults.GroupConfigDataEmitter;
-import eu.cloudnetservice.modules.report.impl.emitter.defaults.HeapDumpDataEmitter;
-import eu.cloudnetservice.modules.report.impl.emitter.defaults.LocalModuleDataEmitter;
-import eu.cloudnetservice.modules.report.impl.emitter.defaults.LocalNodeConfigDataEmitter;
-import eu.cloudnetservice.modules.report.impl.emitter.defaults.NodeServerDataEmitter;
-import eu.cloudnetservice.modules.report.impl.emitter.defaults.ServiceInfoDataEmitter;
-import eu.cloudnetservice.modules.report.impl.emitter.defaults.ServiceTasksDataEmitter;
-import eu.cloudnetservice.modules.report.impl.emitter.defaults.SystemInfoDataEmitter;
-import eu.cloudnetservice.modules.report.impl.emitter.defaults.ThreadInfoDataEmitter;
-import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.command.CommandProvider;
 import jakarta.inject.Singleton;
 import java.util.Map;
@@ -53,25 +37,8 @@ public final class CloudNetReportModule extends DriverModule {
   private ReportConfiguration configuration;
 
   @ModuleTask(order = 127)
-  public void prepareEmitterRegistry(@NonNull ServiceRegistry serviceRegistry) {
-    var emitterRegistry = new EmitterRegistry();
-    serviceRegistry.registerProvider(EmitterRegistry.class, "ReportEmitterRegistry", emitterRegistry);
-  }
-
-  @ModuleTask(order = 64)
-  public void registerDefaultEmitters(@NonNull @Service EmitterRegistry emitterRegistry) {
-    emitterRegistry
-      // general emitters
-      .registerEmitter(SystemInfoDataEmitter.class)
-      .registerEmitter(ThreadInfoDataEmitter.class)
-      .registerEmitter(HeapDumpDataEmitter.class)
-      .registerEmitter(LocalNodeConfigDataEmitter.class)
-      // specific class emitters
-      .registerSpecificEmitter(NodeServer.class, NodeServerDataEmitter.class)
-      .registerSpecificEmitter(ModuleWrapper.class, LocalModuleDataEmitter.class)
-      .registerSpecificEmitter(ServiceTask.class, ServiceTasksDataEmitter.class)
-      .registerSpecificEmitter(GroupConfiguration.class, GroupConfigDataEmitter.class)
-      .registerSpecificEmitter(ServiceInfoSnapshot.class, ServiceInfoDataEmitter.class);
+  public void registerAutoServices(@NonNull ServiceRegistry serviceRegistry) {
+    serviceRegistry.discoverServices(CloudNetReportModule.class);
   }
 
   @ModuleTask(order = 46)

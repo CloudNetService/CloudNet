@@ -27,7 +27,7 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.report.config.PasteServer;
 import eu.cloudnetservice.modules.report.impl.CloudNetReportModule;
-import eu.cloudnetservice.modules.report.impl.emitter.EmitterRegistry;
+import eu.cloudnetservice.modules.report.impl.emitter.EmitterService;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import eu.cloudnetservice.node.cluster.NodeServer;
@@ -63,21 +63,21 @@ public final class ReportCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReportCommand.class);
 
   private final I18n i18n;
-  private final EmitterRegistry emitterRegistry;
+  private final EmitterService emitterService;
   private final CloudNetReportModule reportModule;
   private final CloudServiceProvider serviceProvider;
 
   @Inject
   public ReportCommand(
     @NonNull @Service I18n i18n,
+    @NonNull EmitterService emitterService,
     @NonNull CloudNetReportModule reportModule,
-    @NonNull CloudServiceProvider serviceProvider,
-    @NonNull @Service EmitterRegistry emitterRegistry
+    @NonNull CloudServiceProvider serviceProvider
   ) {
     this.i18n = i18n;
+    this.emitterService = emitterService;
     this.reportModule = reportModule;
     this.serviceProvider = serviceProvider;
-    this.emitterRegistry = emitterRegistry;
   }
 
   @Parser(suggestions = "pasteServer")
@@ -110,7 +110,7 @@ public final class ReportCommand {
 
   @Command("report|paste all [pasteServer]")
   public void pasteAll(@NonNull CommandSource source, @Nullable @Argument("pasteServer") PasteServer pasteServer) {
-    var pasteContent = this.emitFullData(this.emitterRegistry.emitters());
+    var pasteContent = this.emitFullData(this.emitterService.emitters());
     this.pasteDataToPasteServer(source, pasteContent.toString(), pasteServer);
   }
 
@@ -208,7 +208,7 @@ public final class ReportCommand {
   }
 
   private @NonNull ReportDataWriter emitFullData(@NonNull Class<?> emitterDataClass) {
-    var emitters = this.emitterRegistry.emitters(emitterDataClass);
+    var emitters = this.emitterService.emitters(emitterDataClass);
     return this.emitFullData(emitters);
   }
 
@@ -223,7 +223,7 @@ public final class ReportCommand {
 
   private @NonNull <T> ReportDataWriter emitFullSpecificData(@NonNull Class<T> emitterType, @NonNull T value) {
     var writer = ReportDataWriter.newEmptyWriter();
-    var emitters = this.emitterRegistry.specificEmitters(emitterType);
+    var emitters = this.emitterService.specificEmitters(emitterType);
 
     // emit the data
     for (var emitter : emitters) {

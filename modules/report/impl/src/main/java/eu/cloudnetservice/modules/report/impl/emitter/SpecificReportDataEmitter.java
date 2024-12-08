@@ -46,6 +46,8 @@ public abstract class SpecificReportDataEmitter<T> implements ReportDataEmitter 
     return writer.endSection();
   }
 
+  public abstract @NonNull Class<T> emittingType();
+
   public abstract @NonNull Collection<T> collectData();
 
   public abstract @NonNull ReportDataWriter emitData(@NonNull ReportDataWriter writer, @NonNull T value);

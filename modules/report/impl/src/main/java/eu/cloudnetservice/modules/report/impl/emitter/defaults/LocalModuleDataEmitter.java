@@ -19,6 +19,8 @@ package eu.cloudnetservice.modules.report.impl.emitter.defaults;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.registry.AutoService;
+import eu.cloudnetservice.modules.report.impl.emitter.ReportDataEmitter;
 import eu.cloudnetservice.modules.report.impl.emitter.ReportDataWriter;
 import eu.cloudnetservice.modules.report.impl.emitter.SpecificReportDataEmitter;
 import jakarta.inject.Inject;
@@ -30,6 +32,7 @@ import java.util.Collection;
 import lombok.NonNull;
 
 @Singleton
+@AutoService(services = ReportDataEmitter.class, name = "LocalModule")
 public final class LocalModuleDataEmitter extends SpecificReportDataEmitter<ModuleWrapper> {
 
   private final ModuleProvider moduleProvider;
@@ -38,6 +41,11 @@ public final class LocalModuleDataEmitter extends SpecificReportDataEmitter<Modu
   public LocalModuleDataEmitter(@NonNull ModuleProvider moduleProvider) {
     super((writer, modules) -> writer.appendString("Local Modules (").appendInt(modules.size()).appendString("):"));
     this.moduleProvider = moduleProvider;
+  }
+
+  @Override
+  public @NonNull Class<ModuleWrapper> emittingType() {
+    return ModuleWrapper.class;
   }
 
   @Override
