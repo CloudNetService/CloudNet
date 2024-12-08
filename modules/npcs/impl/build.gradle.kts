@@ -29,6 +29,10 @@ tasks.withType<Jar> {
   }
 }
 
+tasks.withType<JavaCompile> {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/npcs.aero")
+}
+
 tasks.withType<ShadowJar> {
   relocate("net.kyori", "eu.cloudnetservice.modules.npc.relocate.net.kyori")
   relocate("io.papermc.lib", "eu.cloudnetservice.modules.npc.relocate.paperlib")
@@ -70,6 +74,7 @@ dependencies {
   "implementation"(projects.ext.bukkitCommand)
 
   "api"(libs.bundles.npcLib)
+  "annotationProcessor"(libs.aerogelAuto)
 }
 
 moduleJson {

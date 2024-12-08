@@ -33,10 +33,14 @@ import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
+import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
+import eu.cloudnetservice.modules.npc.impl.AbstractNPCManagement;
+import eu.cloudnetservice.modules.npc.impl.InternalNPCManagement;
 import eu.cloudnetservice.modules.npc.impl.platform.PlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.impl.platform.bukkit.entity.EntityBukkitPlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.impl.platform.bukkit.entity.NPCBukkitPlatformSelector;
@@ -59,6 +63,12 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.NumberConversions;
 
 @Singleton
+@ProvidesFor(platform = "bukkit", types = {
+  PlatformNPCManagement.class,
+  AbstractNPCManagement.class,
+  InternalNPCManagement.class,
+  NPCManagement.class
+})
 public class BukkitPlatformNPCManagement extends
   PlatformNPCManagement<Location, Player, ItemStack, Inventory, Scoreboard> {
 

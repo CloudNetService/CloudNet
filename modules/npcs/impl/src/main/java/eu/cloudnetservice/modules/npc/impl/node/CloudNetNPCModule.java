@@ -20,13 +20,11 @@ import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
-import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.impl.module.ModuleHelper;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.Service;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
@@ -38,10 +36,10 @@ import eu.cloudnetservice.modules.npc.impl._deprecated.NPCConstants;
 import eu.cloudnetservice.modules.npc.impl._deprecated.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.impl._deprecated.configuration.NPCConfigurationEntry;
 import eu.cloudnetservice.node.command.CommandProvider;
-import eu.cloudnetservice.node.impl.console.animation.progressbar.ConsoleProgressWrappers;
-import eu.cloudnetservice.node.impl.console.animation.setup.answer.Parsers;
 import io.leangen.geantyref.TypeFactory;
 import io.vavr.Tuple2;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -54,7 +52,12 @@ import org.jetbrains.annotations.Nullable;
 @Singleton
 public class CloudNetNPCModule extends DriverModule {
 
-  protected static final String DATABASE_NAME = "cloudnet_npcs";
+  public static final String DATABASE_NAME = "cloudnet_npcs";
+
+  @Inject
+  public CloudNetNPCModule(@NonNull @Named("module") InjectionLayer<?> layer) {
+    layer.installAutoConfigureBindings(this.getClass().getClassLoader(), "npcs");
+  }
 
   @ModuleTask(order = Byte.MAX_VALUE)
   public void convertConfiguration(@NonNull DatabaseProvider databaseProvider) {
@@ -184,26 +187,16 @@ public class CloudNetNPCModule extends DriverModule {
 
   @ModuleTask
   public void initModule(
-    @NonNull Parsers parsers,
-    @NonNull DatabaseProvider databaseProvider,
-    @NonNull EventManager eventManager,
-    @NonNull ModuleHelper moduleHelper,
-    @NonNull ServiceRegistry serviceRegistry,
     @NonNull CommandProvider commandProvider,
-    @NonNull ConsoleProgressWrappers progressWrappers
+    @NonNull @Named("module") InjectionLayer<?> injectionLayer
   ) {
-    var config = this.loadConfig();
-    var database = databaseProvider.database(DATABASE_NAME);
     // management init
-    var management = new NodeNPCManagement(
-      config,
-      database,
-      this.configPath(),
-      parsers,
-      eventManager,
-      moduleHelper,
-      progressWrappers);
-    management.registerToServiceRegistry(serviceRegistry);
+    this.readConfigAndInstantiate(
+      injectionLayer,
+      eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.class,
+      () -> eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder().build(),
+      NodeNPCManagement.class,
+      DocumentFactory.json());
     // register the npc module command
     commandProvider.register(NPCCommand.class);
   }

@@ -16,7 +16,9 @@
 
 package eu.cloudnetservice.modules.npc.impl.node;
 
+import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.module.ModuleHelper;
@@ -24,14 +26,19 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.NPC;
+import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.impl.AbstractNPCManagement;
+import eu.cloudnetservice.modules.npc.impl.InternalNPCManagement;
 import eu.cloudnetservice.modules.npc.impl.node.listeners.NodeChannelMessageListener;
 import eu.cloudnetservice.modules.npc.impl.node.listeners.NodeSetupListener;
 import eu.cloudnetservice.node.impl.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.node.impl.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.impl.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.utils.base.io.FileUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -40,6 +47,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
+@Singleton
+@Provides({AbstractNPCManagement.class, InternalNPCManagement.class, NPCManagement.class})
 public final class NodeNPCManagement extends AbstractNPCManagement {
 
   private static final Path PROTOCOL_LIB_CACHE_PATH = FileUtil.TEMP_DIR.resolve("caches/ProtocolLib.jar");
@@ -50,18 +59,19 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   private final Database database;
   private final Path configurationPath;
 
+  @Inject
   public NodeNPCManagement(
     @NonNull NPCConfiguration npcConfiguration,
-    @NonNull Database database,
-    @NonNull Path configPath,
+    @NonNull DatabaseProvider databaseProvider,
+    @NonNull @Named("dataDirectory") Path dataDirectory,
     @NonNull Parsers parsers,
     @NonNull EventManager eventManager,
     @NonNull ModuleHelper moduleHelper,
     @NonNull ConsoleProgressWrappers progressWrappers
   ) {
     super(npcConfiguration, eventManager);
-    this.database = database;
-    this.configurationPath = configPath;
+    this.configurationPath = dataDirectory.resolve("config.json");
+    this.database = databaseProvider.database(CloudNetNPCModule.DATABASE_NAME);
 
     // load all existing npcs
     this.database.documentsAsync().thenAccept(jsonDocuments -> {

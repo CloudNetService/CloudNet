@@ -26,6 +26,7 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.impl.AbstractSignManagement;
+import eu.cloudnetservice.modules.signs.impl.InternalSignManagement;
 import eu.cloudnetservice.modules.signs.impl.node.configuration.NodeSignsConfigurationHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -40,7 +41,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-@Provides({AbstractSignManagement.class, SignManagement.class})
+@Provides({AbstractSignManagement.class, InternalSignManagement.class, SignManagement.class})
 public class NodeSignManagement extends AbstractSignManagement implements SignManagement {
 
   protected static final String NODE_TO_NODE_SET_SIGN_CONFIGURATION = "signs_node_node_set_signs_config";

@@ -55,7 +55,7 @@ public class NPCCommand {
 
   @Inject
   public NPCCommand(
-    @NonNull @Service NPCManagement npcManagement,
+    @NonNull NPCManagement npcManagement,
     @NonNull GroupConfigurationProvider groupConfigurationProvider
   ) {
     this.npcManagement = npcManagement;

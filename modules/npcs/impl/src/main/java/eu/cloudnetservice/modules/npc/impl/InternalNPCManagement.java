@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.npc.impl;
 
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPCManagement;
@@ -24,10 +23,6 @@ import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import lombok.NonNull;
 
 public interface InternalNPCManagement extends NPCManagement {
-
-  void registerToServiceRegistry(@NonNull ServiceRegistry serviceRegistry);
-
-  void unregisterFromServiceRegistry(@NonNull ServiceRegistry serviceRegistry);
 
   void handleInternalNPCCreate(@NonNull NPC npc);
 

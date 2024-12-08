@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.npc.impl.platform.bukkit;
 
 import eu.cloudnetservice.driver.impl.module.ModuleHelper;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Command;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
@@ -64,8 +63,7 @@ public final class BukkitNPCPlugin implements PlatformEntrypoint {
   }
 
   @Inject
-  private void registerNPCManagement(@NonNull ServiceRegistry serviceRegistry) {
-    this.npcManagement.registerToServiceRegistry(serviceRegistry);
+  private void registerNPCManagement() {
     this.npcManagement.initialize();
   }
 

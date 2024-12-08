@@ -18,10 +18,8 @@ package eu.cloudnetservice.modules.npc.impl;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.NPC;
-import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
 import java.util.Map;
@@ -69,19 +67,6 @@ public abstract class AbstractNPCManagement implements InternalNPCManagement {
   @Override
   public void npcConfiguration(@NonNull NPCConfiguration configuration) {
     this.npcConfiguration = configuration;
-  }
-
-  @Override
-  public void registerToServiceRegistry(@NonNull ServiceRegistry serviceRegistry) {
-    serviceRegistry.registerProvider(NPCManagement.class, "NPCManagement", this);
-  }
-
-  @Override
-  public void unregisterFromServiceRegistry(@NonNull ServiceRegistry serviceRegistry) {
-    var registration = serviceRegistry.registration(NPCManagement.class, "NPCManagement");
-    if (registration != null) {
-      registration.unregister();
-    }
   }
 
   @Override
