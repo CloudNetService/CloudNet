@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.syncproxy;
 
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import lombok.NonNull;
 
@@ -26,6 +25,4 @@ public interface SyncProxyManagement {
   SyncProxyConfiguration configuration();
 
   void configuration(@NonNull SyncProxyConfiguration configuration);
-
-  void registerService(@NonNull ServiceRegistry registry);
 }

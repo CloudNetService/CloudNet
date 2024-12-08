@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.syncproxy.impl.platform.bungee;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.module.ModuleHelper;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
@@ -42,7 +41,6 @@ public final class BungeeCordSyncProxyPlugin implements PlatformEntrypoint {
   private final Plugin plugin;
   private final ModuleHelper moduleHelper;
   private final EventManager eventManager;
-  private final ServiceRegistry serviceRegistry;
   private final BungeeCordSyncProxyManagement syncProxyManagement;
 
   @Inject
@@ -50,20 +48,16 @@ public final class BungeeCordSyncProxyPlugin implements PlatformEntrypoint {
     @NonNull Plugin plugin,
     @NonNull ModuleHelper moduleHelper,
     @NonNull EventManager eventManager,
-    @NonNull ServiceRegistry serviceRegistry,
     @NonNull BungeeCordSyncProxyManagement syncProxyManagement
   ) {
     this.plugin = plugin;
     this.moduleHelper = moduleHelper;
     this.eventManager = eventManager;
-    this.serviceRegistry = serviceRegistry;
     this.syncProxyManagement = syncProxyManagement;
   }
 
   @Override
   public void onLoad() {
-    // register the SyncProxyManagement in our service registry
-    this.syncProxyManagement.registerService(this.serviceRegistry);
     // register the event listener to handle service updates
     this.eventManager.registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
   }

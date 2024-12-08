@@ -21,7 +21,6 @@ import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
@@ -67,11 +66,6 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
     this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
     // send an update with the configuration to other components
     configuration.sendUpdate();
-  }
-
-  @Override
-  public void registerService(@NonNull ServiceRegistry registry) {
-    registry.registerProvider(SyncProxyManagement.class, "NodeSyncProxyManagement", this);
   }
 
   public void configurationSilently(@NonNull SyncProxyConfiguration configuration) {

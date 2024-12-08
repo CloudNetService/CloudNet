@@ -33,12 +33,12 @@ dependencies {
   "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
   "compileOnly"(projects.node.nodeImpl)
   "compileOnly"(projects.modules.bridge.bridgeApi)
-  "compileOnly"(projects.modules.syncproxy.syncproxyApi)
+  "compileOnly"(projects.ext.adventureHelper)
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)
 
-  "implementation"(projects.ext.adventureHelper)
+  "implementation"(projects.modules.syncproxy.syncproxyApi)
 }
 
 moduleJson {

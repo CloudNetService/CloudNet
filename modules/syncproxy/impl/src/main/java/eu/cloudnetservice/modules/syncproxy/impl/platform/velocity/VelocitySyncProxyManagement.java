@@ -23,8 +23,9 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.component.ComponentFormats;
+import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
+import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.impl.platform.PlatformSyncProxyManagement;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
@@ -38,6 +39,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
+@ProvidesFor(platform = "velocity", types = {PlatformSyncProxyManagement.class, SyncProxyManagement.class})
 public final class VelocitySyncProxyManagement extends PlatformSyncProxyManagement<Player> {
 
   private final ProxyServer proxyServer;
@@ -64,11 +66,6 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
 
     this.proxyServer = proxyServer;
     this.init();
-  }
-
-  @Override
-  public void registerService(@NonNull ServiceRegistry registry) {
-    registry.registerProvider(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement", this);
   }
 
   @Override

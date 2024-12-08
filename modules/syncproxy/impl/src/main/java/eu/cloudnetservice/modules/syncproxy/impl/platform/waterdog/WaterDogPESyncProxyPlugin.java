@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.syncproxy.impl.platform.waterdog;
 
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.module.ModuleHelper;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
@@ -39,26 +38,21 @@ public final class WaterDogPESyncProxyPlugin implements PlatformEntrypoint {
 
   private final EventManager eventManager;
   private final ModuleHelper moduleHelper;
-  private final ServiceRegistry serviceRegistry;
   private final WaterDogPESyncProxyManagement syncProxyManagement;
 
   @Inject
   public WaterDogPESyncProxyPlugin(
     @NonNull EventManager eventManager,
     @NonNull ModuleHelper moduleHelper,
-    @NonNull ServiceRegistry serviceRegistry,
     @NonNull WaterDogPESyncProxyManagement syncProxyManagement
   ) {
     this.eventManager = eventManager;
     this.moduleHelper = moduleHelper;
-    this.serviceRegistry = serviceRegistry;
     this.syncProxyManagement = syncProxyManagement;
   }
 
   @Override
   public void onLoad() {
-    // register the SyncProxyManagement in our service registry
-    this.syncProxyManagement.registerService(this.serviceRegistry);
     // register the event listener to handle service updates
     this.eventManager.registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
   }

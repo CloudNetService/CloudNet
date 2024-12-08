@@ -24,7 +24,6 @@ import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.Service;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
@@ -64,7 +63,6 @@ public final class CloudNetSyncProxyModule extends DriverModule {
 
   @ModuleTask(order = 126, lifecycle = ModuleLifeCycle.LOADED)
   public void initManagement(
-    @NonNull ServiceRegistry serviceRegistry,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull @Named("module") InjectionLayer<?> injectionLayer
   ) {
@@ -75,7 +73,6 @@ public final class CloudNetSyncProxyModule extends DriverModule {
       () -> SyncProxyConfiguration.createDefault("Proxy"),
       SyncProxyManagement.class,
       DocumentFactory.json());
-    syncProxyManagement.registerService(serviceRegistry);
 
     // sync the config of the module into the cluster
     dataSyncRegistry.registerHandler(

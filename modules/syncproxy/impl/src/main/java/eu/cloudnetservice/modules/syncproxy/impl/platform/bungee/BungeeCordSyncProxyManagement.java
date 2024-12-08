@@ -20,7 +20,6 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
@@ -66,11 +65,6 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
 
     this.proxyServer = proxyServer;
     this.init();
-  }
-
-  @Override
-  public void registerService(@NonNull ServiceRegistry registry) {
-    registry.registerProvider(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement", this);
   }
 
   @Override
