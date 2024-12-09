@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.influx.impl.publish.publishers;
+package eu.cloudnetservice.modules.influx.impl.publishers;
 
 import com.influxdb.client.write.Point;
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.influx.impl.util.PointUtil;
@@ -27,6 +28,7 @@ import java.util.Collection;
 import lombok.NonNull;
 
 @Singleton
+@AutoService(services = Publisher.class, name = "RunningServiceProcessSnapshot")
 public record RunningServiceProcessSnapshotPublisher(@NonNull CloudServiceManager serviceManager) implements Publisher {
 
   @Override

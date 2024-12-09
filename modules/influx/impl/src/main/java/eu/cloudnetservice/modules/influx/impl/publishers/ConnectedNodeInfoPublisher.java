@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.influx.impl.publish.publishers;
+package eu.cloudnetservice.modules.influx.impl.publishers;
 
 import com.influxdb.client.write.Point;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.modules.influx.impl.util.PointUtil;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.node.cluster.NodeServer;
@@ -28,6 +29,7 @@ import java.util.Objects;
 import lombok.NonNull;
 
 @Singleton
+@AutoService(services = Publisher.class, name = "ConnectedNodeInfo")
 public record ConnectedNodeInfoPublisher(@NonNull NodeServerProvider nodeServerProvider) implements Publisher {
 
   @Override

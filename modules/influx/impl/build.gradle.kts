@@ -28,6 +28,7 @@ dependencies {
   "moduleLibrary"(libs.influxClient)
   "compileOnly"(projects.node.nodeApi)
   "compileOnly"(projects.modules.bridge.bridgeApi)
+  "annotationProcessor"(projects.driver.driverAp)
   "implementation"(projects.modules.influx.influxApi)
 }
 

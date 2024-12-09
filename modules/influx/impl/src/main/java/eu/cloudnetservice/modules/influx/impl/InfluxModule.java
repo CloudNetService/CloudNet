@@ -16,28 +16,46 @@
 
 package eu.cloudnetservice.modules.influx.impl;
 
+import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.exceptions.InfluxException;
 import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.influx.InfluxConfiguration;
-import eu.cloudnetservice.modules.influx.impl.publish.defaults.DefaultPublisherRegistry;
-import eu.cloudnetservice.modules.influx.impl.publish.publishers.ConnectedNodeInfoPublisher;
-import eu.cloudnetservice.modules.influx.impl.publish.publishers.RunningServiceProcessSnapshotPublisher;
-import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
-import eu.cloudnetservice.node.tick.Scheduler;
+import eu.cloudnetservice.modules.influx.publish.Publisher;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class InfluxModule extends DriverModule {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(InfluxModule.class);
+
+  private Future<?> publisherFuture;
+  private InfluxDBClient influxClient;
+
+  @ModuleTask(order = 127)
+  public void initAutoServices(@NonNull ServiceRegistry serviceRegistry) {
+    serviceRegistry.discoverServices(InfluxModule.class);
+  }
+
   @ModuleTask
-  public void start(@NonNull ServiceRegistry serviceRegistry, @NonNull Scheduler mainThread) {
+  public void start(
+    @NonNull ServiceRegistry serviceRegistry,
+    @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
+  ) {
     // read the config and connect to influx
-    var conf = this.readConfig(
+    var config = this.readConfig(
       InfluxConfiguration.class,
       () -> new InfluxConfiguration(
         new HostAndPort("http://127.0.0.1", 8086),
@@ -46,19 +64,41 @@ public final class InfluxModule extends DriverModule {
         "bucket",
         30),
       DocumentFactory.json());
-    var influxClient = InfluxDBClientFactory.create(
-      conf.connectUrl(),
-      conf.token().toCharArray(),
-      conf.org(),
-      conf.bucket());
-    // create an influx publisher registry based on that
-    var reg = new DefaultPublisherRegistry(influxClient, mainThread);
-    serviceRegistry.registerProvider(PublisherRegistry.class, "InfluxPublishers", reg);
-    // register all default publishers
-    reg
-      .registerPublisher(ConnectedNodeInfoPublisher.class)
-      .registerPublisher(RunningServiceProcessSnapshotPublisher.class);
+    this.influxClient = InfluxDBClientFactory.create(
+      config.connectUrl(),
+      config.token().toCharArray(),
+      config.org(),
+      config.bucket());
+    var writeApi = this.influxClient.getWriteApiBlocking();
     // start the emitting task
-    reg.scheduleTask(conf.publishDelaySeconds());
+    this.publisherFuture = executorService.scheduleWithFixedDelay(() ->
+      serviceRegistry.registrations(Publisher.class).forEach(registration -> {
+        var publisher = registration.serviceInstance();
+        // try to create the point
+        var points = publisher.createPoints();
+        if (!points.isEmpty()) {
+          for (var point : points) {
+            // stop writing if one write fails
+            try {
+              writeApi.writePoint(point);
+            } catch (InfluxException exception) {
+              LOGGER.warn(
+                "Unable to write point into influx db, possibly the config is invalid? {}",
+                exception.getMessage());
+              break;
+            }
+          }
+        }
+      }), 0, config.publishDelaySeconds(), TimeUnit.SECONDS);
+  }
+
+  @ModuleTask(lifecycle = ModuleLifeCycle.STOPPED)
+  public void stop() {
+    if (this.publisherFuture != null) {
+      this.publisherFuture.cancel(true);
+      this.publisherFuture = null;
+    }
+
+    this.influxClient.close();
   }
 }
