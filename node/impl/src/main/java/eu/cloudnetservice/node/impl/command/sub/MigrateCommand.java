@@ -25,7 +25,7 @@ import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.impl.command.source.ConsoleCommandSource;
-import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import io.vavr.CheckedConsumer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -59,8 +59,9 @@ public final class MigrateCommand {
   }
 
   @Parser(suggestions = "databaseProvider")
-  public @NonNull AbstractNodeDatabaseProvider defaultDatabaseProviderParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
-    var abstractDatabaseProvider = this.serviceRegistry.instance(AbstractNodeDatabaseProvider.class, input.readString());
+  public @NonNull NodeDatabaseProvider defaultDatabaseProviderParser(@NonNull @Service I18n i18n,
+    @NonNull CommandInput input) {
+    var abstractDatabaseProvider = this.serviceRegistry.instance(NodeDatabaseProvider.class, input.readString());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(i18n.translate("command-migrate-unknown-database-provider"));
@@ -70,7 +71,7 @@ public final class MigrateCommand {
 
   @Suggestions("databaseProvider")
   public @NonNull Stream<String> suggestDatabaseProvider() {
-    return this.serviceRegistry.registrations(AbstractNodeDatabaseProvider.class)
+    return this.serviceRegistry.registrations(NodeDatabaseProvider.class)
       .stream()
       .map(Named::name);
   }
@@ -79,8 +80,8 @@ public final class MigrateCommand {
   public void migrateDatabase(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument("database-from") AbstractNodeDatabaseProvider sourceDatabaseProvider,
-    @NonNull @Argument("database-to") AbstractNodeDatabaseProvider targetDatabaseProvider,
+    @NonNull @Argument("database-from") NodeDatabaseProvider sourceDatabaseProvider,
+    @NonNull @Argument("database-to") NodeDatabaseProvider targetDatabaseProvider,
     @Flag("chunk-size") Integer chunkSize
   ) {
     if (sourceDatabaseProvider.equals(targetDatabaseProvider)) {
@@ -92,8 +93,8 @@ public final class MigrateCommand {
       chunkSize = DEFAULT_CHUNK_SIZE;
     }
 
-    if (!this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, AbstractNodeDatabaseProvider::init)
-      || !this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, AbstractNodeDatabaseProvider::init)) {
+    if (!this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, NodeDatabaseProvider::init)
+      || !this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, NodeDatabaseProvider::init)) {
       return;
     }
 
@@ -112,8 +113,8 @@ public final class MigrateCommand {
       return;
     }
 
-    this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, AbstractNodeDatabaseProvider::close);
-    this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, AbstractNodeDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(i18n, sourceDatabaseProvider, NodeDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(i18n, targetDatabaseProvider, NodeDatabaseProvider::close);
 
     source.sendMessage(i18n.translate("command-migrate-success",
       sourceDatabaseProvider.name(),
@@ -122,8 +123,8 @@ public final class MigrateCommand {
 
   private boolean executeIfNotCurrentProvider(
     @NonNull @Service I18n i18n,
-    @NonNull AbstractNodeDatabaseProvider sourceProvider,
-    @NonNull CheckedConsumer<AbstractNodeDatabaseProvider> handler
+    @NonNull NodeDatabaseProvider sourceProvider,
+    @NonNull CheckedConsumer<NodeDatabaseProvider> handler
   ) {
     if (!this.databaseProvider.equals(sourceProvider)) {
       try {

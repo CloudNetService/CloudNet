@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
 import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.util.List;
@@ -62,7 +63,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
       DocumentFactory.json());
 
     serviceRegistry.registerProvider(
-      AbstractNodeDatabaseProvider.class,
+      NodeDatabaseProvider.class,
       this.configuration.databaseServiceName(),
       new MySQLDatabaseProvider(this.configuration, null));
   }
