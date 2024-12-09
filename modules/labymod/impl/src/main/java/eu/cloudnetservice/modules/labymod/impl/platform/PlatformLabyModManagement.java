@@ -49,7 +49,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     @NonNull RPCFactory rpcFactory,
     @NonNull NetworkClient networkClient,
     @NonNull @Service PlayerManager playerManager,
-    @NonNull @Service PlatformBridgeManagement<?, ?> bridgeManagement
+    @NonNull PlatformBridgeManagement<?, ?> bridgeManagement
   ) {
     this.rpcSender = rpcFactory.newRPCSenderBuilder(LabyModManagement.class).targetComponent(networkClient).build();
     this.playerManager = playerManager;

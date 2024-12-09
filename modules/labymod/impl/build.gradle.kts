@@ -15,6 +15,10 @@
  */
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
+plugins {
+  alias(libs.plugins.shadow)
+}
+
 tasks.withType<Jar> {
   archiveFileName.set(Files.labymod)
 }
