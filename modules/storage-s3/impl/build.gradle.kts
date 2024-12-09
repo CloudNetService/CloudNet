@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  alias(libs.plugins.shadow)
+}
+
 tasks.withType<Jar> {
   archiveFileName.set(Files.storageS3)
 }
@@ -22,6 +26,8 @@ dependencies {
   "moduleLibrary"(libs.awsSdk)
   "compileOnly"(projects.utils.utilsBase)
   "implementation"(projects.modules.storageS3.storageS3Api)
+
+  "testImplementation"(projects.utils.utilsBase)
 }
 
 moduleJson {
