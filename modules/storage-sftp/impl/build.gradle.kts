@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  alias(libs.plugins.shadow)
+}
+
 tasks.withType<Jar> {
   archiveFileName.set(Files.storageSftp)
 }
