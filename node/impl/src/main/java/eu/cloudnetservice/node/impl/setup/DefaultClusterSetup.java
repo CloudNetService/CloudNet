@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.HostAndPort;
-import eu.cloudnetservice.node.impl.config.Configuration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.node.impl.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.node.impl.console.animation.setup.answer.QuestionAnswerType;

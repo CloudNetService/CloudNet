@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.impl.service.defaults.factory;
 
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.node.impl.config.Configuration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.util.NetworkUtil;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.CloudServiceManager;

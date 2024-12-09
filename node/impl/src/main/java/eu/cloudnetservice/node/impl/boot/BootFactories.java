@@ -24,7 +24,7 @@ import eu.cloudnetservice.driver.impl.network.netty.client.NettyNetworkClient;
 import eu.cloudnetservice.driver.impl.network.netty.server.NettyNetworkServer;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.NetworkServer;
-import eu.cloudnetservice.node.impl.config.Configuration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.network.DefaultNetworkClientChannelHandler;
 import eu.cloudnetservice.node.impl.network.DefaultNetworkServerChannelHandler;
 import jakarta.inject.Named;

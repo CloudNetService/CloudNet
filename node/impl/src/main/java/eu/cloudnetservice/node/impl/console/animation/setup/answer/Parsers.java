@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.node.impl.config.Configuration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.util.JavaVersionResolver;
 import eu.cloudnetservice.node.impl.util.NetworkUtil;
 import eu.cloudnetservice.node.impl.version.ServiceVersion;

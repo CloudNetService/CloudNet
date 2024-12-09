@@ -25,7 +25,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * The EmitterRegistry keeps track of all {@link ReportDataEmitter}s that are used to collect data for reports.
+ * The EmitterService keeps track of all {@link ReportDataEmitter}s that are used to collect data for reports.
  *
  * @since 4.0
  */

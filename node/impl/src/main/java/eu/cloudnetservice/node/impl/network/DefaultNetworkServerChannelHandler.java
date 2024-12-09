@@ -27,7 +27,7 @@ import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
-import eu.cloudnetservice.node.impl.config.Configuration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.network.listener.AuthorizationPacketListener;
 import eu.cloudnetservice.node.impl.service.InternalCloudService;
 import eu.cloudnetservice.node.impl.util.NetworkUtil;

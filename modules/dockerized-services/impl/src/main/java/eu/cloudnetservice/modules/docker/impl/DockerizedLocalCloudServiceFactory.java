@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
-import eu.cloudnetservice.node.impl.config.Configuration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.impl.service.defaults.factory.BaseLocalCloudServiceFactory;
 import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;

@@ -26,6 +26,7 @@ import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.setup.DefaultConfigSetup;
 import eu.cloudnetservice.node.impl.setup.DefaultInstallation;
 import eu.cloudnetservice.node.impl.util.NetworkUtil;

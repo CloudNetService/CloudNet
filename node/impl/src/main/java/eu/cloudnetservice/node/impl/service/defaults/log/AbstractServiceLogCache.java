@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.impl.service.defaults.log;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.node.impl.config.Configuration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;

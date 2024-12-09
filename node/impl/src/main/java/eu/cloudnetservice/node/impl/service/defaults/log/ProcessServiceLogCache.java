@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.impl.service.defaults.log;
 
-import eu.cloudnetservice.node.impl.config.Configuration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import java.io.IOException;

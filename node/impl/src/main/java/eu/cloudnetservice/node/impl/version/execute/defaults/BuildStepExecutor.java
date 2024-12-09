@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.impl.version.execute.defaults;
 
-import eu.cloudnetservice.node.impl.config.Configuration;
+import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.impl.version.information.VersionInstaller;
 import io.leangen.geantyref.TypeFactory;
