@@ -142,7 +142,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     return this.isOnAnyFallbackInstance(
       this.ownNetworkServiceInfo.serverName(),
       null,
-      _ -> player.getPermissionLevel() > 0);
+      perm -> this.permissionFunction().apply(player, perm));
   }
 
   @Override
@@ -152,7 +152,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
 
   @Override
   public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull Player player, @Nullable String currServer) {
-    return this.fallback(player.getUuid(), currServer, null, _ -> player.getPermissionLevel() > 0);
+    return this.fallback(player.getUuid(), currServer, null, perm -> this.permissionFunction().apply(player, perm));
   }
 
   @Override

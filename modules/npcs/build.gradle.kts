@@ -52,11 +52,6 @@ repositories {
       includeGroup("com.github.retrooper")
     }
   }
-  maven("https://repo.codemc.io/repository/maven-snapshots/") {
-    mavenContent {
-      includeGroup("com.github.retrooper")
-    }
-  }
 }
 
 dependencies {
