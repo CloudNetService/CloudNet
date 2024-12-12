@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.npc.NPC;
 import java.util.Set;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface PlatformSelectorEntity<L, P, M, I, S> {
 
@@ -39,7 +40,7 @@ public interface PlatformSelectorEntity<L, P, M, I, S> {
 
   void executeAction(@NonNull P player, @NonNull NPC.ClickAction action);
 
-  @NonNull I selectorInventory();
+  @Nullable I selectorInventory();
 
   void handleInventoryInteract(@NonNull I inv, @NonNull P player, @NonNull M clickedItem);
 
