@@ -6,7 +6,7 @@ juppiter = "0.4.0"
 spotless = "6.25.0"
 fabricLoom = "1.8.10"
 nexusPublish = "2.0.0"
-checkstyleTools = "10.18.2"
+checkstyleTools = "10.21.0"
 
 # google libs
 gson = "2.11.0"
