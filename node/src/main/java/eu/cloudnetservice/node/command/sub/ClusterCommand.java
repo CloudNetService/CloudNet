@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
@@ -62,7 +61,6 @@ import org.incendo.cloud.annotations.Flag;
 import org.incendo.cloud.annotations.Permission;
 import org.incendo.cloud.annotations.parser.Parser;
 import org.incendo.cloud.annotations.suggestion.Suggestions;
-import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -136,11 +134,8 @@ public final class ClusterCommand {
   }
 
   @Parser(suggestions = "networkClusterNode")
-  public @NonNull NetworkClusterNode defaultNetworkClusterNodeParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var nodeId = input.remove();
+  public @NonNull NetworkClusterNode defaultNetworkClusterNodeParser(@NonNull CommandInput input) {
+    var nodeId = input.readString();
     var clusterNode = this.clusterNodeProvider.node(nodeId);
     if (clusterNode == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
