@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-shadow = "8.3.3"
+shadow = "8.3.5"
 juppiter = "0.4.0"
 spotless = "6.25.0"
 fabricLoom = "1.8.10"
@@ -13,13 +13,13 @@ gson = "2.11.0"
 guava = "33.3.1-jre"
 
 # testing
-junit = "5.11.2"
+junit = "5.11.3"
 mockito = "5.14.2"
-junitLauncher = "1.11.2"
-testcontainers = "1.20.2"
+junitLauncher = "1.11.3"
+testcontainers = "1.20.4"
 
 # compile time processing
-lombok = "1.18.34"
+lombok = "1.18.36"
 javapoet = "1.13.0"
 
 # console
@@ -31,7 +31,7 @@ stringSimilarity = "2.0.0"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "5.2.0"
+mongodb = "5.2.1"
 hikariCp = "6.2.1"
 mysqlConnector = "9.1.0"
 
@@ -41,11 +41,11 @@ vavr = "0.10.5"
 sshj = "0.39.0"
 aerogel = "2.1.0"
 awsSdk = "2.29.34"
-unirest = "4.4.4"
+unirest = "4.4.5"
 caffeine = "3.1.8"
 reflexion = "1.8.0"
 geantyref = "2.0.0"
-dockerJava = "3.4.0"
+dockerJava = "3.4.1"
 nightConfig = "3.8.1"
 annotations = "26.0.1"
 influxClient = "7.2.0"
@@ -54,7 +54,7 @@ gulf = "1.0.0-SNAPSHOT"
 
 # logging
 slf4j = "2.0.16"
-logback = "1.5.11"
+logback = "1.5.12"
 
 # platform api versions
 sponge = "9.0.0"
