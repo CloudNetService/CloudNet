@@ -204,12 +204,13 @@ public final class ServiceCommand {
   @Command("service|ser <name> copy|cp")
   public void copyService(
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "name") ServiceInfoSnapshot service,
+    @NonNull @Argument(value = "name") Collection<ServiceInfoSnapshot> services,
     @Nullable @Flag("template") ServiceTemplate template,
     @Nullable @Flag("excludes") @Quoted String excludes,
     @Nullable @Flag("includes") @Quoted String includes,
     @Flag("case-sensitive") boolean caseSensitive
   ) {
+    var service = services.iterator().next();
     var serviceProvider = service.provider();
     var defaultTemplate = serviceProvider.installedTemplates().stream()
       .filter(st -> st.prefix().equalsIgnoreCase(service.serviceId().taskName()))
@@ -217,7 +218,7 @@ public final class ServiceCommand {
       .findFirst()
       .orElse(null);
     if (template == null && defaultTemplate == null) {
-      source.sendMessage(I18n.trans("command-service-copy-no-default-template"));
+      source.sendMessage(I18n.trans("command-service-copy-no-default-template", service.serviceId().name()));
       return;
     }
 
