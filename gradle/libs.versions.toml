@@ -13,9 +13,9 @@ gson = "2.11.0"
 guava = "33.3.1-jre"
 
 # testing
-junit = "5.11.3"
+junit = "5.11.4"
 mockito = "5.14.2"
-junitLauncher = "1.11.3"
+junitLauncher = "1.11.4"
 testcontainers = "1.20.4"
 
 # compile time processing
@@ -40,7 +40,7 @@ oshi = "6.6.5"
 vavr = "0.10.5"
 sshj = "0.39.0"
 aerogel = "2.1.0"
-awsSdk = "2.29.34"
+awsSdk = "2.29.35"
 unirest = "4.4.5"
 caffeine = "3.1.8"
 reflexion = "1.8.0"
