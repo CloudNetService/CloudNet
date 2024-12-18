@@ -123,16 +123,6 @@ public final class ServiceCommand {
     return matchedServices;
   }
 
-  @Parser(suggestions = "service")
-  public @NonNull ServiceInfoSnapshot serviceSnapshotParser(@NonNull CommandInput input) {
-    var name = input.readString();
-    return this.cloudServiceProvider.services().stream()
-      .filter(service -> service.name().equals(name))
-      .findFirst()
-      .orElseThrow(
-        () -> new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found", name)));
-  }
-
   @Command("service|ser list|l")
   public void displayServices(
     @NonNull CommandSource source,
@@ -232,8 +222,6 @@ public final class ServiceCommand {
       .withDefaultExclusions()
       .build());
     serviceProvider.removeAndExecuteDeployments();
-    // send a message for each service we did copy the template of
-    //noinspection ConstantConditions
     source.sendMessage(I18n.trans("command-service-copy-success",
       service.serviceId().name(),
       Objects.requireNonNullElse(template, defaultTemplate)));
