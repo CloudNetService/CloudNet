@@ -202,29 +202,30 @@ public final class ServiceCommand {
   ) {
     var service = services.iterator().next();
     var serviceProvider = service.provider();
-    var defaultTemplate = serviceProvider.installedTemplates().stream()
-      .filter(st -> st.prefix().equalsIgnoreCase(service.serviceId().taskName()))
-      .filter(st -> st.name().equalsIgnoreCase("default"))
-      .findFirst()
-      .orElse(null);
-    if (template == null && defaultTemplate == null) {
-      source.sendMessage(I18n.trans("command-service-copy-no-default-template", service.serviceId().name()));
-      return;
+    if (template == null) {
+      template = serviceProvider.installedTemplates().stream()
+        .filter(st -> st.prefix().equalsIgnoreCase(service.serviceId().taskName()))
+        .filter(st -> st.name().equalsIgnoreCase("default"))
+        .findFirst()
+        .orElse(null);
+
+      if (template == null) {
+        source.sendMessage(I18n.trans("command-service-copy-no-default-template", service.serviceId().name()));
+        return;
+      }
     }
 
     // split on a semicolon and try to fix the patterns the user entered
     var parsedExcludes = parseDeploymentPatterns(excludes, caseSensitive);
     var parsedIncludes = parseDeploymentPatterns(includes, caseSensitive);
     serviceProvider.addServiceDeployment(ServiceDeployment.builder()
-      .template(Objects.requireNonNullElse(template, defaultTemplate))
+      .template(template)
       .excludes(parsedExcludes)
       .includes(parsedIncludes)
       .withDefaultExclusions()
       .build());
     serviceProvider.removeAndExecuteDeployments();
-    source.sendMessage(I18n.trans("command-service-copy-success",
-      service.serviceId().name(),
-      Objects.requireNonNullElse(template, defaultTemplate)));
+    source.sendMessage(I18n.trans("command-service-copy-success", service.serviceId().name(), template));
   }
 
   @Command("service|ser <name> delete|del")
