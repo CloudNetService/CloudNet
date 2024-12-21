@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
+import eu.cloudnetservice.modules.bridge.platform.minestom.MinestomBridgeManagement;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
@@ -51,6 +52,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
   private final GlobalEventHandler eventHandler;
   private final InstanceManager instanceManager;
   private final SchedulerManager schedulerManager;
+  private final MinestomBridgeManagement bridgeManagement;
 
   @Inject
   protected MinestomSignManagement(
@@ -61,6 +63,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
     @NonNull SchedulerManager schedulerManager,
     @NonNull WrapperConfiguration wrapperConfig,
     @NonNull CloudServiceProvider serviceProvider,
+    @NonNull MinestomBridgeManagement bridgeManagement,
     @NonNull @Named("taskScheduler") ScheduledExecutorService executorService
   ) {
     super(eventManager, MoreExecutors.directExecutor(), wrapperConfig, serviceProvider, executorService);
@@ -69,6 +72,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
     this.eventHandler = eventHandler;
     this.instanceManager = instanceManager;
     this.schedulerManager = schedulerManager;
+    this.bridgeManagement = bridgeManagement;
   }
 
   @Override
@@ -90,14 +94,16 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
               var location = minestomSigns.signLocation();
               if (location != null) {
                 var vec = location.first().asVec();
+                var permissionFunction = this.bridgeManagement.permissionFunction();
                 for (var entity : location.second().getNearbyEntities(location.first(), distance)) {
-                  if (entity instanceof Player player
-                    && (conf.bypassPermission() == null || !player.hasPermission(conf.bypassPermission()))) {
-                    entity.setVelocity(entity.getPosition().asVec()
-                      .sub(vec)
-                      .normalize()
-                      .mul(conf.strength())
-                      .withY(0.2));
+                  if (entity instanceof Player player) {
+                    if (conf.bypassPermission() == null || !permissionFunction.apply(player, conf.bypassPermission())) {
+                      entity.setVelocity(entity.getPosition().asVec()
+                        .sub(vec)
+                        .normalize()
+                        .mul(conf.strength())
+                        .withY(0.2));
+                    }
                   }
                 }
               }

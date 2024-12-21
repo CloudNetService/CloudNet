@@ -17,18 +17,14 @@
 package eu.cloudnetservice.modules.bridge.platform.minestom;
 
 import eu.cloudnetservice.ext.component.ComponentFormats;
-import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
-import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
-import net.minestom.server.event.player.AsyncPlayerPreLoginEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 
@@ -37,14 +33,14 @@ public final class MinestomPlayerManagementListener {
 
   private final ServiceInfoHolder serviceInfoHolder;
   private final ServerPlatformHelper serverPlatformHelper;
-  private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
+  private final MinestomBridgeManagement management;
 
   @Inject
   public MinestomPlayerManagementListener(
     @NonNull GlobalEventHandler eventHandler,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull ServerPlatformHelper serverPlatformHelper,
-    @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
+    @NonNull MinestomBridgeManagement management
   ) {
     this.serviceInfoHolder = serviceInfoHolder;
     this.serverPlatformHelper = serverPlatformHelper;
@@ -52,18 +48,23 @@ public final class MinestomPlayerManagementListener {
     // listen on these events and redirect them into the methods
     var node = EventNode.type("cloudnet-bridge", EventFilter.PLAYER);
     eventHandler.addChild(node
-      .addListener(AsyncPlayerPreLoginEvent.class, this::handleLogin)
+      .addListener(PlayerSpawnEvent.class, this::handleLogin)
       .addListener(PlayerSpawnEvent.class, this::handleJoin)
       .addListener(PlayerDisconnectEvent.class, this::handleDisconnect));
   }
 
-  private void handleLogin(@NonNull AsyncPlayerPreLoginEvent event) {
+  private void handleLogin(@NonNull PlayerSpawnEvent event) {
+    if (!event.isFirstSpawn()) {
+      return;
+    }
+
     var player = event.getPlayer();
     var task = this.management.selfTask();
+    var permissionFunction = this.management.permissionFunction();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !permissionFunction.apply(player, "cloudnet.bridge.maintenance")) {
         this.management.configuration().handleMessage(
           player.getLocale(),
           "server-join-cancel-because-maintenance",
@@ -73,7 +74,7 @@ public final class MinestomPlayerManagementListener {
       }
       // check if a custom permission is required to join
       var permission = task.propertyHolder().getString("requiredPermission");
-      if (permission != null && !player.hasPermission(permission)) {
+      if (permission != null && !permissionFunction.apply(player, permission)) {
         this.management.configuration().handleMessage(
           player.getLocale(),
           "server-join-cancel-because-permission",

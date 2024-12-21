@@ -137,7 +137,7 @@ public final class BukkitFunctionalityListener implements Listener {
     // check if we can handle the event
     if (item != null && item.hasItemMeta() && inv != null && inv.getHolder() == null && clicker instanceof Player) {
       this.management.trackedEntities().values().stream()
-        .filter(npc -> npc.selectorInventory().equals(inv))
+        .filter(npc -> inv.equals(npc.selectorInventory()))
         .findFirst()
         .ifPresent(npc -> {
           event.setCancelled(true);

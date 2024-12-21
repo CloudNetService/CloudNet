@@ -30,6 +30,7 @@ import net.luckperms.api.LuckPermsProvider;
   name = "CloudNet-LuckPerms",
   authors = "CloudNetService",
   version = "@version@",
+  pluginFileNames = "bungee.yml",
   description = "Brings LuckPerms support to all server platforms",
   dependencies = @Dependency(name = "LuckPerms")
 )

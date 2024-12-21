@@ -89,7 +89,7 @@
       "website": "https://papermc.io",
       "versions": [
         {
-          "name": "latest",
+          "name": "1.21.4",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -101,7 +101,22 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.21.1"
+            "versionGroup": "1.21.4"
+          }
+        },
+        {
+          "name": "1.21.3",
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21.3"
           }
         },
         {
@@ -316,9 +331,23 @@
       ],
       "versions": [
         {
-          "name": "latest",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21.1/latest/download",
+          "name": "1.21.4",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.4/latest/download",
           "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.21.3",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.3/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -514,7 +543,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.21.1",
+          "name": "1.21.4",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -557,7 +586,21 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.21.1"
+            "mcVersion": "1.21.3"
+          },
+          "minJavaVersion": 21
+        },
+        {
+          "name": "1.21.3",
+          "properties": {
+            "copy": {
+              "libraries/.*": "/",
+              "launcher\\.conf": "/",
+              "spongevanilla\\.jar": "/"
+            },
+            "fetchOverSpongeApi": true,
+            "artifact": "spongevanilla",
+            "mcVersion": "1.21.3"
           },
           "minJavaVersion": 21
         },
@@ -674,7 +717,7 @@
           "cacheFiles": false,
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "3.3.0-SNAPSHOT"
+            "versionGroup": "3.4.0-SNAPSHOT"
           }
         }
       ]
@@ -703,9 +746,12 @@
       ],
       "versions": [
         {
-          "name": "latest",
-          "url": "https://ci.loohpjames.com/job/Limbo/46/artifact/target/Limbo-0.7.10-ALPHA-1.21.1.jar",
-          "cacheFiles": false
+          "name": "1.21.4",
+          "url": "https://ci.loohpjames.com/job/Limbo/47/artifact/target/Limbo-0.7.12-ALPHA-1.21.4.jar"
+        },
+        {
+          "name": "1.21.3",
+          "url": "https://ci.loohpjames.com/job/Limbo/47/artifact/target/Limbo-0.7.11-ALPHA-1.21.3.jar"
         },
         {
           "name": "1.21.1",

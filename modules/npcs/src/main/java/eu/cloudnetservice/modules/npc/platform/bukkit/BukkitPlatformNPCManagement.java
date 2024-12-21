@@ -23,6 +23,8 @@ import com.github.juliarn.npclib.bukkit.BukkitPlatform;
 import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
 import com.github.juliarn.npclib.bukkit.protocol.BukkitProtocolAdapter;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
+import com.github.retrooper.packetevents.manager.server.ServerVersion;
+import com.github.retrooper.packetevents.util.PEVersion;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -279,17 +281,15 @@ public class BukkitPlatformNPCManagement extends
   }
 
   protected @NonNull PlatformPacketAdapter<World, Player, ItemStack, Plugin> resolvePacketAdapter() {
-    var protocolLibAdapter = BukkitProtocolAdapter.protocolLib();
-    try {
-      //noinspection DataFlowIssue
-      protocolLibAdapter.createCustomPayloadPacket("minecraft:test", new byte[0]).schedule((Player) null, null);
-      return protocolLibAdapter;
-    } catch (NullPointerException _) {
-      // the above test code will always throw an NPE if the test passes. We need to handle this as success.
-      return protocolLibAdapter;
-    } catch (Throwable _) {
-      // protocollib is not working, fallback to packet events
-      return BukkitProtocolAdapter.packetEvents();
+    var bukkitVersion = this.server.getBukkitVersion();
+    var parsedVersion = PEVersion.fromString(bukkitVersion.substring(0, bukkitVersion.indexOf("-")));
+    var latestPEVersion = PEVersion.fromString(ServerVersion.getLatest().getReleaseName());
+    if (parsedVersion.isNewerThan(latestPEVersion)) {
+      this.plugin.getLogger().info("NPCs using ProtocolLib for version " + bukkitVersion);
+      return BukkitProtocolAdapter.protocolLib();
     }
+
+    this.plugin.getLogger().info("NPCs using PacketEvents for version " + bukkitVersion);
+    return BukkitProtocolAdapter.packetEvents();
   }
 }

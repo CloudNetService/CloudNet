@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.signs.platform.minestom.functionality;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
+import eu.cloudnetservice.modules.bridge.platform.minestom.MinestomBridgeManagement;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.minestom.MinestomSignManagement;
@@ -43,9 +44,6 @@ public class SignsCommand extends Command {
   private static final ArgumentLiteral CLEANUP_LITERAL = new ArgumentLiteral("cleanup");
   private static final ArgumentLiteral CLEANUP_ALL_LITERAL = new ArgumentLiteral("cleanupAll");
 
-  private static final CommandCondition DEFAULT_CONDITION = (sender, $) ->
-    sender instanceof Player && sender.hasPermission("cloudnet.command.cloudsign");
-
   private final Argument<String> template = new ArgumentString("templatePath") {
     @Override
     public @NonNull String parse(@NonNull CommandSender sender, @NonNull String input) throws ArgumentSyntaxException {
@@ -61,25 +59,31 @@ public class SignsCommand extends Command {
   private final Argument<String> targetGroup;
   private final Argument<String> world;
   private final MinestomSignManagement signManagement;
+  private final MinestomBridgeManagement bridgeManagement;
 
   @Inject
   public SignsCommand(
     @NonNull MinestomSignManagement signManagement,
-    @NonNull GroupConfigurationProvider groupProvider
+    @NonNull GroupConfigurationProvider groupProvider,
+    @NonNull MinestomBridgeManagement bridgeManagement
   ) {
     super("cloudsign", "cs", "signs", "cloudsigns");
 
     this.targetGroup = this.createTargetGroupArgument(groupProvider);
+    this.bridgeManagement = bridgeManagement;
     this.world = new ArgumentString("world");
     this.signManagement = signManagement;
 
     var createLiteral = new ArgumentLiteral("create");
 
-    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCreate, createLiteral, this.targetGroup, this.template);
-    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleRemove, REMOVE_LITERAL);
-    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleRemoveAll, REMOVE_ALL_LITERAL);
-    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCleanup, CLEANUP_LITERAL, this.world);
-    this.addConditionalSyntax(DEFAULT_CONDITION, this::handleCleanupAll, CLEANUP_ALL_LITERAL);
+    CommandCondition defaultCondition = (sender, _) -> sender instanceof Player player
+      && bridgeManagement.permissionFunction().apply(player, "cloudnet.command.cloudsign");
+
+    this.addConditionalSyntax(defaultCondition, this::handleCreate, createLiteral, this.targetGroup, this.template);
+    this.addConditionalSyntax(defaultCondition, this::handleRemove, REMOVE_LITERAL);
+    this.addConditionalSyntax(defaultCondition, this::handleRemoveAll, REMOVE_ALL_LITERAL);
+    this.addConditionalSyntax(defaultCondition, this::handleCleanup, CLEANUP_LITERAL, this.world);
+    this.addConditionalSyntax(defaultCondition, this::handleCleanupAll, CLEANUP_ALL_LITERAL);
   }
 
   private @NonNull ArgumentString createTargetGroupArgument(@NonNull GroupConfigurationProvider groupProvider) {

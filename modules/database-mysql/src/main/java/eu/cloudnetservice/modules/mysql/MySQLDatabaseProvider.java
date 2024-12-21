@@ -27,7 +27,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
@@ -132,7 +131,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     try (var con = this.connection(); var statement = con.prepareStatement(query)) {
       // write all parameters
       for (var i = 0; i < objects.length; i++) {
-        statement.setString(i + 1, Objects.toString(objects[i]));
+        statement.setObject(i + 1, objects[i]);
       }
 
       // execute the statement
@@ -153,7 +152,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     try (var con = this.connection(); var statement = con.prepareStatement(query)) {
       // write all parameters
       for (var i = 0; i < objects.length; i++) {
-        statement.setString(i + 1, Objects.toString(objects[i]));
+        statement.setObject(i + 1, objects[i]);
       }
 
       // execute the statement, apply to the result handler
