@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
@@ -40,11 +41,9 @@ import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
@@ -62,7 +61,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
   private final CommandManager commandManager;
   private final ConnectionManager connectionManager;
   private final PlayerExecutor directGlobalExecutor;
-  private final Supplier<MinestomPermissionChecker> permissionChecker;
+  private final MinestomPermissionChecker permissionChecker;
 
   @Inject
   public MinestomBridgeManagement(
@@ -71,13 +70,13 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     @NonNull NetworkClient networkClient,
     @NonNull CommandManager commandManager,
     @NonNull GlobalEventHandler eventHandler,
-    @NonNull ServiceRegistry serviceRegistry,
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull BridgeServiceHelper serviceHelper,
     @NonNull ConnectionManager connectionManager,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull CloudServiceProvider serviceProvider,
-    @NonNull WrapperConfiguration wrapperConfiguration
+    @NonNull WrapperConfiguration wrapperConfiguration,
+    @NonNull @Service MinestomPermissionChecker permissionChecker
   ) {
     super(
       rpcFactory,
@@ -91,10 +90,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     // init fields
     this.commandManager = commandManager;
     this.connectionManager = connectionManager;
-
-    this.permissionChecker = () -> Objects.requireNonNullElse(
-      serviceRegistry.defaultRegistration(MinestomPermissionChecker.class).get(),
-      ((player, _) -> player.getPermissionLevel() > 0));
+    this.permissionChecker = permissionChecker;
 
     this.directGlobalExecutor = new MinestomDirectPlayerExecutor(
       this.permissionChecker,
@@ -133,7 +129,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
 
   @Override
   public @NonNull BiFunction<Player, String, Boolean> permissionFunction() {
-    return this.permissionChecker.get()::hasPermission;
+    return this.permissionChecker::hasPermission;
   }
 
   @Override

@@ -62,6 +62,8 @@ public final class MinestomBridgeExtension implements PlatformEntrypoint {
     this.moduleHelper = moduleHelper;
     this.serviceRegistry = serviceRegistry;
     this.bridgeManagement = bridgeManagement;
+
+    serviceRegistry.discoverServices(MinestomBridgeExtension.class);
   }
 
   @Override

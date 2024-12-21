@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
-import eu.cloudnetservice.modules.bridge.platform.minestom.MinestomBridgeManagement;
+import eu.cloudnetservice.modules.bridge.impl.platform.minestom.MinestomBridgeManagement;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.impl.InternalSignManagement;

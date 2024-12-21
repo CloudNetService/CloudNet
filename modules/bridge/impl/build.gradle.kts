@@ -49,6 +49,7 @@ dependencies {
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)
+  "annotationProcessor"(projects.driver.driverAp)
 
   "minecraft"(libs.minecraft)
   "modCompileOnly"(libs.fabricLoader)

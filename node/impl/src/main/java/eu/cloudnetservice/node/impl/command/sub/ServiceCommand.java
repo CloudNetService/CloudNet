@@ -24,7 +24,6 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;

@@ -20,7 +20,7 @@ import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.modules.bridge.platform.minestom.MinestomBridgeManagement;
+import eu.cloudnetservice.modules.bridge.impl.platform.minestom.MinestomBridgeManagement;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.impl.platform.minestom.MinestomSignManagement;
@@ -49,7 +49,6 @@ public class SignsCommand extends Command {
   private final Argument<String> template;
   private final Argument<String> targetGroup;
   private final MinestomSignManagement signManagement;
-  private final MinestomBridgeManagement bridgeManagement;
 
   @Inject
   public SignsCommand(
@@ -60,7 +59,6 @@ public class SignsCommand extends Command {
   ) {
     super("cloudsign", "cs", "signs", "cloudsigns");
 
-    this.bridgeManagement = bridgeManagement;
     this.world = new ArgumentString("world");
     this.template = this.createTemplatePathArgument(i18n);
     this.targetGroup = this.createTargetGroupArgument(i18n, groupProvider);

@@ -40,6 +40,7 @@ dependencies {
   "compileOnly"(projects.ext.adventureHelper)
   "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
   "compileOnly"(projects.modules.bridge.bridgeApi)
+  "compileOnly"(projects.modules.bridge.bridgeImpl)
 
   "implementation"(projects.ext.bukkitCommand)
   "implementation"(projects.modules.signs.signsApi)
