@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.junit;
+package eu.cloudnetservice.node.impl.junit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

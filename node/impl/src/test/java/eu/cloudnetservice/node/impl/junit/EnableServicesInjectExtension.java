@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.junit;
+package eu.cloudnetservice.node.impl.junit;
 
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
+import eu.cloudnetservice.driver.impl.registry.DefaultServiceRegistry;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.node.impl.Node;
@@ -96,6 +97,7 @@ public final class EnableServicesInjectExtension
     // setup default services for testing
     var serviceRegistry = bootInjectionLayer.instance(ServiceRegistry.class);
     serviceRegistry.discoverServices(Node.class);
+    serviceRegistry.discoverServices(DefaultServiceRegistry.class);
 
     // setup injection stuff that depends on the services being initialized
     bootInjectionLayer.install(BindingBuilder.create()

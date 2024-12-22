@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.database.h2;
+package eu.cloudnetservice.node.impl.database.xodus;
 
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.node.impl.database.h2.H2DatabaseProvider;
+import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.node.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -29,22 +30,22 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class H2DatabaseTest {
+@EnableServicesInject
+class XodusDatabaseTest {
 
-  private H2DatabaseProvider databaseProvider;
+  private static final Path BASE_DIRECTORY = Path.of("build", "tmp", "xodus").toAbsolutePath();
+  private XodusDatabaseProvider databaseProvider;
 
   @BeforeEach
-  void setup() throws Exception {
-    var baseDirectory = Path.of("build", "tmp", "h2");
-    FileUtil.delete(baseDirectory);
-
-    this.databaseProvider = new H2DatabaseProvider(baseDirectory.resolve("db").toString());
+  void setup() {
+    this.databaseProvider = new XodusDatabaseProvider(I18n.i18n(), BASE_DIRECTORY.toFile(), false);
     this.databaseProvider.init();
   }
 
   @AfterEach
   void closeEnvironment() throws Exception {
     this.databaseProvider.close();
+    FileUtil.delete(BASE_DIRECTORY);
   }
 
   @Test
@@ -79,16 +80,19 @@ class H2DatabaseTest {
 
     Assertions.assertTrue(database.insert("1234", Document.newJsonDocument().append("hello", "world")));
     Assertions.assertTrue(database.insert("12234", Document.newJsonDocument().append("hello", "world2")));
+    Assertions.assertTrue(database.insert("122234", Document.newJsonDocument().append("hello", "world_123")));
 
     Assertions.assertTrue(database.contains("1234"));
     Assertions.assertTrue(database.contains("12234"));
+    Assertions.assertTrue(database.contains("122234"));
 
-    Assertions.assertEquals(2, database.documentCount());
+    Assertions.assertEquals(3, database.documentCount());
 
     var keys = database.keys();
-    Assertions.assertEquals(2, keys.size());
+    Assertions.assertEquals(3, keys.size());
     Assertions.assertTrue(keys.contains("1234"));
     Assertions.assertTrue(keys.contains("12234"));
+    Assertions.assertTrue(keys.contains("122234"));
 
     var entry = database.get("1234");
     Assertions.assertNotNull(entry);
@@ -101,24 +105,28 @@ class H2DatabaseTest {
     var entry3 = database.get("122334");
     Assertions.assertNull(entry3);
 
-    //var entry4 = database.find("hello", "world");
-    //Assertions.assertEquals(1, entry4.size());
-    //Assertions.assertEquals("world", entry4.iterator().next().getString("hello"));
+    var entry4 = database.find("hello", "world");
+    Assertions.assertEquals(1, entry4.size());
+    Assertions.assertEquals("world", entry4.iterator().next().getString("hello"));
 
     var entry5 = database.find(Map.of("hello", "world2"));
     Assertions.assertEquals(1, entry5.size());
     Assertions.assertEquals("world2", entry5.iterator().next().getString("hello"));
 
+    var entry6 = database.find("hello", "world_123");
+    Assertions.assertEquals(1, entry6.size());
+    Assertions.assertEquals("world_123", entry6.iterator().next().getString("hello"));
+
     var entries = database.entries();
-    Assertions.assertEquals(2, entries.size());
+    Assertions.assertEquals(3, entries.size());
     Assertions.assertEquals("world", entries.get("1234").getString("hello"));
     Assertions.assertEquals("world2", entries.get("12234").getString("hello"));
 
     var documents = database.documents();
-    Assertions.assertEquals(2, documents.size());
+    Assertions.assertEquals(3, documents.size());
 
     Assertions.assertTrue(database.delete("12234"));
-    Assertions.assertEquals(1, database.documentCount());
+    Assertions.assertEquals(2, database.documentCount());
 
     database.clear();
     Assertions.assertEquals(0, database.documentCount());

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.util;
+package eu.cloudnetservice.node.impl.util;
 
 import eu.cloudnetservice.driver.base.Named;
-import eu.cloudnetservice.node.impl.util.WildcardUtil;
 import java.util.Arrays;
 import java.util.Collection;
 import org.junit.jupiter.api.Assertions;

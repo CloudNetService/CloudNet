@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.command;
+package eu.cloudnetservice.node.impl.command;
 
 import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.event.DefaultEventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.impl.command.defaults.DefaultCommandProvider;
 import eu.cloudnetservice.node.impl.command.source.DriverCommandSource;
-import eu.cloudnetservice.node.junit.EnableServicesInject;
+import eu.cloudnetservice.node.impl.junit.EnableServicesInject;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import java.util.Arrays;
 import java.util.List;
