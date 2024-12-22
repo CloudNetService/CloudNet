@@ -85,6 +85,6 @@ public class MongoDBDatabaseProvider extends AbstractNodeDatabaseProvider {
 
   @Override
   public @NonNull String name() {
-    return "eu/cloudnetservice/modules/mongodb/impl";
+    return this.config.databaseServiceName();
   }
 }
