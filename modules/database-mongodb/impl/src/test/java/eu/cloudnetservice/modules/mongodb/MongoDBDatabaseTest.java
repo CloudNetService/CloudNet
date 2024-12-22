@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.mongodb;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
 import eu.cloudnetservice.modules.mongodb.impl.MongoDBDatabaseProvider;
+import eu.cloudnetservice.modules.mongodb.junit.EnableServicesInject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+@EnableServicesInject
 @Testcontainers(disabledWithoutDocker = true)
 class MongoDBDatabaseTest {
 
