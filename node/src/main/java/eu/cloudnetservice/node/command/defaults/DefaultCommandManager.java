@@ -38,8 +38,12 @@ final class DefaultCommandManager extends CommandManager<CommandSource> {
    * a thread pool with 4 threads.
    */
   private DefaultCommandManager() {
+    var executor = Executors.newFixedThreadPool(4);
     super(
-      ExecutionCoordinator.<CommandSource>builder().executor(Executors.newFixedThreadPool(4)).build(),
+      ExecutionCoordinator.<CommandSource>builder()
+        .parsingExecutor(executor)
+        .executionSchedulingExecutor(executor)
+        .build(),
       CommandRegistrationHandler.nullCommandRegistrationHandler());
     this.registerCapability(CloudCapability.StandardCapabilities.ROOT_COMMAND_DELETION);
   }
