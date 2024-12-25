@@ -309,7 +309,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   }
 
   protected boolean checkTemplatePath(@NonNull ServiceInfoSnapshot snapshot, @NonNull Sign sign) {
-    for (var template : snapshot.configuration().templates()) {
+    for (var template : snapshot.provider().installedTemplates()) {
       if (template.toString().equals(sign.templatePath())) {
         return true;
       }
