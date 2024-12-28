@@ -59,7 +59,6 @@ public class WrapperMessenger implements CloudMessenger {
 
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    // TODO: use TaskUtil.getOrDefault?
     return this.sendChannelMessageQueryAsync(channelMessage).join();
   }
 
