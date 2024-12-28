@@ -31,7 +31,7 @@ pluginManagement {
 rootProject.name = "cloudnet-root"
 
 // top level projects
-include("bom", "ext", /*"common", "driver","node", "wrapper-jvm",*/ "launcher", "modules", "plugins")
+include("bom")
 
 // external lib helpers
 initializeSubProjects("ext",
