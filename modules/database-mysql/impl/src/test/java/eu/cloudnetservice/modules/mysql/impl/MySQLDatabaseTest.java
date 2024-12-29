@@ -52,7 +52,7 @@ class MySQLDatabaseTest {
     this.databaseProvider = new MySQLDatabaseProvider(new MySQLConfiguration(
       "test",
       "test",
-      "eu/cloudnetservice/modules/mysql/impl",
+      "mysql",
       List.of(new MySQLConnectionEndpoint(
         "cn_testing",
         new HostAndPort(this.mysqlContainer.getHost(), this.mysqlContainer.getFirstMappedPort())))),
