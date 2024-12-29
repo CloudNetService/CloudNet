@@ -183,11 +183,13 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
     @NonNull ModuleDependency dependency
   ) {
     this.callEvent(new ModulePostInstallDependencyEvent(this.moduleProvider, configuration, dependency));
-    LOGGER.debug(I18n.i18n().translate("Dependency {}:{}:{} for module {}:{}:{} was successfully installed",
+    LOGGER.debug("Dependency {}:{}:{} for module {}:{}:{} was successfully installed",
       dependency.group(),
       dependency.name(),
       dependency.version(),
-      this.moduleArguments(configuration)));
+      configuration.group(),
+      configuration.name(),
+      configuration.version());
   }
 
   /**

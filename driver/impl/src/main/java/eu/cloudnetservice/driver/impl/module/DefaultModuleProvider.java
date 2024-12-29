@@ -232,9 +232,9 @@ public class DefaultModuleProvider implements ModuleProvider {
       // try to load and create the main class instance
       var mainModuleClass = loader.loadClass(moduleConfiguration.main());
       // check if the main class is an instance of the IModule class
-      if (!eu.cloudnetservice.driver.module.Module.class.isAssignableFrom(mainModuleClass)) {
+      if (!Module.class.isAssignableFrom(mainModuleClass)) {
         throw new AssertionError(String.format("Module main class %s is not assignable from %s",
-          mainModuleClass.getCanonicalName(), eu.cloudnetservice.driver.module.Module.class.getCanonicalName()));
+          mainModuleClass.getCanonicalName(), Module.class.getCanonicalName()));
       }
 
       // create an instance of the class and the main module wrapper

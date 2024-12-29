@@ -66,7 +66,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
 
   private final URL source;
   private final URI sourceUri;
-  private final eu.cloudnetservice.driver.module.Module module;
+  private final Module module;
   private final Path dataDirectory;
   private final ModuleProvider provider;
   private final URLClassLoader classLoader;
@@ -94,7 +94,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    */
   public DefaultModuleWrapper(
     @NonNull URL source,
-    @NonNull eu.cloudnetservice.driver.module.Module module,
+    @NonNull Module module,
     @NonNull Path dataDirectory,
     @NonNull ModuleProvider provider,
     @NonNull URLClassLoader classLoader,
@@ -136,7 +136,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull eu.cloudnetservice.driver.module.Module module() {
+  public @NonNull Module module() {
     return this.module;
   }
 
