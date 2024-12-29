@@ -17,6 +17,7 @@
 dependencies {
   "implementation"(projects.utils.utilsBase)
   "implementation"(projects.driver.driverApi)
+  "implementation"(projects.ext.updater)
 
   "implementation"(libs.gson)
   "implementation"(libs.guava)
