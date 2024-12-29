@@ -203,7 +203,6 @@ public final class JsonConfiguration implements Configuration {
     if (this.maxMemory <= 0) {
       this.maxMemory = ConfigurationUtil.get(
         "cloudnet.config.maxMemory",
-        // TODO either expose bean or expose accessor
         (int) ((OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512),
         Integer::parseInt);
     }
