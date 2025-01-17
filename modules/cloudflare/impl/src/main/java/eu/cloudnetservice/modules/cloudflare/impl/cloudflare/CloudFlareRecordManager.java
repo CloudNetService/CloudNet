@@ -97,8 +97,7 @@ public class CloudFlareRecordManager {
 
       // successfully created the record
       var id = result.getString("id");
-      var recordDetail = new DnsRecordDetail(id, record,
-        configuration);
+      var recordDetail = new DnsRecordDetail(id, record, configuration);
 
       // register and return the record
       this.createdRecords.put(serviceUniqueId, recordDetail);
@@ -137,8 +136,7 @@ public class CloudFlareRecordManager {
 
       // successfully patched the record
       var id = result.getString("id");
-      var recordDetail = new DnsRecordDetail(id, record,
-        configuration);
+      var recordDetail = new DnsRecordDetail(id, record, configuration);
 
       // register and return the record
       this.createdRecords.put(serviceUniqueId, recordDetail);
@@ -225,13 +223,11 @@ public class CloudFlareRecordManager {
     }
   }
 
-  public @NonNull Collection<DnsRecordDetail> getAndRemoveRecords(
-    @NonNull UUID serviceUniqueId) {
+  public @NonNull Collection<DnsRecordDetail> getAndRemoveRecords(@NonNull UUID serviceUniqueId) {
     return this.createdRecords.removeAll(serviceUniqueId);
   }
 
-  public @NonNull Collection<DnsRecordDetail> createdRecords(
-    @NonNull UUID serviceUniqueId) {
+  public @NonNull Collection<DnsRecordDetail> createdRecords(@NonNull UUID serviceUniqueId) {
     return this.createdRecords.get(serviceUniqueId);
   }
 
