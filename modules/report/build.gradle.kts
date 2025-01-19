@@ -13,18 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-tasks.withType<Jar> {
-  archiveFileName.set(Files.report)
-}
-
-dependencies {
-  "moduleLibrary"(libs.oshi)
-}
-
-moduleJson {
-  name = "CloudNet-Report"
-  author = "CloudNetService"
-  main = "eu.cloudnetservice.modules.report.CloudNetReportModule"
-  description = "Node extension to automatically report and paste a snapshot of the current CloudNet runtime"
-}

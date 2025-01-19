@@ -26,8 +26,8 @@ dependencies {
   "compileOnly"(libs.bundles.serverPlatform)
 
   "compileOnly"(libs.luckPermsApi)
-  "compileOnly"(projects.wrapperJvm)
-  "compileOnly"(projects.modules.bridge)
+  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
+  "compileOnly"(projects.modules.bridge.bridgeApi)
 
   "minecraft"(libs.minecraft)
   "modCompileOnly"(libs.fabricLoader)

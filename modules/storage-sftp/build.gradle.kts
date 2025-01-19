@@ -13,20 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-tasks.withType<Jar> {
-  archiveFileName.set(Files.storageSftp)
-}
-
-dependencies {
-  "moduleLibrary"(libs.sshj)
-}
-
-moduleJson {
-  author = "CloudNetService"
-  name = "CloudNet-Storage-SFTP"
-  main = "eu.cloudnetservice.modules.sftp.SFTPTemplateStorageModule"
-  description = "CloudNet extension, which includes the sftp storage system"
-  storesSensitiveData = true
-  runtimeModule = true
-}

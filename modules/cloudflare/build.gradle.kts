@@ -13,15 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-tasks.withType<Jar> {
-  archiveFileName.set(Files.cloudflare)
-}
-
-moduleJson {
-  author = "CloudNetService"
-  name = "CloudNet-CloudFlare"
-  main = "eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule"
-  description = "Node extension for automatic creation of SRV entries for proxy services"
-  storesSensitiveData = true
-}
