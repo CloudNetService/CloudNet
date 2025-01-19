@@ -33,10 +33,10 @@ final class AerogelInjectionService implements InjectionService<CommandSource> {
   public @Nullable Object handle(@NonNull InjectionRequest<CommandSource> request) {
     try {
       // get the associated data from the input values
-      var targetClass = request.injectedClass();
+      var targetType = request.injectedType().getType();
       var annotations = request.annotationAccessor().annotations().toArray(new Annotation[0]);
-      var key = BindingKey.of(targetClass).selectQualifier(annotations);
-      var injectionLayer = InjectionLayer.findLayerOf(targetClass);
+      var key = BindingKey.of(targetType).selectQualifier(annotations);
+      var injectionLayer = InjectionLayer.findLayerOf(targetType);
 
       // get the instance of the given class from the injection layer
       return injectionLayer.instance(key);
