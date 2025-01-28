@@ -23,9 +23,10 @@ import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import lombok.NonNull;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Ticks;
 import org.spongepowered.plugin.PluginContainer;
@@ -41,6 +42,7 @@ import org.spongepowered.plugin.PluginContainer;
 )
 public final class SpongeBridgePlugin implements PlatformEntrypoint {
 
+  private final Scheduler scheduler;
   private final PluginContainer plugin;
   private final EventManager eventManager;
   private final ModuleHelper moduleHelper;
@@ -50,6 +52,7 @@ public final class SpongeBridgePlugin implements PlatformEntrypoint {
 
   @Inject
   public SpongeBridgePlugin(
+    @NonNull @Named("sync") Scheduler scheduler,
     @NonNull PluginContainer plugin,
     @NonNull EventManager eventManager,
     @NonNull ModuleHelper moduleHelper,
@@ -57,6 +60,7 @@ public final class SpongeBridgePlugin implements PlatformEntrypoint {
     @NonNull SpongeBridgeManagement bridgeManagement,
     @NonNull SpongePlayerManagementListener playerListener
   ) {
+    this.scheduler = scheduler;
     this.plugin = plugin;
     this.eventManager = eventManager;
     this.moduleHelper = moduleHelper;
@@ -68,7 +72,7 @@ public final class SpongeBridgePlugin implements PlatformEntrypoint {
   @Override
   public void onLoad() {
     this.bridgeManagement.registerServices(this.serviceRegistry);
-    Sponge.server().scheduler().submit(
+    this.scheduler.submit(
       Task.builder()
         .delay(Ticks.of(1))
         .plugin(this.plugin)
