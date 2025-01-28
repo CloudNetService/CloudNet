@@ -29,6 +29,7 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.bungee.BungeeCordProxy;
 import net.minestom.server.extras.velocity.VelocityProxy;
+import net.minestom.server.timer.SchedulerManager;
 import org.slf4j.Logger;
 
 @Singleton
@@ -48,6 +49,7 @@ public final class MinestomBridgeExtension implements PlatformEntrypoint {
   private final Logger logger;
   private final ModuleHelper moduleHelper;
   private final ServiceRegistry serviceRegistry;
+  private final SchedulerManager schedulerManager;
   private final MinestomBridgeManagement bridgeManagement;
 
   @Inject
@@ -55,12 +57,14 @@ public final class MinestomBridgeExtension implements PlatformEntrypoint {
     @NonNull ComponentLogger logger,
     @NonNull ModuleHelper moduleHelper,
     @NonNull ServiceRegistry serviceRegistry,
+    @NonNull SchedulerManager schedulerManager,
     @NonNull MinestomBridgeManagement bridgeManagement,
     @NonNull MinestomPlayerManagementListener playerListener
   ) {
     this.logger = logger;
     this.moduleHelper = moduleHelper;
     this.serviceRegistry = serviceRegistry;
+    this.schedulerManager = schedulerManager;
     this.bridgeManagement = bridgeManagement;
 
     serviceRegistry.discoverServices(MinestomBridgeExtension.class);
@@ -69,7 +73,7 @@ public final class MinestomBridgeExtension implements PlatformEntrypoint {
   @Override
   public void onLoad() {
     this.bridgeManagement.registerServices(this.serviceRegistry);
-    this.bridgeManagement.postInit();
+    this.schedulerManager.scheduleNextTick(this.bridgeManagement::postInit);
 
     // force initialize the bungeecord proxy forwarding
     if (!VelocityProxy.isEnabled()) {
