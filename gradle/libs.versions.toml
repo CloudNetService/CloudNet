@@ -9,7 +9,7 @@ nexusPublish = "2.0.0"
 checkstyleTools = "10.21.2"
 
 # google libs
-gson = "2.11.0"
+gson = "2.12.0"
 guava = "33.4.0-jre"
 
 # testing
