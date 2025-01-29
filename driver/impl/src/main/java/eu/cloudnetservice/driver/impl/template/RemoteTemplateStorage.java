@@ -207,11 +207,8 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     @NonNull Path directory,
     @Nullable Predicate<Path> filter
   ) {
-    try (var inputStream = ZipUtil.zipToStream(directory, filter)) {
-      return this.deployAsync(target, inputStream);
-    } catch (IOException exception) {
-      return CompletableFuture.completedFuture(false);
-    }
+    return TaskUtil.supplyAsync(() -> ZipUtil.zipToStream(directory, filter))
+      .thenCompose(stream -> this.deployAsync(target, stream));
   }
 
   /**
