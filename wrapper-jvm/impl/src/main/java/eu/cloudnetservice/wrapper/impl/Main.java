@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
+import eu.cloudnetservice.wrapper.impl.transform.ClassTransformerRegistry;
 import io.leangen.geantyref.TypeFactory;
 import java.time.Instant;
 import java.util.List;

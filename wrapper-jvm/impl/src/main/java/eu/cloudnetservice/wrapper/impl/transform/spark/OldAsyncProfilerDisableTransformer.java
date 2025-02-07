@@ -17,7 +17,7 @@
 package eu.cloudnetservice.wrapper.impl.transform.spark;
 
 import eu.cloudnetservice.utils.base.StringUtil;
-import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import eu.cloudnetservice.wrapper.impl.transform.ClassTransformer;
 import java.lang.classfile.ClassBuilder;
 import java.lang.classfile.ClassElement;
 import java.lang.classfile.ClassModel;

@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.cloudflare.config;
 
-import eu.cloudnetservice.utils.base.StringUtil;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +37,7 @@ public record CloudflareConfigurationEntry(
   public CloudflareConfigurationEntry {
     // put in a random entry name if no name is given
     if (entryName == null) {
-      entryName = StringUtil.generateRandomString(7);
+      entryName = UUID.randomUUID().toString().split("-")[0];
     }
   }
 
