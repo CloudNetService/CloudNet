@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+import java.util.zip.ZipInputStream;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,11 +87,7 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     @NonNull Path directory,
     @Nullable Predicate<Path> filter
   ) {
-    try (var inputStream = ZipUtil.zipToStream(directory, filter)) {
-      return this.deploy(target, inputStream);
-    } catch (IOException exception) {
-      return false;
-    }
+    return TaskUtil.getOrDefault(this.deployDirectoryAsync(target, directory, filter), false);
   }
 
   /**
@@ -127,15 +124,6 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     return TaskUtil.getOrDefault(this.zipTemplateAsync(template), null);
   }
 
-  @Override
-  public @NonNull CompletableFuture<InputStream> zipTemplateAsync(@NonNull ServiceTemplate template) {
-    return ChunkedFileQueryBuilder.create()
-      .dataIdentifier("remote_templates_zip_template")
-      .requestFromNode(this.componentInfo.nodeUniqueId())
-      .configureMessageBuffer(buffer -> buffer.writeString(this.name).writeObject(template))
-      .query();
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -156,6 +144,89 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     @NonNull String path
   ) throws IOException {
     return this.openLocalOutputStream(template, path, FileUtil.createTempFile(), false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @Nullable InputStream newInputStream(
+    @NonNull ServiceTemplate template,
+    @NonNull String path
+  ) throws IOException {
+    return TaskUtil.getOrDefault(this.newInputStreamAsync(template, path), null);
+  }
+
+  @Override
+  public @NonNull CompletableFuture<InputStream> zipTemplateAsync(@NonNull ServiceTemplate template) {
+    return ChunkedFileQueryBuilder.create()
+      .dataIdentifier("remote_templates_zip_template")
+      .requestFromNode(this.componentInfo.nodeUniqueId())
+      .configureMessageBuffer(buffer -> buffer.writeString(this.name).writeObject(template))
+      .query();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull CompletableFuture<ZipInputStream> openZipInputStreamAsync(@NonNull ServiceTemplate template) {
+    return this.zipTemplateAsync(template).thenApply(inputStream -> inputStream != null
+      ? new ZipInputStream(inputStream)
+      : null);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull CompletableFuture<OutputStream> appendOutputStreamAsync(
+    @NonNull ServiceTemplate template,
+    @NonNull String path
+  ) {
+    return TaskUtil.supplyAsync(() -> this.appendOutputStream(template, path));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull CompletableFuture<OutputStream> newOutputStreamAsync(
+    @NonNull ServiceTemplate template,
+    @NonNull String path
+  ) {
+    return TaskUtil.supplyAsync(() -> this.newOutputStream(template, path));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull CompletableFuture<Boolean> deployDirectoryAsync(
+    @NonNull ServiceTemplate target,
+    @NonNull Path directory,
+    @Nullable Predicate<Path> filter
+  ) {
+    return TaskUtil.supplyAsync(() -> {
+      try (var inputStream = ZipUtil.zipToStream(directory, filter)) {
+        return this.deploy(target, inputStream);
+      }
+    });
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull CompletableFuture<InputStream> newInputStreamAsync(
+    @NonNull ServiceTemplate template,
+    @NonNull String path
+  ) {
+    return ChunkedFileQueryBuilder.create()
+      .dataIdentifier("remote_templates_template_file")
+      .requestFromNode(this.componentInfo.nodeUniqueId())
+      .configureMessageBuffer(buffer -> buffer.writeString(this.name).writeObject(template).writeString(path))
+      .query();
   }
 
   /**
@@ -189,28 +260,5 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
         .build()
         .transferChunkedData()
         .join());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @Nullable InputStream newInputStream(
-    @NonNull ServiceTemplate template,
-    @NonNull String path
-  ) throws IOException {
-    return TaskUtil.getOrDefault(this.newInputStreamAsync(template, path), null);
-  }
-
-  @Override
-  public @NonNull CompletableFuture<InputStream> newInputStreamAsync(
-    @NonNull ServiceTemplate template,
-    @NonNull String path
-  ) {
-    return ChunkedFileQueryBuilder.create()
-      .dataIdentifier("remote_templates_template_file")
-      .requestFromNode(this.componentInfo.nodeUniqueId())
-      .configureMessageBuffer(buffer -> buffer.writeString(this.name).writeObject(template).writeString(path))
-      .query();
   }
 }
