@@ -732,7 +732,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.opencollab.dev/job/NukkitX/job/Nukkit/job/master/lastSuccessfulBuild/artifact/target/nukkit-1.0-SNAPSHOT.jar",
+          "url": "https://repo.opencollab.dev/api/maven/latest/file/maven-snapshots/cn/nukkit/nukkit/1.0-SNAPSHOT?extension=jar",
           "cacheFiles": false
         }
       ]
