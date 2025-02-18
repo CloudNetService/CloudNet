@@ -49,9 +49,12 @@ public final class BukkitPlatformPluginManager extends BasePlatformPluginManager
       layer.install(builder.bind(ScoreboardManager.class).toInstance(platformData.getServer().getScoreboardManager()));
 
       // install the bindings which are specific to the plugin
-      targetedBuilder.installBinding(builder.bind(Plugin.class).toInstance(platformData));
-      targetedBuilder.installBinding(builder.bind(PluginBase.class).toInstance(platformData));
-      targetedBuilder.installBinding(builder.bind(JavaPlugin.class).toInstance(platformData));
+      var pluginBinding = builder
+        .bind(Plugin.class)
+        .andBind(PluginBase.class)
+        .andBind(JavaPlugin.class)
+        .toInstance(platformData);
+      targetedBuilder.installBinding(pluginBinding);
     });
   }
 }

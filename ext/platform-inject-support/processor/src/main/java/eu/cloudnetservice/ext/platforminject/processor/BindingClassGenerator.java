@@ -108,7 +108,7 @@ final class BindingClassGenerator {
     // build the block which actually adds the binding to the layer
     var constructorBuild = CodeBlock.builder().add("builder.bind($L)", bindingBlocks.getFirst());
     if (bindingBlocks.size() > 1) {
-      for (int i = 1; i < bindingBlocks.size(); i++) {
+      for (var i = 1; i < bindingBlocks.size(); i++) {
         constructorBuild.add(".andBind($L)", bindingBlocks.get(i));
       }
     }

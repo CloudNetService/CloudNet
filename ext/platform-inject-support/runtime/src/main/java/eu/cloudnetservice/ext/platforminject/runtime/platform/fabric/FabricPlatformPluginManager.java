@@ -35,7 +35,10 @@ public final class FabricPlatformPluginManager extends BasePlatformPluginManager
       "plugin",
       targetedBuilder -> {
         var bindingBuilder = BASE_INJECTION_LAYER.injector().createBindingBuilder();
-        targetedBuilder.installBinding(bindingBuilder.bind(Object.class).toInstance(platformData));
+        targetedBuilder.installBinding(bindingBuilder
+          .bind(Object.class)
+          .qualifiedWithName("plugin")
+          .toInstance(platformData));
       });
   }
 }

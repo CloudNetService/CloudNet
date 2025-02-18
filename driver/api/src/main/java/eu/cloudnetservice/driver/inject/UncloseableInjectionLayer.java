@@ -89,6 +89,9 @@ record UncloseableInjectionLayer<I extends Injector>(@NonNull InjectionLayer<I> 
     this.parent.install(binding);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void install(@NonNull DynamicBinding binding) {
     this.parent.install(binding);

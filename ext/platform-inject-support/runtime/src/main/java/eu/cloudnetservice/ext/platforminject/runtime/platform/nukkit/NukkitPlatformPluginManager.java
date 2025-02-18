@@ -53,8 +53,7 @@ public final class NukkitPlatformPluginManager extends BasePlatformPluginManager
       layer.install(builder.bind(ResourcePackManager.class).toInstance(server.getResourcePackManager()));
 
       // install the bindings which are specific to the plugin
-      targetedBuilder.installBinding(builder.bind(Plugin.class).toInstance(platformData));
-      targetedBuilder.installBinding(builder.bind(PluginBase.class).toInstance(platformData));
+      targetedBuilder.installBinding(builder.bind(Plugin.class).andBind(PluginBase.class).toInstance(platformData));
     });
   }
 }

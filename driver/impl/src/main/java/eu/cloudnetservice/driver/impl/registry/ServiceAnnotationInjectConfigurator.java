@@ -35,7 +35,8 @@ public final class ServiceAnnotationInjectConfigurator implements BootLayerConfi
   @Override
   public void configureBootLayer(@NonNull InjectionLayer<?> bootLayer) {
     var bindingBuilder = bootLayer.injector().createBindingBuilder();
-    var bindingConstructor = bindingBuilder.bindDynamically().annotationPresent(Service.class)
+    var bindingConstructor = bindingBuilder.bindDynamically()
+      .annotationPresent(Service.class)
       .toKeyedBindingProvider((key, scopedBuilder) -> {
         var annotation = (Service) key.qualifierAnnotation().orElseThrow();
         var serviceType = GenericTypeReflector.erase(key.type());
