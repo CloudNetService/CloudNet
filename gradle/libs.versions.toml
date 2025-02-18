@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-shadow = "8.3.5"
+shadow = "8.3.6"
 juppiter = "0.4.0"
 spotless = "7.0.2"
 fabricLoom = "1.9.2"
@@ -9,7 +9,7 @@ nexusPublish = "2.0.0"
 checkstyleTools = "10.21.2"
 
 # google libs
-gson = "2.12.0"
+gson = "2.12.1"
 guava = "33.4.0-jre"
 
 # testing
@@ -38,10 +38,10 @@ mysqlConnector = "9.2.0"
 
 # general
 oshi = "6.6.6"
-vavr = "0.10.5"
+vavr = "0.10.6"
 sshj = "0.39.0"
 aerogel = "2.1.0"
-awsSdk = "2.30.8"
+awsSdk = "2.30.22"
 unirest = "4.4.5"
 caffeine = "3.2.0"
 reflexion = "1.8.0"
