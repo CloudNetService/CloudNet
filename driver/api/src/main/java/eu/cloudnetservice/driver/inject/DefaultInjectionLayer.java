@@ -111,6 +111,9 @@ record DefaultInjectionLayer<I extends Injector>(
     this.injector.installBinding(binding);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void install(@NonNull DynamicBinding binding) {
     this.injector.installBinding(binding);
