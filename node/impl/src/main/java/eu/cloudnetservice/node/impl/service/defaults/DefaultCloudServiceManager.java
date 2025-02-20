@@ -85,7 +85,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-@Provides({CloudServiceManager.class, CloudServiceProvider.class, InternalCloudServiceManager.class})
+@Provides({InternalCloudServiceManager.class, CloudServiceManager.class, CloudServiceProvider.class})
 public class DefaultCloudServiceManager implements InternalCloudServiceManager {
 
   protected static final Path TEMP_SERVICE_DIR = Path.of(
