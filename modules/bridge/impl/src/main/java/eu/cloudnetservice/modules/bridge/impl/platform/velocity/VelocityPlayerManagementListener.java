@@ -138,13 +138,15 @@ public final class VelocityPlayerManagementListener {
           }
         })
         .orElseGet(() -> {
-          var reason = event.getServerKickReason().map(this.componentSerializer::serialize).orElse("");
-          return KickedFromServerEvent.DisconnectPlayer.create(this.management.configuration().findMessage(
-            event.getPlayer().getEffectiveLocale(),
-            "server-kick-no-other-hub",
-            message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message.replace("%reason%", reason)),
-            Component.empty(),
-            true));
+          var kickReason = event.getServerKickReason().orElse(Component.empty());
+          var resultingReason = this.management.configuration().findMessage(
+              event.getPlayer().getEffectiveLocale(),
+              "server-kick-no-other-hub",
+              ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+              Component.empty(),
+              false)
+            .replaceText(builder -> builder.match("%reason%").replacement(kickReason));
+          return KickedFromServerEvent.DisconnectPlayer.create(resultingReason);
         }));
     }
   }

@@ -198,7 +198,8 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           event.getPlayer().getLocale(),
           "server-kick-no-other-hub",
           message -> ComponentFormats.ADVENTURE_TO_BUNGEE.convert(message.replace("%reason%", reason)),
-          event::setKickReasonComponent);
+          event::setKickReasonComponent,
+          false);
       }
     }
   }
