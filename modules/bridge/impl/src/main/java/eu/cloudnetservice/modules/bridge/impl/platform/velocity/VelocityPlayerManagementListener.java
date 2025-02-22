@@ -50,6 +50,7 @@ public final class VelocityPlayerManagementListener {
   private final ServiceInfoHolder serviceInfoHolder;
   private final ProxyPlatformHelper proxyPlatformHelper;
   private final PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management;
+  private final LegacyComponentSerializer componentSerializer = LegacyComponentSerializer.legacyAmpersand();
 
   @Inject
   public VelocityPlayerManagementListener(
@@ -137,18 +138,11 @@ public final class VelocityPlayerManagementListener {
           }
         })
         .orElseGet(() -> {
-          var serverKickReason = event.getServerKickReason();
-          var fallbackConfig = this.management.currentFallbackConfiguration();
-          // use the server kick reason if present & enabled in the configuration
-          if (serverKickReason.isPresent() && fallbackConfig != null && fallbackConfig.showDownstreamKickMessage()) {
-            return KickedFromServerEvent.DisconnectPlayer.create(serverKickReason.get());
-          }
-
-          // just fallback to the configuration message
+          var reason = event.getServerKickReason().map(this.componentSerializer::serialize).orElse("");
           return KickedFromServerEvent.DisconnectPlayer.create(this.management.configuration().findMessage(
             event.getPlayer().getEffectiveLocale(),
             "server-kick-no-other-hub",
-            ComponentFormats.BUNGEE_TO_ADVENTURE::convert,
+            message -> ComponentFormats.BUNGEE_TO_ADVENTURE.convert(message.replace("%reason%", reason)),
             Component.empty(),
             true));
         }));

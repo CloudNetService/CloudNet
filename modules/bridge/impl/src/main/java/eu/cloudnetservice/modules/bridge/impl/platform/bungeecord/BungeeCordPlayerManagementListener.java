@@ -185,7 +185,6 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           "error-connecting-to-server",
           message -> ComponentFormats.ADVENTURE_TO_BUNGEE.convert(message
             .replace("%server%", event.getKickedFrom().getName())
-            // TODO: take a look at single components instead of arrays
             .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()))),
           event.getPlayer()::sendMessage);
       } else {
@@ -193,15 +192,13 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         event.setCancelled(false);
         event.setCancelServer(null);
 
-        var fallbackConfig = this.management.currentFallbackConfiguration();
-        if (event.getReason() == null || (fallbackConfig != null && !fallbackConfig.showDownstreamKickMessage())) {
-          // set the cancel reason if there is no reason from the downstream service
-          this.management.configuration().handleMessage(
-            event.getPlayer().getLocale(),
-            "server-kick-no-other-hub",
-            ComponentFormats.ADVENTURE_TO_BUNGEE::convert,
-            event::setKickReasonComponent);
-        }
+        // set the cancel reason if there is no reason from the downstream service
+        var reason = event.getReason() != null ? event.getReason().toLegacyText() : "";
+        this.management.configuration().handleMessage(
+          event.getPlayer().getLocale(),
+          "server-kick-no-other-hub",
+          message -> ComponentFormats.ADVENTURE_TO_BUNGEE.convert(message.replace("%reason%", reason)),
+          event::setKickReasonComponent);
       }
     }
   }
