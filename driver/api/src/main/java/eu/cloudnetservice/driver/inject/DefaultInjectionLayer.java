@@ -82,14 +82,14 @@ record DefaultInjectionLayer<I extends Injector>(
     @NonNull Consumer<Map<BindingKey<?>, Provider<?>>> overrides
   ) {
     // get the binding associated with the given type & construct a context builder
-    var element = BindingKey.of(type);
-    var binding = this.injector.binding(element);
+    var key = BindingKey.of(type);
+    var binding = this.injector.binding(key);
 
     // construct the map and decorate it using the consumer
     Map<BindingKey<?>, Provider<?>> overridesMap = new HashMap<>();
     overrides.accept(overridesMap);
 
-    var contextScope = InjectionContextProvider.provider().enterContextScope(this.injector, binding, overridesMap);
+    var contextScope = InjectionContextProvider.provider().enterContextScope(this.injector, key, binding, overridesMap);
 
     // resolve the instance
     return contextScope.executeScoped(() -> {
