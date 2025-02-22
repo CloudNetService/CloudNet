@@ -49,7 +49,6 @@ import org.spongepowered.api.resource.ResourceManager;
 import org.spongepowered.api.resource.pack.PackRepository;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.service.ServiceProvider;
-import org.spongepowered.api.sql.SqlManager;
 import org.spongepowered.api.user.UserManager;
 import org.spongepowered.api.util.metric.MetricsConfigManager;
 import org.spongepowered.api.world.server.WorldManager;
@@ -79,7 +78,6 @@ public final class SpongePlatformPluginManager extends BasePlatformPluginManager
       // game bindings
       layer.install(createFixedBinding(Sponge.game(), Game.class));
       layer.install(createFixedBinding(Sponge.game().platform(), Platform.class));
-      layer.install(createFixedBinding(Sponge.game().sqlManager(), SqlManager.class));
       layer.install(createFixedBinding(Sponge.game().dataManager(), DataManager.class));
       layer.install(createFixedBinding(Sponge.game().eventManager(), EventManager.class));
       layer.install(createFixedBinding(Sponge.game().configManager(), ConfigManager.class));

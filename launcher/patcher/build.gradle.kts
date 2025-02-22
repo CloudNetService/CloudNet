@@ -18,4 +18,9 @@ tasks.withType<Jar> {
   archiveFileName.set(Files.launcherPatcher)
 }
 
+tasks.withType<JavaCompile> {
+  sourceCompatibility = JavaVersion.VERSION_17.toString()
+  targetCompatibility = JavaVersion.VERSION_17.toString()
+}
+
 applyJarMetadata("eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher")

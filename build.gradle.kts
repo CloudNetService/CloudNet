@@ -96,18 +96,29 @@ subprojects {
     testLogging {
       events("started", "passed", "skipped", "failed")
     }
+
+    // allow dynamic agent loading for mockito
+    jvmArgs(
+      "--enable-preview",
+      "-XX:+EnableDynamicAgentLoading",
+      "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
+    )
+
     // always pass down all given system properties
     systemProperties(System.getProperties().mapKeys { it.key.toString() })
   }
 
   tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_17.toString()
-    targetCompatibility = JavaVersion.VERSION_17.toString()
-    // options
+    sourceCompatibility = JavaVersion.VERSION_23.toString()
+    targetCompatibility = JavaVersion.VERSION_23.toString()
+
     options.encoding = "UTF-8"
     options.isIncremental = true
-    // we are aware that those are there, but we only do that if there is no other way we can use - so please keep the terminal clean!
-    options.compilerArgs = mutableListOf("-Xlint:-deprecation,-unchecked")
+
+    if (project.path != ":launcher:java8" && project.path != ":launcher:patcher") {
+      options.compilerArgs.add("--enable-preview")
+      options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
+    }
   }
 
   tasks.withType<Checkstyle> {
@@ -118,13 +129,6 @@ subprojects {
 
   extensions.configure<CheckstyleExtension> {
     toolVersion = rootProject.libs.versions.checkstyleTools.get()
-  }
-
-  // checkstyle issue https://github.com/checkstyle/checkstyle/issues/14211
-  configurations.named("checkstyle") {
-    resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
-      select("com.google.guava:guava:0")
-    }
   }
 
   extensions.configure<SpotlessExtension> {

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+  ],
+  "labels": [
+    "t: dependencies",
+  ],
+  "reviewers": [
+    "0utplay",
+    "derklaro",
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "github-actions",
+      ],
+      "groupName": "github actions",
+    },
+    {
+      "matchUpdateTypes": [
+        "patch",
+      ],
+      "matchPackageNames": [
+        "*",
+        "!gradle",
+      ],
+      "groupName": "all dependencies with patch changes",
+    },
+    {
+      "matchPackageNames": [
+        "net.kyori:adventure-api",
+        "net.kyori:adventure-text-serializer-gson",
+        "net.kyori:adventure-text-serializer-legacy",
+      ],
+      "groupName": "adventure monorepo",
+    },
+    {
+      "description": "Correct Guava version handling",
+      "matchPackageNames": [
+        "com.google.guava:guava",
+      ],
+      "versioning": "regex:^(?<major>\\d+)(\\.(?<minor>\\d+))?(\\.(?<patch>\\d+))?(-(?<compatibility>.*))?$",
+    },
+    {
+      "description": "Dependencies whose updates shouldn't be done automatically",
+      "matchPackageNames": [
+        "azul/zulu-openjdk", // we update our target java version manually
+        "io.netty:**", // disabled until a stable version was released
+        "com.h2database:h2", // breaks old database files & support will be removed in a future release anyway
+        "cpw.mods:modlauncher", // can be removed when sponge updated to v9
+        "org.spongepowered:spongeapi", // we want to leave the oldest version we support as the dependency
+        "io.github.juliarn:npc-lib-**", // currently unstable and will be updated manually
+        "net.minestom:minestom-snapshots", // extremely weird version handling, updates are done manually
+        "dev.waterdog.waterdogpe:waterdog", // we don't support v2 and v1 doesn't receive any updates anymore
+        "org.incendo:cloud-processors-confirmation", // currently unstable and will be updated manually
+      ],
+      "enabled": false,
+    },
+  ],
+  "prHourlyLimit": 10,
+  "rebaseWhen": "conflicted",
+  "rebaseLabel": "s: rebase",
+  "stopUpdatingLabel": "s: stop updates",
+  "commitMessagePrefix": "chore: ",
+  "commitMessageAction": "update",
+}

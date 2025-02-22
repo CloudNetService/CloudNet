@@ -31,7 +31,7 @@ pluginManagement {
 rootProject.name = "cloudnet-root"
 
 // top level projects
-include("bom", "ext", "common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
+include("bom")
 
 // external lib helpers
 initializeSubProjects("ext",
@@ -46,16 +46,14 @@ initializePrefixedSubProjects(
   "platform-inject",
   "api", "loader", "processor", "runtime")
 // plugins
-initializeSubProjects("plugins", "chat", "simplenametags", "papi-expansion")
+initializeSubProjects("plugins", "papi-expansion", "luckperms")
 // modules
 initializeSubProjects("modules",
   "bridge",
   "report",
   "cloudflare",
-  "rest",
   "database-mongodb",
   "database-mysql",
-  "cloudperms",
   "signs",
   "storage-sftp",
   "syncproxy",
@@ -66,7 +64,27 @@ initializeSubProjects("modules",
   "dockerized-services",
   "influx")
 // launcher
-initializeSubProjects("launcher", "java8", "java17", "patcher")
+initializeSubProjects("launcher", "java8", "java22", "patcher")
+
+// driver-api, driver-impl
+initializePrefixedSubProjects("utils", "utils", "base")
+initializePrefixedSubProjects("node", "node", "api", "impl")
+initializePrefixedSubProjects("driver", "driver", "api", "impl", "ap")
+initializePrefixedSubProjects("wrapper-jvm", "wrapper-jvm", "api", "impl")
+initializePrefixedSubProjects("modules:npcs", "npcs", "api", "impl")
+initializePrefixedSubProjects("modules:signs", "signs", "api", "impl")
+initializePrefixedSubProjects("modules:smart", "smart", "api", "impl")
+initializePrefixedSubProjects("modules:report", "report", "api", "impl")
+initializePrefixedSubProjects("modules:bridge", "bridge", "api", "impl")
+initializePrefixedSubProjects("modules:influx", "influx", "api", "impl")
+initializePrefixedSubProjects("modules:labymod", "labymod", "api", "impl")
+initializePrefixedSubProjects("modules:syncproxy", "syncproxy", "api", "impl")
+initializePrefixedSubProjects("modules:cloudflare", "cloudflare", "api", "impl")
+initializePrefixedSubProjects("modules:storage-s3", "storage-s3", "api", "impl")
+initializePrefixedSubProjects("modules:storage-sftp", "storage-sftp", "api", "impl")
+initializePrefixedSubProjects("modules:database-mysql", "database-mysql", "api", "impl")
+initializePrefixedSubProjects("modules:database-mongodb", "database-mongodb", "api", "impl")
+initializePrefixedSubProjects("modules:dockerized-services", "dockerized-services", "api", "impl")
 
 fun initializeSubProjects(rootProject: String, vararg names: String) {
   names.forEach {

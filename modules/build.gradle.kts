@@ -21,14 +21,18 @@ plugins {
 }
 
 subprojects {
-  apply(plugin = "eu.cloudnetservice.juppiter")
+  if (name.endsWith("impl")) {
+    apply(plugin = "eu.cloudnetservice.juppiter")
 
-  configurations {
-    getByName("testImplementation").extendsFrom(getByName("moduleLibrary"))
+    configurations {
+      getByName("testImplementation").extendsFrom(getByName("moduleLibrary"))
+    }
   }
 
   repositories {
     maven("https://repo.waterdog.dev/releases/")
+    maven("https://repo.waterdog.dev/snapshots/")
+    maven("https://repo.loohpjames.com/repository")
     maven("https://repo.md-5.net/repository/releases/")
     maven("https://repo.md-5.net/repository/snapshots/")
     maven("https://repo.opencollab.dev/maven-releases/")
@@ -38,15 +42,15 @@ subprojects {
   }
 
   dependencies {
-    "compileOnly"(rootProject.projects.node)
-    "testImplementation"(rootProject.projects.node)
+    "compileOnly"(rootProject.projects.node.nodeApi)
+    "testImplementation"(rootProject.projects.node.nodeApi)
 
     // generation for platform main classes
     "compileOnly"(rootProject.projects.ext.platformInjectSupport.platformInjectApi)
     "annotationProcessor"(rootProject.projects.ext.platformInjectSupport.platformInjectProcessor)
 
     // internal dependencies
-    "implementation"(rootProject.libs.guava)
+    "compileOnly"(rootProject.libs.guava)
   }
 
   tasks.create<Sync>("processSources") {

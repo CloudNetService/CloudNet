@@ -93,6 +93,7 @@ final class SpongePluginInfoGenerator extends NightConfigInfoGenerator {
           section.add("id", PLUGIN_ID_GENERATOR.convert(dependency.name()));
           section.add("version", dependency.version());
           section.add("optional", dependency.optional());
+          section.add("load-order", "after");
         }))
         .toList();
       ConfigUtil.putIfValuesPresent(config, "dependencies", dependencies);

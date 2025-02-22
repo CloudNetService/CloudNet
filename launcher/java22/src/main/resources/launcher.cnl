@@ -1,0 +1,97 @@
+# CloudNet Launcher Configuration File
+#
+# This is the launcher configuration file. The 'var' command is the only command which is currently supported by default.
+# It will change a system property which gets used by the cloudnet runtime. In a normal scenario there is nothing you
+# need to change, but some options are just nice to play around with. Be sure to never change something in production in
+# here as it might break your cloudnet installation (or node behaviour).
+
+# disables all updates and uses the 'cloudnet.jar' file which must be located in the root directory of the launcher
+# as the runtime version. This property is useful for developing cloudnet, but should never be used normally. If you
+# are developing with or for cloudnet, not cloudnet then leave this option disabled.
+var cloudnet.dev false
+
+# sets the debugger port when a debugger is required to develop with cloudnet. If the given port is outside of the valid
+# port range (0 - 65535) then the debugger will not get enabled. Note: the debugger will be started with suspend enabled
+# meaning that you have to connect at least once to it in order to actually start the node.
+var cloudnet.debug.port -1
+
+# disables the automatic updates of the system as well as installed modules. When auto updates are disabled, the
+# checksums will still get downloaded from GitHub in case any other updating tool should get used.
+# We do not recommend to disable automatic updates as they might include security fixes / security related dependency
+# updates. Support is only provided for the latest version of CloudNet as well.
+var cloudnet.auto.update true
+
+# These are the settings for the automatic updater of cloudnet. The updater uses GitHub to download all update files from.
+# You can change the repository and branch of the updater. Changing the branch is useful if you want to load a diffrent
+# snapshot version of cloudnet. If you want to distribute your own cloudnet updating repository make sure you use the
+# correct file structure (as explained in the launchermeta repo description). Changing the update repo to a non-existing
+# repository or branch will not cause the updater to stop updating - it will just cause failures when starting cloudnet.
+# Keep your system up-to-date! If you know what you are doing then enable the dev mode above to prevent cloudnet from
+# updating modules and itself.
+var cloudnet.updateRepo CloudNetService/launchermeta
+
+# Sets the updating branch. For specific features you can switch to the feature branch to pre-test it. Normal updating
+# branches are:
+#  - 'release':     Always contains the latest release version. This is the best version you can choose for a network
+#                   running in production.
+#  - 'beta':        Contains the newest features of the system which are partly tested and out for community testing.
+#                   These features might still be broken but shouldn't break your network. Changes to these features are
+#                   still possible and your configuration you did might break when the feature gets out of testing.
+#  - 'nightly':     All bleeding edge but newest features of the system. DO NOT USE IN PRODUCTION. Your network is not
+#                   safe and something might break. Good for testing purposes or developers which want to use the latest
+#                   features available. (Use this branch at your own risk!)
+var cloudnet.updateBranch beta
+
+# available default log levels: OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
+# each level includes all messages for levels lower than itself (in the above list: left to right) too
+var cloudnet.log.level DEBUG
+
+# This value sets the memory settings of the JVM for the cloudnet node.
+# The value set here is to be specified in megabytes and describes -xmx as well as -xms.
+#
+# A change in the associated start files (e.g. start.sh) has no effect on the node and should therefore not be changed.
+var cloudnet.node.memory 256
+
+#
+# CloudNet runtime properties
+#
+
+# Sets the directory temporary data is saved to. This includes deployment data, temp service (by default) etc.
+#var cloudnet.tempDir temp
+# Sets the path of the directory in which all temporary services are saved.
+#var cloudnet.tempDir.services temp/services
+# Sets the directory where the launcher safes it's data to. This includes updater data and libraries.
+#var cloudnet.launcherdir launcher
+# Sets the config file location of the node configuration.
+#var cloudnet.config.json.path config.json
+# Sets the console prompt which is displayed on the left side of the command line
+#var cloudnet.console.prompt &c%user%&r@&7%version% &f=> &r
+# Sets the path to the permissions.json file in which all permission groups are saved.
+#var cloudnet.permissions.json.path local/permissions.json
+# Sets the path to the directory in which all task groups are saved.
+#var cloudnet.config.groups.directory.path local/groups
+# Sets the path of the directory in which all tasks are saved.
+#var cloudnet.config.tasks.directory.path local/tasks
+# Sets the path of the directory in which all persisted (static) services are saved.
+#var cloudnet.persistable.services.path local/services
+# Sets the path to the version cache
+#var cloudnet.versioncache.path local/versioncache
+# Sets the path to the cloudnet log directory
+#var cloudnet.log.path local/logs
+# Sets the timeout until a node gets marked as disconnected from the local node. This does not mean that the node will
+# be removed completely from the system, there is a grace period for the node to reconnect to this node (see the following
+# setting for this)
+#var cloudnet.max.node.idle.millis 30000
+# Sets the timeout until a node gets force disconnected from the current node after getting marked as disconnected (see
+# the previous setting). This defaults to 0 as we want a node to get disconnected instantly. Increasing this timeout might
+# lead to unexpected cluster behaviour, such as registered players which are already disconnected or registered services
+# which were already stopped during the disconnect time. USE THIS SETTING AT YOUR OWN RISK!
+#var cloudnet.max.node.disconnect.millis 0
+# Sets the path to the directory in which the local xodus database file is located
+#var cloudnet.database.xodus.path local/database/xodus
+# Sets the path in which the local templates are stored
+#var cloudnet.storage.local local/templates
+# Sets if CloudNet should use a native transport (io_uring, epoll, kqueue) if available
+# These transports are platform optimized, generally generate less garbage and improve performance over the non-native
+# (but fallback when native is disabled) nio transport
+#var cloudnet.no-native false
