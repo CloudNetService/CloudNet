@@ -17,16 +17,16 @@
 package eu.cloudnetservice.driver.inject;
 
 import com.google.common.base.Preconditions;
+import dev.derklaro.aerogel.InjectionRequest;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.TargetedInjectorBuilder;
 import dev.derklaro.aerogel.binding.DynamicBinding;
 import dev.derklaro.aerogel.binding.UninstalledBinding;
 import dev.derklaro.aerogel.binding.key.BindingKey;
 import eu.cloudnetservice.driver.base.Named;
-import jakarta.inject.Provider;
 import java.io.UncheckedIOException;
-import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -210,13 +210,13 @@ public sealed interface InjectionLayer<I extends Injector>
    * injection context.
    *
    * @param type      the type of the element to get.
-   * @param overrides the overrides for the binding key and the value to use as override.
+   * @param decorator the decorator for the injection request.
    * @param <T>       the type of the return value modeled by the given element.
    * @return the constructed instance of the class type, may be null.
-   * @throws NullPointerException if the given type or builder is null.
+   * @throws NullPointerException if the given type or decorator is null.
    */
   @UnknownNullability
-  <T> T instance(@NonNull Class<T> type, @NonNull Consumer<Map<BindingKey<?>, Provider<?>>> overrides);
+  <T> T instance(@NonNull Class<T> type, @NonNull UnaryOperator<InjectionRequest<T>> decorator);
 
   /**
    * Installs the uninstalled binding into the underlying injector.

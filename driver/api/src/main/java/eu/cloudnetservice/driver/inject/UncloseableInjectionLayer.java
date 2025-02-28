@@ -16,13 +16,12 @@
 
 package eu.cloudnetservice.driver.inject;
 
+import dev.derklaro.aerogel.InjectionRequest;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.binding.DynamicBinding;
 import dev.derklaro.aerogel.binding.UninstalledBinding;
 import dev.derklaro.aerogel.binding.key.BindingKey;
-import jakarta.inject.Provider;
-import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
@@ -76,9 +75,9 @@ record UncloseableInjectionLayer<I extends Injector>(@NonNull InjectionLayer<I> 
   @Override
   public <T> @UnknownNullability T instance(
     @NonNull Class<T> type,
-    @NonNull Consumer<Map<BindingKey<?>, Provider<?>>> overrides
+    @NonNull UnaryOperator<InjectionRequest<T>> decorator
   ) {
-    return this.parent.instance(type, overrides);
+    return this.parent.instance(type, decorator);
   }
 
   /**

@@ -16,18 +16,15 @@
 
 package eu.cloudnetservice.driver.inject;
 
+import dev.derklaro.aerogel.InjectionRequest;
 import dev.derklaro.aerogel.Injector;
 import dev.derklaro.aerogel.auto.AerogelAutoModule;
 import dev.derklaro.aerogel.binding.DynamicBinding;
 import dev.derklaro.aerogel.binding.UninstalledBinding;
 import dev.derklaro.aerogel.binding.key.BindingKey;
-import dev.derklaro.aerogel.internal.context.scope.InjectionContextProvider;
-import jakarta.inject.Provider;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
@@ -76,31 +73,13 @@ record DefaultInjectionLayer<I extends Injector>(
    * {@inheritDoc}
    */
   @Override
-  @SuppressWarnings("unchecked")
   public <T> @UnknownNullability T instance(
     @NonNull Class<T> type,
-    @NonNull Consumer<Map<BindingKey<?>, Provider<?>>> overrides
+    @NonNull UnaryOperator<InjectionRequest<T>> decorator
   ) {
-    // get the binding associated with the given type & construct a context builder
     var key = BindingKey.of(type);
-    var binding = this.injector.binding(key);
-
-    // construct the map and decorate it using the consumer
-    Map<BindingKey<?>, Provider<?>> overridesMap = new HashMap<>();
-    overrides.accept(overridesMap);
-
-    var contextScope = InjectionContextProvider.provider().enterContextScope(this.injector, key, binding, overridesMap);
-
-    // resolve the instance
-    return contextScope.executeScoped(() -> {
-      try {
-        return (T) contextScope.context().resolveInstance();
-      } finally {
-        if (contextScope.context().root()) {
-          contextScope.context().finishConstruction();
-        }
-      }
-    });
+    var injectionRequest = decorator.apply(this.injector.createInjectionRequest(key));
+    return injectionRequest.construct();
   }
 
   /**

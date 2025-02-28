@@ -16,23 +16,21 @@
 
 package eu.cloudnetservice.driver.module.driver;
 
+import dev.derklaro.aerogel.InjectionRequest;
 import dev.derklaro.aerogel.binding.key.BindingKey;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.document.DocumentParseException;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.inject.NamedImpl;
 import eu.cloudnetservice.driver.module.DefaultModule;
 import eu.cloudnetservice.driver.module.Module;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
-import jakarta.inject.Named;
-import jakarta.inject.Provider;
-import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
 
 /**
@@ -46,18 +44,8 @@ import lombok.NonNull;
  */
 public class DriverModule extends DefaultModule {
 
-  private static final BindingKey<Path> CONFIG_BINDING_KEY = BindingKey.of(Path.class).withQualifier(new Named() {
-
-    @Override
-    public Class<? extends Annotation> annotationType() {
-      return Named.class;
-    }
-
-    @Override
-    public String value() {
-      return "configPath";
-    }
-  });
+  private static final BindingKey<Path> CONFIG_BINDING_KEY = BindingKey.of(Path.class)
+    .withQualifier(new NamedImpl("configPath"));
 
   /**
    * Reads the configuration file of this module from the default or overridden configuration path (via module.json)
@@ -124,7 +112,7 @@ public class DriverModule extends DefaultModule {
    * class instance. Bindings are respected by this method.
    * <p>
    * If further customization of the injection context which is taking over the injection process is needed, the method
-   * {@link #readConfigAndInstantiate(InjectionLayer, Class, Supplier, Class, Consumer, DocumentFactory)} is able to
+   * {@link #readConfigAndInstantiate(InjectionLayer, Class, Supplier, Class, UnaryOperator, DocumentFactory)} is able to
    * allow for further customization of the class injection context (for example needed if other non-constructable types
    * are required to instantiate the binding of the given type).
    *
@@ -151,8 +139,7 @@ public class DriverModule extends DefaultModule {
       configModelType,
       defaultConfigFactory,
       classToInstantiate,
-      $ -> {
-      },
+      UnaryOperator.identity(),
       documentFactory);
   }
 
@@ -172,7 +159,7 @@ public class DriverModule extends DefaultModule {
    * @param configModelType      the modeling class of the configuration.
    * @param defaultConfigFactory a factory constructing a default config instance if needed.
    * @param classToInstantiate   the class to instantiate after successfully loading the configuration.
-   * @param builderDecorator     the decorator to apply to the injection context builder, for further customization.
+   * @param decorator            the decorator to apply to the injection context builder, for further customization.
    * @param documentFactory      the document factory to use when reading the configuration file.
    * @param <C>                  the type of the configuration model.
    * @param <T>                  the type modeling the class which should be instantiated.
@@ -185,17 +172,17 @@ public class DriverModule extends DefaultModule {
     @NonNull Class<C> configModelType,
     @NonNull Supplier<C> defaultConfigFactory,
     @NonNull Class<T> classToInstantiate,
-    @NonNull Consumer<Map<BindingKey<?>, Provider<?>>> builderDecorator,
+    @NonNull UnaryOperator<InjectionRequest<T>> decorator,
     @NonNull DocumentFactory documentFactory
   ) {
     // read the config
     var config = this.readConfig(configModelType, defaultConfigFactory, documentFactory);
-    return injectionLayer.instance(classToInstantiate, overrides -> {
+    return injectionLayer.instance(classToInstantiate, request -> {
       // write the default elements to the builder
-      overrides.put(BindingKey.of(configModelType), () -> config);
-      overrides.put(CONFIG_BINDING_KEY, this::configPath);
-      // apply the custom modifier
-      builderDecorator.accept(overrides);
+      request = request
+        .override(configModelType, config)
+        .override(CONFIG_BINDING_KEY, this.configPath());
+      return decorator.apply(request);
     });
   }
 

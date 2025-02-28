@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.impl.node;
 
-import dev.derklaro.aerogel.binding.key.BindingKey;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -82,10 +81,9 @@ public class CloudNetSignsModule extends DriverModule {
   ) {
     var management = layer.instance(
       NodeSignManagement.class,
-      overrides -> {
-        overrides.put(BindingKey.of(SignsConfiguration.class), () -> this.configuration);
-        overrides.put(BindingKey.of(Database.class), () -> this.database);
-      });
+      request -> request
+        .override(SignsConfiguration.class, this.configuration)
+        .override(Database.class, this.database));
     management.registerToServiceRegistry(serviceRegistry);
 
     commandProvider.register(SignCommand.class);
