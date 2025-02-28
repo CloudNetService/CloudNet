@@ -22,24 +22,42 @@ import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An implementation of the {@link Named} annotation. This implementation can be used when constructing a binding for a
+ * type that requires a {@link Named} annotation as qualifier.
+ *
+ * @param value the value of the named annotation.
+ */
 @SuppressWarnings("ClassExplicitlyAnnotation")
 public record NamedImpl(@NonNull String value) implements Named {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Class<? extends Annotation> annotationType() {
     return Named.class;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(@Nullable Object other) {
     return other instanceof NamedImpl(var otherValue) && Objects.equals(this.value, otherValue);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode() {
     return (127 * "value".hashCode()) ^ this.value.hashCode();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String toString() {
     return "@" + Named.class.getName() + "(value=\"" + this.value + "\")";
