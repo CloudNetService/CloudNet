@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
  * type that requires a {@link Named} annotation as qualifier.
  *
  * @param value the value of the named annotation.
+ * @since 4.0
  */
 @SuppressWarnings("ClassExplicitlyAnnotation")
 public record NamedImpl(@NonNull String value) implements Named {
@@ -44,7 +45,7 @@ public record NamedImpl(@NonNull String value) implements Named {
    */
   @Override
   public boolean equals(@Nullable Object other) {
-    return other instanceof NamedImpl(var otherValue) && Objects.equals(this.value, otherValue);
+    return other instanceof Named named && Objects.equals(this.value, named.value());
   }
 
   /**
