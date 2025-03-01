@@ -17,7 +17,6 @@
 package eu.cloudnetservice.ext.platforminject.api.defaults;
 
 import dev.derklaro.aerogel.Injector;
-import dev.derklaro.aerogel.SpecifiedInjector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.PlatformPluginInfo;
@@ -135,5 +134,5 @@ public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginM
     }
   }
 
-  protected abstract @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull T platformData);
+  protected abstract @NonNull InjectionLayer<Injector> createInjectionLayer(@NonNull T platformData);
 }

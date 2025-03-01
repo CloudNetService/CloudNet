@@ -16,10 +16,7 @@
 
 package eu.cloudnetservice.ext.platforminject.runtime.platform.waterdog;
 
-import static eu.cloudnetservice.driver.inject.InjectUtil.createFixedBinding;
-import static eu.cloudnetservice.ext.platforminject.runtime.util.BindingUtil.fixedBindingWithBound;
-
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.command.CommandMap;
 import dev.waterdog.waterdogpe.event.EventManager;
@@ -44,23 +41,26 @@ final class WaterDogPlatformPluginManager extends BasePlatformPluginManager<Stri
   }
 
   @Override
-  protected @NonNull InjectionLayer<SpecifiedInjector> createInjectionLayer(@NonNull Plugin platformData) {
-    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", (layer, injector) -> {
+  protected @NonNull InjectionLayer<Injector> createInjectionLayer(@NonNull Plugin platformData) {
+    return InjectionLayer.specifiedChild(BASE_INJECTION_LAYER, "plugin", targetedBuilder -> {
       // install bindings for the platform
-      layer.install(createFixedBinding(platformData.getProxy(), ProxyServer.class));
-      layer.install(createFixedBinding(platformData.getProxy().getLogger(), MainLogger.class));
-      layer.install(createFixedBinding(platformData.getProxy().getCommandMap(), CommandMap.class));
-      layer.install(createFixedBinding(platformData.getProxy().getPackManager(), PackManager.class));
-      layer.install(createFixedBinding(platformData.getProxy().getLanguageConfig(), LangConfig.class));
-      layer.install(createFixedBinding(platformData.getProxy().getEventManager(), EventManager.class));
-      layer.install(createFixedBinding(platformData.getProxy().getPlayerManager(), PlayerManager.class));
-      layer.install(createFixedBinding(platformData.getProxy().getServerInfoMap(), ServerInfoMap.class));
-      layer.install(createFixedBinding(platformData.getProxy().getPluginManager(), PluginManager.class));
-      layer.install(createFixedBinding(platformData.getProxy().getScheduler(), WaterdogScheduler.class));
-      layer.install(createFixedBinding(platformData.getProxy().getConfigurationManager(), ConfigurationManager.class));
+      var layer = BASE_INJECTION_LAYER;
+      var bindingBuilder = layer.injector().createBindingBuilder();
+      layer.install(bindingBuilder.bind(ProxyServer.class).toInstance(platformData.getProxy()));
+      layer.install(bindingBuilder.bind(MainLogger.class).toInstance(platformData.getProxy().getLogger()));
+      layer.install(bindingBuilder.bind(CommandMap.class).toInstance(platformData.getProxy().getCommandMap()));
+      layer.install(bindingBuilder.bind(PackManager.class).toInstance(platformData.getProxy().getPackManager()));
+      layer.install(bindingBuilder.bind(LangConfig.class).toInstance(platformData.getProxy().getLanguageConfig()));
+      layer.install(bindingBuilder.bind(EventManager.class).toInstance(platformData.getProxy().getEventManager()));
+      layer.install(bindingBuilder.bind(PlayerManager.class).toInstance(platformData.getProxy().getPlayerManager()));
+      layer.install(bindingBuilder.bind(ServerInfoMap.class).toInstance(platformData.getProxy().getServerInfoMap()));
+      layer.install(bindingBuilder.bind(PluginManager.class).toInstance(platformData.getProxy().getPluginManager()));
+      layer.install(bindingBuilder.bind(WaterdogScheduler.class).toInstance(platformData.getProxy().getScheduler()));
+      layer.install(bindingBuilder.bind(ConfigurationManager.class)
+        .toInstance(platformData.getProxy().getConfigurationManager()));
 
       // install the bindings which are specific to the plugin
-      injector.installSpecified(fixedBindingWithBound(platformData, Plugin.class));
+      targetedBuilder.installBinding(bindingBuilder.bind(Plugin.class).toInstance(platformData));
     });
   }
 }

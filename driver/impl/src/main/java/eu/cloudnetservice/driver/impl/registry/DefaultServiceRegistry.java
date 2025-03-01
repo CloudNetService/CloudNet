@@ -17,7 +17,7 @@
 package eu.cloudnetservice.driver.impl.registry;
 
 import com.google.common.base.Preconditions;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.registry.ServiceRegistryRegistration;

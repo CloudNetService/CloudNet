@@ -17,10 +17,8 @@
 package eu.cloudnetservice.driver.impl.module;
 
 import com.google.common.base.Preconditions;
-import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.auto.Provides;
-import dev.derklaro.aerogel.binding.BindingBuilder;
-import dev.derklaro.aerogel.util.Qualifiers;
+import dev.derklaro.aerogel.auto.annotation.Provides;
+import dev.derklaro.aerogel.binding.key.BindingKey;
 import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -74,9 +72,8 @@ public class DefaultModuleProvider implements ModuleProvider {
   protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultModuleProvider.class);
   protected static final ModuleDependencyLoader DEFAULT_DEP_LOADER = new DefaultModuleDependencyLoader(DEFAULT_LIB_DIR);
 
-  private static final Element MODULE_CONFIGURATION_ELEMENT = Element.forType(ModuleConfiguration.class);
-  private static final Element DATA_DIRECTORY_ELEMENT = Element.forType(Path.class)
-    .requireAnnotation(Qualifiers.named("dataDirectory"));
+  private static final Class<Path> DATA_DIRECTORY_KEY = Path.class;
+  private static final BindingKey<ModuleConfiguration> MODULE_CONFIG_KEY = BindingKey.of(ModuleConfiguration.class);
 
   protected final Collection<ModuleWrapper> modules = new CopyOnWriteArrayList<>();
 
@@ -214,12 +211,14 @@ public class DefaultModuleProvider implements ModuleProvider {
 
       // create the injection layer for the module
       var externalLayer = InjectionLayer.ext();
-      var moduleLayer = InjectionLayer.specifiedChild(externalLayer, "module", (layer, injector) -> {
-        injector.installSpecified(BindingBuilder.create()
-          .bind(DATA_DIRECTORY_ELEMENT)
+      var moduleLayer = InjectionLayer.specifiedChild(externalLayer, "module", builder -> {
+        var bindingBuilder = externalLayer.injector().createBindingBuilder();
+        builder.installBinding(bindingBuilder
+          .bind(DATA_DIRECTORY_KEY)
+          .qualifiedWithName("dataDirectory")
           .toInstance(dataDirectory));
-        injector.installSpecified(BindingBuilder.create()
-          .bind(MODULE_CONFIGURATION_ELEMENT)
+        builder.installBinding(bindingBuilder
+          .bind(MODULE_CONFIG_KEY)
           .toInstance(moduleConfiguration));
       });
 

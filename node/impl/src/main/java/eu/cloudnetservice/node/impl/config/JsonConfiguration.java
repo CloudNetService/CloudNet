@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.impl.config;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.sun.management.OperatingSystemMXBean;
-import dev.derklaro.aerogel.auto.Factory;
+import dev.derklaro.aerogel.auto.annotation.Factory;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.document.Document;
