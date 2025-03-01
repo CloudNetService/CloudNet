@@ -89,8 +89,7 @@ public class DockerizedServicesModule extends DriverModule {
       DockerizedLocalCloudServiceFactory.class,
       request -> request
         .override(DockerClient.class, dockerClient)
-        .override(DockerConfiguration.class, this.configuration)
-    );
+        .override(DockerConfiguration.class, this.configuration));
     serviceManager.addCloudServiceFactory(this.configuration.factoryName(), factory);
   }
 

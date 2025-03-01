@@ -36,7 +36,7 @@ public record NamedImpl(@NonNull String value) implements Named {
    * {@inheritDoc}
    */
   @Override
-  public Class<? extends Annotation> annotationType() {
+  public @NonNull Class<? extends Annotation> annotationType() {
     return Named.class;
   }
 
