@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper.impl.transform.netty;
 
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeTransform;
 import java.lang.classfile.instruction.InvokeInstruction;
@@ -53,7 +54,7 @@ public final class OldEpollDisableTransformer implements ClassTransformer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ClassTransform provideClassTransform() {
+  public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
     CodeTransform codeTransform = (codeBuilder, codeElement) -> {
       if (codeElement instanceof InvokeInstruction inst && inst.name().equalsString(MN_OLD_EPOLL_CREATE)) {
         // old versions of netty are invoking a method called "epollCreate", new ones are invoking "newEpollCreate"

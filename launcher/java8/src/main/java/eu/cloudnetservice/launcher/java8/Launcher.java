@@ -19,14 +19,14 @@ package eu.cloudnetservice.launcher.java8;
 public final class Launcher {
 
   public static void main(String[] args) throws Exception {
-    // check if we're at least on java 23
-    if (detectJavaVersion() == 23) {
+    // check if we're at least on java 24
+    if (detectJavaVersion() == 24) {
       Class.forName("eu.cloudnetservice.launcher.java22.CloudNetLauncher")
         .getConstructor(String[].class)
         .newInstance((Object) args);
     } else {
       // CHECKSTYLE.OFF: Launcher has no proper logger
-      System.err.println("CloudNet requires exactly Java 23. Download it from https://adoptium.net/");
+      System.err.println("CloudNet requires exactly Java 24. Download it from https://adoptium.net/");
       System.exit(1);
       // CHECKSTYLE.ON
     }

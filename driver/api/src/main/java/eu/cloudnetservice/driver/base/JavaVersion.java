@@ -104,7 +104,11 @@ public enum JavaVersion {
   /**
    * Java version 24.
    */
-  JAVA_24(24, 68D, "Java 24");
+  JAVA_24(24, 68D, "Java 24"),
+  /**
+   * Java version 25.
+   */
+  JAVA_25(25, 69D, "Java 25");
 
   private static final JavaVersion[] JAVA_VERSIONS = resolveActualJavaVersions();
   private static final JavaVersion LATEST_VERSION = JAVA_VERSIONS[JAVA_VERSIONS.length - 1];

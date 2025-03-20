@@ -114,8 +114,8 @@ public final class DefaultClassTransformerRegistry implements ClassTransformerRe
         // apply the transformation to the provided class file
         var classFile = ClassFile.of();
         var classModel = classFile.parse(classfileBuffer);
-        var classTransform = this.transformer.provideClassTransform();
-        return classFile.transform(classModel, classTransform);
+        var classTransform = this.transformer.provideClassTransform(classModel);
+        return classFile.transformClass(classModel, classTransform);
       } catch (Exception exception) {
         LOGGER.error("Failed to transform class {} using transformer {}", className, transformerClassName, exception);
         return null;

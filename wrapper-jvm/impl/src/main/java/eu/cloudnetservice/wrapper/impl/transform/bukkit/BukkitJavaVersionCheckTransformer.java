@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper.impl.transform.bukkit;
 
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.CodeElement;
@@ -56,7 +57,7 @@ public final class BukkitJavaVersionCheckTransformer implements ClassTransformer
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ClassTransform provideClassTransform() {
+  public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
     var codeTransform = CodeTransform.ofStateful(BukkitJavaVersionCheckRemoveCodeTransform::new);
     return ClassTransform.transformingMethodBodies(mm -> mm.methodName().equalsString(MN_MAIN), codeTransform);
   }

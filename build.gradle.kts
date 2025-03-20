@@ -109,8 +109,8 @@ subprojects {
   }
 
   tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_23.toString()
-    targetCompatibility = JavaVersion.VERSION_23.toString()
+    sourceCompatibility = JavaVersion.VERSION_24.toString()
+    targetCompatibility = JavaVersion.VERSION_24.toString()
 
     options.encoding = "UTF-8"
     options.isIncremental = true
