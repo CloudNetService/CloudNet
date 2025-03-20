@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.impl.module.util;
 
-import dev.derklaro.aerogel.auto.Factory;
+import dev.derklaro.aerogel.auto.annotation.Factory;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.node.impl.module.ModulesHolder;
 import eu.cloudnetservice.utils.base.io.FileUtil;

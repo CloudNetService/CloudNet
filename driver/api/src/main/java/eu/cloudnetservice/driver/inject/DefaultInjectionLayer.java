@@ -16,14 +16,15 @@
 
 package eu.cloudnetservice.driver.inject;
 
-import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.InjectionContext;
+import dev.derklaro.aerogel.InjectionRequest;
 import dev.derklaro.aerogel.Injector;
-import dev.derklaro.aerogel.SpecifiedInjector;
-import dev.derklaro.aerogel.auto.runtime.AutoAnnotationRegistry;
-import dev.derklaro.aerogel.binding.BindingConstructor;
-import dev.derklaro.aerogel.internal.context.util.ContextInstanceResolveHelper;
-import java.util.function.Consumer;
+import dev.derklaro.aerogel.auto.AerogelAutoModule;
+import dev.derklaro.aerogel.binding.DynamicBinding;
+import dev.derklaro.aerogel.binding.UninstalledBinding;
+import dev.derklaro.aerogel.binding.key.BindingKey;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
@@ -31,16 +32,16 @@ import org.jetbrains.annotations.UnknownNullability;
 /**
  * The default implementation for of an injector layer.
  *
- * @param injector     the injector to use for the layer.
- * @param autoRegistry the auto registry to use for the layer.
- * @param name         the name of this injection layer.
- * @param <I>          the type of injector this layer uses.
+ * @param injector   the injector to use for the layer.
+ * @param autoModule the auto registry to use for the layer.
+ * @param name       the name of this injection layer.
+ * @param <I>        the type of injector this layer uses.
  * @since 4.0
  */
 @ApiStatus.Internal
 record DefaultInjectionLayer<I extends Injector>(
   @NonNull I injector,
-  @NonNull AutoAnnotationRegistry autoRegistry,
+  @NonNull AerogelAutoModule autoModule,
   @NonNull String name
 ) implements InjectionLayer<I> {
 
@@ -64,37 +65,37 @@ record DefaultInjectionLayer<I extends Injector>(
    * {@inheritDoc}
    */
   @Override
-  public <T> @UnknownNullability T instance(@NonNull Element element) {
-    return this.injector.instance(element);
+  public <T> @UnknownNullability T instance(@NonNull BindingKey<T> bindingKey) {
+    return this.injector.instance(bindingKey);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  @SuppressWarnings("unchecked")
   public <T> @UnknownNullability T instance(
     @NonNull Class<T> type,
-    @NonNull Consumer<InjectionContext.Builder> builder
+    @NonNull UnaryOperator<InjectionRequest<T>> decorator
   ) {
-    // get the binding associated with the given type & construct a context builder
-    var element = Element.forType(type);
-    var binding = this.injector.binding(element);
-    var contextBuilder = InjectionContext.builder(type, binding.provider(element));
-
-    // apply the builder decorator to the builder
-    builder.accept(contextBuilder);
-
-    // resolve the instance
-    return (T) ContextInstanceResolveHelper.resolveInstanceAndRemoveContext(contextBuilder.build());
+    var key = BindingKey.of(type);
+    var injectionRequest = decorator.apply(this.injector.createInjectionRequest(key));
+    return injectionRequest.construct();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void install(@NonNull BindingConstructor constructor) {
-    this.injector.install(constructor);
+  public void install(@NonNull UninstalledBinding<?> binding) {
+    this.injector.installBinding(binding);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void install(@NonNull DynamicBinding binding) {
+    this.injector.installBinding(binding);
   }
 
   /**
@@ -103,7 +104,15 @@ record DefaultInjectionLayer<I extends Injector>(
   @Override
   public void installAutoConfigureBindings(@NonNull ClassLoader loader, @NonNull String component) {
     var fileName = String.format(AUTO_CONFIGURE_FILE_NAME_FORMAT, component);
-    this.autoRegistry.installBindings(loader, fileName, this.injector);
+    try (var stream = loader.getResourceAsStream(fileName)) {
+      if (stream != null) {
+        this.autoModule.deserializeBindings(stream, loader).installBindings(this.injector);
+      }
+    } catch (IOException exception) {
+      throw new UncheckedIOException(
+        String.format("Unable to auto configure bindings for component %s with file %s", component, fileName),
+        exception);
+    }
   }
 
   /**
@@ -129,9 +138,7 @@ record DefaultInjectionLayer<I extends Injector>(
   @Override
   public void close() {
     // remove the bindings from the parent injector if needed
-    if (this.injector instanceof SpecifiedInjector specifiedInjector) {
-      specifiedInjector.removeConstructedBindings();
-    }
+    this.injector.close();
 
     // remove this injector from the registry
     InjectionLayerProvider.REGISTRY.unregisterLayer(this);

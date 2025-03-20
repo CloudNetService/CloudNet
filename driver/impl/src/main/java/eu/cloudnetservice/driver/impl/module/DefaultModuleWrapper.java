@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.module;
 
-import dev.derklaro.aerogel.SpecifiedInjector;
+import dev.derklaro.aerogel.Injector;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.Module;
 import eu.cloudnetservice.driver.module.ModuleConfiguration;
@@ -72,7 +72,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
   private final URLClassLoader classLoader;
   private final Set<ModuleDependency> dependingModules;
   private final ModuleConfiguration moduleConfiguration;
-  private final InjectionLayer<SpecifiedInjector> moduleInjectionLayer;
+  private final InjectionLayer<Injector> moduleInjectionLayer;
 
   private final Lock moduleLifecycleUpdateLock = new ReentrantLock();
   private final Map<ModuleLifeCycle, List<ModuleTaskEntry>> tasks = new EnumMap<>(ModuleLifeCycle.class);
@@ -100,7 +100,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
     @NonNull URLClassLoader classLoader,
     @NonNull Set<ModuleDependency> dependingModules,
     @NonNull ModuleConfiguration moduleConfiguration,
-    @NonNull InjectionLayer<SpecifiedInjector> moduleInjectionLayer
+    @NonNull InjectionLayer<Injector> moduleInjectionLayer
   ) throws URISyntaxException {
     this.source = source;
     this.module = module;
@@ -285,7 +285,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull InjectionLayer<SpecifiedInjector> injectionLayer() {
+  public @NonNull InjectionLayer<Injector> injectionLayer() {
     return this.moduleInjectionLayer;
   }
 

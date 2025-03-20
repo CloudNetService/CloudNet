@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.impl.cluster.defaults;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
@@ -146,11 +146,11 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
   public void registerNode(@NonNull NetworkClusterNode clusterNode) {
     var server = InjectionLayer.boot().instance(
       RemoteNodeServer.class,
-      builder -> {
+      request -> {
         var cloudServiceFactoryAllocatorType = TypeFactory.parameterizedClass(
           RPCImplementationBuilder.InstanceAllocator.class,
           CloudServiceFactory.class);
-        builder
+        return request
           .override(NetworkClusterNode.class, clusterNode)
           .override(cloudServiceFactoryAllocatorType, this.cloudServiceFactoryAllocator);
       });

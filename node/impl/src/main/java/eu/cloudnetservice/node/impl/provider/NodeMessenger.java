@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.impl.provider;
 
 import com.google.common.collect.Iterables;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.impl.network.standard.ChannelMessagePacket;

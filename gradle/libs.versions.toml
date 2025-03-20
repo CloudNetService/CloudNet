@@ -40,7 +40,7 @@ mysqlConnector = "9.2.0"
 oshi = "6.6.6"
 vavr = "0.10.6"
 sshj = "0.39.0"
-aerogel = "2.1.0"
+aerogel = "3.0.0-beta.1"
 awsSdk = "2.30.22"
 unirest = "4.4.5"
 caffeine = "3.2.0"
@@ -110,7 +110,7 @@ cloudAnnotations = { group = "com.github.CloudNetService.cloud-command-framework
 cloudConfirmationProcessor = { group = "org.incendo", name = "cloud-processors-confirmation", version.ref = "cloudConfirmation" }
 
 # cloud api to expose in node api
-cloudCoreApi = { group = "org.incendo", name = "cloud-core", version.ref = "cloudApi"}
+cloudCoreApi = { group = "org.incendo", name = "cloud-core", version.ref = "cloudApi" }
 cloudAnnotationsApi = { group = "org.incendo", name = "cloud-annotations", version.ref = "cloudApi" }
 
 # junit
@@ -159,6 +159,7 @@ influxClient = { group = "com.influxdb", name = "influxdb-client-java", version.
 # aerogel
 aerogel = { group = "dev.derklaro.aerogel", name = "aerogel", version.ref = "aerogel" }
 aerogelAuto = { group = "dev.derklaro.aerogel", name = "aerogel-auto", version.ref = "aerogel" }
+aerogelScopedValues = { group = "dev.derklaro.aerogel", name = "aerogel-scoped-value-context-scope", version.ref = "aerogel" }
 
 # databases
 h2 = { group = "com.h2database", name = "h2", version.ref = "h2" }
@@ -205,7 +206,7 @@ checkstyleTools = { group = "com.puppycrawl.tools", name = "checkstyle", version
 
 [bundles]
 
-aerogel = ["aerogel", "aerogelAuto"]
+aerogel = ["aerogel", "aerogelScopedValues", "aerogelAuto"]
 npcLib = ["npcLib", "npcLibLabymod"]
 unirest = ["unirest", "unirestGson"]
 mysql = ["mysqlConnector", "hikariCp"]
