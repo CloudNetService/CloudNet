@@ -63,10 +63,7 @@ public record ProxyFallbackConfiguration(
     public @NonNull ProxyFallbackConfiguration build() {
       Preconditions.checkNotNull(this.targetGroup, "Missing targetGroup");
 
-      return new ProxyFallbackConfiguration(
-        this.targetGroup,
-        this.defaultFallbackTask,
-        this.fallbacks);
+      return new ProxyFallbackConfiguration(this.targetGroup, this.defaultFallbackTask, this.fallbacks);
     }
   }
 

@@ -20,20 +20,22 @@ import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializ
 
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
+import eu.cloudnetservice.ext.bungee.BungeeComponentUtil;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.bridge.impl.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.impl.platform.helper.ProxyPlatformHelper;
-import eu.cloudnetservice.modules.bridge.impl.util.BridgeHostAndPortUtil;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import lombok.NonNull;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -57,6 +59,10 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       null)
     .findMethod("getDimension")
     .orElseThrow();
+
+  // placeholders when creating reason messages
+  private static final Pattern KICK_REASON = Pattern.compile("%reason%", Pattern.LITERAL);
+  private static final Pattern SERVER_NAME = Pattern.compile("%server%", Pattern.LITERAL);
 
   private final Plugin plugin;
   private final ProxyServer proxyServer;
@@ -82,13 +88,16 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     this.management = management;
   }
 
-  @EventHandler(priority = EventPriority.LOWEST)
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void handle(@NonNull ServerConnectEvent event) {
+    // check if another plugin already prevented the connection process
+    if (event.isCancelled()) {
+      return;
+    }
+
     var player = event.getPlayer();
-    // handle permission checks here before we send a request to the node about the login
     if (event.getReason() == Reason.JOIN_PROXY) {
       var task = this.management.selfTask();
-      // check if the current task is present
       if (task != null) {
         // check if maintenance is activated
         if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
@@ -100,6 +109,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
             player::disconnect);
           return;
         }
+
         // check if a custom permission is required to join
         var permission = task.propertyHolder().getString("requiredPermission");
         if (permission != null && !player.hasPermission(permission)) {
@@ -112,16 +122,10 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           return;
         }
       }
+
       // check if the player is allowed to log in
-      var loginResult = this.proxyPlatformHelper.sendChannelMessagePreLogin(new NetworkPlayerProxyInfo(
-        player.getUniqueId(),
-        player.getName(),
-        null,
-        player.getPendingConnection().getVersion(),
-        BridgeHostAndPortUtil.fromSocketAddress(player.getSocketAddress()),
-        BridgeHostAndPortUtil.fromSocketAddress(player.getPendingConnection().getListener().getSocketAddress()),
-        player.getPendingConnection().isOnlineMode(),
-        this.management.ownNetworkServiceInfo()));
+      var playerInfo = this.management.createPlayerInformation(player);
+      var loginResult = this.proxyPlatformHelper.sendChannelMessagePreLogin(playerInfo);
       if (!loginResult.permitLogin()) {
         event.setCancelled(true);
         player.disconnect(TextComponent.fromLegacyText(legacySection().serialize(loginResult.result())));
@@ -134,22 +138,18 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       var target = this.management.fallback(player)
         .map(service -> this.proxyServer.getServerInfo(service.name()))
         .orElse(null);
-      // check if the server is present
       if (target != null) {
+        // fallback found, connect to the fallback
         event.setTarget(target);
       } else {
-        // no lobby server - cancel the event; another plugin might be able to override that decision
+        // no fallback found, disconnect the player
         event.setCancelled(true);
-
         var kickMessage = this.management.configuration().findMessage(
-          event.getPlayer().getLocale(),
+          player.getLocale(),
           "proxy-join-disconnect-because-no-hub",
           ComponentFormats.ADVENTURE_TO_BUNGEE::convert,
           null,
           true);
-
-        // if there is a kick message specified, we will kick the player. No other plugin can override in that case
-        // otherwise we just do nothing.
         if (kickMessage != null) {
           player.disconnect(kickMessage);
         }
@@ -158,84 +158,88 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
-  public void handle(@NonNull ServerKickEvent event) {
-    if (event.getPlayer().isConnected()) {
-      var target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
+  public void handleEarlyKick(@NonNull ServerKickEvent event) {
+    var player = event.getPlayer();
+    if (player.isConnected()) {
+      var fallback = this.management.fallback(player, event.getKickedFrom().getName())
         .map(service -> this.proxyServer.getServerInfo(service.name()))
         .orElse(null);
-      // check if the server is present
-      if (target != null) {
+      if (fallback != null) {
         // reset the fallback profile of the player when he gets kicked while connecting to a server and should get send
         // to the current server. This will not trigger a ServerConnectedEvent which causes incorrect results on the
         // next fallback search
-        var curServer = event.getPlayer().getServer();
+        var prevServer = player.getServer();
         if (event.getState() == ServerKickEvent.State.CONNECTING
-          && curServer != null
-          && curServer.getInfo().equals(target)) {
-          this.management.handleFallbackConnectionSuccess(event.getPlayer());
+          && prevServer != null
+          && prevServer.getInfo().equals(fallback)) {
+          this.management.handleFallbackConnectionSuccess(player);
         }
 
         // we need to cancel the event + set the target server, even when connecting to the same server... Bungee...
         event.setCancelled(true);
-        event.setCancelServer(target);
+        event.setCancelServer(fallback);
 
         // extract the reason for the disconnect and wrap it
-        this.management.configuration().handleMessage(
-          event.getPlayer().getLocale(),
-          "error-connecting-to-server",
-          message -> ComponentFormats.ADVENTURE_TO_BUNGEE.convert(message
-            .replace("%server%", event.getKickedFrom().getName())
-            .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()))),
-          event.getPlayer()::sendMessage);
+        var kickReason = this.buildKickReasonMessage(
+          player,
+          event.getKickedFrom(),
+          event.getReason(),
+          "error-connecting-to-server");
+        player.sendMessage(kickReason);
       } else {
-        // no lobby server - the player will disconnect
+        // no fallback available that the player can connect to
         event.setCancelled(false);
         event.setCancelServer(null);
-
-        // set the cancel reason if there is no reason from the downstream service
-        var reason = event.getReason() != null ? event.getReason().toLegacyText() : "";
-        this.management.configuration().handleMessage(
-          event.getPlayer().getLocale(),
-          "server-kick-no-other-hub",
-          message -> ComponentFormats.ADVENTURE_TO_BUNGEE.convert(message.replace("%reason%", reason)),
-          event::setKickReasonComponent,
-          false);
       }
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void handleLateKick(@NonNull ServerKickEvent event) {
+    // early kick handling selects the fallback, this late kick handling provides
+    // the correct kick reason as the reason cannot be set otherwise (bungeecord would
+    // insert a prefix into the message that we don't want)
+    var player = event.getPlayer();
+    if (player.isConnected() && (!event.isCancelled() || event.getCancelServer() == null)) {
+      var kickReason = this.buildKickReasonMessage(
+        player,
+        event.getKickedFrom(),
+        event.getReason(),
+        "server-kick-no-other-hub");
+      player.disconnect(kickReason);
     }
   }
 
   @EventHandler
   public void handle(@NonNull ServerConnectedEvent event) {
+    var player = event.getPlayer();
     var joinedServiceInfo = this.management
       .cachedService(service -> service.name().equals(event.getServer().getInfo().getName()))
       .map(NetworkServiceInfo::fromServiceInfoSnapshot)
       .orElse(null);
-
-    // check if the player connection was initial
-    if (this.initialConnect(event.getPlayer())) {
-      this.proxyPlatformHelper.sendChannelMessageLoginSuccess(
-        this.management.createPlayerInformation(event.getPlayer()),
-        joinedServiceInfo);
-      // update the service info
+    if (this.initialConnect(player)) {
+      // the player logged in successfully if he is now connected to a service for the first time
+      var playerInfo = this.management.createPlayerInformation(player);
+      this.proxyPlatformHelper.sendChannelMessageLoginSuccess(playerInfo, joinedServiceInfo);
       this.serviceInfoHolder.publishServiceInfoUpdate();
     } else if (joinedServiceInfo != null) {
       // the player switched the service
-      this.proxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
+      this.proxyPlatformHelper.sendChannelMessageServiceSwitch(player.getUniqueId(), joinedServiceInfo);
     }
-    // publish the player connection to the handler
-    this.management.handleFallbackConnectionSuccess(event.getPlayer());
+
+    this.management.handleFallbackConnectionSuccess(player);
   }
 
   @EventHandler
   public void handle(@NonNull PlayerDisconnectEvent event) {
     // check if the player was connected to a server before
-    if (event.getPlayer().getServer() != null) {
-      this.proxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
-      // update the service info
+    var player = event.getPlayer();
+    if (player.getServer() != null) {
+      this.proxyPlatformHelper.sendChannelMessageDisconnected(player.getUniqueId());
       this.scheduler.schedule(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate, 50, TimeUnit.MILLISECONDS);
     }
-    // always remove the player fallback profile
-    this.management.removeFallbackProfile(event.getPlayer());
+
+    this.management.removeFallbackProfile(player);
   }
 
   private boolean initialConnect(@NonNull ProxiedPlayer player) {
@@ -248,4 +252,28 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     return player.getServer() == null;
   }
 
+  private @NonNull BaseComponent buildKickReasonMessage(
+    @NonNull ProxiedPlayer player,
+    @NonNull ServerInfo kickedFrom,
+    @NonNull BaseComponent kickReason,
+    @NonNull String messageKey
+  ) {
+    var rawReasonMessage = this.management.configuration().findMessage(
+      player.getLocale(),
+      messageKey,
+      ComponentFormats.ADVENTURE_TO_BUNGEE::convert,
+      null,
+      true);
+    if (rawReasonMessage == null) {
+      // if no message is configured in the bridge config, fall back to the kick
+      // reason provided by the server, as we do need a message to prevent a
+      // possible disconnection by the velocity
+      return kickReason;
+    } else {
+      var component = rawReasonMessage.length == 1 ? rawReasonMessage[0] : new TextComponent(rawReasonMessage);
+      component = BungeeComponentUtil.replaceText(component, KICK_REASON, kickReason);
+      component = BungeeComponentUtil.replaceText(component, SERVER_NAME, new TextComponent(kickedFrom.getName()));
+      return component;
+    }
+  }
 }
