@@ -79,7 +79,7 @@ adventure-serializer-bungee = "4.3.4"
 luckPermsApi = "5.4"
 
 # fabric platform special dependencies
-minecraft = "1.21.4"
+minecraft = "1.21.5"
 fabricLoader = "0.16.10"
 
 
