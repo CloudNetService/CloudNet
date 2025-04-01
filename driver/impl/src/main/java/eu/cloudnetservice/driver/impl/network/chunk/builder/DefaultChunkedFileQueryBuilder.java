@@ -146,9 +146,8 @@ public class DefaultChunkedFileQueryBuilder implements ChunkedFileQueryBuilder {
           // transfer started successfully
           return responseFuture;
         } else {
-          // remove session from registry if transfer failed. Usually because the file/template is not found
-          sessionRegistry.completeSession(sessionId);
           // transfer couldn't be started for some reason
+          sessionRegistry.completeSession(sessionId);
           throw new IllegalStateException("unable to start chunked data transfer");
         }
       });
