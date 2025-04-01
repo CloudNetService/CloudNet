@@ -133,17 +133,20 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       }
     }
 
-    // initial connect reasons, LOBBY_FALLBACK will be used if the initial fallback is not present
-    if (event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK) {
-      var target = this.management.fallback(player)
+    var serverDownRedirect = event.getReason() == Reason.SERVER_DOWN_REDIRECT;
+    var lobbyFallbackRedirect = event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK;
+    if (serverDownRedirect || lobbyFallbackRedirect) {
+      var fallback = this.management.fallback(player)
         .map(service -> this.proxyServer.getServerInfo(service.name()))
         .orElse(null);
-      if (target != null) {
-        // fallback found, connect to the fallback
-        event.setTarget(target);
-      } else {
-        // no fallback found, disconnect the player
-        event.setCancelled(true);
+      if (fallback != null) {
+        event.setTarget(fallback);
+        return;
+      }
+
+      // no fallback found, disconnect the player with the correct reason according to the connect reason
+      event.setCancelled(true);
+      if (lobbyFallbackRedirect) {
         var kickMessage = this.management.configuration().findMessage(
           player.getLocale(),
           "proxy-join-disconnect-because-no-hub",
@@ -153,6 +156,11 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         if (kickMessage != null) {
           player.disconnect(kickMessage);
         }
+      } else {
+        var kickedFrom = player.getServer().getInfo();
+        var disconnectReason = new TextComponent("Disconnected by Server");
+        var kickReason = this.buildKickReasonMessage(player, kickedFrom, disconnectReason, "server-kick-no-other-hub");
+        player.disconnect(kickReason);
       }
     }
   }
