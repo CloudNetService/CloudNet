@@ -59,7 +59,7 @@ public final class VelocityPlayerManagementListener {
     this.management = management;
   }
 
-  @Subscribe(priority = Short.MIN_VALUE)
+  @Subscribe(priority = Short.MAX_VALUE)
   public void handleLogin(@NonNull LoginEvent event) {
     var task = this.management.selfTask();
     if (task != null) {
