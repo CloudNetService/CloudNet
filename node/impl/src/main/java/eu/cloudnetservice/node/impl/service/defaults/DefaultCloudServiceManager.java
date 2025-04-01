@@ -19,8 +19,7 @@ package eu.cloudnetservice.node.impl.service.defaults;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.ComparisonChain;
-import dev.derklaro.aerogel.PostConstruct;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -86,7 +85,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-@Provides({CloudServiceManager.class, CloudServiceProvider.class, InternalCloudServiceManager.class})
+@Provides({InternalCloudServiceManager.class, CloudServiceManager.class, CloudServiceProvider.class})
 public class DefaultCloudServiceManager implements InternalCloudServiceManager {
 
   protected static final Path TEMP_SERVICE_DIR = Path.of(
@@ -191,7 +190,7 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
     }, Duration.ofMillis(DefaultTickLoop.MILLIS_BETWEEN_TICKS));
   }
 
-  @PostConstruct
+  @Inject
   private void registerDefaultServiceFactory() {
     this.addCloudServiceFactory("jvm", JVMLocalCloudServiceFactory.class);
   }

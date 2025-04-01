@@ -118,6 +118,7 @@ subprojects {
     if (project.path != ":launcher:java8" && project.path != ":launcher:patcher") {
       options.compilerArgs.add("--enable-preview")
       options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
+      options.compilerArgs.add("-proc:full")
     }
   }
 

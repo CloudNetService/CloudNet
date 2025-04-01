@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.event;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.EventManager;

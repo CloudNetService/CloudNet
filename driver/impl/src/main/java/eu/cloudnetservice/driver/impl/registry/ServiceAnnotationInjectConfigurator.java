@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.impl.registry;
 
-import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.inject.BootLayerConfigurator;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.registry.Service;
@@ -35,38 +34,25 @@ public final class ServiceAnnotationInjectConfigurator implements BootLayerConfi
    */
   @Override
   public void configureBootLayer(@NonNull InjectionLayer<?> bootLayer) {
-    var bindingConstructor = BindingBuilder.create()
-      .bindMatching(element -> {
-        // ensure that the element has at least one special requirement (like the Service annotation)
-        if (element.hasSpecialRequirements()) {
-          return element.requiredAnnotations()
-            .stream()
-            .anyMatch(predicate -> predicate.annotationType().equals(Service.class));
-        } else {
-          return false;
-        }
-      }).toLazyProvider((element, _) -> {
-        var serviceType = GenericTypeReflector.erase(element.componentType());
-        var serviceName = element.requiredAnnotations().stream()
-          .filter(predicate -> predicate.annotationType().equals(Service.class))
-          .findFirst()
-          .map(annotationPredicate -> {
-            var annotationValues = annotationPredicate.annotationValues();
-            return (String) annotationValues.get("name");
-          })
-          .orElseThrow(); // does not throw as the annotation must be present here
+    var bindingBuilder = bootLayer.injector().createBindingBuilder();
+    var bindingConstructor = bindingBuilder.bindDynamically()
+      .annotationPresent(Service.class)
+      .toKeyedBindingProvider((key, scopedBuilder) -> {
+        var annotation = (Service) key.qualifierAnnotation().orElseThrow();
+        var serviceType = GenericTypeReflector.erase(key.type());
+        var serviceName = annotation.name();
         if (serviceName.isBlank()) {
           // default service requested
-          return () -> {
+          return scopedBuilder.toProvider(() -> {
             var registry = ServiceRegistry.registry();
             return registry.defaultInstance(serviceType);
-          };
+          });
         } else {
           // specific service requested
-          return () -> {
+          return scopedBuilder.toProvider(() -> {
             var registry = ServiceRegistry.registry();
             return registry.instance(serviceType, serviceName);
-          };
+          });
         }
       });
     bootLayer.install(bindingConstructor);

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.mongodb.junit;
 
-import dev.derklaro.aerogel.binding.BindingBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.impl.registry.DefaultServiceRegistry;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -100,8 +99,7 @@ public final class EnableServicesInjectExtension
     serviceRegistry.discoverServices(DefaultServiceRegistry.class);
 
     // setup injection stuff that depends on the services being initialized
-    bootInjectionLayer.install(BindingBuilder.create()
-      .bind(DriverEnvironment.class)
-      .toInstance(DriverEnvironment.NODE));
+    var bindingBuilder = bootInjectionLayer.injector().createBindingBuilder();
+    bootInjectionLayer.install(bindingBuilder.bind(DriverEnvironment.class).toInstance(DriverEnvironment.NODE));
   }
 }

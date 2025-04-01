@@ -28,6 +28,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
+import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 
@@ -51,13 +52,13 @@ public final class MinestomPlayerManagementListener {
     // listen on these events and redirect them into the methods
     var node = EventNode.type("cloudnet-bridge", EventFilter.PLAYER);
     eventHandler.addChild(node
-      .addListener(PlayerSpawnEvent.class, this::handleLogin)
+      .addListener(AsyncPlayerConfigurationEvent.class, this::handleLogin)
       .addListener(PlayerSpawnEvent.class, this::handleJoin)
       .addListener(PlayerDisconnectEvent.class, this::handleDisconnect));
   }
 
-  private void handleLogin(@NonNull PlayerSpawnEvent event) {
-    if (!event.isFirstSpawn()) {
+  private void handleLogin(@NonNull AsyncPlayerConfigurationEvent event) {
+    if (!event.isFirstConfig()) {
       return;
     }
 

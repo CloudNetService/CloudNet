@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.node.impl.command.defaults;
 
-import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.internal.jakarta.JakartaBridge;
+import dev.derklaro.aerogel.binding.key.BindingKey;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
+import java.lang.annotation.Annotation;
 import lombok.NonNull;
 import org.incendo.cloud.injection.InjectionRequest;
 import org.incendo.cloud.injection.InjectionService;
@@ -33,18 +33,13 @@ final class AerogelInjectionService implements InjectionService<CommandSource> {
   public @Nullable Object handle(@NonNull InjectionRequest<CommandSource> request) {
     try {
       // get the associated data from the input values
-      var targetClass = request.injectedClass();
-      var annotations = request.annotationAccessor().annotations();
-
-      var element = annotations.stream()
-        .filter(JakartaBridge::isQualifierAnnotation)
-        .findFirst()
-        .map(Element.forType(targetClass)::requireAnnotation)
-        .orElseGet(() -> Element.forType(targetClass));
-      var injectionLayer = InjectionLayer.findLayerOf(targetClass);
+      var targetType = request.injectedType().getType();
+      var annotations = request.annotationAccessor().annotations().toArray(new Annotation[0]);
+      var key = BindingKey.of(targetType).selectQualifier(annotations);
+      var injectionLayer = InjectionLayer.findLayerOf(targetType);
 
       // get the instance of the given class from the injection layer
-      return injectionLayer.instance(element);
+      return injectionLayer.instance(key);
     } catch (Exception exception) {
       return null;
     }

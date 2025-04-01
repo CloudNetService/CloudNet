@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.impl.tick;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.module.ModuleProvider;
 import eu.cloudnetservice.driver.network.NetworkClient;
