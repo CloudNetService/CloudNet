@@ -101,7 +101,7 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
       }
 
       return true;
-    } catch (IOException exception) {
+    } catch (Exception exception) {
       // stream close and read can happen concurrently, so in case the stream
       // closed we don't want to log the exception but rather signal that the
       // service was stopped. "stream closed" is the message for both the reader

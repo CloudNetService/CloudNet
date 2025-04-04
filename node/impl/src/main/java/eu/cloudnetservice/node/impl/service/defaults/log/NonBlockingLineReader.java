@@ -105,7 +105,7 @@ final class NonBlockingLineReader implements Closeable {
     // in case the buffer is getting too large or this reader is closed
     // with content remaining, just return a string containing the chars
     // that are remaining in the buffer to clear it
-    var bufferTooLarge = this.stringBuffer.length() > MAX_STRING_BUFFER_SIZE;
+    var bufferTooLarge = this.stringBuffer.length() >= MAX_STRING_BUFFER_SIZE;
     var bufferedButClosed = this.reader == null && !this.stringBuffer.isEmpty();
     if (bufferTooLarge || bufferedButClosed) {
       return this.bufferToString(this.stringBuffer.length(), false);
@@ -126,7 +126,7 @@ final class NonBlockingLineReader implements Closeable {
   private @NonNull String bufferToString(int endIndex, boolean endLf) {
     if (endLf) {
       var prevIndex = endIndex - 1;
-      var prevIsCr = this.stringBuffer.length() >= prevIndex && this.stringBuffer.charAt(prevIndex) == '\r';
+      var prevIsCr = prevIndex >= 0 && this.stringBuffer.charAt(prevIndex) == '\r';
       var substringEnd = prevIsCr ? prevIndex : endIndex;
       var string = this.stringBuffer.substring(0, substringEnd);
       this.stringBuffer.delete(0, endIndex + 1);
