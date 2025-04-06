@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2019-2024 CloudNetService team & contributors
  *
@@ -63,3 +64,5 @@ dependencies {
 
   "testImplementation"(projects.common.dependencyProject.sourceSets()["main"].output)
 }
+=======
+>>>>>>> 2762714fa (move stuff)
