@@ -13,28 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
-
-tasks.withType<Jar> {
-  archiveFileName.set(Files.labymod)
-}
-
-dependencies {
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(projects.wrapperJvm)
-  "compileOnly"(projects.modules.bridge)
-}
-
-moduleJson {
-  name = "CloudNet-LabyMod"
-  author = "CloudNetService"
-  main = "eu.cloudnetservice.modules.labymod.node.CloudNetLabyModModule"
-  description = "This module adds support for the LabyMod Discord RPC Protocol and the ingame messages when a player plays a gamemode"
-  // depend on internal modules
-  dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {
-    needsRepoResolve = false
-    group = project.group.toString()
-    version = project.version.toString()
-  })
-}

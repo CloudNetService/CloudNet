@@ -21,10 +21,12 @@ plugins {
 }
 
 subprojects {
-  apply(plugin = "eu.cloudnetservice.juppiter")
+  if (name.endsWith("impl")) {
+    apply(plugin = "eu.cloudnetservice.juppiter")
 
-  configurations {
-    getByName("testImplementation").extendsFrom(getByName("moduleLibrary"))
+    configurations {
+      getByName("testImplementation").extendsFrom(getByName("moduleLibrary"))
+    }
   }
 
   repositories {
@@ -40,8 +42,8 @@ subprojects {
   }
 
   dependencies {
-    "compileOnly"(rootProject.projects.node)
-    "testImplementation"(rootProject.projects.node)
+    "compileOnly"(rootProject.projects.node.nodeApi)
+    "testImplementation"(rootProject.projects.node.nodeApi)
 
     // generation for platform main classes
     "compileOnly"(rootProject.projects.ext.platformInjectSupport.platformInjectApi)

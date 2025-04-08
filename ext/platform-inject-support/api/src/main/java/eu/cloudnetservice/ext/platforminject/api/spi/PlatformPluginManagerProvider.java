@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.ext.platforminject.api.spi;
 
-import eu.cloudnetservice.common.Named;
+import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.ext.platforminject.api.PlatformPluginManager;
 import eu.cloudnetservice.ext.platforminject.api.util.FunctionalUtil;
 import java.util.function.Supplier;

@@ -126,7 +126,7 @@ object UpdaterFiles {
   val modulesJson: File = targetDirectory.resolve("modules.json")
   val moduleTargetDirectory: File = targetDirectory.resolve("modules")
 
-  val nodeFile: File = gradleOutputJar("node", "cloudnet")
+  val nodeFile: File = gradleOutputJar("node/impl", "cloudnet")
   val launcherFile: File = gradleOutputJar("launcher/java22", "launcher")
   val launcherPatcherFile: File = gradleOutputJar("launcher/patcher", "launcher-patcher")
 

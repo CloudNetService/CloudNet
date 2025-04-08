@@ -25,6 +25,6 @@ repositories {
 dependencies {
   compileOnly(libs.spigot)
   compileOnly(libs.placeholderApi)
-  compileOnly(projects.wrapperJvm)
-  compileOnly(projects.modules.bridge)
+  compileOnly(projects.wrapperJvm.wrapperJvmApi)
+  compileOnly(projects.modules.bridge.bridgeApi)
 }

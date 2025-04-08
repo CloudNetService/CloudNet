@@ -13,20 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-tasks.withType<Jar> {
-  archiveFileName.set(Files.databaseMongo)
-}
-
-dependencies {
-  "moduleLibrary"(libs.mongodb)
-}
-
-moduleJson {
-  author = "CloudNetService"
-  name = "CloudNet-Database-MongoDB"
-  main = "eu.cloudnetservice.modules.mongodb.CloudNetMongoDatabaseModule"
-  description = "CloudNet extension, which includes the database support for MongoDB"
-  runtimeModule = true
-  storesSensitiveData = true
-}

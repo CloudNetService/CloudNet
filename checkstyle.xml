@@ -20,7 +20,7 @@
   "https://checkstyle.org/dtds/configuration_1_3.dtd">
 <module name="Checker">
   <module name="BeforeExecutionExclusionFileFilter">
-    <property name="fileNamePattern" value="(module\-info\.java$)|(.*[\\|\/]fabric[\\|\/].*|(JVM|Dockerized)Service\.java$)"/>
+    <property name="fileNamePattern" value="(module\-info\.java$)|(.*[\\|\/]fabric[\\|\/].*$)"/>
   </module>
   <module name="SuppressionFilter">
     <property default="checkstyle-suppressions.xml" name="file"
@@ -36,6 +36,8 @@
     <property name="ignorePattern" value="^package.*|^import.*|a href|http://|https://|ftp://|//.*"/>
   </module>
   <module name="TreeWalker">
+    <property name="skipFileOnJavaParseException" value="true"/>
+    <property name="javaParseExceptionSeverity" value="info"/>
     <module name="SuppressionCommentFilter">
       <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
       <property name="onCommentFormat" value="CHECKSTYLE.ON"/>

@@ -120,7 +120,7 @@ fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions) {
   options.use()
   options.encoding = "UTF-8"
   options.memberLevel = JavadocMemberLevel.PRIVATE
-  options.addStringOption("source", "22")
+  options.addStringOption("source", "23")
   options.addBooleanOption("-enable-preview", true)
   options.addBooleanOption("Xdoclint:-missing", true)
   options.links(
