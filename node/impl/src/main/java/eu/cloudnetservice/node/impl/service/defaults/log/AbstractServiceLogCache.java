@@ -17,8 +17,8 @@
 package eu.cloudnetservice.node.impl.service.defaults.log;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.node.config.Configuration;
-import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.ServiceConsoleLineHandler;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import java.util.Collection;
@@ -27,6 +27,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.slf4j.Logger;
@@ -35,8 +36,9 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractServiceLogCache.class);
+  protected static final Pattern ANSI_SEQUENCE_PATTERN = Pattern.compile("\u001b\\[[0-9;]*[A-Za-z]");
 
-  protected final CloudService service;
+  protected final ServiceId associatedServiceId;
 
   protected final Queue<String> cachedLogMessages = new ConcurrentLinkedQueue<>();
   protected final Set<ServiceConsoleLineHandler> handlers = ConcurrentHashMap.newKeySet();
@@ -44,15 +46,15 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
   protected volatile int logCacheSize;
   protected volatile boolean alwaysPrintErrorStreamToConsole;
 
-  public AbstractServiceLogCache(@NonNull Configuration configuration, @NonNull CloudService service) {
-    this.service = service;
+  public AbstractServiceLogCache(@NonNull Configuration configuration, @NonNull ServiceId associatedServiceId) {
+    this.associatedServiceId = associatedServiceId;
     this.logCacheSize = configuration.maxServiceConsoleLogCacheSize();
     this.alwaysPrintErrorStreamToConsole = configuration.printErrorStreamLinesFromServices();
   }
 
   @Override
-  public @NonNull CloudService service() {
-    return this.service;
+  public @NonNull ServiceId associatedServiceId() {
+    return this.associatedServiceId;
   }
 
   @Override
@@ -97,17 +99,30 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
   }
 
   protected void handleItem(@NonNull String entry, boolean comesFromErrorStream) {
-    // drain the cache
-    while (this.cachedLogMessages.size() > this.logCacheSize) {
-      this.cachedLogMessages.poll();
+    // first remove all ansi sequences from the given log line, this will remove
+    // special colors but also operations like line clears that would be displayed
+    // in the console if we don't remove them
+    // empty log lines could be used for some kind of formatting, but are not really
+    // not useful in any way usually, therefore we don't cache them at all
+    entry = ANSI_SEQUENCE_PATTERN.matcher(entry).replaceAll("");
+    if (entry.isBlank()) {
+      return;
     }
-    // print the line to the console if enabled
+
+    // insert the log line into the cache, unless the cache is disabled
+    // if needed we also remove elements from the cache to stay in the provided size bounds
+    if (this.logCacheSize > 0) {
+      while (this.cachedLogMessages.size() > this.logCacheSize) {
+        this.cachedLogMessages.poll();
+      }
+
+      this.cachedLogMessages.add(entry);
+    }
+
     if (this.alwaysPrintErrorStreamToConsole && comesFromErrorStream) {
-      LOGGER.warn("[{}/WARN]: {}", this.service.serviceId().name(), entry);
+      LOGGER.warn("[{}/WARN]: {}", this.associatedServiceId.name(), entry);
     }
-    // add the line
-    this.cachedLogMessages.add(entry);
-    // call all handlers
+
     if (!this.handlers.isEmpty()) {
       for (var handler : this.handlers) {
         handler.handleLine(this, entry, comesFromErrorStream);

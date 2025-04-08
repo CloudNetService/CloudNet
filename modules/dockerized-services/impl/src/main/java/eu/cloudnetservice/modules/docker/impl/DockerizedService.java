@@ -89,7 +89,6 @@ public class DockerizedService extends JVMService {
 
   protected final DockerClient dockerClient;
   protected final DockerConfiguration configuration;
-  protected final DockerizedServiceLogCache logCache;
 
   protected volatile String containerId;
 
@@ -109,6 +108,7 @@ public class DockerizedService extends JVMService {
     @NonNull DockerClient dockerClient,
     @NonNull DockerConfiguration dockerConfiguration
   ) {
+    var logCache = new DockerizedServiceLogCache(nodeConfig, configuration.serviceId());
     super(
       i18n,
       tickLoop,
@@ -116,14 +116,12 @@ public class DockerizedService extends JVMService {
       configuration,
       manager,
       eventManager,
+      logCache,
       versionProvider,
       serviceConfigurationPreparer);
 
     this.dockerClient = dockerClient;
     this.configuration = dockerConfiguration;
-
-    super.logCache = this.logCache = new DockerizedServiceLogCache(nodeConfig, this);
-    this.initLogHandler();
   }
 
   @Override
@@ -379,8 +377,8 @@ public class DockerizedService extends JVMService {
   public final class ServiceLogCacheAdapter extends ResultCallback.Adapter<Frame> {
 
     @Override
-    public void onNext(Frame object) {
-      DockerizedService.this.logCache.handle(object);
+    public void onNext(@NonNull Frame object) {
+      ((DockerizedServiceLogCache) DockerizedService.this.logCache).handle(object);
     }
   }
 }

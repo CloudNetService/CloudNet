@@ -24,13 +24,13 @@ import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
-import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceDeployment;
@@ -105,6 +105,7 @@ public abstract class AbstractService implements InternalCloudService {
   protected final DefaultTickLoop mainThread;
   protected final EventManager eventManager;
   protected final Configuration configuration;
+  protected final ServiceConsoleLogCache logCache;
   protected final InternalCloudServiceManager cloudServiceManager;
   protected final ServiceConfiguration serviceConfiguration;
   protected final ServiceVersionProvider serviceVersionProvider;
@@ -121,8 +122,6 @@ public abstract class AbstractService implements InternalCloudService {
   protected final Collection<ServiceRemoteInclusion> installedInclusions = ConcurrentHashMap.newKeySet();
   protected final Collection<ServiceDeployment> installedDeployments = ConcurrentHashMap.newKeySet();
 
-  protected ServiceConsoleLogCache logCache;
-
   protected volatile NetworkChannel networkChannel;
   protected volatile long connectionTimestamp = -1;
 
@@ -130,16 +129,18 @@ public abstract class AbstractService implements InternalCloudService {
   protected volatile ServiceInfoSnapshot currentServiceInfo;
 
   protected AbstractService(
-    @NonNull @Service I18n i18n,
+    @NonNull I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
     @NonNull ServiceConfiguration configuration,
     @NonNull InternalCloudServiceManager manager,
     @NonNull EventManager eventManager,
+    @NonNull ServiceConsoleLogCache logCache,
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
     this.i18n = i18n;
+    this.logCache = logCache;
     this.mainThread = tickLoop;
     this.configuration = nodeConfig;
     this.eventManager = eventManager;
@@ -162,6 +163,7 @@ public abstract class AbstractService implements InternalCloudService {
       ServiceLifeCycle.PREPARED,
       configuration.propertyHolder().immutableCopy());
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED, false);
+    this.initStandardServiceLogHandler();
 
     // register the service locally for now
     manager.registerUnacceptedService(this);
@@ -882,6 +884,32 @@ public abstract class AbstractService implements InternalCloudService {
       this.serviceId().taskName(),
       this.serviceId().name(),
       this.serviceId().nodeUniqueId()};
+  }
+
+  protected void initStandardServiceLogHandler() {
+    this.logCache.addHandler((_, line, stderr) -> {
+      for (var logTarget : this.logTargets) {
+        if (logTarget._1().equals(ChannelMessageSender.self().toTarget())) {
+          // the current target is the node this service is running on, print it directly here
+          this.eventManager.callEvent(logTarget._2(), new CloudServiceLogEntryEvent(this.currentServiceInfo,
+            line,
+            stderr ? CloudServiceLogEntryEvent.StreamType.STDERR : CloudServiceLogEntryEvent.StreamType.STDOUT));
+        } else {
+          // the listener is listening remotely, send the line to the network component
+          ChannelMessage.builder()
+            .target(logTarget._1())
+            .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+            .message("screen_new_line")
+            .buffer(DataBuf.empty()
+              .writeObject(this.currentServiceInfo)
+              .writeString(logTarget._2())
+              .writeString(line)
+              .writeBoolean(stderr))
+            .build()
+            .send();
+        }
+      }
+    });
   }
 
   protected abstract void startProcess();
