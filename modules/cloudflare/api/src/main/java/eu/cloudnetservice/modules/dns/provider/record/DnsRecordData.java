@@ -22,7 +22,7 @@ import lombok.NonNull;
 /**
  * The basic blueprint of a dns record without being associated with a specific type.
  */
-public interface DnsRecordData extends Named {
+public sealed interface DnsRecordData extends Named permits ADnsRecordData, AAAADnsRecordData, SrvDnsRecordData {
 
   int ttl();
 

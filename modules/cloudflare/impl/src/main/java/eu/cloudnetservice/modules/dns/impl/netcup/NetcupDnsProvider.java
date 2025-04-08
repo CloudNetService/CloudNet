@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.netcup;
+package eu.cloudnetservice.modules.dns.impl.netcup;
 
 import eu.cloudnetservice.driver.document.property.DocProperty;
 import eu.cloudnetservice.modules.dns.provider.DnsProvider;

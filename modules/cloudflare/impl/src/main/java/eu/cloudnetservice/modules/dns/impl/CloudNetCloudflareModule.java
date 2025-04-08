@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns;
+package eu.cloudnetservice.modules.dns.impl;
 
 public class CloudNetCloudflareModule {
 

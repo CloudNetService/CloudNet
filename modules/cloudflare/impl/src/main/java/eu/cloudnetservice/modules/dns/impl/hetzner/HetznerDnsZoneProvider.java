@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.hetzner;
+package eu.cloudnetservice.modules.dns.impl.hetzner;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
+import eu.cloudnetservice.modules.dns.impl.provider.info.DnsRecordInfoImpl;
+import eu.cloudnetservice.modules.dns.impl.util.UnirestToDocumentTransformer;
 import eu.cloudnetservice.modules.dns.provider.DnsZoneProvider;
 import eu.cloudnetservice.modules.dns.provider.info.DnsRecordInfo;
 import eu.cloudnetservice.modules.dns.provider.record.AAAADnsRecordData;
 import eu.cloudnetservice.modules.dns.provider.record.ADnsRecordData;
 import eu.cloudnetservice.modules.dns.provider.record.DnsRecordData;
 import eu.cloudnetservice.modules.dns.provider.record.SrvDnsRecordData;
-import eu.cloudnetservice.modules.dns.util.UnirestToDocumentTransformer;
 import io.leangen.geantyref.TypeFactory;
 import io.vavr.control.Try;
 import java.lang.reflect.Type;
@@ -85,7 +86,7 @@ final class HetznerDnsZoneProvider implements DnsZoneProvider {
 
             if (recordData != null) {
               var recordId = dnsRecordData.getString("id");
-              return DnsRecordInfo.of(recordId, recordData);
+              return (DnsRecordInfo) new DnsRecordInfoImpl(recordId, recordData);
             } else {
               return null;
             }
@@ -129,7 +130,7 @@ final class HetznerDnsZoneProvider implements DnsZoneProvider {
         .asObject(UnirestToDocumentTransformer.INSTANCE);
       if (response.isSuccess()) {
         var recordId = response.getBody().readDocument("record").getString("id");
-        return DnsRecordInfo.of(recordId, recordData);
+        return new DnsRecordInfoImpl(recordId, recordData);
       } else {
         var errorMessage = String.format(
           "Unable to create record %s in zone %s - server returned status %s (%s)",
@@ -153,7 +154,7 @@ final class HetznerDnsZoneProvider implements DnsZoneProvider {
         .body(requestBody)
         .asObject(UnirestToDocumentTransformer.INSTANCE);
       if (response.isSuccess()) {
-        return DnsRecordInfo.of(recordInfo.id(), newRecordData);
+        return new DnsRecordInfoImpl(recordInfo.id(), newRecordData);
       } else {
         var errorMessage = String.format(
           "Unable to update record %s with %s in zone %s - server returned status %s (%s)",
@@ -170,7 +171,6 @@ final class HetznerDnsZoneProvider implements DnsZoneProvider {
       case SrvDnsRecordData(_, _, var target, var port, var priority, var weight) -> String.format(
         "%d %d %d %s",
         priority, weight, port, target);
-      default -> throw new IllegalArgumentException("Unsupported record type: " + recordData.getClass());
     };
 
     return Document.newJsonDocument()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-2025 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.dns.provider;
 
-import eu.cloudnetservice.modules.dns.provider.record.DnsRecordData;
 import eu.cloudnetservice.modules.dns.provider.info.DnsRecordInfo;
+import eu.cloudnetservice.modules.dns.provider.record.DnsRecordData;
 import io.vavr.control.Try;
 import java.util.List;
 import lombok.NonNull;

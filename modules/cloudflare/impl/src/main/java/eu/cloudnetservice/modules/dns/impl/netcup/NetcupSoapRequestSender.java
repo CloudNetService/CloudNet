@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.netcup;
+package eu.cloudnetservice.modules.dns.impl.netcup;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
-import eu.cloudnetservice.modules.dns.util.UnirestToDocumentTransformer;
+import eu.cloudnetservice.modules.dns.impl.util.UnirestToDocumentTransformer;
 import io.vavr.control.Try;
 import kong.unirest.core.UnirestInstance;
 import lombok.NonNull;

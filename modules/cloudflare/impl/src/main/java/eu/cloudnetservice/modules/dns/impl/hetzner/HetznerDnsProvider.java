@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.cloudflare;
+package eu.cloudnetservice.modules.dns.impl.hetzner;
 
 import eu.cloudnetservice.driver.document.property.DocProperty;
 import eu.cloudnetservice.modules.dns.provider.DnsProvider;
@@ -23,9 +23,9 @@ import eu.cloudnetservice.modules.dns.provider.DnsZoneProvider;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
-public final class CloudflareDnsProvider implements DnsProvider {
+public final class HetznerDnsProvider implements DnsProvider {
 
-  private static final String API_BASE_URL = "https://api.cloudflare.com/client/v4";
+  private static final String API_BASE_URL = "https://dns.hetzner.com/api/v1";
 
   private static final DocProperty<String> ZONE_ID_PROPERTY = DocProperty.property("zoneId", String.class);
   private static final DocProperty<String> API_KEY_PROPERTY = DocProperty.property("apiKey", String.class);
@@ -38,15 +38,15 @@ public final class CloudflareDnsProvider implements DnsProvider {
     var unirestInstance = Unirest.spawnInstance();
     var unirestInstanceConfig = unirestInstance.config();
     unirestInstanceConfig.defaultBaseUrl(API_BASE_URL);
+    unirestInstanceConfig.setDefaultHeader("Auth-API-Token", apiKey);
     unirestInstanceConfig.connectTimeout((int) zoneConfig.apiConnectTimeout().toMillis());
     unirestInstanceConfig.requestTimeout((int) zoneConfig.apiRequestTimeout().toMillis());
-    unirestInstanceConfig.setDefaultHeader("Authorization", "Bearer " + apiKey);
 
-    return new CloudflareDnsZoneProvider(zoneId, unirestInstance);
+    return new HetznerDnsZoneProvider(zoneId, unirestInstance);
   }
 
   @Override
   public @NonNull String name() {
-    return "cloudflare";
+    return "hetzner";
   }
 }

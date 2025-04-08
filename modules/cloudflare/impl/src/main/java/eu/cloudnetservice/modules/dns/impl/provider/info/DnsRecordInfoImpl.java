@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.provider.info;
+package eu.cloudnetservice.modules.dns.impl.provider.info;
 
+import eu.cloudnetservice.modules.dns.provider.info.DnsRecordInfo;
 import eu.cloudnetservice.modules.dns.provider.record.DnsRecordData;
 import lombok.NonNull;
 
-record DnsRecordInfoImpl(@NonNull String id, @NonNull DnsRecordData data) implements DnsRecordInfo {
+public record DnsRecordInfoImpl(@NonNull String id, @NonNull DnsRecordData data) implements DnsRecordInfo {
 
 }

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.netcup;
+package eu.cloudnetservice.modules.dns.impl.netcup;
 
 import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.modules.dns.impl.provider.info.DnsRecordInfoImpl;
 import eu.cloudnetservice.modules.dns.provider.DnsZoneProvider;
 import eu.cloudnetservice.modules.dns.provider.info.DnsRecordInfo;
 import eu.cloudnetservice.modules.dns.provider.record.AAAADnsRecordData;
@@ -75,7 +76,7 @@ final class NetcupDnsZoneProvider implements DnsZoneProvider {
 
           if (recordData != null) {
             var recordId = dnsRecordData.getString("id");
-            return DnsRecordInfo.of(recordId, recordData);
+            return (DnsRecordInfo) new DnsRecordInfoImpl(recordId, recordData);
           } else {
             return null;
           }
@@ -109,7 +110,7 @@ final class NetcupDnsZoneProvider implements DnsZoneProvider {
         .findFirst()
         .map(dnsRecordData -> {
           var id = dnsRecordData.getString("id");
-          return DnsRecordInfo.of(id, recordData);
+          return new DnsRecordInfoImpl(id, recordData);
         })
         .orElseThrow(() -> new IllegalStateException("Created record not found in response list"));
     });
@@ -123,7 +124,7 @@ final class NetcupDnsZoneProvider implements DnsZoneProvider {
     var serializedRecordData = this.serializeRecordData(newRecordData).append("id", recordInfo.id());
     var requestParams = this.constructUpdateRecordsParams(serializedRecordData);
     return this.requestSender.requestAuthenticated("updateDnsRecords", requestParams)
-      .map(_ -> DnsRecordInfo.of(recordInfo.id(), newRecordData));
+      .map(_ -> new DnsRecordInfoImpl(recordInfo.id(), newRecordData));
   }
 
   private @NonNull Document.Mutable serializeRecordData(@NonNull DnsRecordData recordData) {
@@ -133,7 +134,6 @@ final class NetcupDnsZoneProvider implements DnsZoneProvider {
       case SrvDnsRecordData(_, _, var target, var port, var priority, var weight) -> String.format(
         "%d %d %d %s",
         priority, weight, port, target);
-      default -> throw new IllegalArgumentException("Unsupported record type: " + recordData.getClass());
     };
 
     return Document.newJsonDocument()

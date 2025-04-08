@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.digitalocean;
+package eu.cloudnetservice.modules.dns.impl.digitalocean;
 
 import eu.cloudnetservice.driver.document.property.DocProperty;
 import eu.cloudnetservice.modules.dns.provider.DnsProvider;

@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.digitalocean;
+package eu.cloudnetservice.modules.dns.impl.cloudflare;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
+import eu.cloudnetservice.modules.dns.impl.provider.info.DnsRecordInfoImpl;
+import eu.cloudnetservice.modules.dns.impl.util.UnirestToDocumentTransformer;
 import eu.cloudnetservice.modules.dns.provider.DnsZoneProvider;
 import eu.cloudnetservice.modules.dns.provider.info.DnsRecordInfo;
 import eu.cloudnetservice.modules.dns.provider.record.AAAADnsRecordData;
 import eu.cloudnetservice.modules.dns.provider.record.ADnsRecordData;
 import eu.cloudnetservice.modules.dns.provider.record.DnsRecordData;
 import eu.cloudnetservice.modules.dns.provider.record.SrvDnsRecordData;
-import eu.cloudnetservice.modules.dns.util.UnirestToDocumentTransformer;
 import io.leangen.geantyref.TypeFactory;
 import io.vavr.control.Try;
 import java.lang.reflect.Type;
@@ -35,15 +36,15 @@ import kong.unirest.core.PagedList;
 import kong.unirest.core.UnirestInstance;
 import lombok.NonNull;
 
-final class DigitalOceanDnsZoneProvider implements DnsZoneProvider {
+final class CloudflareDnsZoneProvider implements DnsZoneProvider {
 
   private static final Type DOCUMENT_LIST_TYPE = TypeFactory.parameterizedClass(List.class, Document.class);
 
-  private final String domainName;
+  private final String zoneId;
   private final UnirestInstance unirestInstance;
 
-  public DigitalOceanDnsZoneProvider(@NonNull String domainName, @NonNull UnirestInstance unirestInstance) {
-    this.domainName = domainName;
+  public CloudflareDnsZoneProvider(@NonNull String zoneId, @NonNull UnirestInstance unirestInstance) {
+    this.zoneId = zoneId;
     this.unirestInstance = unirestInstance;
   }
 
@@ -51,25 +52,31 @@ final class DigitalOceanDnsZoneProvider implements DnsZoneProvider {
   @SuppressWarnings("unchecked")
   public @NonNull Try<List<DnsRecordInfo>> listRecords() {
     return Try.of(() -> {
-      PagedList<Document> allResponses = this.unirestInstance.get("/domains/{domain_name}/records")
-        .routeParam("domain_name", this.domainName)
+      PagedList<Document> allResponses = this.unirestInstance.get("/zones/{zone_id}/dns_records")
+        .routeParam("zone_id", this.zoneId)
         .asPaged(
           request -> request.asObject(UnirestToDocumentTransformer.INSTANCE),
           nextResponse -> {
             if (nextResponse.isSuccess()) {
-              var pageInfo = nextResponse.getBody().readDocument("links").readDocument("pages");
-              return pageInfo.getString("next");
+              var resultInfo = nextResponse.getBody().readDocument("result_info");
+              var currentPage = resultInfo.getInt("page");
+              var totalPages = resultInfo.getInt("total_pages");
+              if (totalPages > currentPage) {
+                return String.format("/zones/%s/dns_records?page=%d", this.zoneId, currentPage + 1);
+              } else {
+                return null;
+              }
             } else {
               var errorMessage = String.format(
-                "Failed to list dns records of domain %s - server returned status %s (%s)",
-                this.domainName, nextResponse.getStatus(), nextResponse.getStatusText());
+                "Failed to list dns records of zone %s - server returned status %s (%s)",
+                this.zoneId, nextResponse.getStatus(), nextResponse.getStatusText());
               throw new IllegalStateException(errorMessage);
             }
           });
       return allResponses.stream()
         .map(HttpResponse::getBody)
         .flatMap(responseBody -> {
-          List<Document> dnsRecords = responseBody.readObject("domain_records", DOCUMENT_LIST_TYPE);
+          List<Document> dnsRecords = responseBody.readObject("result", DOCUMENT_LIST_TYPE);
           return dnsRecords.stream();
         })
         .map(dnsRecordData -> {
@@ -78,30 +85,32 @@ final class DigitalOceanDnsZoneProvider implements DnsZoneProvider {
             case "A" -> {
               var name = dnsRecordData.getString("name");
               var ttl = dnsRecordData.getInt("ttl");
-              var content = dnsRecordData.getString("data");
+              var content = dnsRecordData.getString("content");
               yield new ADnsRecordData(name, ttl, content);
             }
             case "AAAA" -> {
               var name = dnsRecordData.getString("name");
               var ttl = dnsRecordData.getInt("ttl");
-              var content = dnsRecordData.getString("data");
+              var content = dnsRecordData.getString("content");
               yield new AAAADnsRecordData(name, ttl, content);
             }
             case "SRV" -> {
               var name = dnsRecordData.getString("name");
               var ttl = dnsRecordData.getInt("ttl");
-              var port = dnsRecordData.getInt("port");
-              var priority = dnsRecordData.getInt("priority");
-              var target = dnsRecordData.getString("data");
-              var weight = dnsRecordData.getInt("weight");
+
+              var data = dnsRecordData.readDocument("data");
+              var port = data.getInt("port");
+              var priority = data.getInt("priority");
+              var target = data.getString("target");
+              var weight = data.getInt("weight");
               yield new SrvDnsRecordData(name, ttl, target, port, priority, weight);
             }
             default -> null;
           };
 
           if (recordData != null) {
-            var recordId = dnsRecordData.getInt("id");
-            return DnsRecordInfo.of(Integer.toString(recordId), recordData);
+            var recordId = dnsRecordData.getString("id");
+            return (DnsRecordInfo) new DnsRecordInfoImpl(recordId, recordData);
           } else {
             return null;
           }
@@ -114,16 +123,16 @@ final class DigitalOceanDnsZoneProvider implements DnsZoneProvider {
   @Override
   public @NonNull Try<Void> deleteDnsRecord(@NonNull DnsRecordInfo recordInfo) {
     return Try.of(() -> {
-      var response = this.unirestInstance.delete("/domains/{domain_name}/records/{record_id}")
-        .routeParam("domain_name", this.domainName)
-        .routeParam("record_id", recordInfo.id())
+      var response = this.unirestInstance.delete("/zones/{zone_id}/dns_records/{dns_record_id}")
+        .routeParam("zone_id", this.zoneId)
+        .routeParam("dns_record_id", recordInfo.id())
         .asEmpty();
       if (response.isSuccess()) {
         return null;
       } else {
         var errorMessage = String.format(
-          "Failed to delete record %s from domain %s - server returned status %s (%s)",
-          recordInfo.id(), this.domainName, response.getStatus(), response.getStatusText());
+          "Failed to delete record %s from zone %s - server returned status %s (%s)",
+          recordInfo.id(), this.zoneId, response.getStatus(), response.getStatusText());
         throw new IllegalStateException(errorMessage);
       }
     });
@@ -135,17 +144,17 @@ final class DigitalOceanDnsZoneProvider implements DnsZoneProvider {
     var requestBody = requestBodyContent.serializeToString(StandardSerialisationStyle.COMPACT);
 
     return Try.of(() -> {
-      var response = this.unirestInstance.post("/domains/{domain_name}/records")
-        .routeParam("domain_name", this.domainName)
+      var response = this.unirestInstance.post("/zones/{zone_id}/dns_records")
+        .routeParam("zone_id", this.zoneId)
         .body(requestBody)
         .asObject(UnirestToDocumentTransformer.INSTANCE);
       if (response.isSuccess()) {
-        var recordId = response.getBody().readDocument("domain_record").getInt("id");
-        return DnsRecordInfo.of(Integer.toString(recordId), recordData);
+        var recordId = response.getBody().readDocument("result").getString("id");
+        return new DnsRecordInfoImpl(recordId, recordData);
       } else {
         var errorMessage = String.format(
-          "Unable to create record %s for domain %s - server returned status %s (%s)",
-          recordData, this.domainName, response.getStatus(), response.getStatusText());
+          "Unable to create record %s in zone %s - server returned status %s (%s)",
+          recordData, this.zoneId, response.getStatus(), response.getStatusText());
         throw new IllegalStateException(errorMessage);
       }
     });
@@ -160,17 +169,17 @@ final class DigitalOceanDnsZoneProvider implements DnsZoneProvider {
     var requestBody = requestBodyContent.serializeToString(StandardSerialisationStyle.COMPACT);
 
     return Try.of(() -> {
-      var response = this.unirestInstance.put("/domains/{domain_name}/records/{record_id}")
-        .routeParam("domain_name", this.domainName)
-        .routeParam("record_id", recordInfo.id())
+      var response = this.unirestInstance.put("/zones/{zone_id}/dns_records/{dns_record_id}")
+        .routeParam("zone_id", this.zoneId)
+        .routeParam("dns_record_id", recordInfo.id())
         .body(requestBody)
-        .asObject(UnirestToDocumentTransformer.INSTANCE);
+        .asEmpty();
       if (response.isSuccess()) {
-        return DnsRecordInfo.of(recordInfo.id(), newRecordData);
+        return new DnsRecordInfoImpl(recordInfo.id(), newRecordData);
       } else {
         var errorMessage = String.format(
-          "Unable to update record %s with %s for domain %s - server returned status %s (%s)",
-          recordInfo.id(), newRecordData, this.domainName, response.getStatus(), response.getStatusText());
+          "Unable to update record %s with %s in zone %s - server returned status %s (%s)",
+          recordInfo.id(), newRecordData, this.zoneId, response.getStatus(), response.getStatusText());
         throw new IllegalStateException(errorMessage);
       }
     });
@@ -182,24 +191,24 @@ final class DigitalOceanDnsZoneProvider implements DnsZoneProvider {
         .newJsonDocument()
         .append("name", name)
         .append("ttl", ttl)
-        .append("data", content)
+        .append("content", content)
         .append("type", "A");
       case AAAADnsRecordData(var name, var ttl, var content) -> Document
         .newJsonDocument()
         .append("name", name)
         .append("ttl", ttl)
-        .append("data", content)
+        .append("content", content)
         .append("type", "AAAA");
       case SrvDnsRecordData(var name, var ttl, var target, var port, var priority, var weight) -> Document
         .newJsonDocument()
         .append("name", name)
         .append("ttl", ttl)
-        .append("data", target)
-        .append("port", port)
-        .append("priority", priority)
-        .append("weight", weight)
-        .append("type", "SRV");
-      default -> throw new IllegalArgumentException("Unsupported record type: " + recordData.getClass());
+        .append("type", "SRV")
+        .append("data", Document.newJsonDocument()
+          .append("port", port)
+          .append("priority", priority)
+          .append("target", target)
+          .append("weight", weight));
     };
   }
 }
