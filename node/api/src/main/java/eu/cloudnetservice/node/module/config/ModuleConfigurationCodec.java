@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.module.config;
 
 import eu.cloudnetservice.driver.base.Named;
+import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.node.module.ModuleContainer;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -67,4 +68,15 @@ public interface ModuleConfigurationCodec extends Named {
     @NonNull String requestedConfigPath,
     @NonNull Class<T> requestedConfigType,
     @NonNull Supplier<T> defaultConfigSupplier) throws Exception;
+
+  /**
+   * Serializes the given configuration container into a document. This method must be supported, even if
+   * {@link #supportsStoring()} returns false.
+   *
+   * @param configurationContainer the configuration container to serialize to a document.
+   * @return the document containing the serialized configuration container.
+   * @throws NullPointerException if the given configuration container is null.
+   */
+  @NonNull
+  Document serializeConfiguration(@NonNull ModuleConfigurationContainer<?> configurationContainer);
 }

@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.node.module.config;
 
+import eu.cloudnetservice.driver.document.Document;
 import java.util.function.Consumer;
 import lombok.NonNull;
-import org.jetbrains.annotations.CheckReturnValue;
 
 /**
  * A container containing a loaded configuration file. Each container can be injected and will trigger a configuration
@@ -42,10 +42,19 @@ public interface ModuleConfigurationContainer<T> {
    * Updates the modeled configuration type and saves the updated model to the original source path. This does not
    * persist the given model in case the codec does not support storing configurations.
    *
-   * @param configType the updated configuration instance to use.
-   * @throws NullPointerException if the given configuration type is null.
+   * @param configModel the updated configuration instance to use.
+   * @throws NullPointerException if the given configuration model is null.
    */
-  void update(@NonNull T configType);
+  void update(@NonNull T configModel);
+
+  /**
+   * Updates the underlying configuration model from the given document.
+   *
+   * @param document the document containing the configuration model to apply.
+   * @throws NullPointerException     if the given document is null.
+   * @throws IllegalArgumentException if the configuration in the given document is invalid.
+   */
+  void updateFromDocument(@NonNull Document document);
 
   /**
    * Registers a listener which will be triggered if this configuration container changes, either by being reloaded or
@@ -88,12 +97,10 @@ public interface ModuleConfigurationContainer<T> {
   boolean containsSensitiveData();
 
   /**
-   * Returns a new module configuration container that has a clear marking that this module configuration contains
-   * sensitive data. This module container instance does not reflect the method call.
+   * Marks that this module container contains sensitive data.
    *
-   * @return a new module container containing the same info expect for it being marked as sensitive.
+   * @return this module container, for chaining.
    */
   @NonNull
-  @CheckReturnValue
   ModuleConfigurationContainer<T> markContainsSensitiveData();
 }
