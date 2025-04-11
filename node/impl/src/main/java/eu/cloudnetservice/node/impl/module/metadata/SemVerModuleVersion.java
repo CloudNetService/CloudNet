@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.impl.module;
+package eu.cloudnetservice.node.impl.module.metadata;
 
 import eu.cloudnetservice.node.module.metadata.ModuleVersion;
 import java.util.Comparator;
@@ -23,11 +23,11 @@ import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
 /**
- * The default implementation of a module version.
+ * The SemVer implementation of a module version.
  *
  * @since 4.0
  */
-public final class DefaultModuleVersion implements ModuleVersion {
+public final class SemVerModuleVersion implements ModuleVersion {
 
   private static final Comparator<ModuleVersion> MAJOR_MINOR_PATCH_COMPARATOR = Comparator
     .comparingInt(ModuleVersion::major)
@@ -39,12 +39,12 @@ public final class DefaultModuleVersion implements ModuleVersion {
   private final String preRelease;
 
   /**
-   * Constructs a new default module version instance.
+   * Constructs a new SemVer module version instance.
    *
    * @param semver the parsed SemVer instance from the given input version.
    * @throws NullPointerException if the given SemVer instance is null.
    */
-  private DefaultModuleVersion(@NonNull Semver semver) {
+  private SemVerModuleVersion(@NonNull Semver semver) {
     this.semver = semver;
     this.build = String.join(".", semver.getBuild());
     this.preRelease = String.join(".", semver.getPreRelease());
@@ -62,7 +62,7 @@ public final class DefaultModuleVersion implements ModuleVersion {
     // use coerce here to potentially fix invalid SemVer versions, for example
     // not providing a patch version would be counted as invalid on strict parsing
     var parsedSemver = Semver.coerce(input);
-    return parsedSemver == null ? null : new DefaultModuleVersion(parsedSemver);
+    return parsedSemver == null ? null : new SemVerModuleVersion(parsedSemver);
   }
 
   /**
@@ -127,7 +127,7 @@ public final class DefaultModuleVersion implements ModuleVersion {
   @Override
   public int compareTo(@NonNull ModuleVersion otherVersion) {
     // if the other version is also based on SemVer just compare those two
-    if (otherVersion instanceof DefaultModuleVersion otherSemverVersion) {
+    if (otherVersion instanceof SemVerModuleVersion otherSemverVersion) {
       return this.semver.compareTo(otherSemverVersion.semver);
     }
 
@@ -152,7 +152,7 @@ public final class DefaultModuleVersion implements ModuleVersion {
       return true;
     }
 
-    return other instanceof DefaultModuleVersion moduleVersion && this.semver.equals(moduleVersion.semver);
+    return other instanceof SemVerModuleVersion moduleVersion && this.semver.equals(moduleVersion.semver);
   }
 
   /**

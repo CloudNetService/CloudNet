@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.impl.module;
+package eu.cloudnetservice.node.impl.module.dependency;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;

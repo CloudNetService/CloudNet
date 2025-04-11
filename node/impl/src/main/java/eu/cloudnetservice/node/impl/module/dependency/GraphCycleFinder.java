@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.impl.module;
+package eu.cloudnetservice.node.impl.module.dependency;
 
 import com.google.common.graph.Graph;
 import java.util.HashMap;
