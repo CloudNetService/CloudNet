@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.impl.service.defaults.JVMService;
+import eu.cloudnetservice.node.impl.service.defaults.log.ProcessServiceLogReadScheduler;
 import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.CloudService;
@@ -38,6 +39,7 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
   protected final DefaultTickLoop mainThread;
   protected final EventManager eventManager;
   protected final CloudServiceManager cloudServiceManager;
+  protected final ProcessServiceLogReadScheduler processLogReadScheduler;
 
   @Inject
   public JVMLocalCloudServiceFactory(
@@ -46,13 +48,15 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
     @NonNull Configuration nodeConfig,
     @NonNull CloudServiceManager cloudServiceManager,
     @NonNull EventManager eventManager,
-    @NonNull ServiceVersionProvider versionProvider
+    @NonNull ServiceVersionProvider versionProvider,
+    @NonNull ProcessServiceLogReadScheduler processLogReadScheduler
   ) {
     super(nodeConfig, versionProvider);
     this.i18n = i18n;
     this.mainThread = tickLoop;
     this.eventManager = eventManager;
     this.cloudServiceManager = cloudServiceManager;
+    this.processLogReadScheduler = processLogReadScheduler;
   }
 
   @Override
@@ -60,11 +64,8 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
     @NonNull CloudServiceManager manager,
     @NonNull ServiceConfiguration configuration
   ) {
-    // validates the settings of the configuration
     var config = this.validateConfiguration(manager, configuration);
-    // select the configuration preparer for the environment
     var preparer = manager.servicePreparer(config.serviceId().environment());
-    // create the service
     return new JVMService(
       this.i18n,
       this.mainThread,
@@ -73,7 +74,8 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
       (InternalCloudServiceManager) manager,
       this.eventManager,
       this.versionProvider,
-      preparer);
+      preparer,
+      this.processLogReadScheduler);
   }
 
   @Override
