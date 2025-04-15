@@ -21,7 +21,6 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
-import dev.derklaro.aerogel.auto.Provides;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.impl.network.object.data.DataClassSerializer;
 import eu.cloudnetservice.driver.impl.network.object.serializers.CollectionObjectSerializer;
@@ -111,7 +110,6 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 @Singleton
-@Provides(ObjectMapper.class)
 public class DefaultObjectMapper implements ObjectMapper {
 
   public static final ObjectMapper DEFAULT_MAPPER;

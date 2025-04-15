@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.impl.inject;
 
-import dev.derklaro.aerogel.auto.Factory;
+import dev.derklaro.aerogel.auto.annotation.Factory;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.impl.network.rpc.generation.RPCInternalInstanceFactory;

@@ -16,21 +16,21 @@
 
 package eu.cloudnetservice.driver.module.driver;
 
-import dev.derklaro.aerogel.Element;
-import dev.derklaro.aerogel.InjectionContext;
-import dev.derklaro.aerogel.util.Qualifiers;
+import dev.derklaro.aerogel.InjectionRequest;
+import dev.derklaro.aerogel.binding.key.BindingKey;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.document.DocumentParseException;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.driver.inject.NamedImpl;
 import eu.cloudnetservice.driver.module.DefaultModule;
 import eu.cloudnetservice.driver.module.Module;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
 
 /**
@@ -44,8 +44,8 @@ import lombok.NonNull;
  */
 public class DriverModule extends DefaultModule {
 
-  protected static final Element CONFIG_PATH_ELEMENT = Element.forType(Path.class)
-    .requireAnnotation(Qualifiers.named("configPath"));
+  private static final BindingKey<Path> CONFIG_BINDING_KEY = BindingKey.of(Path.class)
+    .withQualifier(new NamedImpl("configPath"));
 
   /**
    * Reads the configuration file of this module from the default or overridden configuration path (via module.json)
@@ -112,7 +112,7 @@ public class DriverModule extends DefaultModule {
    * class instance. Bindings are respected by this method.
    * <p>
    * If further customization of the injection context which is taking over the injection process is needed, the method
-   * {@link #readConfigAndInstantiate(InjectionLayer, Class, Supplier, Class, Consumer, DocumentFactory)} is able to
+   * {@link #readConfigAndInstantiate(InjectionLayer, Class, Supplier, Class, UnaryOperator, DocumentFactory)} is able to
    * allow for further customization of the class injection context (for example needed if other non-constructable types
    * are required to instantiate the binding of the given type).
    *
@@ -124,9 +124,8 @@ public class DriverModule extends DefaultModule {
    * @param <C>                  the type of the configuration model.
    * @param <T>                  the type modeling the class which should be instantiated.
    * @return the constructed instance of the given type, constructed with the configuration known to the context.
-   * @throws NullPointerException                  if one of the given parameters is null.
-   * @throws ModuleConfigurationInvalidException   if the reader is unable to read the configuration from the file.
-   * @throws dev.derklaro.aerogel.AerogelException if no binding for T is present and no JIT binding can be created.
+   * @throws NullPointerException                if one of the given parameters is null.
+   * @throws ModuleConfigurationInvalidException if the reader is unable to read the configuration from the file.
    */
   public @NonNull <C, T> T readConfigAndInstantiate(
     @NonNull InjectionLayer<?> injectionLayer,
@@ -140,8 +139,7 @@ public class DriverModule extends DefaultModule {
       configModelType,
       defaultConfigFactory,
       classToInstantiate,
-      $ -> {
-      },
+      UnaryOperator.identity(),
       documentFactory);
   }
 
@@ -161,31 +159,30 @@ public class DriverModule extends DefaultModule {
    * @param configModelType      the modeling class of the configuration.
    * @param defaultConfigFactory a factory constructing a default config instance if needed.
    * @param classToInstantiate   the class to instantiate after successfully loading the configuration.
-   * @param builderDecorator     the decorator to apply to the injection context builder, for further customization.
+   * @param decorator            the decorator to apply to the injection context builder, for further customization.
    * @param documentFactory      the document factory to use when reading the configuration file.
    * @param <C>                  the type of the configuration model.
    * @param <T>                  the type modeling the class which should be instantiated.
    * @return the constructed instance of the given type, constructed with the configuration known to the context.
-   * @throws NullPointerException                  if one of the given parameters is null.
-   * @throws ModuleConfigurationInvalidException   if the reader is unable to read the configuration from the file.
-   * @throws dev.derklaro.aerogel.AerogelException if no binding for T is present and no JIT binding can be created.
+   * @throws NullPointerException                if one of the given parameters is null.
+   * @throws ModuleConfigurationInvalidException if the reader is unable to read the configuration from the file.
    */
   public @NonNull <C, T> T readConfigAndInstantiate(
     @NonNull InjectionLayer<?> injectionLayer,
     @NonNull Class<C> configModelType,
     @NonNull Supplier<C> defaultConfigFactory,
     @NonNull Class<T> classToInstantiate,
-    @NonNull Consumer<InjectionContext.Builder> builderDecorator,
+    @NonNull UnaryOperator<InjectionRequest<T>> decorator,
     @NonNull DocumentFactory documentFactory
   ) {
     // read the config
     var config = this.readConfig(configModelType, defaultConfigFactory, documentFactory);
-    return injectionLayer.instance(classToInstantiate, builder -> {
+    return injectionLayer.instance(classToInstantiate, request -> {
       // write the default elements to the builder
-      builder.override(configModelType, config);
-      builder.override(CONFIG_PATH_ELEMENT, this.configPath());
-      // apply the custom modifier
-      builderDecorator.accept(builder);
+      request = request
+        .override(configModelType, config)
+        .override(CONFIG_BINDING_KEY, this.configPath());
+      return decorator.apply(request);
     });
   }
 

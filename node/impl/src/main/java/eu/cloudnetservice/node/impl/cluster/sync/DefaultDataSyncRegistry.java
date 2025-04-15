@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.impl.cluster.sync;
 
 import com.google.common.primitives.Ints;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.registry.Service;

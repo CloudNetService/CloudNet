@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.impl.console;
 
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.node.impl.Node;
 import eu.cloudnetservice.node.impl.console.animation.AbstractConsoleAnimation;
 import eu.cloudnetservice.node.impl.console.handler.ConsoleInputHandler;

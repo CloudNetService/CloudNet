@@ -19,8 +19,7 @@ package eu.cloudnetservice.node.impl.service.defaults;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.ComparisonChain;
-import dev.derklaro.aerogel.PostConstruct;
-import dev.derklaro.aerogel.auto.Provides;
+import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
@@ -86,7 +85,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-@Provides({CloudServiceManager.class, CloudServiceProvider.class, InternalCloudServiceManager.class})
+@Provides({InternalCloudServiceManager.class, CloudServiceManager.class, CloudServiceProvider.class})
 public class DefaultCloudServiceManager implements InternalCloudServiceManager {
 
   protected static final Path TEMP_SERVICE_DIR = Path.of(
@@ -171,27 +170,21 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
         })
         .currentGetter(group -> this.serviceProviderByName(group.name()).serviceInfo())
         .build());
-    // schedule the updating of the local service log cache
+
+    // schedule the service watchdog to run once per second
     mainThread.scheduleTask(() -> {
       for (var service : this.localCloudServices()) {
-        // we only need to look at running services
-        if (service.lifeCycle() == ServiceLifeCycle.RUNNING) {
-          // detect dead services and stop them
-          if (service.alive()) {
-            service.serviceConsoleLogCache().update();
-            LOGGER.trace("Updated service log cache of {}", service.serviceId().name());
-          } else {
-            eventManager.callEvent(new CloudServicePreForceStopEvent(service));
-            service.stop();
-            LOGGER.trace("Stopped dead service {}", service.serviceId().name());
-          }
+        if (service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.alive()) {
+          eventManager.callEvent(new CloudServicePreForceStopEvent(service));
+          service.stop();
+          LOGGER.debug("Stopped dead service {}", service.serviceId().name());
         }
       }
       return null;
     }, Duration.ofMillis(DefaultTickLoop.MILLIS_BETWEEN_TICKS));
   }
 
-  @PostConstruct
+  @Inject
   private void registerDefaultServiceFactory() {
     this.addCloudServiceFactory("jvm", JVMLocalCloudServiceFactory.class);
   }

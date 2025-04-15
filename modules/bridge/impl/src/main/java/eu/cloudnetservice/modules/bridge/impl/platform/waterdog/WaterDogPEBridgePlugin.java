@@ -63,7 +63,7 @@ public final class WaterDogPEBridgePlugin implements PlatformEntrypoint {
   public void onLoad() {
     // init the management
     this.bridgeManagement.registerServices(this.serviceRegistry);
-    this.bridgeManagement.postInit();
+    this.proxyServer.getScheduler().scheduleDelayed(this.bridgeManagement::postInit, 1);
 
     // register the WaterDog handlers
     var handlers = new WaterDogPEHandlers(this.proxyServer, this.bridgeManagement);

@@ -18,13 +18,8 @@ package eu.cloudnetservice.node.impl.service.defaults;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
-import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
-import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -33,9 +28,11 @@ import eu.cloudnetservice.node.event.service.CloudServicePostProcessStartEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.node.impl.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.impl.service.defaults.log.ProcessServiceLogCache;
+import eu.cloudnetservice.node.impl.service.defaults.log.ProcessServiceLogReadScheduler;
 import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
+import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import io.vavr.CheckedFunction1;
@@ -85,6 +82,31 @@ public class JVMService extends AbstractService {
     @NonNull InternalCloudServiceManager manager,
     @NonNull EventManager eventManager,
     @NonNull ServiceVersionProvider versionProvider,
+    @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer,
+    @NonNull ProcessServiceLogReadScheduler processLogReadScheduler
+  ) {
+    var logCache = new ProcessServiceLogCache(nodeConfig, configuration.serviceId(), processLogReadScheduler);
+    this(
+      i18n,
+      tickLoop,
+      nodeConfig,
+      configuration,
+      manager,
+      eventManager,
+      logCache,
+      versionProvider,
+      serviceConfigurationPreparer);
+  }
+
+  protected JVMService(
+    @NonNull I18n i18n,
+    @NonNull DefaultTickLoop tickLoop,
+    @NonNull Configuration nodeConfig,
+    @NonNull ServiceConfiguration configuration,
+    @NonNull InternalCloudServiceManager manager,
+    @NonNull EventManager eventManager,
+    @NonNull ServiceConsoleLogCache logCache,
+    @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
     super(
@@ -94,10 +116,9 @@ public class JVMService extends AbstractService {
       configuration,
       manager,
       eventManager,
+      logCache,
       versionProvider,
       serviceConfigurationPreparer);
-    super.logCache = new ProcessServiceLogCache(() -> this.process, nodeConfig, this);
-    this.initLogHandler();
   }
 
   @Override
@@ -178,23 +199,33 @@ public class JVMService extends AbstractService {
 
   @Override
   protected void stopProcess() {
-    if (this.process != null) {
-      // try to send a shutdown command
+    var process = this.process;
+    if (process != null) {
+      // try to send a shutdown command (still needs the process instance to be present)
       this.runCommand("end");
       this.runCommand("stop");
+      this.process = null;
 
+      // try to wait for the process to terminate normally, setting the
+      // terminated flag to true if the process exited in the given time frame
+      var terminated = false;
       try {
-        // wait until the process termination seconds exceeded
-        if (this.process.waitFor(this.configuration.processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
-          this.process.exitValue(); // validation that the process terminated
-          this.process = null; // reset as there is no fall-through
-          return;
+        if (process.waitFor(this.configuration.processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+          process.exitValue(); // validation that the process terminated
+          terminated = true;
         }
       } catch (IllegalThreadStateException | InterruptedException ignored) { // force shutdown the process
       }
-      // force destroy the process now - not much we can do here more than that
-      this.process.toHandle().destroyForcibly();
-      this.process = null;
+
+      // force-destroy the process in case it didn't terminate normally
+      if (!terminated) {
+        process.toHandle().destroyForcibly();
+      }
+
+      // stop the reading process when the process exited
+      if (this.logCache instanceof ProcessServiceLogCache processServiceLogCache) {
+        processServiceLogCache.stop();
+      }
     }
   }
 
@@ -240,6 +271,13 @@ public class JVMService extends AbstractService {
       // start the process and fire the post start event
       this.process = builder.start();
       this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this));
+
+      // start the log reading unless some user code changed the log cache type
+      // in that case it's up to the user to start the reading process
+      if (super.logCache instanceof ProcessServiceLogCache processServiceLogCache) {
+        processServiceLogCache.start(this.process);
+        LOGGER.debug("Started {} log cache for service {}", super.logCache.getClass(), this.serviceId());
+      }
     } catch (IOException exception) {
       LOGGER.error(
         "Unable to start process in {} with command line {}",
@@ -247,33 +285,6 @@ public class JVMService extends AbstractService {
         String.join(" ", arguments),
         exception);
     }
-  }
-
-  protected void initLogHandler() {
-    super.logCache.addHandler(($, line, stderr) -> {
-      for (var logTarget : super.logTargets) {
-        if (logTarget._1().equals(ChannelMessageSender.self().toTarget())) {
-          // the current target is the node this service is running on, print it directly here
-          this.eventManager.callEvent(logTarget._2(), new CloudServiceLogEntryEvent(
-            this.currentServiceInfo,
-            line,
-            stderr ? CloudServiceLogEntryEvent.StreamType.STDERR : CloudServiceLogEntryEvent.StreamType.STDOUT));
-        } else {
-          // the listener is listening remotely, send the line to the network component
-          ChannelMessage.builder()
-            .target(logTarget._1())
-            .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-            .message("screen_new_line")
-            .buffer(DataBuf.empty()
-              .writeObject(this.currentServiceInfo)
-              .writeString(logTarget._2())
-              .writeString(line)
-              .writeBoolean(stderr))
-            .build()
-            .send();
-        }
-      }
-    });
   }
 
   protected @Nullable Tuple2<Path, Attributes> prepareWrapperFile() {
