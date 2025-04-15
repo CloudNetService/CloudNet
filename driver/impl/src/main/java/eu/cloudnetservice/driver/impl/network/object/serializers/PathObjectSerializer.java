@@ -54,7 +54,7 @@ public final class PathObjectSerializer implements ObjectSerializer<Path> {
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
-    var pathUri = object.toUri().toString();
+    var pathUri = object.toAbsolutePath().toUri().toString();
     dataBuf.writeString(pathUri);
   }
 }
