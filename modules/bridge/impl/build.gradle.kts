@@ -22,12 +22,12 @@ plugins {
 
 configurations {
   // custom configuration for later dependency resolution
-  create("runtimeImpl") {
+  register("runtimeImpl") {
     configurations.getByName("api").extendsFrom(this)
   }
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/bridge.aero")
 }
 
@@ -56,7 +56,7 @@ dependencies {
   "mappings"(loom.officialMojangMappings())
 }
 
-tasks.withType<Jar> {
+tasks.jar.configure {
   manifest {
     attributes["paperweight-mappings-namespace"] = "mojang"
   }
@@ -72,7 +72,7 @@ tasks.withType<Jar> {
   }
 }
 
-tasks.withType<RemapJarTask> {
+tasks.remapJar.configure {
   archiveFileName.set(Files.bridge)
 }
 

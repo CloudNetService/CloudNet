@@ -34,7 +34,7 @@ dependencies {
   "mappings"(loom.officialMojangMappings())
 }
 
-tasks.withType<RemapJarTask> {
+tasks.remapJar.configure {
   // base setup
   archiveFileName.set(Files.luckPermsPlugin)
 }

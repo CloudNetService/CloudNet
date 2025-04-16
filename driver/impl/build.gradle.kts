@@ -34,6 +34,6 @@ dependencies {
   "annotationProcessor"(projects.driver.driverAp)
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/driver.aero")
 }

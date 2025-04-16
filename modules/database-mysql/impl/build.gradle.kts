@@ -1,3 +1,5 @@
+import java.util.*
+
 /*
  * Copyright 2019-2024 CloudNetService team & contributors
  *
@@ -18,7 +20,7 @@ plugins {
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
+tasks.shadowJar.configure {
   archiveFileName.set(Files.databaseMysql)
 }
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
+tasks.jar.configure {
   archiveFileName.set(Files.launcherPatcher)
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
   sourceCompatibility = JavaVersion.VERSION_17.toString()
   targetCompatibility = JavaVersion.VERSION_17.toString()
 }

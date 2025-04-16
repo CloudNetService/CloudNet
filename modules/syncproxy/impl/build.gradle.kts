@@ -20,11 +20,11 @@ plugins {
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
+tasks.shadowJar.configure {
   archiveFileName.set(Files.syncproxy)
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/syncproxy.aero")
 }
 

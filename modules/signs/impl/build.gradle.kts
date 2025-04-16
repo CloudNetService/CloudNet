@@ -20,7 +20,7 @@ plugins {
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
+tasks.shadowJar.configure {
   archiveFileName.set(Files.signs)
 
   manifest {
@@ -28,7 +28,7 @@ tasks.withType<Jar> {
   }
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/signs.aero")
 }
 

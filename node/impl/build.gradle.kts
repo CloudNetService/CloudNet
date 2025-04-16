@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
+val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
+  fileName = Files.nodeCnl
+  setResolvedArtifacts(configurations.runtimeClasspath.get())
+}
+val exportLanguageFileInformation = tasks.register<ExportLanguageFileInformation>("exportLanguageFileInformation") {
+  languageFiles.from(project.projectDir.resolve("src/main/resources/lang").listFiles())
+}
+tasks.jar {
   archiveFileName.set(Files.node)
-  from(projects.node.nodeApi.sourceSets()["main"].output)
-  from(projects.utils.utilsBase.sourceSets()["main"].output)
-  from(projects.driver.driverApi.sourceSets()["main"].output)
-  from(projects.driver.driverImpl.sourceSets()["main"].output)
+  from(projects.node.nodeApi.sourceSets(project)["main"].output)
+  from(projects.utils.utilsBase.sourceSets(project)["main"].output)
+  from(projects.driver.driverApi.sourceSets(project)["main"].output)
+  from(projects.driver.driverImpl.sourceSets(project)["main"].output)
 
   dependsOn(":wrapper-jvm:wrapper-jvm-impl:shadowJar")
 
@@ -27,13 +34,11 @@ tasks.withType<Jar> {
     include(Files.wrapper)
   }
 
-  doFirst {
-    from(exportCnlFile(Files.nodeCnl))
-    from(exportLanguageFileInformation())
-  }
+  from(exportCnlFile)
+  from(exportLanguageFileInformation)
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/node.aero")
 }
 

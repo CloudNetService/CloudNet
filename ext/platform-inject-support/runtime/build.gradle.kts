@@ -31,6 +31,6 @@ dependencies {
   "compileOnly"(projects.ext.platformInjectSupport.platformInjectApi)
 }
 
-tasks.withType<Jar> {
+tasks.jar.configure {
   archiveFileName.set(Files.injectSupport)
 }

@@ -4,12 +4,20 @@ plugins {
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<ShadowJar> {
+val ignoredGroupIds = listOf("com.google.guava", "com.google.code.gson")
+val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
+  fileName = "wrapper.cnl"
+  ignoredDependencyGroups = ignoredGroupIds
+  setResolvedArtifacts(configurations.runtimeClasspath.get())
+}
+val exportLanguageFileInformation = tasks.register<ExportLanguageFileInformation>("exportLanguageFileInformation") {
+  languageFiles.from(project.projectDir.resolve("src/main/resources/lang").listFiles())
+}
+tasks.shadowJar.configure {
   archiveFileName.set(Files.wrapper)
-  archiveVersion.set(null as String?)
 
   // do not shade dependencies which we don't need to shade
-  val ignoredGroupIds = arrayOf("com.google.guava", "com.google.code.gson")
+
   dependencies {
     exclude {
       it.moduleGroup != rootProject.group && !ignoredGroupIds.contains(it.moduleGroup)
@@ -23,14 +31,11 @@ tasks.withType<ShadowJar> {
   // drop unused classes which are making the jar bigger
   minimize()
 
-  doFirst {
-    // Note: included dependencies will not be resolved, they must be available from the node resolution already
-    from(exportLanguageFileInformation())
-    from(exportCnlFile("wrapper.cnl", ignoredGroupIds))
-  }
+  from(exportLanguageFileInformation)
+  from(exportCnlFile)
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/wrapper.aero")
 }
 
