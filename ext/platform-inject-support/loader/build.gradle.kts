@@ -19,9 +19,9 @@ dependencies {
   "implementation"(projects.utils.utilsBase)
 }
 
-tasks.withType<Jar> {
+tasks.withType<Jar>().configureEach {
   // depend on the output of the jar task
-  val jarTask = projects.ext.platformInjectSupport.platformInjectRuntime.dependencyProject.tasks.getByName("jar")
+  val jarTask = project(projects.ext.platformInjectSupport.platformInjectRuntime.path).tasks.getByName("jar")
   dependsOn(jarTask)
 
   // copy over the final output file

@@ -21,7 +21,7 @@ plugins {
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
+tasks.shadowJar.configure {
   archiveFileName.set(Files.npcs)
 
   manifest {
@@ -29,11 +29,11 @@ tasks.withType<Jar> {
   }
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/npcs.aero")
 }
 
-tasks.withType<ShadowJar> {
+tasks.withType<ShadowJar>().configureEach {
   relocate("net.kyori", "eu.cloudnetservice.modules.npc.relocate.net.kyori")
   relocate("io.papermc.lib", "eu.cloudnetservice.modules.npc.relocate.paperlib")
   relocate("io.leangen.geantyref", "eu.cloudnetservice.modules.npc.relocate.geantyref")

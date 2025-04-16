@@ -109,7 +109,7 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
     sign(extensions.getByType(PublishingExtension::class.java).publications.getByName("maven"))
   }
 
-  tasks.withType<Sign> {
+  tasks.withType<Sign>().configureEach {
     onlyIf {
       !rootProject.version.toString().endsWith("-SNAPSHOT")
     }

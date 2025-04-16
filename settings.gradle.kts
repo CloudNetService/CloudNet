@@ -21,11 +21,27 @@ pluginManagement {
   includeBuild("build-extensions")
   repositories {
     gradlePluginPortal()
+//    maven("https://repo.stellardrift.ca/repository/snapshots/") {
+    mavenLocal {
+      content {
+        includeGroup("net.kyori")
+      }
+    }
+    mavenLocal {
+      content {
+        includeGroup("eu.cloudnetservice.juppiter")
+        includeGroup("eu.cloudnetservice.gradle")
+      }
+    }
     maven {
       name = "Fabric"
       url = uri("https://maven.fabricmc.net/")
     }
   }
+}
+plugins {
+  id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
+  id("settings-plugin")
 }
 
 rootProject.name = "cloudnet-root"
@@ -89,9 +105,7 @@ initializePrefixedSubProjects("modules:dockerized-services", "dockerized-service
 fun initializeSubProjects(rootProject: String, vararg names: String) {
   names.forEach {
     include("$rootProject:$it")
-    // update the project properties
     project(":$rootProject:$it").name = it
-    project(":$rootProject:$it").projectDir = file(rootProject).resolve(it)
   }
 }
 

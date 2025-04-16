@@ -19,7 +19,7 @@ plugins {
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
+tasks.shadowJar.configure {
   archiveFileName.set(Files.labymod)
 }
 

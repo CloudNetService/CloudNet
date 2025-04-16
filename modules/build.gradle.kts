@@ -53,7 +53,7 @@ subprojects {
     "compileOnly"(rootProject.libs.guava)
   }
 
-  tasks.create<Sync>("processSources") {
+  tasks.register<Sync>("processSources") {
     inputs.property("version", project.version)
     from(sourceSets().getByName("main").java)
     into(layout.buildDirectory.dir("src"))

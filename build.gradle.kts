@@ -14,152 +14,14 @@
  * limitations under the License.
  */
 
-import com.diffplug.gradle.spotless.SpotlessExtension
-
 plugins {
   id("cloudnet.parent-build-logic")
-  alias(libs.plugins.spotless)
   alias(libs.plugins.nexusPublish)
   alias(libs.plugins.shadow) apply false // must be here to enforce the bundled asm version
+  alias(libs.plugins.spotless) apply false
 }
 
-defaultTasks("build", "test", "shadowJar")
-
-allprojects {
-  version = Versions.cloudNet
-  group = "eu.cloudnetservice.cloudnet"
-  description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
-
-  repositories {
-    releasesOnly(mavenCentral())
-    snapshotsOnly(maven("https://central.sonatype.com/repository/maven-snapshots/"))
-
-    // ensure that we use these repositories for snapshots/releases only (improves lookup times)
-    releasesOnly(maven("https://repository.derklaro.dev/releases/"))
-    snapshotsOnly(maven("https://repository.derklaro.dev/snapshots/"))
-
-    // must be after sonatype as sponge mirrors sonatype which leads to outdated dependencies
-    maven("https://repo.spongepowered.org/maven/")
-  }
-}
-
-subprojects {
-  // these are top level projects which are configured separately
-  if (name == "modules" || name == "plugins" || name == "ext" || name == "launcher") {
-    return@subprojects
-  }
-
-  // these are the plugins which we need to apply to all projects
-  apply(plugin = "signing")
-  apply(plugin = "maven-publish")
-
-  // skip further applying to bom - this project is a bit special as we're not allowed to
-  // apply the java plugin to it (that's why we need to stop here, but we need to publish
-  // at well (that's why we're applying the publish plugin)
-  if (name == "bom") {
-    return@subprojects
-  }
-
-  apply(plugin = "checkstyle")
-  apply(plugin = "java-library")
-  apply(plugin = "com.diffplug.spotless")
-
-  dependencies {
-    // the 'rootProject.libs.' prefix is needed here - see https://github.com/gradle/gradle/issues/16634
-    // lombok
-    "compileOnly"(rootProject.libs.lombok)
-    "annotationProcessor"(rootProject.libs.lombok)
-    // annotations
-    "compileOnly"(rootProject.libs.annotations)
-    // testing
-    "testImplementation"(rootProject.libs.mockito)
-    "testRuntimeOnly"(rootProject.libs.junitLauncher)
-    "testImplementation"(rootProject.libs.bundles.junit)
-    "testImplementation"(rootProject.libs.bundles.testContainers)
-  }
-
-  configurations.all {
-    // unsure why but every project loves them, and they literally have an import for every letter I type - beware
-    exclude("org.checkerframework", "checker-qual")
-  }
-
-  tasks.withType<Jar> {
-    from(rootProject.file("LICENSE"))
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-  }
-
-  tasks.withType<Test> {
-    useJUnitPlatform()
-    testLogging {
-      events("started", "passed", "skipped", "failed")
-    }
-
-    // allow dynamic agent loading for mockito
-    jvmArgs(
-      "--enable-preview",
-      "-XX:+EnableDynamicAgentLoading",
-      "--enable-native-access=ALL-UNNAMED",
-      "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
-    )
-
-    // always pass down all given system properties
-    systemProperties(System.getProperties().mapKeys { it.key.toString() })
-    systemProperty("io.netty5.noUnsafe", "true")
-  }
-
-  tasks.withType<JavaCompile>().configureEach {
-    val javaVersion = if (project.path.contains("api")) JavaVersion.VERSION_17 else JavaVersion.VERSION_24
-    sourceCompatibility = javaVersion.toString()
-    targetCompatibility = javaVersion.toString()
-
-    options.encoding = "UTF-8"
-    options.isIncremental = true
-
-    if (project.path != ":launcher:java8" && project.path != ":launcher:patcher" && !project.path.contains("api")) {
-      options.compilerArgs.add("--enable-preview")
-      options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
-      options.compilerArgs.add("-proc:full")
-    }
-  }
-
-  tasks.withType<Checkstyle> {
-    maxErrors = 0
-    maxWarnings = 0
-    configFile = rootProject.file("checkstyle.xml")
-  }
-
-  extensions.configure<CheckstyleExtension> {
-    toolVersion = rootProject.libs.versions.checkstyleTools.get()
-  }
-
-  extensions.configure<SpotlessExtension> {
-    java {
-      licenseHeaderFile(rootProject.file("LICENSE_HEADER"))
-    }
-  }
-
-  tasks.register<org.gradle.jvm.tasks.Jar>("javadocJar") {
-    archiveClassifier.set("javadoc")
-    from(tasks.getByName("javadoc"))
-  }
-
-  tasks.register<org.gradle.jvm.tasks.Jar>("sourcesJar") {
-    archiveClassifier.set("sources")
-    from(project.sourceSets()["main"].allJava)
-  }
-
-  tasks.withType<Javadoc> {
-    val options = options as? StandardJavadocDocletOptions ?: return@withType
-    applyDefaultJavadocOptions(options)
-  }
-
-  tasks.withType<JavaCompile> {
-    dependsOn(tasks.withType<ProcessResources>())
-  }
-
-  // all these projects are publishing their java artifacts
-  configurePublishing("java", true)
-}
+defaultTasks("build")
 
 tasks.register("globalJavaDoc", Javadoc::class) {
   val options = options as? StandardJavadocDocletOptions ?: return@register
@@ -188,6 +50,8 @@ nexusPublishing {
 
   useStaging.set(!project.version.toString().endsWith("-SNAPSHOT"))
 }
+
+libs.lombok
 
 gradle.projectsEvaluated {
   tasks.register("genUpdaterInformation") {

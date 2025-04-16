@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-2025 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-tasks.withType<JavaCompile>().configureEach {
-  sourceCompatibility = JavaVersion.VERSION_1_8.toString()
-  targetCompatibility = JavaVersion.VERSION_1_8.toString()
+dependencyResolutionManagement {
+  versionCatalogs {
+    register("libs") {
+      from(files("./../gradle/libs.versions.toml"))
+    }
+  }
 }
+
+rootProject.name = "build-extensions"

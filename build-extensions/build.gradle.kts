@@ -16,13 +16,34 @@
 
 plugins {
   `kotlin-dsl`
+  id("java-gradle-plugin")
 }
+
+kotlin.jvmToolchain(21)
 
 repositories {
   gradlePluginPortal()
+  mavenCentral()
+  maven("https://repo.stellardrift.ca/repository/snapshots/") {
+    content {
+      includeGroup("net.kyori")
+    }
+  }
 }
 
 dependencies {
-  implementation("net.kyori", "indra-common", "3.1.3")
+  implementation("net.kyori", "indra-common", "4.0.0-SNAPSHOT")
   implementation("com.google.code.gson", "gson", "2.13.1")
+
+  implementation("com.diffplug.spotless", "spotless-plugin-gradle", libs.versions.spotless.get())
+  implementation("com.gradleup.shadow", "shadow-gradle-plugin", libs.versions.shadow.get())
+}
+
+gradlePlugin {
+  plugins {
+    register("settings-plugin") {
+      id = "settings-plugin"
+      implementationClass = "SettingsPlugin"
+    }
+  }
 }

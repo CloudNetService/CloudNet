@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
+tasks.jar.configure {
   archiveFileName.set(Files.papiExpansion)
 }
 

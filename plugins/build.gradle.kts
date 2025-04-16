@@ -36,7 +36,7 @@ subprojects {
     "annotationProcessor"(rootProject.projects.ext.platformInjectSupport.platformInjectProcessor)
   }
 
-  tasks.create<Sync>("processSources") {
+  tasks.register<Sync>("processSources") {
     inputs.property("version", project.version)
     from(sourceSets().getByName("main").java)
     into(layout.buildDirectory.dir("src"))

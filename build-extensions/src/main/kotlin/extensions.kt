@@ -15,9 +15,12 @@
  */
 
 import net.kyori.indra.git.IndraGitExtension
+import net.kyori.indra.git.RepositoryValueSource
+import net.kyori.indra.git.internal.IndraGitExtensionImpl
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Constants
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
-import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.internal.artifacts.repositories.resolver.MavenUniqueSnapshotComponentIdentifier
 import org.gradle.api.plugins.JavaPluginExtension
@@ -27,8 +30,10 @@ import org.gradle.kotlin.dsl.attributes
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.the
+import java.io.IOException
 import java.net.HttpURLConnection
-import java.net.URL
+import java.util.logging.Level
+import java.util.logging.Logger
 
 fun Project.applyJarMetadata(mainClass: String, module: String) {
   applyJarMetadata(mainClass, module, null)
@@ -48,20 +53,42 @@ fun Project.applyJarMetadata(mainClass: String, module: String, preMain: String?
         manifest.attributes("Premain-Class" to preMain)
       }
       // apply git information to manifest
-      git()?.applyVcsInformationToManifest(manifest)
+      git()?.let { git ->
+        val commit = git.commit().map { it.name.substring(0, 8) }
+        val branchName = git.repositoryValue(BranchName::class.java)
+        if (commit.isPresent) manifest.attributes(IndraGitExtension.MANIFEST_ATTRIBUTE_GIT_COMMIT to commit.get())
+        if (branchName.isPresent) manifest.attributes(IndraGitExtension.MANIFEST_ATTRIBUTE_GIT_BRANCH to branchName.get())
+      }
+    }
+  }
+}
+
+/**
+ * Indra does not properly support configuration caching for #branchName yet
+ */
+private abstract class BranchName : RepositoryValueSource.Parameterless<String>() {
+  override fun obtain(repository: Git): String? {
+    try {
+      val ref = repository.repository.exactRef(Constants.HEAD)
+      if (ref == null || !ref.isSymbolic) return null // no HEAD, or detached HEAD
+
+      return ref.target.name
+    } catch (ex: IOException) {
+      Logger.getGlobal().log(Level.SEVERE, "Failed to query current branch name from git:", ex)
+      return null
     }
   }
 }
 
 fun Project.shortCommitHash(): String {
-  return git()?.commit()?.name?.substring(0, 8) ?: "unknown"
+  return git()?.commit()?.get()?.name()?.substring(0, 8) ?: "unknown"
 }
 
 fun Project.git(): IndraGitExtension? = rootProject.extensions.findByType()
 
 fun Project.sourceSets(): SourceSetContainer = the<JavaPluginExtension>().sourceSets
 
-fun ProjectDependency.sourceSets(): SourceSetContainer = dependencyProject.sourceSets()
+fun ProjectDependency.sourceSets(project: Project): SourceSetContainer = project.project(path).sourceSets()
 
 fun Project.mavenRepositories(): Iterable<MavenArtifactRepository> = repositories.filterIsInstance<MavenArtifactRepository>()
 
@@ -82,69 +109,4 @@ fun Project.exportLanguageFileInformation(): String {
   file.writeText(project.projectDir.resolve("src/main/resources/lang").listFiles()?.joinToString(separator = "\n") { it.name }!!)
 
   return file.absolutePath
-}
-
-fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<String> = arrayOf()): String {
-  val stringBuilder = StringBuilder("# CloudNet ${Versions.cloudNetCodeName} ${Versions.cloudNet}\n\n")
-    .append("# repositories\n")
-  // add all repositories
-  mavenRepositories().forEach { repo ->
-    stringBuilder.append("repo ${repo.name} ${repo.url.toString().dropLastWhile { it == '/' }}\n")
-  }
-
-  // add all dependencies
-  stringBuilder.append("\n\n# dependencies\n")
-  configurations.getByName("runtimeClasspath").resolvedConfiguration.resolvedArtifacts.forEach {
-    // get the module version from the artifact, stop if the dependency is ignored
-    val id = it.moduleVersion.id
-    if (id.group.equals(group) || ignoredDependencyGroups.contains(id.group)) {
-      return@forEach
-    }
-
-    // check if the dependency is a snapshot version - in this case we need to use another artifact url
-    var version = id.version
-    if (id.version.endsWith("-SNAPSHOT") && it.id.componentIdentifier is MavenUniqueSnapshotComponentIdentifier) {
-      // little hack to get the timestamped ("snapshot") version of the identifier
-      version = (it.id.componentIdentifier as MavenUniqueSnapshotComponentIdentifier).timestampedVersion
-    }
-
-    // try to find the repository associated with the module
-    val repository = resolveRepository(
-      "${id.group.replace('.', '/')}/${id.name}/${id.version}/${id.name}-$version.jar",
-      mavenRepositories()
-    ) ?: throw IllegalStateException("Unable to resolve repository for $id")
-
-    // add the repository
-    val cs = ChecksumHelper.fileShaSum(it.file)
-    stringBuilder.append("include ${repository.name} ${id.group} ${id.name} ${id.version} $version $cs ${it.classifier ?: ""}\n")
-  }
-
-  // write to the output file
-  val target = project.layout.buildDirectory.file(fileName).get().asFile
-  target.writeText(stringBuilder.toString())
-
-  return target.absolutePath
-}
-
-private fun resolveRepository(
-  testUrlPath: String,
-  repositories: Iterable<MavenArtifactRepository>
-): MavenArtifactRepository? {
-  return repositories.firstOrNull {
-    val url = it.url.resolve(testUrlPath).toURL()
-    with(url.openConnection() as HttpURLConnection) {
-      useCaches = false
-      readTimeout = 30000
-      connectTimeout = 30000
-      instanceFollowRedirects = true
-
-      setRequestProperty(
-        "User-Agent",
-        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"
-      )
-
-      connect()
-      responseCode == 200
-    }
-  }
 }

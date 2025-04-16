@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-shadow = "9.1.0"
+shadow = "9.2.1"
 juppiter = "0.4.0"
 spotless = "7.2.1"
 nexusPublish = "2.0.0"
@@ -219,7 +219,7 @@ serverPlatform = ["spigot", "sponge", "nukkitX", "minestom", "minestomExtensions
 
 [plugins]
 
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }
 nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }
