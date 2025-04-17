@@ -19,6 +19,7 @@ plugins {
   id("java-gradle-plugin")
 }
 
+// fabric requires jvm 21, so we can do so too
 kotlin.jvmToolchain(21)
 
 repositories {
@@ -37,7 +38,7 @@ repositories {
 }
 
 dependencies {
-  implementation("net.kyori", "indra-common", "4.0.0-SNAPSHOT")
+  implementation("net.kyori", "indra-git", "4.0.0-SNAPSHOT")
   implementation("com.google.code.gson", "gson", "2.13.1")
 
   implementation("com.diffplug.spotless", "spotless-plugin-gradle", libs.versions.spotless.get())

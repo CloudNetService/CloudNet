@@ -105,6 +105,7 @@ class JavaProjects : Plugin<Project> {
       apply(plugin = "checkstyle")
       apply(plugin = "java-library")
       apply(plugin = "com.diffplug.spotless")
+      apply(plugin = "net.kyori.indra.git")
 
       if (path.startsWith(":plugins:")) {
         apply<PluginGradlePlugin>()
