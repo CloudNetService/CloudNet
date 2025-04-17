@@ -84,7 +84,7 @@ fun Project.shortCommitHash(): String {
   return git()?.commit()?.get()?.name()?.substring(0, 8) ?: "unknown"
 }
 
-fun Project.git(): IndraGitExtension? = rootProject.extensions.findByType()
+fun Project.git(): IndraGitExtension? = extensions.findByType()
 
 fun Project.sourceSets(): SourceSetContainer = the<JavaPluginExtension>().sourceSets
 
