@@ -41,6 +41,7 @@ pluginManagement {
 }
 plugins {
   id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
+  id("com.gradle.develocity") version ("4.0")
   id("settings-plugin")
 }
 
@@ -113,5 +114,19 @@ fun initializePrefixedSubProjects(rootProject: String, prefix: String, vararg na
   names.forEach {
     include("$rootProject:$it")
     project(":$rootProject:$it").name = "$prefix-$it"
+  }
+}
+
+develocity {
+  buildScan {
+    termsOfUseAgree = if (File("gradle.tos.agree").exists()) "yes" else ""
+    termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+    publishing.onlyIf { termsOfUseAgree.get() == "yes" }
+    obfuscation {
+      ipAddresses { listOf("0.0.0.0") }
+      hostname { "removed" }
+      externalProcessName { "hidden-process-name" }
+      username { "hidden-username" }
+    }
   }
 }

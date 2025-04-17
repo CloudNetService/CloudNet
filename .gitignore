@@ -21,6 +21,9 @@
 .gradle/
 build/
 
+# gradle build scans
+/gradle.tos.agree
+
 # fleet
 .fleet/
 
