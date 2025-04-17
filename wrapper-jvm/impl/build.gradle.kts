@@ -23,6 +23,7 @@ tasks.shadowJar.configure {
       it.moduleGroup != rootProject.group && !ignoredGroupIds.contains(it.moduleGroup)
     }
   }
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
   // google lib relocation
   relocate("com.google.gson", "eu.cloudnetservice.relocate.gson")

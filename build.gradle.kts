@@ -24,6 +24,9 @@ plugins {
 
 defaultTasks("build")
 
+val globalJavadocSources = configurations.register("globalJavadocSources")
+val globalJavadocClasspath = configurations.register("globalJavadocClasspath")
+
 tasks.register("globalJavaDoc", Javadoc::class) {
   val options = options as? StandardJavadocDocletOptions ?: return@register
 
@@ -33,9 +36,8 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   applyDefaultJavadocOptions(options)
   options.windowTitle = "CloudNet JavaDocs"
   // set the sources
-  val sources = subprojects.filter { it.plugins.hasPlugin("java") }.map { it.path }
-  source(files(sources.flatMap { project(it).sourceSets()["main"].allJava }))
-  classpath = files(sources.flatMap { project(it).sourceSets()["main"].compileClasspath })
+  source(globalJavadocSources)
+  classpath = globalJavadocClasspath.get()
 }
 
 nexusPublishing {
@@ -52,12 +54,23 @@ nexusPublishing {
   useStaging.set(!project.version.toString().endsWith("-SNAPSHOT"))
 }
 
-libs.lombok
+dependencies {
+  subprojects.map { it.isolated }.forEach { project ->
+    if (!isJavaConfiguredProject(project.name)) return@forEach
+    globalJavadocSources(this.project(project.path)) {
+      targetConfiguration = CustomConfigurations.GLOBAL_JAVADOC_SOURCES
+    }
+    globalJavadocClasspath(this.project(project.path)) {
+      targetConfiguration = CustomConfigurations.GLOBAL_JAVADOC_CLASSPATH
+    }
+  }
+}
 
 gradle.projectsEvaluated {
   tasks.register("genUpdaterInformation") {
     subprojects.forEach {
       // check if we need to depend on the plugin
+      // TODO this breaks isolated projects
       if (!it.plugins.hasPlugin("java")) return@forEach
       // depend this task on the build output of each subproject
       dependsOn("${it.path}:build")
