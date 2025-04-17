@@ -40,7 +40,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 class SettingsPlugin : Plugin<Settings> {
   override fun apply(settings: Settings) {
     settings.gradle.lifecycle.beforeProject {
-      println("configuring ${this.path}")
+      println("configuring ${this.path}") // TODO remove, this is temporary to better debug any configuration done (configure-on-demand)
       plugins.apply(AllProjects::class)
       if (this != this.rootProject) {
         plugins.apply(JavaProjects::class)
