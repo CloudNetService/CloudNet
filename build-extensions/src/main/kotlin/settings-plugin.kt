@@ -125,13 +125,15 @@ class JavaProjects : Plugin<Project> {
         }
       }
 
-      if (project.plugins.hasPlugin(ShadowJavaPlugin::class)) {
-        tasks.named("assemble").configure {
-          dependsOn(project.tasks.named("shadowJar"))
-        }
-        tasks.named<Jar>("jar").configure {
-          // we use the shadow jar task, so move the jar into the task's temporary dir to avoid clutter
-          destinationDirectory = temporaryDir
+      project.afterEvaluate {
+        if (project.plugins.hasPlugin(ShadowJavaPlugin::class)) {
+          tasks.named("assemble").configure {
+            dependsOn(project.tasks.named("shadowJar"))
+          }
+          tasks.named<Jar>("jar").configure {
+            // we use the shadow jar task, so move the jar into the task's temporary dir to avoid clutter
+            destinationDirectory = temporaryDir
+          }
         }
       }
 
