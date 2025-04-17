@@ -19,11 +19,16 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ExternalModuleDependencyBundle
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.VersionCatalog
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.initialization.Settings
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.quality.Checkstyle
 import org.gradle.api.plugins.quality.CheckstyleExtension
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
@@ -35,6 +40,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 class SettingsPlugin : Plugin<Settings> {
   override fun apply(settings: Settings) {
     settings.gradle.lifecycle.beforeProject {
+      println("configuring ${this.path}")
       plugins.apply(AllProjects::class)
       if (this != this.rootProject) {
         plugins.apply(JavaProjects::class)
@@ -43,11 +49,45 @@ class SettingsPlugin : Plugin<Settings> {
   }
 }
 
+fun isJavaConfiguredProject(name: String): Boolean {
+  if (isHelperProject(name)) return false
+  return name != "bom"
+}
+
+fun isHelperProject(name: String): Boolean {
+  return name == "modules" || name == "plugins" || name == "ext" || name == "launcher"
+}
+
+object CustomConfigurations {
+  const val GLOBAL_JAVADOC_SOURCES = "globalJavadocSources"
+  const val GLOBAL_JAVADOC_CLASSPATH = "globalJavadocClasspath"
+}
+
+internal fun Provider<VersionCatalog>.library(name: String): Provider<MinimalExternalModuleDependency> {
+  return flatMap {
+    it.findLibrary(name)
+      .orElseThrow { NoSuchElementException("Failed to find library named $name. Valid names: ${it.libraryAliases}") }
+  }
+}
+
+internal fun Provider<VersionCatalog>.bundle(name: String): Provider<ExternalModuleDependencyBundle> {
+  // We can't use flatMap here, because Gradle uses internal magic
+  return get().let {
+    it.findBundle(name)
+      .orElseThrow { NoSuchElementException("Failed to find bundle named $name. Valid names: ${it.bundleAliases}") }
+  }
+}
+
+internal val Project.libs: Provider<VersionCatalog>
+  get() = provider { extensions.getByName<VersionCatalogsExtension>("versionCatalogs").named("libs") }
+
 class JavaProjects : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
+
+
       // these are top level projects which are configured separately
-      if (name == "modules" || name == "plugins" || name == "ext" || name == "launcher") {
+      if (isHelperProject(name)) {
         return@run
       }
 
@@ -58,7 +98,7 @@ class JavaProjects : Plugin<Project> {
       // skip further applying to bom - this project is a bit special as we're not allowed to
       // apply the java plugin to it (that's why we need to stop here, but we need to publish
       // at well (that's why we're applying the publish plugin)
-      if (name == "bom") {
+      if (!isJavaConfiguredProject(name)) {
         return@run
       }
 
@@ -66,20 +106,29 @@ class JavaProjects : Plugin<Project> {
       apply(plugin = "java-library")
       apply(plugin = "com.diffplug.spotless")
 
-      val libs = rootProject.versionCatalogs.named("libs")
+      if (path.startsWith(":plugins:")) {
+        apply<PluginGradlePlugin>()
+      }
+      if (path.startsWith(":modules:")) {
+        apply<ModuleGradlePlugin>()
+      }
 
-      dependencies {
-        // the 'rootProject.libs.' prefix is needed here - see https://github.com/gradle/gradle/issues/16634
-        // lombok
-        "compileOnly"(libs.findLibrary("lombok").orElseThrow())
-        "annotationProcessor"(libs.findLibrary("lombok").orElseThrow())
-        // annotations
-        "compileOnly"(libs.findLibrary("annotations").orElseThrow())
-        // testing
-        "testImplementation"(libs.findLibrary("mockito").orElseThrow())
-        "testRuntimeOnly"(libs.findLibrary("junitLauncher").orElseThrow())
-        "testImplementation"(libs.findBundle("junit").orElseThrow())
-        "testImplementation"(libs.findBundle("testContainers").orElseThrow())
+      val libs = this.libs
+
+      afterEvaluate {
+        dependencies {
+          // the 'rootProject.libs.' prefix is needed here - see https://github.com/gradle/gradle/issues/16634
+          // lombok
+          "compileOnly"(libs.library("lombok"))
+          "annotationProcessor"(libs.library("lombok"))
+          // annotations
+          "compileOnly"(libs.library("annotations"))
+          // testing
+          "testImplementation"(libs.library("mockito"))
+          "testRuntimeOnly"(libs.library("junitLauncher"))
+          "testImplementation"(libs.bundle("junit"))
+          "testImplementation"(libs.bundle("testContainers"))
+        }
       }
 
       configurations.all {
@@ -143,8 +192,10 @@ class JavaProjects : Plugin<Project> {
         configFile = rootProject.file("checkstyle.xml")
       }
 
-      extensions.configure<CheckstyleExtension> {
-        toolVersion = libs.findVersion("checkstyleTools").orElseThrow().requiredVersion
+      afterEvaluate {
+        extensions.configure<CheckstyleExtension> {
+          toolVersion = libs.map { it.findVersion("checkstyleTools").orElseThrow().requiredVersion }.get()
+        }
       }
 
       extensions.configure<SpotlessExtension> {
@@ -168,6 +219,14 @@ class JavaProjects : Plugin<Project> {
 
       // all these projects are publishing their java artifacts
       configurePublishing("java", true)
+
+      // create consumable artifacts for global javadoc
+      configurations.consumable(CustomConfigurations.GLOBAL_JAVADOC_SOURCES) {
+        outgoing.artifacts(sourceSets().named("main").map { it.allJava.srcDirs })
+      }
+      configurations.consumable(CustomConfigurations.GLOBAL_JAVADOC_CLASSPATH) {
+        outgoing.artifacts(sourceSets().named("main").map { it.compileClasspath })
+      }
     }
   }
 }

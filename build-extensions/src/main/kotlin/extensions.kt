@@ -88,8 +88,6 @@ fun Project.git(): IndraGitExtension? = rootProject.extensions.findByType()
 
 fun Project.sourceSets(): SourceSetContainer = the<JavaPluginExtension>().sourceSets
 
-fun ProjectDependency.sourceSets(project: Project): SourceSetContainer = project.project(path).sourceSets()
-
 fun Project.mavenRepositories(): Iterable<MavenArtifactRepository> = repositories.filterIsInstance<MavenArtifactRepository>()
 
 fun releasesOnly(repository: MavenArtifactRepository) {
@@ -102,11 +100,4 @@ fun snapshotsOnly(repository: MavenArtifactRepository) {
   repository.mavenContent {
     snapshotsOnly()
   }
-}
-
-fun Project.exportLanguageFileInformation(): String {
-  val file = project.layout.buildDirectory.file("languages.txt").get().asFile
-  file.writeText(project.projectDir.resolve("src/main/resources/lang").listFiles()?.joinToString(separator = "\n") { it.name }!!)
-
-  return file.absolutePath
 }

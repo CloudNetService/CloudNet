@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  alias(libs.plugins.shadow)
+}
+
 val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
   fileName = Files.nodeCnl
   setResolvedArtifacts(configurations.runtimeClasspath.get())
@@ -21,17 +25,17 @@ val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
 val exportLanguageFileInformation = tasks.register<ExportLanguageFileInformation>("exportLanguageFileInformation") {
   languageFiles.from(project.projectDir.resolve("src/main/resources/lang").listFiles())
 }
-tasks.jar {
+val includeInJar = configurations.register("includeInJar") { isTransitive = false }
+val wrapperJar = configurations.register("wrapperJar") { isTransitive = false }
+
+tasks.shadowJar {
   archiveFileName.set(Files.node)
-  from(projects.node.nodeApi.sourceSets(project)["main"].output)
-  from(projects.utils.utilsBase.sourceSets(project)["main"].output)
-  from(projects.driver.driverApi.sourceSets(project)["main"].output)
-  from(projects.driver.driverImpl.sourceSets(project)["main"].output)
+  configurations = listOf(includeInJar.get())
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-  dependsOn(":wrapper-jvm:wrapper-jvm-impl:shadowJar")
-
-  from("../../wrapper-jvm/impl/build/libs") {
-    include(Files.wrapper)
+  from(wrapperJar) {
+    // Rename the file to make sure 100%
+    rename { Files.wrapper }
   }
 
   from(exportCnlFile)
@@ -77,6 +81,13 @@ dependencies {
   "implementation"(libs.logbackClassic)
 
   "compileOnly"(libs.bundles.netty)
+
+  includeInJar(projects.node.nodeApi)
+  includeInJar(projects.utils.utilsBase)
+  includeInJar(projects.driver.driverApi)
+  includeInJar(projects.driver.driverImpl)
+
+  wrapperJar(projects.wrapperJvm.wrapperJvmImpl) { targetConfiguration = "shadow" }
 }
 
 applyJarMetadata("eu.cloudnetservice.node.impl.boot.Bootstrap", "eu.cloudnetservice.node")

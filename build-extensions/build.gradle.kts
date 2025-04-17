@@ -29,6 +29,11 @@ repositories {
       includeGroup("net.kyori")
     }
   }
+  mavenLocal {
+    content {
+      includeModule("eu.cloudnetservice.gradle", "juppiter")
+    }
+  }
 }
 
 dependencies {
@@ -37,6 +42,7 @@ dependencies {
 
   implementation("com.diffplug.spotless", "spotless-plugin-gradle", libs.versions.spotless.get())
   implementation("com.gradleup.shadow", "shadow-gradle-plugin", libs.versions.shadow.get())
+  implementation("eu.cloudnetservice.gradle", "juppiter", libs.versions.juppiter.get())
 }
 
 gradlePlugin {

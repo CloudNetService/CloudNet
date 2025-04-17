@@ -19,13 +19,16 @@ dependencies {
   "implementation"(projects.utils.utilsBase)
 }
 
-tasks.withType<Jar>().configureEach {
-  // depend on the output of the jar task
-  val jarTask = project(projects.ext.platformInjectSupport.platformInjectRuntime.path).tasks.getByName("jar")
-  dependsOn(jarTask)
+val includeInJar = configurations.register("includeInJar") {
+  isCanBeConsumed = false;
+  isTransitive = false
+}
 
+tasks.withType<Jar>().configureEach {
   // copy over the final output file
-  from("../runtime/build/libs") {
-    include(Files.injectSupport)
-  }
+  from(includeInJar)
+}
+
+dependencies {
+  includeInJar(projects.ext.platformInjectSupport.platformInjectRuntime)
 }
