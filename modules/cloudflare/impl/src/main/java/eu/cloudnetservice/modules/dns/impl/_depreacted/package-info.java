@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.impl;
+@Deprecated
+@ApiStatus.ScheduledForRemoval
+package eu.cloudnetservice.modules.dns.impl._depreacted;
 
-public class CloudNetCloudflareModule {
-
-}
+import org.jetbrains.annotations.ApiStatus;

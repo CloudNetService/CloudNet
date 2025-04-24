@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2025 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,12 +308,11 @@ public final class DnsModuleConfigEntry {
      * operation as further changes will not reflect into the constructed config entry.
      *
      * @return the newly created DNS module configuration entry.
-     * @throws NullPointerException if no domain, domain namespace or provider config was provided.
+     * @throws NullPointerException if no domain or provider config was provided.
      */
     @Contract(" -> new")
     public @NonNull DnsModuleConfigEntry build() {
       Preconditions.checkNotNull(this.domain, "domain not provided");
-      Preconditions.checkNotNull(this.domainNamespace, "domain namespace not provided");
       Preconditions.checkNotNull(this.providerConfig, "provider configuration not provided");
 
       return new DnsModuleConfigEntry(

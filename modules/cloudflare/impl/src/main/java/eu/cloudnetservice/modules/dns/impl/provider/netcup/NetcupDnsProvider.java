@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.impl.netcup;
+package eu.cloudnetservice.modules.dns.impl.provider.netcup;
 
 import eu.cloudnetservice.driver.document.property.DocProperty;
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.modules.dns.provider.DnsProvider;
 import eu.cloudnetservice.modules.dns.provider.DnsProviderZoneConfig;
 import eu.cloudnetservice.modules.dns.provider.DnsZoneProvider;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
+@AutoService(services = DnsProvider.class, name = "netcup")
 public final class NetcupDnsProvider implements DnsProvider {
 
   private static final String API_BASE_URL = "https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON";

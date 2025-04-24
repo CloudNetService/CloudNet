@@ -14,27 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.provider.record;
+package eu.cloudnetservice.modules.dns.impl._depreacted;
 
+import java.util.Collection;
 import lombok.NonNull;
-import org.jetbrains.annotations.Range;
 
-public record SrvDnsRecordData(
-  @NonNull String name,
-  int ttl,
-  @NonNull String target,
-  @Range(from = 0, to = 0xFFFF) int port,
-  @Range(from = 0, to = 0xFFFF) int priority,
-  @Range(from = 0, to = 0xFFFF) int weight
-) implements DnsRecordData {
+public record CloudflareConfiguration(@NonNull Collection<CloudflareConfigurationEntry> entries) {
 
-  @Override
-  public @NonNull String content() {
-    return this.target;
-  }
-
-  @Override
-  public @NonNull String type() {
-    return "SRV";
-  }
 }

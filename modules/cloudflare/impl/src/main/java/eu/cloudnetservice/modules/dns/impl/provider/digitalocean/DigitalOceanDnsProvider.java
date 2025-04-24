@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.impl.cloudflare;
+package eu.cloudnetservice.modules.dns.impl.provider.digitalocean;
 
 import eu.cloudnetservice.driver.document.property.DocProperty;
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.modules.dns.provider.DnsProvider;
 import eu.cloudnetservice.modules.dns.provider.DnsProviderZoneConfig;
 import eu.cloudnetservice.modules.dns.provider.DnsZoneProvider;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
-public final class CloudflareDnsProvider implements DnsProvider {
+@AutoService(services = DnsProvider.class, name = "digitalocean")
+public final class DigitalOceanDnsProvider implements DnsProvider {
 
-  private static final String API_BASE_URL = "https://api.cloudflare.com/client/v4";
+  private static final String API_BASE_URL = "https://api.digitalocean.com/v2";
 
-  private static final DocProperty<String> ZONE_ID_PROPERTY = DocProperty.property("zoneId", String.class);
   private static final DocProperty<String> API_KEY_PROPERTY = DocProperty.property("apiKey", String.class);
+  private static final DocProperty<String> DOMAIN_NAME_PROPERTY = DocProperty.property("domainName", String.class);
 
   @Override
   public @NonNull DnsZoneProvider zoneProvider(@NonNull DnsProviderZoneConfig zoneConfig) {
-    var zoneId = zoneConfig.readPropertyOrThrow(ZONE_ID_PROPERTY, () -> new IllegalStateException("zone id not set"));
     var apiKey = zoneConfig.readPropertyOrThrow(API_KEY_PROPERTY, () -> new IllegalStateException("api key not set"));
+    var domainName = zoneConfig.readPropertyOrThrow(
+      DOMAIN_NAME_PROPERTY,
+      () -> new IllegalStateException("domain name not set"));
 
     var unirestInstance = Unirest.spawnInstance();
     var unirestInstanceConfig = unirestInstance.config();
@@ -42,11 +46,11 @@ public final class CloudflareDnsProvider implements DnsProvider {
     unirestInstanceConfig.requestTimeout((int) zoneConfig.apiRequestTimeout().toMillis());
     unirestInstanceConfig.setDefaultHeader("Authorization", "Bearer " + apiKey);
 
-    return new CloudflareDnsZoneProvider(zoneId, unirestInstance);
+    return new DigitalOceanDnsZoneProvider(domainName, unirestInstance);
   }
 
   @Override
   public @NonNull String name() {
-    return "cloudflare";
+    return "digitalocean";
   }
 }

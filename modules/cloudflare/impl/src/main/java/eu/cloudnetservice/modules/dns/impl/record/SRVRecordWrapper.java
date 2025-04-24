@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-2025 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.impl.provider.info;
+package eu.cloudnetservice.modules.dns.impl.record;
 
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.dns.config.DnsModuleGroupEntry;
 import eu.cloudnetservice.modules.dns.provider.info.DnsRecordInfo;
-import eu.cloudnetservice.modules.dns.provider.record.DnsRecordData;
+import java.util.List;
 import lombok.NonNull;
 
-public record DnsRecordInfoImpl(@NonNull String id, @NonNull DnsRecordData data) implements DnsRecordInfo {
+public final class SRVRecordWrapper {
 
+  private final DnsModuleGroupEntry entry;
+  private final List<DnsRecordInfo> records;
+
+  private ServiceInfoSnapshot serviceInfoSnapshot;
+
+  public SRVRecordWrapper(@NonNull DnsModuleGroupEntry entry, @NonNull List<DnsRecordInfo> records) {
+    this.entry = entry;
+    this.records = records;
+  }
 }

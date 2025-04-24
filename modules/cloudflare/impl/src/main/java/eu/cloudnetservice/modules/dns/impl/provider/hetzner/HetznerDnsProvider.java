@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.dns.impl.hetzner;
+package eu.cloudnetservice.modules.dns.impl.provider.hetzner;
 
 import eu.cloudnetservice.driver.document.property.DocProperty;
+import eu.cloudnetservice.driver.registry.AutoService;
 import eu.cloudnetservice.modules.dns.provider.DnsProvider;
 import eu.cloudnetservice.modules.dns.provider.DnsProviderZoneConfig;
 import eu.cloudnetservice.modules.dns.provider.DnsZoneProvider;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
 
+@AutoService(services = DnsProvider.class, name = "hetzner")
 public final class HetznerDnsProvider implements DnsProvider {
 
   private static final String API_BASE_URL = "https://dns.hetzner.com/api/v1";
