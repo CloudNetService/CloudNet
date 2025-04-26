@@ -147,6 +147,7 @@ public class DefaultChunkedFileQueryBuilder implements ChunkedFileQueryBuilder {
           return responseFuture;
         } else {
           // transfer couldn't be started for some reason
+          sessionRegistry.completeSession(sessionId);
           throw new IllegalStateException("unable to start chunked data transfer");
         }
       });

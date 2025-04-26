@@ -23,7 +23,6 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
@@ -38,10 +37,13 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Files;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class CloudNetSyncProxyModule extends DriverModule {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CloudNetSyncProxyModule.class);
 
   @Inject
   public CloudNetSyncProxyModule(@NonNull @Named("module") InjectionLayer<?> layer) {
@@ -113,13 +115,12 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
-  public void handleReload(@Nullable @Service SyncProxyManagement management) {
-    if (management != null) {
-      management.configuration(this.loadConfiguration());
-    }
+  public void handleReload(@NonNull SyncProxyManagement management) {
+    management.configuration(this.loadConfiguration());
   }
 
   private @NonNull SyncProxyConfiguration loadConfiguration() {
+    LOGGER.debug("Loading SyncProxy module configuration");
     return this.readConfig(
       SyncProxyConfiguration.class,
       () -> SyncProxyConfiguration.createDefault("Proxy"),
