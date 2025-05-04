@@ -19,7 +19,7 @@ junitLauncher = "1.12.1"
 testcontainers = "1.21.0"
 
 # compile time processing
-lombok = "1.18.36"
+lombok = "1.18.38"
 javapoet = "1.13.0"
 
 # console
@@ -40,17 +40,17 @@ mysqlConnector = "9.2.0"
 oshi = "6.8.0"
 vavr = "0.10.6"
 sshj = "0.39.0"
-aerogel = "3.0.0-beta.1"
+aerogel = "3.0.0"
 awsSdk = "2.31.11"
 unirest = "4.4.5"
 caffeine = "3.2.0"
-reflexion = "1.8.0"
+reflexion = "2.0.0-SNAPSHOT"
 geantyref = "2.0.1"
 dockerJava = "3.5.0"
 nightConfig = "3.8.1"
 annotations = "26.0.2"
 influxClient = "7.2.0"
-netty = "5.0.0.Alpha5"
+netty = "5.0.0.Alpha6-SNAPSHOT"
 gulf = "1.0.0-SNAPSHOT"
 
 # logging
@@ -138,6 +138,7 @@ dockerJavaHttpclient5 = { group = "com.github.docker-java", name = "docker-java-
 nettyHandler = { group = "io.netty", name = "netty5-handler", version.ref = "netty" }
 nettyNativeEpoll = { group = "io.netty", name = "netty5-transport-native-epoll", version.ref = "netty" }
 nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue", version.ref = "netty" }
+nettyBufferMemorySegment = { group = "io.netty", name = "netty5-buffer-memory-segment", version.ref = "netty" }
 
 # logging
 slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
@@ -152,8 +153,8 @@ awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk"
 oshi = { group = "com.github.oshi", name = "oshi-core-java11", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
 geantyref = { group = "io.leangen.geantyref", name = "geantyref", version.ref = "geantyref" }
-reflexion = { group = "dev.derklaro.reflexion", name = "reflexion", version.ref = "reflexion" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
+reflexion = { group = "dev.derklaro.reflexion", name = "reflexion-core", version.ref = "reflexion" }
 influxClient = { group = "com.influxdb", name = "influxdb-client-java", version.ref = "influxClient" }
 
 # aerogel
@@ -213,7 +214,7 @@ mysql = ["mysqlConnector", "hikariCp"]
 jline = ["jlineReader", "jlineTerminal"]
 cloud = ["cloudCore", "cloudAnnotations", "cloudConfirmationProcessor"]
 cloudApi = ["cloudCoreApi", "cloudAnnotationsApi"]
-netty = ["nettyHandler"]
+netty = ["nettyHandler", "nettyBufferMemorySegment"]
 junit = ["junitApi", "junitParams", "junitEngine"]
 dockerJava = ["dockerJavaApi", "dockerJavaHttpclient5"]
 testContainers = ["testContainers", "testContainersJunit"]

@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.impl.network.netty;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.impl.network.netty.buffer.NettyNioBufferReleasingAllocator;
 import eu.cloudnetservice.driver.impl.network.scheduler.NetworkTaskScheduler;
 import eu.cloudnetservice.driver.impl.network.scheduler.ScalingNetworkTaskScheduler;
 import io.netty5.buffer.Buffer;
@@ -52,6 +51,9 @@ public final class NettyUtil {
   private static final NettyTransport SELECTED_NETTY_TRANSPORT;
   private static final BufferAllocator SELECTED_BUFFER_ALLOCATOR;
 
+  // system property name is defined in io.netty5.buffer.internal.MemoryManagerOverride
+  private static final String NETTY_MEMORY_MANAGER_SYS_PROP_NAME = "io.netty5.buffer.MemoryManager";
+
   static {
     // check if resource leak detection should be enabled for debugging purposes
     // if that is not the case leak detection will be disabled completely
@@ -73,15 +75,13 @@ public final class NettyUtil {
       SELECTED_SSL_PROVIDER = SslProvider.OPENSSL;
     }
 
-    // select the buffer allocator to use. our internal allocator will free all buffers provided to it directly
-    // which significantly reduces the native memory usage. however, this might not be the designated behaviour for
-    // some users, therefore we leave it to their choice which allocator should be used.
-    var preferredBufferAllocator = System.getProperty("cloudnet.net.preferred-buffer-allocator");
-    if ("netty-default".equals(preferredBufferAllocator) || NettyNioBufferReleasingAllocator.notAbleToFreeBuffers()) {
-      SELECTED_BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
-    } else {
-      SELECTED_BUFFER_ALLOCATOR = new NettyNioBufferReleasingAllocator();
+    // select buffer allocator to use. default to memory-segment-based buffer
+    // allocation, unless the user explicitly configures a different implementation.
+    var configuredMemoryManager = System.getProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME);
+    if (configuredMemoryManager == null || configuredMemoryManager.isBlank()) {
+      System.setProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME, "MemorySegment");
     }
+    SELECTED_BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
 
     // select the transport type to use for netty
     var disableNativeTransport = Boolean.getBoolean("cloudnet.net.no-native");

@@ -18,6 +18,8 @@ package eu.cloudnetservice.driver.impl.network.netty;
 
 import eu.cloudnetservice.driver.DriverEnvironment;
 import io.netty5.buffer.BufferAllocator;
+import io.netty5.buffer.MemoryManager;
+import io.netty5.buffer.memseg.SegmentMemoryManager;
 import io.netty5.channel.MultithreadEventLoopGroup;
 import io.netty5.handler.ssl.OpenSsl;
 import io.netty5.handler.ssl.SslProvider;
@@ -58,6 +60,13 @@ public class NettyUtilTest {
     } else {
       Assertions.assertEquals(SslProvider.JDK, selectedSslProvider);
     }
+  }
+
+  @Test
+  void testMemoryManagerSelection() {
+    var _ = NettyUtil.selectedBufferAllocator(); // call to ensure memory manager init
+    var selectedMemoryManager = MemoryManager.instance();
+    Assertions.assertInstanceOf(SegmentMemoryManager.class, selectedMemoryManager);
   }
 
   @Test

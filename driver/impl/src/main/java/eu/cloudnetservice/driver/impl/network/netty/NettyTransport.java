@@ -25,14 +25,14 @@ import io.netty5.channel.MultithreadEventLoopGroup;
 import io.netty5.channel.ServerChannel;
 import io.netty5.channel.ServerChannelFactory;
 import io.netty5.channel.epoll.Epoll;
-import io.netty5.channel.epoll.EpollHandler;
+import io.netty5.channel.epoll.EpollIoHandler;
 import io.netty5.channel.epoll.EpollServerSocketChannel;
 import io.netty5.channel.epoll.EpollSocketChannel;
 import io.netty5.channel.kqueue.KQueue;
-import io.netty5.channel.kqueue.KQueueHandler;
+import io.netty5.channel.kqueue.KQueueIoHandler;
 import io.netty5.channel.kqueue.KQueueServerSocketChannel;
 import io.netty5.channel.kqueue.KQueueSocketChannel;
-import io.netty5.channel.nio.NioHandler;
+import io.netty5.channel.nio.NioIoHandler;
 import io.netty5.channel.socket.nio.NioServerSocketChannel;
 import io.netty5.channel.socket.nio.NioSocketChannel;
 import java.util.function.Supplier;
@@ -49,7 +49,7 @@ public enum NettyTransport {
     "epoll",
     Epoll.isAvailable(),
     true,
-    EpollHandler::newFactory,
+    EpollIoHandler::newFactory,
     EpollSocketChannel::new,
     EpollServerSocketChannel::new
   ),
@@ -57,7 +57,7 @@ public enum NettyTransport {
     "kqueue",
     KQueue.isAvailable(),
     true,
-    KQueueHandler::newFactory,
+    KQueueIoHandler::newFactory,
     KQueueSocketChannel::new,
     KQueueServerSocketChannel::new
   ),
@@ -65,7 +65,7 @@ public enum NettyTransport {
     "nio",
     true,
     false,
-    NioHandler::newFactory,
+    NioIoHandler::newFactory,
     NioSocketChannel::new,
     NioServerSocketChannel::new
   );
