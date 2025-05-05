@@ -1,0 +1,47 @@
+/*
+ * Copyright 2019-2024 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package eu.cloudnetservice.node.impl.command.defaults;
+
+import dev.derklaro.aerogel.binding.key.BindingKey;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.node.command.source.CommandSource;
+import jakarta.inject.Singleton;
+import java.lang.annotation.Annotation;
+import lombok.NonNull;
+import org.incendo.cloud.injection.InjectionRequest;
+import org.incendo.cloud.injection.InjectionService;
+import org.jetbrains.annotations.Nullable;
+
+@Singleton
+final class AerogelInjectionService implements InjectionService<CommandSource> {
+
+  @Override
+  public @Nullable Object handle(@NonNull InjectionRequest<CommandSource> request) {
+    try {
+      // get the associated data from the input values
+      var targetType = request.injectedType().getType();
+      var annotations = request.annotationAccessor().annotations().toArray(new Annotation[0]);
+      var key = BindingKey.of(targetType).selectQualifier(annotations);
+      var injectionLayer = InjectionLayer.findLayerOf(targetType);
+
+      // get the instance of the given class from the injection layer
+      return injectionLayer.instance(key);
+    } catch (Exception exception) {
+      return null;
+    }
+  }
+}

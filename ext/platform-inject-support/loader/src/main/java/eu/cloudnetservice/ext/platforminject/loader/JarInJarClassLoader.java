@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.ext.platforminject.loader;
 
-import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;

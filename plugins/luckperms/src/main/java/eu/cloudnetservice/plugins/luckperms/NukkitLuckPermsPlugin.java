@@ -31,6 +31,7 @@ import net.luckperms.api.LuckPermsProvider;
   name = "CloudNet-LuckPerms",
   version = "@version@",
   authors = "CloudNetService",
+  pluginFileNames = "nukkit.yml",
   description = "Brings LuckPerms support to all server platforms",
   dependencies = @Dependency(name = "LuckPerms")
 )

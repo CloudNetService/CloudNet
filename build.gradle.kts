@@ -109,8 +109,8 @@ subprojects {
   }
 
   tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_22.toString()
-    targetCompatibility = JavaVersion.VERSION_22.toString()
+    sourceCompatibility = JavaVersion.VERSION_23.toString()
+    targetCompatibility = JavaVersion.VERSION_23.toString()
 
     options.encoding = "UTF-8"
     options.isIncremental = true
@@ -118,6 +118,7 @@ subprojects {
     if (project.path != ":launcher:java8" && project.path != ":launcher:patcher") {
       options.compilerArgs.add("--enable-preview")
       options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
+      options.compilerArgs.add("-proc:full")
     }
   }
 

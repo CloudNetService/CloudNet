@@ -16,6 +16,7 @@
 
 dependencies {
   "api"(projects.ext.platformInjectSupport.platformInjectApi)
+  "implementation"(projects.utils.utilsBase)
 }
 
 tasks.withType<Jar> {

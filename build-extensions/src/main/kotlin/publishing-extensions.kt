@@ -120,7 +120,7 @@ fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions) {
   options.use()
   options.encoding = "UTF-8"
   options.memberLevel = JavadocMemberLevel.PRIVATE
-  options.addStringOption("source", "22")
+  options.addStringOption("source", "23")
   options.addBooleanOption("-enable-preview", true)
   options.addBooleanOption("Xdoclint:-missing", true)
   options.links(
@@ -128,6 +128,6 @@ fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions) {
     "https://jd.advntr.dev/api/latest/",
     "https://javadoc.io/doc/com.konghq/unirest-java/latest/",
     "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
-    "https://javadoc.io/doc/cloud.commandframework/cloud-core/latest/"
+    "https://javadoc.io/doc/org.incendo/cloud-core/latest/"
   )
 }

@@ -15,5 +15,5 @@
  */
 
 dependencies {
-  "compileOnlyApi"(projects.driver)
+  "compileOnlyApi"(projects.driver.driverApi)
 }

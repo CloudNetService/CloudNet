@@ -42,9 +42,9 @@ var cloudnet.updateRepo CloudNetService/launchermeta
 #                   features available. (Use this branch at your own risk!)
 var cloudnet.updateBranch beta
 
-# available default log levels: OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL
+# available default log levels: OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
 # each level includes all messages for levels lower than itself (in the above list: left to right) too
-var cloudnet.logging.defaultlevel INFO
+var cloudnet.log.level DEBUG
 
 # This value sets the memory settings of the JVM for the cloudnet node.
 # The value set here is to be specified in megabytes and describes -xmx as well as -xms.

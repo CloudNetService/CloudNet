@@ -54,7 +54,7 @@ final class VelocityPluginInfoGenerator extends NightConfigInfoGenerator {
   ) {
     // base values
     target.add("name", pluginData.name());
-    target.add("version", pluginData.name());
+    target.add("version", pluginData.version());
     target.add("main", platformMainClassName);
     target.add("id", PLUGIN_ID_GENERATOR.convert(pluginData.name()));
 
