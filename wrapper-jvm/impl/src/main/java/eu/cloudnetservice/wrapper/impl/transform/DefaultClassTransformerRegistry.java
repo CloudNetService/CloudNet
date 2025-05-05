@@ -114,7 +114,9 @@ public final class DefaultClassTransformerRegistry implements ClassTransformerRe
       // use the class loader that is loading the class to transform as this loader
       // must also know all relevant imported classes. by default this would be
       // the system class loader, which might not have all necessary classes present
-      var classHierarchyResolver = ClassHierarchyResolver.ofClassLoading(loader);
+      var classHierarchyResolver = loader == null
+        ? ClassHierarchyResolver.defaultResolver()
+        : ClassHierarchyResolver.ofClassLoading(loader);
       var classHierarchyResolverOption = ClassFile.ClassHierarchyResolverOption.of(classHierarchyResolver);
 
       try {
