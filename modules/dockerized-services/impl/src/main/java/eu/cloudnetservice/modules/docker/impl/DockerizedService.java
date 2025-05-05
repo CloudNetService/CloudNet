@@ -31,10 +31,13 @@ import com.github.dockerjava.api.model.InternetProtocol;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
+import eu.cloudnetservice.driver.document.property.DocProperty;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.modules.docker.config.DockerPortMapping;
@@ -86,7 +89,11 @@ public class DockerizedService extends JVMService {
     Capability.DAC_OVERRIDE,
     Capability.NET_BIND_SERVICE
   ).toArray(Capability[]::new);
+  protected static final DocProperty<TaskDockerConfig> TASK_DOCKER_CONFIG = DocProperty.property(
+    "dockerConfig",
+    TaskDockerConfig.class);
 
+  protected final ServiceTask selfTask;
   protected final DockerClient dockerClient;
   protected final DockerConfiguration configuration;
 
@@ -105,6 +112,7 @@ public class DockerizedService extends JVMService {
     @NonNull EventManager eventManager,
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer,
+    @NonNull ServiceTaskProvider serviceTaskProvider,
     @NonNull DockerClient dockerClient,
     @NonNull DockerConfiguration dockerConfiguration
   ) {
@@ -120,6 +128,7 @@ public class DockerizedService extends JVMService {
       versionProvider,
       serviceConfigurationPreparer);
 
+    this.selfTask = serviceTaskProvider.serviceTask(configuration.serviceId().taskName());
     this.dockerClient = dockerClient;
     this.configuration = dockerConfiguration;
   }
@@ -170,16 +179,17 @@ public class DockerizedService extends JVMService {
       var user = Objects.requireNonNullElse(this.configuration.user(), "");
 
       // get the task specific options
+      var taskConfig = this.resolveTaskDockerConfig();
       var image = Objects.requireNonNullElse(
-        this.readFromTaskConfig(TaskDockerConfig::javaImage),
+        this.readFromTaskConfig(taskConfig, TaskDockerConfig::javaImage),
         this.configuration.javaImage());
       var taskExposedPorts = Objects.requireNonNullElse(
-        this.readFromTaskConfig(TaskDockerConfig::exposedPorts),
+        this.readFromTaskConfig(taskConfig, TaskDockerConfig::exposedPorts),
         Set.<DockerPortMapping>of());
 
       // combine the task options with the global options
-      var volumes = this.collectVolumes();
-      var binds = this.collectBinds(wrapperPath);
+      var volumes = this.collectVolumes(taskConfig);
+      var binds = this.collectBinds(wrapperPath, taskConfig);
       var exposedPorts = Stream.of(taskExposedPorts, this.configuration.exposedPorts())
         .flatMap(Collection::stream)
         .map(portMapping -> {
@@ -309,7 +319,7 @@ public class DockerizedService extends JVMService {
     }
   }
 
-  protected @NonNull Bind[] collectBinds(@NonNull Path wrapperFilePath) {
+  protected @NonNull Bind[] collectBinds(@NonNull Path wrapperFilePath, @Nullable TaskDockerConfig config) {
     Set<Bind> binds = new HashSet<>();
 
     // allow the container full access to the work directory and the wrapper file
@@ -319,7 +329,9 @@ public class DockerizedService extends JVMService {
     binds.add(this.bindFromPath(this.serviceDirectory.toAbsolutePath().toString(), AccessMode.rw));
 
     // get the task specific volumes and concat them with the default volumes
-    var taskBinds = Objects.requireNonNullElse(this.readFromTaskConfig(TaskDockerConfig::binds), Set.<String>of());
+    var taskBinds = Objects.requireNonNullElse(
+      this.readFromTaskConfig(config, TaskDockerConfig::binds),
+      Set.<String>of());
     binds.addAll(Stream.concat(taskBinds.stream(), this.configuration.binds().stream())
       .map(path -> this.serviceDirectory.resolve(path).toAbsolutePath().toString())
       .map(path -> this.bindFromPath(path, AccessMode.rw))
@@ -329,16 +341,32 @@ public class DockerizedService extends JVMService {
     return binds.toArray(Bind[]::new);
   }
 
-  protected @NonNull Volume[] collectVolumes() {
-    var taskVolumes = Objects.requireNonNullElse(this.readFromTaskConfig(TaskDockerConfig::volumes), Set.<String>of());
+  protected @NonNull Volume[] collectVolumes(@Nullable TaskDockerConfig config) {
+    var taskVolumes = Objects.requireNonNullElse(
+      this.readFromTaskConfig(config, TaskDockerConfig::volumes),
+      Set.<String>of());
     return Stream.concat(this.configuration.volumes().stream(), taskVolumes.stream())
       .map(Volume::new)
       .distinct()
       .toArray(Volume[]::new);
   }
 
-  protected @Nullable <T> T readFromTaskConfig(@NonNull Function<TaskDockerConfig, T> reader) {
-    var config = this.serviceConfiguration.propertyHolder().readObject("dockerConfig", TaskDockerConfig.class);
+  protected @Nullable TaskDockerConfig resolveTaskDockerConfig() {
+    return this.serviceConfiguration.readPropertyOrGet(TASK_DOCKER_CONFIG, () -> {
+      // it is possible to start a service with a task name that is not linked to a real task therefore we need to
+      // make sure that the task exists before proceeding
+      if (this.selfTask == null) {
+        return null;
+      }
+
+      return this.selfTask.readProperty(TASK_DOCKER_CONFIG);
+    });
+  }
+
+  protected @Nullable <T> T readFromTaskConfig(
+    @Nullable TaskDockerConfig config,
+    @NonNull Function<TaskDockerConfig, T> reader
+  ) {
     return config == null ? null : reader.apply(config);
   }
 
