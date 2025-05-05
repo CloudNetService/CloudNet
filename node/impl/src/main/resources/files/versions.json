@@ -89,6 +89,22 @@
       "website": "https://papermc.io",
       "versions": [
         {
+          "name": "1.21.5",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21.5"
+          }
+        },
+        {
           "name": "1.21.4",
           "cacheFiles": false,
           "properties": {
@@ -286,37 +302,9 @@
       ],
       "versions": [
         {
-          "name": "1.21.4",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21.4/latest/download",
+          "name": "1.21.5",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.5/latest/download",
           "cacheFiles": false,
-          "properties": {
-            "copy": {
-              "cache/.*": "/",
-              "versions/.*": "/",
-              "purpur\\.jar": "paper.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ]
-          }
-        },
-        {
-          "name": "1.21.3",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21.3/latest/download",
-          "properties": {
-            "copy": {
-              "cache/.*": "/",
-              "versions/.*": "/",
-              "purpur\\.jar": "paper.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ]
-          }
-        },
-        {
-          "name": "1.21.1",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21.1/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -331,20 +319,6 @@
         {
           "name": "1.20.6",
           "url": "https://api.purpurmc.org/v2/purpur/1.20.6/latest/download",
-          "properties": {
-            "copy": {
-              "cache/.*": "/",
-              "versions/.*": "/",
-              "purpur\\.jar": "paper.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ]
-          }
-        },
-        {
-          "name": "1.20.4",
-          "url": "https://api.purpurmc.org/v2/purpur/1.20.4/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -408,11 +382,6 @@
         "DOWNLOAD"
       ],
       "versions": [
-        {
-          "name": "latest",
-          "url": "https://s3.mcjars.app/spigot/1.21.5/4474/server.jar",
-          "cacheFiles": false
-        },
         {
           "name": "1.21.5",
           "url": "https://s3.mcjars.app/spigot/1.21.5/4474/server.jar"
@@ -529,7 +498,7 @@
       ],
       "versions": [
         {
-          "name": "latest",
+          "name": "1.21.5",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -676,6 +645,10 @@
         "DOWNLOAD"
       ],
       "versions": [
+        {
+          "name": "1.21.5",
+          "url": "https://ci.loohpjames.com/job/Limbo/52/artifact/target/Limbo-0.7.13-ALPHA-1.21.5.jar"
+        },
         {
           "name": "1.21.4",
           "url": "https://ci.loohpjames.com/job/Limbo/51/artifact/target/Limbo-0.7.12-ALPHA-1.21.4.jar"
