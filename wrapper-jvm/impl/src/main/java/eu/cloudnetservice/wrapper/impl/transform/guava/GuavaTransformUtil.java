@@ -21,7 +21,6 @@ import java.lang.constant.ClassDesc;
 import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility functions for use when transforming guava classes.
@@ -41,19 +40,22 @@ final class GuavaTransformUtil {
   }
 
   /**
-   * @param internalClassNameSuffix
-   * @return
+   * Builds a full internal class name of a guava class based on the given class name suffix.
+   *
+   * @param internalClassNameSuffix the suffix of the class name to build.
+   * @return a full guava class name based on the given class name suffix.
+   * @throws NullPointerException if the given class name suffix is null.
    */
-  public static @NonNull String buildFullClassName(@NotNull String internalClassNameSuffix) {
+  public static @NonNull String buildFullClassName(@NonNull String internalClassNameSuffix) {
     return GUAVA_BASE_PACKAGE_NAME + "/" + internalClassNameSuffix;
   }
 
   /**
+   * Constructs a new code transform instance that replaces the full target method code with the throw of an exception.
    *
-   * @param message
-   * @return
+   * @return a new code transform instance that replaces the full target method code with the throw of an exception.
    */
-  public static @NonNull CodeTransform replaceWithExceptionTransform(@NonNull String message) {
+  public static @NonNull CodeTransform replaceWithExceptionTransform() {
     return (builder, _) -> builder
       .new_(CD_UNSUPPORTED_OP_EX)
       .dup()

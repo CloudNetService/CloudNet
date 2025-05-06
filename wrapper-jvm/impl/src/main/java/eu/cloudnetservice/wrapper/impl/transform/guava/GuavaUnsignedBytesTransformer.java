@@ -24,13 +24,14 @@ import java.lang.reflect.AccessFlag;
 import lombok.NonNull;
 
 /**
+ * Transformer that disables the usage of sun.misc.Unsafe in guava.UnsignedBytes.
  *
+ * @since 4.0
  */
 public final class GuavaUnsignedBytesTransformer implements ClassTransformer {
 
   private static final String MN_GET_UNSAFE = "getUnsafe";
-  private static final CodeTransform CT_REPLACE_WITH_EXCEPTION =
-    GuavaTransformUtil.replaceWithExceptionTransform("uses unsafe methods which are discouraged starting from java 24");
+  private static final CodeTransform CT_REPLACE_WITH_EXCEPTION = GuavaTransformUtil.replaceWithExceptionTransform();
   private static final String CNI_UNSIGNED_BYTES_UNSAFE_COMPARATOR =
     GuavaTransformUtil.buildFullClassName("primitives/UnsignedBytes$LexicographicalComparatorHolder$UnsafeComparator");
 

@@ -24,8 +24,7 @@ import java.lang.constant.ConstantDescs;
 import lombok.NonNull;
 
 /**
- * A transformer for the {@code ServerProcessImpl} class in Minestom which inserts a call to {@code System.exit} before
- * the last return statement in the {@code stop} method to ensure a clean shutdown of the wrapper process.
+ * Transformer that disables the usage of sun.misc.Unsafe in guava.AbstractFuture.
  *
  * @since 4.0
  */
@@ -33,8 +32,7 @@ public final class GuavaUnsafeAtomicHelperTransformer implements ClassTransforme
 
   private static final String CNI_UNSAFE_ATOMIC_HELPER =
     GuavaTransformUtil.buildFullClassName("util/concurrent/AbstractFuture$UnsafeAtomicHelper");
-  private static final CodeTransform CT_REPLACE_WITH_EXCEPTION =
-    GuavaTransformUtil.replaceWithExceptionTransform("uses unsafe methods which are discouraged starting from java 24");
+  private static final CodeTransform CT_REPLACE_WITH_EXCEPTION = GuavaTransformUtil.replaceWithExceptionTransform();
 
   /**
    * {@inheritDoc}
