@@ -352,15 +352,11 @@ public class DockerizedService extends JVMService {
   }
 
   protected @Nullable TaskDockerConfig resolveTaskDockerConfig() {
-    return this.serviceConfiguration.readPropertyOrGet(TASK_DOCKER_CONFIG, () -> {
+    return this.serviceConfiguration.readPropertyOrGet(
+      TASK_DOCKER_CONFIG,
       // it is possible to start a service with a task name that is not linked to a real task therefore we need to
       // make sure that the task exists before proceeding
-      if (this.selfTask == null) {
-        return null;
-      }
-
-      return this.selfTask.readProperty(TASK_DOCKER_CONFIG);
-    });
+      () -> this.selfTask == null ? null : this.selfTask.readProperty(TASK_DOCKER_CONFIG));
   }
 
   protected @Nullable <T> T readFromTaskConfig(
