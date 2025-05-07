@@ -19,9 +19,9 @@ package eu.cloudnetservice.modules.signs.impl.platform.minestom;
 import java.util.Collection;
 import java.util.List;
 import lombok.NonNull;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.instance.block.BlockHandler;
 import net.minestom.server.tag.Tag;
-import net.minestom.server.utils.NamespaceID;
 
 final class MinestomSignBlockHandler implements BlockHandler {
 
@@ -34,7 +34,7 @@ final class MinestomSignBlockHandler implements BlockHandler {
     Tag.String("Text3"),
     Tag.String("Text4"));
 
-  private static final NamespaceID SIGN_NAMESPACE = NamespaceID.from("minecraft:sign");
+  private static final Key SIGN_NAMESPACE = Key.key("minecraft", "sign");
 
   private MinestomSignBlockHandler() {
   }
@@ -45,7 +45,7 @@ final class MinestomSignBlockHandler implements BlockHandler {
   }
 
   @Override
-  public @NonNull NamespaceID getNamespaceId() {
+  public @NonNull Key getKey() {
     return SIGN_NAMESPACE;
   }
 }
