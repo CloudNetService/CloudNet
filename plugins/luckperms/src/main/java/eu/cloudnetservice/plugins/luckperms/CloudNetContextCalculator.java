@@ -40,6 +40,7 @@ public class CloudNetContextCalculator implements StaticContextCalculator {
     var serviceId = this.wrapperConfiguration.serviceConfiguration().serviceId();
 
     contextSet.add("service", serviceId.name());
+    contextSet.add("service-uuid", serviceId.uniqueId().toString());
     contextSet.add("task", serviceId.taskName());
     contextSet.add("node", serviceId.nodeUniqueId());
     contextSet.add("environment", serviceId.environmentName());
