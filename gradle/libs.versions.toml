@@ -23,7 +23,7 @@ lombok = "1.18.36"
 javapoet = "1.13.0"
 
 # console
-jline = "3.29.0"
+jline = "3.30.0"
 cloud = "2.0.0-cn1"
 cloudApi = "2.0.0"
 cloudConfirmation = "1.0.0-rc.1"
