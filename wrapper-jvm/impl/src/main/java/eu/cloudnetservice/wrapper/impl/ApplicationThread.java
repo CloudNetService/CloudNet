@@ -66,7 +66,7 @@ final class ApplicationThread extends Thread {
   public void run() {
     try {
       this.mainMethod.invoke(null, new Object[]{this.mainArgs});
-      LOGGER.debug("Application main {} invoked successfully.", this.mainMethod);
+      LOGGER.info("Invocation of application main method {} completed successfully", this.mainMethod);
       return;
     } catch (InvocationTargetException exception) {
       // application threw error during execution
