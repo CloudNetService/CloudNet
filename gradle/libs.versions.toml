@@ -23,7 +23,7 @@ lombok = "1.18.36"
 javapoet = "1.13.0"
 
 # console
-jline = "3.29.0"
+jline = "3.30.0"
 cloud = "2.0.0-cn1"
 cloudApi = "2.0.0"
 cloudConfirmation = "1.0.0-rc.1"
@@ -32,7 +32,7 @@ stringSimilarity = "2.0.0"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "5.4.0"
+mongodb = "5.5.0"
 hikariCp = "6.3.0"
 mysqlConnector = "9.2.0"
 
@@ -69,7 +69,7 @@ bungeecord = "1.21-R0.1-SNAPSHOT"
 limboloohp = "0.7.9-ALPHA"
 
 # platform extensions
-adventure = "4.19.0"
+adventure = "4.21.0"
 modlauncher = "8.1.3"
 npcLib = "3.0.0-beta12"
 packetEvents = "2.7.0"
