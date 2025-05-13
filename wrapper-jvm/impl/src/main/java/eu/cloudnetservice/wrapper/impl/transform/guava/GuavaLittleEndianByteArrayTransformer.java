@@ -14,42 +14,35 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.wrapper.impl.transform.bukkit;
+package eu.cloudnetservice.wrapper.impl.transform.guava;
 
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
 import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeTransform;
+import java.lang.reflect.AccessFlag;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
- * A transformer implementation that disables the {@code setAccessible} method in the FAWE Config on old FAWE versions.
- * This is due to the fact that the method uses illegal reflection in the attempt to set a final field which is not
- * possible anymore on newer java versions.
+ * Transformer that disables the usage of sun.misc.Unsafe in guava.LittleEndianByteArray.
+ *
+ * @since 4.0
  */
-@ApiStatus.Internal
-public final class FAWEConfigTransformer implements ClassTransformer {
+public final class GuavaLittleEndianByteArrayTransformer implements ClassTransformer {
 
-  private static final String CNI_CONFIG = "com/boydti/fawe/config/Config";
-  private static final String MN_SET_ACCESSIBLE = "setAccessible";
-
-  /**
-   * Constructs a new instance of this transformer, usually done via SPI.
-   */
-  public FAWEConfigTransformer() {
-    // used by SPI
-  }
+  private static final String MN_GET_UNSAFE = "getUnsafe";
+  private static final String CNI_LITTLE_ENDIAN_UNSAFE_BYTE_ARRAY =
+    GuavaTransformUtil.buildFullClassName("hash/LittleEndianByteArray$UnsafeByteArray");
+  private static final CodeTransform CT_REPLACE_WITH_EXCEPTION = GuavaTransformUtil.replaceWithExceptionTransform();
 
   /**
    * {@inheritDoc}
    */
   @Override
   public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
-    CodeTransform codeTransform = (builder, _) -> builder.return_();
     return ClassTransform.transformingMethodBodies(
-      mm -> mm.methodName().equalsString(MN_SET_ACCESSIBLE),
-      codeTransform);
+      mm -> mm.flags().has(AccessFlag.STATIC) && mm.methodName().equalsString(MN_GET_UNSAFE),
+      CT_REPLACE_WITH_EXCEPTION);
   }
 
   /**
@@ -57,7 +50,7 @@ public final class FAWEConfigTransformer implements ClassTransformer {
    */
   @Override
   public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
-    var isFaweConfig = CNI_CONFIG.equals(internalClassName);
-    return isFaweConfig ? TransformWillingness.ACCEPT_ONCE : TransformWillingness.REJECT;
+    var isUnsafeAtomicHelper = internalClassName.endsWith(CNI_LITTLE_ENDIAN_UNSAFE_BYTE_ARRAY);
+    return isUnsafeAtomicHelper ? TransformWillingness.ACCEPT : TransformWillingness.REJECT;
   }
 }

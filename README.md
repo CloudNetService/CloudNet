@@ -79,7 +79,7 @@ just append the `-SNAPSHOT` suffix to the version.
 
 ## Compile from source
 
-To compile CloudNet you need JDK 23 and an internet connection. Then clone this repository and run `./gradlew` inside
+To compile CloudNet you need JDK 24 and an internet connection. Then clone this repository and run `./gradlew` inside
 the cloned project.
 
 ## Warnings

@@ -240,7 +240,7 @@ final class RPCImplementationGenerator {
       RPCGenerationConstants.MTD_BRIDGE_RPC_INVOKE,
       ClassFile.ACC_PRIVATE,
       code -> {
-        var baseRPCStoreSlot = code.allocateLocal(TypeKind.ReferenceType);
+        var baseRPCStoreSlot = code.allocateLocal(TypeKind.REFERENCE);
         code
           // construct the base RPC
           .aload(0)

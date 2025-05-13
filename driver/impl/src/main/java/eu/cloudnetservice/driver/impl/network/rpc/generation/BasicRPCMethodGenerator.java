@@ -88,12 +88,12 @@ final class BasicRPCMethodGenerator implements RPCMethodGenerator {
       var returnType = targetMethodDesc.returnType();
       var returnTypeKind = TypeKind.fromDescriptor(returnType.descriptorString());
       switch (returnTypeKind) {
-        case VoidType -> codeBuilder.return_();
-        case LongType -> codeBuilder.lconst_0().lreturn();
-        case FloatType -> codeBuilder.fconst_0().freturn();
-        case DoubleType -> codeBuilder.dconst_0().dreturn();
-        case ReferenceType -> codeBuilder.aconst_null().areturn();
-        case ByteType, ShortType, IntType, BooleanType, CharType -> codeBuilder.iconst_0().ireturn();
+        case VOID -> codeBuilder.return_();
+        case LONG -> codeBuilder.lconst_0().lreturn();
+        case FLOAT -> codeBuilder.fconst_0().freturn();
+        case DOUBLE -> codeBuilder.dconst_0().dreturn();
+        case REFERENCE -> codeBuilder.aconst_null().areturn();
+        case BYTE, SHORT, INT, BOOLEAN, CHAR -> codeBuilder.iconst_0().ireturn();
       }
     } else if (targetMethod.asyncReturnType()) {
       // async method execution
@@ -106,7 +106,7 @@ final class BasicRPCMethodGenerator implements RPCMethodGenerator {
       codeBuilder.invokeinterface(RPCGenerationConstants.CD_RPC_EXECUTABLE, "fireSync", MTD_FIRE_SYNC);
       if (returnType.isPrimitive()) {
         var returnTypeKind = TypeKind.fromDescriptor(returnType.descriptorString());
-        if (returnTypeKind == TypeKind.VoidType) {
+        if (returnTypeKind == TypeKind.VOID) {
           // void return type, nothing to return
           codeBuilder.pop().return_();
         } else {

@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper.impl.transform.bukkit;
 
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeTransform;
 import java.lang.classfile.instruction.ConstantInstruction;
@@ -46,7 +47,7 @@ public final class FAWEWorldEditDownloadURLTransformer implements ClassTransform
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ClassTransform provideClassTransform() {
+  public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
     CodeTransform codeTransform = (builder, element) -> {
       if (element instanceof ConstantInstruction.LoadConstantInstruction inst
         && inst.constantValue() instanceof String string

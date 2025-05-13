@@ -106,11 +106,12 @@ subprojects {
 
     // always pass down all given system properties
     systemProperties(System.getProperties().mapKeys { it.key.toString() })
+    systemProperty("io.netty5.noUnsafe", "true")
   }
 
   tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_23.toString()
-    targetCompatibility = JavaVersion.VERSION_23.toString()
+    sourceCompatibility = JavaVersion.VERSION_24.toString()
+    targetCompatibility = JavaVersion.VERSION_24.toString()
 
     options.encoding = "UTF-8"
     options.isIncremental = true

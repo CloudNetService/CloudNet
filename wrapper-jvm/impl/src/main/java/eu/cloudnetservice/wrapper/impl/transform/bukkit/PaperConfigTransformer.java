@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper.impl.transform.bukkit;
 
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeTransform;
 import lombok.NonNull;
@@ -46,7 +47,7 @@ public final class PaperConfigTransformer implements ClassTransformer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ClassTransform provideClassTransform() {
+  public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
     CodeTransform codeTransform = (codebuilder, _) -> codebuilder.return_();
     return ClassTransform.transformingMethodBodies(
       mm -> mm.methodName().equalsString(MN_STACKABLE_BUCKETS),
