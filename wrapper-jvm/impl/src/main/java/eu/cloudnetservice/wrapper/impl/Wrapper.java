@@ -248,7 +248,7 @@ public final class Wrapper {
     System.setProperty("java.class.path", this.appendAppFileToClassPath(appFile));
 
     // start the application
-    LOGGER.info("Starting application using class {} (pre-main: {})", mainClass, premainClass);
+    LOGGER.info("Starting wrapped application using {} (pre-main class: {})", mainMethod, premainClass);
     var applicationThread = new ApplicationThread(mainMethod, arguments);
     applicationThread.setContextClassLoader(loader);
     applicationThread.start();
