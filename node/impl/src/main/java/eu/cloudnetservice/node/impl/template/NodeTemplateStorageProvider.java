@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collection;
@@ -71,6 +72,6 @@ public class NodeTemplateStorageProvider implements TemplateStorageProvider {
 
   @Override
   public @NonNull CompletableFuture<Collection<String>> availableTemplateStoragesAsync() {
-    return null;
+    return TaskUtil.supplyAsync(this::availableTemplateStorages);
   }
 }
