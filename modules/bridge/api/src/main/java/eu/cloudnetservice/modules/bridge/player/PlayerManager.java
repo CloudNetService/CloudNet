@@ -26,10 +26,37 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 /**
- * The player manager is the main api point to access cloud offline and online players. Accessing the player manager is
- * possible using either {@code ServiceRegistry.first(PlayerManager.class)} or
- * {@code bridgeManagement.playerManager()}.
+ * The player manager provides access to all information cloudnet has about online and offline players. Obtaining an
+ * instance of the player manager is possible through the {@link eu.cloudnetservice.driver.registry.ServiceRegistry}.
+ * <p>
+ * If the player manager needs to be obtained from an injection context, the
+ * {@link eu.cloudnetservice.driver.registry.Service} annotation can be added to the constructor or method.
+ * <pre>
+ *   {@code
+ *   private final PlayerManager playerManager;
  *
+ *   @Inject
+ *   public YourClass(@Service PlayerManager playerManager) {
+ *     this.playerManager = playerManager;
+ *   }
+ *   }
+ * </pre>
+ * <p>
+ * If the player manager needs to be obtained without an injection context, use
+ * {@link eu.cloudnetservice.driver.registry.ServiceRegistry#defaultInstance(Class)}.
+ * <pre>
+ *   {@code
+ *   private final PlayerManager playerManager;
+ *
+ *   public SomeClass() {
+ *     var serviceRegistry = InjectionLayer.ext().instance(ServiceRegistry.class);
+ *     this.playerManager = serviceRegistry.defaultInstance(PlayerManager.class);
+ *   }
+ *   }
+ * </pre>
+ *
+ * @see eu.cloudnetservice.driver.registry.Service
+ * @see eu.cloudnetservice.driver.registry.ServiceRegistry
  * @since 4.0
  */
 public interface PlayerManager {
