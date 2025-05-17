@@ -45,7 +45,7 @@ public interface ModuleConfigurationCodec extends Named {
    * @throws NullPointerException          if the given configuration container is null.
    * @throws UnsupportedOperationException if this codec does not support storing configurations.
    */
-  void storeConfiguration(@NonNull ModuleConfigurationContainer<?> configurationContainer);
+  void storeConfiguration(@NonNull ModuleConfigContainer<?> configurationContainer);
 
   /**
    * Tries to load the configuration from the requested config path. If the configuration does not exist at the
@@ -63,7 +63,7 @@ public interface ModuleConfigurationCodec extends Named {
    * @throws Exception            if any fatal exception occurs during loading of the configuration.
    */
   @NonNull
-  <T> ModuleConfigurationContainer<T> loadConfiguration(
+  <T> ModuleConfigContainer<T> loadConfiguration(
     @NonNull ModuleContainer moduleContainer,
     @NonNull String requestedConfigPath,
     @NonNull Class<T> requestedConfigType,
@@ -78,5 +78,5 @@ public interface ModuleConfigurationCodec extends Named {
    * @throws NullPointerException if the given configuration container is null.
    */
   @NonNull
-  Document serializeConfiguration(@NonNull ModuleConfigurationContainer<?> configurationContainer);
+  Document serializeConfiguration(@NonNull ModuleConfigContainer<?> configurationContainer);
 }

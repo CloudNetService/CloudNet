@@ -37,7 +37,7 @@ public interface ModuleConfigurationRegistry {
    */
   @NonNull
   @UnmodifiableView
-  Collection<ModuleConfigurationContainer<?>> registeredConfigurations();
+  Collection<ModuleConfigContainer<?>> registeredConfigurations();
 
   /**
    * Get the configuration container for the configuration represented by the given model, can be null if no such
@@ -49,5 +49,5 @@ public interface ModuleConfigurationRegistry {
    * @throws NullPointerException if the given configuration model is null.
    */
   @Nullable
-  <T> ModuleConfigurationContainer<T> configuration(@NonNull Class<T> configurationModel);
+  <T> ModuleConfigContainer<T> configuration(@NonNull Class<T> configurationModel);
 }
