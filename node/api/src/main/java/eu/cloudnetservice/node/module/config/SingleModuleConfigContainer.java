@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.module.config;
 
 import eu.cloudnetservice.driver.document.Document;
-import java.util.function.Consumer;
 import lombok.NonNull;
 
 public non-sealed interface SingleModuleConfigContainer<T> extends ModuleConfigContainer<T> {
@@ -30,15 +29,6 @@ public non-sealed interface SingleModuleConfigContainer<T> extends ModuleConfigC
    * @throws IllegalArgumentException if the configuration in the given document is invalid.
    */
   void updateFromDocument(@NonNull Document document);
-
-  /**
-   * Registers a listener which will be triggered if this configuration container changes, either by being reloaded or
-   * by being updated.
-   *
-   * @param listener the update listener to invoke when the underlying configuration changes.
-   * @throws NullPointerException if the given listener is null.
-   */
-  void registerUpdateListener(@NonNull Consumer<T> listener);
 
   /**
    * Get the loaded and modeled configuration instance.

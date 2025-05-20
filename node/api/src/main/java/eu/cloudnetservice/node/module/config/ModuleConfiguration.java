@@ -35,19 +35,29 @@ import lombok.NonNull;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ModuleConfiguration {
 
-  /**
-   * Get the codec to use to load the module configuration.
-   *
-   * @return the codec to use to load the module configuration.
-   */
-  @NonNull
-  String codec();
+  // TODO: codec -> storage
+  // /**
+  //  * Get the codec to use to load the module configuration.
+  //  *
+  //  * @return the codec to use to load the module configuration.
+  //  */
+  // @NonNull
+  // String codec();
+
+  // TODO: introduce source module
+  // @NonNull
+  // String module();
+
+  // TODO: introduce document factory
+  // @NonNull
+  // String documentFactory() default "json";
 
   /**
    * Get the path where the module configuration file is located.
    *
    * @return the path where the module configuration file is located.
    */
+  // TODO: path -> id, with optional wildcard
   @NonNull
   String path();
 
@@ -57,6 +67,7 @@ public @interface ModuleConfiguration {
    *
    * @return true if the configuration contains sensitive data, false otherwise.
    */
+  // TODO: supporting flags will not be possible, but maybe at least support standard flags here?
   boolean sensitive() default false;
 
   /**
@@ -66,5 +77,7 @@ public @interface ModuleConfiguration {
    *
    * @return the static factory method in the annotated class to construct a configuration instance with default values.
    */
+  // TODO: need to think about this again with the new config structure... proposed way in docs doesn't really work anymore, or does it?
+  @NonNull
   String defaultFactory() default "";
 }

@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.module.config;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.NonNull;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -27,16 +28,37 @@ import org.jetbrains.annotations.Nullable;
 public non-sealed interface CompositeModuleConfigContainer<T extends IdentifiableModuleConfig>
   extends ModuleConfigContainer<T>, Iterable<T> {
 
+  /**
+   *
+   * @param configuration
+   * @throws NullPointerException
+   * @throws IllegalStateException
+   * @throws UnsupportedOperationException
+   */
   void removeConfiguration(@NonNull T configuration);
 
+  /**
+   *
+   * @param configurationId
+   * @throws NullPointerException
+   * @throws IllegalStateException
+   * @throws UnsupportedOperationException
+   */
   void removeConfiguration(@NonNull String configurationId);
 
+  /**
+   *
+   *
+   * @param configurationId
+   * @return
+   */
   @Nullable
   T configuration(@NonNull String configurationId);
 
   /**
    * @return
    */
+  @NonNull
   List<T> loadedConfigurations();
 
   /**
@@ -44,5 +66,28 @@ public non-sealed interface CompositeModuleConfigContainer<T extends Identifiabl
    *
    * @return
    */
+  @NonNull
   Stream<T> loadedConfigurationsStream();
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @NonNull
+  @CheckReturnValue
+  CompositeModuleConfigContainer<T> asReadOnly();
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @NonNull
+  CompositeModuleConfigContainer<T> removeFlag(@NonNull ModuleConfigFlag flag);
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @NonNull
+  CompositeModuleConfigContainer<T> setFlag(@NonNull ModuleConfigFlag flag);
 }
