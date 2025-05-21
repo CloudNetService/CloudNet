@@ -16,7 +16,9 @@
 
 package eu.cloudnetservice.node.module.config;
 
+import eu.cloudnetservice.driver.base.DisposableResource;
 import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.node.module.config.storage.ModuleConfigStorageDescriptor;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import lombok.NonNull;
@@ -28,6 +30,16 @@ import org.jetbrains.annotations.CheckReturnValue;
 public sealed interface ModuleConfigContainer<T> permits SingleModuleConfigContainer, CompositeModuleConfigContainer {
 
   /**
+   * Get the descriptor of the storage used by this module configuration container.
+   *
+   * @return the descriptor of the storage used by this module configuration container.
+   */
+  @NonNull
+  ModuleConfigStorageDescriptor storageDescriptor();
+
+  /**
+   * Flushes all configurations available to this container to the underlying storage.
+   *
    * @throws UnsupportedOperationException if the storage does not support storing or this container is read-only.
    */
   void flush();
@@ -76,24 +88,16 @@ public sealed interface ModuleConfigContainer<T> permits SingleModuleConfigConta
   ModuleConfigContainer<T> updateConfiguration(@NonNull T config, boolean flush);
 
   @NonNull
-  Runnable registerTransformer(@NonNull UnaryOperator<Document> listener);
+  DisposableResource registerTransformer(@NonNull UnaryOperator<Document> listener);
 
   @NonNull
-  Runnable registerLoadListener(@NonNull Consumer<T> listener);
-
-  /**
-   * Registers a listener which will be triggered if this configuration container changes, either by being reloaded or
-   * by being updated.
-   *
-   * @param listener the update listener to invoke when the underlying configuration changes.
-   * @return
-   * @throws NullPointerException if the given listener is null.
-   */
-  @NonNull
-  Runnable registerUpdateListener(@NonNull Consumer<T> listener);
+  DisposableResource registerLoadListener(@NonNull Consumer<T> listener);
 
   @NonNull
-  Runnable registerRemoveListener(@NonNull Consumer<T> listener);
+  DisposableResource registerUpdateListener(@NonNull Consumer<T> listener);
+
+  @NonNull
+  DisposableResource registerRemoveListener(@NonNull Consumer<T> listener);
 
   /**
    * Get if this module configuration container is read-only and does not support update operations.
