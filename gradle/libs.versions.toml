@@ -49,7 +49,7 @@ geantyref = "2.0.1"
 dockerJava = "3.5.0"
 nightConfig = "3.8.1"
 annotations = "26.0.2"
-influxClient = "7.2.0"
+influxClient = "7.3.0"
 netty = "5.0.0.Alpha6-SNAPSHOT"
 gulf = "1.0.0-SNAPSHOT"
 
