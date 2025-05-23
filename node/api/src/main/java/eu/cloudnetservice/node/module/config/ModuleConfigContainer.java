@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.module.config;
 
 import eu.cloudnetservice.driver.base.DisposableResource;
 import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.module.ModuleConfigKey;
 import eu.cloudnetservice.node.module.config.storage.ModuleConfigStorageDescriptor;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
@@ -28,6 +29,15 @@ import org.jetbrains.annotations.CheckReturnValue;
  * !!! LAZY
  */
 public sealed interface ModuleConfigContainer<T> permits SingleModuleConfigContainer, CompositeModuleConfigContainer {
+
+  /**
+   * Get the key of the configuration that is wrapped in this container. This can be a specific or composite config key
+   * depending on the implementation.
+   *
+   * @return the key of the configuration that is wrapped in this container.
+   */
+  @NonNull
+  ModuleConfigKey key();
 
   /**
    * Get the descriptor of the storage used by this module configuration container.
@@ -50,7 +60,7 @@ public sealed interface ModuleConfigContainer<T> permits SingleModuleConfigConta
    *
    * @param forceLoadAll whether all available configurations should be loaded, even if they weren't previously loaded.
    * @return this container, for chaining.
-   * @throws UnsupportedOperationException if thus container is read-only.
+   * @throws UnsupportedOperationException if this container is read-only.
    */
   @NonNull
   ModuleConfigContainer<T> reload(boolean forceLoadAll);
@@ -87,8 +97,20 @@ public sealed interface ModuleConfigContainer<T> permits SingleModuleConfigConta
   @NonNull
   ModuleConfigContainer<T> updateConfiguration(@NonNull T config, boolean flush);
 
+  /**
+   * Registers a transformer to this container. Transformers are called when a document is loaded by this container,
+   * before it gets converted to a configuration model. This can, for example, be useful for migrating a configuration
+   * from an old version to fit the new schema. The transformer can return null to indicate that no noteable change was
+   * made. The document is instantly flushed back to the storage if the returned document does not equal the original
+   * document (unless the transformer returns null).
+   *
+   * @param transformer the transformer to apply to documents loaded into this container.
+   * @return a disposable resource to remove the transformer from this container.
+   * @throws NullPointerException          if the given transformer is null.
+   * @throws UnsupportedOperationException if this container is read-only.
+   */
   @NonNull
-  DisposableResource registerTransformer(@NonNull UnaryOperator<Document> listener);
+  DisposableResource registerTransformer(@NonNull UnaryOperator<Document.Mutable> transformer);
 
   @NonNull
   DisposableResource registerLoadListener(@NonNull Consumer<T> listener);

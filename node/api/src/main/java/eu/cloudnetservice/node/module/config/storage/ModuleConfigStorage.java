@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.module.config.storage;
 import eu.cloudnetservice.driver.base.DisposableResource;
 import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.module.ModuleConfigKey;
 import java.io.InputStream;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -28,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A storage for module configurations. A storage implementation is required to at least provide two operations:
  * <ol>
- *   <li>Listing all configurations that are available in the storage (with and without id prefix).
+ *   <li>Listing all configurations that are available in the storage.
  *   <li>Getting a module configuration from the storage.
  * </ol>
  * <br>
@@ -59,78 +60,77 @@ public interface ModuleConfigStorage extends Named {
   ModuleConfigStorageDescriptor descriptor();
 
   /**
-   * Get all configuration ids that are available in this storage.
+   * Get all configuration keys that are available in this storage.
    *
-   * @return all configuration ids that are available in this storage.
+   * @return all configuration keys that are available in this storage.
    */
   @NonNull
-  Set<String> availableConfigIds();
+  Set<ModuleConfigKey> availableConfigKeys();
 
   /**
-   * Get all configuration ids in this storage that use the given id prefix.
+   * Get all configuration keys in this storage that match the given config key.
    *
-   * @param configIdPrefix the prefix of the configuration ids to include in the lookup.
-   * @return all configuration ids in this storage that use the given id prefix.
-   * @throws IllegalArgumentException if the given configuration id prefix is invalid.
-   * @throws NullPointerException     if the given id prefix is null.
+   * @param key the key to filter for. Can either ba a specific or a composite key.
+   * @return all configuration keys in this storage that match the given key.
+   * @throws NullPointerException if the given key is null.
    */
   @NonNull
-  Set<String> availableConfigIds(@NonNull String configIdPrefix);
+  Set<ModuleConfigKey> availableConfigKeys(@NonNull ModuleConfigKey key);
 
   /**
-   * Loads the configuration with the given id from this storage, returning null if the configuration does not exist in
+   * Loads the configuration with the given key from this storage, returning null if the configuration does not exist in
    * this storage. The caller of this method is responsible for closing the returned input stream after the
    * configuration was consumed.
    *
-   * @param configurationId the id of the configuration to load.
+   * @param key the key of the configuration to load.
    * @return an input stream of the configuration document or null if the configuration does not exist in this storage.
-   * @throws NullPointerException           if the given configuration id is null.
-   * @throws IllegalArgumentException       if the given configuration id is invalid.
+   * @throws NullPointerException           if the given configuration key is null.
    * @throws ModuleConfigStorageIOException if loading of the given configuration failed for some reason.
    */
   @Nullable
-  InputStream loadConfig(@NonNull String configurationId);
+  InputStream loadConfig(@NonNull ModuleConfigKey key);
 
   /**
-   * Stores the configuration document in association with the given configuration id in this storage. An exception
+   * Stores the configuration document in association with the given configuration key in this storage. An exception
    * might be thrown if this storage implementation does not support storing of configurations (this can be determined
    * using the flags provided by this storage).
    *
-   * @param configurationId the id of the configuration to store.
-   * @param document        the configuration document to store.
-   * @throws NullPointerException           if the given configuration id or configuration document is null.
-   * @throws IllegalArgumentException       if the given configuration id is invalid.
+   * @param key      the key of the configuration to store.
+   * @param document the configuration document to store.
+   * @throws NullPointerException           if the given configuration key or configuration document is null.
    * @throws ModuleConfigStorageIOException if storing of the given configuration failed for some reason.
    * @throws UnsupportedOperationException  if this implementation does not support storing of configurations.
    */
-  void storeConfig(@NonNull String configurationId, @NonNull Document document);
+  void storeConfig(@NonNull ModuleConfigKey key, @NonNull Document document);
 
   /**
-   * Deletes the configuration document associated with the given configuration id from this storage. An exception might
-   * be thrown if this storage implementation does not support the deletion of configurations (this can be determined
-   * using the flags provided by this storage).
+   * Deletes the configuration document associated with the given configuration key from this storage. An exception
+   * might be thrown if this storage implementation does not support the deletion of configurations (this can be
+   * determined using the flags provided by this storage).
    *
-   * @param configurationId the id of the configuration to delete.
-   * @throws NullPointerException           if the given configuration id is null.
-   * @throws IllegalArgumentException       if the given configuration id is invalid.
+   * @param key the key of the configuration to delete.
+   * @throws NullPointerException           if the given configuration key is null.
    * @throws ModuleConfigStorageIOException if deleting the given configuration failed for some reason.
    * @throws UnsupportedOperationException  if this implementation does not support deletion of configurations.
    */
-  void deleteConfig(@NonNull String configurationId);
+  void deleteConfig(@NonNull ModuleConfigKey key);
 
   /**
-   * Registers an update listener for configuration changes to this storage. An optional id prefix can be provided if
-   * the caller only wants updates for specific configuration ids. An exception might be thrown if this storage
+   * Registers an update listener for configuration changes to this storage. An optional key can be provided if the
+   * caller only wants updates for specific configuration keys. An exception might be thrown if this storage
    * implementation does not support watching the configurations for changes (this can be determined using the flags
    * provided by this storage).
+   * <p>
+   * If the given config key is a composite key, the listener receives updates for all configurations that are matching
+   * the composite key. If the key targets a specific config, then only updates of the specific config are passed to the
+   * listener. The listener always receives specific config keys, never a composite key.
    *
-   * @param configurationIdPrefix an optional id prefix to only receive updates of configurations using this prefix.
-   * @param updateListener        the update listener that receives the ids of the updated configurations.
+   * @param key            an optional config key to only receive updates of configs matching the key.
+   * @param updateListener the update listener that receives the keys of the updated configurations.
    * @return a disposable resource to remove the update listener from this storage.
    * @throws NullPointerException          if the given update listener is null.
-   * @throws IllegalArgumentException      if the given configuration id prefix is invalid.
    * @throws UnsupportedOperationException if this implementation does not support watching for configuration updates.
    */
   @NonNull
-  DisposableResource watchForUpdates(@Nullable String configurationIdPrefix, @NonNull Consumer<String> updateListener);
+  DisposableResource watchForUpdates(@Nullable ModuleConfigKey key, @NonNull Consumer<ModuleConfigKey> updateListener);
 }
