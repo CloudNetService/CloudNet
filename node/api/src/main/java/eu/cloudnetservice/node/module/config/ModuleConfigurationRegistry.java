@@ -16,13 +16,14 @@
 
 package eu.cloudnetservice.node.module.config;
 
+import eu.cloudnetservice.driver.module.ModuleConfigKey;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * A registry of configurations that were loaded for a module during its lifetime. This can for example be used as a
+ * A registry of configurations that were loaded for a module during its lifetime. This can, for example, be used as a
  * hooking point for debugging modules to expose the loaded configurations. Direct registration of configurations is
  * explicitly not exposed into the api and should be done.
  *
@@ -40,6 +41,18 @@ public interface ModuleConfigurationRegistry {
   Collection<ModuleConfigContainer<?>> registeredConfigurations();
 
   /**
+   * Get the configuration container for the configuration with the given key, can be null if no such configuration was
+   * loaded yet.
+   *
+   * @param key the key of the configuration to get.
+   * @param <T> the type of the configuration model.
+   * @return the container of the configuration with the given key, null if no such config is loaded.
+   * @throws NullPointerException if the given key is null.
+   */
+  @Nullable
+  <T> ModuleConfigContainer<T> configContainer(@NonNull ModuleConfigKey key);
+
+  /**
    * Get the configuration container for the configuration represented by the given model, can be null if no such
    * configuration was loaded yet.
    *
@@ -49,5 +62,5 @@ public interface ModuleConfigurationRegistry {
    * @throws NullPointerException if the given configuration model is null.
    */
   @Nullable
-  <T> ModuleConfigContainer<T> configuration(@NonNull Class<T> configurationModel);
+  <T> ModuleConfigContainer<T> configContainer(@NonNull Class<T> configurationModel);
 }

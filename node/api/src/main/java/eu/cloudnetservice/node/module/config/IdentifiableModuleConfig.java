@@ -19,15 +19,17 @@ package eu.cloudnetservice.node.module.config;
 import lombok.NonNull;
 
 /**
+ * Marker interface for module configurations to implement to indicate that they are uniquely identifiable.
+ *
  * @since 4.0
  */
-@FunctionalInterface
 public interface IdentifiableModuleConfig {
 
   /**
+   * Get the unique identifier of this configuration.
    *
-   * @return
+   * @return the unique identifier of this configuration.
    */
   @NonNull
-  String configurationId();
+  String configId();
 }

@@ -26,7 +26,34 @@ import lombok.NonNull;
 import org.jetbrains.annotations.CheckReturnValue;
 
 /**
- * !!! LAZY
+ * A container for one or more module configurations. Configurations are loaded lazily into this container so that
+ * listeners and transformers can be registered to this container before the configuration documents are actually loaded
+ * or changed.
+ * <p>
+ * Configuration containers can be created in two ways: from a composite key (creates an
+ * {@link CompositeModuleConfigContainer}) or from a specific key (creates a {@link SingleModuleConfigContainer}). Both
+ * of these can be injected and/or downcast to the required type. If the code that requires a module config container is
+ * not using injection, the container can be obtained from the {@link ModuleConfigurationRegistry}.
+ * <p>
+ * Module configuration containers can be injected like this:
+ * {@snippet lang = "java":
+ * // injects a configuration container for a single configuration
+ * // this could also inject SingleModuleConfigContainer<T> instead, which would make the cast unnecessary
+ * public void someMethod(@ModuleConfiguration(key = "test") ModuleConfigContainer<YourConfig> container) {
+ *   var specificSingleContainer = (SingleModuleConfigContainer<YourConfig>) container;
+ *   // ... do something
+ * }
+ *
+ * // injects a composite configuration because the key ends with the composite suffix
+ * // the container contains all configurations that start with 'test_' in the selected storage
+ * // this method could also inject ModuleConfigContainer<T> instead and cast it to a CompositeModuleConfigContainer
+ * public void someMethod(@ModuleConfiguration(key = "test_*") CompositeModuleConfigContainer<YourConfig> container) {
+ *   // ... do something
+ * }
+ *}
+ *
+ * @param <T> the type of the configuration model.
+ * @since 4.0
  */
 public sealed interface ModuleConfigContainer<T> permits SingleModuleConfigContainer, CompositeModuleConfigContainer {
 
@@ -112,12 +139,33 @@ public sealed interface ModuleConfigContainer<T> permits SingleModuleConfigConta
   @NonNull
   DisposableResource registerTransformer(@NonNull UnaryOperator<Document.Mutable> transformer);
 
+  /**
+   * Registers a listener to this container that gets called when a configuration is loaded into this container.
+   *
+   * @param listener the listener to call when a configuration is loaded.
+   * @return a disposable resource to remove the listener from this container.
+   * @throws NullPointerException if the given listener is null.
+   */
   @NonNull
   DisposableResource registerLoadListener(@NonNull Consumer<T> listener);
 
+  /**
+   * Registers a listener to this container that gets called when a configuration is updated in this container.
+   *
+   * @param listener the listener to call when a configuration is updated.
+   * @return a disposable resource to remove the listener from this container.
+   * @throws NullPointerException if the given listener is null.
+   */
   @NonNull
   DisposableResource registerUpdateListener(@NonNull Consumer<T> listener);
 
+  /**
+   * Registers a listener to this container that gets called when a configuration is removed from this container.
+   *
+   * @param listener the listener to call when a configuration is removed.
+   * @return a disposable resource to remove the listener from this container.
+   * @throws NullPointerException if the given listener is null.
+   */
   @NonNull
   DisposableResource registerRemoveListener(@NonNull Consumer<T> listener);
 
