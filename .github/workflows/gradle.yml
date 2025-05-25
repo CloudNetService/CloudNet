@@ -77,7 +77,7 @@ jobs:
           fi
 
       - name: Publish snapshot to central portal
-        if: ${{ github.event_name == 'push' && env.STATUS != 'release' }}
+        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') }}
         run: ./gradlew publish
         env:
           CENTRAL_USER: "${{ secrets.CENTRAL_USER }}"
