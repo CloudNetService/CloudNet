@@ -27,7 +27,7 @@ jobs:
           cache-read-only: true
           add-job-summary: always
 
-      - name: Publish release to Sonatype
+      - name: Publish release to central portal
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
         env:
           CENTRAL_USER: "${{ secrets.CENTRAL_USER }}"
