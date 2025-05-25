@@ -179,11 +179,11 @@ tasks.register("globalJavaDoc", Javadoc::class) {
 nexusPublishing {
   repositories {
     sonatype {
-      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+      nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
 
-      username.set(System.getenv("SONATYPE_USER"))
-      password.set(System.getenv("SONATYPE_TOKEN"))
+      username.set(System.getenv("CENTRAL_USER"))
+      password.set(System.getenv("CENTRAL_PASSWORD"))
     }
   }
 
