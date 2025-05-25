@@ -76,12 +76,12 @@ jobs:
             echo "STATUS=release" >> $GITHUB_ENV
           fi
 
-      - name: Publish snapshot to Sonatype
+      - name: Publish snapshot to central portal
         if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') }}
         run: ./gradlew publish
         env:
-          SONATYPE_USER: "${{ secrets.SONATYPE_USER }}"
-          SONATYPE_TOKEN: "${{ secrets.SONATYPE_TOKEN }}"
+          CENTRAL_USER: "${{ secrets.CENTRAL_USER }}"
+          CENTRAL_PASSWORD: "${{ secrets.CENTRAL_PASSWORD }}"
 
       - name: Prepare artifacts zip
         run: |
