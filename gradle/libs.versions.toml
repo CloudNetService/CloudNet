@@ -75,7 +75,7 @@ npcLib = "3.0.0-beta12"
 packetEvents = "2.8.0"
 placeholderApi = "2.11.6"
 adventure-serializer-bungee = "4.3.4"
-luckPermsApi = "5.4"
+luckPermsApi = "5.5"
 
 # fabric platform special dependencies
 minecraft = "1.21.5"
