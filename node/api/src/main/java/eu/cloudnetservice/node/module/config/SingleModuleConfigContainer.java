@@ -33,16 +33,10 @@ public non-sealed interface SingleModuleConfigContainer<T> extends ModuleConfigC
    * the configuration cannot be accessed anymore from this container. If the configuration was already removed, the
    * call is silently ignored.
    *
+   * @param flush if the removal should be flushed to the underlying storage.
    * @throws UnsupportedOperationException if the storage does not support removals or this container is read-only.
    */
-  void remove();
-
-  /**
-   * Get if the configuration associated with this container was removed.
-   *
-   * @return true if the configuration was removed, false otherwise.
-   */
-  boolean removed();
+  void remove(boolean flush);
 
   /**
    * Updates the underlying configuration model from the given document. If the given configuration isn't known to this
@@ -55,17 +49,23 @@ public non-sealed interface SingleModuleConfigContainer<T> extends ModuleConfigC
    * @param flush    if the update should be flushed to the underlying storage.
    * @throws NullPointerException          if the given document is null.
    * @throws IllegalArgumentException      if the given config document is invalid.
-   * @throws IllegalStateException         if the configuration associated with this container was removed.
    * @throws UnsupportedOperationException if the storage does not support storing or this container is read-only.
    */
   void updateFromDocument(@NonNull Document document, boolean flush);
+
+  /**
+   * Get if this container is currently empty (does not contain a configuration).
+   *
+   * @return true if this container is empty, false otherwise.
+   */
+  boolean empty();
 
   /**
    * Get the configuration instance wrapped in this container. Note that this method loads the configuration if the
    * configuration wasn't loaded before.
    *
    * @return the configuration instance wrapped in this container.
-   * @throws IllegalStateException if the configuration associated with this container was removed.
+   * @throws IllegalStateException if this configuration container is empty.
    */
   @NonNull
   T config();

@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.module.config;
 
 import eu.cloudnetservice.driver.module.ModuleConfigKey;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.UnmodifiableView;
  *
  * @since 4.0
  */
-public interface ModuleConfigurationRegistry {
+public interface ModuleConfigRegistry {
 
   /**
    * Get an unmodifiable view of the configurations that were loaded for the module.
@@ -62,5 +63,17 @@ public interface ModuleConfigurationRegistry {
    * @throws NullPointerException if the given configuration model is null.
    */
   @Nullable
-  <T> ModuleConfigContainer<T> configContainer(@NonNull Class<T> configurationModel);
+  <T> ModuleConfigContainer<T> configContainer(@NonNull Type configurationModel);
+
+  /**
+   * Gets or constructs a configuration container for the given config properties. An existing configuration container
+   * is resolved based on the config key provided by the given properties.
+   *
+   * @param properties the properties to use for resolving/creating the configuration container.
+   * @param <T>        the type of the configuration model.
+   * @return an existing or newly constructed config container based on the given properties.
+   * @throws NullPointerException if the given config properties instance is null.
+   */
+  @NonNull
+  <T> ModuleConfigContainer<T> configContainer(@NonNull ModuleConfigProperties<T> properties);
 }
