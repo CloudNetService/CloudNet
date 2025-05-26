@@ -23,6 +23,7 @@ import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import lombok.NonNull;
 
@@ -37,6 +38,7 @@ public record DocumentWrapperConfiguration(
     System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
   @Factory
+  @Singleton
   public static @NonNull WrapperConfiguration load() {
     return DocumentFactory.json().parse(WRAPPER_CONFIG_PATH).toInstanceOf(DocumentWrapperConfiguration.class);
   }
