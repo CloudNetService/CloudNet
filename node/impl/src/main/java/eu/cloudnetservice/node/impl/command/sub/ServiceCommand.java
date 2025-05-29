@@ -148,12 +148,12 @@ public final class ServiceCommand {
     return service.provider().consoleSuggestion(command).stream();
   }
 
-  @Parser(name = "serviceCommand", suggestions = "serviceCommands")
+  /* @Parser(name = "serviceCommand", suggestions = "serviceCommands")
   public @NonNull String suggestCommandParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
     var command = input.remainingInput();
     input.cursor(input.length());
     return command;
-  }
+  } */
 
   @Command("service|ser list|l")
   public void displayServices(
@@ -329,7 +329,7 @@ public final class ServiceCommand {
   public void sendCommand(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @NonNull @Argument(value = "command", parserName = "serviceCommand") @Greedy String line
+    @NonNull @Argument(value = "command", suggestions = "serviceCommands") @Greedy String line
   ) {
     for (var matchedService : matchedServices) {
       matchedService.provider().runCommand(line);

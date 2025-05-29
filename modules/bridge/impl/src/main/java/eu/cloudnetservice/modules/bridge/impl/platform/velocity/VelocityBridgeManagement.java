@@ -18,14 +18,12 @@ package eu.cloudnetservice.modules.bridge.impl.platform.velocity;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
-import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
@@ -49,7 +47,6 @@ import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
@@ -152,21 +149,15 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   @Override
   @SuppressWarnings("unchecked")
   public @NonNull List<String> consoleSuggestion(@NonNull String line) {
-    CommandManager commandManager = this.proxyServer.getCommandManager();
-    CommandSource consoleSource = this.proxyServer.getConsoleCommandSource();
+    var commandManager = this.proxyServer.getCommandManager();
+    var consoleSource = this.proxyServer.getConsoleCommandSource();
 
-    Optional<MethodAccessor<Method>> methodAccessorOpt = Reflexion.onBound(commandManager)
-      .findMethod("offerSuggestions", CommandSource.class, String.class);
-    MethodAccessor<Method> offerSuggestionsMethod = methodAccessorOpt.get();
+    CompletableFuture<List<String>> offerSuggestions = Reflexion.onBound(commandManager)
+      .findMethod("offerSuggestions", CommandSource.class, String.class)
+      .map((acc) -> (CompletableFuture<List<String>>) acc.invokeWithArgs(consoleSource, line).get())
+      .orElse(CompletableFuture.completedFuture(List.of()));
 
-    Optional<Object> resultOpt = offerSuggestionsMethod.invoke(consoleSource, line).asOptional();
-
-    if (resultOpt.isPresent()) {
-      if (resultOpt.get() instanceof CompletableFuture future) {
-        return (List<String>) future.join();
-      }
-    }
-    return super.consoleSuggestion(line);
+    return offerSuggestions.join();
   }
 
   @Override
