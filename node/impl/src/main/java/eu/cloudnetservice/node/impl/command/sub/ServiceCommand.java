@@ -148,13 +148,6 @@ public final class ServiceCommand {
     return service.provider().consoleSuggestion(command).stream();
   }
 
-  /* @Parser(name = "serviceCommand", suggestions = "serviceCommands")
-  public @NonNull String suggestCommandParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
-    var command = input.remainingInput();
-    input.cursor(input.length());
-    return command;
-  } */
-
   @Command("service|ser list|l")
   public void displayServices(
     @NonNull CommandSource source,
