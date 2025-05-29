@@ -64,8 +64,8 @@ To add the CloudNet dependency using maven (replace `%version%` with the latest 
 
 ## Snapshots
 
-Snapshots for CloudNet are build off the `nightly` branch and are available from the sonatype snapshot repository:
-`https://s01.oss.sonatype.org/content/repositories/snapshots/`. You can declare a dependency on CloudNet as shown above
+Snapshots for CloudNet are build off the `nightly` branch and are available from the central portal snapshot repository:
+`https://central.sonatype.com/repository/maven-snapshots/`. You can declare a dependency on CloudNet as shown above
 just append the `-SNAPSHOT` suffix to the version.
 
 ## Links

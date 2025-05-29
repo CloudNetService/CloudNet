@@ -217,7 +217,8 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
   @Override
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     // language
-    this.configuration.language(animation.result("language"));
+    Locale selectedLanguage = animation.result("language");
+    this.configuration.language(selectedLanguage.toLanguageTag());
 
     // init the local node identity
     HostAndPort host = animation.result("internalHost");
