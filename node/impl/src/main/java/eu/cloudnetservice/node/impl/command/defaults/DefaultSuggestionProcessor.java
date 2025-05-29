@@ -54,8 +54,11 @@ final class DefaultSuggestionProcessor implements SuggestionProcessor<CommandSou
     @NonNull CommandPreprocessingContext<CommandSource> context,
     @NonNull Stream<Suggestion> allSuggestions
   ) {
+    var commandInput = context.commandInput();
+    // fix the suggestion of greedy
+    commandInput.cursor(commandInput.input().length());
     // íf there is no input yet, just return all suggestions
-    var input = context.commandInput().peekString();
+    var input = commandInput.peekString();
     if (Strings.isNullOrEmpty(input)) {
       return allSuggestions;
     }

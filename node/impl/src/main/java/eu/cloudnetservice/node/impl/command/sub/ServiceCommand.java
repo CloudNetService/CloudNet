@@ -60,6 +60,7 @@ import org.incendo.cloud.annotations.Flag;
 import org.incendo.cloud.annotations.Permission;
 import org.incendo.cloud.annotations.parser.Parser;
 import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.context.CommandInput;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -125,6 +126,33 @@ public final class ServiceCommand {
     }
 
     return matchedServices;
+  }
+
+  @Suggestions("serviceCommands")
+  public @NonNull Stream<String> suggestCommands(@NonNull CommandContext<?> context, @NonNull String input) {
+    Collection<ServiceInfoSnapshot> services = context.get("name");
+    var service = services.stream().findFirst().orElseThrow();
+
+    var fullyInput = context.rawInput().input();
+    var rawInput = fullyInput.substring(fullyInput.indexOf(service.name()) + service.name().length() + 1);
+    String command;
+    if (rawInput.contains(" ")) {
+      command = rawInput.substring(rawInput.indexOf(' '));
+      if (command.startsWith(" ")) {
+        command = command.substring(1);
+      }
+    } else {
+      command = "";
+    }
+
+    return service.provider().consoleSuggestion(command).stream();
+  }
+
+  @Parser(name = "serviceCommand", suggestions = "serviceCommands")
+  public @NonNull String suggestCommandParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
+    var command = input.remainingInput();
+    input.cursor(input.length());
+    return command;
   }
 
   @Command("service|ser list|l")
@@ -301,10 +329,10 @@ public final class ServiceCommand {
   public void sendCommand(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @NonNull @Greedy @Argument("command") String command
+    @NonNull @Argument(value = "command", parserName = "serviceCommand") @Greedy String line
   ) {
     for (var matchedService : matchedServices) {
-      matchedService.provider().runCommand(command);
+      matchedService.provider().runCommand(line);
     }
   }
 

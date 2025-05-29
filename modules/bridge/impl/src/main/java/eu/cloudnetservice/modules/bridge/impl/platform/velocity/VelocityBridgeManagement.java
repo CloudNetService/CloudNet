@@ -18,11 +18,15 @@ package eu.cloudnetservice.modules.bridge.impl.platform.velocity;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
+import com.velocitypowered.api.command.CommandManager;
+import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
+import dev.derklaro.reflexion.MethodAccessor;
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
@@ -45,10 +49,13 @@ import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -140,6 +147,26 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
       player.getCurrentServer().map(connection -> connection.getServerInfo().getName()).orElse(null),
       player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
       player::hasPermission);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public @NonNull List<String> consoleSuggestion(@NonNull String line) {
+    CommandManager commandManager = this.proxyServer.getCommandManager();
+    CommandSource consoleSource = this.proxyServer.getConsoleCommandSource();
+
+    Optional<MethodAccessor<Method>> methodAccessorOpt = Reflexion.onBound(commandManager)
+      .findMethod("offerSuggestions", CommandSource.class, String.class);
+    MethodAccessor<Method> offerSuggestionsMethod = methodAccessorOpt.get();
+
+    Optional<Object> resultOpt = offerSuggestionsMethod.invoke(consoleSource, line).asOptional();
+
+    if (resultOpt.isPresent()) {
+      if (resultOpt.get() instanceof CompletableFuture future) {
+        return (List<String>) future.join();
+      }
+    }
+    return super.consoleSuggestion(line);
   }
 
   @Override
