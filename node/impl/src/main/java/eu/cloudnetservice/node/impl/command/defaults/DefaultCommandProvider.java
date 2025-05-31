@@ -29,6 +29,7 @@ import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.annotation.Documentation;
+import eu.cloudnetservice.node.command.annotation.SkipConfirmation;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.impl.command.exception.CommandExceptionHandler;
 import eu.cloudnetservice.node.impl.command.sub.ClearCommand;
@@ -70,6 +71,7 @@ import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.annotations.AnnotationParser;
 import org.incendo.cloud.key.CloudKey;
 import org.incendo.cloud.meta.CommandMeta;
+import org.incendo.cloud.parser.flag.CommandFlag;
 import org.incendo.cloud.processors.cache.CaffeineCache;
 import org.incendo.cloud.processors.confirmation.ConfirmationConfiguration;
 import org.incendo.cloud.processors.confirmation.ConfirmationManager;
@@ -88,6 +90,7 @@ public final class DefaultCommandProvider implements CommandProvider {
   });
   private static final CloudKey<String> DESCRIPTION_KEY = CloudKey.of("cloudnet:description", String.class);
   private static final CloudKey<String> DOCUMENTATION_KEY = CloudKey.of("cloudnet:documentation", String.class);
+  private static final CloudKey<String> SKIP_CONFIRMATION_KEY = CloudKey.of("cloudnet:skip-confirmation", String.class);
 
   private final I18n i18n;
   private final CommandExceptionHandler exceptionHandler;
@@ -139,6 +142,15 @@ public final class DefaultCommandProvider implements CommandProvider {
       }
       return builder;
     });
+
+    this.annotationParser.registerBuilderModifier(
+      SkipConfirmation.class,
+      (skipConfirmation, builder) -> {
+        var flag = CommandFlag
+          .builder(skipConfirmation.value())
+          .build();
+        return builder.meta(SKIP_CONFIRMATION_KEY, skipConfirmation.value()).flag(flag);
+      });
 
     // register pre- and post-processor to call our events
     this.commandManager.suggestionProcessor(suggestionProcessor);
@@ -322,6 +334,11 @@ public final class DefaultCommandProvider implements CommandProvider {
       .noPendingCommandNotifier(sender -> sender.sendMessage(this.i18n.translate("command-confirmation-no-requests")))
       .confirmationRequiredNotifier(
         (sender, _) -> sender.sendMessage(this.i18n.translate("command-confirmation-required")))
+      .bypassConfirmation(ctx -> {
+        var commandMeta = ctx.command().commandMeta();
+        var skipConfirmationFlag = commandMeta.optional(SKIP_CONFIRMATION_KEY).orElse(null);
+        return skipConfirmationFlag != null && ctx.flags().hasFlag(skipConfirmationFlag);
+      })
       .build();
     var confirmationManager = ConfirmationManager.confirmationManager(configuration);
     this.commandManager.registerCommandPostProcessor(confirmationManager.createPostprocessor());
