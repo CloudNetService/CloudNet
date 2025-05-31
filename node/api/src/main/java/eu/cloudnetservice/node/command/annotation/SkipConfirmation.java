@@ -29,6 +29,7 @@ import lombok.NonNull;
  * applied to a method implicitly a flag is appended to the command which can be used to skip the confirmation.
  * <p>
  * The annotations value is used as the flag name, which defaults to "skip".
+ *
  * @see org.incendo.cloud.processors.confirmation.annotation.Confirmation
  */
 @Documented
