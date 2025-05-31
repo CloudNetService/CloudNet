@@ -41,7 +41,7 @@ public @interface SkipConfirmation {
    * The value of this annotation is used as the flag name to skip the confirmation. Should not include the leading
    * dashes.
    * <p>
-   * Defaults to "skip", allowing users to skip the confirmation by appending "--skip".s
+   * Defaults to "skip", allowing users to skip the confirmation by appending "--skip".
    *
    * @return the flag name that allows skipping.
    */
