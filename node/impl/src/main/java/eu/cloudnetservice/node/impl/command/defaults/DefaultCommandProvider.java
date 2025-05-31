@@ -29,7 +29,7 @@ import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.annotation.Documentation;
-import eu.cloudnetservice.node.command.annotation.SkipConfirmation;
+import eu.cloudnetservice.node.command.annotation.EnableConfirmSkipFlag;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.impl.command.exception.CommandExceptionHandler;
 import eu.cloudnetservice.node.impl.command.sub.ClearCommand;
@@ -78,6 +78,8 @@ import org.incendo.cloud.processors.confirmation.ConfirmationManager;
 import org.incendo.cloud.processors.confirmation.annotation.ConfirmationBuilderModifier;
 import org.incendo.cloud.suggestion.Suggestion;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@inheritDoc}
@@ -85,6 +87,8 @@ import org.jetbrains.annotations.Nullable;
 @Singleton
 @Provides(CommandProvider.class)
 public final class DefaultCommandProvider implements CommandProvider {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCommandProvider.class);
 
   private static final CloudKey<Set<String>> ALIAS_KEY = CloudKey.of("cloudnet:alias", new TypeToken<Set<String>>() {
   });
@@ -144,12 +148,18 @@ public final class DefaultCommandProvider implements CommandProvider {
     });
 
     this.annotationParser.registerBuilderModifier(
-      SkipConfirmation.class,
-      (skipConfirmation, builder) -> {
-        var flag = CommandFlag
-          .builder(skipConfirmation.value())
-          .build();
-        return builder.meta(SKIP_CONFIRMATION_KEY, skipConfirmation.value()).flag(flag);
+      EnableConfirmSkipFlag.class,
+      (enableConfirmSkipFlag, builder) -> {
+        var requiresConfirmation = builder.meta().getOrDefault(ConfirmationManager.META_CONFIRMATION_REQUIRED, false);
+        if (!requiresConfirmation) {
+          LOGGER.warn(
+            "Command {} is annotated with @EnableConfirmSkipFlag, but does not require confirmation",
+            builder.build());
+          return builder;
+        }
+
+        var flag = CommandFlag.builder(enableConfirmSkipFlag.value()).build();
+        return builder.meta(SKIP_CONFIRMATION_KEY, enableConfirmSkipFlag.value()).flag(flag);
       });
 
     // register pre- and post-processor to call our events
@@ -335,8 +345,8 @@ public final class DefaultCommandProvider implements CommandProvider {
       .confirmationRequiredNotifier(
         (sender, _) -> sender.sendMessage(this.i18n.translate("command-confirmation-required")))
       .bypassConfirmation(ctx -> {
-        var commandMeta = ctx.command().commandMeta();
-        var skipConfirmationFlag = commandMeta.optional(SKIP_CONFIRMATION_KEY).orElse(null);
+        var meta = ctx.command().commandMeta();
+        var skipConfirmationFlag = meta.getOrDefault(SKIP_CONFIRMATION_KEY, null);
         return skipConfirmationFlag != null && ctx.flags().hasFlag(skipConfirmationFlag);
       })
       .build();
