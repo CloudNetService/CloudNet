@@ -16,16 +16,33 @@
 
 package eu.cloudnetservice.node.command.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import lombok.NonNull;
 
+/**
+ * This annotation allows users to skip the required confirmation
+ * {@link org.incendo.cloud.processors.confirmation.annotation.Confirmation} of a command. When this annotation is
+ * applied to a method implicitly a flag is appended to the command which can be used to skip the confirmation.
+ * <p>
+ * The annotations value is used as the flag name, which defaults to "skip".
+ * @see org.incendo.cloud.processors.confirmation.annotation.Confirmation
+ */
+@Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SkipConfirmation {
 
+  /**
+   * The value of this annotation is used as the flag name to skip the confirmation. Should not include the leading
+   * dashes.
+   * <p>
+   * Defaults to "skip", allowing users to skip the confirmation by appending "--skip".s
+   *
+   * @return the flag name that allows skipping.
+   */
   @NonNull String value() default "skip";
-
 }
