@@ -152,9 +152,9 @@ public final class DefaultCommandProvider implements CommandProvider {
       (enableConfirmSkipFlag, builder) -> {
         var requiresConfirmation = builder.meta().getOrDefault(ConfirmationManager.META_CONFIRMATION_REQUIRED, false);
         if (!requiresConfirmation) {
-          LOGGER.warn(
-            "Command {} is annotated with @EnableConfirmSkipFlag, but does not require confirmation",
-            builder.build());
+          var components = builder.build().components();
+          var syntax = this.commandManager.commandSyntaxFormatter().apply(null, components, null);
+          LOGGER.warn("Command {} is annotated with @EnableConfirmSkipFlag, but does not require confirmation", syntax);
           return builder;
         }
 
