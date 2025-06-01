@@ -13,9 +13,9 @@ gson = "2.13.1"
 guava = "33.4.0-jre"
 
 # testing
-junit = "5.12.1"
+junit = "5.13.0"
 mockito = "5.18.0"
-junitLauncher = "1.12.1"
+junitLauncher = "1.13.0"
 testcontainers = "1.21.0"
 
 # compile time processing
