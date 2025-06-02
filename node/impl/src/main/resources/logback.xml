@@ -22,10 +22,6 @@
   <import class="eu.cloudnetservice.node.impl.console.log.ConsoleLogAppender"/>
   <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
 
-  <!-- variables used in the logback configuration. Can be set using system properties. -->
-  <variable name="cloudnet.log.path" value="local/logs"/>
-  <variable name="cloudnet.log.level" value="DEBUG"/>
-
   <conversionRule conversionWord="levelColor"
     class="eu.cloudnetservice.node.impl.console.log.ConsoleLevelConversion"/>
   <property name="CONSOLE_PATTERN"
@@ -47,9 +43,9 @@
     </encoder>
   </appender>
   <appender name="Rolling" class="RollingFileAppender">
-    <file>${cloudnet.log.path}/latest.log</file>
+    <file>${cloudnet.log.path:-local/logs}/latest.log</file>
     <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>${cloudnet.log.path}/cloudnet-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <fileNamePattern>${cloudnet.log.path:-local/logs}/cloudnet-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
       <maxFileSize>15MB</maxFileSize>
       <maxHistory>5</maxHistory>
       <totalSizeCap>5GB</totalSizeCap>
@@ -59,7 +55,7 @@
     </encoder>
   </appender>
 
-  <root level="${cloudnet.log.level}">
+  <root level="${cloudnet.log.level:-DEBUG}">
     <appender-ref ref="ConsoleLogAppender"/>
     <appender-ref ref="Rolling"/>
     <appender-ref ref="QueuedConsoleLogAppender"/>
