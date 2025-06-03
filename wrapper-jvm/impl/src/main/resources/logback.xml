@@ -22,11 +22,15 @@
   <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
   <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
 
+  <!-- variables used in the logback configuration. Can be set using system properties. -->
+  <variable name="cloudnet.wrapper.log.path" value="${cloudnet.wrapper.log.path:-.wrapper/logs}"/>
+  <variable name="cloudnet.wrapper.log.level" value="${cloudnet.wrapper.log.level:-DEBUG}"/>
+
   <property name="LOG_PATTERN" value="[%d{dd.MM HH:mm:ss.SSS}] %-5level: %msg%n"/>
   <appender name="Rolling" class="RollingFileAppender">
-    <file>${cloudnet.wrapper.log.path:-.wrapper/logs}/latest.log</file>
+    <file>${cloudnet.wrapper.log.path}/latest.log</file>
     <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>${cloudnet.wrapper.log.path:-.wrapper/logs}/cloudnet-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <fileNamePattern>${cloudnet.wrapper.log.path}/cloudnet-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
       <maxFileSize>15MB</maxFileSize>
       <maxHistory>3</maxHistory>
       <totalSizeCap>50MB</totalSizeCap>
@@ -56,7 +60,7 @@
     <target>System.err</target>
   </appender>
 
-  <root level="${cloudnet.wrapper.log.level:-DEBUG}">
+  <root level="${cloudnet.wrapper.log.level}">
     <appender-ref ref="Rolling"/>
     <appender-ref ref="STDOUT"/>
     <appender-ref ref="STDERR"/>
