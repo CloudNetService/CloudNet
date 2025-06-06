@@ -78,8 +78,6 @@ import org.incendo.cloud.processors.confirmation.ConfirmationManager;
 import org.incendo.cloud.processors.confirmation.annotation.ConfirmationBuilderModifier;
 import org.incendo.cloud.suggestion.Suggestion;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * {@inheritDoc}
@@ -87,8 +85,6 @@ import org.slf4j.LoggerFactory;
 @Singleton
 @Provides(CommandProvider.class)
 public final class DefaultCommandProvider implements CommandProvider {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCommandProvider.class);
 
   private static final CloudKey<Set<String>> ALIAS_KEY = CloudKey.of("cloudnet:alias", new TypeToken<Set<String>>() {
   });
