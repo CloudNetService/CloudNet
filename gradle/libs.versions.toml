@@ -3,27 +3,27 @@
 # plugins
 shadow = "8.3.6"
 juppiter = "0.4.0"
-spotless = "7.0.2"
+spotless = "7.0.4"
 fabricLoom = "1.10.5"
 nexusPublish = "2.0.0"
 checkstyleTools = "10.23.0"
 
 # google libs
 gson = "2.13.1"
-guava = "33.4.0-jre"
+guava = "33.4.8-jre"
 
 # testing
 junit = "5.13.0"
 mockito = "5.18.0"
 junitLauncher = "1.13.0"
-testcontainers = "1.21.0"
+testcontainers = "1.21.1"
 
 # compile time processing
 lombok = "1.18.38"
 javapoet = "1.13.0"
 
 # console
-jline = "3.30.0"
+jline = "3.30.4"
 cloud = "2.0.0-cn1"
 cloudApi = "2.0.0"
 cloudConfirmation = "1.0.0-rc.1"
@@ -37,25 +37,25 @@ hikariCp = "6.3.0"
 mysqlConnector = "9.2.0"
 
 # general
-oshi = "6.8.0"
+oshi = "6.8.2"
 vavr = "0.10.6"
 sshj = "0.40.0"
 aerogel = "3.0.0"
-awsSdk = "2.31.11"
-unirest = "4.4.5"
+awsSdk = "2.31.57"
+unirest = "4.4.7"
 caffeine = "3.2.0"
 reflexion = "2.0.0"
 geantyref = "2.0.1"
-dockerJava = "3.5.0"
-nightConfig = "3.8.1"
+dockerJava = "3.5.1"
+nightConfig = "3.8.2"
 annotations = "26.0.2"
 influxClient = "7.3.0"
 netty = "5.0.0.Alpha6-SNAPSHOT"
 gulf = "1.0.0-SNAPSHOT"
 
 # logging
-slf4j = "2.0.16"
-logback = "1.5.16"
+slf4j = "2.0.17"
+logback = "1.5.18"
 
 # platform api versions
 sponge = "9.0.0"
@@ -65,7 +65,7 @@ nukkitX = "1.0-SNAPSHOT"
 minestom = "a1d1920a04"
 minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
-bungeecord = "1.21-R0.1-SNAPSHOT"
+bungeecord = "1.21-R0.3-SNAPSHOT"
 limboloohp = "0.7.9-ALPHA"
 
 # platform extensions
@@ -79,7 +79,7 @@ luckPermsApi = "5.5"
 
 # fabric platform special dependencies
 minecraft = "1.21.5"
-fabricLoader = "0.16.10"
+fabricLoader = "0.16.14"
 
 
 [libraries]
