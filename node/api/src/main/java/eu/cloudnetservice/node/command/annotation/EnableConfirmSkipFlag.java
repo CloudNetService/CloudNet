@@ -28,7 +28,7 @@ import lombok.NonNull;
  * {@link org.incendo.cloud.processors.confirmation.annotation.Confirmation} of a command. When this annotation is
  * applied to a method a flag is implicitly appended to the command which can be used to skip the confirmation.
  * <p>
- * The annotations value is used as the flag name, which defaults to "confirm".
+ * The annotations value is used as the flag name, which defaults to {@code confirm}.
  *
  * @see org.incendo.cloud.processors.confirmation.annotation.Confirmation
  * @since 4.0
@@ -42,7 +42,7 @@ public @interface EnableConfirmSkipFlag {
    * The value of this annotation is used as the flag name to skip the confirmation. Should not include the leading
    * dashes.
    * <p>
-   * Defaults to "skip", allowing users to skip the confirmation by appending "--confirm".
+   * Defaults to {@code confirm}, allowing users to skip the confirmation by appending {@code --confirm}.
    *
    * @return the flag name that allows skipping.
    */
