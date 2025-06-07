@@ -13,9 +13,9 @@ gson = "2.13.1"
 guava = "33.4.8-jre"
 
 # testing
-junit = "5.13.0"
+junit = "5.13.1"
 mockito = "5.18.0"
-junitLauncher = "1.13.0"
+junitLauncher = "1.13.1"
 testcontainers = "1.21.1"
 
 # compile time processing
@@ -32,7 +32,7 @@ stringSimilarity = "2.0.0"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "5.5.0"
+mongodb = "5.5.1"
 hikariCp = "6.3.0"
 mysqlConnector = "9.2.0"
 
@@ -41,7 +41,7 @@ oshi = "6.8.2"
 vavr = "0.10.6"
 sshj = "0.40.0"
 aerogel = "3.0.0"
-awsSdk = "2.31.57"
+awsSdk = "2.31.59"
 unirest = "4.4.7"
 caffeine = "3.2.0"
 reflexion = "2.0.0"
