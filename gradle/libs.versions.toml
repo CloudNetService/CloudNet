@@ -206,6 +206,7 @@ checkstyleTools = { group = "com.puppycrawl.tools", name = "checkstyle", version
 [bundles]
 
 aerogel = ["aerogel", "aerogelScopedValues", "aerogelAuto"]
+aerogelApi = ["aerogel", "aerogelAuto"]
 npcLib = ["npcLib", "npcLibLabymod"]
 unirest = ["unirest", "unirestGson"]
 mysql = ["mysqlConnector", "hikariCp"]
