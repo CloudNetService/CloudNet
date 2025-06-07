@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper.impl.transform.bukkit;
 
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeTransform;
 import java.lang.constant.ClassDesc;
@@ -55,7 +56,7 @@ public final class FAWEReflectionUtilsTransformer implements ClassTransformer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ClassTransform provideClassTransform() {
+  public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
     CodeTransform codeTransform = (builder, _) -> {
       // field.setAccessible(true);
       builder.aload(0).iconst_1();

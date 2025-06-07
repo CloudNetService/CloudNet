@@ -23,8 +23,8 @@
   <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
 
   <!-- variables used in the logback configuration. Can be set using system properties. -->
-  <variable name="cloudnet.log.path" value="local/logs"/>
-  <variable name="cloudnet.log.level" value="DEBUG"/>
+  <variable name="cloudnet.log.path" value="${cloudnet.log.path:-local/logs}"/>
+  <variable name="cloudnet.log.level" value="${cloudnet.log.level:-DEBUG}"/>
 
   <conversionRule conversionWord="levelColor"
     class="eu.cloudnetservice.node.impl.console.log.ConsoleLevelConversion"/>

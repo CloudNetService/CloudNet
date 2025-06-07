@@ -16,15 +16,20 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.bukkit;
 
+import eu.cloudnetservice.wrapper.impl.transform.util.SourceProvidingMethodTransform;
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.CodeElement;
-import java.lang.classfile.CodeModel;
 import java.lang.classfile.CodeTransform;
+import java.lang.classfile.MethodModel;
+import java.lang.classfile.MethodTransform;
 import java.lang.reflect.AccessFlag;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -52,16 +57,17 @@ public final class BukkitCommodoreTransformer implements ClassTransformer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ClassTransform provideClassTransform() {
-    var codeTransform = CodeTransform.ofStateful(ConvertMethodTryCatchWrapperCodeTransform::new);
-    return ClassTransform.transformingMethodBodies(
-      mm -> {
-        // the method descriptor itself changed, but it always takes the raw class byte array as the first argument
-        var descriptorString = mm.methodType().stringValue();
-        return descriptorString.startsWith("([B") && mm.methodName().equalsString(MN_CONVERT);
-      },
-      codeTransform
-    );
+  public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
+    Predicate<MethodModel> methodFilter = methodModel -> {
+      // the method descriptor itself changed, but it always takes the raw class byte array as the first argument
+      var descriptorString = methodModel.methodType().stringValue();
+      return descriptorString.startsWith("([B") && methodModel.methodName().equalsString(MN_CONVERT);
+    };
+    Function<MethodModel, MethodTransform> transformFactory = methodModel -> {
+      var codeTransform = new ConvertMethodTryCatchWrapperCodeTransform(methodModel);
+      return MethodTransform.transformingCode(codeTransform);
+    };
+    return new SourceProvidingMethodTransform(methodFilter, transformFactory);
   }
 
   /**
@@ -81,7 +87,17 @@ public final class BukkitCommodoreTransformer implements ClassTransformer {
    */
   private static final class ConvertMethodTryCatchWrapperCodeTransform implements CodeTransform {
 
+    private final MethodModel originalMethodModel;
     private final Deque<CodeElement> methodElements = new ArrayDeque<>();
+
+    /**
+     * Constructs a try catch wrapper code transform instance.
+     *
+     * @param originalMethodModel the original method model that is being transformed.
+     */
+    public ConvertMethodTryCatchWrapperCodeTransform(@NonNull MethodModel originalMethodModel) {
+      this.originalMethodModel = originalMethodModel;
+    }
 
     /**
      * {@inheritDoc}
@@ -100,10 +116,7 @@ public final class BukkitCommodoreTransformer implements ClassTransformer {
       // if the method is non-static we need to load a different slot to get the raw bytecode
       // argument that was supplied to the method
       // see https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/commits/0a7bd6c81a33cfaaa2f4d2456c6b237792f38fe6
-      var methodModel = builder.original()
-        .flatMap(CodeModel::parent)
-        .orElseThrow(() -> new IllegalStateException("original method not preset on remap"));
-      var transformMethodIsStatic = methodModel.flags().has(AccessFlag.STATIC);
+      var transformMethodIsStatic = this.originalMethodModel.flags().has(AccessFlag.STATIC);
 
       // inserts a try block using the captured instructions that are in the original method
       // inserts a no-op catch block & a return instruction after the catch block to return the raw input data

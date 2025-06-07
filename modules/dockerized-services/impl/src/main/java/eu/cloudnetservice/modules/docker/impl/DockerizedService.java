@@ -238,6 +238,7 @@ public class DockerizedService extends JVMService {
         .withVolumes(volumes)
         .withEntrypoint(arguments)
         .withStopSignal("SIGTERM")
+        .withPlatform(image.platform())
         .withExposedPorts(exposedPorts)
         .withName(this.serviceId().name() + "_" + this.serviceId().uniqueId())
         .withWorkingDir(this.serviceDirectory.toAbsolutePath().toString())
@@ -378,19 +379,11 @@ public class DockerizedService extends JVMService {
   }
 
   protected @NonNull PullImageCmd buildPullCommand(@NonNull DockerImage image) {
-    var cmd = this.dockerClient.pullImageCmd(image.repository());
-    // append the tag if given
-    if (image.tag() != null) {
-      cmd.withTag(image.tag());
-    }
-    // append the registry if given
-    if (image.registry() != null) {
-      cmd.withRegistry(image.registry());
-    }
-    // append the platform if given
+    var cmd = this.dockerClient.pullImageCmd(image.imageName());
     if (image.platform() != null) {
-      cmd.withPlatform(image.platform());
+      cmd = cmd.withPlatform(image.platform());
     }
+
     return cmd;
   }
 

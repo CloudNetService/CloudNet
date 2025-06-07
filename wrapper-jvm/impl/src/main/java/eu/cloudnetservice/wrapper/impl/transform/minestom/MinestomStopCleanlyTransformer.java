@@ -16,11 +16,15 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.minestom;
 
+import eu.cloudnetservice.wrapper.impl.transform.util.SourceProvidingMethodTransform;
 import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.CodeElement;
 import java.lang.classfile.CodeTransform;
+import java.lang.classfile.MethodModel;
+import java.lang.classfile.MethodTransform;
 import java.lang.classfile.instruction.ReturnInstruction;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.ConstantDescs;
@@ -59,11 +63,13 @@ public final class MinestomStopCleanlyTransformer implements ClassTransformer {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ClassTransform provideClassTransform() {
-    var codeTransform = CodeTransform.ofStateful(ServerProcessImplStopCodeTransform::new);
-    return ClassTransform.transformingMethodBodies(
-      mm -> mm.methodName().equalsString(MN_SERVER_PROCESS_STOP),
-      codeTransform);
+  public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
+    return new SourceProvidingMethodTransform(
+      methodModel -> methodModel.methodName().equalsString(MN_SERVER_PROCESS_STOP),
+      methodModel -> {
+        var codeTransform = new ServerProcessImplStopCodeTransform(methodModel);
+        return MethodTransform.transformingCode(codeTransform);
+      });
   }
 
   /**
@@ -82,10 +88,21 @@ public final class MinestomStopCleanlyTransformer implements ClassTransformer {
    */
   private static final class ServerProcessImplStopCodeTransform implements CodeTransform {
 
+    private final MethodModel originalMethodModel;
+
     // Holds the resolved last return instruction in the method which will be
     // resolved once before the method transformation actually begins. This
     // instruction should never be null as each method must have a return instruction
     private CodeElement lastReturnElement;
+
+    /**
+     * Constructs a server process impl stop code transform.
+     *
+     * @param originalMethodModel the original method model that is being transformed.
+     */
+    public ServerProcessImplStopCodeTransform(@NonNull MethodModel originalMethodModel) {
+      this.originalMethodModel = originalMethodModel;
+    }
 
     /**
      * {@inheritDoc}
@@ -93,8 +110,8 @@ public final class MinestomStopCleanlyTransformer implements ClassTransformer {
     @Override
     public void atStart(@NonNull CodeBuilder builder) {
       // Resolves the "original" code of the method, which must always be present as we're transforming
-      // (clearly stated in the javadoc). Therefore, the thrown exception should never occur.
-      var codeModel = builder.original().orElseThrow(() -> new IllegalStateException("original method code unknown"));
+      var codeModel = this.originalMethodModel.code()
+        .orElseThrow(() -> new IllegalStateException("original method code unknown"));
 
       // find & assign the last return instructions of the method
       // by iterating through a reversed view of the element list

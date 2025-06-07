@@ -34,15 +34,15 @@ allprojects {
     releasesOnly(mavenCentral())
 
     // old and new sonatype snapshot repository
-    snapshotsOnly(maven("https://oss.sonatype.org/content/repositories/snapshots/"))
+    snapshotsOnly(maven("https://central.sonatype.com/repository/maven-snapshots/"))
     snapshotsOnly(maven("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-
-    // must be after sonatype as sponge mirrors sonatype which leads to outdated dependencies
-    maven("https://repo.spongepowered.org/maven/")
 
     // ensure that we use these repositories for snapshots/releases only (improves lookup times)
     releasesOnly(maven("https://repository.derklaro.dev/releases/"))
     snapshotsOnly(maven("https://repository.derklaro.dev/snapshots/"))
+
+    // must be after sonatype as sponge mirrors sonatype which leads to outdated dependencies
+    maven("https://repo.spongepowered.org/maven/")
   }
 }
 
@@ -106,11 +106,12 @@ subprojects {
 
     // always pass down all given system properties
     systemProperties(System.getProperties().mapKeys { it.key.toString() })
+    systemProperty("io.netty5.noUnsafe", "true")
   }
 
   tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_23.toString()
-    targetCompatibility = JavaVersion.VERSION_23.toString()
+    sourceCompatibility = JavaVersion.VERSION_24.toString()
+    targetCompatibility = JavaVersion.VERSION_24.toString()
 
     options.encoding = "UTF-8"
     options.isIncremental = true
@@ -178,11 +179,11 @@ tasks.register("globalJavaDoc", Javadoc::class) {
 nexusPublishing {
   repositories {
     sonatype {
-      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+      nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
 
-      username.set(System.getenv("SONATYPE_USER"))
-      password.set(System.getenv("SONATYPE_TOKEN"))
+      username.set(System.getenv("CENTRAL_USER"))
+      password.set(System.getenv("CENTRAL_PASSWORD"))
     }
   }
 

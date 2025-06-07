@@ -17,7 +17,7 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@v4
         with:
-          java-version: 23
+          java-version: 24
           check-latest: true
           distribution: 'zulu'
 
@@ -27,10 +27,10 @@ jobs:
           cache-read-only: true
           add-job-summary: always
 
-      - name: Publish release to Sonatype
+      - name: Publish release to central portal
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
         env:
-          SONATYPE_USER: "${{ secrets.SONATYPE_USER }}"
-          SONATYPE_TOKEN: "${{ secrets.SONATYPE_TOKEN }}"
+          CENTRAL_USER: "${{ secrets.CENTRAL_USER }}"
+          CENTRAL_PASSWORD: "${{ secrets.CENTRAL_PASSWORD }}"
           SIGNING_KEY: "${{ secrets.SIGNING_KEY }}"
           SIGNING_KEY_PASSWORD: "${{ secrets.SIGNING_KEY_PASSWORD }}"
