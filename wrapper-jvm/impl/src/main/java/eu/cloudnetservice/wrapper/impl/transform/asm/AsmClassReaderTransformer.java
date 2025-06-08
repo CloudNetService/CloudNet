@@ -100,7 +100,7 @@ public final class AsmClassReaderTransformer implements ClassTransformer {
    */
   @Override
   public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
-    return internalClassName.endsWith("ClassReader") ? TransformWillingness.ACCEPT : TransformWillingness.REJECT;
+    return internalClassName.endsWith("/ClassReader") ? TransformWillingness.ACCEPT : TransformWillingness.REJECT;
   }
 
   /**
