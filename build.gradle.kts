@@ -101,6 +101,7 @@ subprojects {
     jvmArgs(
       "--enable-preview",
       "-XX:+EnableDynamicAgentLoading",
+      "--enable-native-access=ALL-UNNAMED",
       "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
     )
 

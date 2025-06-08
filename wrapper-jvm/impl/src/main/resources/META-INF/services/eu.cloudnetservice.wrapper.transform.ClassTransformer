@@ -24,6 +24,3 @@ eu.cloudnetservice.wrapper.impl.transform.bukkit.FAWEWorldEditDownloadURLTransfo
 eu.cloudnetservice.wrapper.impl.transform.minestom.MinestomStopCleanlyTransformer
 eu.cloudnetservice.wrapper.impl.transform.netty.OldEpollDisableTransformer
 eu.cloudnetservice.wrapper.impl.transform.spark.OldAsyncProfilerDisableTransformer
-eu.cloudnetservice.wrapper.impl.transform.guava.GuavaLittleEndianByteArrayTransformer
-eu.cloudnetservice.wrapper.impl.transform.guava.GuavaUnsafeAtomicHelperTransformer
-eu.cloudnetservice.wrapper.impl.transform.guava.GuavaUnsignedBytesTransformer
