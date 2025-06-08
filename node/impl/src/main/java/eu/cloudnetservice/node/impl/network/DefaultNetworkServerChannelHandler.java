@@ -158,8 +158,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
     } catch (IllegalArgumentException exception) {
       LOGGER.warn(
         "Denying incoming connection, unable to parse channel address: '{}': {}",
-        clientHostAddr,
-        exception.getMessage());
+        clientHostAddr, exception.getMessage());
       return true;
     }
   }
