@@ -146,7 +146,15 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       };
 
       var parsedAddress = InetAddresses.forString(clientHostAddr);
-      return !ipAllowlist.allows(parsedAddress); // inverted - if allowed don't deny the connection
+      var connectionIsAllowed = ipAllowlist.allows(parsedAddress);
+      if (connectionIsAllowed) {
+        return false; // don't deny connection
+      }
+
+      LOGGER.warn(this.i18n.translate(
+        "server-network-connection-denied",
+        channel.clientAddress(), channel.serverAddress()));
+      return true; // deny connection
     } catch (IllegalArgumentException exception) {
       LOGGER.warn(
         "Denying incoming connection, unable to parse channel address: '{}': {}",
