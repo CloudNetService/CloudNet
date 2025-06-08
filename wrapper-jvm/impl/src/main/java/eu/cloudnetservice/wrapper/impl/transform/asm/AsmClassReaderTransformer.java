@@ -21,116 +21,136 @@ import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.CodeElement;
-import java.lang.classfile.CodeModel;
 import java.lang.classfile.CodeTransform;
-import java.lang.classfile.MethodModel;
 import java.lang.classfile.Opcode;
 import java.lang.classfile.instruction.BranchInstruction;
 import java.lang.classfile.instruction.InvokeInstruction;
 import java.lang.classfile.instruction.NewObjectInstruction;
 import java.lang.classfile.instruction.ThrowInstruction;
 import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDescs;
+import java.lang.constant.MethodTypeDesc;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
-public class AsmClassReaderTransformer implements ClassTransformer {
+/**
+ * Transformer to remove the class version check from the ASM class reader constructor.
+ *
+ * @since 4.0
+ */
+@ApiStatus.Internal
+public final class AsmClassReaderTransformer implements ClassTransformer {
 
+  // ASM 4, 5 & 6: <init>(byte[], int, int)
+  private static final MethodTypeDesc LEGACY_ASM_CTR_MT = MethodTypeDesc.of(
+    ConstantDescs.CD_void,
+    ConstantDescs.CD_byte.arrayType(),
+    ConstantDescs.CD_int,
+    ConstantDescs.CD_int);
+  // ASM 7+: <init>(byte[], int, boolean)
+  private static final MethodTypeDesc MODERN_ASM_CTR_MT = MethodTypeDesc.of(
+    ConstantDescs.CD_void,
+    ConstantDescs.CD_byte.arrayType(),
+    ConstantDescs.CD_int,
+    ConstantDescs.CD_boolean);
+
+  /**
+   * Constructs a new instance of this transformer, usually done via SPI.
+   */
+  public AsmClassReaderTransformer() {
+    // used by SPI
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
+    // checks if the class should be transformed. this check is necessary as the transformer is targeting
+    // a class that might be relocated in another jar. this means that just checking for the full class
+    // name is not an option, and we need to check for the simple class name and some other indicator
+    // to find out if we're transforming the correct class. in this case, we're looking for the
+    // ClassReader.accept(ClassVisitor, Attribute[], int) method
     var shouldTransform = original.methods().stream().anyMatch(method -> {
       var mt = method.methodTypeSymbol();
-      if (method.methodName().equalsString("accept") && mt.parameterCount() == 3) {
-        var classVisitor = mt.parameterType(0).displayName().equals("ClassVisitor");
-        var attributeArray = mt.parameterType(1).displayName().equals("Attribute[]");
-        var integer = mt.parameterType(2).displayName().equals("int");
-        return classVisitor && attributeArray && integer;
+      var paramTypes = mt.parameterArray();
+      if (method.methodName().equalsString("accept") && paramTypes.length == 3) {
+        var firstParamIsCV = paramTypes[0].displayName().equals("ClassVisitor");
+        var secondParamIsAttrArray = paramTypes[1].displayName().equals("Attribute[]");
+        var thirdParamIsInt = paramTypes[2].displayName().equals("int");
+        return firstParamIsCV && secondParamIsAttrArray && thirdParamIsInt;
       }
 
       return false;
     });
-
-    if (shouldTransform) {
-      var newMethodModel = original.methods().stream()
-        .filter(this::checkNewAsmConstructorSignature)
-        .findAny()
-        .orElse(null);
-      // ASM 4, 5 & 6: <init>(byte[], int, int)
-      // ASM 7+: <init(byte[], int, boolean)
-      return ClassTransform.transformingMethods(method -> {
-        if (method.equals(newMethodModel)) {
-          return true;
-        }
-
-        var mt = method.methodTypeSymbol();
-        return method.methodName().equalsString("<init>") && mt.parameterCount() == 3 &&
-          mt.parameterType(0).displayName().equals("byte[]") &&
-          mt.parameterType(1).displayName().equals("int") &&
-          mt.parameterType(2).displayName().equals("int");
-      }, (builder, element) -> {
-        if (element instanceof CodeModel codeModel) {
-          builder.transformCode(codeModel, new AsmConstructorTransformer());
-        } else {
-          builder.accept(element);
-        }
-      });
+    if (!shouldTransform) {
+      return ClassTransform.ACCEPT_ALL;
     }
-    return ClassTransform.ACCEPT_ALL;
+
+    // finds the model of the method to transform, preferring the modern constructor over the legacy one
+    var hasModernCtr = original.methods().stream().anyMatch(mm -> mm.methodTypeSymbol().equals(MODERN_ASM_CTR_MT));
+    var targetCtrMt = hasModernCtr ? MODERN_ASM_CTR_MT : LEGACY_ASM_CTR_MT;
+
+    var codeTransform = new AsmConstructorTransformer();
+    return ClassTransform.transformingMethodBodies(mm -> mm.methodTypeSymbol().equals(targetCtrMt), codeTransform);
   }
 
-  private static final class AsmConstructorTransformer implements CodeTransform {
-
-    private static final ClassDesc ILLEGAL_ARGUMENT_EXCEPTION_DESC = ClassDesc.of("java.lang.IllegalArgumentException");
-
-    private boolean ifCmpEQSeen;
-    private boolean readShortSeen;
-    private boolean iaeSeen;
-
-    @Override
-    public void accept(CodeBuilder builder, CodeElement element) {
-      switch (element) {
-        case BranchInstruction inst -> {
-          this.ifCmpEQSeen |= inst.opcode() == Opcode.IF_ICMPLE;
-
-          builder.accept(inst);
-        }
-        case InvokeInstruction inst -> {
-          var matchingVirtual = inst.opcode() == Opcode.INVOKEVIRTUAL;
-          var matchingOwner = inst.owner().asSymbol().displayName().equals("ClassReader");
-          var matchingMethod = inst.method().name().equalsString("readShort");
-          this.readShortSeen |= matchingVirtual && matchingOwner && matchingMethod;
-
-          builder.accept(inst);
-        }
-        case NewObjectInstruction inst -> {
-          var matchingExceptionType = inst.className().asSymbol().equals(ILLEGAL_ARGUMENT_EXCEPTION_DESC);
-          this.iaeSeen |= inst.opcode() == Opcode.NEW && matchingExceptionType;
-
-          builder.accept(inst);
-        }
-        case ThrowInstruction inst -> {
-          if (this.ifCmpEQSeen && this.readShortSeen && this.iaeSeen) {
-            this.ifCmpEQSeen = false;
-            this.readShortSeen = false;
-            this.iaeSeen = false;
-            builder.pop();
-          } else {
-            builder.accept(inst);
-          }
-        }
-        default -> builder.accept(element);
-      }
-    }
-  }
-
-  private boolean checkNewAsmConstructorSignature(@NonNull MethodModel methodModel) {
-    var mt = methodModel.methodTypeSymbol();
-    return methodModel.methodName().equalsString("<init>") && mt.parameterCount() == 3 &&
-      mt.parameterType(0).displayName().equals("byte[]") &&
-      mt.parameterType(1).displayName().equals("int") &&
-      mt.parameterType(2).displayName().equals("boolean");
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
     return internalClassName.endsWith("ClassReader") ? TransformWillingness.ACCEPT : TransformWillingness.REJECT;
+  }
+
+  /**
+   * Code transform that removes the throw instruction on an unsupported class file major from the target method.
+   *
+   * @since 4.0
+   */
+  private static final class AsmConstructorTransformer implements CodeTransform {
+
+    private static final ClassDesc CD_ILLEGAL_ARG_EX = ClassDesc.of(IllegalArgumentException.class.getName());
+
+    private boolean ifCmpSeen;
+    private boolean readShortSeen;
+    private boolean illegalArgConstructSeen;
+    private boolean illegalArgThrowRemoved;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(@NonNull CodeBuilder builder, @NonNull CodeElement element) {
+      var dropInstruction = switch (element) {
+        case BranchInstruction inst -> {
+          this.ifCmpSeen |= inst.opcode() == Opcode.IF_ICMPLE;
+          yield false; // keep inst
+        }
+        case InvokeInstruction inst -> {
+          var owner = inst.owner().asSymbol();
+          this.readShortSeen |= inst.opcode() == Opcode.INVOKEVIRTUAL
+            && owner.displayName().equals("ClassReader")
+            && inst.method().name().equalsString("readShort");
+          yield false; // keep inst
+        }
+        case NewObjectInstruction inst -> {
+          this.illegalArgConstructSeen |= inst.className().asSymbol().equals(CD_ILLEGAL_ARG_EX);
+          yield false; // keep inst
+        }
+        case ThrowInstruction _ when this.ifCmpSeen
+          && this.readShortSeen
+          && this.illegalArgConstructSeen
+          && !this.illegalArgThrowRemoved -> {
+          this.illegalArgThrowRemoved = true;
+          builder.pop(); // pop constructed IAE from stack
+          yield true; // drop inst
+        }
+        default -> false; // keep inst
+      };
+      if (!dropInstruction) {
+        builder.with(element);
+      }
+    }
   }
 }
