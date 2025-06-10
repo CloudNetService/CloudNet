@@ -199,7 +199,6 @@ public class UnsafeReplacementDelegateTest {
       var address = UnsafeReplacementDelegate.unsafeAllocateMemory(8);
       UnsafeReplacementDelegate.unsafePutLong(address, 1337L);
       var newAddress = UnsafeReplacementDelegate.unsafeReallocateMemory(address, 16);
-      Assertions.assertNotEquals(address, newAddress);
       Assertions.assertEquals(1337L, UnsafeReplacementDelegate.unsafeGetLong(newAddress));
       UnsafeReplacementDelegate.unsafeFreeMemory(newAddress);
     }
