@@ -50,9 +50,6 @@ import org.jetbrains.annotations.Nullable;
 @Deprecated
 public final class UnsafeReplacementDelegate {
 
-  // mapping of native memory addresses to allocated memory segments (used by allocations and freeing)
-  private static final Map<Long, MappedMemorySegment> ALLOCATED_MEMORY_SEGMENTS = new ConcurrentHashMap<>();
-
   // counter for handing out field offsets; mapping for handed-out offsets to their actual field
   private static final Map<Long, Field> FIELD_OFFSET_TO_FIELD_LOOKUP = new ConcurrentHashMap<>();
   private static final AtomicLong FIELD_OFFSET_COUNTER =
@@ -1036,18 +1033,43 @@ public final class UnsafeReplacementDelegate {
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc="Memory Control Operations">
+  // validates that the given byte count is valid, throwing an IAE if that is not the case
+  private static void validateByteCount(long byteCount) {
+    if (ADDRESS_SIZE == 4) {
+      var is32BitClean = byteCount >>> 32 == 0;
+      if (!is32BitClean) {
+        throw new IllegalArgumentException();
+      }
+    } else if (byteCount < 0) {
+      throw new IllegalArgumentException();
+    }
+  }
+
+  // validates that malloc or realloc did return a valid memory address, throwing an OOM if that is not the case
+  private static long validateAddress(long address, long byteCount) {
+    if (address == 0) {
+      throw new OutOfMemoryError("Unable to allocate " + byteCount + " bytes");
+    }
+
+    return address;
+  }
+
   /* replacement for allocateMemory(long) */
   @UnsafeReplacement(name = "allocateMemory")
   public static long unsafeAllocateMemory(long byteCount) {
-    var mappedSegment = new MappedMemorySegment(byteCount);
-    var segmentAddress = mappedSegment.segment.address();
-    ALLOCATED_MEMORY_SEGMENTS.put(segmentAddress, mappedSegment);
-    return segmentAddress;
+    validateByteCount(byteCount);
+    if (byteCount == 0) {
+      return 0L; // mimics current behaviour
+    }
+
+    var memoryAddress = MemoryControlOps.malloc(byteCount);
+    return validateAddress(memoryAddress, byteCount);
   }
 
   /* replacement for reallocateMemory(long, long) */
   @UnsafeReplacement(name = "reallocateMemory")
   public static long unsafeReallocateMemory(long address, long byteCount) {
+    validateByteCount(byteCount);
     if (byteCount == 0) {
       // free the given block of memory
       unsafeFreeMemory(address);
@@ -1060,30 +1082,14 @@ public final class UnsafeReplacementDelegate {
     }
 
     // allocate a new block; copy the memory from the old block into the new block, free the old block (if known)
-    var oldSegment = ALLOCATED_MEMORY_SEGMENTS.remove(address);
-    var newSegmentAddress = unsafeAllocateMemory(byteCount);
-
-    if (oldSegment == null) {
-      // the old segment is now known; copy the given old memory pointer to the newly allocated block and pray
-      MemoryOps.memCopy(address, newSegmentAddress, byteCount);
-    } else {
-      // copy the old memory into the new block but ensure that we stay inside the bounds of both blocks
-      var oldSize = oldSegment.segment.byteSize();
-      var bytesToCopy = Math.min(byteCount, oldSize);
-      MemoryOps.memCopy(address, newSegmentAddress, bytesToCopy);
-      oldSegment.dispose(); // no need to call unsafeFreeMemory as this would cause another map access
-    }
-
-    return newSegmentAddress;
+    var memoryAddress = MemoryControlOps.realloc(address, byteCount);
+    return validateAddress(memoryAddress, byteCount);
   }
 
   /* replacement for freeMemory(long) */
   @UnsafeReplacement(name = "freeMemory")
   public static void unsafeFreeMemory(long address) {
-    var segment = ALLOCATED_MEMORY_SEGMENTS.remove(address);
-    if (segment != null) {
-      segment.dispose();
-    }
+    MemoryControlOps.free(address);
   }
   //</editor-fold>
 

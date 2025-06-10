@@ -24,7 +24,6 @@ import java.lang.reflect.AccessFlag;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
@@ -48,27 +47,6 @@ public class UnsafeReplacementDelegateTest {
     Assertions.assertThrows(
       OutOfMemoryError.class,
       () -> UnsafeReplacementDelegate.unsafeAllocateMemory(Long.MAX_VALUE));
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
-  void testFreeMemory() throws ReflectiveOperationException {
-    var allocatedSegmentsField = UnsafeReplacementDelegate.class.getDeclaredField("ALLOCATED_MEMORY_SEGMENTS");
-    allocatedSegmentsField.setAccessible(true);
-    var allocatedSegments = (Map<Long, MappedMemorySegment>) allocatedSegmentsField.get(null);
-
-    var address = UnsafeReplacementDelegate.unsafeAllocateMemory(8);
-    Assertions.assertNotEquals(0L, address);
-    Assertions.assertTrue(allocatedSegments.containsKey(address));
-
-    var newAddress = UnsafeReplacementDelegate.unsafeReallocateMemory(address, 16);
-    Assertions.assertNotEquals(address, newAddress);
-    Assertions.assertNotEquals(0, newAddress);
-    Assertions.assertFalse(allocatedSegments.containsKey(address));
-    Assertions.assertTrue(allocatedSegments.containsKey(newAddress));
-
-    UnsafeReplacementDelegate.unsafeFreeMemory(newAddress);
-    Assertions.assertFalse(allocatedSegments.containsKey(newAddress));
   }
 
   @Test
@@ -223,7 +201,6 @@ public class UnsafeReplacementDelegateTest {
       var newAddress = UnsafeReplacementDelegate.unsafeReallocateMemory(address, 16);
       Assertions.assertNotEquals(address, newAddress);
       Assertions.assertEquals(1337L, UnsafeReplacementDelegate.unsafeGetLong(newAddress));
-      UnsafeReplacementDelegate.unsafeFreeMemory(address);
       UnsafeReplacementDelegate.unsafeFreeMemory(newAddress);
     }
 
@@ -434,7 +411,6 @@ public class UnsafeReplacementDelegateTest {
   @Test
   void testPutGetByte() {
     var address = UnsafeReplacementDelegate.unsafeAllocateMemory(1);
-    Assertions.assertEquals(0, UnsafeReplacementDelegate.unsafeGetByte(address));
     UnsafeReplacementDelegate.unsafePutByte(address, (byte) 123);
     Assertions.assertEquals(123, UnsafeReplacementDelegate.unsafeGetByte(address));
     UnsafeReplacementDelegate.unsafeFreeMemory(address);
@@ -460,7 +436,6 @@ public class UnsafeReplacementDelegateTest {
   @Test
   void testPutGetChar() {
     var address = UnsafeReplacementDelegate.unsafeAllocateMemory(2);
-    Assertions.assertEquals('\u0000', UnsafeReplacementDelegate.unsafeGetChar(address));
     UnsafeReplacementDelegate.unsafePutChar(address, '\u0001');
     Assertions.assertEquals('\u0001', UnsafeReplacementDelegate.unsafeGetChar(address));
     UnsafeReplacementDelegate.unsafeFreeMemory(address);
@@ -506,7 +481,6 @@ public class UnsafeReplacementDelegateTest {
   @Test
   void testPutGetInt() {
     var address = UnsafeReplacementDelegate.unsafeAllocateMemory(4);
-    Assertions.assertEquals(0L, UnsafeReplacementDelegate.unsafeGetInt(address));
     UnsafeReplacementDelegate.unsafePutInt(address, 696969);
     Assertions.assertEquals(696969, UnsafeReplacementDelegate.unsafeGetInt(address));
     UnsafeReplacementDelegate.unsafeFreeMemory(address);
@@ -534,7 +508,6 @@ public class UnsafeReplacementDelegateTest {
   @Test
   void testPutGetLong() {
     var address = UnsafeReplacementDelegate.unsafeAllocateMemory(8);
-    Assertions.assertEquals(0L, UnsafeReplacementDelegate.unsafeGetLong(address));
     UnsafeReplacementDelegate.unsafePutLong(address, 696969L);
     Assertions.assertEquals(696969L, UnsafeReplacementDelegate.unsafeGetLong(address));
     UnsafeReplacementDelegate.unsafeFreeMemory(address);
@@ -562,7 +535,6 @@ public class UnsafeReplacementDelegateTest {
   @Test
   void testPutGetDouble() {
     var address = UnsafeReplacementDelegate.unsafeAllocateMemory(8);
-    Assertions.assertEquals(0.0D, UnsafeReplacementDelegate.unsafeGetDouble(address));
     UnsafeReplacementDelegate.unsafePutDouble(address, 69.6969D);
     Assertions.assertEquals(69.6969D, UnsafeReplacementDelegate.unsafeGetDouble(address));
     UnsafeReplacementDelegate.unsafeFreeMemory(address);
