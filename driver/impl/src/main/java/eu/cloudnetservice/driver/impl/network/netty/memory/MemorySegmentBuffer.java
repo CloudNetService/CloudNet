@@ -252,7 +252,7 @@ final class MemorySegmentBuffer
   @Override
   public void copyInto(int srcPos, byte[] dest, int destPos, int length) {
     this.ensureAccessible(); // ensure not closed
-    this.ensureReadable(srcPos, length); // ensure at least length bytes are in this buffer
+    this.ensureInSegmentBounds(srcPos, length); // ensure at least length bytes are in this buffer
     Objects.checkFromIndexSize(destPos, length, dest.length); // ensure target can contain at least length bytes
 
     if (this.hasReadableArray()) {
@@ -267,7 +267,7 @@ final class MemorySegmentBuffer
   @Override
   public void copyInto(int srcPos, @NonNull ByteBuffer dest, int destPos, int length) {
     this.ensureAccessible(); // ensure not closed
-    this.ensureReadable(srcPos, length); // ensure at least length bytes are in this buffer
+    this.ensureInSegmentBounds(srcPos, length); // ensure at least length bytes are in this buffer
     Objects.checkFromIndexSize(destPos, length, dest.limit()); // ensure target can contain at least length bytes
     if (dest.isReadOnly()) {
       throw new ReadOnlyBufferException();
@@ -288,7 +288,7 @@ final class MemorySegmentBuffer
   @Override
   public void copyInto(int srcPos, @NonNull Buffer dest, int destPos, int length) {
     this.ensureAccessible(); // ensure not closed
-    this.ensureReadable(srcPos, length); // ensure at least length bytes are in this buffer
+    this.ensureInSegmentBounds(srcPos, length); // ensure at least length bytes are in this buffer
     if (dest.readOnly()) {
       throw InternalBufferUtils.bufferIsReadOnly(dest);
     }
@@ -568,8 +568,8 @@ final class MemorySegmentBuffer
     this.ensureAccessible(); // ensure not closed
     this.ensureOwned(); // ensure owned
     this.ensureWriteable(); // ensure not read-only
-    ObjectUtil.checkPositive(size, "size");
-    ObjectUtil.checkPositive(minimumGrowth, "minimumGrowth");
+    ObjectUtil.checkPositiveOrZero(size, "size");
+    ObjectUtil.checkPositiveOrZero(minimumGrowth, "minimumGrowth");
 
     // check if buffer has enough space already, nothing to do in this case
     var currentWritable = this.writableBytes();
@@ -1352,19 +1352,23 @@ final class MemorySegmentBuffer
     this.ensureAccessible(); // ensure not closed
     this.ensureWriteable(); // ensure not read-only
 
+    // check if the required buffer capacity is already met
     var capacity = this.capacity();
-    if (index < this.readerOffset || capacity < index + size) {
-      var writerOffset = this.writerOffset;
-      var limit = this.implicitCapacityLimit();
-      if (canExpand && this.isOwned() && index >= 0 & index <= capacity && writerOffset + size <= limit) {
-        // grow to next power of two, but not beyond the implicit limit
-        var capacityNextPower2 = PlatformDependent.roundToPowerOfTwo(capacity * 2);
-        var growth = Math.max(capacityNextPower2, capacity);
-        var minimumGrowth = Math.min(growth, limit) - capacity;
-        this.ensureWritable(size, minimumGrowth, false);
-        this.ensureInSegmentBounds(index, size); // ensure that writing is now possible
-        return;
-      }
+    var readerOffset = this.readerOffset();
+    if (index >= readerOffset && capacity >= index + size) {
+      return;
+    }
+
+    var writerOffset = this.writerOffset();
+    var limit = this.implicitCapacityLimit();
+    if (canExpand && this.isOwned() && index >= 0 & index <= capacity && writerOffset + size <= limit) {
+      // grow to next power of two, but not beyond the implicit limit
+      var capacityNextPower2 = PlatformDependent.roundToPowerOfTwo(capacity * 2);
+      var growth = Math.max(capacityNextPower2, capacity);
+      var minimumGrowth = Math.min(growth, limit) - capacity;
+      this.ensureWritable(size, minimumGrowth, false);
+      this.ensureInSegmentBounds(index, size); // ensure that writing is now possible
+      return;
     }
 
     var message = String.format("Range [%s, %<s + %s) out of bounds for length %s", index, size, capacity);
