@@ -79,7 +79,7 @@ public final class NettyUtil {
     // allocation, unless the user explicitly configures a different implementation.
     var configuredMemoryManager = System.getProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME);
     if (configuredMemoryManager == null || configuredMemoryManager.isBlank()) {
-      System.setProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME, "MemorySegment");
+      System.setProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME, "CloudNet_MemorySegment");
     }
     SELECTED_BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
 
