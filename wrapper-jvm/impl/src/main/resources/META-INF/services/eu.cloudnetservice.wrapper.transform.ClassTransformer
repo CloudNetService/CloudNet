@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-eu.cloudnetservice.wrapper.impl.transform.bukkit.BukkitCommodoreTransformer
+eu.cloudnetservice.wrapper.impl.transform.asm.AsmClassReaderTransformer
 eu.cloudnetservice.wrapper.impl.transform.bukkit.BukkitJavaVersionCheckTransformer
 eu.cloudnetservice.wrapper.impl.transform.bukkit.PaperConfigTransformer
 eu.cloudnetservice.wrapper.impl.transform.bukkit.FAWEConfigTransformer
