@@ -1247,7 +1247,7 @@ final class MemorySegmentBuffer
    * {@inheritDoc}
    */
   @Override
-  public String toString() {
+  public @NonNull String toString() {
     return "Buffer[roff:" + this.readerOffset + ", woff:" + this.writerOffset + ", cap:" + this.capacity() + ']';
   }
 
