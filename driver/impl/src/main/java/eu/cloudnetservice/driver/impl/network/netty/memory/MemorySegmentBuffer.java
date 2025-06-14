@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2025 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -489,7 +489,7 @@ final class MemorySegmentBuffer
 
       @Override
       public boolean readByte() {
-        if (index < max) {
+        if (this.index < this.max) {
           this.currentValue = (byte) LAYOUT_BYTE.get(this.segment, this.index);
           this.index++;
           return true;
@@ -517,7 +517,7 @@ final class MemorySegmentBuffer
   @Override
   public @NonNull ByteCursor openReverseCursor() {
     int writerOff = this.writerOffset();
-    return openReverseCursor(writerOff == 0 ? 0 : writerOff - 1, this.readableBytes());
+    return this.openReverseCursor(writerOff == 0 ? 0 : writerOff - 1, this.readableBytes());
   }
 
   @Override
@@ -533,7 +533,7 @@ final class MemorySegmentBuffer
 
       @Override
       public boolean readByte() {
-        if (index > max) {
+        if (this.index > this.max) {
           this.currentValue = (byte) LAYOUT_BYTE.get(this.segment, this.index);
           this.index--;
           return true;

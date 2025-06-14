@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2025 CloudNetService team & contributors
+ * Copyright 2019-2024 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import io.netty5.buffer.Drop;
 import io.netty5.buffer.internal.InternalBufferUtils;
 import java.lang.foreign.MemorySegment;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Drop that frees the given memory segment when dropped.
@@ -74,7 +73,7 @@ record MemorySegmentFreeDrop(@NonNull MemorySegment segment, long byteSize) impl
    * {@inheritDoc}
    */
   @Override
-  public @NotNull String toString() {
+  public @NonNull String toString() {
     return String.format("MemorySegmentFreeDrop[address=0x%x, bytes=%s]", this.segment.address(), this.byteSize);
   }
 }
