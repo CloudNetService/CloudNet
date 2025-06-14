@@ -1244,6 +1244,14 @@ final class MemorySegmentBuffer
   // </editor-fold>
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return "Buffer[roff:" + this.readerOffset + ", woff:" + this.writerOffset + ", cap:" + this.capacity() + ']';
+  }
+
+  /**
    * Unsafe method to access the base segment used by this buffer. Should only be used by internal methods.
    *
    * @return the base memory segment used by this buffer.
