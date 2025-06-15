@@ -34,7 +34,6 @@ final class ApplicationThread extends Thread {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationThread.class);
 
-  private static final int NORMAL_EXIT_STATUS = 0;
   private static final int LOGGED_ERROR_EXIST_STATUS = -1;
   private static final int UNLOGGED_ERROR_EXIST_STATUS = -2;
 
