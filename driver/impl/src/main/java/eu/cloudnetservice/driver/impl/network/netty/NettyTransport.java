@@ -133,7 +133,8 @@ public enum NettyTransport {
   /**
    * Creates a new event loop group of the current selected transport with the supplied amount of threads.
    *
-   * @param threads the amount of threads.
+   * @param threads       the amount of threads.
+   * @param threadFactory the thread factory to use for event loop threads, null to use the default factory.
    * @return a new event loop group for this transport.
    * @throws IllegalArgumentException if the given number of threads is negative.
    */
