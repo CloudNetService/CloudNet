@@ -335,7 +335,7 @@ final class MemorySegmentBuffer
     this.ensureReadable(readerOffset, actualLength);
 
     var srcBuffer = this.readableBuffer().limit(readerOffset + actualLength);
-    var written = channel.write(srcBuffer);
+    var written = channel.write(srcBuffer, position);
     this.skipReadableBytes(written);
     return written;
   }
@@ -357,7 +357,7 @@ final class MemorySegmentBuffer
     var destBuffer = this.writableBuffer().limit(writerOffset + actualLength);
     var read = channel.read(destBuffer, position);
     if (read > 0) {
-      this.skipReadableBytes(read);
+      this.skipWritableBytes(read);
     }
 
     return read;
@@ -379,7 +379,7 @@ final class MemorySegmentBuffer
     var destBuffer = this.writableBuffer().limit(writerOffset + actualLength);
     var read = channel.read(destBuffer);
     if (read > 0) {
-      this.skipReadableBytes(read);
+      this.skipWritableBytes(read);
     }
 
     return read;
@@ -399,6 +399,8 @@ final class MemorySegmentBuffer
   @Override
   public @NonNull MemorySegmentBuffer writeBytes(byte[] source, int srcPos, int length) {
     this.ensureAccessible(); // ensure not closed
+    ObjectUtil.checkPositiveOrZero(length, "length");
+    Objects.checkFromToIndex(srcPos, srcPos + length, source.length); // ensure no source underflow
     this.ensureWriteable(this.writerOffset, length, true); // ensure writeable and enough space
 
     if (this.hasWritableArray()) {
@@ -426,7 +428,7 @@ final class MemorySegmentBuffer
       source.get(destArray, destArrayOff, length);
     } else {
       var srcSegment = MemorySegment.ofBuffer(source);
-      MemorySegment.copy(srcSegment, source.position(), this.writeSegment, this.writerOffset, length);
+      MemorySegment.copy(srcSegment, 0, this.writeSegment, this.writerOffset, length);
     }
 
     this.skipWritableBytes(length);
@@ -479,7 +481,7 @@ final class MemorySegmentBuffer
   @Override
   public @NonNull ByteCursor openCursor(int fromOffset, int length) {
     this.ensureAccessible(); // ensure not closed
-    Objects.checkFromIndexSize(fromOffset, length, this.capacity());
+    this.ensureInSegmentBounds(fromOffset, length);
     return new ByteCursor() {
       final MemorySegment segment = MemorySegmentBuffer.this.readSegment;
       final int max = fromOffset + length;
@@ -523,7 +525,11 @@ final class MemorySegmentBuffer
   @Override
   public @NonNull ByteCursor openReverseCursor(int fromOffset, int length) {
     this.ensureAccessible(); // ensure not closed
-    Objects.checkIndex(fromOffset - length, this.capacity());
+    ObjectUtil.checkPositiveOrZero(length, "length");
+    ObjectUtil.checkPositiveOrZero(fromOffset, "fromOffset");
+    this.ensureInSegmentBounds(fromOffset, 0); // ensure from index is inside buffer
+    Objects.checkIndex((fromOffset - length) + 1, this.capacity()); // validate end index of cursor
+
     return new ByteCursor() {
       final MemorySegment segment = MemorySegmentBuffer.this.readSegment;
       final int max = fromOffset - length;
@@ -580,7 +586,7 @@ final class MemorySegmentBuffer
     // check if removing the already read bytes (compaction) would allow the buffer to reach the expected size
     var readerOffset = this.readerOffset();
     var removableBytes = currentWritable + readerOffset;
-    if (allowCompaction && removableBytes > size) {
+    if (allowCompaction && removableBytes >= size) {
       return this.compact();
     }
 
@@ -677,8 +683,7 @@ final class MemorySegmentBuffer
   public @NonNull MemorySegmentBuffer split(int splitOffset) {
     this.ensureAccessible(); // ensure not closed
     this.ensureOwned(); // ensure owned
-    ObjectUtil.checkPositiveOrZero(splitOffset, "splitOffset");
-    Objects.checkIndex(splitOffset, this.capacity());
+    this.ensureInSegmentBounds(splitOffset, 0);
 
     // construct a new buffer containing the split region
     var drop = this.unsafeGetDrop().fork();
@@ -833,7 +838,7 @@ final class MemorySegmentBuffer
   public @NonNull MemorySegmentBuffer setChar(int woff, char value) {
     this.ensureWriteable(); // ensure not read-only
     this.ensureInSegmentBounds(woff, Character.BYTES);
-    LAYOUT_BYTE.set(this.writeSegment, woff, value);
+    LAYOUT_CHAR.set(this.writeSegment, woff, value);
     return this;
   }
 
