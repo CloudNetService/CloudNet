@@ -25,6 +25,13 @@
   <!-- variables used in the logback configuration. Can be set using system properties. -->
   <variable name="cloudnet.log.path" value="${cloudnet.wrapper.log.path:-.wrapper/logs}"/>
   <variable name="cloudnet.log.level" value="${cloudnet.wrapper.log.level:-DEBUG}"/>
+  <variable
+    name="cloudnet.log.properties.file"
+    value="${cloudnet.wrapper.log.properties.file:-.wrapper/logs/logback.properties}"
+  />
+
+  <!-- allow configuring log levels using properties file -->
+  <propertiesConfigurator optional="true" file="${cloudnet.log.properties.file}"/>
 
   <property name="LOG_PATTERN" value="[%d{dd.MM HH:mm:ss.SSS}] %-5level: %msg%n"/>
   <appender name="Rolling" class="RollingFileAppender">
