@@ -27,7 +27,7 @@
   <variable name="cloudnet.log.level" value="${cloudnet.wrapper.log.level:-DEBUG}"/>
   <variable
     name="cloudnet.log.properties.file"
-    value="${cloudnet.wrapper.log.properties.file:-.wrapper/logs/logback.properties}"
+    value="${cloudnet.wrapper.log.properties.file:-.wrapper/logback.properties}"
   />
 
   <!-- allow configuring log levels using properties file -->
