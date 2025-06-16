@@ -169,16 +169,25 @@ final class MemorySegmentBuffer
     return (int) this.readSegment.byteSize();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readerOffset() {
     return this.readerOffset;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer skipReadableBytes(int delta) {
     return (MemorySegmentBuffer) super.skipReadableBytes(delta);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer readerOffset(int offset) {
     this.ensureReadable(offset, 0);
@@ -186,16 +195,25 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int writerOffset() {
     return this.writerOffset;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer skipWritableBytes(int delta) {
     return (MemorySegmentBuffer) super.skipWritableBytes(delta);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writerOffset(int offset) {
     this.ensureWriteable(offset, 0, false);
@@ -203,16 +221,25 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readableBytes() {
     return super.readableBytes();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int writableBytes() {
     return super.writableBytes();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer fill(byte value) {
     this.ensureAccessible(); // ensure not closed
@@ -221,22 +248,34 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer makeReadOnly() {
     this.writeSegment = CLOSED_SEGMENT;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean readOnly() {
     return this.readSegment != this.writeSegment;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isDirect() {
     return this.readSegment.isNative();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer implicitCapacityLimit(int limit) {
     InternalBufferUtils.checkImplicitCapacity(limit, this.capacity());
@@ -244,11 +283,17 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int implicitCapacityLimit() {
     return this.capacityLimit;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void copyInto(int srcPos, byte[] dest, int destPos, int length) {
     this.ensureAccessible(); // ensure not closed
@@ -264,6 +309,9 @@ final class MemorySegmentBuffer
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void copyInto(int srcPos, @NonNull ByteBuffer dest, int destPos, int length) {
     this.ensureAccessible(); // ensure not closed
@@ -285,6 +333,9 @@ final class MemorySegmentBuffer
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void copyInto(int srcPos, @NonNull Buffer dest, int destPos, int length) {
     this.ensureAccessible(); // ensure not closed
@@ -302,6 +353,9 @@ final class MemorySegmentBuffer
     InternalBufferUtils.copyToViaReverseLoop(this, srcPos, dest, destPos, length);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("DuplicatedCode") // exact same impl as other transferTo() method
   public int transferTo(@NonNull WritableByteChannel channel, int length) throws IOException {
@@ -321,6 +375,9 @@ final class MemorySegmentBuffer
     return written;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("DuplicatedCode") // exact same impl as other transferTo() method
   public int transferTo(@NonNull FileChannel channel, long position, int length) throws IOException {
@@ -340,6 +397,9 @@ final class MemorySegmentBuffer
     return written;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("DuplicatedCode") // exact same impl as other transferFrom() method
   public int transferFrom(@NonNull FileChannel channel, long position, int length) throws IOException {
@@ -363,6 +423,9 @@ final class MemorySegmentBuffer
     return read;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("DuplicatedCode") // exact same impl as other transferFrom() method
   public int transferFrom(@NonNull ReadableByteChannel channel, int length) throws IOException {
@@ -385,17 +448,26 @@ final class MemorySegmentBuffer
     return read;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeCharSequence(@NonNull CharSequence source, @NonNull Charset charset) {
     InternalBufferUtils.writeCharSequence(source, this, charset);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeBytes(byte[] source) {
     return this.writeBytes(source, 0, source.length);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeBytes(byte[] source, int srcPos, int length) {
     this.ensureAccessible(); // ensure not closed
@@ -416,6 +488,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeBytes(@NonNull ByteBuffer source) {
     var length = source.remaining();
@@ -435,6 +510,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int bytesBefore(byte needle) {
     this.ensureAccessible(); // ensure not closed
@@ -467,17 +545,26 @@ final class MemorySegmentBuffer
     return -1;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int bytesBefore(@NonNull Buffer needle) {
     var needleUncheckedGetByte = needle instanceof MemorySegmentBuffer ? UNCHECKED_LOAD_BYTE : null;
     return InternalBufferUtils.bytesBefore(this, UNCHECKED_LOAD_BYTE, needle, needleUncheckedGetByte);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ByteCursor openCursor() {
     return this.openCursor(this.readerOffset(), this.readableBytes());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ByteCursor openCursor(int fromOffset, int length) {
     this.ensureAccessible(); // ensure not closed
@@ -516,12 +603,18 @@ final class MemorySegmentBuffer
     };
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ByteCursor openReverseCursor() {
     int writerOff = this.writerOffset();
     return this.openReverseCursor(writerOff == 0 ? 0 : writerOff - 1, this.readableBytes());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ByteCursor openReverseCursor(int fromOffset, int length) {
     this.ensureAccessible(); // ensure not closed
@@ -564,11 +657,17 @@ final class MemorySegmentBuffer
     };
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer ensureWritable(int size) {
     return this.ensureWritable(size, this.capacity(), true);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer ensureWritable(int size, int minimumGrowth, boolean allowCompaction) {
     this.ensureAccessible(); // ensure not closed
@@ -618,21 +717,33 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer copy() {
     return this.copy(false);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer copy(int offset, int length) {
     return this.copy(offset, length, false);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer copy(boolean readOnly) {
     return this.copy(this.readerOffset(), this.readableBytes(), readOnly);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer copy(int offset, int length, boolean readOnly) {
     this.ensureReadable(offset, length);
@@ -664,21 +775,33 @@ final class MemorySegmentBuffer
     return child;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer readSplit(int length) {
     return this.split(this.readerOffset() + length);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeSplit(int length) {
     return this.split(this.writerOffset() + length);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer split() {
     return this.split(this.writerOffset());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer split(int splitOffset) {
     this.ensureAccessible(); // ensure not closed
@@ -713,6 +836,9 @@ final class MemorySegmentBuffer
     return splitBuf;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer compact() {
     this.ensureAccessible(); // ensure not closed
@@ -736,21 +862,33 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int countComponents() {
     return 1;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int countReadableComponents() {
     return this.readableBytes() > 0 ? 1 : 0;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int countWritableComponents() {
     return this.writableBytes() > 0 ? 1 : 0;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("unchecked")
   public <T extends BufferComponent & Next> @NonNull ComponentIterator<T> forEachComponent() {
@@ -760,6 +898,9 @@ final class MemorySegmentBuffer
 
   // <editor-fold defaultstate="collapsed" desc="BufferAccessor Implementation">
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte readByte() {
     this.ensureReadable(this.readerOffset, Byte.BYTES);
@@ -768,24 +909,36 @@ final class MemorySegmentBuffer
     return b;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte getByte(int roff) {
     this.ensureInSegmentBounds(roff, Byte.BYTES);
     return (byte) LAYOUT_BYTE.get(this.readSegment, roff);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readUnsignedByte() {
     var b = this.readByte();
     return b & 0xFF;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getUnsignedByte(int roff) {
     var b = this.getByte(roff);
     return b & 0xFF;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeByte(byte value) {
     this.ensureWriteable(this.writerOffset, Byte.BYTES, true);
@@ -794,6 +947,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setByte(int woff, byte value) {
     this.ensureWriteable(); // ensure not read-only
@@ -802,16 +958,25 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeUnsignedByte(int value) {
     return this.writeByte((byte) (value & 0xFF));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setUnsignedByte(int woff, int value) {
     return this.setByte(woff, (byte) (value & 0xFF));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public char readChar() {
     this.ensureReadable(this.readerOffset, Character.BYTES);
@@ -820,12 +985,18 @@ final class MemorySegmentBuffer
     return c;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public char getChar(int roff) {
     this.ensureInSegmentBounds(roff, Character.BYTES);
     return (char) LAYOUT_CHAR.get(this.readSegment, roff);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeChar(char value) {
     this.ensureWriteable(this.writerOffset, Character.BYTES, true);
@@ -834,6 +1005,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setChar(int woff, char value) {
     this.ensureWriteable(); // ensure not read-only
@@ -842,6 +1016,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public short readShort() {
     this.ensureReadable(this.readerOffset, Short.BYTES);
@@ -850,24 +1027,36 @@ final class MemorySegmentBuffer
     return s;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public short getShort(int roff) {
     this.ensureInSegmentBounds(roff, Short.BYTES);
     return (short) LAYOUT_SHORT.get(this.readSegment, roff);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readUnsignedShort() {
     var s = this.readShort();
     return s & 0xFFFF;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getUnsignedShort(int roff) {
     var s = this.getShort(roff);
     return s & 0xFFFF;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeShort(short value) {
     this.ensureWriteable(this.writerOffset, Short.BYTES, true);
@@ -876,6 +1065,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setShort(int woff, short value) {
     this.ensureWriteable(); // ensure not read-only
@@ -884,16 +1076,25 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeUnsignedShort(int value) {
     return this.writeShort((short) (value & 0xFFFF));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setUnsignedShort(int woff, int value) {
     return this.setShort(woff, (short) (value & 0xFFFF));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("DuplicatedCode") // no, readUnsignedMedium() is actually not the same
   public int readMedium() {
@@ -905,6 +1106,9 @@ final class MemorySegmentBuffer
     return (b0 << 16) | ((b1 & 0xFF) << 8) | (b2 & 0xFF);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getMedium(int roff) {
     this.ensureInSegmentBounds(roff, 3); // 3 bytes wide
@@ -914,18 +1118,27 @@ final class MemorySegmentBuffer
     return (b0 << 16) | ((b1 & 0xFF) << 8) | (b2 & 0xFF);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readUnsignedMedium() {
     var m = this.readMedium();
     return m & 0xFFFFFF;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getUnsignedMedium(int roff) {
     var m = this.getMedium(roff);
     return m & 0xFFFFFF;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeMedium(int value) {
     this.ensureWriteable(this.writerOffset, 3, true); // 3 bytes wide
@@ -936,6 +1149,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setMedium(int woff, int value) {
     this.ensureWriteable(); // ensure not read-only
@@ -946,16 +1162,25 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeUnsignedMedium(int value) {
     return this.writeMedium(value & 0xFFFFFF);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setUnsignedMedium(int woff, int value) {
     return this.setMedium(woff, value & 0xFFFFFF);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readInt() {
     this.ensureReadable(this.readerOffset, Integer.BYTES);
@@ -964,24 +1189,36 @@ final class MemorySegmentBuffer
     return i;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getInt(int roff) {
     this.ensureInSegmentBounds(roff, Integer.BYTES);
     return (int) LAYOUT_INT.get(this.readSegment, roff);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long readUnsignedInt() {
     var i = this.readInt();
     return i & 0xFFFFFFFFL;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long getUnsignedInt(int roff) {
     var i = this.getInt(roff);
     return i & 0xFFFFFFFFL;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeInt(int value) {
     this.ensureWriteable(this.writerOffset, Integer.BYTES, true);
@@ -990,6 +1227,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setInt(int woff, int value) {
     this.ensureWriteable(); // ensure not read-only
@@ -998,16 +1238,25 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeUnsignedInt(long value) {
     return this.writeInt((int) (value & 0xFFFFFFFFL));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setUnsignedInt(int woff, long value) {
     return this.setInt(woff, (int) (value & 0xFFFFFFFFL));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public float readFloat() {
     this.ensureReadable(this.readerOffset, Float.BYTES);
@@ -1016,12 +1265,18 @@ final class MemorySegmentBuffer
     return f;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public float getFloat(int roff) {
     this.ensureInSegmentBounds(roff, Float.BYTES);
     return (float) LAYOUT_FLOAT.get(this.readSegment, roff);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeFloat(float value) {
     this.ensureWriteable(this.writerOffset, Float.BYTES, true);
@@ -1030,6 +1285,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setFloat(int woff, float value) {
     this.ensureWriteable(); // ensure not read-only
@@ -1038,6 +1296,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long readLong() {
     this.ensureReadable(this.readerOffset, Long.BYTES);
@@ -1046,12 +1307,18 @@ final class MemorySegmentBuffer
     return l;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long getLong(int roff) {
     this.ensureInSegmentBounds(roff, Long.BYTES);
     return (long) LAYOUT_LONG.get(this.readSegment, roff);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeLong(long value) {
     this.ensureWriteable(this.writerOffset, Long.BYTES, true);
@@ -1060,6 +1327,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setLong(int woff, long value) {
     this.ensureWriteable(); // ensure not read-only
@@ -1068,6 +1338,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double readDouble() {
     this.ensureReadable(this.readerOffset, Double.BYTES);
@@ -1076,12 +1349,18 @@ final class MemorySegmentBuffer
     return d;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getDouble(int roff) {
     this.ensureInSegmentBounds(roff, Double.BYTES);
     return (double) LAYOUT_DOUBLE.get(this.readSegment, roff);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer writeDouble(double value) {
     this.ensureWriteable(this.writerOffset, Double.BYTES, true);
@@ -1090,6 +1369,9 @@ final class MemorySegmentBuffer
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer setDouble(int woff, double value) {
     this.ensureWriteable(); // ensure not read-only
@@ -1101,16 +1383,25 @@ final class MemorySegmentBuffer
 
   // <editor-fold defaultstate="collapsed" desc="BufferComponent Implementation">
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasReadableArray() {
     return this.readSegment.heapBase().isPresent();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasWritableArray() {
     return this.writeSegment.heapBase().isPresent();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte[] readableArray() {
     this.ensureAccessible(); // ensure not closed
@@ -1118,13 +1409,19 @@ final class MemorySegmentBuffer
     return (byte[]) readHeapBase;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte[] writableArray() {
     this.ensureAccessible(); // ensure not closed
-    var readHeapBase = this.writeSegment.heapBase().orElseThrow(NO_BACKING_ARRAY);
-    return (byte[]) readHeapBase;
+    var writeHeapBase = this.writeSegment.heapBase().orElseThrow(NO_BACKING_ARRAY);
+    return (byte[]) writeHeapBase;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readableArrayOffset() {
     if (this.hasReadableArray()) {
@@ -1135,6 +1432,9 @@ final class MemorySegmentBuffer
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int writableArrayOffset() {
     if (this.hasWritableArray()) {
@@ -1145,34 +1445,52 @@ final class MemorySegmentBuffer
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readableArrayLength() {
     return this.readableBytes();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int writableArrayLength() {
     return this.writableBytes();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long baseNativeAddress() {
     this.ensureAccessible(); // ensure not closed
     return this.isDirect() ? this.readSegment.address() : 0;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long readableNativeAddress() {
     var baseAddress = this.baseNativeAddress();
     return baseAddress == 0 ? 0 : baseAddress + this.readerOffset;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long writableNativeAddress() {
     var baseAddress = this.baseNativeAddress();
     return baseAddress == 0 ? 0 : baseAddress + this.writerOffset;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ByteBuffer readableBuffer() {
     this.ensureAccessible(); // ensure not closed
@@ -1183,6 +1501,9 @@ final class MemorySegmentBuffer
       .limit(readerOffset + this.readableBytes());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ByteBuffer writableBuffer() {
     this.ensureAccessible(); // ensure not closed
@@ -1195,11 +1516,17 @@ final class MemorySegmentBuffer
 
   // <editor-fold defaultstate="collapsed" desc="ComponentIterator Implementation">
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MemorySegmentBuffer first() {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable <N extends Next & BufferComponent> N next() {
     return null;
@@ -1208,11 +1535,17 @@ final class MemorySegmentBuffer
 
   // <editor-fold defaultstate="collapsed" desc="ResourceSupport Implementation">
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected @NonNull RuntimeException createResourceClosedException() {
     return InternalBufferUtils.bufferIsClosed(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected @NonNull Owned<MemorySegmentBuffer> prepareSend() {
     var readerOffset = this.readerOffset();
@@ -1237,6 +1570,9 @@ final class MemorySegmentBuffer
     };
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected void makeInaccessible() {
     this.readerOffset = 0;
