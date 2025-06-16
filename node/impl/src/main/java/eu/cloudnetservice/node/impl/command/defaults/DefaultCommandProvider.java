@@ -262,7 +262,7 @@ public final class DefaultCommandProvider implements CommandProvider {
       public void handleInput(@NonNull String line) {
         // check if the input line is empty
         var trimmedInput = line.trim();
-        if (!trimmedInput.isBlank()) {
+        if (!trimmedInput.isEmpty()) {
           // execute the command
           DefaultCommandProvider.this.execute(CommandSource.console(), trimmedInput);
         }
