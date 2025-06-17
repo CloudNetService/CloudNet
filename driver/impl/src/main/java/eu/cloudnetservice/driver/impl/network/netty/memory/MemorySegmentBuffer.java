@@ -242,7 +242,6 @@ final class MemorySegmentBuffer
    */
   @Override
   public @NonNull MemorySegmentBuffer fill(byte value) {
-    this.ensureAccessible(); // ensure not closed
     this.ensureWriteable(); // ensure not read-only
     this.writeSegment.fill(value);
     return this;
@@ -296,7 +295,6 @@ final class MemorySegmentBuffer
    */
   @Override
   public void copyInto(int srcPos, byte[] dest, int destPos, int length) {
-    this.ensureAccessible(); // ensure not closed
     this.ensureInSegmentBounds(srcPos, length); // ensure at least length bytes are in this buffer
     Objects.checkFromIndexSize(destPos, length, dest.length); // ensure target can contain at least length bytes
 
@@ -314,7 +312,6 @@ final class MemorySegmentBuffer
    */
   @Override
   public void copyInto(int srcPos, @NonNull ByteBuffer dest, int destPos, int length) {
-    this.ensureAccessible(); // ensure not closed
     this.ensureInSegmentBounds(srcPos, length); // ensure at least length bytes are in this buffer
     Objects.checkFromIndexSize(destPos, length, dest.limit()); // ensure target can contain at least length bytes
     if (dest.isReadOnly()) {
@@ -338,7 +335,6 @@ final class MemorySegmentBuffer
    */
   @Override
   public void copyInto(int srcPos, @NonNull Buffer dest, int destPos, int length) {
-    this.ensureAccessible(); // ensure not closed
     this.ensureInSegmentBounds(srcPos, length); // ensure at least length bytes are in this buffer
     if (dest.readOnly()) {
       throw InternalBufferUtils.bufferIsReadOnly(dest);
@@ -403,7 +399,6 @@ final class MemorySegmentBuffer
   @Override
   @SuppressWarnings("DuplicatedCode") // exact same impl as other transferFrom() method
   public int transferFrom(@NonNull FileChannel channel, long position, int length) throws IOException {
-    this.ensureAccessible(); // ensure not closed
     this.ensureWriteable(); // ensure not read-only
     ObjectUtil.checkPositiveOrZero(position, "position");
     ObjectUtil.checkPositiveOrZero(length, "length");
@@ -429,7 +424,6 @@ final class MemorySegmentBuffer
   @Override
   @SuppressWarnings("DuplicatedCode") // exact same impl as other transferFrom() method
   public int transferFrom(@NonNull ReadableByteChannel channel, int length) throws IOException {
-    this.ensureAccessible(); // ensure not closed
     this.ensureWriteable(); // ensure not read-only
     ObjectUtil.checkPositiveOrZero(length, "length");
 
@@ -470,7 +464,6 @@ final class MemorySegmentBuffer
    */
   @Override
   public @NonNull MemorySegmentBuffer writeBytes(byte[] source, int srcPos, int length) {
-    this.ensureAccessible(); // ensure not closed
     ObjectUtil.checkPositiveOrZero(length, "length");
     Objects.checkFromToIndex(srcPos, srcPos + length, source.length); // ensure no source underflow
     this.ensureWriteable(this.writerOffset, length, true); // ensure writeable and enough space
@@ -494,7 +487,6 @@ final class MemorySegmentBuffer
   @Override
   public @NonNull MemorySegmentBuffer writeBytes(@NonNull ByteBuffer source) {
     var length = source.remaining();
-    this.ensureAccessible(); // ensure not closed
     this.ensureWriteable(this.writerOffset, length, true); // ensure writeable and enough space
 
     if (this.hasWritableArray()) {
@@ -567,7 +559,6 @@ final class MemorySegmentBuffer
    */
   @Override
   public @NonNull ByteCursor openCursor(int fromOffset, int length) {
-    this.ensureAccessible(); // ensure not closed
     this.ensureInSegmentBounds(fromOffset, length);
     return new ByteCursor() {
       final MemorySegment segment = MemorySegmentBuffer.this.readSegment;
@@ -617,7 +608,6 @@ final class MemorySegmentBuffer
    */
   @Override
   public @NonNull ByteCursor openReverseCursor(int fromOffset, int length) {
-    this.ensureAccessible(); // ensure not closed
     ObjectUtil.checkPositiveOrZero(length, "length");
     ObjectUtil.checkPositiveOrZero(fromOffset, "fromOffset");
     this.ensureInSegmentBounds(fromOffset, 0); // ensure from index is inside buffer
@@ -670,9 +660,8 @@ final class MemorySegmentBuffer
    */
   @Override
   public @NonNull MemorySegmentBuffer ensureWritable(int size, int minimumGrowth, boolean allowCompaction) {
-    this.ensureAccessible(); // ensure not closed
-    this.ensureOwned(); // ensure owned
     this.ensureWriteable(); // ensure not read-only
+    this.ensureOwned(); // ensure owned
     ObjectUtil.checkPositiveOrZero(size, "size");
     ObjectUtil.checkPositiveOrZero(minimumGrowth, "minimumGrowth");
 
@@ -804,9 +793,8 @@ final class MemorySegmentBuffer
    */
   @Override
   public @NonNull MemorySegmentBuffer split(int splitOffset) {
-    this.ensureAccessible(); // ensure not closed
-    this.ensureOwned(); // ensure owned
     this.ensureInSegmentBounds(splitOffset, 0);
+    this.ensureOwned(); // ensure owned
 
     // construct a new buffer containing the split region
     var drop = this.unsafeGetDrop().fork();
@@ -841,9 +829,8 @@ final class MemorySegmentBuffer
    */
   @Override
   public @NonNull MemorySegmentBuffer compact() {
-    this.ensureAccessible(); // ensure not closed
-    this.ensureOwned(); // ensure owned
     this.ensureWriteable(); // ensure not read-only
+    this.ensureOwned(); // ensure owned
 
     // check if there are any bytes that can be discarded at all
     var readerOffset = this.readerOffset();
@@ -1646,6 +1633,7 @@ final class MemorySegmentBuffer
    * @throws BufferReadOnlyException if this buffer is read-only.
    */
   private void ensureWriteable() {
+    this.ensureAccessible(); // ensure not closed
     if (this.readOnly()) {
       throw InternalBufferUtils.bufferIsReadOnly(this);
     }
@@ -1690,7 +1678,6 @@ final class MemorySegmentBuffer
    * @throws IndexOutOfBoundsException if not enough bytes are available in this buffer for the write operation.
    */
   private void ensureWriteable(int index, int size, boolean canExpand) {
-    this.ensureAccessible(); // ensure not closed
     this.ensureWriteable(); // ensure not read-only
 
     // check if the required buffer capacity is already met

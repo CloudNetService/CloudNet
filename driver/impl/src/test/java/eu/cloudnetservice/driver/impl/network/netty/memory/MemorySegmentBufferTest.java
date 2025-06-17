@@ -25,6 +25,7 @@ import io.netty5.buffer.BufferReadOnlyException;
 import io.netty5.buffer.MemoryManager;
 import io.netty5.buffer.bytebuffer.ByteBufferMemoryManager;
 import io.netty5.buffer.internal.InternalBufferUtils;
+import io.netty5.buffer.internal.ResourceSupport;
 import java.io.IOException;
 import java.lang.classfile.TypeKind;
 import java.lang.invoke.MethodHandles;
@@ -1491,5 +1492,29 @@ public class MemorySegmentBufferTest {
     Assertions.assertThrows(BufferClosedException.class, () -> buffer.getUnsignedShort(0));
     Assertions.assertThrows(BufferClosedException.class, () -> buffer.getUnsignedMedium(0));
     Assertions.assertThrows(BufferClosedException.class, () -> buffer.getUnsignedInt(0));
+  }
+
+  @Test
+  void testBackingMemoryCannotBeChangedWhileBufferIsAcquired() {
+    try (var buffer = onHeapAllocator.allocate(8)) {
+      var bufferAsResourceSupport = Assertions.assertInstanceOf(ResourceSupport.class, buffer);
+      InternalBufferUtils.acquire(bufferAsResourceSupport); // should usually not be called like this
+      Assertions.assertTrue(buffer.isAccessible());
+      Assertions.assertFalse(InternalBufferUtils.isOwned(bufferAsResourceSupport));
+
+      Assertions.assertThrows(IllegalStateException.class, () -> buffer.ensureWritable(5));
+      Assertions.assertThrows(IllegalStateException.class, () -> buffer.ensureWritable(5, 5, false));
+      Assertions.assertThrows(IllegalStateException.class, () -> buffer.ensureWritable(5, 5, true));
+      Assertions.assertThrows(IllegalStateException.class, () -> buffer.readSplit(5));
+      Assertions.assertThrows(IllegalStateException.class, () -> buffer.writeSplit(5));
+      Assertions.assertThrows(IllegalStateException.class, () -> buffer.split(5));
+      Assertions.assertThrows(IllegalStateException.class, buffer::split);
+      Assertions.assertThrows(IllegalStateException.class, buffer::compact);
+      Assertions.assertThrows(IllegalStateException.class, buffer::send);
+
+      Assertions.assertDoesNotThrow(buffer::close); // need to close once manually, as we acquired once manually
+      Assertions.assertTrue(buffer.isAccessible());
+      Assertions.assertTrue(InternalBufferUtils.isOwned(bufferAsResourceSupport));
+    }
   }
 }
