@@ -89,7 +89,7 @@
       "website": "https://papermc.io",
       "versions": [
         {
-          "name": "1.21.5",
+          "name": "1.21.6",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -101,12 +101,28 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.21.5"
+            "versionGroup": "1.21.6"
+          }
+        },
+        {
+          "name": "1.21.5",
+          "url": "https://api.papermc.io/v2/projects/paper/versions/1.21.5/builds/113/downloads/paper-1.21.5-113.jar",
+          "deprecated": true,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
           }
         },
         {
           "name": "1.21.4",
-          "cacheFiles": false,
+          "url": "https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/224/downloads/paper-1.21.4-224.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -115,9 +131,7 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.21.4"
+            ]
           }
         },
         {
@@ -302,9 +316,23 @@
       ],
       "versions": [
         {
+          "name": "1.21.6",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.6/latest/download",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
           "name": "1.21.5",
           "url": "https://api.purpurmc.org/v2/purpur/1.21.5/latest/download",
-          "cacheFiles": false,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -465,7 +493,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.21.5",
+          "name": "1.21.6",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -498,7 +526,7 @@
       ],
       "versions": [
         {
-          "name": "1.21.5",
+          "name": "1.21.6",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -508,7 +536,7 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.21.5"
+            "mcVersion": "1.21.6"
           },
           "minJavaVersion": 21
         },
