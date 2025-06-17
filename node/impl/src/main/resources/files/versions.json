@@ -333,6 +333,7 @@
         {
           "name": "1.21.5",
           "url": "https://api.purpurmc.org/v2/purpur/1.21.5/latest/download",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -347,6 +348,7 @@
         {
           "name": "1.20.6",
           "url": "https://api.purpurmc.org/v2/purpur/1.20.6/latest/download",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -361,6 +363,7 @@
         {
           "name": "1.19.4",
           "url": "https://api.purpurmc.org/v2/purpur/1.19.4/latest/download",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -411,8 +414,13 @@
       ],
       "versions": [
         {
+          "name": "1.21.6",
+          "url": "https://s3.mcjars.app/spigot/1.21.6/4505/server.jar"
+        },
+        {
           "name": "1.21.5",
-          "url": "https://s3.mcjars.app/spigot/1.21.5/4474/server.jar"
+          "url": "https://s3.mcjars.app/spigot/1.21.5/4474/server.jar",
+          "deprecated": true
         },
         {
           "name": "1.20.6",
@@ -526,7 +534,7 @@
       ],
       "versions": [
         {
-          "name": "1.21.6",
+          "name": "1.21.5",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -536,7 +544,7 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.21.6"
+            "mcVersion": "1.21.5"
           },
           "minJavaVersion": 21
         },
@@ -673,6 +681,10 @@
         "DOWNLOAD"
       ],
       "versions": [
+        {
+          "name": "1.21.6",
+          "url": "https://ci.loohpjames.com/job/Limbo/53/artifact/target/Limbo-0.7.14-ALPHA-1.21.6.jar"
+        },
         {
           "name": "1.21.5",
           "url": "https://ci.loohpjames.com/job/Limbo/52/artifact/target/Limbo-0.7.13-ALPHA-1.21.5.jar"
