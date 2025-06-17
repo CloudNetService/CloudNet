@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge.impl.platform.fabric;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
 import eu.cloudnetservice.modules.bridge.impl.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.impl.platform.fabric.access.CustomPayloadAccessor;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
@@ -26,7 +28,7 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.DiscardedPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -91,13 +93,17 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     this.forEach(player -> {
       var stack = player.createCommandSourceStack();
-      player.server.getCommands().performPrefixedCommand(stack, command);
+      var server = player.getServer();
+      if (server != null) {
+        server.getCommands().performPrefixedCommand(stack, command);
+      }
     });
   }
 
   private @NonNull net.minecraft.network.chat.Component vanillaFromAdventure(@NonNull Component adventure) {
     var adventureAsJson = GsonComponentSerializer.gson().serializeToTree(adventure);
-    var vanilla = net.minecraft.network.chat.Component.Serializer.fromJson(adventureAsJson, RegistryAccess.EMPTY);
-    return vanilla == null ? net.minecraft.network.chat.Component.empty() : vanilla;
+    return ComponentSerialization.CODEC
+      .decode(JsonOps.INSTANCE, adventureAsJson)
+      .mapOrElse(Pair::getFirst, _ -> net.minecraft.network.chat.Component.empty());
   }
 }
