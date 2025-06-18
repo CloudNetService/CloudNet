@@ -58,6 +58,7 @@ public class DockerizedServicesModule extends DriverModule {
         null,
         null,
         null,
+        null,
         null),
       DocumentFactory.json());
   }

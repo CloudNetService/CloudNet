@@ -27,13 +27,16 @@ import io.netty5.buffer.DefaultBufferAllocators;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFactory;
 import io.netty5.channel.EventLoopGroup;
+import io.netty5.channel.MultithreadEventLoopGroup;
 import io.netty5.channel.ServerChannel;
 import io.netty5.channel.ServerChannelFactory;
 import io.netty5.handler.codec.DecoderException;
 import io.netty5.handler.ssl.OpenSsl;
 import io.netty5.handler.ssl.SslProvider;
 import io.netty5.util.ResourceLeakDetector;
+import io.netty5.util.concurrent.DefaultThreadFactory;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,7 +82,7 @@ public final class NettyUtil {
     // allocation, unless the user explicitly configures a different implementation.
     var configuredMemoryManager = System.getProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME);
     if (configuredMemoryManager == null || configuredMemoryManager.isBlank()) {
-      System.setProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME, "MemorySegment");
+      System.setProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME, "CloudNet_MemorySegment");
     }
     SELECTED_BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
 
@@ -123,7 +126,8 @@ public final class NettyUtil {
     var maximumPoolSize = overriddenCountOrDefault(PACKET_DISPATCH_THREADS, defaultEnvThreadCount);
 
     var threadFactory = new ThreadFactoryBuilder()
-      .setNameFormat("Packet-Dispatcher-%d")
+      .setDaemon(true)
+      .setNameFormat("CloudNet-Packet-Dispatcher-%d")
       .setThreadFactory(Executors.defaultThreadFactory())
       .build();
     return new ScalingNetworkTaskScheduler(threadFactory, maximumPoolSize);
@@ -136,7 +140,7 @@ public final class NettyUtil {
    * @return a newly created boss event loop group.
    */
   public static @NonNull EventLoopGroup createBossEventLoopGroup() {
-    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(1);
+    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(1, createEventLoopThreadFactory());
   }
 
   /**
@@ -154,7 +158,7 @@ public final class NettyUtil {
     // TODO: consider moving the default thread amount for an environment into the environment as a property
     var defaultEnvThreadCount = driverEnvironment.equals(DriverEnvironment.NODE) ? 6 : 2;
     var threadCount = overriddenCountOrDefault(NETTY_EVENT_LOOP_THREADS, defaultEnvThreadCount);
-    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(threadCount);
+    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(threadCount, createEventLoopThreadFactory());
   }
 
   /**
@@ -282,5 +286,15 @@ public final class NettyUtil {
    */
   public static @NonNull BufferAllocator selectedBufferAllocator() {
     return SELECTED_BUFFER_ALLOCATOR;
+  }
+
+  /**
+   * Creates a new thread factory for the netty event loop group but with daemon threads enabled.
+   *
+   * @return the newly constructed thread factory for event loops.
+   */
+  private static @NonNull ThreadFactory createEventLoopThreadFactory() {
+    // same as MultithreadEventLoopGroup.newDefaultThreadFactory() but with daemon threads enabled
+    return new DefaultThreadFactory(MultithreadEventLoopGroup.class, true, Thread.MAX_PRIORITY);
   }
 }

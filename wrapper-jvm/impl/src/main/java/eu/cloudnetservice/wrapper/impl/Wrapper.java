@@ -231,7 +231,7 @@ public final class Wrapper {
 
     // get the main method
     var main = Class.forName(mainClass, true, loader);
-    var method = main.getMethod("main", String[].class);
+    var mainMethod = main.getMethod("main", String[].class);
 
     // inform the user about the pre-start
     Collection<String> arguments = new LinkedList<>(consoleArgs);
@@ -248,15 +248,8 @@ public final class Wrapper {
     System.setProperty("java.class.path", this.appendAppFileToClassPath(appFile));
 
     // start the application
-    var applicationThread = new Thread(() -> {
-      try {
-        LOGGER.info("Starting application using class {} (pre-main: {})", mainClass, premainClass);
-        // start the application
-        method.invoke(null, new Object[]{arguments.toArray(new String[0])});
-      } catch (Exception exception) {
-        LOGGER.error("Exception while starting application", exception);
-      }
-    }, "Application-Thread");
+    LOGGER.info("Starting wrapped application using {} (pre-main class: {})", mainMethod, premainClass);
+    var applicationThread = new ApplicationThread(mainMethod, arguments);
     applicationThread.setContextClassLoader(loader);
     applicationThread.start();
 

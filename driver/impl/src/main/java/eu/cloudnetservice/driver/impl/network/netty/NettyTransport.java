@@ -35,8 +35,10 @@ import io.netty5.channel.kqueue.KQueueSocketChannel;
 import io.netty5.channel.nio.NioIoHandler;
 import io.netty5.channel.socket.nio.NioServerSocketChannel;
 import io.netty5.channel.socket.nio.NioSocketChannel;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Supplier;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Holds all supported transport types and functionality to retrieve model instances for servers/clients construction.
@@ -131,12 +133,13 @@ public enum NettyTransport {
   /**
    * Creates a new event loop group of the current selected transport with the supplied amount of threads.
    *
-   * @param threads the amount of threads.
+   * @param threads       the amount of threads.
+   * @param threadFactory the thread factory to use for event loop threads, null to use the default factory.
    * @return a new event loop group for this transport.
    * @throws IllegalArgumentException if the given number of threads is negative.
    */
-  public @NonNull EventLoopGroup createEventLoopGroup(int threads) {
-    return new MultithreadEventLoopGroup(threads, this.ioHandlerFactory.get());
+  public @NonNull EventLoopGroup createEventLoopGroup(int threads, @Nullable ThreadFactory threadFactory) {
+    return new MultithreadEventLoopGroup(threads, threadFactory, this.ioHandlerFactory.get());
   }
 
   /**
