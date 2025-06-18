@@ -34,6 +34,7 @@ import com.github.dockerjava.api.model.Volume;
 import eu.cloudnetservice.driver.document.property.DocProperty;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
@@ -318,6 +319,16 @@ public class DockerizedService extends JVMService {
         LOGGER.debug("Unable to remove docker container", exception);
       }
     }
+  }
+
+  @Override
+  protected @NonNull HostAndPort selectConnectListener(@NonNull List<HostAndPort> listeners) {
+    var taskConfig = this.resolveTaskDockerConfig();
+    var overriddenNodeHostFromTask = this.readFromTaskConfig(taskConfig, TaskDockerConfig::nodeHostOverride);
+    var nodeHostOverride = overriddenNodeHostFromTask != null
+      ? overriddenNodeHostFromTask
+      : this.configuration.nodeHostOverride();
+    return Objects.requireNonNullElseGet(nodeHostOverride, () -> super.selectConnectListener(listeners));
   }
 
   protected @NonNull Bind[] collectBinds(@NonNull Path wrapperFilePath, @Nullable TaskDockerConfig config) {
