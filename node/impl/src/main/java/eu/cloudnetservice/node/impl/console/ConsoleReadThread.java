@@ -39,25 +39,24 @@ public final class ConsoleReadThread extends Thread {
         // this is done here to handle the thrown exceptions by the method correctly (see catch blocks below)
         // todo(derklaro): this can also throw an IOError, not sure how to handle that
         line = this.console.lineReader().readLine(this.console.prompt());
-        if (!line.isBlank()) {
-          // complete the current read task if any is awaiting console input
-          if (this.currentTask != null) {
-            this.currentTask.complete(line);
-            this.currentTask = null;
-          }
 
-          // post the command line to all input handlers that are enabled at the moment
-          for (var value : this.console.consoleInputHandler().values()) {
-            if (value.enabled()) {
-              value.handleInput(line);
-            }
-          }
+        // complete the current read task if any is awaiting console input
+        if (this.currentTask != null) {
+          this.currentTask.complete(line);
+          this.currentTask = null;
+        }
 
-          // notify all animations that the cursor line has been moved one down
-          // this is required to allow them to react when f. ex. re-drawing styled console input
-          for (var animation : this.console.runningAnimations()) {
-            animation.addToCursor(1);
+        // post the command line to all input handlers that are enabled at the moment
+        for (var value : this.console.consoleInputHandler().values()) {
+          if (value.enabled()) {
+            value.handleInput(line);
           }
+        }
+
+        // notify all animations that the cursor line has been moved one down
+        // this is required to allow them to react when f. ex. re-drawing styled console input
+        for (var animation : this.console.runningAnimations()) {
+          animation.addToCursor(1);
         }
       } catch (EndOfFileException ignored) {
         // just continue reading after EOT (CTRL-D)

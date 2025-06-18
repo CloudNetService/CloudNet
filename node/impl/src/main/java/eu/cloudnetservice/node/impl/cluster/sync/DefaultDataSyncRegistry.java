@@ -230,7 +230,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
       // wait for an input
       var input = TaskUtil.getOrDefault(console.readLine(), null);
       // check if an input was supplied
-      if (input == null) {
+      if (input == null || input.isBlank()) {
         continue;
       }
       // get the int from the input & validate
