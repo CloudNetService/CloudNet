@@ -20,6 +20,7 @@ import eu.cloudnetservice.modules.bridge.impl.platform.PlatformPlayerExecutorAda
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -31,10 +32,10 @@ import org.jetbrains.annotations.Nullable;
 final class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
   private final CommandManager commandManager;
-  private final MinestomPermissionChecker permissionChecker;
+  private final BiFunction<Player, String, Boolean> permissionChecker;
 
   public MinestomDirectPlayerExecutor(
-    @NonNull MinestomPermissionChecker permissionChecker,
+    @NonNull BiFunction<Player, String, Boolean> permissionChecker,
     @NonNull CommandManager commandManager,
     @NonNull UUID uniqueId,
     @NonNull Supplier<? extends Collection<? extends Player>> supplier
@@ -82,7 +83,7 @@ final class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
-      if (permission == null || this.permissionChecker.hasPermission(player, permission)) {
+      if (permission == null || this.permissionChecker.apply(player, permission)) {
         player.sendMessage(message);
       }
     });
