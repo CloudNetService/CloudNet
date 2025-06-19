@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.impl.platform.fabric;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import eu.cloudnetservice.modules.bridge.impl.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.impl.platform.fabric.access.CustomPayloadAccessor;
@@ -28,6 +27,7 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.DiscardedPayload;
@@ -102,8 +102,10 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   private @NonNull net.minecraft.network.chat.Component vanillaFromAdventure(@NonNull Component adventure) {
     var adventureAsJson = GsonComponentSerializer.gson().serializeToTree(adventure);
+    var serializationContext = RegistryAccess.EMPTY.createSerializationContext(JsonOps.INSTANCE);
     return ComponentSerialization.CODEC
-      .decode(JsonOps.INSTANCE, adventureAsJson)
-      .mapOrElse(Pair::getFirst, _ -> net.minecraft.network.chat.Component.empty());
+      .decode(serializationContext, adventureAsJson)
+      .getOrThrow(IllegalArgumentException::new) // should not happen (unless there is an issue in adventure)
+      .getFirst();
   }
 }
