@@ -21,7 +21,7 @@ import lombok.NonNull;
 
 /**
  * Holds computed information about dependencies between modules. The actual registration of modules into the tree is
- * implementation specific and specifically not exposed into the api.
+ * implementation-specific and specifically not exposed into the api.
  *
  * @since 4.0
  */

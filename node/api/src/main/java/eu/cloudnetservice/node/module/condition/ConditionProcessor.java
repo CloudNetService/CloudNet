@@ -29,9 +29,9 @@ import lombok.NonNull;
 public interface ConditionProcessor {
 
   /**
-   * Get the condition annotation that is handled by this processor.
+   * Get the condition annotation handled by this processor.
    *
-   * @return the condition annotation that is handled by this processor.
+   * @return the condition annotation handled by this processor.
    */
   @NonNull
   Class<? extends java.lang.annotation.Annotation> annotation();
