@@ -19,6 +19,7 @@ package eu.cloudnetservice.wrapper.transform;
 import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A transformer for a class which gets called before the class is actually put into usage. A transformer can
@@ -38,7 +39,31 @@ public interface ClassTransformer {
    * @throws NullPointerException if the given original class model is null.
    */
   @NonNull
-  ClassTransform provideClassTransform(@NonNull ClassModel original);
+  default ClassTransform provideClassTransform(@NonNull ClassModel original) {
+    throw new UnsupportedOperationException(
+      "at least one provideClassTransform() method must be overridden by " + this.getClass().getName());
+  }
+
+  /**
+   * Provides the class transform that will be used to transform the class data. This method should only be called if a
+   * prior check to {@link #classTransformWillingness(String)} did not indicate a rejection of the class. This method
+   * additionally provides the module and class loader of the class being transformed, which should rarely be a concern
+   * to the transformer.
+   *
+   * @param original the original class model that is being transformed.
+   * @param module   the module of the class, null if it is the unnamed module.
+   * @param loader   the class loader of the class, null if it is the bootstrap loader.
+   * @return the class transform to apply to the target class.
+   * @throws NullPointerException if the given original class model is null.
+   */
+  @NonNull
+  default ClassTransform provideClassTransform(
+    @NonNull ClassModel original,
+    @Nullable Module module,
+    @Nullable ClassLoader loader
+  ) {
+    return this.provideClassTransform(original);
+  }
 
   /**
    * Checks if this class transformer is willing to transform the class with the given internal name. If this method is

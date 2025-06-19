@@ -26,3 +26,4 @@ eu.cloudnetservice.wrapper.impl.transform.spark.OldAsyncProfilerDisableTransform
 eu.cloudnetservice.wrapper.impl.transform.guava.GuavaLittleEndianByteArrayTransformer
 eu.cloudnetservice.wrapper.impl.transform.guava.GuavaUnsafeAtomicHelperTransformer
 eu.cloudnetservice.wrapper.impl.transform.guava.GuavaUnsignedBytesTransformer
+eu.cloudnetservice.wrapper.impl.transform.netty.ConditionalUnsafeDisableTransform
