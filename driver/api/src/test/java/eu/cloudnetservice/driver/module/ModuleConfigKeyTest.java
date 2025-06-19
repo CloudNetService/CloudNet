@@ -81,6 +81,14 @@ public class ModuleConfigKeyTest {
   }
 
   @Test
+  void testDirectCompositeIdConstruction() {
+    var id = ModuleConfigKey.ofComposite("xxxx", "composite_");
+    Assertions.assertEquals("xxxx", id.moduleId());
+    Assertions.assertEquals("composite_", id.configId());
+    Assertions.assertTrue(id.compositeKey());
+  }
+
+  @Test
   void testSpecificWithModuleId() {
     var id = ModuleConfigKey.of("xxxx", "specific");
     Assertions.assertEquals("xxxx", id.moduleId());

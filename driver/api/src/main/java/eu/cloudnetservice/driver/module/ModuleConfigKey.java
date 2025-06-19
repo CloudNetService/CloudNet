@@ -74,6 +74,20 @@ public final class ModuleConfigKey implements DataBufable {
   }
 
   /**
+   * Constructs a new configuration key targeting the given module using the given configuration id prefix. The returned
+   * config will be a composite key that can be targeted to one specific configuration if needed.
+   *
+   * @param moduleId       the id of the module to which the config key should belong.
+   * @param configIdPrefix the prefix of the config id that should be targeted by this config key.
+   * @return a new composite config key based on the given module id and config id.
+   * @throws NullPointerException     if the given module id or config id is null.
+   * @throws IllegalArgumentException if the given module id or config id does not match the naming requirements.
+   */
+  public static @NonNull ModuleConfigKey ofComposite(@NonNull String moduleId, @NonNull String configIdPrefix) {
+    return of(moduleId, configIdPrefix + COMPOSITE_ID_SUFFIX);
+  }
+
+  /**
    * Inits this config id with the given module id and config id. For internal use only.
    *
    * @param moduleId the module id to use in this config key.
