@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache {
 
+  private static final String VM_BOOTSTRAP_NO_SHARE_WARNING = "Sharing is only supported for boot loader classes";
+
   protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractServiceLogCache.class);
   protected static final Pattern ANSI_SEQUENCE_PATTERN = Pattern.compile("\u001b\\[[0-9;]*[A-Za-z]");
 
@@ -120,7 +122,9 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
     }
 
     if (this.alwaysPrintErrorStreamToConsole && comesFromErrorStream) {
-      LOGGER.warn("[{}/WARN]: {}", this.associatedServiceId.name(), entry);
+      if (!entry.contains(VM_BOOTSTRAP_NO_SHARE_WARNING)) {
+        LOGGER.warn("[{}/WARN]: {}", this.associatedServiceId.name(), entry);
+      }
     }
 
     if (!this.handlers.isEmpty()) {

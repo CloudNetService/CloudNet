@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper.impl;
 
 import eu.cloudnetservice.wrapper.impl.transform.DefaultClassTransformerRegistry;
+import eu.cloudnetservice.wrapper.impl.transform.unsafe.UnsafeTransformer;
 import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
@@ -36,6 +37,12 @@ final class Premain {
   public static void premain(@Nullable String agentArgs, @NonNull Instrumentation inst) {
     Premain.instrumentation = inst;
     Premain.transformerRegistry = new DefaultClassTransformerRegistry(inst);
+
+    // init and registers the unsafe transformer very early in the process. this is done here
+    // as we usually don't allow transformers to be registered so early as they're intended to
+    // transform classes brought in by the wrapped application, not by the jdk
+    UnsafeTransformer.init(inst);
+    Premain.transformerRegistry.registerTransformer(new UnsafeTransformer());
   }
 
   public static void preloadClasses(@NonNull Path file, @NonNull ClassLoader loader) {
