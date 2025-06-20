@@ -44,7 +44,7 @@ final class UnsafeReplacementDefiner {
     "ArrayOps",
     "FieldOps",
     "LazyMemoizingSupplier",
-    "MappedMemorySegment",
+    "MemoryControlOps",
     "MemoryOps",
     "OpConstants",
     "UnsafeLogUtil",
