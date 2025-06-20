@@ -36,17 +36,8 @@ import lombok.NonNull;
 final class ApplicationBootstrap {
 
   private static final List<String> DEFAULT_PROCESS_ARGUMENTS = Arrays.asList(
-    // libraries that use unsafe with flags to disable it
-    "-Djoml.nounsafe=true",
-    "-Dio.netty.noUnsafe=true",
+    // no need to use unsafe in netty5, usees memory segments instead
     "-Dio.netty5.noUnsafe=true",
-    // platform specific settings to disable unsafe usages
-    "-Dvelocity.natives-disabled=true",
-    "-Dnet.md_5.bungee.native.disable=true",
-    // enable method handle support in guice (since 7.1) and use child class loaders for
-    // fast class generation (all other options require unsafe to access internals)
-    "-Dguice_use_method_handles=YES",
-    "-Dguice_custom_class_loading=CHILD",
     // Enables the usage of native access for all unnamed modules, which allows us to use the JLine FFM terminal.
     // While enabling native access for modules is not a strict requirement yet (see JEP 472 for initial work),
     // JLine has a check that specifically ensures that native access is enabled before allowing to use the impl.
