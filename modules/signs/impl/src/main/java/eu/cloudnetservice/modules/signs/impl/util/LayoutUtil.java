@@ -47,14 +47,6 @@ public final class LayoutUtil {
     return layoutHolder(entry, sign, snapshot).currentLayout();
   }
 
-  public static @NonNull SignLayout layoutAndTick(
-    @NonNull SignConfigurationEntry entry,
-    @NonNull Sign sign,
-    @Nullable ServiceInfoSnapshot snapshot
-  ) {
-    return layoutHolder(entry, sign, snapshot).tick().currentLayout();
-  }
-
   public static boolean switchToSearching(
     @NonNull ServiceInfoSnapshot snapshot,
     @Nullable SignConfigurationEntry entry

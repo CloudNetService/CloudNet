@@ -16,19 +16,34 @@
 
 package eu.cloudnetservice.modules.signs.configuration;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus;
 
 @ToString
 @EqualsAndHashCode
 public class SignLayoutsHolder {
 
+  private static final VarHandle LAST_UPDATE_TICK;
+
+  static {
+    try {
+      var lookup = MethodHandles.lookup();
+      LAST_UPDATE_TICK = lookup.findVarHandle(SignLayoutsHolder.class, "lastUpdateTick", long.class);
+    } catch (NoSuchFieldException | IllegalAccessException exception) {
+      throw new ExceptionInInitializerError(exception);
+    }
+  }
+
   private final int animationsPerSecond;
   private final List<SignLayout> signLayouts;
 
-  private transient boolean tickBlocked;
+  @SuppressWarnings("unused") // accessed/changed by LAST_UPDATE_TICK
+  private transient long lastUpdateTick;
   private transient int currentAnimation = -1;
 
   public SignLayoutsHolder(int animationsPerSecond, @NonNull List<SignLayout> signLayouts) {
@@ -52,33 +67,26 @@ public class SignLayoutsHolder {
     return !this.signLayouts.isEmpty();
   }
 
-  public boolean tickBlocked() {
-    return this.tickBlocked;
-  }
+  /* == apis only accessed by platforms, not for external use == */
 
-  public void enableTickBlock() {
-    this.tickBlocked = true;
-  }
-
-  public @NonNull SignLayoutsHolder releaseTickBlock() {
-    this.tickBlocked = false;
-    return this;
-  }
-
+  @ApiStatus.Internal
   public @NonNull SignLayout currentLayout() {
-    return this.signLayouts().get(this.currentAnimation());
+    return this.signLayouts().get(this.currentAnimation);
   }
 
-  public @NonNull SignLayoutsHolder tick() {
-    if (!this.tickBlocked()) {
+  @ApiStatus.Internal
+  public void tick(long currentTick) {
+    // check if the layout was already ticked
+    var lastUpdateTick = (long) LAST_UPDATE_TICK.getVolatile(this);
+    if (lastUpdateTick == currentTick) {
+      return;
+    }
+
+    // update the current animation unless the value was already updated in the current tick
+    if (LAST_UPDATE_TICK.compareAndSet(this, lastUpdateTick, currentTick)) {
       if (++this.currentAnimation >= this.signLayouts.size()) {
         this.currentAnimation = 0;
       }
     }
-    return this;
-  }
-
-  public int currentAnimation() {
-    return Math.max(0, this.currentAnimation);
   }
 }
