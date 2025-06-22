@@ -23,6 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode
@@ -44,7 +45,6 @@ public class SignLayoutsHolder {
 
   @SuppressWarnings("unused") // accessed/changed by LAST_UPDATE_TICK
   private transient long lastUpdateTick;
-  private transient int currentAnimation = -1;
 
   public SignLayoutsHolder(int animationsPerSecond, @NonNull List<SignLayout> signLayouts) {
     this.animationsPerSecond = animationsPerSecond;
@@ -70,23 +70,25 @@ public class SignLayoutsHolder {
   /* == apis only accessed by platforms, not for external use == */
 
   @ApiStatus.Internal
-  public @NonNull SignLayout currentLayout() {
-    return this.signLayouts().get(this.currentAnimation);
+  public @Nullable SignLayout currentLayout(int tps) {
+    var layouts = this.signLayouts;
+    var layoutEntryCount = layouts.size();
+    return switch (layoutEntryCount) {
+      case 0 -> null;
+      case 1 -> layouts.getFirst();
+      default -> {
+        var lastUpdateTick = (long) LAST_UPDATE_TICK.getAcquire(this);
+        var animationsPerSecond = Math.min(tps, this.animationsPerSecond); // cannot display more animations per second
+        var animationIntervalTicks = tps / animationsPerSecond;
+        var steps = lastUpdateTick / animationIntervalTicks;
+        var layoutIndex = (int) (steps % layoutEntryCount);
+        yield layouts.get(layoutIndex);
+      }
+    };
   }
 
   @ApiStatus.Internal
   public void tick(long currentTick) {
-    // check if the layout was already ticked
-    var lastUpdateTick = (long) LAST_UPDATE_TICK.getVolatile(this);
-    if (lastUpdateTick == currentTick) {
-      return;
-    }
-
-    // update the current animation unless the value was already updated in the current tick
-    if (LAST_UPDATE_TICK.compareAndSet(this, lastUpdateTick, currentTick)) {
-      if (++this.currentAnimation >= this.signLayouts.size()) {
-        this.currentAnimation = 0;
-      }
-    }
+    LAST_UPDATE_TICK.setRelease(this, currentTick);
   }
 }

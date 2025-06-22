@@ -39,14 +39,6 @@ public final class LayoutUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull SignLayout layout(
-    @NonNull SignConfigurationEntry entry,
-    @NonNull Sign sign,
-    @Nullable ServiceInfoSnapshot snapshot
-  ) {
-    return layoutHolder(entry, sign, snapshot).currentLayout();
-  }
-
   public static boolean switchToSearching(
     @NonNull ServiceInfoSnapshot snapshot,
     @Nullable SignConfigurationEntry entry

@@ -327,14 +327,15 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
         var holder = LayoutUtil.layoutHolder(ownEntry, sign.base(), sign.currentTarget());
         if (holder.hasLayouts() && holder.animationsPerSecond() > 0) {
           var animationIntervalTicks = this.tps() / holder.animationsPerSecond();
-          if (this.currentTick % animationIntervalTicks == 0) {
+          if (animationIntervalTicks == 0 || this.currentTick % animationIntervalTicks == 0) {
             holder.tick(this.currentTick);
-            if (sign.needsUpdates()) {
+            var nextLayout = holder.currentLayout(this.tps());
+            if (nextLayout != null && sign.needsUpdates()) {
               // the sign is loaded and needs an update to display the new layout
               if (signsToTick == null) {
                 signsToTick = new ArrayList<>();
               }
-              signsToTick.add(new Tuple2<>(holder.currentLayout(), sign));
+              signsToTick.add(new Tuple2<>(nextLayout, sign));
             }
           }
         }
