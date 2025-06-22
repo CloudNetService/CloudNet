@@ -40,8 +40,8 @@ import eu.cloudnetservice.wrapper.impl.network.listener.ChannelMessagePacketList
 import eu.cloudnetservice.wrapper.impl.network.listener.message.GroupChannelMessageListener;
 import eu.cloudnetservice.wrapper.impl.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.wrapper.impl.network.listener.message.TaskChannelMessageListener;
-import eu.cloudnetservice.wrapper.transform.ClassTransformer;
-import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
+import eu.cloudnetservice.wrapper.impl.transform.ClassTransformer;
+import eu.cloudnetservice.wrapper.impl.transform.ClassTransformerRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;

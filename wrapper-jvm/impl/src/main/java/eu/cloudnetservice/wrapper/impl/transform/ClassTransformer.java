@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.wrapper.transform;
+package eu.cloudnetservice.wrapper.impl.transform;
 
 import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
