@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
-import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import eu.cloudnetservice.wrapper.impl.transform.ClassTransformer;
 import java.io.IOException;
 import java.lang.classfile.ClassFile;
 import org.junit.jupiter.api.Assertions;
