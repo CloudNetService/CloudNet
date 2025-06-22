@@ -34,7 +34,9 @@ public class SignLayoutsHolder {
   static {
     try {
       var lookup = MethodHandles.lookup();
-      LAST_UPDATE_TICK = lookup.findVarHandle(SignLayoutsHolder.class, "lastUpdateTick", long.class);
+      LAST_UPDATE_TICK = lookup
+        .findVarHandle(SignLayoutsHolder.class, "lastUpdateTick", long.class)
+        .withInvokeExactBehavior();
     } catch (NoSuchFieldException | IllegalAccessException exception) {
       throw new ExceptionInInitializerError(exception);
     }
