@@ -303,8 +303,7 @@ final class ArrayOps {
       // cant add to a boolean or object array, but can get from it
       var handle = arrayKind.arrayElementVarHandle();
       var arrayIndex = Math.toIntExact(offset / arrayKind.byteSize());
-      var witness = handle.compareAndExchange(array, arrayIndex, expected, value);
-      return kind.areValuesEqual(expected, witness);
+      return handle.compareAndSet(array, arrayIndex, expected, value);
     }
 
     // check if aligned access to the elements in the array is possible, that is
@@ -312,9 +311,11 @@ final class ArrayOps {
     var arrayMemorySegment = arrayKind.createArrayMemorySegment(array);
     if (isAlignedAccess(arrayKind, kind, offset)) {
       var handle = kind.layoutVarHandle();
-      var witness = handle.compareAndExchange(arrayMemorySegment, offset, expected, value);
-      copyByteSegmentToBoolArray(arrayMemorySegment, array, offset, kind.byteSize());
-      return kind.areValuesEqual(expected, witness);
+      var result = handle.compareAndSet(arrayMemorySegment, offset, expected, value);
+      if (result) {
+        copyByteSegmentToBoolArray(arrayMemorySegment, array, offset, kind.byteSize());
+      }
+      return result;
     } else {
       var handle = kind.unalignedLayoutVarHandle();
       var current = handle.get(arrayMemorySegment, offset);

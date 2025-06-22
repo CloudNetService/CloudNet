@@ -316,10 +316,9 @@ final class FieldOps {
     } else {
       // field is non-final, can use var handles
       var handle = lookup.unreflectVarHandle(field);
-      var witness = isStatic
-        ? handle.compareAndExchange(convertedExp, convertedVal)
-        : handle.compareAndExchange(instance, convertedExp, convertedVal);
-      return kind.areValuesEqual(witness, convertedExp);
+      return isStatic
+        ? handle.compareAndSet(convertedExp, convertedVal)
+        : handle.compareAndSet(instance, convertedExp, convertedVal);
     }
   }
 }
