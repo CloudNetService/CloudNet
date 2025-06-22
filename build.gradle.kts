@@ -111,7 +111,7 @@ subprojects {
   }
 
   tasks.withType<JavaCompile>().configureEach {
-    val javaVersion = if(project.path.contains("api")) JavaVersion.VERSION_17 else JavaVersion.VERSION_24
+    val javaVersion = if (project.path.contains("api")) JavaVersion.VERSION_17 else JavaVersion.VERSION_24
     sourceCompatibility = javaVersion.toString()
     targetCompatibility = javaVersion.toString()
 
