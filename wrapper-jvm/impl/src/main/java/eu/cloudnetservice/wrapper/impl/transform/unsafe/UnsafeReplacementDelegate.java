@@ -33,10 +33,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 /**
  * Delegate class that holds current replacements for fields/methods defined in {@code sun.misc.Unsafe}.
@@ -50,14 +50,17 @@ import org.jetbrains.annotations.Nullable;
 @Deprecated
 public final class UnsafeReplacementDelegate {
 
+  // accessor for cleaning up direct byte buffers
+  @VisibleForTesting
+  static final Consumer<ByteBuffer> BB_CLEANER_NOOP = _ -> {
+  };
+  @VisibleForTesting
+  static final Supplier<Consumer<ByteBuffer>> BB_CLEANER = createByteBufferCleaner();
+
   // counter for handing out field offsets; mapping for handed-out offsets to their actual field
   private static final Map<Long, Field> FIELD_OFFSET_TO_FIELD_LOOKUP = new ConcurrentHashMap<>();
   private static final AtomicLong FIELD_OFFSET_COUNTER =
     new AtomicLong(ThreadLocalRandom.current().nextInt(Short.MAX_VALUE, Integer.MAX_VALUE));
-
-  // accessors for cleaning up direct byte buffers
-  private static final Supplier<Consumer<ByteBuffer>> BB_CLEANER = createByteBufferCleaner();
-  private static final Supplier<Function<ByteBuffer, Object>> BB_ATTACHMENT_GETTER = createByteBufferAttachmentGetter();
 
   // accessor for the operating system mx bean
   private static final Supplier<OperatingSystemMXBean> OS_MX_BEAN =
@@ -103,35 +106,6 @@ public final class UnsafeReplacementDelegate {
   }
 
   /**
-   * Get a supplier that creates a function to resolve the attachment of a direct byte buffer. The function is only
-   * created once on the first initialization of the supplier.
-   *
-   * @return a supplier that creates a function to resolve the attachment of a direct byte buffer.
-   */
-  private static @NonNull Supplier<Function<ByteBuffer, Object>> createByteBufferAttachmentGetter() {
-    return new LazyMemoizingSupplier<>(() -> {
-      try {
-        var lookup = OpConstants.TRUSTED_LOOKUP.get();
-        var directBufferClass = Class.forName("sun.nio.ch.DirectBuffer");
-        var attachementMethod = directBufferClass.getMethod("attachment");
-        var attachmentMethodHandle = MethodHandles.explicitCastArguments(
-          lookup.unreflect(attachementMethod),
-          MethodType.methodType(Object.class, ByteBuffer.class));
-        return buffer -> {
-          try {
-            return attachmentMethodHandle.invokeExact(buffer);
-          } catch (Throwable _) {
-            return null;
-          }
-        };
-      } catch (Throwable throwable) {
-        UnsafeLogUtil.debug("Unable to access byte buffer attachment method; assuming it's never attached", throwable);
-        return _ -> null;
-      }
-    });
-  }
-
-  /**
    * Get a supplier that creates a consumer to clean a direct byte buffer. The consumer is only created once on the
    * first initialization of the supplier.
    *
@@ -142,31 +116,60 @@ public final class UnsafeReplacementDelegate {
       try {
         var lookup = OpConstants.TRUSTED_LOOKUP.get();
 
-        // get the method handle to get the cleaner of the provided byte buffer (type: (ByteBuffer): Cleaner)
+        // get the method handle to get the cleaner of the provided byte buffer (type: (ByteBuffer):Cleaner)
         var directBufferClass = Class.forName("sun.nio.ch.DirectBuffer");
         var cleanerMethod = directBufferClass.getDeclaredMethod("cleaner");
         var cleanerHandle = MethodHandles.explicitCastArguments(
           lookup.unreflect(cleanerMethod),
           MethodType.methodType(cleanerMethod.getReturnType(), ByteBuffer.class));
 
-        // get the method handle to invoke the clean method on the Cleaner class (type: (Cleaner): void)
+        // get the method handle to invoke the clean method on the Cleaner class (type: (Cleaner):void)
         var cleanerClass = Class.forName("jdk.internal.ref.Cleaner");
         var cleanMethod = cleanerClass.getDeclaredMethod("clean");
         var cleanHandle = lookup.unreflect(cleanMethod);
 
-        // adapt the clean() method handle by pre-processing it with the result of the cleaner retrieval method handle
-        // this results in a chained invocation like clean(buffer.cleaner())
-        var cleanBufferHandle = MethodHandles.filterArguments(cleanHandle, 0, cleanerHandle);
+        // adapt the clean() method handle by pre-processing it with the result of the cleaner retrieval
+        // method handle, this results in a chained invocation (type: (ByteBuffer):void)
+        var cleanBufferHandle = MethodHandles.filterReturnValue(cleanerHandle, cleanHandle);
+
+        // get a method handle to check if a buffer has an attachment (type: (ByteBuffer):boolean)
+        var attachementMethod = directBufferClass.getMethod("attachment");
+        var attachmentHandle = MethodHandles.explicitCastArguments(
+          lookup.unreflect(attachementMethod),
+          MethodType.methodType(attachementMethod.getReturnType(), ByteBuffer.class));
+        var isNullHandle = lookup.findStatic(
+          Objects.class,
+          "isNull",
+          MethodType.methodType(boolean.class, Object.class));
+        var isAttachmentNullHandle = MethodHandles.collectArguments(isNullHandle, 0, attachmentHandle);
+
+        // get a method handle that throws an IAE with the message 'duplicate or slice' (type: ():void)
+        // this handle needs to then be adapted to add an extra, ignored ByteBuffer param (type: (ByteBuffer):void)
+        var iaeMessageCtrHandle = lookup.findConstructor(
+          IllegalArgumentException.class,
+          MethodType.methodType(void.class, String.class));
+        var dupOrSliceIaeCtrHandle = MethodHandles.insertArguments(iaeMessageCtrHandle, 0, "duplicate or slice");
+        var throwIaeHandle = MethodHandles.throwException(void.class, IllegalArgumentException.class);
+        var throwDupOrSliceHandle = MethodHandles.collectArguments(throwIaeHandle, 0, dupOrSliceIaeCtrHandle);
+        var throwDupOrSliceHandleWithBBArg = MethodHandles.dropArguments(throwDupOrSliceHandle, 0, ByteBuffer.class);
+
+        // construct a method handle that conditionally invokes 'bb.cleaner().clean()' or throws an
+        // IAE depending on the fact if the provided ByteBuffer has an attachment or not
+        var cleanIfNotAttachmentHandle = MethodHandles.guardWithTest(
+          isAttachmentNullHandle,
+          cleanBufferHandle,
+          throwDupOrSliceHandleWithBBArg);
         return buffer -> {
           try {
-            cleanBufferHandle.invokeExact(buffer);
+            cleanIfNotAttachmentHandle.invokeExact(buffer);
+          } catch (IllegalArgumentException exception) {
+            throw exception;
           } catch (Throwable _) {
           }
         };
       } catch (Throwable throwable) {
         UnsafeLogUtil.debug("Unable to access byte buffer cleaning methods; falling back to no cleaning", throwable);
-        return _ -> { // unable to clean direct buffers
-        };
+        return BB_CLEANER_NOOP; // unable to clean direct buffers
       }
     });
   }
@@ -1273,12 +1276,6 @@ public final class UnsafeReplacementDelegate {
   public static void unsafeInvokeCleaner(ByteBuffer buffer) {
     if (!buffer.isDirect()) {
       throw new IllegalArgumentException("buffer is non-direct"); // mimics current behavior
-    }
-
-    var attachmentGetter = BB_ATTACHMENT_GETTER.get();
-    var attachment = attachmentGetter.apply(buffer);
-    if (attachment != null) {
-      throw new IllegalArgumentException("duplicate or slice"); // mimics current behavior
     }
 
     var cleanerInvoker = BB_CLEANER.get();
