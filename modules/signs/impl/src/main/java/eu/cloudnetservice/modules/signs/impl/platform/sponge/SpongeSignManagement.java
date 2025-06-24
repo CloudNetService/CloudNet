@@ -22,7 +22,6 @@ import eu.cloudnetservice.ext.platforminject.api.stereotype.ProvidesFor;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
-import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.modules.signs.impl.InternalSignManagement;
 import eu.cloudnetservice.modules.signs.impl.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.impl.platform.PlatformSignManagement;
@@ -30,8 +29,6 @@ import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -133,10 +130,8 @@ public class SpongeSignManagement extends PlatformSignManagement<ServerPlayer, S
   }
 
   @Override
-  protected void tick(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<ServerPlayer, Component>>> signsNeedingTicking) {
-    this.mainThreadExecutor.execute(() -> {
-      super.tick(signsNeedingTicking);
-    });
+  protected void tick() {
+    this.mainThreadExecutor.execute(super::tick);
   }
 
   @Override
