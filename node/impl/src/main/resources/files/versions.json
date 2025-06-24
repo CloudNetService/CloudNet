@@ -106,7 +106,7 @@
         },
         {
           "name": "1.21.5",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.21.5/builds/113/downloads/paper-1.21.5-113.jar",
+          "url": "https://api.papermc.io/v2/projects/paper/versions/1.21.5/builds/114/downloads/paper-1.21.5-114.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -121,7 +121,7 @@
         },
         {
           "name": "1.21.4",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/224/downloads/paper-1.21.4-224.jar",
+          "url": "https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/232/downloads/paper-1.21.4-232.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -415,7 +415,7 @@
       "versions": [
         {
           "name": "1.21.6",
-          "url": "https://s3.mcjars.app/spigot/1.21.6/4513/server.jar"
+          "url": "https://s3.mcjars.app/spigot/1.21.6/4514/server.jar"
         },
         {
           "name": "1.21.5",
@@ -683,7 +683,7 @@
       "versions": [
         {
           "name": "1.21.6",
-          "url": "https://ci.loohpjames.com/job/Limbo/53/artifact/target/Limbo-0.7.14-ALPHA-1.21.6.jar"
+          "url": "https://ci.loohpjames.com/job/Limbo/lastStableBuild/artifact/target/Limbo-0.7.14-ALPHA-1.21.6.jar"
         },
         {
           "name": "1.21.5",
