@@ -48,7 +48,6 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
   ) {
     super(base, serviceRegistry, input -> ChatColor.translateAlternateColorCodes('&', input));
     this.server = server;
-
     this.pluginManager = pluginManager;
   }
 
@@ -98,7 +97,7 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
       BukkitCompatibility.signGlowing(sign, layout);
 
       // set the sign lines
-      this.changeSignLines(layout, sign::setLine);
+      this.changeSignLines(layout, (line, text) -> BukkitCompatibility.signLine(sign, line, text));
       sign.update();
 
       // change the block behind the sign
@@ -123,7 +122,6 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
   public @Nullable ServiceInfoSnapshot callSignInteractEvent(@NonNull Player player) {
     var event = new BukkitCloudSignInteractEvent(player, this);
     this.pluginManager.callEvent(event);
-
     return event.isCancelled() ? null : event.target();
   }
 
