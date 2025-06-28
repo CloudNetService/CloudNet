@@ -89,7 +89,7 @@
       "website": "https://papermc.io",
       "versions": [
         {
-          "name": "1.21.5",
+          "name": "1.21.6",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -101,12 +101,28 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.21.5"
+            "versionGroup": "1.21.6"
+          }
+        },
+        {
+          "name": "1.21.5",
+          "url": "https://api.papermc.io/v2/projects/paper/versions/1.21.5/builds/114/downloads/paper-1.21.5-114.jar",
+          "deprecated": true,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
           }
         },
         {
           "name": "1.21.4",
-          "cacheFiles": false,
+          "url": "https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/232/downloads/paper-1.21.4-232.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -115,9 +131,7 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.21.4"
+            ]
           }
         },
         {
@@ -302,9 +316,24 @@
       ],
       "versions": [
         {
+          "name": "1.21.6",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.6/latest/download",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
           "name": "1.21.5",
           "url": "https://api.purpurmc.org/v2/purpur/1.21.5/latest/download",
-          "cacheFiles": false,
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -319,6 +348,7 @@
         {
           "name": "1.20.6",
           "url": "https://api.purpurmc.org/v2/purpur/1.20.6/latest/download",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -333,6 +363,7 @@
         {
           "name": "1.19.4",
           "url": "https://api.purpurmc.org/v2/purpur/1.19.4/latest/download",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -383,8 +414,13 @@
       ],
       "versions": [
         {
+          "name": "1.21.6",
+          "url": "https://s3.mcjars.app/spigot/1.21.6/4514/server.jar"
+        },
+        {
           "name": "1.21.5",
-          "url": "https://s3.mcjars.app/spigot/1.21.5/4474/server.jar"
+          "url": "https://s3.mcjars.app/spigot/1.21.5/4504/server.jar",
+          "deprecated": true
         },
         {
           "name": "1.20.6",
@@ -465,7 +501,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.21.5",
+          "name": "1.21.6",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -645,6 +681,10 @@
         "DOWNLOAD"
       ],
       "versions": [
+        {
+          "name": "1.21.6",
+          "url": "https://ci.loohpjames.com/job/Limbo/lastStableBuild/artifact/target/Limbo-0.7.14-ALPHA-1.21.6.jar"
+        },
         {
           "name": "1.21.5",
           "url": "https://ci.loohpjames.com/job/Limbo/52/artifact/target/Limbo-0.7.13-ALPHA-1.21.5.jar"

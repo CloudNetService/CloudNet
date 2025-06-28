@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.asm;
 
-import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import eu.cloudnetservice.wrapper.impl.transform.ClassTransformer;
 import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.CodeBuilder;

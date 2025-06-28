@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
-import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import eu.cloudnetservice.wrapper.impl.transform.ClassTransformer;
 import java.lang.classfile.Annotation;
 import java.lang.classfile.ClassBuilder;
 import java.lang.classfile.ClassElement;

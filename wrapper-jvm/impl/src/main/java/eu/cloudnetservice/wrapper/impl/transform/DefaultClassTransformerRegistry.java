@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.wrapper.impl.transform;
 
-import eu.cloudnetservice.wrapper.transform.ClassTransformer;
-import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
 import jakarta.inject.Singleton;
 import java.lang.classfile.ClassFile;
 import java.lang.classfile.ClassHierarchyResolver;
