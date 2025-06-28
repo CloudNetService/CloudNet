@@ -206,7 +206,7 @@ public class SignsCommand extends Command {
   }
 
   private void handleCleanup(@NonNull CommandSender sender, @NonNull CommandContext context) {
-    var world = context.getOrDefault(this.world, ((Player) sender).getInstance().getUniqueId().toString());
+    var world = context.getOrDefault(this.world, ((Player) sender).getInstance().getUuid().toString());
     // removes all signs on which location is not a sign anymore
     var removed = this.signManagement.removeMissingSigns(world);
     SignsConfiguration.sendMessage(
