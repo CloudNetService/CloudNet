@@ -130,7 +130,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
       return null;
     }
     // extract the name of the instance
-    var identifier = instance.getUniqueId().toString();
+    var identifier = instance.getUuid().toString();
     return new WorldPosition(pos.x(), pos.y(), pos.z(), 0, 0, identifier, entry.targetGroup());
   }
 
