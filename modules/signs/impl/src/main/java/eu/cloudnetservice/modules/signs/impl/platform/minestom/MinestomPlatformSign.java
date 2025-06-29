@@ -28,10 +28,11 @@ import eu.cloudnetservice.utils.base.StringUtil;
 import io.vavr.Tuple2;
 import java.util.UUID;
 import lombok.NonNull;
+import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
-import net.kyori.adventure.nbt.StringBinaryTag;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minestom.server.adventure.serializer.nbt.NbtComponentSerializer;
+import net.minestom.server.codec.Transcoder;
 import net.minestom.server.color.DyeColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
@@ -40,7 +41,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceManager;
 import org.jetbrains.annotations.Nullable;
 
-public class MinestomPlatformSign extends PlatformSign<Player, String> {
+public class MinestomPlatformSign extends PlatformSign<Player, BinaryTag> {
 
   private final GlobalEventHandler eventHandler;
   private final InstanceManager instanceManager;
@@ -55,7 +56,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
   ) {
     super(base, serviceRegistry, input -> {
       var coloredComponent = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(input);
-      return GsonComponentSerializer.gson().serialize(coloredComponent);
+      return NbtComponentSerializer.nbt().serialize(coloredComponent);
     });
 
     this.eventHandler = eventHandler;
@@ -99,12 +100,14 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
         case String string -> Enums.getIfPresent(DyeColor.class, StringUtil.toUpper(string)).or(DyeColor.BLACK);
         case null -> DyeColor.BLACK;
       };
-      var serializedColor = DyeColor.NBT_TYPE.write(dyeColor);
+      var serializedColor = DyeColor.CODEC
+        .encode(Transcoder.NBT, dyeColor)
+        .orElseThrow("could not transcode dye color " + dyeColor + " to nbt");
       textCompound.put("color", serializedColor);
 
       // set the sign lines - they are provided as legacy text components and need to be converted to JSON
       var linesCompound = ListBinaryTag.builder();
-      this.changeSignLines(layout, (_, line) -> linesCompound.add(StringBinaryTag.stringBinaryTag(line)));
+      this.changeSignLines(layout, (_, line) -> linesCompound.add(line));
       textCompound.put("messages", linesCompound.build());
 
       // build the final sign compound
