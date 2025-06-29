@@ -107,7 +107,6 @@ public final class ConditionalUnsafeDisableTransform implements ClassTransformer
    */
   @Override
   public @NonNull TransformWillingness classTransformWillingness(@NonNull String internalClassName) {
-    // need to decide only once for the entire lifetime of the jvm
     var isPlatformDependent0 = internalClassName.endsWith(CN_PLATFORM_DEPENDENT0);
     return isPlatformDependent0 ? TransformWillingness.ACCEPT : TransformWillingness.REJECT;
   }
