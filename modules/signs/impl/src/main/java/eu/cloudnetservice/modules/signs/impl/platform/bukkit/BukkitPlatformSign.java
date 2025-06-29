@@ -91,7 +91,7 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
 
     var state = location.getBlock().getState();
     if (state instanceof org.bukkit.block.Sign sign) {
-      // set the text color and glowing stated
+      // set the text color and glowing state
       BukkitCompatibility.signGlowing(sign, layout);
       BukkitCompatibility.signTextColor(sign, layout);
 
