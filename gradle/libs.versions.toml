@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-shadow = "8.3.6"
+shadow = "8.3.7"
 juppiter = "0.4.0"
 spotless = "7.0.4"
 fabricLoom = "1.10.5"
@@ -13,10 +13,10 @@ gson = "2.13.1"
 guava = "33.4.8-jre"
 
 # testing
-junit = "5.13.1"
+junit = "5.13.2"
 mockito = "5.18.0"
-junitLauncher = "1.13.1"
-testcontainers = "1.21.2"
+junitLauncher = "1.13.2"
+testcontainers = "1.21.3"
 
 # compile time processing
 lombok = "1.18.38"
@@ -41,12 +41,12 @@ oshi = "6.8.2"
 vavr = "0.10.6"
 sshj = "0.40.0"
 aerogel = "3.0.1"
-awsSdk = "2.31.68"
+awsSdk = "2.31.73"
 unirest = "4.4.7"
 caffeine = "3.2.1"
 reflexion = "2.0.0"
 geantyref = "2.0.1"
-dockerJava = "3.5.1"
+dockerJava = "3.5.2"
 nightConfig = "3.8.2"
 annotations = "26.0.2"
 influxClient = "7.3.0"
