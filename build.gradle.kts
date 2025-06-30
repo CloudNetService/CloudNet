@@ -32,10 +32,7 @@ allprojects {
 
   repositories {
     releasesOnly(mavenCentral())
-
-    // old and new sonatype snapshot repository
     snapshotsOnly(maven("https://central.sonatype.com/repository/maven-snapshots/"))
-    snapshotsOnly(maven("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
 
     // ensure that we use these repositories for snapshots/releases only (improves lookup times)
     releasesOnly(maven("https://repository.derklaro.dev/releases/"))
