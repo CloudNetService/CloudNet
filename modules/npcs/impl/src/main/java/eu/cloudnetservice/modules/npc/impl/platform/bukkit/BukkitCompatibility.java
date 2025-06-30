@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Utility to ensure compatibility with a variety of minecraft versions.
+ *
+ * @since 4.0
  */
 @ApiStatus.Internal
 public final class BukkitCompatibility {
@@ -49,12 +51,16 @@ public final class BukkitCompatibility {
         MethodType.methodType(EquipmentSlot.class));
       getInteractionHand = event -> (EquipmentSlot) getHand.invokeExact(event);
       LOGGER.debug("org.bukkit.event.player.PlayerInteractEntityEvent.getHand(): available");
-    } catch (NoSuchMethodException | IllegalAccessException ex) {
+    } catch (Exception ex) {
       getInteractionHand = _ -> EquipmentSlot.HAND;
       LOGGER.debug("org.bukkit.event.player.PlayerInteractEntityEvent.getHand(): unavailable ({})", ex.getMessage());
     }
 
     GET_INTERACTION_HAND = getInteractionHand;
+  }
+
+  private BukkitCompatibility() {
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -69,7 +75,7 @@ public final class BukkitCompatibility {
     try {
       return GET_INTERACTION_HAND.apply(event);
     } catch (Throwable throwable) {
-      LOGGER.warn("could not resolve interaction hand from event {}", event);
+      LOGGER.warn("could not resolve interaction hand from event {}", event, throwable);
       return EquipmentSlot.HAND;
     }
   }
