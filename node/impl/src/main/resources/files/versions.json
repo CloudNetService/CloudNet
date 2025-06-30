@@ -106,7 +106,6 @@
         },
         {
           "name": "1.21.6",
-          "cacheFiles": false,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -349,7 +348,6 @@
         {
           "name": "1.21.6",
           "url": "https://api.purpurmc.org/v2/purpur/1.21.6/latest/download",
-          "cacheFiles": false,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -557,7 +555,6 @@
         },
         {
           "name": "1.21.6",
-          "cacheFiles": false,
           "properties": {
             "copy": {
               "fabric-server-launch\\.jar": "fabric.jar",
