@@ -32,10 +32,7 @@ allprojects {
 
   repositories {
     releasesOnly(mavenCentral())
-
-    // old and new sonatype snapshot repository
     snapshotsOnly(maven("https://central.sonatype.com/repository/maven-snapshots/"))
-    snapshotsOnly(maven("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
 
     // ensure that we use these repositories for snapshots/releases only (improves lookup times)
     releasesOnly(maven("https://repository.derklaro.dev/releases/"))
@@ -111,13 +108,14 @@ subprojects {
   }
 
   tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_24.toString()
-    targetCompatibility = JavaVersion.VERSION_24.toString()
+    val javaVersion = if (project.path.contains("api")) JavaVersion.VERSION_17 else JavaVersion.VERSION_24
+    sourceCompatibility = javaVersion.toString()
+    targetCompatibility = javaVersion.toString()
 
     options.encoding = "UTF-8"
     options.isIncremental = true
 
-    if (project.path != ":launcher:java8" && project.path != ":launcher:patcher") {
+    if (project.path != ":launcher:java8" && project.path != ":launcher:patcher" && !project.path.contains("api")) {
       options.compilerArgs.add("--enable-preview")
       options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
       options.compilerArgs.add("-proc:full")

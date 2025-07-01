@@ -25,6 +25,7 @@ import com.github.juliarn.npclib.api.protocol.enums.ItemSlot;
 import com.github.juliarn.npclib.api.protocol.meta.EntityMetadataFactory;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
 import eu.cloudnetservice.modules.npc.NPC;
+import eu.cloudnetservice.modules.npc.impl.platform.bukkit.BukkitCompatibility;
 import eu.cloudnetservice.modules.npc.impl.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.impl.platform.bukkit.entity.NPCBukkitPlatformSelector;
 import jakarta.inject.Inject;
@@ -43,6 +44,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -108,24 +110,28 @@ public final class BukkitFunctionalityListener implements Listener {
   public void handleNpcAttack(@NonNull AttackNpcEvent event) {
     this.scheduler.runTask(
       this.plugin,
-      () -> this.handleClick(event.player(), null, event.npc().entityId(), true));
+      () -> this.handleClick(event.player(), null, event.npc().entityId(), true, false));
   }
 
   public void handleNpcInteract(@NonNull InteractNpcEvent event) {
-    this.scheduler.runTask(
-      this.plugin,
-      () -> this.handleClick(event.player(), null, event.npc().entityId(), false));
+    if (event.hand() == InteractNpcEvent.Hand.MAIN_HAND) {
+      this.scheduler.runTask(
+        this.plugin,
+        () -> this.handleClick(event.player(), null, event.npc().entityId(), false, false));
+    }
   }
 
   @EventHandler
   public void handle(@NonNull PlayerInteractEntityEvent event) {
-    this.handleClick(event.getPlayer(), event, event.getRightClicked().getEntityId(), false);
+    var hand = BukkitCompatibility.usedHand(event);
+    var ignoreInteraction = hand != EquipmentSlot.HAND;
+    this.handleClick(event.getPlayer(), event, event.getRightClicked().getEntityId(), false, ignoreInteraction);
   }
 
   @EventHandler(ignoreCancelled = true)
   public void handle(@NonNull EntityDamageByEntityEvent event) {
     if (event.getDamager() instanceof Player damager) {
-      this.handleClick(damager, event, event.getEntity().getEntityId(), true);
+      this.handleClick(damager, event, event.getEntity().getEntityId(), true, false);
     }
   }
 
@@ -210,20 +216,40 @@ public final class BukkitFunctionalityListener implements Listener {
     return status;
   }
 
-  private void handleClick(@NonNull Player player, @Nullable Cancellable cancellable, int entityId, boolean left) {
+  /**
+   * Handles a click by the given player to the entity with the given id, in case the associated entity is a selector
+   * entity. An optional cancellable can be provided that will be marked as canceled in case and selector entity exists
+   * for the entity with the given id.
+   *
+   * @param player      the player that clicked the entity.
+   * @param cancellable optional cancelable that will be marked as canceled if a selector entity was clicked.
+   * @param entityId    the id of the entity that was clicked.
+   * @param left        true if the click was performed with the left mouse button, false otherwise.
+   * @param onlyCancel  true to only mark the cancelable as canceled and ignore the click action otherwise.
+   * @throws NullPointerException if the given player is null.
+   */
+  private void handleClick(
+    @NonNull Player player,
+    @Nullable Cancellable cancellable,
+    int entityId,
+    boolean left,
+    boolean onlyCancel
+  ) {
     this.management.trackedEntities().values().stream()
       .filter(npc -> npc.entityId() == entityId)
       .findFirst()
       .ifPresent(entity -> {
-        // cancel the event if needed
         if (cancellable != null) {
           cancellable.setCancelled(true);
         }
-        // handle click
-        if (left) {
-          entity.handleLeftClickAction(player);
-        } else {
-          entity.handleRightClickAction(player);
+
+        // handle the click if the invocation was not just performed to prevent an interaction from being performed
+        if (!onlyCancel) {
+          if (left) {
+            entity.handleLeftClickAction(player);
+          } else {
+            entity.handleRightClickAction(player);
+          }
         }
       });
   }

@@ -23,3 +23,4 @@ eu.cloudnetservice.wrapper.impl.transform.bukkit.WorldEditJava8DetectorTransform
 eu.cloudnetservice.wrapper.impl.transform.bukkit.FAWEWorldEditDownloadURLTransformer
 eu.cloudnetservice.wrapper.impl.transform.netty.OldEpollDisableTransformer
 eu.cloudnetservice.wrapper.impl.transform.spark.OldAsyncProfilerDisableTransformer
+eu.cloudnetservice.wrapper.impl.transform.netty.ConditionalUnsafeDisableTransform

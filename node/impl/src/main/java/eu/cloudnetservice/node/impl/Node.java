@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.impl;
 
 import dev.derklaro.aerogel.Order;
+import eu.cloudnetservice.driver.CloudNetVersion;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
@@ -80,6 +81,7 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
+import kong.unirest.core.Unirest;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +134,16 @@ public final class Node {
   @Order(50)
   private void greetUser(@NonNull Console console) {
     HeaderReader.readAndPrintHeader(console);
+  }
+
+  @Inject
+  @Order(75)
+  private void setupDefaultUnirestUserAgent(@NonNull CloudNetVersion version) {
+    var formattedVersion = String.format(
+      "%d.%d.%d-%s[%s]",
+      version.major(), version.minor(), version.patch(), version.versionType(), version.revision());
+    var userAgent = String.format("CloudNetService/CloudNet/%s (https://discord.cloudnetservice.eu)", formattedVersion);
+    Unirest.config().addDefaultHeader("User-Agent", userAgent);
   }
 
   @Inject
