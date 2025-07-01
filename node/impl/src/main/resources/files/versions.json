@@ -734,8 +734,12 @@
       ],
       "versions": [
         {
+          "name": "1.21.7",
+          "url": "https://ci.loohpjames.com/job/Limbo/55/artifact/target/Limbo-0.7.15-ALPHA-1.21.7.jar"
+        },
+        {
           "name": "1.21.6",
-          "url": "https://ci.loohpjames.com/job/Limbo/lastStableBuild/artifact/target/Limbo-0.7.14-ALPHA-1.21.6.jar"
+          "url": "https://ci.loohpjames.com/job/Limbo/54/artifact/target/Limbo-0.7.14-ALPHA-1.21.6.jar"
         },
         {
           "name": "1.21.5",
