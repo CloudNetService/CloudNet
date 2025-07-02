@@ -89,8 +89,23 @@
       "website": "https://papermc.io",
       "versions": [
         {
-          "name": "1.21.6",
+          "name": "1.21.7",
           "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21.7"
+          }
+        },
+        {
+          "name": "1.21.6",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -316,9 +331,23 @@
       ],
       "versions": [
         {
+          "name": "1.21.7",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.7/latest/download",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
           "name": "1.21.6",
           "url": "https://api.purpurmc.org/v2/purpur/1.21.6/latest/download",
-          "cacheFiles": false,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -414,8 +443,12 @@
       ],
       "versions": [
         {
+          "name": "1.21.7",
+          "url": "https://s3.mcjars.app/spigot/1.21.7/4519/server.jar"
+        },
+        {
           "name": "1.21.6",
-          "url": "https://s3.mcjars.app/spigot/1.21.6/4514/server.jar"
+          "url": "https://s3.mcjars.app/spigot/1.21.6/4518/server.jar"
         },
         {
           "name": "1.21.5",
@@ -501,8 +534,27 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.21.6",
+          "name": "1.21.7",
           "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "fabric-server-launch\\.jar": "fabric.jar",
+              "libraries/.*": "/",
+              "versions/.*": "/",
+              "server\\.jar": "server.jar"
+            },
+            "parameters": [
+              "server",
+              "-mcversion",
+              "%version%",
+              "-downloadMinecraft"
+            ],
+            "fetchOverFabricApi": true
+          },
+          "minJavaVersion": 21
+        },
+        {
+          "name": "1.21.6",
           "properties": {
             "copy": {
               "fabric-server-launch\\.jar": "fabric.jar",
@@ -682,28 +734,32 @@
       ],
       "versions": [
         {
+          "name": "1.21.7",
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.7/55/server.jar"
+        },
+        {
           "name": "1.21.6",
-          "url": "https://ci.loohpjames.com/job/Limbo/lastStableBuild/artifact/target/Limbo-0.7.14-ALPHA-1.21.6.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.6/54/server.jar"
         },
         {
           "name": "1.21.5",
-          "url": "https://ci.loohpjames.com/job/Limbo/52/artifact/target/Limbo-0.7.13-ALPHA-1.21.5.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.5/52/server.jar"
         },
         {
           "name": "1.21.4",
-          "url": "https://ci.loohpjames.com/job/Limbo/51/artifact/target/Limbo-0.7.12-ALPHA-1.21.4.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.4/51/server.jar"
         },
         {
           "name": "1.21.3",
-          "url": "https://ci.loohpjames.com/job/Limbo/47/artifact/target/Limbo-0.7.11-ALPHA-1.21.3.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.3/47/server.jar"
         },
         {
           "name": "1.21.1",
-          "url": "https://ci.loohpjames.com/job/Limbo/46/artifact/target/Limbo-0.7.10-ALPHA-1.21.1.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.1/46/server.jar"
         },
         {
           "name": "1.20.6",
-          "url": "https://ci.loohpjames.com/job/Limbo/43/artifact/target/Limbo-0.7.9-ALPHA-1.20.6.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.20.6/43/server.jar"
         }
       ]
     }
