@@ -41,8 +41,8 @@ final class Premain {
     // init and registers the unsafe transformer very early in the process. this is done here
     // as we usually don't allow transformers to be registered so early as they're intended to
     // transform classes brought in by the wrapped application, not by the jdk
-    var transformerDisabled = Boolean.getBoolean("cloudnet.wrapper.unsafe-transform-disabled");
-    if (!transformerDisabled) {
+    var unsafeTransformerDisabled = Boolean.getBoolean("cloudnet.wrapper.unsafe-transform-disabled");
+    if (!unsafeTransformerDisabled) {
       UnsafeTransformer.init(inst);
       Premain.transformerRegistry.registerTransformer(new UnsafeTransformer());
     }
