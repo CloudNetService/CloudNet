@@ -735,31 +735,31 @@
       "versions": [
         {
           "name": "1.21.7",
-          "url": "https://ci.loohpjames.com/job/Limbo/55/artifact/target/Limbo-0.7.15-ALPHA-1.21.7.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.7/55/server.jar"
         },
         {
           "name": "1.21.6",
-          "url": "https://ci.loohpjames.com/job/Limbo/54/artifact/target/Limbo-0.7.14-ALPHA-1.21.6.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.6/54/server.jar"
         },
         {
           "name": "1.21.5",
-          "url": "https://ci.loohpjames.com/job/Limbo/52/artifact/target/Limbo-0.7.13-ALPHA-1.21.5.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.5/52/server.jar"
         },
         {
           "name": "1.21.4",
-          "url": "https://ci.loohpjames.com/job/Limbo/51/artifact/target/Limbo-0.7.12-ALPHA-1.21.4.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.4/51/server.jar"
         },
         {
           "name": "1.21.3",
-          "url": "https://ci.loohpjames.com/job/Limbo/47/artifact/target/Limbo-0.7.11-ALPHA-1.21.3.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.3/47/server.jar"
         },
         {
           "name": "1.21.1",
-          "url": "https://ci.loohpjames.com/job/Limbo/46/artifact/target/Limbo-0.7.10-ALPHA-1.21.1.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.1/46/server.jar"
         },
         {
           "name": "1.20.6",
-          "url": "https://ci.loohpjames.com/job/Limbo/43/artifact/target/Limbo-0.7.9-ALPHA-1.20.6.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.20.6/43/server.jar"
         }
       ]
     }
