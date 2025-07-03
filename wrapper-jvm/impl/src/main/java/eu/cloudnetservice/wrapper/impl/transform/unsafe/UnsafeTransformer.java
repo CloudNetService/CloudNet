@@ -67,13 +67,9 @@ public final class UnsafeTransformer implements ClassTransformer {
     MethodTypeDesc.of(ConstantDescs.CD_void, ConstantDescs.CD_String, ConstantDescs.CD_String);
 
   /**
-   * Constructs a new instance of this transformer, usually done via SPI.
+   * Constructs a new instance of this transformer, only public for internal use.
    */
   public UnsafeTransformer() {
-    var transformerDisabled = Boolean.getBoolean("cloudnet.wrapper.unsafe-transform-disabled");
-    if (transformerDisabled) {
-      throw new UnsupportedOperationException("transformer disabled via system property");
-    }
   }
 
   /**
