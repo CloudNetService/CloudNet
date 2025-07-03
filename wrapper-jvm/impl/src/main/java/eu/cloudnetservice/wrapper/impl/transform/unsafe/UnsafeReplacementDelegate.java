@@ -26,11 +26,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -49,11 +45,6 @@ import org.jetbrains.annotations.Nullable;
  */
 @Deprecated
 public final class UnsafeReplacementDelegate {
-
-  // counter for handing out field offsets; mapping for handed-out offsets to their actual field
-  private static final Map<Long, Field> FIELD_OFFSET_TO_FIELD_LOOKUP = new ConcurrentHashMap<>();
-  private static final AtomicLong FIELD_OFFSET_COUNTER =
-    new AtomicLong(ThreadLocalRandom.current().nextInt(Short.MAX_VALUE, Integer.MAX_VALUE));
 
   // accessors for cleaning up direct byte buffers
   private static final Supplier<Consumer<ByteBuffer>> BB_CLEANER = createByteBufferCleaner();
@@ -277,9 +268,7 @@ public final class UnsafeReplacementDelegate {
   @UnsafeReplacement(name = "objectFieldOffset")
   public static long unsafeObjectFieldOffset(Field f) {
     validateSaneFieldAccess(f);
-    var nextOffset = FIELD_OFFSET_COUNTER.getAndIncrement();
-    FIELD_OFFSET_TO_FIELD_LOOKUP.put(nextOffset, f);
-    return nextOffset;
+    return FieldOffsetRegistry.fieldOffset(f);
   }
 
   /* replacement for staticFieldOffset(Field) */
@@ -292,7 +281,7 @@ public final class UnsafeReplacementDelegate {
   @UnsafeReplacement(name = "staticFieldBase")
   public static Object unsafeStaticFieldBase(Field f) {
     validateSaneFieldAccess(f);
-    return f.getDeclaringClass();
+    return FieldOffsetRegistry.staticFieldBase(f);
   }
   //</editor-fold>
 
@@ -311,7 +300,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FIELD_OFFSET_TO_FIELD_LOOKUP.get(offset);
+      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
       return field == null ? null : FieldOps.fieldGet(field, object, op);
     } catch (Throwable throwable) {
       UnsafeLogUtil.debug("Unable to unsafe get: [obj={}, offset={}, op={}]", object, offset, op, throwable);
@@ -601,7 +590,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FIELD_OFFSET_TO_FIELD_LOOKUP.get(offset);
+      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
       if (field != null) {
         var typeKind = ValueTypeKind.of(field.getType());
         FieldOps.fieldPut(typeKind, field, object, value, op);
@@ -870,7 +859,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FIELD_OFFSET_TO_FIELD_LOOKUP.get(offset);
+      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
       if (field != null) {
         var typeKind = ValueTypeKind.of(field.getType());
         return FieldOps.fieldComparePut(typeKind, field, object, expected, value);
@@ -928,7 +917,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FIELD_OFFSET_TO_FIELD_LOOKUP.get(offset);
+      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
       if (field != null) {
         var typeKind = ValueTypeKind.of(field.getType());
         return FieldOps.fieldGetAdd(typeKind, field, object, delta);
@@ -983,7 +972,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FIELD_OFFSET_TO_FIELD_LOOKUP.get(offset);
+      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
       if (field != null) {
         var typeKind = ValueTypeKind.of(field.getType());
         return FieldOps.fieldGetPut(typeKind, field, object, value);

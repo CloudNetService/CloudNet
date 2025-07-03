@@ -20,7 +20,9 @@ import java.lang.classfile.ClassFile;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
+import java.lang.foreign.MemorySegment;
 import java.lang.reflect.AccessFlag;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -282,6 +284,47 @@ public class UnsafeReplacementDelegateTest {
       UnsafeReplacementDelegate.unsafePutOrderedObject(inst, offset, "hello");
       Assertions.assertEquals("final string", oldVal);
       Assertions.assertEquals("hello", inst.getFieldValues()[4]);
+    }
+  }
+
+  @Test
+  void testGetInheritedField() throws NoSuchFieldException {
+    var addressField = Buffer.class.getDeclaredField("address");
+    var addressOffset = UnsafeReplacementDelegate.unsafeObjectFieldOffset(addressField);
+    var directBuffer = ByteBuffer.allocateDirect(5);
+    var unsafeAddress = Assertions.assertDoesNotThrow(
+      () -> UnsafeReplacementDelegate.unsafeGetLong(directBuffer, addressOffset));
+    var memSegAddress = MemorySegment.ofBuffer(directBuffer).address();
+    Assertions.assertEquals(memSegAddress, unsafeAddress);
+  }
+
+  @Test
+  void testGetFieldFromClass() throws Exception {
+    // static field
+    {
+      var annotationField = Class.class.getDeclaredField("ANNOTATION");
+      var base = UnsafeReplacementDelegate.unsafeStaticFieldBase(annotationField);
+      var off = UnsafeReplacementDelegate.unsafeStaticFieldOffset(annotationField);
+      var value = UnsafeReplacementDelegate.unsafeGetLong(base, off);
+      Assertions.assertEquals(0x00002000, value);
+    }
+
+    // instance field
+    {
+      var moduleField = Class.class.getDeclaredField("module");
+      var off = UnsafeReplacementDelegate.unsafeObjectFieldOffset(moduleField);
+      var value = UnsafeReplacementDelegate.unsafeGetObject(UnsafeReplacementDelegateTest.class, off);
+      Assertions.assertNotNull(value);
+      Assertions.assertSame(UnsafeReplacementDelegate.class.getModule(), value);
+    }
+
+    // instance field
+    {
+      var nameField = Class.class.getDeclaredField("name");
+      var off = UnsafeReplacementDelegate.unsafeObjectFieldOffset(nameField);
+      var value = UnsafeReplacementDelegate.unsafeGetObject(Class.class, off);
+      Assertions.assertNotNull(value);
+      Assertions.assertSame(Class.class.getName(), value);
     }
   }
 
