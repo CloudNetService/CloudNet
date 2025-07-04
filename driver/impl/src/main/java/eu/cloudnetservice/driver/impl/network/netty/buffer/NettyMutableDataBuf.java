@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBuf.Mutable {
+public final class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBuf.Mutable {
 
   /**
    * Constructs a new mutable data buf instance.
@@ -207,5 +207,13 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
   @Override
   public @NonNull DataBuf asImmutable() {
     return new NettyImmutableDataBuf(this.buffer);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull String toString() {
+    return "NettyMutableDataBuf[buffer=" + this.buffer + "]";
   }
 }

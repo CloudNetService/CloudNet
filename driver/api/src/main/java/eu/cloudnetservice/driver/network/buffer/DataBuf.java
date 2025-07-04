@@ -25,23 +25,23 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents an immutable buffer which is essentially a wrapper around some kind of readable buffer. By default,
- * CloudNet wraps the netty ByteBuf meaning that read operations are deferred to an underlying byte array of nio byte
- * buffer.
+ * Represents an immutable buffer, which is essentially a wrapper around some kind of readable buffer. By default,
+ * CloudNet wraps netty buffer instances and delegates each method call to them.
  * <p>
- * However, a data buf does not allow (in comparison to other wrappers) the random access to bytes at specific positions
- * (for example using a netty ByteBuf {@code buf.getByte(index)} would be possible, but isn't in this buffer). But it
- * must be possible for a reader to store the current position of the buffer and return to it (for example after
- * reading). This is done by starting a transaction using {@link #startTransaction()}, reading or writing to the buffer
- * and restoring the previous position by using {@link #redoTransaction()}. Note: This will not remove bytes written to
- * the buffer, other write operations will however start from the original index and override the written bytes.
+ * However, a data buf does not allow (in comparison to other wrappers) the random access to bytes at specific
+ * positions. But it must be possible for a reader to store the current position of the buffer and return to it (for
+ * example, after reading). This is done by starting a transaction using {@link #startTransaction()}, reading or writing
+ * to the buffer and restoring the previous position by using {@link #redoTransaction()}. Note: This will not remove
+ * bytes written to the buffer, other writes will, however, start from the original index and override the written
+ * bytes.
  * <p>
  * Other operations should work as expected on a buffer, reading should always start from the head of the buffer,
  * reflecting the operation over all other readers. If one reader reads a byte from the buffer, the next one will start
  * at the second byte in the buffer, not the first one.
  * <p>
- * Buffers are not required to be thread safe, they can but should be treated specially in these cases. Concurrent read
- * and/or write operations will therefore produce (by default) different results when spread over threads.
+ * Buffers are not required to be thread safe, they should be treated specially in these cases. Concurrent read and/or
+ * write operations might therefore produce (by default) unspecified results when data buffers are accessed
+ * concurrently.
  * <p>
  * Buffers should avoid memory leaks by ensuring to release their content after the last byte of the buffer was read.
  * The behaviour can be influenced by acquiring them using {@link #acquire()}. The buffer will only be released if every
@@ -288,15 +288,13 @@ public interface DataBuf extends AutoCloseable {
   DataBuf redoTransaction();
 
   /**
-   * Converts this immutable buffer to a mutable one. There is no need to copy the underlying byte tracker, meaning that
-   * all writes will be reflected into this buffer and vise-versa.
+   * Converts this immutable buffer to a mutable one. The underlying memory is not shared between this buffer and the
+   * newly constructed mutable one. The returned buffer range starts at the current reader position of this buffer.
    *
    * @return a mutable variant of this buffer.
    */
   @NonNull
   DataBuf.Mutable asMutable();
-
-  // direct memory access
 
   /**
    * Get if the current buffer is still accessible or if it was released already.
@@ -512,13 +510,11 @@ public interface DataBuf extends AutoCloseable {
     @NonNull
     DataBuf.Mutable ensureWriteable(int bytes);
 
-    // utility for reading
-
     /**
-     * Converts this buffer into an immutable version of it. The underlying buffer is not expected to be clones, that
-     * means that writes to this buffer are still reflected into the immutable version of it and vise-versa.
+     * Wraps the underlying buffer into a readable version, the underlying memory, lifetime and reader/writer positions
+     * are shared between this buffer and the read-only variant.
      *
-     * @return an immutable version of this buffer.
+     * @return an immutable wrap of this buffer.
      */
     @NonNull
     DataBuf asImmutable();
