@@ -22,9 +22,11 @@ import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.foreign.MemorySegment;
 import java.lang.reflect.AccessFlag;
+import java.lang.reflect.Modifier;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -326,6 +328,58 @@ public class UnsafeReplacementDelegateTest {
       Assertions.assertNotNull(value);
       Assertions.assertSame(Class.class.getName(), value);
     }
+  }
+
+  @Test
+  void testEachFieldInClassHasDifferentOffset() {
+    var inst = new ClassWithFields();
+    var seenOffsets = new HashSet<Long>();
+    var fields = ClassWithFields.class.getDeclaredFields();
+    for (var field : fields) {
+      var isStatic = Modifier.isStatic(field.getModifiers());
+      var offset = switch (isStatic) {
+        case true -> UnsafeReplacementDelegate.unsafeStaticFieldOffset(field);
+        case false -> UnsafeReplacementDelegate.unsafeObjectFieldOffset(field);
+      };
+      Assertions.assertTrue(offset >= 0);
+      Assertions.assertTrue(offset <= 25);
+      Assertions.assertTrue(seenOffsets.add(offset));
+
+      var base = switch (isStatic) {
+        case true -> UnsafeReplacementDelegate.unsafeStaticFieldBase(field);
+        case false -> inst;
+      };
+      var resolvedField = FieldOffsetOps.fieldFromOffset(base, offset);
+      Assertions.assertEquals(field, resolvedField);
+    }
+  }
+
+  @Test
+  void testEachFieldInClassHierarchyHasDifferentOffset() {
+    var inst = ByteBuffer.allocate(1);
+    var seenOffsets = new HashSet<Long>();
+
+    Class<?> current = inst.getClass();
+    do {
+      var fields = current.getDeclaredFields();
+      for (var field : fields) {
+        var isStatic = Modifier.isStatic(field.getModifiers());
+        var offset = switch (isStatic) {
+          case true -> UnsafeReplacementDelegate.unsafeStaticFieldOffset(field);
+          case false -> UnsafeReplacementDelegate.unsafeObjectFieldOffset(field);
+        };
+        Assertions.assertTrue(offset >= 0);
+        Assertions.assertTrue(offset <= 250);
+        Assertions.assertTrue(seenOffsets.add(offset));
+
+        var base = switch (isStatic) {
+          case true -> UnsafeReplacementDelegate.unsafeStaticFieldBase(field);
+          case false -> inst;
+        };
+        var resolvedField = FieldOffsetOps.fieldFromOffset(base, offset);
+        Assertions.assertEquals(field, resolvedField);
+      }
+    } while ((current = current.getSuperclass()) != null);
   }
 
   @Test

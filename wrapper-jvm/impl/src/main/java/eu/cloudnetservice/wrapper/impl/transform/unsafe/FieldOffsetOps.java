@@ -29,12 +29,12 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-final class FieldOffsetRegistry {
+final class FieldOffsetOps {
 
   private static final int FIELD_COUNT_IN_CLASS = Class.class.getDeclaredFields().length;
   private static final Map<FieldCacheKey, Field> FIELD_LOOKUP_CACHE = new ConcurrentHashMap<>(16, 0.9f, 1);
 
-  private FieldOffsetRegistry() {
+  private FieldOffsetOps() {
     throw new UnsupportedOperationException();
   }
 

@@ -268,7 +268,7 @@ public final class UnsafeReplacementDelegate {
   @UnsafeReplacement(name = "objectFieldOffset")
   public static long unsafeObjectFieldOffset(Field f) {
     validateSaneFieldAccess(f);
-    return FieldOffsetRegistry.fieldOffset(f);
+    return FieldOffsetOps.fieldOffset(f);
   }
 
   /* replacement for staticFieldOffset(Field) */
@@ -281,7 +281,7 @@ public final class UnsafeReplacementDelegate {
   @UnsafeReplacement(name = "staticFieldBase")
   public static Object unsafeStaticFieldBase(Field f) {
     validateSaneFieldAccess(f);
-    return FieldOffsetRegistry.staticFieldBase(f);
+    return FieldOffsetOps.staticFieldBase(f);
   }
   //</editor-fold>
 
@@ -300,7 +300,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
+      var field = FieldOffsetOps.fieldFromOffset(object, offset);
       return field == null ? null : FieldOps.fieldGet(field, object, op);
     } catch (Throwable throwable) {
       UnsafeLogUtil.debug("Unable to unsafe get: [obj={}, offset={}, op={}]", object, offset, op, throwable);
@@ -590,7 +590,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
+      var field = FieldOffsetOps.fieldFromOffset(object, offset);
       if (field != null) {
         var typeKind = ValueTypeKind.of(field.getType());
         FieldOps.fieldPut(typeKind, field, object, value, op);
@@ -859,7 +859,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
+      var field = FieldOffsetOps.fieldFromOffset(object, offset);
       if (field != null) {
         var typeKind = ValueTypeKind.of(field.getType());
         return FieldOps.fieldComparePut(typeKind, field, object, expected, value);
@@ -917,7 +917,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
+      var field = FieldOffsetOps.fieldFromOffset(object, offset);
       if (field != null) {
         var typeKind = ValueTypeKind.of(field.getType());
         return FieldOps.fieldGetAdd(typeKind, field, object, delta);
@@ -972,7 +972,7 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetRegistry.fieldFromOffset(object, offset);
+      var field = FieldOffsetOps.fieldFromOffset(object, offset);
       if (field != null) {
         var typeKind = ValueTypeKind.of(field.getType());
         return FieldOps.fieldGetPut(typeKind, field, object, value);
