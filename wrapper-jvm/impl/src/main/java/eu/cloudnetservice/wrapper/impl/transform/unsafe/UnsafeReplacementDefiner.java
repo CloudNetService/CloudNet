@@ -42,6 +42,7 @@ final class UnsafeReplacementDefiner {
   // classes that should be appended to the bootstrap class path
   private static final Set<String> BOOTSTRAP_CLASS_PREFIXES = Set.of(
     "ArrayOps",
+    "FieldOffsetOps",
     "FieldOps",
     "LazyMemoizingSupplier",
     "MemoryControlOps",

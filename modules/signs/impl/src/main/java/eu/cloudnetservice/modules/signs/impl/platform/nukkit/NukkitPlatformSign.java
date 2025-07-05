@@ -24,8 +24,10 @@ import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.plugin.PluginManager;
+import cn.nukkit.utils.DyeColor;
 import cn.nukkit.utils.Faceable;
 import cn.nukkit.utils.TextFormat;
+import com.google.common.base.Enums;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -33,6 +35,7 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.impl.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.impl.platform.nukkit.event.NukkitCloudSignInteractEvent;
+import eu.cloudnetservice.utils.base.StringUtil;
 import java.util.Arrays;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -94,8 +97,16 @@ public class NukkitPlatformSign extends PlatformSign<Player, String> {
     // get the block at the given location
     var blockEntity = location.getLevel().getBlockEntity(location);
     if (blockEntity instanceof BlockEntitySign sign) {
-      // set the glowing status if needed
-      sign.setGlowing(layout.glowingColor() != null);
+      // set the glowing state
+      sign.setGlowing(layout.textGlowing());
+
+      // set the sign text color
+      var textColor = layout.textColor();
+      var dyeColor = switch (textColor) {
+        case String string -> Enums.getIfPresent(DyeColor.class, StringUtil.toUpper(string)).or(DyeColor.BLACK);
+        case null -> DyeColor.BLACK;
+      };
+      sign.setColor(dyeColor.getColor());
 
       // remove all old sign lines from the lines buffer
       // this is not thread safe at all, but updates to the sign should only be made from the server primary thread

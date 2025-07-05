@@ -284,23 +284,40 @@ public final class BukkitCompatibility {
   }
 
   /**
-   * Enables the glowing effect for the given signs if the layout has a glowing color defined.
+   * Applies the text color defined in the given layout to the given sign. Falls back to black if not defined.
+   *
+   * @param sign   the sign to apply the text color to.
+   * @param layout the layout to get the text color from.
+   * @throws NullPointerException if the given sign or layout is null.
+   */
+  public static void signTextColor(@NonNull org.bukkit.block.Sign sign, @NonNull SignLayout layout) {
+    if (SIGN_SET_TEXT_COLOR != null) {
+      try {
+        var textColor = layout.textColor();
+        var dyeColor = switch (textColor) {
+          case String string -> Enums.getIfPresent(DyeColor.class, StringUtil.toUpper(string)).or(DyeColor.BLACK);
+          case null -> DyeColor.BLACK;
+        };
+        SIGN_SET_TEXT_COLOR.apply(sign, dyeColor);
+      } catch (Throwable throwable) {
+        logExceptionMessage("Unable to set sign text color: {}", throwable.getMessage());
+      }
+    }
+  }
+
+  /**
+   * Enables the glowing effect for the given signs if the given layout has that feature enabled.
    *
    * @param sign   the sign to enable the glowing effect for.
    * @param layout the layout to resolve the glowing effect from.
    * @throws NullPointerException if the given target sign or sign layout is null.
    */
   public static void signGlowing(@NonNull org.bukkit.block.Sign sign, @NonNull SignLayout layout) {
-    var glowingColor = layout.glowingColor();
-    if (SIGN_SET_GLOWING != null && SIGN_SET_TEXT_COLOR != null && glowingColor != null) {
+    if (SIGN_SET_GLOWING != null) {
       try {
-        var dyeColor = Enums.getIfPresent(DyeColor.class, StringUtil.toUpper(glowingColor)).orNull();
-        if (dyeColor != null) {
-          SIGN_SET_GLOWING.apply(sign, Boolean.TRUE);
-          SIGN_SET_TEXT_COLOR.apply(sign, dyeColor);
-        }
+        SIGN_SET_GLOWING.apply(sign, layout.textGlowing());
       } catch (Throwable throwable) {
-        logExceptionMessage("Unable to sign glowing: {}", throwable.getMessage());
+        logExceptionMessage("Unable to set sign glowing: {}", throwable.getMessage());
       }
     }
   }

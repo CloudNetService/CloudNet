@@ -17,6 +17,6 @@
 object Versions {
 
   // internal versions
-  const val cloudNet = "4.0.0-RC13-SNAPSHOT"
+  const val cloudNet = "4.0.0-RC14-SNAPSHOT"
   const val cloudNetCodeName = "Blizzard"
 }

@@ -20,9 +20,13 @@ import java.lang.classfile.ClassFile;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
+import java.lang.foreign.MemorySegment;
 import java.lang.reflect.AccessFlag;
+import java.lang.reflect.Modifier;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -283,6 +287,99 @@ public class UnsafeReplacementDelegateTest {
       Assertions.assertEquals("final string", oldVal);
       Assertions.assertEquals("hello", inst.getFieldValues()[4]);
     }
+  }
+
+  @Test
+  void testGetInheritedField() throws NoSuchFieldException {
+    var addressField = Buffer.class.getDeclaredField("address");
+    var addressOffset = UnsafeReplacementDelegate.unsafeObjectFieldOffset(addressField);
+    var directBuffer = ByteBuffer.allocateDirect(5);
+    var unsafeAddress = Assertions.assertDoesNotThrow(
+      () -> UnsafeReplacementDelegate.unsafeGetLong(directBuffer, addressOffset));
+    var memSegAddress = MemorySegment.ofBuffer(directBuffer).address();
+    Assertions.assertEquals(memSegAddress, unsafeAddress);
+  }
+
+  @Test
+  void testGetFieldFromClass() throws Exception {
+    // static field
+    {
+      var annotationField = Class.class.getDeclaredField("ANNOTATION");
+      var base = UnsafeReplacementDelegate.unsafeStaticFieldBase(annotationField);
+      var off = UnsafeReplacementDelegate.unsafeStaticFieldOffset(annotationField);
+      var value = UnsafeReplacementDelegate.unsafeGetLong(base, off);
+      Assertions.assertEquals(0x00002000, value);
+    }
+
+    // instance field
+    {
+      var moduleField = Class.class.getDeclaredField("module");
+      var off = UnsafeReplacementDelegate.unsafeObjectFieldOffset(moduleField);
+      var value = UnsafeReplacementDelegate.unsafeGetObject(UnsafeReplacementDelegateTest.class, off);
+      Assertions.assertNotNull(value);
+      Assertions.assertSame(UnsafeReplacementDelegate.class.getModule(), value);
+    }
+
+    // instance field
+    {
+      var nameField = Class.class.getDeclaredField("name");
+      var off = UnsafeReplacementDelegate.unsafeObjectFieldOffset(nameField);
+      var value = UnsafeReplacementDelegate.unsafeGetObject(Class.class, off);
+      Assertions.assertNotNull(value);
+      Assertions.assertSame(Class.class.getName(), value);
+    }
+  }
+
+  @Test
+  void testEachFieldInClassHasDifferentOffset() {
+    var inst = new ClassWithFields();
+    var seenOffsets = new HashSet<Long>();
+    var fields = ClassWithFields.class.getDeclaredFields();
+    for (var field : fields) {
+      var isStatic = Modifier.isStatic(field.getModifiers());
+      var offset = switch (isStatic) {
+        case true -> UnsafeReplacementDelegate.unsafeStaticFieldOffset(field);
+        case false -> UnsafeReplacementDelegate.unsafeObjectFieldOffset(field);
+      };
+      Assertions.assertTrue(offset >= 0);
+      Assertions.assertTrue(offset <= 25);
+      Assertions.assertTrue(seenOffsets.add(offset));
+
+      var base = switch (isStatic) {
+        case true -> UnsafeReplacementDelegate.unsafeStaticFieldBase(field);
+        case false -> inst;
+      };
+      var resolvedField = FieldOffsetOps.fieldFromOffset(base, offset);
+      Assertions.assertEquals(field, resolvedField);
+    }
+  }
+
+  @Test
+  void testEachFieldInClassHierarchyHasDifferentOffset() {
+    var inst = ByteBuffer.allocate(1);
+    var seenOffsets = new HashSet<Long>();
+
+    Class<?> current = inst.getClass();
+    do {
+      var fields = current.getDeclaredFields();
+      for (var field : fields) {
+        var isStatic = Modifier.isStatic(field.getModifiers());
+        var offset = switch (isStatic) {
+          case true -> UnsafeReplacementDelegate.unsafeStaticFieldOffset(field);
+          case false -> UnsafeReplacementDelegate.unsafeObjectFieldOffset(field);
+        };
+        Assertions.assertTrue(offset >= 0);
+        Assertions.assertTrue(offset <= 250);
+        Assertions.assertTrue(seenOffsets.add(offset));
+
+        var base = switch (isStatic) {
+          case true -> UnsafeReplacementDelegate.unsafeStaticFieldBase(field);
+          case false -> inst;
+        };
+        var resolvedField = FieldOffsetOps.fieldFromOffset(base, offset);
+        Assertions.assertEquals(field, resolvedField);
+      }
+    } while ((current = current.getSuperclass()) != null);
   }
 
   @Test
