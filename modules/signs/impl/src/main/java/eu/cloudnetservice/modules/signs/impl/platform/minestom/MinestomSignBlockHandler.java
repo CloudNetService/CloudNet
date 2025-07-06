@@ -26,26 +26,29 @@ import net.minestom.server.tag.Tag;
 final class MinestomSignBlockHandler implements BlockHandler {
 
   public static final MinestomSignBlockHandler SIGN_BLOCK_HANDLER = new MinestomSignBlockHandler();
-  private static final List<Tag<?>> ENTITY_TAGS = List.of(
-    Tag.Byte("GlowingText"),
-    Tag.String("Color"),
-    Tag.String("Text1"),
-    Tag.String("Text2"),
-    Tag.String("Text3"),
-    Tag.String("Text4"));
 
   private static final Key SIGN_NAMESPACE = Key.key("minecraft", "sign");
+  private static final List<Tag<?>> SIGN_ENTITY_TAGS = List.of(
+    Tag.Byte("is_waxed"),
+    Tag.NBT("front_text"),
+    Tag.NBT("back_text"));
 
   private MinestomSignBlockHandler() {
   }
 
-  @Override
-  public @NonNull Collection<Tag<?>> getBlockEntityTags() {
-    return ENTITY_TAGS;
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Key getKey() {
     return SIGN_NAMESPACE;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull Collection<Tag<?>> getBlockEntityTags() {
+    return SIGN_ENTITY_TAGS;
   }
 }

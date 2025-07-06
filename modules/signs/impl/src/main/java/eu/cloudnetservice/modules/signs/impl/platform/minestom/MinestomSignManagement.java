@@ -35,6 +35,7 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
+import net.kyori.adventure.nbt.BinaryTag;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Player;
@@ -51,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
   InternalSignManagement.class,
   SignManagement.class
 })
-public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple2<Point, Instance>, String> {
+public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple2<Point, Instance>, BinaryTag> {
 
   private final ServiceRegistry serviceRegistry;
   private final GlobalEventHandler eventHandler;
@@ -135,7 +136,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
   }
 
   @Override
-  protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
+  protected @NonNull PlatformSign<Player, BinaryTag> createPlatformSign(@NonNull Sign base) {
     return new MinestomPlatformSign(base, this.serviceRegistry, this.eventHandler, this.instanceManager);
   }
 }

@@ -121,7 +121,6 @@
         },
         {
           "name": "1.21.5",
-          "url": "https://fill-data.papermc.io/v1/objects/2ae6ae22adf417699746e0f89fc2ef6cb6ee050a5f6608cee58f0535d60b509e/paper-1.21.5-114.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -131,12 +130,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21.5"
           }
         },
         {
           "name": "1.21.4",
-          "url": "https://fill-data.papermc.io/v1/objects/5ee4f542f628a14c644410b08c94ea42e772ef4d29fe92973636b6813d4eaffc/paper-1.21.4-232.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -146,12 +146,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21.4"
           }
         },
         {
           "name": "1.20.6",
-          "url": "https://fill-data.papermc.io/v1/objects/4b011f5adb5f6c72007686a223174fce82f31aeb4b34faf4652abc840b47e640/paper-1.20.6-151.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -161,12 +162,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.20.6"
           }
         },
         {
           "name": "1.19.4",
-          "url": "https://fill-data.papermc.io/v1/objects/e587d78cba3e99ef8c4bc24cf20cc3bdbbe89e33b0b572070446af4eb6be5ccf/paper-1.19.4-550.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -176,12 +178,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.19.4"
           }
         },
         {
           "name": "1.18.2",
-          "url": "https://fill-data.papermc.io/v1/objects/0578f18f4d632b494b468ec56b3b414b5b56fea087ee7d39cf6dcdf4c9d01f05/paper-1.18.2-388.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -191,12 +194,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.18.2"
           }
         },
         {
           "name": "1.17.1",
-          "url": "https://fill-data.papermc.io/v1/objects/6cc1ee2f94253ce10b5374ed85fffc735a97d8f1b64db293683dfa24dd3cc05f/paper-1.17.1-411.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -204,12 +208,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.17.1"
           }
         },
         {
           "name": "1.16.5",
-          "url": "https://fill-data.papermc.io/v1/objects/e67da4851d08cde378ab2b89be58849238c303351ed2482181a99c2c2b489276/paper-1.16.5-794.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -217,12 +222,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16.5"
           }
         },
         {
           "name": "1.15.2",
-          "url": "https://fill-data.papermc.io/v1/objects/bd2dd6f2cc489cf9e2bb800cb4fb6d63e9d293945d3ac10b09dd9c6098fa9f34/paper-1.15.2-393.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -230,12 +236,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.15.2"
           }
         },
         {
           "name": "1.14.4",
-          "url": "https://fill-data.papermc.io/v1/objects/bd8ec5cdb22370d37816a6de26798df3d2b0d6f9c7c96c88ca45a1303fea50e8/paper-1.14.4-245.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -243,12 +250,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.14.4"
           }
         },
         {
           "name": "1.13.2",
-          "url": "https://fill-data.papermc.io/v1/objects/11e828d0565ab76a0a0e180c056364a95de44958cfd6a6af3f9b1dc70b03e9cd/paper-1.13.2-657.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -256,12 +264,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.13.2"
           }
         },
         {
           "name": "1.12.2",
-          "url": "https://fill-data.papermc.io/v1/objects/3a2041807f492dcdc34ebb324a287414946e3e05ec3df6fd03f5b5f7d9afc210/paper-1.12.2-1620.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -269,12 +278,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.12.2"
           }
         },
         {
           "name": "1.11.2",
-          "url": "https://fill-data.papermc.io/v1/objects/3d0f40ec1f9630dfdbafa626cc20c266d7fb90fc22583dc1b995e7fbfb76830d/paper-1.11.2-1106.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -282,12 +292,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.11.2"
           }
         },
         {
           "name": "1.10.2",
-          "url": "https://fill-data.papermc.io/v1/objects/83354d24a22b6265e76c089b3d17a568abb446c0ccd12c2452f5e148412b16c2/paper-1.10.2-918.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -295,27 +306,31 @@
             },
             "filteredFiles": [
               "org/apache/logging/log4j/core/lookup/JndiLookup.class"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.10.2"
           }
         },
         {
           "name": "1.9.4",
-          "url": "https://fill-data.papermc.io/v1/objects/15a5821ddeacc596432c3fbf24262a2d264f556060ecd6f1838fb01ab5629a81/paper-1.9.4-775.jar",
           "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.9.4"
           }
         },
         {
           "name": "1.8.8",
-          "url": "https://fill-data.papermc.io/v1/objects/7ff6d2cec671ef0d95b3723b5c92890118fb882d73b7f8fa0a2cd31d97c55f86/paper-1.8.8-445.jar",
           "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.8.8"
           }
         }
       ]
