@@ -189,7 +189,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   @Override
   protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
     return super.channelMessage(message)
-      .target(ChannelMessageTarget.Type.NODE, this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId());
+      .target(ChannelMessageTarget.Type.NODES, this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId());
   }
 
   public int removeAllMissingSigns() {

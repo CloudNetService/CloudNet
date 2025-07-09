@@ -18,7 +18,6 @@ package eu.cloudnetservice.node.impl.service.defaults;
 
 import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -208,7 +207,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .message("head_node_to_node_finish_service_registration")
         .buffer(DataBuf.empty().writeUniqueId(serviceUniqueId))
-        .target(ChannelMessageTarget.Type.NODE, associatedNode.info().uniqueId())
+        .targetNode(associatedNode.info().uniqueId())
         .build()
         .send();
       return result;
@@ -226,7 +225,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   ) {
     // send a request to the node to start a service
     var future = ChannelMessage.builder()
-      .target(ChannelMessageTarget.Type.NODE, targetNode)
+      .targetNode(targetNode)
       .message(message)
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBuf.empty().writeObject(configuration))

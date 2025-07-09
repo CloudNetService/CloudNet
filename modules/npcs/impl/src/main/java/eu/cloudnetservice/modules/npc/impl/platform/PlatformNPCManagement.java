@@ -186,7 +186,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message)
-      .target(ChannelMessageTarget.Type.NODE, this.componentInfo.nodeUniqueId());
+      .target(ChannelMessageTarget.Type.NODES, this.componentInfo.nodeUniqueId());
   }
 
   public void initialize() {

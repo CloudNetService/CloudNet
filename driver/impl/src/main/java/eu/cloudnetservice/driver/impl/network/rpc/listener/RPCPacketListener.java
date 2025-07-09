@@ -93,8 +93,8 @@ public final class RPCPacketListener implements PacketListener {
         }
       }
     } finally {
-      // specifically release the buffer here to prevent memory leaks, especially if we didn't consume
-      // the whole buffer content (for example due to an exception during handling)
+      // explicitly release the buffer here to prevent memory leaks, especially if we didn't consume
+      // the whole buffer content (for example, due to an exception during handling)
       content.forceRelease();
     }
   }
@@ -112,10 +112,8 @@ public final class RPCPacketListener implements PacketListener {
     @NonNull Consumer<RPCInvocationResult> callback
   ) {
     if (invocationTask == null) {
-      // nothing to wait for
       callback.accept(null);
     } else {
-      // wait for the completion of the method
       invocationTask.whenComplete((result, _) -> callback.accept(result));
     }
   }
@@ -239,7 +237,7 @@ public final class RPCPacketListener implements PacketListener {
    * @return the result of the method invocation, or null if no handler for the given class is registered.
    * @throws NullPointerException if either the given class name or invocation context is null.
    */
-  // note: do not change this method name, it's used by RPCExceptionUtil.serializeHandlingException
+  // impl note: do not change this method name, it's used by RPCExceptionUtil.serializeHandlingException
   // to determine where the internal handling frame cutoff should be
   private @Nullable CompletableFuture<RPCInvocationResult> postRPCRequestToHandler(
     @NonNull String targetClassName,

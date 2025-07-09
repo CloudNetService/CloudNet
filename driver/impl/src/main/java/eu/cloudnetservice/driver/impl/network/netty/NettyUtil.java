@@ -60,13 +60,16 @@ public final class NettyUtil {
   static {
     // check if resource leak detection should be enabled for debugging purposes
     // if that is not the case leak detection will be disabled completely
-    var enableLeakDetection = Boolean.getBoolean("cloudnet.net.leak-detection-enabled");
+    var enableLeakDetection = Boolean.getBoolean("cloudnet.dev")
+      || Boolean.getBoolean("cloudnet.net.leak-detection-enabled");
     if (enableLeakDetection) {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
       System.setProperty("io.netty5.buffer.leakDetectionEnabled", "true");
+      System.setProperty("io.netty5.buffer.lifecycleTracingEnabled", "true");
     } else {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
       System.setProperty("io.netty5.buffer.leakDetectionEnabled", "false");
+      System.setProperty("io.netty5.buffer.lifecycleTracingEnabled", "false");
     }
 
     // select the ssl provider to use for netty. this uses the jdk provider in case it was explicitly selected

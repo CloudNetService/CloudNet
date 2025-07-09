@@ -84,7 +84,7 @@ public class DefaultChunkedFileQueryBuilder implements ChunkedFileQueryBuilder {
    */
   @Override
   public @NonNull ChunkedFileQueryBuilder requestFromNode(@NonNull String nodeId) {
-    this.dataSource = ChannelMessageTarget.of(ChannelMessageTarget.Type.NODE, nodeId);
+    this.dataSource = ChannelMessageTarget.of(ChannelMessageTarget.Type.NODES, nodeId);
     return this;
   }
 

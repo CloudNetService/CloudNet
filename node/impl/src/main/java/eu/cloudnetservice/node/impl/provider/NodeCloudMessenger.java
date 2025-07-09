@@ -33,7 +33,7 @@ import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
-import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -41,21 +41,31 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Default implementation of
+ */
 @Singleton
 @Provides(CloudMessenger.class)
-public class NodeMessenger implements CloudMessenger {
+public class NodeCloudMessenger implements CloudMessenger {
 
-  protected static final Type COL_MSG = TypeFactory.parameterizedClass(Collection.class, ChannelMessage.class);
+  protected static final Type CHANNEL_MESSAGE_LIST_TYPE =
+    TypeFactory.parameterizedClass(List.class, ChannelMessage.class);
+  protected static final long DEFAULT_QUERY_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(20);
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(NodeCloudMessenger.class);
 
   protected final NodeServerProvider nodeServerProvider;
   protected final CloudServiceManager cloudServiceManager;
 
   @Inject
-  public NodeMessenger(
+  public NodeCloudMessenger(
     @NonNull NodeServerProvider nodeServerProvider,
     @NonNull CloudServiceManager cloudServiceManager
   ) {
@@ -63,124 +73,189 @@ public class NodeMessenger implements CloudMessenger {
     this.cloudServiceManager = cloudServiceManager;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void sendChannelMessage(@NonNull ChannelMessage message) {
-    this.sendChannelMessage(message, true);
+  public void sendChannelMessage(@NonNull ChannelMessage channelMessage) {
+    this.sendChannelMessage(channelMessage, true);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
-    @NonNull ChannelMessage message
-  ) {
+  public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
+    return this.sendChannelMessageQueryAsync(channelMessage, true)
+      .orTimeout(DEFAULT_QUERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+      .join();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
+    var responses = this.sendChannelMessageQuery(channelMessage);
+    return Iterables.getFirst(responses, null);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
+    return TaskUtil.supplyAsync(() -> {
+      this.sendChannelMessage(channelMessage);
+      return null;
+    });
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @NonNull
+  @Override
+  public CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage message) {
     return this.sendChannelMessageQueryAsync(message, true);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @NonNull
   @Override
-  public @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
-    @NonNull ChannelMessage channelMessage
-  ) {
+  public CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
     return TaskUtil.supplyAsync(() -> this.sendSingleChannelMessageQuery(channelMessage));
   }
 
-  @Override
-  public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return TaskUtil.getOrDefault(this.sendChannelMessageQueryAsync(channelMessage), Duration.ofSeconds(20), List.of());
-  }
-
-  @Override
-  public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return Iterables.getFirst(this.sendChannelMessageQuery(channelMessage), null);
-  }
-
-  @Override
-  public @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
-    return TaskUtil.runAsync(() -> this.sendChannelMessage(channelMessage));
-  }
-
+  /**
+   * @param message
+   * @param allowClusterRedirect
+   */
   public void sendChannelMessage(@NonNull ChannelMessage message, boolean allowClusterRedirect) {
-    // find the target channels to send the message to
-    var channels = this.findChannels(message.targets(), allowClusterRedirect);
-    for (var channel : channels) {
-      // acquire the message content for each channel we're sending the message to
-      // when writing the message content to the target buffer, the message is released
-      // that means when the message was written to all channels it's released unless someone acquired it before
-      message.content().acquire();
-
-      // construct and send the packet
-      var packet = new ChannelMessagePacket(message, false);
-      if (message.sendSync()) {
-        channel.sendPacketSync(packet);
-      } else {
-        channel.sendPacket(packet);
+    var messageContent = message.content();
+    try {
+      var channels = this.findTargetChannels(message.targets(), allowClusterRedirect);
+      if (channels.isEmpty()) {
+        return;
       }
-    }
 
-    // release the message now
-    message.content().release();
+      for (var channel : channels) {
+        messageContent.acquire(); // acquire once as the construct of ChannelMessagePacket releases the content
+        var packet = new ChannelMessagePacket(message, false);
+        channel.sendPacketSync(packet);
+      }
+    } finally {
+      messageContent.release();
+    }
   }
 
+  /**
+   * @param message
+   * @param allowClusterRedirect
+   * @return
+   */
   public @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message,
     boolean allowClusterRedirect
   ) {
-    // find the target channels to send the message to
-    var channels = this.findChannels(message.targets(), allowClusterRedirect);
-    if (channels.isEmpty()) {
-      // no target channels found, release the message now
-      message.content().release();
-      return TaskUtil.finishedFuture(new HashSet<>());
-    } else {
-      // the result we generate
-      Set<ChannelMessage> result = new HashSet<>();
-      var task = new CountingTask<Collection<ChannelMessage>>(result, channels.size());
-
-      // send the packet to each channel
-      for (var channel : channels) {
-        // acquire the message content for each channel we're sending the message to
-        // when writing the message content to the target buffer, the message is released
-        // that means when the message was written to all channels it's released unless someone acquired it before
-        message.content().acquire();
-
-        channel.sendQueryAsync(new ChannelMessagePacket(message, false)).whenComplete((packet, th) -> {
-          // check if we got an actual result from the request
-          if (th == null && packet.readable()) {
-            // add all resulting messages we got
-            result.addAll(packet.content().readObject(COL_MSG));
-          }
-
-          // count down - one channel responded
-          task.countDown();
-        });
+    var messageContent = message.content();
+    try {
+      var channels = this.findTargetChannels(message.targets(), allowClusterRedirect);
+      if (channels.isEmpty()) {
+        return CompletableFuture.completedFuture(new ArrayList<>());
       }
 
-      // release the message now
-      message.content().release();
+      var results = new ArrayList<ChannelMessage>();
+      var resultTask = new CountingTask<Collection<ChannelMessage>>(results, channels.size());
+      for (var channel : channels) {
+        messageContent.acquire(); // acquire once as the construct of ChannelMessagePacket releases the content
+        var packet = new ChannelMessagePacket(message, false);
+        channel.sendQueryAsync(packet)
+          .thenAccept(result -> {
+            var resultContent = result.content();
+            try {
+              Collection<ChannelMessage> responses = resultContent.readObject(CHANNEL_MESSAGE_LIST_TYPE);
+              results.addAll(responses);
+            } finally {
+              resultContent.release();
+            }
+          })
+          .whenComplete((_, _) -> resultTask.countDown())
+          .exceptionally(thrown -> {
+            LOGGER.debug("Exception while sending/receiving channel message query", thrown);
+            return null;
+          });
+      }
 
-      // return the task on which the user can wait
-      return task;
+      return resultTask;
+    } finally {
+      messageContent.release();
     }
   }
 
-  protected @NonNull Collection<NetworkChannel> findChannels(
+  /**
+   * @param targets
+   * @param allowClusterRedirect
+   * @return
+   */
+  protected @NonNull Collection<NetworkChannel> findTargetChannels(
     @NonNull Collection<ChannelMessageTarget> targets,
     boolean allowClusterRedirect
   ) {
-    // check if there is only one channel
-    if (targets.size() == 1) {
-      // get the target - we can suppress the nullable warning because we expect the collection to not contain null values
-      return this.findTargetChannels(Iterables.getOnlyElement(targets), allowClusterRedirect);
-    } else {
-      // filter all the channels for the targets
-      return targets.stream()
+    var targetCount = targets.size();
+    return switch (targetCount) {
+      case 0 -> Set.of();
+      case 1 -> {
+        var target = Iterables.getOnlyElement(targets);
+        yield this.findTargetChannels(target, allowClusterRedirect);
+      }
+      default -> targets.stream()
         .flatMap(target -> this.findTargetChannels(target, allowClusterRedirect).stream())
-        .collect(Collectors.toSet());
-    }
+        .collect(Collectors.toUnmodifiableSet());
+    };
   }
 
+  /**
+   *
+   * @param target
+   * @param allowClusterRedirect
+   * @return
+   */
   protected @NonNull Collection<NetworkChannel> findTargetChannels(
     @NonNull ChannelMessageTarget target,
     boolean allowClusterRedirect
   ) {
+    // special handling for all service targets, as they all need special handling. the first step extracts
+    // the target service snapshots, the second step finds the network channel to which the message should
+    // be sent (either the service directly for local services or the owning cluster node)
+    Collection<ServiceInfoSnapshot> targetServiceSnapshots = switch (target.type()) {
+      case SERVICE -> {
+        var serviceName = target.name();
+        if (serviceName != null) {
+          var serviceInfo = this.cloudServiceManager.serviceByName(serviceName);
+          yield serviceInfo == null ? List.of() : List.of(serviceInfo);
+        } else {
+          yield this.cloudServiceManager.runningServices();
+        }
+      }
+      case SERVICES_BY_TASK -> {
+        var taskName = Objects.requireNonNull(target.name(), "TASK target without name");
+        yield this.cloudServiceManager.servicesByTask(taskName);
+      }
+      case SERVICES_BY_GROUP -> {
+        var groupName = Objects.requireNonNull(target.name(), "GROUP target without name");
+        yield this.cloudServiceManager.servicesByGroup(groupName);
+      }
+      case SERVICES_BY_ENV -> {
+        var environment = Objects.requireNonNull(target.environment(), "ENVIRONMENT target without name");
+        yield this.cloudServiceManager.servicesByEnvironment(environment.name());
+      }
+    }
+
+
+
     switch (target.type()) {
       // just include all known channels
       case ALL -> {
@@ -196,7 +271,7 @@ public class NodeMessenger implements CloudMessenger {
         }
         return result;
       }
-      case NODE -> {
+      case NODES -> {
         // search for the matching node server
         if (allowClusterRedirect) {
           // check if a specific node server was selected or all node servers are targeted
@@ -255,19 +330,19 @@ public class NodeMessenger implements CloudMessenger {
         // unable to retrieve information about the target - just an empty set then
         return Collections.emptySet();
       }
-      case TASK -> {
+      case SERVICES_BY_TASK -> {
         // lookup all services of the given task
         return this.filterChannels(
           this.cloudServiceManager.servicesByTask(target.name()),
           allowClusterRedirect);
       }
-      case ENVIRONMENT -> {
+      case SERVICES_BY_ENV -> {
         // lookup all services of the given environment
         return this.filterChannels(
           this.cloudServiceManager.servicesByEnvironment(target.environment().name()),
           allowClusterRedirect);
       }
-      case GROUP -> {
+      case SERVICES_BY_GROUP -> {
         // lookup all services of the given group
         return this.filterChannels(
           this.cloudServiceManager.servicesByGroup(target.name()),

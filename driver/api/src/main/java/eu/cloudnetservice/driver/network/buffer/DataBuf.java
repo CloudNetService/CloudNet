@@ -43,16 +43,11 @@ import org.jetbrains.annotations.Nullable;
  * write operations might therefore produce (by default) unspecified results when data buffers are accessed
  * concurrently.
  * <p>
- * Buffers should avoid memory leaks by ensuring to release their content after the last byte of the buffer was read.
- * The behaviour can be influenced by acquiring them using {@link #acquire()}. The buffer will only be released if every
- * place that acquired the buffer has released it using {@link #release()} or {@link #close()}. In rare cases it might
- * be necessary to release a buffer even if it's acquired, use {@link #forceRelease()} in that case.
- * <p>
  * To prevent exceptions during reading, it's worth noting that using {@code readableBytes() > 0} it is possible to
  * verify that there are still bytes left in the buffer to read.
  * <p>
- * It is not recommended using any constructor to create an instance of a data buf - you should obtain a factory for
- * them and create your instance using the given factory methods.
+ * It is not recommended using any constructor to create an instance of a data buf - you should get a factory instance
+ * for them and create your instance using the given factory methods.
  *
  * @see DataBufFactory
  * @see Mutable

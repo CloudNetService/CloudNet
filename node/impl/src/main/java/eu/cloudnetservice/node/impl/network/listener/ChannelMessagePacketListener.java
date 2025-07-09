@@ -24,7 +24,7 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import eu.cloudnetservice.node.impl.provider.NodeMessenger;
+import eu.cloudnetservice.node.impl.provider.NodeCloudMessenger;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Set;
@@ -39,13 +39,13 @@ public final class ChannelMessagePacketListener implements PacketListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ChannelMessagePacketListener.class);
 
-  private final NodeMessenger messenger;
+  private final NodeCloudMessenger messenger;
   private final EventManager eventManager;
   private final ComponentInfo componentInfo;
 
   @Inject
   public ChannelMessagePacketListener(
-    @NonNull NodeMessenger messenger,
+    @NonNull NodeCloudMessenger messenger,
     @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo
   ) {
@@ -62,7 +62,7 @@ public final class ChannelMessagePacketListener implements PacketListener {
     // check if we should handle the message locally
     var handleLocally = message.targets().stream().anyMatch(target -> switch (target.type()) {
       case ALL -> true;
-      case NODE -> target.name() == null || target.name().equals(this.componentInfo.componentName());
+      case NODES -> target.name() == null || target.name().equals(this.componentInfo.componentName());
       default -> false;
     });
 
