@@ -266,7 +266,7 @@ public final class ChannelMessageTarget {
    * {@inheritDoc}
    */
   @Override
-  public String toString() {
+  public @NonNull String toString() {
     return this.name == null
       ? "ChannelMessageTarget[type=" + this.type + ']'
       : "ChannelMessageTarget[type=" + this.type + ", name=" + this.name + ']';
