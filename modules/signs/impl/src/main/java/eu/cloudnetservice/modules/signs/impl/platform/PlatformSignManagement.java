@@ -20,7 +20,6 @@ import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.JAVA_SERV
 import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_SERVER;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
@@ -188,8 +187,8 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
-    return super.channelMessage(message)
-      .target(ChannelMessageTarget.Type.NODES, this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId());
+    var owningNodeId = this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId();
+    return super.channelMessage(message).targetNode(owningNodeId);
   }
 
   public int removeAllMissingSigns() {

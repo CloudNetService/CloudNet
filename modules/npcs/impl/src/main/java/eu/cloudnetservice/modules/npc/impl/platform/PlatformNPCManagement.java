@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.npc.impl.platform;
 
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
@@ -186,7 +185,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message)
-      .target(ChannelMessageTarget.Type.NODES, this.componentInfo.nodeUniqueId());
+      .targetNode(this.componentInfo.nodeUniqueId());
   }
 
   public void initialize() {

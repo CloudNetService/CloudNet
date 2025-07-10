@@ -24,8 +24,8 @@ import eu.cloudnetservice.driver.provider.CloudMessenger;
 import java.io.Closeable;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
@@ -195,7 +195,7 @@ public record ChannelMessage(
       }
     }
 
-    private final Collection<ChannelMessageTarget> targets = new ArrayList<>();
+    private final Collection<ChannelMessageTarget> targets = new HashSet<>();
 
     private String channel;
     private String message;

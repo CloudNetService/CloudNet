@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceId;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -241,6 +242,34 @@ public final class ChannelMessageTarget {
   @UnknownNullability("only null when the associated target type does not demand a name")
   public String name() {
     return this.name;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(@Nullable Object other) {
+    return other instanceof ChannelMessageTarget otherTarget
+      && this.type == otherTarget.type
+      && Objects.equals(this.name, otherTarget.name);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.type, this.name);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return this.name == null
+      ? "ChannelMessageTarget[type=" + this.type + ']'
+      : "ChannelMessageTarget[type=" + this.type + ", name=" + this.name + ']';
   }
 
   /**

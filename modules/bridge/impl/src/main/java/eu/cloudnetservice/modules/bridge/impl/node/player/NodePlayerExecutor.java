@@ -153,9 +153,9 @@ public class NodePlayerExecutor implements PlayerExecutor {
     if (this.targetUniqueId.equals(GLOBAL_UNIQUE_ID)) {
       // target all proxies if this is the global executor
       message = ChannelMessage.builder()
-        .targetEnvironment(ServiceEnvironmentType.VELOCITY)
-        .targetEnvironment(ServiceEnvironmentType.BUNGEECORD)
-        .targetEnvironment(ServiceEnvironmentType.WATERDOG_PE);
+        .targetServicesOfEnvironment(ServiceEnvironmentType.VELOCITY.name())
+        .targetServicesOfEnvironment(ServiceEnvironmentType.BUNGEECORD.name())
+        .targetServicesOfEnvironment(ServiceEnvironmentType.WATERDOG_PE.name());
     } else {
       // get the player associated with this provider
       //noinspection ConstantConditions - This can never be null here (only for the global unique id which is handeled already)

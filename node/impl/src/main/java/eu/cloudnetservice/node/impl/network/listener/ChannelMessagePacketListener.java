@@ -62,7 +62,7 @@ public final class ChannelMessagePacketListener implements PacketListener {
     // check if we should handle the message locally
     var handleLocally = message.targets().stream().anyMatch(target -> switch (target.type()) {
       case ALL -> true;
-      case NODES -> target.name() == null || target.name().equals(this.componentInfo.componentName());
+      case NODE -> target.name() == null || target.name().equals(this.componentInfo.componentName());
       default -> false;
     });
 
