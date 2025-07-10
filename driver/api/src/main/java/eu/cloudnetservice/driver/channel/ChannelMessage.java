@@ -26,6 +26,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -33,23 +34,22 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a message object which can be sent over the network with specific targets in mind. Unlike direct packet
- * communication, channel messages are not bound to a specific messaging channels but can rather get sent to all
- * components which are somewhere connected in the network. This means that it is possible to send a channel message to
- * a service which is running on another node than the current service which is sending the channel message.
+ * Represents a message object that can be sent over the network with specific targets in mind. Unlike direct packet
+ * communication, channel messages are not bound to specific messaging channels but can rather get sent to all
+ * components that are somewhere connected in the network. This means that it is possible to send a channel message to a
+ * service which is running on another node than the service which is sending the channel message.
  * <p>
  * A channel message has two main identification points. One is the channel to which the message gets sent. The channel
- * is a string object which is generally used to collect multiple types of channel message to a collection of message
- * types. On the other hand a channel message contains a message object which should be unique within in the network and
- * is used to identify a channel message in a group messages sent to the same channel.
+ * is a string generally used to group channel messages together. This is, for example, useful to identify all channel
+ * messages that are sent by a specific module. Further narrowing of the message type is done by using the message key,
+ * which should uniquely identify the specific message. Each channel message must be composed of a unique channel and
+ * message to distinguish it from other messages being sent in the cluster.
  * <p>
  * The message contains a {@link DataBuf} containing the actual content of the message. There is no real way to identify
- * which types are in the buffer or not, therefore it is crucial that a channel message gets identified via its channel
- * and/or message.
+ * which types are in the buffer or not, therefore, it is crucial that a channel message gets identified via its channel
+ * and message keys.
  * <p>
- * If targets were given that are not locatable in the network they will get ignored silently. On the other hand this
- * means that if you try to send a channel message to a non-existing target, the send method will block until the future
- * wait timeout (30 seconds by default) expired before returning.
+ * If targets were given that are not locatable in the network, they will get ignored silently.
  * <p>
  * Note: there is no guarantee that the sender of a channel message is the actual component sending the message, as the
  * message can be modified on its way to the receiver.
@@ -428,6 +428,19 @@ public record ChannelMessage(
     }
 
     /**
+     * Targets all services that have the given property key associated with any value within the network.
+     *
+     * @param propertyKey the key of the property that must be associated on target services.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException  if the given property key is null.
+     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     */
+    @Contract("_ -> this")
+    public @NonNull Builder targetServicesWithProperty(@NonNull String propertyKey) {
+      return this.target(ChannelMessageTarget.servicesWithProperty(propertyKey));
+    }
+
+    /**
      * Builds a channel message from this builder.
      *
      * @return the created channel message from this builder.
@@ -447,13 +460,15 @@ public record ChannelMessage(
         throw new IllegalStateException("ChannelMessage already built by this builder");
       }
 
+      var content = Objects.requireNonNullElseGet(this.content, DataBuf::empty);
+      var sender = Objects.requireNonNullElseGet(this.sender, ChannelMessageSender::self);
       return new ChannelMessage(
         this.sendSync,
         this.prioritized,
         this.channel,
         this.message,
-        this.content == null ? DataBuf.empty() : this.content,
-        this.sender == null ? ChannelMessageSender.self() : this.sender,
+        content,
+        sender,
         this.targets);
     }
 

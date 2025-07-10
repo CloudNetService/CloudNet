@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.channel;
 
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
+import eu.cloudnetservice.driver.document.property.DocProperty;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceId;
@@ -27,7 +28,11 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
+ * Identifies one or more targets of a channel message, optionally with a {@link #name()} for further specification of a
+ * target. A channel message target can, for example, represent all components in the network or only a single node or
+ * service. For services, there are special targets for filtering, for example, based on the task they are based on.
  *
+ * @since 4.0
  */
 public final class ChannelMessageTarget {
 
@@ -39,8 +44,11 @@ public final class ChannelMessageTarget {
   private final String name;
 
   /**
-   * @param type
-   * @param name
+   * Constructs a new channel message target using the given type and optional name. For internal use only.
+   *
+   * @param type the type of component targeted by this channel message target.
+   * @param name an optional name to further narrow the target. The meaning of the name is derived from the type.
+   * @throws NullPointerException if the given type is null.
    */
   private ChannelMessageTarget(@NonNull Type type, @Nullable String name) {
     this.type = type;
@@ -48,104 +56,169 @@ public final class ChannelMessageTarget {
   }
 
   /**
-   * @return
+   * Get a channel message target that targets all components in the network.
+   *
+   * @return a channel message target that targets all components in the network.
    */
   public static @NonNull ChannelMessageTarget all() {
     return ALL;
   }
 
   /**
-   * @return
+   * Get a channel message target that targets all node components in the network.
+   *
+   * @return a channel message target that targets all node components in the network.
    */
   public static @NonNull ChannelMessageTarget allNodes() {
     return ALL_NODES;
   }
 
   /**
-   * @return
+   * Get a channel message target that targets all service (wrapper) components in the network.
+   *
+   * @return a channel message target that targets all service components in the network.
    */
   public static @NonNull ChannelMessageTarget allServices() {
     return ALL_SERVICES;
   }
 
   /**
-   * @param node
-   * @return
+   * Get a channel message target that targets the given node in the network.
+   *
+   * @param node the node to target.
+   * @return a channel message target that targets the given node in the network.
+   * @throws NullPointerException if the given node to target is null.
    */
   public static @NonNull ChannelMessageTarget node(@NonNull NetworkClusterNode node) {
     return node(node.uniqueId());
   }
 
   /**
-   * @param nodeId
-   * @return
+   * Get a channel message target that targets the node with the given name in the network.
+   *
+   * @param nodeId the id of the node to target.
+   * @return a channel message target that targets the node with the given name in the network.
+   * @throws NullPointerException if the given node id is null.
    */
   public static @NonNull ChannelMessageTarget node(@NonNull String nodeId) {
     return new ChannelMessageTarget(Type.NODE, nodeId);
   }
 
   /**
-   * @param serviceId
-   * @return
+   * Get a channel message target that targets the given service. Note that services are identified by their name and
+   * not by their unique id, therefore a channel message might be sent to a different service if the actual target
+   * restarts.
+   *
+   * @param serviceId the service id of the service to target.
+   * @return a channel message target that targets the given service.
+   * @throws NullPointerException if the given service id is null.
    */
   public static @NonNull ChannelMessageTarget service(@NonNull ServiceId serviceId) {
     return service(serviceId.name());
   }
 
   /**
-   * @param serviceName
-   * @return
+   * Get a channel message target that targets the service identified by the given name. Note that services are
+   * identified by their name and not by their unique id, therefore a channel message might be sent to a different
+   * service if the actual target restarts.
+   *
+   * @param serviceName the name of the service to target.
+   * @return a channel message target that targets the service identified by the given name.
+   * @throws NullPointerException if the given service name is null.
    */
   public static @NonNull ChannelMessageTarget service(@NonNull String serviceName) {
     return new ChannelMessageTarget(Type.SERVICE, serviceName);
   }
 
   /**
-   * @param task
-   * @return
+   * Get a channel message target that targets all services that are based on the given service task.
+   *
+   * @param task the service task to target.
+   * @return a channel message target that targets all services that are based on the given service task.
+   * @throws NullPointerException if the given service task is null.
    */
   public static @NonNull ChannelMessageTarget servicesByTask(@NonNull ServiceTask task) {
     return servicesByTask(task.name());
   }
 
   /**
-   * @param taskName
-   * @return
+   * Get a channel message target that targets all services that are based on the service task identified by the given
+   * name.
+   *
+   * @param taskName the name of the task to target.
+   * @return a channel message target that targets all services that are based on the given service task.
+   * @throws NullPointerException if the given service task name is null.
    */
   public static @NonNull ChannelMessageTarget servicesByTask(@NonNull String taskName) {
     return new ChannelMessageTarget(Type.SERVICES_BY_TASK, taskName);
   }
 
   /**
-   * @param group
-   * @return
+   * Get a channel message target that targets all services that are in the given group.
+   *
+   * @param group the group to target.
+   * @return a channel message target that targets all services that are in the given group.
+   * @throws NullPointerException if the given group is null.
    */
   public static @NonNull ChannelMessageTarget servicesByGroup(@NonNull GroupConfiguration group) {
     return servicesByGroup(group.name());
   }
 
   /**
-   * @param groupName
-   * @return
+   * Get a channel message target that targets all services that are in the group identified by the given name.
+   *
+   * @param groupName the name of the group to target.
+   * @return a channel message target that targets all services that are in the given group.
+   * @throws NullPointerException if the given group name is null.
    */
   public static @NonNull ChannelMessageTarget servicesByGroup(@NonNull String groupName) {
     return new ChannelMessageTarget(Type.SERVICES_BY_GROUP, groupName);
   }
 
   /**
-   * @param environment
-   * @return
+   * Get a channel message target that targets all services that are using the given service environment.
+   *
+   * @param environment the environment to target.
+   * @return a channel message target that targets all services that are using the given service environment.
+   * @throws NullPointerException if the given environment is null.
    */
   public static @NonNull ChannelMessageTarget servicesByEnvironment(@NonNull ServiceEnvironmentType environment) {
     return servicesByEnvironment(environment.name());
   }
 
   /**
-   * @param environmentName
-   * @return
+   * Get a channel message target that targets all services that are using the service environment identified by the
+   * given name.
+   *
+   * @param environmentName the name of the environment to target.
+   * @return a channel message target that targets all services that are using the given service environment.
+   * @throws NullPointerException if the given environment name is null.
    */
   public static @NonNull ChannelMessageTarget servicesByEnvironment(@NonNull String environmentName) {
     return new ChannelMessageTarget(Type.SERVICES_BY_ENV, environmentName);
+  }
+
+  /**
+   * Get a channel message target that targets all services that have the given property associated with any value.
+   *
+   * @param property the property that must be associated on target services.
+   * @return a channel message target that targets all services that have the given property associated with any value.
+   * @throws NullPointerException if the given property is null.
+   */
+  public static @NonNull ChannelMessageTarget servicesWithProperty(@NonNull DocProperty<?> property) {
+    return servicesWithProperty(property.key());
+  }
+
+  /**
+   * Get a channel message target that targets all services that have the property identified by the given key
+   * associated with any value.
+   *
+   * @param propertyKey the key of the property that must be associated on target services.
+   * @return a channel message target that targets all services that have the given property associated with any value.
+   * @throws NullPointerException if the given property key is null.
+   */
+  public static @NonNull ChannelMessageTarget servicesWithProperty(@NonNull String propertyKey) {
+    return new ChannelMessageTarget(Type.SERVICES_WITH_PROPERTY, propertyKey);
   }
 
   /**
@@ -203,5 +276,9 @@ public final class ChannelMessageTarget {
      * All services in the network that are using the provided environment (identified by the required name).
      */
     SERVICES_BY_ENV,
+    /**
+     * All services in the network that have the given property key with any value (identified by the required name).
+     */
+    SERVICES_WITH_PROPERTY,
   }
 }
