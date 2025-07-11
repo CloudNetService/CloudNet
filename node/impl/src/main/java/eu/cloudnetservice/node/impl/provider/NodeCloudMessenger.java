@@ -182,7 +182,9 @@ public class NodeCloudMessenger implements CloudMessenger {
             var resultContent = result.content();
             try {
               Collection<ChannelMessage> responses = resultContent.readObject(CHANNEL_MESSAGE_LIST_TYPE);
-              results.addAll(responses);
+              if (responses != null) {
+                results.addAll(responses);
+              }
             } finally {
               resultContent.forceRelease();
             }
