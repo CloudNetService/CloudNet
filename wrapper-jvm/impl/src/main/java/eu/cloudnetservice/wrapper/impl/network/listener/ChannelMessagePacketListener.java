@@ -25,11 +25,16 @@ import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.Set;
+import java.util.List;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class ChannelMessagePacketListener implements PacketListener {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ChannelMessagePacketListener.class);
 
   private final EventManager eventManager;
 
@@ -40,49 +45,52 @@ public final class ChannelMessagePacketListener implements PacketListener {
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    // skip the first boolean (comes from wrapper) in the buffer as we don't need it
-    packet.content().readBoolean();
-    // read the channel message from the buffer
-    var message = packet.content().readObject(ChannelMessage.class);
+    // for fields and order see ChannelMessagePacket
+    var isQuery = packet.uniqueId() != null;
+    var packetContent = packet.content();
+    packetContent.readBoolean(); // skip comesFromWrapper info as it's not relevant
+    var channelMessage = packet.content().readObject(ChannelMessage.class);
 
     // get the query response if available
-    var response = this.eventManager
-      .callEvent(new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null))
-      .queryResponse();
-
-    // check if we need to respond to the channel message
-    if (packet.uniqueId() != null) {
-      // wait for the future if a response was supplied
-      if (response != null) {
-        response.whenComplete((queryResponse, throwable) -> {
-          // respond with nothing if no result was set
-          if (throwable != null || queryResponse == null) {
-            channel.sendPacket(packet.constructResponse(DataBuf.empty()));
-          } else {
-            // serialize the single response
-            channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(Set.of(queryResponse))));
-          }
-
-          // release the message content (do it here so that the async processing still has access to it)
-          message.content().release();
-        });
+    var event = this.eventManager.callEvent(new ChannelMessageReceiveEvent(channelMessage, channel, isQuery));
+    var responseTask = event.queryResponse();
+    if (isQuery) {
+      // the wrapper has to always respond to channel message queries,
+      // even if there is no response provided by any listener on the local service
+      if (responseTask != null) {
+        responseTask
+          .whenComplete((_, _) -> channelMessage.content().release())
+          .whenComplete((queryResponse, thrown) -> {
+            this.sendChannelMessageResponse(queryResponse, packet, channel);
+            if (thrown != null) {
+              LOGGER.warn("Caught exception while constructing response to channel message {}", channelMessage, thrown);
+            }
+          });
+        return;
       } else {
-        // respond with an empty buffer to indicate the node that there was no result & release the message content
-        channel.sendPacket(packet.constructResponse(DataBuf.empty()));
-        message.content().release();
+        this.sendChannelMessageResponse(null, packet, channel);
       }
-    } else if (response != null) {
-      // just release the initial response content when available
-      response.thenAccept(responseMessage -> {
-        // release both messages
-        message.content().release();
-        if (responseMessage != null) {
-          responseMessage.content().release();
-        }
-      });
-    } else {
-      // release the message content instantly
-      message.content().release();
     }
+
+    channelMessage.content().release();
+  }
+
+  /**
+   * Sends the given channel message response for a received channel message query.
+   *
+   * @param response      the response to send, null if no response was constructed.
+   * @param requestPacket the packet that requested the channel message response.
+   * @param sourceChannel the channel from which the query was received.
+   * @throws NullPointerException if the given request packet or source channel is null.
+   */
+  private void sendChannelMessageResponse(
+    @Nullable ChannelMessage response,
+    @NonNull Packet requestPacket,
+    @NonNull NetworkChannel sourceChannel
+  ) {
+    var responseData = response == null ? List.of() : List.of(response);
+    var responseBuffer = DataBuf.empty().writeObject(responseData);
+    var responsePacket = requestPacket.constructResponse(responseBuffer);
+    sourceChannel.sendPacket(responsePacket);
   }
 }

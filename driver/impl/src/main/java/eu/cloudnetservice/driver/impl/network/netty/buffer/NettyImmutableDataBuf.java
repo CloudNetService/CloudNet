@@ -275,7 +275,11 @@ public sealed class NettyImmutableDataBuf implements DataBuf permits NettyMutabl
    */
   @Override
   public void release() {
-    this.buffer.close();
+    try {
+      this.buffer.close();
+    } catch (IllegalStateException _) {
+      // possible double-free error due to a race, ignore
+    }
   }
 
   /**

@@ -141,14 +141,16 @@ public class DefaultChunkedFileQueryBuilder implements ChunkedFileQueryBuilder {
     return channelMessage
       .sendSingleQueryAsync()
       .thenCompose(response -> {
-        var responseData = response.content();
-        if (responseData.readBoolean()) {
-          // transfer started successfully
+        try (response) {
+          var transferStarted = response.content().readBoolean();
+          Preconditions.checkState(transferStarted, "chunked data transfer wasn't initiated");
           return responseFuture;
-        } else {
-          // transfer couldn't be started for some reason
+        }
+      })
+      .whenComplete((_, thrown) -> {
+        if (thrown != null) {
           sessionRegistry.completeSession(sessionId);
-          throw new IllegalStateException("unable to start chunked data transfer");
+          sessionInfo.close();
         }
       });
   }

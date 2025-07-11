@@ -76,7 +76,7 @@ public record ChannelMessage(
   @NonNull DataBuf content,
   @NonNull ChannelMessageSender sender,
   @NonNull Collection<ChannelMessageTarget> targets
-) {
+) implements AutoCloseable {
 
   /**
    * Constructs a new, empty builder for a ChannelMessage.
@@ -166,6 +166,14 @@ public record ChannelMessage(
   @ApiStatus.Internal
   private @NonNull CloudMessenger messenger() {
     return InjectionLayer.boot().instance(CloudMessenger.class);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void close() {
+    this.content.close();
   }
 
   /**

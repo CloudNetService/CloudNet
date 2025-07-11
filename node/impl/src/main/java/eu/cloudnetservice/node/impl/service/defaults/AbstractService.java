@@ -205,7 +205,14 @@ public abstract class AbstractService implements InternalCloudService {
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .build()
         .sendSingleQuery();
-      return response == null ? this.currentServiceInfo : response.content().readObject(ServiceInfoSnapshot.class);
+      return switch (response) {
+        case null -> this.currentServiceInfo;
+        case ChannelMessage channelMessage -> {
+          try (channelMessage) {
+            yield channelMessage.content().readObject(ServiceInfoSnapshot.class);
+          }
+        }
+      };
     } else {
       return this.currentServiceInfo;
     }

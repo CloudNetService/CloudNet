@@ -21,7 +21,6 @@ import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.impl.network.standard.ChannelMessagePacket;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import io.leangen.geantyref.TypeFactory;
@@ -39,7 +38,8 @@ import org.jetbrains.annotations.Nullable;
 @Provides(CloudMessenger.class)
 public class WrapperMessenger implements CloudMessenger {
 
-  private static final Type MESSAGES = TypeFactory.parameterizedClass(Collection.class, ChannelMessage.class);
+  private static final Type CHANNEL_MESSAGE_LIST_TYPE =
+    TypeFactory.parameterizedClass(List.class, ChannelMessage.class);
 
   private final NetworkClient networkClient;
 
@@ -76,9 +76,16 @@ public class WrapperMessenger implements CloudMessenger {
   public @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message
   ) {
-    return this.networkClient.firstChannel().sendQueryAsync(new ChannelMessagePacket(message, true))
-      .thenApply(Packet::content)
-      .thenApply(data -> Objects.requireNonNullElse(data.readObject(MESSAGES), List.of()));
+    return this.networkClient.firstChannel()
+      .sendQueryAsync(new ChannelMessagePacket(message, true))
+      .thenApply(response -> {
+        var packetContent = response.content();
+        try {
+          return Objects.requireNonNullElse(packetContent.readObject(CHANNEL_MESSAGE_LIST_TYPE), List.of());
+        } finally {
+          packetContent.forceRelease();
+        }
+      });
   }
 
   @Override

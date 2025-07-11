@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.network.chunk;
 import com.google.common.base.Utf8;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufable;
+import java.io.Closeable;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -31,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public final class ChunkSessionInformation implements DataBufable {
+public final class ChunkSessionInformation implements DataBufable, Closeable {
 
   private int chunkSize;
   private UUID sessionUniqueId;
@@ -140,6 +141,14 @@ public final class ChunkSessionInformation implements DataBufable {
    */
   public @NonNull DataBuf transferInformation() {
     return this.transferInformation;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void close() {
+    this.transferInformation.close();
   }
 
   /**

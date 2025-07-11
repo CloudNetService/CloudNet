@@ -63,39 +63,33 @@ public final class RPCPacketListener implements PacketListener {
     var content = packet.content();
     var resultExpected = packet.uniqueId() != null;
 
-    try {
-      var rpcDepth = content.readInt();
-      if (rpcDepth <= 0) {
-        // depth must be at least one (single call) or more (chained call)
-        if (resultExpected) {
-          var resultContent = DataBufFactory.defaultFactory()
-            .createWithExpectedSize(1)
-            .writeByte(RPCInvocationResult.STATUS_BAD_REQUEST)
-            .writeString("invalid chain length");
-          this.sendResponseData(channel, packet, resultContent);
-        }
-        return;
+    var rpcDepth = content.readInt();
+    if (rpcDepth <= 0) {
+      // depth must be at least one (single call) or more (chained call)
+      if (resultExpected) {
+        var resultContent = DataBufFactory.defaultFactory()
+          .createWithExpectedSize(1)
+          .writeByte(RPCInvocationResult.STATUS_BAD_REQUEST)
+          .writeString("invalid chain length");
+        this.sendResponseData(channel, packet, resultContent);
       }
+      return;
+    }
 
-      if (rpcDepth > 1) {
-        // RPC chain, start executing the first step
-        this.executeRPCChainStep(rpcDepth, 1, resultExpected, content, packet, channel, null);
-      } else {
-        // single method rpc, execute & respond if requested
-        var targetClassName = content.readString();
-        var invocationContext = this.buildContext(content, null);
-        var handlingTask = this.postRPCRequestToHandler(targetClassName, invocationContext);
-        if (resultExpected) {
-          this.waitForInvocationCompletion(handlingTask, result -> {
-            var resultContent = this.serializeHandlingResult(result);
-            this.sendResponseData(channel, packet, resultContent);
-          });
-        }
+    if (rpcDepth > 1) {
+      // RPC chain, start executing the first step
+      this.executeRPCChainStep(rpcDepth, 1, resultExpected, content, packet, channel, null);
+    } else {
+      // single method rpc, execute & respond if requested
+      var targetClassName = content.readString();
+      var invocationContext = this.buildContext(content, null);
+      var handlingTask = this.postRPCRequestToHandler(targetClassName, invocationContext);
+      if (resultExpected) {
+        this.waitForInvocationCompletion(handlingTask, result -> {
+          var resultContent = this.serializeHandlingResult(result);
+          this.sendResponseData(channel, packet, resultContent);
+        });
       }
-    } finally {
-      // explicitly release the buffer here to prevent memory leaks, especially if we didn't consume
-      // the whole buffer content (for example, due to an exception during handling)
-      content.forceRelease();
     }
   }
 

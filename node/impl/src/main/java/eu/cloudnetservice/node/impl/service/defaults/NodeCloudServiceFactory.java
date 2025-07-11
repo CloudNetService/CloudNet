@@ -39,7 +39,6 @@ import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.time.Duration;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -233,10 +232,16 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .sendSingleQueryAsync();
     var result = TaskUtil.getOrDefault(future, Duration.ofSeconds(20), null);
 
-    // read the result service info from the buffer, if the there was no response then we need to fail (only the head
-    // node should queue start requests)
-    var createResult = result == null ? null : result.content().readObject(ServiceCreateResult.class);
-    return Objects.requireNonNullElse(createResult, ServiceCreateResult.FAILED);
+    // read the result service info from the buffer, if the there was no response then we need
+    // to fail (only the head node should queue start requests)
+    return switch (result) {
+      case null -> ServiceCreateResult.FAILED;
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield result.content().readObject(ServiceCreateResult.class);
+        }
+      }
+    };
   }
 
   protected @NonNull ServiceCreateResult scheduleCreateRetryIfEnabled(
