@@ -139,8 +139,7 @@ public class NodeCloudMessenger implements CloudMessenger {
    * @throws NullPointerException if the given channel message is null.
    */
   public void sendChannelMessage(@NonNull ChannelMessage message, boolean allowClusterRedirect) {
-    var messageContent = message.content();
-    try {
+    try (var messageContent = message.content()) {
       var channels = this.findTargetChannels(message.targets(), allowClusterRedirect);
       if (channels.isEmpty()) {
         return;
@@ -151,8 +150,6 @@ public class NodeCloudMessenger implements CloudMessenger {
         var packet = new ChannelMessagePacket(message, false);
         channel.sendPacketSync(packet);
       }
-    } finally {
-      messageContent.release();
     }
   }
 
@@ -169,8 +166,7 @@ public class NodeCloudMessenger implements CloudMessenger {
     @NonNull ChannelMessage message,
     boolean allowClusterRedirect
   ) {
-    var messageContent = message.content();
-    try {
+    try (var messageContent = message.content()) {
       var channels = this.findTargetChannels(message.targets(), allowClusterRedirect);
       if (channels.isEmpty()) {
         return CompletableFuture.completedFuture(new ArrayList<>());
@@ -199,8 +195,6 @@ public class NodeCloudMessenger implements CloudMessenger {
       }
 
       return resultTask;
-    } finally {
-      messageContent.release();
     }
   }
 

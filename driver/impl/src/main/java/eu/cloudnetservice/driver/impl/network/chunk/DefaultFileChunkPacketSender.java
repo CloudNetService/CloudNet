@@ -85,7 +85,7 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
 
           // close all allocated resources used for the transfer
           this.source.close();
-          this.chunkSessionInformation.transferInformation().release();
+          this.chunkSessionInformation.close();
 
           return TransferStatus.SUCCESS;
         }

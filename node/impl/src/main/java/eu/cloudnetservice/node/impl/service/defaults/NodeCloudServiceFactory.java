@@ -238,7 +238,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       case null -> ServiceCreateResult.FAILED;
       case ChannelMessage channelMessage -> {
         try (channelMessage) {
-          yield result.content().readObject(ServiceCreateResult.class);
+          yield channelMessage.content().readObject(ServiceCreateResult.class);
         }
       }
     };
