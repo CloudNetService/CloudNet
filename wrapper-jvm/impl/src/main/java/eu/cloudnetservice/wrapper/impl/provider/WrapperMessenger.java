@@ -48,6 +48,9 @@ public class WrapperMessenger implements CloudMessenger {
     this.networkClient = networkClient;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendChannelMessage(@NonNull ChannelMessage channelMessage) {
     if (channelMessage.sendSync()) {
@@ -57,21 +60,33 @@ public class WrapperMessenger implements CloudMessenger {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return this.sendChannelMessageQueryAsync(channelMessage).join();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return Iterables.getFirst(this.sendChannelMessageQuery(channelMessage), null);
+    return this.sendSingleChannelMessageQueryAsync(channelMessage).join();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
     return TaskUtil.runAsync(() -> this.sendChannelMessage(channelMessage));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message
@@ -88,10 +103,30 @@ public class WrapperMessenger implements CloudMessenger {
       });
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
     @NonNull ChannelMessage message
   ) {
-    return this.sendChannelMessageQueryAsync(message).thenApply(resp -> Iterables.getFirst(resp, null));
+    return this.sendChannelMessageQueryAsync(message).thenApply(responses -> {
+      var responseCount = responses.size();
+      return switch (responseCount) {
+        case 0 -> null;
+        case 1 -> Iterables.getOnlyElement(responses);
+        default -> {
+          // there were more than one response, so we need to close the
+          // other responses to prevent leaking their content
+          var responsesArray = responses.toArray(ChannelMessage[]::new);
+          for (var index = 1; index < responsesArray.length; index++) {
+            var response = responsesArray[index];
+            response.close();
+          }
+
+          yield responsesArray[0];
+        }
+      };
+    });
   }
 }

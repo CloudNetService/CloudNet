@@ -98,8 +98,9 @@ public class NodeCloudMessenger implements CloudMessenger {
    */
   @Override
   public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    var responses = this.sendChannelMessageQuery(channelMessage);
-    return Iterables.getFirst(responses, null);
+    return this.sendSingleChannelMessageQueryAsync(channelMessage)
+      .orTimeout(DEFAULT_QUERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+      .join();
   }
 
   /**
@@ -128,7 +129,24 @@ public class NodeCloudMessenger implements CloudMessenger {
   @NonNull
   @Override
   public CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
-    return TaskUtil.supplyAsync(() -> this.sendSingleChannelMessageQuery(channelMessage));
+    return this.sendChannelMessageQueryAsync(channelMessage).thenApply(responses -> {
+      var responseCount = responses.size();
+      return switch (responseCount) {
+        case 0 -> null;
+        case 1 -> Iterables.getOnlyElement(responses);
+        default -> {
+          // there were more than one response, so we need to close the
+          // other responses to prevent leaking their content
+          var responsesArray = responses.toArray(ChannelMessage[]::new);
+          for (var index = 1; index < responsesArray.length; index++) {
+            var response = responsesArray[index];
+            response.close();
+          }
+
+          yield responsesArray[0];
+        }
+      };
+    });
   }
 
   /**
