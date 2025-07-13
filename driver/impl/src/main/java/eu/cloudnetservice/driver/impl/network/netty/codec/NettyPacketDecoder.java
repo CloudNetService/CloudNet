@@ -65,7 +65,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
       // construct the packet
       var packet = new BasePacket(channel, prioritized, body);
       packet.uniqueId(queryUniqueId);
-      bodyBuffer.touch(packet); // hint to the constructed packet for leak debugging
+      bodyBuffer.touch(packet.toString()); // hint to the constructed packet for leak debugging
 
       ctx.fireChannelRead(packet);
     } catch (Exception exception) {
