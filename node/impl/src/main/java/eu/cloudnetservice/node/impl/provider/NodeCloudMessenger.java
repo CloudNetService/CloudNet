@@ -42,6 +42,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -88,8 +89,23 @@ public class NodeCloudMessenger implements CloudMessenger {
    */
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
+    var done = new AtomicBoolean();
     return this.sendChannelMessageQueryAsync(channelMessage, true)
+      .thenApply(responses -> {
+        // it might be that the timeout defined in the next step was already hit, therefore
+        // this method already returned to the caller before a response is received. in this
+        // case, we release the response we got immediately as it would leak otherwise
+        var didComplete = done.compareAndSet(false, true);
+        return switch (didComplete) {
+          case true -> responses;
+          case false -> {
+            responses.forEach(ChannelMessage::close);
+            throw new IllegalStateException("received responses after downstream already completed");
+          }
+        };
+      })
       .orTimeout(DEFAULT_QUERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+      .whenComplete((_, _) -> done.set(true))
       .join();
   }
 
@@ -98,8 +114,23 @@ public class NodeCloudMessenger implements CloudMessenger {
    */
   @Override
   public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
+    var done = new AtomicBoolean();
     return this.sendSingleChannelMessageQueryAsync(channelMessage)
+      .thenApply(response -> {
+        // it might be that the timeout defined in the next step was already hit, therefore
+        // this method already returned to the caller before a response is received. in this
+        // case, we release the response we got immediately as it would leak otherwise
+        var didComplete = done.compareAndSet(false, true);
+        return switch (didComplete) {
+          case true -> response;
+          case false -> {
+            response.close();
+            throw new IllegalStateException("received response after downstream already completed");
+          }
+        };
+      })
       .orTimeout(DEFAULT_QUERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+      .whenComplete((_, _) -> done.set(true))
       .join();
   }
 
