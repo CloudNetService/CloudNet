@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -104,6 +105,9 @@ public class NodeCloudMessenger implements CloudMessenger {
           }
         };
       })
+      // hack: get a new incomplete future here so that the previous thenApply step runs as well.
+      // the following orTimeout completes the future it's called on, so the releasing step would never run
+      .thenApply(Function.identity())
       .orTimeout(DEFAULT_QUERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
       .whenComplete((_, _) -> done.set(true))
       .join();
@@ -129,6 +133,9 @@ public class NodeCloudMessenger implements CloudMessenger {
           }
         };
       })
+      // hack: get a new incomplete future here so that the previous thenApply step runs as well.
+      // the following orTimeout completes the future it's called on, so the releasing step would never run
+      .thenApply(Function.identity())
       .orTimeout(DEFAULT_QUERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
       .whenComplete((_, _) -> done.set(true))
       .join();
