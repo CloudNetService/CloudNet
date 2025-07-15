@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -106,6 +107,9 @@ public record ChannelMessage(
    * Sends this channel message using the current messenger of the environment. This is a shortcut method for
    * {@link CloudMessenger#sendChannelMessage(ChannelMessage)}. This method will not wait for the target component to
    * respond (it doesn't even expect a response) but for the handling component to send the message.
+   * <p>
+   * Note: once the channel message was sent, the backing buffer gets released. Therefore, the caller must acquire the
+   * content buffer if this channel message is sent multiple times.
    */
   public void send() {
     this.messenger().sendChannelMessage(this);
@@ -115,6 +119,21 @@ public record ChannelMessage(
    * Sends this channel message as a query and returns a future which waits for target component(s) to respond. This
    * method is a shortcut for {@link CloudMessenger#sendChannelMessageQueryAsync(ChannelMessage)}. The future will be
    * completed when the target component responds or the query future times out.
+   * <p>
+   * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
+   * is crucial that the caller closes the responses to prevent memory leaks. Example:
+   * <pre>
+   * {@code
+   * ChannelMessage message = ...;
+   * message.sendQueryAsync().thenAccept(responses -> {
+   *   for (var response : responses) {
+   *     try (response) {
+   *       // do something with the response
+   *     }
+   *   }
+   * }
+   * }
+   * </pre>
    *
    * @return a future completed with all responses of all components targeted by this channel message.
    */
@@ -126,33 +145,78 @@ public record ChannelMessage(
    * Sends this channel message as a query and returns a future which waits for target component(s) to respond. Only the
    * first response of any target will get sent back to this component. This is in particular useful if there is only
    * one target, or you are only expecting one of the target components to respond. This is a shortcut method for
-   * {@link CloudMessenger#sendSingleChannelMessageQueryAsync(ChannelMessage)}. The future will be completed when one
-   * target responds or the query future times out.
+   * {@link CloudMessenger#sendSingleChannelMessageQueryAsync(ChannelMessage)}. The future will be completed with the
+   * first received response of any target component (possibly null if no target responded).
+   * <p>
+   * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
+   * is crucial that the caller closes the response to prevent memory leaks. Example:
+   * <pre>
+   * {@code
+   * ChannelMessage message = ...;
+   * message.sendSingleQueryAsync().thenAccept(response -> {
+   *   if (response != null) {
+   *     try (response) {
+   *       // do something with the response
+   *     }
+   *   }
+   * }
+   * }
+   * </pre>
    *
-   * @return a future completed with the first response of any target of this channel message.
+   * @return a future completed with the first received response of any target component or null if no target responded.
    */
   public @NonNull CompletableFuture<ChannelMessage> sendSingleQueryAsync() {
     return this.messenger().sendSingleChannelMessageQueryAsync(this);
   }
 
   /**
-   * Sends this channel message as a query and suspends the calling thread until all responses are available or the
-   * query timeout is exceeded. This method is a shortcut for
+   * Sends this channel message as a query and blocks until all target components have responded to the query or the
+   * query timeout is exceeded.This method is a shortcut for
    * {@link CloudMessenger#sendChannelMessageQuery(ChannelMessage)}.
+   * <p>
+   * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
+   * is crucial that the caller closes the responses to prevent memory leaks. Example:
+   * <pre>
+   * {@code
+   * ChannelMessage message = ...;
+   * Collection<ChannelMessage> responses = message.sendQuery();
+   * for (var response : responses) {
+   *   try (response) {
+   *     // do something with the response
+   *   }
+   * }
+   * }
+   * </pre>
    *
    * @return all responses of all components this channel message is targeting.
+   * @throws CompletionException if an exception occurred while waiting for the query responses.
    */
   public @NonNull Collection<ChannelMessage> sendQuery() {
     return this.messenger().sendChannelMessageQuery(this);
   }
 
   /**
-   * Sends this channel message as a query and returns and blocks until one of the target component responded to this
-   * message or the query timeout is exceeded. This is in particular useful if there is only one target, or you are only
-   * expecting one of the target components to respond. This is a shortcut method for
-   * {@link CloudMessenger#sendSingleChannelMessageQueryAsync(ChannelMessage)}.
+   * Sends this channel message as a query and blocks until one of the target component responded to this message or the
+   * query timeout is exceeded. This is in particular useful if there is only one target, or you are only expecting one
+   * of the target components to respond. This is a shortcut method for
+   * {@link CloudMessenger#sendSingleChannelMessageQuery(ChannelMessage)}.
+   * <p>
+   * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
+   * is crucial that the caller closes the response to prevent memory leaks. Example:
+   * <pre>
+   * {@code
+   * ChannelMessage message = ...;
+   * ChannelMessage response = message.sendSingleQuery();
+   * if (response != null) {
+   *   try (response) {
+   *     // do something with the response
+   *   }
+   * }
+   * }
+   * </pre>
    *
-   * @return the first response of any component this message is targeting.
+   * @return the first response of any component this message is targeting, null if no target responded.
+   * @throws CompletionException if an exception occurred while waiting for the query response.
    */
   public @Nullable ChannelMessage sendSingleQuery() {
     return this.messenger().sendSingleChannelMessageQuery(this);
