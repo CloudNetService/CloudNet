@@ -25,16 +25,11 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 
-fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource: Boolean = false) {
+fun Project.configurePublishing(publishedComponent: String) {
   extensions.configure<PublishingExtension> {
     publications.apply {
       create("maven", MavenPublication::class.java).apply {
         from(components.getByName(publishedComponent))
-
-        if (withJavadocAndSource) {
-          artifact(tasks.getByName("sourcesJar"))
-          artifact(tasks.getByName("javadocJar"))
-        }
 
         pom.apply {
           name.set(project.name)
@@ -64,19 +59,19 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
 
           scm {
             tag.set("HEAD")
-            url.set("git@github.com:CloudNetService/CloudNet-v3.git")
-            connection.set("scm:git:git@github.com:CloudNetService/CloudNet-v3.git")
-            developerConnection.set("scm:git:git@github.com:CloudNetService/CloudNet-v3.git")
+            url.set("git@github.com:CloudNetService/CloudNet.git")
+            connection.set("scm:git:git@github.com:CloudNetService/CloudNet.git")
+            developerConnection.set("scm:git:git@github.com:CloudNetService/CloudNet.git")
           }
 
           issueManagement {
             system.set("GitHub Issues")
-            url.set("https://github.com/CloudNetService/CloudNet-v3/issues")
+            url.set("https://github.com/CloudNetService/CloudNet/issues")
           }
 
           ciManagement {
             system.set("GitHub Actions")
-            url.set("https://github.com/CloudNetService/CloudNet-v3/actions")
+            url.set("https://github.com/CloudNetService/CloudNet/actions")
           }
 
           withXml {
