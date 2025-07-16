@@ -41,7 +41,7 @@ pluginManagement {
 }
 plugins {
   id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
-  id("com.gradle.develocity") version ("4.0")
+  id("com.gradle.develocity") version ("4.1")
   id("settings-plugin")
 }
 
@@ -117,11 +117,22 @@ fun initializePrefixedSubProjects(rootProject: String, prefix: String, vararg na
   }
 }
 
+val isCI = System.getenv("CI") != null
+
 develocity {
   buildScan {
-    termsOfUseAgree = if (File("gradle.tos.agree").exists()) "yes" else ""
+    val file = rootDir.resolve("gradle.tos.agree")
+    val agree = if (file.exists()) "yes" else ""
+    termsOfUseAgree = agree
     termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+    gradle.settingsEvaluated {
+      // IntelliJ overrides this in windows using an init script %TEMP%/ejNoScan1.gradle
+      // We agree with the file, so we override IntelliJ again.
+      termsOfUseAgree = agree
+    }
     publishing.onlyIf { termsOfUseAgree.get() == "yes" }
+
+    uploadInBackground = !isCI
     obfuscation {
       ipAddresses { listOf("0.0.0.0") }
       hostname { "removed" }
