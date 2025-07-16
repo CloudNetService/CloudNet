@@ -97,13 +97,12 @@ public class NodeCloudMessenger implements CloudMessenger {
         // this method already returned to the caller before a response is received. in this
         // case, we release the response we got immediately as it would leak otherwise
         var didComplete = done.compareAndSet(false, true);
-        return switch (didComplete) {
-          case true -> responses;
-          case false -> {
-            responses.forEach(ChannelMessage::close);
-            throw new IllegalStateException("received responses after downstream already completed");
-          }
-        };
+        if (didComplete) {
+          return responses;
+        } else {
+          responses.forEach(ChannelMessage::close);
+          throw new IllegalStateException("received responses after downstream already completed");
+        }
       })
       // hack: get a new incomplete future here so that the previous thenApply step runs as well.
       // the following orTimeout completes the future it's called on, so the releasing step would never run
