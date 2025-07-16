@@ -121,8 +121,11 @@ val isCI = System.getenv("CI") != null
 
 develocity {
   buildScan {
+    // auto publishing build scans can be enabled by creating a file
+    // named "gradle.tos.agree" in the root directory with the ToS URL
+    // as content.
     val file = rootDir.resolve("gradle.tos.agree")
-    val agree = if (file.exists()) "yes" else ""
+    val agree = if (file.exists() && file.readText() == "https://gradle.com/help/legal-terms-of-use") "yes" else ""
     termsOfUseAgree = agree
     termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
     gradle.settingsEvaluated {
