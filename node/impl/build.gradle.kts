@@ -34,7 +34,7 @@ tasks.shadowJar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
   from(wrapperJar) {
-    // Rename the file to make sure 100%
+    // Rename the file to make sure 100% it is correctly named
     rename { Files.wrapper }
   }
 
