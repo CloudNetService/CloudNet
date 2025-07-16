@@ -17,40 +17,61 @@
 package eu.cloudnetservice.launcher.patcher;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 public final class CloudNetLauncherPatcher {
 
   public static void main(@NonNull String[] args) {
-    // validate that we got all required args to run (<pid> <old launcher> <new launcher>)
+    try {
+      // the jvm has a signal handler for SIGHUP, which exists the jvm when received
+      // tmux and screen use SIGHUP to signal the process that the session closed; however,
+      // this shouldn't prevent the patching process from running anyway
+      Signal.handle(new Signal("HUP"), SignalHandler.SIG_IGN);
+    } catch (Throwable throwable) {
+      printf(System.err, "Unable to register signal handler: %s", throwable.getMessage());
+    }
+
+    // validate that we got all required args to run (<pid> <launcher path> <new launcher path>)
     if (args.length == 3) {
       var launcherPid = Long.parseLong(args[0]);
-      var oldLauncherPath = Path.of(args[1]);
+      var launcherPath = Path.of(args[1]);
       var newLauncherPath = Path.of(args[2]);
-      // just for debug reasons
-      // CHECKSTYLE.OFF: Launcher has no proper logger
-      System.out.printf("Picked up options: %s -> %s (pid: %d)%n", oldLauncherPath, newLauncherPath, launcherPid);
-      // CHECKSTYLE.ON
+      printf(System.out, "Picked up options:");
+      printf(System.out, " - Launcher PID: %d", launcherPid);
+      printf(System.out, " - Launcher Path: %s", launcherPath);
+      printf(System.out, " - New Launcher Path: %s", newLauncherPath);
+
       // wait for the process to terminate by joining it (to block the current thread)
-      ProcessHandle.of(launcherPid).ifPresent(handle -> handle.onExit().join());
-      // the process doesn't exist or terminated - run the updater now
-      // CHECKSTYLE.OFF: Launcher has no proper logger
-      System.out.printf("Running patcher on file %s%n", oldLauncherPath);
-      // CHECKSTYLE.ON
-      replaceOldLauncher(oldLauncherPath, newLauncherPath);
+      ProcessHandle.of(launcherPid).ifPresent(handle -> handle.onExit()
+        .orTimeout(5, TimeUnit.SECONDS)
+        .exceptionally(__ -> {
+          printf(System.err, "Launcher process did not terminate in time, running patcher anyway");
+          return null;
+        })
+        .join());
+
+      printf(System.out, "Copying new launcher file...");
+      replaceOldLauncher(launcherPath, newLauncherPath);
     }
   }
 
   private static void replaceOldLauncher(@NonNull Path oldPath, @NonNull Path newPath) {
     try {
-      // move the new file to the location of the old file
       Files.copy(newPath, oldPath, StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException exception) {
       throw new UncheckedIOException(exception);
     }
+  }
+
+  private static void printf(@NonNull PrintStream target, @NonNull String format, @NonNull Object... args) {
+    target.printf(format + "%n", args);
   }
 }

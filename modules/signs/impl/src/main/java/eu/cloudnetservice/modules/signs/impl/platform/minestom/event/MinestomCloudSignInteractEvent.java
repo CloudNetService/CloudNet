@@ -26,12 +26,12 @@ import org.jetbrains.annotations.Nullable;
 public class MinestomCloudSignInteractEvent implements CancellableEvent {
 
   private final Player player;
-  private final PlatformSign<Player, String> sign;
+  private final PlatformSign<Player, ?> sign;
 
   private boolean cancelled;
   private ServiceInfoSnapshot target;
 
-  public MinestomCloudSignInteractEvent(@NonNull Player player, @NonNull PlatformSign<Player, String> sign) {
+  public MinestomCloudSignInteractEvent(@NonNull Player player, @NonNull PlatformSign<Player, ?> sign) {
     this.player = player;
     this.sign = sign;
     this.target = sign.currentTarget();
@@ -41,7 +41,7 @@ public class MinestomCloudSignInteractEvent implements CancellableEvent {
     return this.player;
   }
 
-  public @NonNull PlatformSign<Player, String> clickedSign() {
+  public @NonNull PlatformSign<Player, ?> clickedSign() {
     return this.sign;
   }
 

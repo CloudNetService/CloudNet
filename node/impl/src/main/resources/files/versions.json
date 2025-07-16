@@ -89,8 +89,55 @@
       "website": "https://papermc.io",
       "versions": [
         {
-          "name": "1.21.4",
+          "name": "1.21.7",
           "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21.7"
+          }
+        },
+        {
+          "name": "1.21.6",
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21.6"
+          }
+        },
+        {
+          "name": "1.21.5",
+          "deprecated": true,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21.5"
+          }
+        },
+        {
+          "name": "1.21.4",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -105,37 +152,8 @@
           }
         },
         {
-          "name": "1.21.3",
-          "properties": {
-            "copy": {
-              "cache/.*": "/",
-              "versions/.*": "/",
-              "paper\\.jar": "paper.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.21.3"
-          }
-        },
-        {
-          "name": "1.21.1",
-          "properties": {
-            "copy": {
-              "cache/.*": "/",
-              "versions/.*": "/",
-              "paper\\.jar": "paper.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.21.1"
-          }
-        },
-        {
           "name": "1.20.6",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -150,22 +168,8 @@
           }
         },
         {
-          "name": "1.20.4",
-          "properties": {
-            "copy": {
-              "cache/.*": "/",
-              "versions/.*": "/",
-              "paper\\.jar": "paper.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.20.4"
-          }
-        },
-        {
           "name": "1.19.4",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -181,7 +185,6 @@
         },
         {
           "name": "1.18.2",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.18.2/builds/387/downloads/paper-1.18.2-387.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -191,12 +194,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.18.2"
           }
         },
         {
           "name": "1.17.1",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.17.1/builds/409/downloads/paper-1.17.1-409.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -204,12 +208,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.17.1"
           }
         },
         {
           "name": "1.16.5",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.16.5/builds/794/downloads/paper-1.16.5-794.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -217,12 +222,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16.5"
           }
         },
         {
           "name": "1.15.2",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.15.2/builds/393/downloads/paper-1.15.2-393.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -230,12 +236,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.15.2"
           }
         },
         {
           "name": "1.14.4",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.14.4/builds/245/downloads/paper-1.14.4-245.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -243,12 +250,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.14.4"
           }
         },
         {
           "name": "1.13.2",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.13.2/builds/657/downloads/paper-1.13.2-657.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -256,12 +264,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.13.2"
           }
         },
         {
           "name": "1.12.2",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.12.2/builds/1620/downloads/paper-1.12.2-1620.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -269,12 +278,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.12.2"
           }
         },
         {
           "name": "1.11.2",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.11.2/builds/1106/downloads/paper-1.11.2-1106.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -282,12 +292,13 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.11.2"
           }
         },
         {
           "name": "1.10.2",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.10.2/builds/918/downloads/paper-1.10.2-918.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -295,27 +306,31 @@
             },
             "filteredFiles": [
               "org/apache/logging/log4j/core/lookup/JndiLookup.class"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.10.2"
           }
         },
         {
           "name": "1.9.4",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.9.4/builds/775/downloads/paper-1.9.4-775.jar",
           "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.9.4"
           }
         },
         {
           "name": "1.8.8",
-          "url": "https://api.papermc.io/v2/projects/paper/versions/1.8.8/builds/445/downloads/paper-1.8.8-445.jar",
           "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.8.8"
           }
         }
       ]
@@ -331,8 +346,8 @@
       ],
       "versions": [
         {
-          "name": "1.21.4",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21.4/latest/download",
+          "name": "1.21.7",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.7/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -346,8 +361,8 @@
           }
         },
         {
-          "name": "1.21.3",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21.3/latest/download",
+          "name": "1.21.6",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.6/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -360,8 +375,9 @@
           }
         },
         {
-          "name": "1.21.1",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21.1/latest/download",
+          "name": "1.21.5",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.5/latest/download",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -376,20 +392,7 @@
         {
           "name": "1.20.6",
           "url": "https://api.purpurmc.org/v2/purpur/1.20.6/latest/download",
-          "properties": {
-            "copy": {
-              "cache/.*": "/",
-              "versions/.*": "/",
-              "purpur\\.jar": "paper.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ]
-          }
-        },
-        {
-          "name": "1.20.4",
-          "url": "https://api.purpurmc.org/v2/purpur/1.20.4/latest/download",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -404,6 +407,7 @@
         {
           "name": "1.19.4",
           "url": "https://api.purpurmc.org/v2/purpur/1.19.4/latest/download",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -454,79 +458,81 @@
       ],
       "versions": [
         {
-          "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.21.jar",
-          "cacheFiles": false
+          "name": "1.21.7",
+          "url": "https://s3.mcjars.app/spigot/1.21.7/4519/server.jar"
         },
         {
-          "name": "1.21",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.21.jar"
+          "name": "1.21.6",
+          "url": "https://s3.mcjars.app/spigot/1.21.6/4518/server.jar"
+        },
+        {
+          "name": "1.21.5",
+          "url": "https://s3.mcjars.app/spigot/1.21.5/4504/server.jar",
+          "deprecated": true
         },
         {
           "name": "1.20.6",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.20.6.jar"
-        },
-        {
-          "name": "1.20.4",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.20.4.jar"
+          "url": "https://s3.mcjars.app/spigot/1.20.6/4135/server.jar",
+          "deprecated": true
         },
         {
           "name": "1.19.4",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.19.4.jar"
+          "url": "https://s3.mcjars.app/spigot/1.19.4/3763/server.jar",
+          "deprecated": true
         },
         {
           "name": "1.18.2",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.18.2.jar",
+          "url": "https://s3.mcjars.app/spigot/1.18.2/3498/server.jar",
           "deprecated": true
         },
         {
           "name": "1.17.1",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.17.1.jar",
+          "url": "https://s3.mcjars.app/spigot/1.17.1/3284/server.jar",
           "deprecated": true
         },
         {
           "name": "1.16.5",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.5.jar",
+          "url": "https://s3.mcjars.app/spigot/1.16.5/3096/server.jar",
           "deprecated": true
         },
         {
           "name": "1.15.2",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.15.2.jar",
+          "url": "https://s3.mcjars.app/spigot/1.15.2/2703/server.jar",
           "deprecated": true
         },
         {
           "name": "1.14.4",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.14.4.jar",
+          "url": "https://s3.mcjars.app/spigot/1.14.4/2502/server.jar",
           "deprecated": true
         },
         {
           "name": "1.13.2",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.13.2.jar",
+          "url": "https://s3.mcjars.app/spigot/1.13.2/2148/server.jar",
           "deprecated": true
         },
         {
           "name": "1.12.2",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.12.2.jar",
+          "url": "https://s3.mcjars.app/spigot/1.12.2/1573/server.jar",
           "deprecated": true
         },
         {
           "name": "1.11.2",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.11.2.jar",
+          "url": "https://s3.mcjars.app/spigot/1.11.2/1251/server.jar",
           "deprecated": true
         },
         {
           "name": "1.10.2",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.10.2-R0.1-SNAPSHOT-latest.jar",
+          "url": "https://s3.mcjars.app/spigot/1.10.2/986/server.jar",
           "deprecated": true
         },
         {
           "name": "1.9.4",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.9.4-R0.1-SNAPSHOT-latest.jar",
+          "url": "https://s3.mcjars.app/spigot/1.9.4/849/server.jar",
           "deprecated": true
         },
         {
           "name": "1.8.8",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar",
+          "url": "https://s3.mcjars.app/spigot/1.8.8/582/server.jar",
           "deprecated": true
         }
       ]
@@ -543,8 +549,27 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.21.4",
+          "name": "1.21.7",
           "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "fabric-server-launch\\.jar": "fabric.jar",
+              "libraries/.*": "/",
+              "versions/.*": "/",
+              "server\\.jar": "server.jar"
+            },
+            "parameters": [
+              "server",
+              "-mcversion",
+              "%version%",
+              "-downloadMinecraft"
+            ],
+            "fetchOverFabricApi": true
+          },
+          "minJavaVersion": 21
+        },
+        {
+          "name": "1.21.6",
           "properties": {
             "copy": {
               "fabric-server-launch\\.jar": "fabric.jar",
@@ -576,7 +601,7 @@
       ],
       "versions": [
         {
-          "name": "latest",
+          "name": "1.21.5",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -586,40 +611,13 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.21.3"
-          },
-          "minJavaVersion": 21
-        },
-        {
-          "name": "1.21.3",
-          "properties": {
-            "copy": {
-              "libraries/.*": "/",
-              "launcher\\.conf": "/",
-              "spongevanilla\\.jar": "/"
-            },
-            "fetchOverSpongeApi": true,
-            "artifact": "spongevanilla",
-            "mcVersion": "1.21.3"
-          },
-          "minJavaVersion": 21
-        },
-        {
-          "name": "1.21.1",
-          "properties": {
-            "copy": {
-              "libraries/.*": "/",
-              "launcher\\.conf": "/",
-              "spongevanilla\\.jar": "/"
-            },
-            "fetchOverSpongeApi": true,
-            "artifact": "spongevanilla",
-            "mcVersion": "1.21.1"
+            "mcVersion": "1.21.5"
           },
           "minJavaVersion": 21
         },
         {
           "name": "1.20.6",
+          "deprecated": true,
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -634,6 +632,7 @@
         },
         {
           "name": "1.19.4",
+          "deprecated": true,
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -647,6 +646,7 @@
         },
         {
           "name": "1.18.2",
+          "deprecated": true,
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -655,11 +655,13 @@
             },
             "fetchOverSpongeApi": true,
             "artifact": "spongevanilla",
-            "mcVersion": "1.18.2"
+            "mcVersion": "1.18.2",
+            "deprecated": true
           }
         },
         {
           "name": "1.16.5",
+          "deprecated": true,
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -684,7 +686,8 @@
         {
           "name": "latest",
           "url": "https://jenkins.waterdog.dev/job/Waterdog/job/WaterdogPE/job/master/lastSuccessfulBuild/artifact/target/Waterdog.jar",
-          "cacheFiles": false
+          "cacheFiles": false,
+          "deprecated": true
         }
       ]
     },
@@ -746,20 +749,32 @@
       ],
       "versions": [
         {
+          "name": "1.21.7",
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.7/55/server.jar"
+        },
+        {
+          "name": "1.21.6",
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.6/54/server.jar"
+        },
+        {
+          "name": "1.21.5",
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.5/52/server.jar"
+        },
+        {
           "name": "1.21.4",
-          "url": "https://ci.loohpjames.com/job/Limbo/51/artifact/target/Limbo-0.7.12-ALPHA-1.21.4.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.4/51/server.jar"
         },
         {
           "name": "1.21.3",
-          "url": "https://ci.loohpjames.com/job/Limbo/47/artifact/target/Limbo-0.7.11-ALPHA-1.21.3.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.3/47/server.jar"
         },
         {
           "name": "1.21.1",
-          "url": "https://ci.loohpjames.com/job/Limbo/46/artifact/target/Limbo-0.7.10-ALPHA-1.21.1.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.1/46/server.jar"
         },
         {
           "name": "1.20.6",
-          "url": "https://ci.loohpjames.com/job/Limbo/43/artifact/target/Limbo-0.7.9-ALPHA-1.20.6.jar"
+          "url": "https://s3.mcjars.app/loohp-limbo/1.20.6/43/server.jar"
         }
       ]
     }

@@ -40,6 +40,7 @@ import net.minestom.server.entity.Player;
 @Singleton
 public class SignsCommand extends Command {
 
+  private static final ArgumentLiteral CREATE_LITERAL = new ArgumentLiteral("create");
   private static final ArgumentLiteral REMOVE_LITERAL = new ArgumentLiteral("remove");
   private static final ArgumentLiteral REMOVE_ALL_LITERAL = new ArgumentLiteral("removeAll");
   private static final ArgumentLiteral CLEANUP_LITERAL = new ArgumentLiteral("cleanup");
@@ -58,18 +59,16 @@ public class SignsCommand extends Command {
     @NonNull MinestomBridgeManagement bridgeManagement
   ) {
     super("cloudsign", "cs", "signs", "cloudsigns");
-
-    this.world = new ArgumentString("world");
-    this.template = this.createTemplatePathArgument(i18n);
-    this.targetGroup = this.createTargetGroupArgument(i18n, groupProvider);
     this.signManagement = signManagement;
 
-    var createLiteral = new ArgumentLiteral("create");
+    this.template = this.createTemplatePathArgument(i18n);
+    this.targetGroup = this.createTargetGroupArgument(i18n, groupProvider);
+    this.world = new ArgumentString("world").setDefaultValue(() -> null);
 
     CommandCondition defaultCondition = (sender, _) -> sender instanceof Player player
       && bridgeManagement.permissionFunction().apply(player, "cloudnet.command.cloudsign");
 
-    this.addConditionalSyntax(defaultCondition, this::handleCreate, createLiteral, this.targetGroup, this.template);
+    this.addConditionalSyntax(defaultCondition, this::handleCreate, CREATE_LITERAL, this.targetGroup, this.template);
     this.addConditionalSyntax(defaultCondition, this::handleRemove, REMOVE_LITERAL);
     this.addConditionalSyntax(defaultCondition, this::handleRemoveAll, REMOVE_ALL_LITERAL);
     this.addConditionalSyntax(defaultCondition, this::handleCleanup, CLEANUP_LITERAL, this.world);
@@ -79,7 +78,10 @@ public class SignsCommand extends Command {
   private @NonNull Argument<String> createTemplatePathArgument(@NonNull @Service I18n i18n) {
     return new ArgumentString("templatePath") {
       @Override
-      public @NonNull String parse(@NonNull CommandSender sender, @NonNull String input) throws ArgumentSyntaxException {
+      public @NonNull String parse(
+        @NonNull CommandSender sender,
+        @NonNull String input
+      ) throws ArgumentSyntaxException {
         var template = ServiceTemplate.parse(input);
         if (template == null) {
           throw new ArgumentSyntaxException(i18n.translate("command-template-not-valid"), input, -1);
@@ -206,8 +208,8 @@ public class SignsCommand extends Command {
   }
 
   private void handleCleanup(@NonNull CommandSender sender, @NonNull CommandContext context) {
-    var world = context.getOrDefault(this.world, ((Player) sender).getInstance().getUniqueId().toString());
     // removes all signs on which location is not a sign anymore
+    var world = context.getOrDefault(this.world, ((Player) sender).getInstance().getUuid().toString());
     var removed = this.signManagement.removeMissingSigns(world);
     SignsConfiguration.sendMessage(
       "command-cloudsign-cleanup-success",

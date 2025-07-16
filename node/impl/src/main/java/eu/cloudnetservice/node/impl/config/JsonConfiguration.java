@@ -46,7 +46,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import lombok.NonNull;
 
-@Singleton
 public final class JsonConfiguration implements Configuration {
 
   public static final Path CONFIG_FILE_PATH = Path.of(
@@ -131,6 +130,7 @@ public final class JsonConfiguration implements Configuration {
   }
 
   @Factory
+  @Singleton
   private static @NonNull Configuration loadFromFile(@NonNull DefaultInstallation installation) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exist

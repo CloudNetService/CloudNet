@@ -32,7 +32,7 @@ import lombok.NonNull;
  * {@code
  *   @Inject
  *   public TestClass(ServiceRegistry registry) {
- *     var playerManager = registry.firstProvider(PlayerManager.class);
+ *     var playerManager = registry.defaultInstance(PlayerManager.class);
  *     playerManager.onlineCount();
  *   }
  * }

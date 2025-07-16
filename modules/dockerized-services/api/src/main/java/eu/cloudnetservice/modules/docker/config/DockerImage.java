@@ -31,9 +31,33 @@ public record DockerImage(
     return new Builder();
   }
 
+  /**
+   * Constructs a valid image tag as described in <a
+   * href="https://docs.docker.com/reference/cli/docker/image/tag/#description">Docker documentation</a>.
+   *
+   * @return an image tag based on the components provided to this image.
+   */
   public @NonNull String imageName() {
-    // append the tag if given, if not docker will just use the latest image
-    return this.repository + (this.tag == null ? "" : String.format(":%s", this.tag));
+    var nameBuilder = new StringBuilder();
+
+    // append registry to use, if given
+    if (this.registry != null && !this.registry.isBlank()) {
+      nameBuilder.append(this.registry).append('/');
+    }
+
+    // append namespace/repository that contains the image
+    nameBuilder.append(this.repository);
+
+    // append tag, either latest (tag not specified), @sha256:<hash> or :<tag>
+    if (this.tag == null || this.tag.isBlank()) {
+      nameBuilder.append(":latest");
+    } else if (this.tag.startsWith("sha256:")) {
+      nameBuilder.append('@').append(this.tag);
+    } else {
+      nameBuilder.append(':').append(this.tag);
+    }
+
+    return nameBuilder.toString();
   }
 
   public static final class Builder {

@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.wrapper.impl.transform;
 
-import eu.cloudnetservice.wrapper.transform.ClassTransformer;
-import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
 import jakarta.inject.Singleton;
 import java.lang.classfile.ClassFile;
 import java.lang.classfile.ClassHierarchyResolver;
@@ -82,6 +80,7 @@ public final class DefaultClassTransformerRegistry implements ClassTransformerRe
      */
     @Override
     public byte[] transform(
+      @Nullable Module module,
       @Nullable ClassLoader loader,
       @NonNull String className,
       @Nullable Class<?> classBeingRedefined,
@@ -114,15 +113,17 @@ public final class DefaultClassTransformerRegistry implements ClassTransformerRe
       // use the class loader that is loading the class to transform as this loader
       // must also know all relevant imported classes. by default this would be
       // the system class loader, which might not have all necessary classes present
-      var classHierarchyResolver = ClassHierarchyResolver.ofClassLoading(loader);
+      var classHierarchyResolver = loader == null
+        ? ClassHierarchyResolver.defaultResolver()
+        : ClassHierarchyResolver.ofClassLoading(loader);
       var classHierarchyResolverOption = ClassFile.ClassHierarchyResolverOption.of(classHierarchyResolver);
 
       try {
         // apply the transformation to the provided class file
         var classFile = ClassFile.of(classHierarchyResolverOption);
         var classModel = classFile.parse(classfileBuffer);
-        var classTransform = this.transformer.provideClassTransform();
-        return classFile.transform(classModel, classTransform);
+        var classTransform = this.transformer.provideClassTransform(classModel, module, loader);
+        return classFile.transformClass(classModel, classTransform);
       } catch (Exception exception) {
         LOGGER.error("Failed to transform class {} using transformer {}", className, transformerClassName, exception);
         return null;

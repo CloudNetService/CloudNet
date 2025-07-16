@@ -16,20 +16,24 @@
 
 package eu.cloudnetservice.modules.signs.impl.platform.minestom;
 
+import com.google.common.base.Enums;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
 import eu.cloudnetservice.ext.component.ComponentFormats;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.impl.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.impl.platform.minestom.event.MinestomCloudSignInteractEvent;
+import eu.cloudnetservice.utils.base.StringUtil;
 import io.vavr.Tuple2;
 import java.util.UUID;
 import lombok.NonNull;
+import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.nbt.ListBinaryTag;
+import net.minestom.server.adventure.serializer.nbt.NbtComponentSerializer;
+import net.minestom.server.codec.Transcoder;
+import net.minestom.server.color.DyeColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
@@ -37,7 +41,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceManager;
 import org.jetbrains.annotations.Nullable;
 
-public class MinestomPlatformSign extends PlatformSign<Player, String> {
+public class MinestomPlatformSign extends PlatformSign<Player, BinaryTag> {
 
   private final GlobalEventHandler eventHandler;
   private final InstanceManager instanceManager;
@@ -52,7 +56,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
   ) {
     super(base, serviceRegistry, input -> {
       var coloredComponent = ComponentFormats.BUNGEE_TO_ADVENTURE.convert(input);
-      return GsonComponentSerializer.gson().serialize(coloredComponent);
+      return NbtComponentSerializer.nbt().serialize(coloredComponent);
     });
 
     this.eventHandler = eventHandler;
@@ -86,27 +90,37 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
   public void updateSign(@NonNull SignLayout layout) {
     var location = this.signLocation();
     if (location != null) {
+      // set the glowing state
+      var textCompound = CompoundBinaryTag.builder();
+      textCompound.putBoolean("has_glowing_text", layout.textGlowing());
 
-      // construct the sign data in this binary compound
-      var compound = CompoundBinaryTag.builder();
+      // set the text color
+      var textColor = layout.textColor();
+      var dyeColor = switch (textColor) {
+        case String string -> Enums.getIfPresent(DyeColor.class, StringUtil.toUpper(string)).or(DyeColor.BLACK);
+        case null -> DyeColor.BLACK;
+      };
+      var serializedColor = DyeColor.CODEC
+        .encode(Transcoder.NBT, dyeColor)
+        .orElseThrow("could not transcode dye color " + dyeColor + " to nbt");
+      textCompound.put("color", serializedColor);
 
-      // set the sign glowing if requested
-      var glowingColor = layout.glowingColor();
-      if (glowingColor != null && glowingColor.length() == 1) {
-        var color = AdventureTextFormatLookup.findColor(glowingColor.charAt(0));
+      // set the sign lines - they are provided as legacy text components and need to be converted to JSON
+      var linesCompound = ListBinaryTag.builder();
+      this.changeSignLines(layout, (_, line) -> linesCompound.add(line));
+      textCompound.put("messages", linesCompound.build());
 
-        compound.putBoolean("GlowingText", color != null);
-        compound.putString("Color", color == null ? NamedTextColor.WHITE.toString() : color.toString());
-      }
-
-      // set the sign lines
-      this.changeSignLines(layout, (index, line) -> compound.putString("Text" + (index + 1), line));
+      // build the final sign compound
+      var signCompound = CompoundBinaryTag.builder();
+      signCompound.putBoolean("is_waxed", false);
+      signCompound.put("front_text", textCompound.build());
+      signCompound.put("back_text", textCompound.build());
 
       // set the block at the position
       var block = location._2().getBlock(location._1());
       location._2().setBlock(
         location._1(),
-        block.withHandler(MinestomSignBlockHandler.SIGN_BLOCK_HANDLER).withNbt(compound.build()));
+        block.withHandler(MinestomSignBlockHandler.SIGN_BLOCK_HANDLER).withNbt(signCompound.build()));
     }
   }
 

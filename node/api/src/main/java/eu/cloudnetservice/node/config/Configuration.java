@@ -20,12 +20,10 @@ import eu.cloudnetservice.driver.cluster.NetworkCluster;
 import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
-import jakarta.inject.Singleton;
 import java.util.Collection;
 import java.util.Map;
 import lombok.NonNull;
 
-@Singleton
 public interface Configuration {
 
   boolean fileExists();

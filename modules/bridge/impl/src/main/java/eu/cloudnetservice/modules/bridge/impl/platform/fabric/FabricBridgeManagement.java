@@ -156,7 +156,7 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
     super.appendServiceInformation(configureEvent);
 
     configureEvent.propertyHolder().append("Online-Count", this.server.cloudnet_bridge$playerCount());
-    configureEvent.propertyHolder().append("Version", SharedConstants.getCurrentVersion().getName());
+    configureEvent.propertyHolder().append("Version", SharedConstants.getCurrentVersion().name());
     // players
     configureEvent.propertyHolder().append("Players", this.server.cloudnet_bridge$players().stream()
       .map(this::createPlayerInformation)

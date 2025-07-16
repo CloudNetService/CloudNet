@@ -17,9 +17,10 @@
 package eu.cloudnetservice.wrapper.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.wrapper.transform.ClassTransformerRegistry;
+import eu.cloudnetservice.wrapper.impl.transform.ClassTransformerRegistry;
 import io.leangen.geantyref.TypeFactory;
 import java.time.Instant;
 import java.util.List;
@@ -51,10 +52,15 @@ public final class Main {
     var builder = bootInjectLayer.injector().createBindingBuilder();
     bootInjectLayer.install(builder.bind(org.slf4j.Logger.class).qualifiedWithName("root").toInstance(rootLogger));
     bootInjectLayer.install(builder.bind(Instant.class).qualifiedWithName("startInstant").toInstance(startInstant));
+
+    var threadFactory = new ThreadFactoryBuilder()
+      .setDaemon(true)
+      .setNameFormat("CloudNet-TaskScheduler-Thread-%d")
+      .build();
     bootInjectLayer.install(builder
       .bind(ScheduledExecutorService.class)
       .qualifiedWithName("taskScheduler")
-      .toInstance(Executors.newScheduledThreadPool(2)));
+      .toInstance(Executors.newScheduledThreadPool(2, threadFactory)));
 
     // bind the transformer registry here - we *could* provided it by constructing, but we don't
     // want to expose the Instrumentation instance

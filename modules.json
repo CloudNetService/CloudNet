@@ -4,33 +4,14 @@
       "official": true,
       "name": "CloudNet-Rest",
       "website": "https://github.com/CloudNetService/module-rest",
-      "version": "0.1.0",
-      "sha3256": "df5b46ae57ed3aae74739751ee9725413b430ba1f07b0dc7135e10b41e599225",
-      "description": "CloudNet-Rest module that provides a rest api for CloudNet.",
-      "url": "https://github.com/CloudNetService/module-rest/releases/download/0.1.0/cloudnet-rest.jar",
+      "version": "0.3.0",
+      "sha3256": "1b0fbd0ea316d42869dafd32bde1ec4a8babca8d4aa7d9065a2bcc365700439d",
+      "description": "Module which provides a REST API for managing resources within the CloudNet system",
+      "url": "https://github.com/CloudNetService/module-rest/releases/download/0.3.0/cloudnet-rest.jar",
       "maintainers": [
         "CloudNetService"
       ],
       "releaseNotes": [],
-      "dependingModules": []
-    },
-    {
-      "official": false,
-      "name": "CloudNet-JMX-Support",
-      "website": "https://github.com/OneLiteFeatherNET/CloudNet-JMX-Support",
-      "version": "1.0.2",
-      "sha3256": "8ae234675fda8e4ac2134724a31f64b7f598a8206d863ed2493bcf022c35235e",
-      "description": "Node extension for the CloudNet runtime, which enables for Java Processes JMX Support",
-      "url": "https://github.com/OneLiteFeatherNET/CloudNet-JMX-Support/releases/download/v1.0.2/CloudNet-JMX-Support-1.0.2.jar",
-      "maintainers": [
-        "TheMeinerLP",
-        "theEvilReaper",
-        "theShadowsDust",
-        "OneLiteFeather"
-      ],
-      "releaseNotes": [
-        "Core functionalities"
-      ],
       "dependingModules": []
     }
   ]

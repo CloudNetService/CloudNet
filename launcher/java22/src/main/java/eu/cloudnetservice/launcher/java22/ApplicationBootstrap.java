@@ -36,6 +36,8 @@ import lombok.NonNull;
 final class ApplicationBootstrap {
 
   private static final List<String> DEFAULT_PROCESS_ARGUMENTS = Arrays.asList(
+    // no need to use unsafe in netty5, usees memory segments instead
+    "-Dio.netty5.noUnsafe=true",
     // Enables the usage of native access for all unnamed modules, which allows us to use the JLine FFM terminal.
     // While enabling native access for modules is not a strict requirement yet (see JEP 472 for initial work),
     // JLine has a check that specifically ensures that native access is enabled before allowing to use the impl.

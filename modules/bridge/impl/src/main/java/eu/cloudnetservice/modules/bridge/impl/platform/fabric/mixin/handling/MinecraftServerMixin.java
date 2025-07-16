@@ -46,9 +46,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftServerMixin implements BridgedServer {
 
   @Unique
-  private PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> cloudnet_bridge$management;
-  @Unique
   private FabricInjectionHolder cloudnet_bridge$injectionHolder;
+  @Unique
+  private PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> cloudnet_bridge$management;
+
+  @Unique
+  private final Runnable cloudnet_bridge$postInitTickableTask = this::cloudnet_bridge$postInitTickable;
 
   @Shadow
   public abstract PlayerList getPlayerList();
@@ -56,11 +59,9 @@ public abstract class MinecraftServerMixin implements BridgedServer {
   @Shadow
   public abstract String getMotd();
 
-  @Shadow
   @Final
+  @Shadow
   private List<Runnable> tickables;
-
-  private final Runnable cloudnet_bridge$postInitTickableTask = this::cloudnet_bridge$postInitTickable;
 
   @Inject(
     at = @At(
@@ -70,9 +71,7 @@ public abstract class MinecraftServerMixin implements BridgedServer {
     method = "runServer"
   )
   public void cloudnet_bridge$beforeTickLoopStart(CallbackInfo callbackInfo) {
-    // the server now booted completely
     this.cloudnet_bridge$injectionHolder = InjectionLayer.ext().instance(FabricInjectionHolder.class);
-    // we have to create the management ourselves as we can't inject the server
     this.cloudnet_bridge$management = new FabricBridgeManagement(
       this,
       this.cloudnet_bridge$injectionHolder.rpcFactory(),

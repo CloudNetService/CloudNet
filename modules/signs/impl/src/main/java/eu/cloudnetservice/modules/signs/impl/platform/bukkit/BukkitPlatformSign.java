@@ -48,7 +48,6 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
   ) {
     super(base, serviceRegistry, input -> ChatColor.translateAlternateColorCodes('&', input));
     this.server = server;
-
     this.pluginManager = pluginManager;
   }
 
@@ -78,7 +77,6 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
     // check if the associated chunk is loaded
     var chunkX = NumberConversions.floor(location.getX()) >> 4;
     var chunkZ = NumberConversions.floor(location.getZ()) >> 4;
-
     return location.getWorld().isChunkLoaded(chunkX, chunkZ);
   }
 
@@ -91,14 +89,14 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
       return;
     }
 
-    // get the block at the given location
     var state = location.getBlock().getState();
     if (state instanceof org.bukkit.block.Sign sign) {
-      // set the glowing status if needed
+      // set the text color and glowing state
       BukkitCompatibility.signGlowing(sign, layout);
+      BukkitCompatibility.signTextColor(sign, layout);
 
       // set the sign lines
-      this.changeSignLines(layout, sign::setLine);
+      this.changeSignLines(layout, (line, text) -> BukkitCompatibility.signLine(sign, line, text));
       sign.update();
 
       // change the block behind the sign
@@ -123,7 +121,6 @@ final class BukkitPlatformSign extends PlatformSign<Player, String> {
   public @Nullable ServiceInfoSnapshot callSignInteractEvent(@NonNull Player player) {
     var event = new BukkitCloudSignInteractEvent(player, this);
     this.pluginManager.callEvent(event);
-
     return event.isCancelled() ? null : event.target();
   }
 

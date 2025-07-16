@@ -35,6 +35,9 @@
     <property name="max" value="140"/>
     <property name="ignorePattern" value="^package.*|^import.*|a href|http://|https://|ftp://|//.*"/>
   </module>
+  <module name="NewlineAtEndOfFile">
+    <property name="lineSeparator" value="lf"/>
+  </module>
   <module name="TreeWalker">
     <property name="skipFileOnJavaParseException" value="true"/>
     <property name="javaParseExceptionSeverity" value="info"/>
@@ -231,12 +234,12 @@
     <module name="LocalVariableName">
       <message key="name.invalidPattern"
         value="Local variable name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[a-z_]([a-z0-9][a-zA-Z0-9]*)?$"/>
     </module>
     <module name="PatternVariableName">
       <message key="name.invalidPattern"
         value="Pattern variable name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[a-z_]([a-z0-9][a-zA-Z0-9]*)?$"/>
     </module>
     <module name="ClassTypeParameterName">
       <message key="name.invalidPattern"
