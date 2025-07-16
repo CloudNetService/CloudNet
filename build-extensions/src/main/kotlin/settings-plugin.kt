@@ -219,7 +219,7 @@ class JavaProjects : Plugin<Project> {
       }
 
       // all these projects are publishing their java artifacts
-      configurePublishing("java", true)
+      configurePublishing("java")
 
       // create consumable artifacts for global javadoc
       configurations.consumable(CustomConfigurations.GLOBAL_JAVADOC_SOURCES) {
