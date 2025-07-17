@@ -18,10 +18,13 @@ package eu.cloudnetservice.driver.network.buffer;
 
 import eu.cloudnetservice.driver.network.object.ObjectMapper;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -257,11 +260,59 @@ public interface DataBuf extends AutoCloseable {
   // utility for reading
 
   /**
-   * Get the number of remaining bytes in the buffer until the buffer gets released (when enabled).
+   * Get the remaining number of bytes that are filled with readable content.
    *
-   * @return the number of remaining bytes in the buffer.
+   * @return the remaining number of bytes that are filled with readable content.
    */
   int readableBytes();
+
+  /**
+   * Get the current reader offset. The next read to this buffer will happen at the returned offset.
+   *
+   * @return the current reader offset.
+   */
+  int readerOffset();
+
+  /**
+   * Sets the current reader offset of this buffer. The next read will happen from the given offset.
+   *
+   * @param offset the new reader offset to use.
+   * @return this buffer, for chaining.
+   * @throws IllegalStateException     if this buffer was released.
+   * @throws IndexOutOfBoundsException if the given offset is beyond the end of this buffer.
+   */
+  @NonNull
+  @Contract("_ -> this")
+  DataBuf readerOffset(int offset);
+
+  /**
+   * Advances the current reader offset of this buffer by the given delta. The next read to this buffer happens at the
+   * current reader index plus the given delta. Note: the given delta cannot be negative.
+   *
+   * @param delta the number of bytes to move the reader index by.
+   * @return this buffer, for chaining.
+   * @throws IllegalArgumentException  if the given delta is negative.
+   * @throws IllegalStateException     if this buffer was released.
+   * @throws IndexOutOfBoundsException if advancing by the given delta would move beyond the end of this buffer.
+   */
+  @NonNull
+  @Contract("_ -> this")
+  DataBuf advanceReaderOffset(int delta);
+
+  /**
+   * Get a byte buffer instance that shares the memory region of this buffer. The returned buffer is marked as read-only
+   * which prevents write operations to it. The initial byte buffer offset is the current reader offset, and it's
+   * limited to the number of readable bytes beyond the current reader offset.
+   * <p>
+   * Note: this api is marked as experimental as the lifecycle of the returned buffer cannot be controlled. This means
+   * that a returned byte buffer instance can still refer to memory already released by this buffer.
+   *
+   * @return a read-only byte buffer sharing the memory region of this buffer, but with a separate position.
+   * @throws IllegalStateException if this buffer was released.
+   */
+  @NonNull
+  @ApiStatus.Experimental
+  ByteBuffer readableNioBuffer();
 
   /**
    * Starts a transaction to the buffer. Starting a transaction while another transaction is active will override the
@@ -292,6 +343,8 @@ public interface DataBuf extends AutoCloseable {
    */
   @NonNull
   DataBuf.Mutable asMutable();
+
+  // lifecycle management
 
   /**
    * Get if the current buffer is still accessible or if it was released already.
@@ -515,6 +568,8 @@ public interface DataBuf extends AutoCloseable {
       @Nullable T object,
       @NonNull BiConsumer<Mutable, T> handlerWhenNonNull);
 
+    // utility for writing
+
     /**
      * Ensures that this buffer has at least the given number of bytes available for writing data. If the buffer already
      * has the number of bytes present, this method returns immediately.
@@ -526,6 +581,61 @@ public interface DataBuf extends AutoCloseable {
      */
     @NonNull
     DataBuf.Mutable ensureWriteable(int bytes);
+
+    /**
+     * Get the remaining number of bytes available for write operations.
+     *
+     * @return the remaining number of bytes available for write operations.
+     */
+    int writeableBytes();
+
+    /**
+     * Get the current writer offset. The next write operation to this buffer will happen at the returned offset.
+     *
+     * @return the current writer offset.
+     */
+    int writerOffset();
+
+    /**
+     * Sets the current writer offset of this buffer. The next write operation will happen from the given offset.
+     *
+     * @param offset the new writer offset to use.
+     * @return this buffer, for chaining.
+     * @throws IllegalStateException     if this buffer was released.
+     * @throws IndexOutOfBoundsException if the given offset is beyond the end of this buffer.
+     */
+    @NonNull
+    @Contract("_ -> this")
+    DataBuf writerOffset(int offset);
+
+    /**
+     * Advances the current writer offset of this buffer by the given delta. The next write operation to this buffer
+     * happens at the current writer index plus the given delta. Note: the given delta cannot be negative.
+     *
+     * @param delta the number of bytes to move the writer index by.
+     * @return this buffer, for chaining.
+     * @throws IllegalArgumentException  if the given delta is negative.
+     * @throws IllegalStateException     if this buffer was released.
+     * @throws IndexOutOfBoundsException if advancing by the given delta would move beyond the end of this buffer.
+     */
+    @NonNull
+    @Contract("_ -> this")
+    DataBuf advanceWriterOffset(int delta);
+
+    /**
+     * Get a byte buffer instance that shares the memory region of this buffer. The returned buffer can be used to read
+     * and write data to this buffer. The initial byte buffer offset is the current writer offset, and it's limited to
+     * the number of writable bytes beyond the current writer offset.
+     * <p>
+     * Note: this api is marked as experimental as the lifecycle of the returned buffer cannot be controlled. This means
+     * that a returned byte buffer instance can still refer to memory already released by this buffer.
+     *
+     * @return a byte buffer sharing the memory region of this buffer, but with a separate position.
+     * @throws IllegalStateException if this buffer was released.
+     */
+    @NonNull
+    @ApiStatus.Experimental
+    ByteBuffer writeableNioBuffer();
 
     /**
      * Wraps the underlying buffer into a read-only variant. The underlying memory, lifetime and reader/writer positions

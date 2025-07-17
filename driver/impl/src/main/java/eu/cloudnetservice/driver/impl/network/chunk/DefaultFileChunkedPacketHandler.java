@@ -23,10 +23,12 @@ import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
@@ -39,8 +41,16 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvider implements ChunkedPacketHandler {
 
+  protected static final Set<OpenOption> FILE_CHANNEL_OPEN_OPTIONS = Set.of(
+    StandardOpenOption.READ,
+    StandardOpenOption.WRITE,
+    StandardOpenOption.DSYNC,
+    StandardOpenOption.CREATE,
+    StandardOpenOption.TRUNCATE_EXISTING
+  );
+
   protected final Path tempFilePath;
-  protected final RandomAccessFile targetFile;
+  protected final FileChannel targetFile;
   protected final Callback writeCompleteHandler;
   protected final Lock lock = new ReentrantLock();
 
@@ -48,7 +58,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   protected int expectedFileParts = -1;
 
   /**
-   * Creates the session handler initially. Sessions should be manged by some sort of handler which is responsible for
+   * Creates the session handler initially. Sessions should be manged by some sort of handler that is responsible for
    * handling incoming chunk parts as well.
    *
    * @param sessionInformation the information transferred by the sender initially.
@@ -63,7 +73,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   }
 
   /**
-   * Creates the session handler initially. Sessions should be manged by some sort of handler which is responsible for
+   * Creates the session handler initially. Sessions should be manged by some sort of handler that is responsible for
    * handling incoming chunk parts as well.
    *
    * @param sessionInformation the information transferred by the sender initially.
@@ -84,21 +94,15 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   }
 
   /**
-   * Opens a random access file at the provided temp path, creating the file if it does not exist. Note that this method
-   * does not create the parent directory of the file, it must exist prior to invocation.
+   * Opens a file channel to the provided temp path, creating the file if it does not exist. Note that this method does
+   * not create the parent directory of the file, it must exist prior to invocation.
    *
-   * @return the opened temp file for random access.
+   * @return the opened file channel to the target file.
    * @throws IllegalStateException if the temp file cannot be opened or created.
    */
-  private @NonNull RandomAccessFile openTempFile() {
+  private @NonNull FileChannel openTempFile() {
     try {
-      // create the file in case it does not exist
-      if (Files.notExists(this.tempFilePath)) {
-        Files.createFile(this.tempFilePath);
-      }
-
-      var pathAsFile = this.tempFilePath.toFile();
-      return new RandomAccessFile(pathAsFile, "rwd");
+      return FileChannel.open(this.tempFilePath, FILE_CHANNEL_OPEN_OPTIONS);
     } catch (IOException exception) {
       throw new IllegalStateException("cannot open chunk transfer temp file for writing", exception);
     }
@@ -142,7 +146,6 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
           var closeStream = true;
           var stream = InputStream.nullInputStream();
           try {
-            // open the stream to the data and post it to the write handler
             stream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE);
             closeStream = this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, stream);
           } finally {
@@ -167,16 +170,19 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   }
 
   /**
-   * Writes the content of a chunk part to the backing file, increasing the amount of written bytes by one.
+   * Writes the content of a chunk part to the backing file channel.
    *
    * @param chunkPosition the index of the chunk to write.
    * @param dataBuf       the buf transferred to this handler, the next content should be the actual chunk data.
    * @throws IOException          if an i/o error occurs during the chunk write.
    * @throws NullPointerException if the given buffer is null.
    */
+  @SuppressWarnings("ResultOfMethodCallIgnored") // don't care about the number of bytes written
   protected void writePacketContent(int chunkPosition, @NonNull DataBuf dataBuf) throws IOException {
-    var filePosition = Math.multiplyFull(chunkPosition, this.chunkSessionInformation.chunkSize());
-    this.targetFile.seek(filePosition);
-    this.targetFile.write(dataBuf.readByteArray());
+    var chunkSize = dataBuf.readInt(); // size of the current chunk
+    var standardChunkSize = this.chunkSessionInformation.chunkSize(); // size in which chunks are transmitted
+    var fileOffset = Math.multiplyFull(chunkPosition, standardChunkSize);
+    var chunkBuffer = dataBuf.readableNioBuffer().limit(dataBuf.readerOffset() + chunkSize);
+    this.targetFile.write(chunkBuffer, fileOffset);
   }
 }

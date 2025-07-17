@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.network.chunk;
 
-import com.google.common.base.Utf8;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufable;
 import java.io.Closeable;
@@ -65,24 +64,6 @@ public final class ChunkSessionInformation implements DataBufable, Closeable {
     this.sessionUniqueId = sessionUniqueId;
     this.transferChannel = transferChannel;
     this.transferInformation = transferInformation;
-  }
-
-  /**
-   * Returns the bytes required to write this session information into a buffer.
-   *
-   * @return the bytes required to write this session information into a buffer.
-   */
-  @ApiStatus.Internal
-  public int packetSizeBytes() {
-    var channelBytes = Utf8.encodedLength(this.transferChannel);
-    var transferBytes = this.transferInformation.readableBytes();
-    return Byte.BYTES              // nullable
-      + Integer.BYTES              // chunk size
-      + (Long.BYTES * 2)           // session id
-      + 5                          // channel name (max length)
-      + channelBytes
-      + 5                          // extra transfer info (max length)
-      + transferBytes;
   }
 
   /**
