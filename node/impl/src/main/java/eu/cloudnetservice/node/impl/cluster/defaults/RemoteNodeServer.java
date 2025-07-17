@@ -240,8 +240,12 @@ public class RemoteNodeServer implements NodeServer {
       .buffer(DataBuf.empty().writeString(commandLine))
       .build()
       .sendSingleQueryAsync()
-      .thenApply(message -> message.content().<Collection<String>>readObject(COLLECTION_STRING))
-      .exceptionally($ -> Set.of())
+      .thenApply(response -> {
+        try (response) {
+          return response.content().<Collection<String>>readObject(COLLECTION_STRING);
+        }
+      })
+      .exceptionally(_ -> Set.of())
       .join();
   }
 

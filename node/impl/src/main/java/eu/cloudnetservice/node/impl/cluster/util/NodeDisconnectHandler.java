@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.impl.cluster.util;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
@@ -61,7 +60,7 @@ public final class NodeDisconnectHandler {
     var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
     for (var service : services) {
-      builder.target(ChannelMessageTarget.Type.SERVICE, service.serviceId().name());
+      builder.targetService(service.serviceId().name());
     }
     // for chaining
     return builder;

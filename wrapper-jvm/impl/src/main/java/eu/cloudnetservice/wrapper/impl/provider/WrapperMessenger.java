@@ -21,7 +21,6 @@ import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.impl.network.standard.ChannelMessagePacket;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import io.leangen.geantyref.TypeFactory;
@@ -39,7 +38,8 @@ import org.jetbrains.annotations.Nullable;
 @Provides(CloudMessenger.class)
 public class WrapperMessenger implements CloudMessenger {
 
-  private static final Type MESSAGES = TypeFactory.parameterizedClass(Collection.class, ChannelMessage.class);
+  private static final Type CHANNEL_MESSAGE_LIST_TYPE =
+    TypeFactory.parameterizedClass(List.class, ChannelMessage.class);
 
   private final NetworkClient networkClient;
 
@@ -48,6 +48,9 @@ public class WrapperMessenger implements CloudMessenger {
     this.networkClient = networkClient;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendChannelMessage(@NonNull ChannelMessage channelMessage) {
     if (channelMessage.sendSync()) {
@@ -57,34 +60,73 @@ public class WrapperMessenger implements CloudMessenger {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return this.sendChannelMessageQueryAsync(channelMessage).join();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return Iterables.getFirst(this.sendChannelMessageQuery(channelMessage), null);
+    return this.sendSingleChannelMessageQueryAsync(channelMessage).join();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
     return TaskUtil.runAsync(() -> this.sendChannelMessage(channelMessage));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message
   ) {
-    return this.networkClient.firstChannel().sendQueryAsync(new ChannelMessagePacket(message, true))
-      .thenApply(Packet::content)
-      .thenApply(data -> Objects.requireNonNullElse(data.readObject(MESSAGES), List.of()));
+    return this.networkClient.firstChannel()
+      .sendQueryAsync(new ChannelMessagePacket(message, true))
+      .thenApply(response -> {
+        var packetContent = response.content();
+        try {
+          return Objects.requireNonNullElse(packetContent.readObject(CHANNEL_MESSAGE_LIST_TYPE), List.of());
+        } finally {
+          packetContent.forceRelease();
+        }
+      });
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
     @NonNull ChannelMessage message
   ) {
-    return this.sendChannelMessageQueryAsync(message).thenApply(resp -> Iterables.getFirst(resp, null));
+    return this.sendChannelMessageQueryAsync(message).thenApply(responses -> {
+      var responseCount = responses.size();
+      return switch (responseCount) {
+        case 0 -> null;
+        case 1 -> Iterables.getOnlyElement(responses);
+        default -> {
+          // there were more than one response, so we need to close the
+          // other responses to prevent leaking their content
+          var responsesArray = responses.toArray(ChannelMessage[]::new);
+          for (var index = 1; index < responsesArray.length; index++) {
+            var response = responsesArray[index];
+            response.close();
+          }
+
+          yield responsesArray[0];
+        }
+      };
+    });
   }
 }

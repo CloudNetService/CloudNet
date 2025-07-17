@@ -44,15 +44,20 @@ public final class ProxyPlatformHelper {
   public @NonNull LocalPlayerPreLoginEvent.Result sendChannelMessagePreLogin(
     @NonNull NetworkPlayerProxyInfo playerInfo
   ) {
-    var result = this.toCurrentNode()
+    var response = this.toCurrentNode()
       .message("proxy_player_pre_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
       .buffer(DataBuf.empty().writeObject(playerInfo))
       .build()
       .sendSingleQuery();
-    return result == null
-      ? LocalPlayerPreLoginEvent.Result.allowed()
-      : result.content().readObject(LocalPlayerPreLoginEvent.Result.class);
+    return switch (response) {
+      case null -> LocalPlayerPreLoginEvent.Result.allowed();
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readObject(LocalPlayerPreLoginEvent.Result.class);
+        }
+      }
+    };
   }
 
   public void sendChannelMessageLoginSuccess(
@@ -85,7 +90,8 @@ public final class ProxyPlatformHelper {
       .send();
   }
 
-  @NonNull ChannelMessage.Builder toCurrentNode() {
+  @NonNull
+  ChannelMessage.Builder toCurrentNode() {
     return ChannelMessage.builder().targetNode(this.componentInfo.nodeUniqueId());
   }
 }

@@ -16,10 +16,13 @@
 
 package eu.cloudnetservice.driver.impl.network.netty.buffer;
 
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import io.netty5.buffer.Buffer;
+import io.netty5.buffer.internal.InternalBufferUtils;
+import io.netty5.buffer.internal.ResourceSupport;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -32,12 +35,9 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class NettyImmutableDataBuf implements DataBuf {
+public sealed class NettyImmutableDataBuf implements DataBuf permits NettyMutableDataBuf {
 
   protected final Buffer buffer;
-
-  // the amount of times this buffer was acquired
-  protected int acquires = 1;
 
   // transaction offset data
   protected int readOffset;
@@ -47,9 +47,11 @@ public class NettyImmutableDataBuf implements DataBuf {
    * Constructs a new netty immutable data buf instance.
    *
    * @param buffer the netty buffer to wrap.
-   * @throws NullPointerException if the given buffer is null.
+   * @throws NullPointerException     if the given buffer is null.
+   * @throws IllegalArgumentException if the given buffer does not extend {@code ResourceSupport}.
    */
   public NettyImmutableDataBuf(@NonNull Buffer buffer) {
+    Preconditions.checkArgument(buffer instanceof ResourceSupport<?, ?>, "buffer must extend ResourceSupport");
     this.buffer = buffer;
   }
 
@@ -58,7 +60,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public boolean readBoolean() {
-    return this.hotRead(Buffer::readBoolean);
+    return this.buffer.readBoolean();
   }
 
   /**
@@ -66,7 +68,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public byte readByte() {
-    return this.hotRead(Buffer::readByte);
+    return this.buffer.readByte();
   }
 
   /**
@@ -74,7 +76,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public int readInt() {
-    return this.hotRead(Buffer::readInt);
+    return this.buffer.readInt();
   }
 
   /**
@@ -82,7 +84,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public short readShort() {
-    return this.hotRead(Buffer::readShort);
+    return this.buffer.readShort();
   }
 
   /**
@@ -90,7 +92,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public long readLong() {
-    return this.hotRead(Buffer::readLong);
+    return this.buffer.readLong();
   }
 
   /**
@@ -98,7 +100,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public float readFloat() {
-    return this.hotRead(Buffer::readFloat);
+    return this.buffer.readFloat();
   }
 
   /**
@@ -106,7 +108,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public double readDouble() {
-    return this.hotRead(Buffer::readDouble);
+    return this.buffer.readDouble();
   }
 
   /**
@@ -114,7 +116,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public char readChar() {
-    return this.hotRead(Buffer::readChar);
+    return this.buffer.readChar();
   }
 
   /**
@@ -122,11 +124,10 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public byte[] readByteArray() {
-    return this.hotRead(buf -> {
-      var bytes = new byte[NettyUtil.readVarInt(buf)];
-      buf.readBytes(bytes, 0, bytes.length);
-      return bytes;
-    });
+    var buf = this.buffer;
+    var bytes = new byte[NettyUtil.readVarInt(buf)];
+    buf.readBytes(bytes, 0, bytes.length);
+    return bytes;
   }
 
   /**
@@ -151,15 +152,11 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public @NonNull DataBuf readDataBuf() {
-    return this.hotRead(buf -> {
-      // copy out the data
-      var length = NettyUtil.readVarInt(buf);
-      var content = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), length));
-
-      // skip the amount of bytes we're read and return the content
-      buf.skipReadableBytes(length);
-      return content;
-    });
+    var buf = this.buffer;
+    var length = NettyUtil.readVarInt(buf);
+    var content = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), length));
+    buf.skipReadableBytes(length);
+    return content;
   }
 
   /**
@@ -167,11 +164,10 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public byte[] toByteArray() {
-    return this.hotRead(buf -> {
-      var bytes = new byte[buf.readableBytes()];
-      buf.readBytes(bytes, 0, bytes.length);
-      return bytes;
-    });
+    var buf = this.buffer;
+    var bytes = new byte[buf.readableBytes()];
+    buf.readBytes(bytes, 0, bytes.length);
+    return bytes;
   }
 
   /**
@@ -222,7 +218,6 @@ public class NettyImmutableDataBuf implements DataBuf {
   public @NonNull DataBuf startTransaction() {
     this.readOffset = this.buffer.readerOffset();
     this.writeOffset = this.buffer.writerOffset();
-
     return this;
   }
 
@@ -232,7 +227,6 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public @NonNull DataBuf redoTransaction() {
     this.buffer.readerOffset(this.readOffset);
-    // we can only set the writer offset if the backing buffer is not read-only
     if (!this.buffer.readOnly()) {
       this.buffer.writerOffset(this.writeOffset);
     }
@@ -245,8 +239,8 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public @NonNull DataBuf.Mutable asMutable() {
-    // we need to copy the underlying buffer when the wrapped one is read only, if not we can just use the given buffer
-    return this.buffer.readOnly() ? new NettyMutableDataBuf(this.buffer.copy()) : new NettyMutableDataBuf(this.buffer);
+    var buf = this.buffer.copy(false);
+    return new NettyMutableDataBuf(buf);
   }
 
   /**
@@ -262,7 +256,8 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public int acquires() {
-    return this.acquires;
+    var resourceSupport = this.bufferAsResourceSupport();
+    return InternalBufferUtils.countBorrows(resourceSupport);
   }
 
   /**
@@ -270,7 +265,8 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public @NonNull DataBuf acquire() {
-    this.acquires++;
+    var resourceSupport = this.bufferAsResourceSupport();
+    InternalBufferUtils.acquire(resourceSupport);
     return this;
   }
 
@@ -279,12 +275,10 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public void release() {
-    // release one acquire
-    this.acquires--;
-
-    // check if the buffer is no longer acquired somewhere
-    if (this.acquires <= 0 && this.buffer.isAccessible()) {
+    try {
       this.buffer.close();
+    } catch (IllegalStateException _) {
+      // possible double-free error due to a race, ignore
     }
   }
 
@@ -293,12 +287,13 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public void forceRelease() {
-    // set acquires to 0 to indicate that the buffer was released
-    this.acquires = 0;
-
-    // actually release the buffer if needed
-    if (this.buffer.isAccessible()) {
-      this.buffer.close();
+    try {
+      var buffer = this.buffer;
+      while (buffer.isAccessible()) {
+        buffer.close();
+      }
+    } catch (IllegalStateException _) {
+      // possible double-free error due to a race, ignore
     }
   }
 
@@ -311,6 +306,14 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull String toString() {
+    return "NettyImmutableDataBuf[buffer=" + this.buffer + "]";
+  }
+
+  /**
    * Get the wrapped netty byte buf of this buffer, for internal use only.
    *
    * @return the wrapped netty byte buf.
@@ -320,21 +323,11 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   /**
-   * Reads from this buffer, releasing it when the end of the input has been reached and releasing is enabled to prevent
-   * memory leaks.
+   * Gets the backing buffer instance cast to a {@code ResourceSupport} instance.
    *
-   * @param reader the function which reads the requested data from the buffer.
-   * @param <T>    the type of data to read.
-   * @return the data read from the buffer.
-   * @throws NullPointerException if the given reader function is null.
+   * @return the backing buffer instance cast to a {@code ResourceSupport} instance.
    */
-  protected @NonNull <T> T hotRead(@NonNull Function<Buffer, T> reader) {
-    var result = reader.apply(this.buffer);
-    if (this.buffer.readableBytes() <= 0) {
-      // try to release the buffer in case the end of the data was reached
-      this.release();
-    }
-
-    return result;
+  private @NonNull ResourceSupport<?, ?> bufferAsResourceSupport() {
+    return (ResourceSupport<?, ?>) this.buffer;
   }
 }

@@ -50,12 +50,6 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
    */
   @Override
   protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer in) {
-    // validates that the channel associated to this decoder call is still active and actually
-    // transferred data before beginning to read.
-    if (!ctx.channel().isActive() || in.readableBytes() <= 0) {
-      return;
-    }
-
     try {
       // read the required base data from the buffer
       var channel = NettyUtil.readVarInt(in);
@@ -64,14 +58,15 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
       // extract the body
       var bodyLength = NettyUtil.readVarInt(in);
-      var body = new NettyImmutableDataBuf(in.copy(in.readerOffset(), bodyLength));
+      var bodyBuffer = in.copy(in.readerOffset(), bodyLength);
+      var body = new NettyImmutableDataBuf(bodyBuffer);
       in.skipReadableBytes(bodyLength);
 
       // construct the packet
       var packet = new BasePacket(channel, prioritized, body);
       packet.uniqueId(queryUniqueId);
+      bodyBuffer.touch(packet.toString()); // hint to the constructed packet for leak debugging
 
-      // register the packet for further downstream handling
       ctx.fireChannelRead(packet);
     } catch (Exception exception) {
       LOGGER.error("Exception while decoding packet", exception);

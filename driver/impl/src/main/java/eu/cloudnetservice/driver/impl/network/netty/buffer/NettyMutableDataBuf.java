@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.netty.buffer;
 
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -31,15 +32,17 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBuf.Mutable {
+public final class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBuf.Mutable {
 
   /**
    * Constructs a new mutable data buf instance.
    *
    * @param buffer the netty buffer to wrap.
-   * @throws NullPointerException if the given buffer is null.
+   * @throws NullPointerException     if the given buffer is null.
+   * @throws IllegalArgumentException if the given buffer is read-only.
    */
   public NettyMutableDataBuf(@NonNull Buffer buffer) {
+    Preconditions.checkArgument(!buffer.readOnly(), "buffer must not be read-only");
     super(buffer);
   }
 
@@ -207,5 +210,13 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
   @Override
   public @NonNull DataBuf asImmutable() {
     return new NettyImmutableDataBuf(this.buffer);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull String toString() {
+    return "NettyMutableDataBuf[buffer=" + this.buffer + "]";
   }
 }

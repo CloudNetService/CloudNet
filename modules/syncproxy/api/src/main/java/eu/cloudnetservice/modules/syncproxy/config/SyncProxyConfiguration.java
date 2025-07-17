@@ -92,9 +92,10 @@ public record SyncProxyConfiguration(
       .targetNode(nodeUniqueId)
       .build()
       .sendSingleQuery();
-
     if (response != null) {
-      return response.content().readObject(SyncProxyConfiguration.class);
+      try (response) {
+        return response.content().readObject(SyncProxyConfiguration.class);
+      }
     }
 
     return null;
