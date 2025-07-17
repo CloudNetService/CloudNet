@@ -71,7 +71,6 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
         if (bytesRead == backingArray.length) {
           // if the bytes read is the same size as the backing array, then a full chunk of data has been read from the
           // backing file. this usually indicates that the chunk is not the last chunk in the transfer
-          this.chunkSessionInformation.transferInformation().acquire();
           var chunkPacket = ChunkedPacket.createFullChunk(chunkIndex++, backingArray, this.chunkSessionInformation);
           this.packetSplitter.accept(chunkPacket);
         } else {
@@ -85,7 +84,7 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
 
           // close all allocated resources used for the transfer
           this.source.close();
-          this.chunkSessionInformation.transferInformation().release();
+          this.chunkSessionInformation.close();
 
           return TransferStatus.SUCCESS;
         }

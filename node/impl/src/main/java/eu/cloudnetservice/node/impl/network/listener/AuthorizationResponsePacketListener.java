@@ -65,9 +65,10 @@ public final class AuthorizationResponsePacketListener implements PacketListener
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    // check if the auth was successful
-    if (packet.content().readBoolean()) {
-      // search for the node to which the auth succeeded
+    // for fields an order see AuthorizationResponsePacket
+    var packetContent = packet.content();
+    var isAuthSuccess = packetContent.readBoolean();
+    if (isAuthSuccess) {
       var server = this.configuration.clusterConfig().nodes().stream()
         .filter(node -> node.listeners().stream().anyMatch(host -> channel.serverAddress().equals(host)))
         .map(node -> this.nodeServerProvider.node(node.uniqueId()))
@@ -75,39 +76,36 @@ public final class AuthorizationResponsePacketListener implements PacketListener
         .findFirst()
         .orElse(null);
       if (server != null) {
-        // check if this was a reconnection from the point of view of the other node
-        if (packet.content().readBoolean()) {
-          // handle the data sync
-          var syncData = packet.content().readDataBuf();
-          this.dataSyncRegistry.handle(syncData, syncData.readBoolean());
+        var wasReconnect = packetContent.readBoolean();
+        if (wasReconnect) {
+          try (var syncData = packetContent.readDataBuf()) {
+            var forceApply = syncData.readBoolean();
+            this.dataSyncRegistry.handle(syncData, forceApply);
+          }
 
-          // check if there are pending packets for the node
+          // flush the packets that were queued for the node that reconnected
           if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
             queuedChannel.drainPacketQueue(channel);
           }
 
-          // update the current local snapshot
-          var local = this.nodeServerProvider.localNode();
-          local.updateLocalSnapshot();
+          // sync the locally stored cluster data to the node
+          var localNodeServer = this.nodeServerProvider.localNode();
+          localNodeServer.updateLocalSnapshot();
 
-          // acknowledge the packet
-          var data = this.dataSyncRegistry.prepareClusterData(
-            true,
-            DataSyncHandler::alwaysForceApply);
-          channel.sendPacketSync(new ServiceSyncAckPacket(local.nodeInfoSnapshot(), data));
+          var syncData = this.dataSyncRegistry.prepareClusterData(true, DataSyncHandler::alwaysForceApply);
+          channel.sendPacketSync(new ServiceSyncAckPacket(localNodeServer.nodeInfoSnapshot(), syncData));
 
-          // close the old channel
-          // little hack to prevent some disconnect handling firring in the channel if the state was not set before
+          // closes the old channel, preventing disconnection handling by setting the state
+          // of the channel to 'disconnected' before actually closing the channel
           server.state(NodeServerState.DISCONNECTED);
           server.channel().close();
         }
-        // update the node status
+
+        // re-initialize the node data
         server.channel(channel);
         server.state(NodeServerState.READY);
-        // add the packet listeners
         channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
         this.networkUtil.addDefaultPacketListeners(channel.packetRegistry());
-        // we are good to go :)
         return;
       }
     }

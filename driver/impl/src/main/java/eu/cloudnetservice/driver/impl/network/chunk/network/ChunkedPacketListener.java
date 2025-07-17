@@ -59,10 +59,21 @@ public final class ChunkedPacketListener implements PacketListener {
     var chunkIndex = packetContent.readInt();
 
     // get or create a new local session for the transfer
-    var sessionHandler = this.sessionRegistry.getOrCreateSession(sessionInfo, this.handlerFactory);
+    var holder = new Object() {
+      boolean factoryCalled = false;
+    };
+    var sessionId = sessionInfo.sessionUniqueId();
+    var sessionHandler = this.sessionRegistry.getOrCreateSession(sessionId, () -> {
+      holder.factoryCalled = true;
+      return this.handlerFactory.apply(sessionInfo);
+    });
+    if (!holder.factoryCalled) {
+      sessionInfo.close();
+    }
+
     var transferComplete = sessionHandler.handleChunkPart(chunkIndex, packetContent);
     if (transferComplete) {
-      this.sessionRegistry.completeSession(sessionInfo.sessionUniqueId());
+      this.sessionRegistry.completeSession(sessionId);
     }
   }
 }

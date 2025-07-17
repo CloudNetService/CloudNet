@@ -146,6 +146,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
             stream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE);
             closeStream = this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, stream);
           } finally {
+            this.chunkSessionInformation.close();
             if (closeStream) {
               stream.close();
             }

@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.npc.impl.platform;
 
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
@@ -34,8 +33,8 @@ import eu.cloudnetservice.modules.npc.impl.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -89,14 +88,22 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
       .targetNode(componentInfo.nodeUniqueId())
       .build()
       .sendSingleQuery();
-    return response == null ? null : response.content().readObject(NPCConfiguration.class);
+    return switch (response) {
+      case null -> null;
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readObject(NPCConfiguration.class);
+        }
+      }
+    };
   }
 
   @Override
   public void createNPC(@NonNull NPC npc) {
     this.channelMessage(NPC_CREATE)
       .buffer(DataBuf.empty().writeObject(npc))
-      .build().send();
+      .build()
+      .send();
   }
 
   @Override
@@ -110,24 +117,48 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
   public int deleteAllNPCs(@NonNull String group) {
     var response = this.channelMessage(NPC_BULK_DELETE)
       .buffer(DataBuf.empty().writeString(group))
-      .build().sendSingleQuery();
-    return response == null ? 0 : response.content().readInt();
+      .build()
+      .sendSingleQuery();
+    return switch (response) {
+      case null -> 0;
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readInt();
+        }
+      }
+    };
   }
 
   @Override
   public int deleteAllNPCs() {
     var response = this.channelMessage(NPC_ALL_DELETE)
       .buffer(DataBuf.empty().writeObject(this.npcs.keySet()))
-      .build().sendSingleQuery();
-    return response == null ? 0 : response.content().readInt();
+      .build()
+      .sendSingleQuery();
+    return switch (response) {
+      case null -> 0;
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readInt();
+        }
+      }
+    };
   }
 
   @Override
   public @NonNull Collection<NPC> npcs(@NonNull Collection<String> groups) {
     var response = this.channelMessage(NPC_GET_NPCS_BY_GROUP)
       .buffer(DataBuf.empty().writeObject(groups))
-      .build().sendSingleQuery();
-    return response == null ? Collections.emptySet() : response.content().readObject(NPC.COLLECTION_NPC);
+      .build()
+      .sendSingleQuery();
+    return switch (response) {
+      case null -> Set.of();
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readObject(NPC.COLLECTION_NPC);
+        }
+      }
+    };
   }
 
   @Override
@@ -186,7 +217,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message)
-      .target(ChannelMessageTarget.Type.NODE, this.componentInfo.nodeUniqueId());
+      .targetNode(this.componentInfo.nodeUniqueId());
   }
 
   public void initialize() {

@@ -20,7 +20,6 @@ import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.JAVA_SERV
 import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_SERVER;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
@@ -108,7 +107,14 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
       .targetNode(wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId())
       .build()
       .sendSingleQuery();
-    return response == null ? null : response.content().readObject(SignsConfiguration.class);
+    return switch (response) {
+      case null -> null;
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readObject(SignsConfiguration.class);
+        }
+      }
+    };
   }
 
   @Override
@@ -129,8 +135,16 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   public int deleteAllSigns(@NonNull String group, @Nullable String templatePath) {
     var response = this.channelMessage(SIGN_BULK_DELETE)
       .buffer(DataBuf.empty().writeString(group).writeNullable(templatePath, DataBuf.Mutable::writeString))
-      .build().sendSingleQuery();
-    return response == null ? 0 : response.content().readInt();
+      .build()
+      .sendSingleQuery();
+    return switch (response) {
+      case null -> 0;
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readInt();
+        }
+      }
+    };
   }
 
   @Override
@@ -147,7 +161,14 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
       .buffer(DataBuf.empty().writeObject(groups))
       .build()
       .sendSingleQuery();
-    return response == null ? Set.of() : response.content().readObject(Sign.COLLECTION_TYPE);
+    return switch (response) {
+      case null -> Set.of();
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readObject(Sign.COLLECTION_TYPE);
+        }
+      }
+    };
   }
 
   @Override
@@ -188,8 +209,8 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
-    return super.channelMessage(message)
-      .target(ChannelMessageTarget.Type.NODE, this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId());
+    var owningNodeId = this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId();
+    return super.channelMessage(message).targetNode(owningNodeId);
   }
 
   public int removeAllMissingSigns() {
