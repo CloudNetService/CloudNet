@@ -25,6 +25,8 @@ import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.chunk.event.FileQueryRequestEvent;
 import jakarta.inject.Inject;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A listener for channel messages that request a query transfer of a file.
@@ -32,6 +34,8 @@ import lombok.NonNull;
  * @since 4.0
  */
 public final class FileQueryChannelMessageListener {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FileQueryChannelMessageListener.class);
 
   private final EventManager eventManager;
 
@@ -87,13 +91,18 @@ public final class FileQueryChannelMessageListener {
       event.binaryResponse(responseData);
     } else {
       // finish the response handler construct, start the transfer & respond with a success response
-      responseHandlerBuilder
+      var chunkedDataSender = responseHandlerBuilder
         .toChannels(channel)
         .chunkSize(chunkSize)
         .transferChannel("query:dummy")
         .sessionUniqueId(chunkedSessionId)
-        .build()
-        .transferChunkedData();
+        .build();
+      chunkedDataSender.transferChunkedData().exceptionally(thrown -> {
+        chunkedDataSender.sessionInformation().close();
+        LOGGER.warn("Could not fulfil chunked data request '{}' from {}", requestedDataId, request.sender(), thrown);
+        return null;
+      });
+
       var responseData = constructRequestResponse(true);
       event.binaryResponse(responseData);
     }
