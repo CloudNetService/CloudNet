@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.labymod.impl.node;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
@@ -60,8 +59,7 @@ public class NodeLabyModManagement implements LabyModManagement {
       .targetAll()
       .channel(LabyModManagement.LABYMOD_MODULE_CHANNEL)
       .message(LabyModManagement.LABYMOD_UPDATE_CONFIG)
-      .buffer(DataBuf.empty().writeObject(configuration))
-      .build()
+      .build(buffer -> buffer.writeObject(configuration))
       .send();
   }
 

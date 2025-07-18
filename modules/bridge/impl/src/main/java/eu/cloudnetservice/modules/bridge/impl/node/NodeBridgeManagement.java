@@ -16,13 +16,11 @@
 
 package eu.cloudnetservice.modules.bridge.impl.node;
 
-
 import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.module.ModuleHelper;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -94,17 +92,13 @@ public class NodeBridgeManagement implements InternalBridgeManagement {
 
   @Override
   public void configuration(@NonNull BridgeConfiguration configuration) {
-    // update the configuration locally
     this.configurationSilently(configuration);
-    // sync the config to the cluster
     ChannelMessage.builder()
       .targetAll()
       .channel(BRIDGE_CHANNEL_NAME)
       .message("update_bridge_configuration")
-      .buffer(DataBuf.empty().writeObject(configuration))
-      .build()
+      .build(buffer -> buffer.writeObject(configuration))
       .send();
-    // call the event locally
     this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
   }
 

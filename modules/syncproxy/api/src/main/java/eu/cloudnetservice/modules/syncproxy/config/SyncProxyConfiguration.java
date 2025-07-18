@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
@@ -115,8 +114,7 @@ public record SyncProxyConfiguration(
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       .message(SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG)
       .targetAll()
-      .buffer(DataBuf.empty().writeObject(this))
-      .build()
+      .build(buffer -> buffer.writeObject(SyncProxyConfiguration.this))
       .send();
   }
 

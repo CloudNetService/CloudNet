@@ -20,7 +20,6 @@ import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
@@ -205,9 +204,8 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       ChannelMessage.builder()
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .message("head_node_to_node_finish_service_registration")
-        .buffer(DataBuf.empty().writeUniqueId(serviceUniqueId))
         .targetNode(associatedNode.info().uniqueId())
-        .build()
+        .build(buffer -> buffer.writeUniqueId(serviceUniqueId))
         .send();
       return result;
     } else {
@@ -227,8 +225,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .targetNode(targetNode)
       .message(message)
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(configuration))
-      .build()
+      .build(buffer -> buffer.writeObject(configuration))
       .sendSingleQueryAsync();
     var result = TaskUtil.getOrDefault(future, Duration.ofSeconds(20), null);
 

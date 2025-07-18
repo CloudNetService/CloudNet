@@ -119,23 +119,20 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   public void createSign(@NonNull Sign sign) {
-    this.channelMessage(SIGN_CREATE)
-      .buffer(DataBuf.empty().writeObject(sign))
-      .build().send();
+    this.channelMessage(SIGN_CREATE).build(buffer -> buffer.writeObject(sign)).send();
   }
 
   @Override
   public void deleteSign(@NonNull WorldPosition position) {
-    this.channelMessage(SIGN_DELETE)
-      .buffer(DataBuf.empty().writeObject(position))
-      .build().send();
+    this.channelMessage(SIGN_DELETE).build(buffer -> buffer.writeObject(position)).send();
   }
 
   @Override
   public int deleteAllSigns(@NonNull String group, @Nullable String templatePath) {
     var response = this.channelMessage(SIGN_BULK_DELETE)
-      .buffer(DataBuf.empty().writeString(group).writeNullable(templatePath, DataBuf.Mutable::writeString))
-      .build()
+      .build(buffer -> buffer
+        .writeString(group)
+        .writeNullable(templatePath, DataBuf.Mutable::writeString))
       .sendSingleQuery();
     return switch (response) {
       case null -> 0;
@@ -149,17 +146,14 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   public int deleteAllSigns() {
-    this.channelMessage(SIGN_ALL_DELETE)
-      .buffer(DataBuf.empty().writeObject(this.signs.keySet()))
-      .build().send();
+    this.channelMessage(SIGN_ALL_DELETE).build(buffer -> buffer.writeObject(this.signs.keySet())).send();
     return this.signs.size();
   }
 
   @Override
   public @NonNull Collection<Sign> signs(@NonNull Collection<String> groups) {
     var response = this.channelMessage(SIGN_GET_SIGNS_BY_GROUPS)
-      .buffer(DataBuf.empty().writeObject(groups))
-      .build()
+      .build(buffer -> buffer.writeObject(groups))
       .sendSingleQuery();
     return switch (response) {
       case null -> Set.of();
@@ -173,9 +167,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   public void signsConfiguration(@NonNull SignsConfiguration signsConfiguration) {
-    this.channelMessage(SET_SIGN_CONFIG)
-      .buffer(DataBuf.empty().writeObject(signsConfiguration))
-      .build().send();
+    this.channelMessage(SET_SIGN_CONFIG).build(buffer -> buffer.writeObject(signsConfiguration)).send();
   }
 
   @Override

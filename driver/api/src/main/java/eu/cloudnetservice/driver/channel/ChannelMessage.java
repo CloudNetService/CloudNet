@@ -21,14 +21,12 @@ import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
-import java.io.Closeable;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -254,18 +252,7 @@ public record ChannelMessage(
    *
    * @since 4.0
    */
-  public static final class Builder implements Closeable {
-
-    private static final VarHandle BUILD_CALLED;
-
-    static {
-      try {
-        var lookup = MethodHandles.lookup();
-        BUILD_CALLED = lookup.findVarHandle(Builder.class, "buildCalled", boolean.class);
-      } catch (NoSuchFieldException | IllegalAccessException exception) {
-        throw new ExceptionInInitializerError(exception);
-      }
-    }
+  public static final class Builder {
 
     private final Collection<ChannelMessageTarget> targets = new HashSet<>();
 
@@ -275,13 +262,7 @@ public record ChannelMessage(
     private boolean sendSync;
     private boolean prioritized;
 
-    private DataBuf content;
     private ChannelMessageSender sender;
-
-    // internal marker to ensure that build() is only called once per builder instance
-    // this is due to the content data buf, it cannot be shared between multiple channel message instances
-    @SuppressWarnings("FieldMayBeFinal") // modified by BUILD_CALLED in build()
-    private volatile boolean buildCalled = false;
 
     /**
      * Constructs a new builder instance. Use {@link ChannelMessage#builder()} instead.
@@ -294,12 +275,10 @@ public record ChannelMessage(
      *
      * @param sender the sender of this message.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given sender is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given sender is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder sender(@NonNull ChannelMessageSender sender) {
-      this.assertValidState();
       this.sender = sender;
       return this;
     }
@@ -311,12 +290,10 @@ public record ChannelMessage(
      *
      * @param channel the channel of this message.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given channel is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given channel is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder channel(@NonNull String channel) {
-      this.assertValidState();
       this.channel = channel;
       return this;
     }
@@ -327,12 +304,10 @@ public record ChannelMessage(
      *
      * @param message the message key.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given message is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given message is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder message(@NonNull String message) {
-      this.assertValidState();
       this.message = message;
       return this;
     }
@@ -343,11 +318,9 @@ public record ChannelMessage(
      *
      * @param sync if the message should get send sync.
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
      */
     @Contract("_ -> this")
     public @NonNull Builder sendSync(boolean sync) {
-      this.assertValidState();
       this.sendSync = sync;
       return this;
     }
@@ -361,28 +334,11 @@ public record ChannelMessage(
      *
      * @param prioritized if the channel message should get prioritized processing on the receiving components.
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
      */
     @Contract("_ -> this")
     @ApiStatus.Experimental
     public @NonNull Builder prioritized(boolean prioritized) {
-      this.assertValidState();
       this.prioritized = prioritized;
-      return this;
-    }
-
-    /**
-     * Sets the content of this message. If no content was given, an empty buffer will be used. Note that any previously
-     * supplied content buffer won't be released when this method is called multiple times on the same builder.
-     *
-     * @param dataBuf the content of the message.
-     * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
-     */
-    @Contract("_ -> this")
-    public @NonNull Builder buffer(@Nullable DataBuf dataBuf) {
-      this.assertValidState();
-      this.content = dataBuf;
       return this;
     }
 
@@ -391,12 +347,10 @@ public record ChannelMessage(
      *
      * @param target the target to add.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given target is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given target is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder target(@NonNull ChannelMessageTarget target) {
-      this.assertValidState();
       this.targets.add(target);
       return this;
     }
@@ -405,7 +359,6 @@ public record ChannelMessage(
      * Targets all components within the network.
      *
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
      */
     @Contract(" -> this")
     public @NonNull Builder targetAll() {
@@ -416,7 +369,6 @@ public record ChannelMessage(
      * Targets all nodes within the network.
      *
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
      */
     @Contract(" -> this")
     public @NonNull Builder targetNodes() {
@@ -427,7 +379,6 @@ public record ChannelMessage(
      * Targets all services within the network.
      *
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
      */
     @Contract(" -> this")
     public @NonNull Builder targetServices() {
@@ -439,8 +390,7 @@ public record ChannelMessage(
      *
      * @param nodeId the id of the node to target.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given node id is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given node id is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder targetNode(@NonNull String nodeId) {
@@ -452,8 +402,7 @@ public record ChannelMessage(
      *
      * @param serviceName the name of the service to target.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given service name is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given service name is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder targetService(@NonNull String serviceName) {
@@ -465,8 +414,7 @@ public record ChannelMessage(
      *
      * @param taskName the name of the task to target.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given task name is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given task name is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder targetServicesOfTask(@NonNull String taskName) {
@@ -478,8 +426,7 @@ public record ChannelMessage(
      *
      * @param groupName the name of the group to target.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given group name is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given group name is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder targetServicesOfGroup(@NonNull String groupName) {
@@ -491,8 +438,7 @@ public record ChannelMessage(
      *
      * @param environmentName the name of the environment to target.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given environment name is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given environment name is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder targetServicesOfEnvironment(@NonNull String environmentName) {
@@ -504,8 +450,7 @@ public record ChannelMessage(
      *
      * @param propertyKey the key of the property that must be associated on target services.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException  if the given property key is null.
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @throws NullPointerException if the given property key is null.
      */
     @Contract("_ -> this")
     public @NonNull Builder targetServicesWithProperty(@NonNull String propertyKey) {
@@ -513,7 +458,7 @@ public record ChannelMessage(
     }
 
     /**
-     * Builds a channel message from this builder.
+     * Builds a channel message from this builder, using an empty buffer as the content.
      *
      * @return the created channel message from this builder.
      * @throws NullPointerException     if no message or channel is provided.
@@ -522,17 +467,24 @@ public record ChannelMessage(
      */
     @Contract(" -> new")
     public @NonNull ChannelMessage build() {
+      return this.build(DataBuf.empty());
+    }
+
+    /**
+     * Builds a channel message from this builder, using the given buffer as the content of it.
+     *
+     * @param content the buffer containing the content of the channel message.
+     * @return the created channel message from this builder.
+     * @throws NullPointerException     if the given content buffer is null, or no channel/message was provided.
+     * @throws IllegalArgumentException if an invalid argument was provided to this builder.
+     */
+    @Contract("_ -> new")
+    public @NonNull ChannelMessage build(@NonNull DataBuf content) {
       Preconditions.checkNotNull(this.channel, "No channel provided");
       Preconditions.checkNotNull(this.message, "No message provided");
       Preconditions.checkArgument(!this.targets.isEmpty(), "No targets provided");
+      Preconditions.checkArgument(content.accessible(), "content buffer is closed");
 
-      // ensure a valid state *after* the other preconditions, the caller
-      // might recover or close this builder if any previous condition fails
-      if (!BUILD_CALLED.compareAndSet(this, false, true)) {
-        throw new IllegalStateException("ChannelMessage already built by this builder");
-      }
-
-      var content = Objects.requireNonNullElseGet(this.content, DataBuf::empty);
       var sender = Objects.requireNonNullElseGet(this.sender, ChannelMessageSender::self);
       return new ChannelMessage(
         this.sendSync,
@@ -545,33 +497,24 @@ public record ChannelMessage(
     }
 
     /**
-     * Closes the content buffer held by this builder. No further actions can be performed on this builder after this
-     * message has been called. This method should be called in special cases when a channel message (and therefore the
-     * content buffer) is no longer needed.
+     * Builds a channel message from this builder, using the given decorator function to write the content of the
+     * channel message into the buffer before building.
+     * <p>
+     * Note: the decorator function is <strong>NOT</strong> allowed to return a different buffer instance than the one
+     * passed to it. This is only a function, as it makes it easier to use compared to a consumer.
      *
-     * @throws IllegalStateException if the {@link #build()} method was already called on this builder.
+     * @param contentDecorator decorator function that writes the content of the channel message into the buffer.
+     * @return the created channel message from this builder.
+     * @throws NullPointerException  if the given decorator function is null.
+     * @throws IllegalStateException if the decorator returns a different buffer or releases the given buffer.
      */
-    @Override
-    public void close() {
-      if (!BUILD_CALLED.compareAndSet(this, false, true)) {
-        throw new IllegalStateException("ChannelMessage already built by this builder");
-      }
-
-      if (this.content != null) {
-        this.content.release();
-        this.content = null;
-      }
-    }
-
-    /**
-     * Ensures that the {@link #build()} method was not yet called on this builder.
-     *
-     * @throws IllegalStateException if the {@link #build()} method was already called.
-     */
-    private void assertValidState() {
-      if (this.buildCalled) {
-        throw new IllegalStateException("ChannelMessage already built by this builder");
-      }
+    @Contract("_ -> new")
+    public @NonNull ChannelMessage build(@NonNull UnaryOperator<DataBuf.Mutable> contentDecorator) {
+      var contentBuffer = DataBuf.empty();
+      var returnedBuffer = contentDecorator.apply(contentBuffer);
+      Preconditions.checkState(contentBuffer == returnedBuffer, "decorator returned different buffer");
+      Preconditions.checkState(contentBuffer.accessible(), "buffer was released by decorator");
+      return this.build(contentBuffer);
     }
   }
 }

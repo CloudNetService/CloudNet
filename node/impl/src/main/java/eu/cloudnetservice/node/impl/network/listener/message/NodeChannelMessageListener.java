@@ -83,13 +83,11 @@ public final class NodeChannelMessageListener {
           // handle the sync and send back the data to override on the caller
           var result = this.dataSyncRegistry.handle(event.content(), event.content().readBoolean());
           if (result != null) {
-            // send the response content
             ChannelMessage.builder()
               .message("sync_cluster_data_response")
               .target(event.sender().toTarget())
               .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-              .buffer(result)
-              .build()
+              .build(result)
               .send();
           }
         }
