@@ -43,12 +43,8 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
    */
   @Override
   public void channelInactive(@NonNull ChannelHandlerContext ctx) throws Exception {
-    if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
-      this.channel.handler().handleChannelClose(this.channel);
-
-      ctx.channel().close();
-      this.channels().remove(this.channel);
-    }
+    this.channels().remove(this.channel);
+    this.channel.handleClose();
   }
 
   /**

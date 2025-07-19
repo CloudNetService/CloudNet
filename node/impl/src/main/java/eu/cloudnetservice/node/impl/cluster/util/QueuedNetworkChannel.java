@@ -88,6 +88,11 @@ public final class QueuedNetworkChannel implements NetworkChannel {
   }
 
   @Override
+  public boolean closed() {
+    return false;
+  }
+
+  @Override
   public void close() {
     this.wrappedChannel.close();
     this.scheduledPackets.clear();

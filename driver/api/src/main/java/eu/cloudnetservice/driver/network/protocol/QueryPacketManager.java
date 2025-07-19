@@ -31,7 +31,7 @@ public interface QueryPacketManager {
 
   /**
    * Get the network channel this manager is associated with. This channel is used to transmit query packets to the
-   * receiver, therefore the network channel of the received must be known in advance.
+   * receiver, therefore, the network channel of the received must be known in advance.
    *
    * @return the network channel to which this manager belongs.
    */
@@ -67,8 +67,7 @@ public interface QueryPacketManager {
 
   /**
    * Sends a query packet to the associated network channel, automatically selecting a query id for the packet and
-   * setting it. Equivalent to {@code manager.sendQueryPacket(packet, UUID.randomUUID()}. An existing query unique id in
-   * the packet will get overridden.
+   * setting it. An existing query unique id in the packet will get overridden.
    *
    * @param packet the packet to convert to a query packet and send to the channel.
    * @return a future completed with either the response to the packet or an empty packet if the waiting time expires.

@@ -23,6 +23,8 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
+import java.io.Closeable;
+import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.UUID;
@@ -36,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class DefaultQueryPacketManager implements QueryPacketManager {
+public class DefaultQueryPacketManager implements QueryPacketManager, Closeable {
 
   protected final NetworkChannel networkChannel;
   protected final Cache<UUID, CompletableFuture<Packet>> waitingHandlers;
@@ -96,16 +98,39 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
    */
   @Override
   public @NonNull CompletableFuture<Packet> sendQueryPacket(@NonNull Packet packet) {
+    if (this.networkChannel.closed()) {
+      return CompletableFuture.failedFuture(new ClosedChannelException());
+    }
+
     // constructs and register a task for the given query unique id. note that if a replacement by key is
     // happening in the cache, the eviction listener is called and the previous future is automatically
-    // cancelled, therefore there is no need to explicitly check for that here.
+    // canceled, therefore there is no need to explicitly check for that here.
     var responseTask = new CompletableFuture<Packet>();
     var queryUniqueId = Objects.requireNonNullElseGet(packet.uniqueId(), UUID::randomUUID);
     this.waitingHandlers.put(queryUniqueId, responseTask);
 
+    // while registering the query future handler, the channel was closed. if a close happens
+    // after this, the future can just be cleaned up by retrieving it from the waiting handlers cache
+    if (this.networkChannel.closed()) {
+      return CompletableFuture.failedFuture(new ClosedChannelException());
+    }
+
     packet.uniqueId(queryUniqueId);
     this.networkChannel.sendPacketSync(packet);
     return responseTask;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void close() {
+    var cacheValuesItr = this.waitingHandlers.asMap().values().iterator();
+    while (cacheValuesItr.hasNext()) {
+      var next = cacheValuesItr.next();
+      cacheValuesItr.remove(); // evict from cache after retrieval
+      next.completeExceptionally(new ClosedChannelException());
+    }
   }
 
   /**
