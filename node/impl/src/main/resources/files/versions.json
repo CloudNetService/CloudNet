@@ -89,7 +89,7 @@
       "website": "https://papermc.io",
       "versions": [
         {
-          "name": "1.21.7",
+          "name": "1.21.8",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -101,7 +101,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.21.7"
+            "versionGroup": "1.21.8"
           }
         },
         {
@@ -346,8 +346,8 @@
       ],
       "versions": [
         {
-          "name": "1.21.7",
-          "url": "https://api.purpurmc.org/v2/purpur/1.21.7/latest/download",
+          "name": "1.21.8",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.8/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -458,8 +458,8 @@
       ],
       "versions": [
         {
-          "name": "1.21.7",
-          "url": "https://s3.mcjars.app/spigot/1.21.7/4519/server.jar"
+          "name": "1.21.8",
+          "url": "https://s3.mcjars.app/spigot/1.21.8/4524/server.jar"
         },
         {
           "name": "1.21.6",
@@ -549,7 +549,7 @@
       "website": "https://fabricmc.net",
       "versions": [
         {
-          "name": "1.21.7",
+          "name": "1.21.8",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -749,8 +749,8 @@
       ],
       "versions": [
         {
-          "name": "1.21.7",
-          "url": "https://s3.mcjars.app/loohp-limbo/1.21.7/55/server.jar"
+          "name": "1.21.8",
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.8/58/server.jar"
         },
         {
           "name": "1.21.6",
