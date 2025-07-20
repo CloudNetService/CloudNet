@@ -172,8 +172,7 @@ final class MemoryOps {
   ) {
     if (isAlignedAccess(kind, offset)) {
       var handle = kind.layoutVarHandle();
-      var witness = handle.compareAndExchange(FULL_MEMORY_SEGMENT, offset, expected, value);
-      return kind.areValuesEqual(expected, witness);
+      return handle.compareAndSet(FULL_MEMORY_SEGMENT, offset, expected, value);
     } else {
       var handle = kind.unalignedLayoutVarHandle();
       var current = handle.get(FULL_MEMORY_SEGMENT, offset);

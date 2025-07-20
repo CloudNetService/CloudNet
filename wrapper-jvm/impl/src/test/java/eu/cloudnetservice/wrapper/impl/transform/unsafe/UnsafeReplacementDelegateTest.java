@@ -923,10 +923,30 @@ public class UnsafeReplacementDelegateTest {
   @Test
   void testInvokeCleaner() {
     // can't really test if it worked, but can at least test if the method handle init works
-    Assertions.assertThrows(
-      IllegalArgumentException.class,
-      () -> UnsafeReplacementDelegate.unsafeInvokeCleaner(ByteBuffer.allocate(1)));
-    Assertions.assertDoesNotThrow(() -> UnsafeReplacementDelegate.unsafeInvokeCleaner(ByteBuffer.allocateDirect(1)));
+    {
+      var buffer = ByteBuffer.allocate(1);
+      var thrown = Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> UnsafeReplacementDelegate.unsafeInvokeCleaner(buffer));
+      Assertions.assertNotNull(thrown.getMessage());
+      Assertions.assertEquals("buffer is non-direct", thrown.getMessage());
+    }
+
+    {
+      var buffer = ByteBuffer.allocateDirect(5);
+      var bufferSlice = buffer.slice(2, 2);
+      var thrown = Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> UnsafeReplacementDelegate.unsafeInvokeCleaner(bufferSlice));
+      Assertions.assertNotNull(thrown.getMessage());
+      Assertions.assertEquals("duplicate or slice", thrown.getMessage());
+      Assertions.assertDoesNotThrow(() -> UnsafeReplacementDelegate.unsafeInvokeCleaner(buffer));
+    }
+
+    {
+      var cleanerConsumer = UnsafeReplacementDelegate.BB_CLEANER.get();
+      Assertions.assertNotSame(UnsafeReplacementDelegate.BB_CLEANER_NOOP, cleanerConsumer);
+    }
   }
 
   @Test
