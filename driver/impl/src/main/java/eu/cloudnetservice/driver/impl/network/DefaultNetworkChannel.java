@@ -37,9 +37,7 @@ public abstract class DefaultNetworkChannel implements NetworkChannel {
 
   private static final AtomicLong CHANNEL_ID_COUNTER = new AtomicLong();
 
-  private final long channelId = CHANNEL_ID_COUNTER.incrementAndGet();
-
-  private final QueryPacketManager queryPacketManager;
+  protected final DefaultQueryPacketManager queryPacketManager; // protected to expose narrowed type to subclasses
   private final PacketListenerRegistry packetRegistry;
 
   private final HostAndPort serverAddress;
@@ -47,6 +45,8 @@ public abstract class DefaultNetworkChannel implements NetworkChannel {
 
   private final boolean clientProvidedChannel;
   private final NetworkChannelHandler handler;
+
+  private final long channelId = CHANNEL_ID_COUNTER.incrementAndGet();
 
   /**
    * Constructs a new default network channel instance.

@@ -110,6 +110,13 @@ public interface NetworkChannel extends PacketSender {
   boolean active();
 
   /**
+   * Get if this channel was marked as closed.
+   *
+   * @return if this channel was marked as closed.
+   */
+  boolean closed();
+
+  /**
    * Requests the close of the channel, flushing all outbound i/o requests before. After a channel was closed it cannot
    * be used again.
    */
