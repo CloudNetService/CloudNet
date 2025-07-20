@@ -305,7 +305,8 @@ public class NodePlayerManager implements PlayerManager {
 
   @Override
   public @NonNull CompletableFuture<List<CloudPlayer>> environmentOnlinePlayersAsync(
-    @NonNull ServiceEnvironmentType env) {
+    @NonNull ServiceEnvironmentType env
+  ) {
     return TaskUtil.supplyAsync(() -> this.environmentOnlinePlayers(env));
   }
 

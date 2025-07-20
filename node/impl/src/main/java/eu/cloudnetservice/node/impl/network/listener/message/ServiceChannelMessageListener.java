@@ -146,8 +146,10 @@ public final class ServiceChannelMessageListener {
   }
 
   @EventListener
-  public void handleRemoteLifecycleChanges(@NonNull CloudServiceLifecycleChangeEvent event,
-    @NonNull @Service I18n i18n) {
+  public void handleRemoteLifecycleChanges(
+    @NonNull CloudServiceLifecycleChangeEvent event,
+    @NonNull @Service I18n i18n
+  ) {
     var id = event.serviceInfo().serviceId();
     var replacements = new Object[]{id.uniqueId(), id.taskName(), id.name(), id.nodeUniqueId()};
 
