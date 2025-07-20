@@ -115,7 +115,7 @@ public final class UnsafeReplacementDelegate {
           MethodType.methodType(cleanerMethod.getReturnType(), ByteBuffer.class));
 
         // get the method handle to invoke the clean method on the Cleaner class (type: (Cleaner):void)
-        var cleanerClass = Class.forName("jdk.internal.ref.Cleaner");
+        var cleanerClass = cleanerMethod.getReturnType();
         var cleanMethod = cleanerClass.getDeclaredMethod("clean");
         var cleanHandle = lookup.unreflect(cleanMethod);
 
