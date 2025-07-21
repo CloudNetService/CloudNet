@@ -93,10 +93,9 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
       .and(service -> service.serviceId().environment().readProperty(ServiceEnvironmentType.JAVA_SERVER));
-    // register each service matching the service cache tester
-    this.cacheRegisterListener = bungeeHelper.serverRegisterHandler();
-    // unregister each service matching the service cache tester
-    this.cacheUnregisterListener = bungeeHelper.serverUnregisterHandler();
+
+    this.cacheRegisterListener = bungeeHelper::registerServer;
+    this.cacheUnregisterListener = bungeeHelper::unregisterServer;
   }
 
   @Override
