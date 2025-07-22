@@ -130,8 +130,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
       .targetNodes()
       .message("sync_cluster_data")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(this.dataSyncRegistry.prepareClusterData(true))
-      .build()
+      .build(this.dataSyncRegistry.prepareClusterData(true))
       .send();
   }
 

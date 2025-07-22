@@ -21,6 +21,8 @@ import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import io.netty5.buffer.Buffer;
+import io.netty5.buffer.BufferComponent;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -202,6 +204,49 @@ public final class NettyMutableDataBuf extends NettyImmutableDataBuf implements 
   public @NonNull DataBuf.Mutable ensureWriteable(int bytes) {
     this.buffer.ensureWritable(bytes);
     return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int writeableBytes() {
+    return this.buffer.writableBytes();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int writerOffset() {
+    return this.buffer.writerOffset();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull DataBuf writerOffset(int offset) {
+    this.buffer.writerOffset(offset);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull DataBuf advanceWriterOffset(int delta) {
+    this.buffer.skipWritableBytes(delta);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull ByteBuffer writeableNioBuffer() {
+    var bufferAsBufferComponent = (BufferComponent) this.buffer;
+    return bufferAsBufferComponent.writableBuffer();
   }
 
   /**

@@ -19,7 +19,6 @@ package eu.cloudnetservice.node.impl.service.defaults;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceCreateResult;
@@ -95,12 +94,9 @@ final class ServiceCreateRetryTracker implements Runnable {
       // build the base message and add all channel message targets
       var messageBuilder = ChannelMessage.builder()
         .message("deferred_service_event")
-        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeUniqueId(this.creationId).writeObject(createResult));
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL);
       eventListeners.forEach(messageBuilder::target);
-
-      // build the message and send it out
-      messageBuilder.build().send();
+      messageBuilder.build(buffer -> buffer.writeUniqueId(this.creationId).writeObject(createResult)).send();
     }
   }
 }

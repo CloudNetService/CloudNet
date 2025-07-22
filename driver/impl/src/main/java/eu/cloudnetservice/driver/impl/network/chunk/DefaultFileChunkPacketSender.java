@@ -22,7 +22,10 @@ import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import lombok.NonNull;
@@ -35,7 +38,9 @@ import lombok.NonNull;
  */
 public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider implements ChunkedPacketSender {
 
-  protected final InputStream source;
+  protected static final int CHUNK_INFO_DATA_BYTES = Byte.BYTES + Integer.BYTES; // eof (Z) + byte count (I)
+
+  protected final ReadableByteChannel source;
   protected final Consumer<Packet> packetSplitter;
 
   /**
@@ -52,9 +57,8 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
     @NonNull Consumer<Packet> packetSplitter
   ) {
     super(sessionInformation);
-
-    this.source = source;
     this.packetSplitter = packetSplitter;
+    this.source = source instanceof FileInputStream fis ? fis.getChannel() : Channels.newChannel(source);
   }
 
   /**
@@ -64,28 +68,35 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   public @NonNull CompletableFuture<TransferStatus> transferChunkedData() {
     return TaskUtil.supplyAsync(() -> {
       var chunkIndex = 0;
-      var backingArray = new byte[this.chunkSessionInformation.chunkSize()];
-
+      var chunkSize = this.chunkSessionInformation.chunkSize();
+      var bufferGrowthPerChunk = CHUNK_INFO_DATA_BYTES + chunkSize; // chunk info + actual chunk data
       while (true) {
-        var bytesRead = Math.max(0, this.source.read(backingArray));
-        if (bytesRead == backingArray.length) {
-          // if the bytes read is the same size as the backing array, then a full chunk of data has been read from the
-          // backing file. this usually indicates that the chunk is not the last chunk in the transfer
-          var chunkPacket = ChunkedPacket.createFullChunk(chunkIndex++, backingArray, this.chunkSessionInformation);
-          this.packetSplitter.accept(chunkPacket);
-        } else {
-          // final chunk to send out, this is one is allowed to not contain as much data as the other chunks
-          var chunkPacket = ChunkedPacket.createFinalChunk(
-            chunkIndex,
-            bytesRead,
-            backingArray,
-            this.chunkSessionInformation);
-          this.packetSplitter.accept(chunkPacket);
+        var chunkDataBuffer = ChunkedPacket
+          .createBaseChunkDataBuffer(chunkIndex++, this.chunkSessionInformation)
+          .ensureWriteable(bufferGrowthPerChunk);
+        var writerOffset = chunkDataBuffer.writerOffset();
 
-          // close all allocated resources used for the transfer
+        // advance the writer offset to skip the bytes for the EOF and chunk size info. these
+        // are only available after writing the data, so that has to be done first
+        chunkDataBuffer.advanceWriterOffset(CHUNK_INFO_DATA_BYTES);
+        var chunkDataNioBuffer = chunkDataBuffer
+          .writeableNioBuffer()
+          .limit(chunkDataBuffer.writerOffset() + chunkSize);
+        var bytesRead = Math.max(0, this.source.read(chunkDataNioBuffer));
+
+        // move the writer offset back to write the EOF and chunk size info,
+        // then move the writer offset back to the end of the buffer
+        chunkDataBuffer.writerOffset(writerOffset);
+        var finalChunk = bytesRead != chunkSize;
+        chunkDataBuffer.writeBoolean(finalChunk).writeInt(bytesRead);
+        chunkDataBuffer.advanceWriterOffset(bytesRead);
+
+        var chunkPacket = new ChunkedPacket(chunkDataBuffer);
+        this.packetSplitter.accept(chunkPacket);
+
+        if (finalChunk) {
           this.source.close();
           this.chunkSessionInformation.close();
-
           return TransferStatus.SUCCESS;
         }
       }

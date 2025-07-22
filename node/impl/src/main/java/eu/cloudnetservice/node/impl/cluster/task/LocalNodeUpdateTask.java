@@ -18,7 +18,6 @@ package eu.cloudnetservice.node.impl.cluster.task;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
@@ -61,12 +60,9 @@ public record LocalNodeUpdateTask(
             .sendSync(true) // ensure that we don't schedule too many updates while other are still waiting
             .message("update_node_info_snapshot")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-            .buffer(DataBuf.empty().writeObject(localNode.nodeInfoSnapshot()))
             .prioritized(this.mainThreadProvider.get().currentTick() % 10 == 0);
-          // add all targets
           targetNodes.forEach(message::targetNode);
-          // send the update to all active nodes
-          message.build().send();
+          message.build(buffer -> buffer.writeObject(localNode.nodeInfoSnapshot())).send();
         }
       }
     } catch (Exception exception) {

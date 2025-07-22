@@ -3,8 +3,8 @@
 # plugins
 shadow = "8.3.8"
 juppiter = "0.4.0"
-spotless = "7.1.0"
-fabricLoom = "1.10.5"
+spotless = "7.2.1"
+fabricLoom = "1.11.4"
 nexusPublish = "2.0.0"
 checkstyleTools = "10.26.1"
 
@@ -13,9 +13,9 @@ gson = "2.13.1"
 guava = "33.4.8-jre"
 
 # testing
-junit = "5.13.3"
+junit = "5.13.4"
 mockito = "5.18.0"
-junitLauncher = "1.13.3"
+junitLauncher = "1.13.4"
 testcontainers = "1.21.3"
 
 # compile time processing
@@ -33,7 +33,7 @@ stringSimilarity = "2.0.0"
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "5.5.1"
-hikariCp = "6.3.0"
+hikariCp = "6.3.1"
 mysqlConnector = "9.2.0"
 
 # general
@@ -41,7 +41,7 @@ oshi = "6.8.2"
 vavr = "0.10.7"
 sshj = "0.40.0"
 aerogel = "3.0.1"
-awsSdk = "2.32.4"
+awsSdk = "2.32.5"
 unirest = "4.5.0"
 caffeine = "3.2.2"
 reflexion = "2.0.0"
@@ -72,7 +72,7 @@ limboloohp = "0.7.9-ALPHA"
 adventure = "4.23.0"
 modlauncher = "8.1.3"
 npcLib = "3.0.0-beta13"
-packetEvents = "2.9.3"
+packetEvents = "2.9.4"
 placeholderApi = "2.11.6"
 adventure-serializer-bungee = "4.4.0"
 luckPermsApi = "5.5"

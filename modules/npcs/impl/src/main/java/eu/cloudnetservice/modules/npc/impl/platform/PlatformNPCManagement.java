@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.npc.impl.platform;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -100,25 +99,17 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
 
   @Override
   public void createNPC(@NonNull NPC npc) {
-    this.channelMessage(NPC_CREATE)
-      .buffer(DataBuf.empty().writeObject(npc))
-      .build()
-      .send();
+    this.channelMessage(NPC_CREATE).build(buffer -> buffer.writeObject(npc)).send();
   }
 
   @Override
   public void deleteNPC(@NonNull WorldPosition position) {
-    this.channelMessage(NPC_DELETE)
-      .buffer(DataBuf.empty().writeObject(position))
-      .build().send();
+    this.channelMessage(NPC_DELETE).build(buffer -> buffer.writeObject(position)).send();
   }
 
   @Override
   public int deleteAllNPCs(@NonNull String group) {
-    var response = this.channelMessage(NPC_BULK_DELETE)
-      .buffer(DataBuf.empty().writeString(group))
-      .build()
-      .sendSingleQuery();
+    var response = this.channelMessage(NPC_BULK_DELETE).build(buffer -> buffer.writeString(group)).sendSingleQuery();
     return switch (response) {
       case null -> 0;
       case ChannelMessage channelMessage -> {
@@ -132,8 +123,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
   @Override
   public int deleteAllNPCs() {
     var response = this.channelMessage(NPC_ALL_DELETE)
-      .buffer(DataBuf.empty().writeObject(this.npcs.keySet()))
-      .build()
+      .build(buffer -> buffer.writeObject(this.npcs.keySet()))
       .sendSingleQuery();
     return switch (response) {
       case null -> 0;
@@ -148,8 +138,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
   @Override
   public @NonNull Collection<NPC> npcs(@NonNull Collection<String> groups) {
     var response = this.channelMessage(NPC_GET_NPCS_BY_GROUP)
-      .buffer(DataBuf.empty().writeObject(groups))
-      .build()
+      .build(buffer -> buffer.writeObject(groups))
       .sendSingleQuery();
     return switch (response) {
       case null -> Set.of();
@@ -163,9 +152,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
 
   @Override
   public void npcConfiguration(@NonNull NPCConfiguration configuration) {
-    this.channelMessage(NPC_SET_CONFIG)
-      .buffer(DataBuf.empty().writeObject(configuration))
-      .build().send();
+    this.channelMessage(NPC_SET_CONFIG).build(buffer -> buffer.writeObject(configuration)).send();
   }
 
   @Override

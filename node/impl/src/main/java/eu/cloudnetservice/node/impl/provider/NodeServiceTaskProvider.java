@@ -25,7 +25,6 @@ import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -146,8 +145,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       .targetAll()
       .message("add_service_task")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(serviceTaskAddEvent.task()))
-      .build()
+      .build(buffer -> buffer.writeObject(serviceTaskAddEvent.task()))
       .send();
     return true;
   }
@@ -171,8 +169,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       .targetAll()
       .message("remove_service_task")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(serviceTask))
-      .build()
+      .build(buffer -> buffer.writeObject(serviceTask))
       .send();
   }
 

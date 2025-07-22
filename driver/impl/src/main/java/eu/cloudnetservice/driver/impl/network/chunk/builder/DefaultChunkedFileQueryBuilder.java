@@ -136,8 +136,7 @@ public class DefaultChunkedFileQueryBuilder implements ChunkedFileQueryBuilder {
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .message("chunked_query_file")
       .target(this.dataSource)
-      .buffer(queryBuffer)
-      .build();
+      .build(queryBuffer);
     return channelMessage
       .sendSingleQueryAsync()
       .thenCompose(response -> {
