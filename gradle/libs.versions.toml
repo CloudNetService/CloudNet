@@ -4,7 +4,7 @@
 shadow = "8.3.8"
 juppiter = "0.4.0"
 spotless = "7.2.1"
-fabricLoom = "1.10.5"
+fabricLoom = "1.11.4"
 nexusPublish = "2.0.0"
 checkstyleTools = "10.26.1"
 
