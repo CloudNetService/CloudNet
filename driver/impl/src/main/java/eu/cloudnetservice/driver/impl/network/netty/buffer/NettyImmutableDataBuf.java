@@ -21,9 +21,11 @@ import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import io.netty5.buffer.Buffer;
+import io.netty5.buffer.BufferComponent;
 import io.netty5.buffer.internal.InternalBufferUtils;
 import io.netty5.buffer.internal.ResourceSupport;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.Function;
@@ -48,9 +50,10 @@ public sealed class NettyImmutableDataBuf implements DataBuf permits NettyMutabl
    *
    * @param buffer the netty buffer to wrap.
    * @throws NullPointerException     if the given buffer is null.
-   * @throws IllegalArgumentException if the given buffer does not extend {@code ResourceSupport}.
+   * @throws IllegalArgumentException if the given buffer cannot be wrapped into a data buf.
    */
   public NettyImmutableDataBuf(@NonNull Buffer buffer) {
+    Preconditions.checkArgument(buffer instanceof BufferComponent, "buffer must implement BufferComponent");
     Preconditions.checkArgument(buffer instanceof ResourceSupport<?, ?>, "buffer must extend ResourceSupport");
     this.buffer = buffer;
   }
@@ -209,6 +212,41 @@ public sealed class NettyImmutableDataBuf implements DataBuf permits NettyMutabl
   @Override
   public int readableBytes() {
     return this.buffer.readableBytes();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int readerOffset() {
+    return this.buffer.readerOffset();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull DataBuf readerOffset(int offset) {
+    this.buffer.readerOffset(offset);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull DataBuf advanceReaderOffset(int delta) {
+    this.buffer.skipReadableBytes(delta);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull ByteBuffer readableNioBuffer() {
+    var bufferAsBufferComponent = (BufferComponent) this.buffer;
+    return bufferAsBufferComponent.readableBuffer();
   }
 
   /**

@@ -38,11 +38,14 @@ import eu.cloudnetservice.node.impl.util.NetworkUtil;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.utils.base.column.ColumnFormatter;
 import eu.cloudnetservice.utils.base.column.RowedFormatter;
+import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.io.ZipUtil;
 import eu.cloudnetservice.utils.base.resource.ResourceFormatter;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -309,14 +312,11 @@ public final class ClusterCommand {
     @Flag("overwrite") boolean overwrite
   ) {
     var staticServicePath = this.serviceProvider.persistentServicesDirectory();
-    // check if we need to push all static services or just a specific one
     if (service == null) {
-      // resolve all existing static services, that are not running and push them
       for (var serviceName : this.resolveAllStaticServices()) {
         this.pushStaticService(i18n, source, staticServicePath.resolve(serviceName), serviceName, overwrite);
       }
     } else {
-      // only push the specific static service that was given
       this.pushStaticService(i18n, source, staticServicePath.resolve(service), service, overwrite);
     }
   }
@@ -328,24 +328,36 @@ public final class ClusterCommand {
     @NonNull String serviceName,
     boolean overwrite
   ) {
-    // zip the whole directory into a stream
-    var stream = ZipUtil.zipToStream(servicePath);
-    // notify the source about the deployment
-    source.sendMessage(i18n.translate("command-cluster-push-static-service-starting"));
-    // deploy the static service into the cluster
-    this.nodeServerProvider.deployStaticServiceToCluster(serviceName, stream, overwrite)
-      .thenAccept(transferStatus -> {
-        if (transferStatus == TransferStatus.FAILURE) {
-          // the transfer failed
-          source.sendMessage(i18n.translate("command-cluster-push-static-service-failed"));
-        } else {
-          // the transfer was successful
-          source.sendMessage(i18n.translate("command-cluster-push-static-service-success"));
-        }
-      });
+    // zip the service directory into a temp file and create an input stream to deploy from the file
+    var target = FileUtil.createTempFile();
+    var zipOutputFile = ZipUtil.zipToFile(servicePath, target, path -> !target.equals(path));
+    if (zipOutputFile == null) {
+      source.sendMessage(i18n.translate("command-cluster-push-static-service-failed"));
+      return;
+    }
+
+    try {
+      source.sendMessage(i18n.translate("command-cluster-push-static-service-starting"));
+      var zipOutputFileStream = new FileInputStream(zipOutputFile.toFile()); // FIS for optimized transfer
+      this.nodeServerProvider.deployStaticServiceToCluster(serviceName, zipOutputFileStream, overwrite)
+        .thenAccept(transferStatus -> {
+          if (transferStatus == TransferStatus.FAILURE) {
+            source.sendMessage(i18n.translate("command-cluster-push-static-service-failed"));
+          } else {
+            source.sendMessage(i18n.translate("command-cluster-push-static-service-success"));
+          }
+        });
+    } catch (FileNotFoundException _) {
+      // should not happen as ZipUtil.zipToFile should return null in this case
+      source.sendMessage(i18n.translate("command-cluster-push-static-service-failed"));
+    }
   }
 
-  private void pushTemplate(@NonNull @Service I18n i18n, @NonNull CommandSource source, @NonNull ServiceTemplate template) {
+  private void pushTemplate(
+    @NonNull @Service I18n i18n,
+    @NonNull CommandSource source,
+    @NonNull ServiceTemplate template
+  ) {
     var templateName = template.toString();
     try {
       source.sendMessage(
