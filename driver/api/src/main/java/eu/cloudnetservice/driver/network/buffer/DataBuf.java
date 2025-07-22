@@ -300,9 +300,9 @@ public interface DataBuf extends AutoCloseable {
   DataBuf advanceReaderOffset(int delta);
 
   /**
-   * Get a byte buffer instance that shares the memory region of this buffer. The returned buffer is marked as read-only
-   * which prevents write operations to it. The initial byte buffer offset is the current reader offset, and it's
-   * limited to the number of readable bytes beyond the current reader offset.
+   * Get a new byte buffer instance that shares the memory region of this buffer. The returned buffer is marked as
+   * read-only which prevents write operations to it. The initial byte buffer offset is the current reader offset, and
+   * it's limited to the number of readable bytes beyond the current reader offset.
    * <p>
    * Note: this api is marked as experimental as the lifecycle of the returned buffer cannot be controlled. This means
    * that a returned byte buffer instance can still refer to memory already released by this buffer.
@@ -623,9 +623,9 @@ public interface DataBuf extends AutoCloseable {
     DataBuf advanceWriterOffset(int delta);
 
     /**
-     * Get a byte buffer instance that shares the memory region of this buffer. The returned buffer can be used to read
-     * and write data to this buffer. The initial byte buffer offset is the current writer offset, and it's limited to
-     * the number of writable bytes beyond the current writer offset.
+     * Get a new byte buffer instance that shares the memory region of this buffer. The returned buffer can be used to
+     * read and write data to this buffer. The initial byte buffer offset is the current writer offset, and it's limited
+     * to the number of writable bytes beyond the current writer offset.
      * <p>
      * Note: this api is marked as experimental as the lifecycle of the returned buffer cannot be controlled. This means
      * that a returned byte buffer instance can still refer to memory already released by this buffer.
