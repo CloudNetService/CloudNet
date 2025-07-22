@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.bridge.impl.platform.helper;
 
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.node.event.LocalPlayerPreLoginEvent;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -47,8 +46,7 @@ public final class ProxyPlatformHelper {
     var response = this.toCurrentNode()
       .message("proxy_player_pre_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeObject(playerInfo))
-      .build()
+      .build(buffer -> buffer.writeObject(playerInfo))
       .sendSingleQuery();
     return switch (response) {
       case null -> LocalPlayerPreLoginEvent.Result.allowed();
@@ -67,8 +65,7 @@ public final class ProxyPlatformHelper {
     this.toCurrentNode()
       .message("proxy_player_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeObject(proxyInfo).writeObject(joinServiceInfo))
-      .build()
+      .build(buffer -> buffer.writeObject(proxyInfo).writeObject(joinServiceInfo))
       .send();
   }
 
@@ -76,8 +73,7 @@ public final class ProxyPlatformHelper {
     this.toCurrentNode()
       .message("proxy_player_service_switch")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeUniqueId(playerId).writeObject(target))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(playerId).writeObject(target))
       .send();
   }
 
@@ -85,8 +81,7 @@ public final class ProxyPlatformHelper {
     this.toCurrentNode()
       .message("proxy_player_disconnect")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeUniqueId(playerUniqueId))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(playerUniqueId))
       .send();
   }
 

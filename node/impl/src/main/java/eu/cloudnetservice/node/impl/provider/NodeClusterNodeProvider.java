@@ -22,7 +22,6 @@ import eu.cloudnetservice.driver.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
@@ -96,8 +95,7 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
         .targetNodes()
         .message("register_known_node")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeObject(node))
-        .build()
+        .build(buffer -> buffer.writeObject(node))
         .send();
       return true;
     }
@@ -116,8 +114,7 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
         .targetNodes()
         .message("remove_known_node")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeObject(clusterNode))
-        .build()
+        .build(buffer -> buffer.writeObject(clusterNode))
         .send();
       return true;
     }

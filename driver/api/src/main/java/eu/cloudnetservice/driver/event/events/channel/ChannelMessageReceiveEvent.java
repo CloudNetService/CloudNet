@@ -154,7 +154,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
    * @throws IllegalArgumentException if the received channel message is not expecting a response.
    */
   public void binaryResponse(@NonNull DataBuf dataBuf) {
-    this.queryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
+    this.queryResponse(ChannelMessage.buildResponseFor(this.channelMessage).build(dataBuf));
   }
 
   /**

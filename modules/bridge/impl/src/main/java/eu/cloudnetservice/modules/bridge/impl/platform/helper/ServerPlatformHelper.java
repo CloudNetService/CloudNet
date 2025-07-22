@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.impl.platform.helper;
 
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
@@ -42,8 +41,7 @@ public final class ServerPlatformHelper {
     this.proxyPlatformHelper.toCurrentNode()
       .message("server_player_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeUniqueId(playerUniqueId).writeObject(info))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(playerUniqueId).writeObject(info))
       .send();
   }
 
@@ -51,8 +49,7 @@ public final class ServerPlatformHelper {
     this.proxyPlatformHelper.toCurrentNode()
       .message("server_player_disconnect")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeUniqueId(playerUniqueId).writeObject(info))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(playerUniqueId).writeObject(info))
       .send();
   }
 }
