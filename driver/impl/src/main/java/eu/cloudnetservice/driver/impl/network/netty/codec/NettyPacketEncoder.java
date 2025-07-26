@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.netty.codec;
 
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.impl.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
@@ -45,14 +46,14 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
    */
   @Override
   protected Buffer allocateBuffer(@NonNull ChannelHandlerContext ctx, @NonNull Packet msg) {
-    // we allocate 2 booleans (prioritized and isQuery) + content length + channel in advance
-    var bufferLength = 2
+    var bufferLength = 3 // medium for the magic packet header
+      + Byte.BYTES // prioritized
+      + Byte.BYTES // has query id
       + msg.content().readableBytes()
       + NettyUtil.varIntBytes(msg.channel())
       + NettyUtil.varIntBytes(msg.content().readableBytes());
-    // if the given packet has a query unique id we need two longs for that unique id as well
     if (msg.uniqueId() != null) {
-      bufferLength += 16;
+      bufferLength += Long.BYTES * 2; // packet unique id consists of 2 longs
     }
 
     return ctx.bufferAllocator().allocate(bufferLength);
@@ -63,26 +64,27 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
    */
   @Override
   protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull Packet msg, @NonNull Buffer out) {
-    NettyUtil.writeVarInt(out, msg.channel());
-    out.writeBoolean(msg.prioritized());
+    try (var messageContent = msg.content()) {
+      out.writeMedium(NetworkConstants.MAGIC_PACKET_HEADER);
 
-    var queryUniqueId = msg.uniqueId();
-    out.writeBoolean(queryUniqueId != null);
-    if (queryUniqueId != null) {
-      out
-        .writeLong(queryUniqueId.getMostSignificantBits())
-        .writeLong(queryUniqueId.getLeastSignificantBits());
+      NettyUtil.writeVarInt(out, msg.channel());
+      out.writeBoolean(msg.prioritized());
+
+      var queryUniqueId = msg.uniqueId();
+      out.writeBoolean(queryUniqueId != null);
+      if (queryUniqueId != null) {
+        out
+          .writeLong(queryUniqueId.getMostSignificantBits())
+          .writeLong(queryUniqueId.getLeastSignificantBits());
+      }
+
+      // copy over the packet body into the output buffer
+      var content = ((NettyImmutableDataBuf) messageContent).buffer();
+      var length = content.readableBytes();
+      NettyUtil.writeVarInt(out, length);
+      content.copyInto(content.readerOffset(), out, out.writerOffset(), length);
+      out.skipWritableBytes(length);
     }
-
-    // copy over the packet body into the output buffer
-    var content = ((NettyImmutableDataBuf) msg.content()).buffer();
-    var length = content.readableBytes();
-    NettyUtil.writeVarInt(out, length);
-    content.copyInto(0, out, out.writerOffset(), length);
-    out.skipWritableBytes(length);
-
-    // release the packet content once
-    msg.content().release();
   }
 
   /**

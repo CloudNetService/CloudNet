@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.netty.codec;
 
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.impl.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
@@ -51,6 +52,17 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
   @Override
   protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer in) {
     try {
+      // packet must be prefixed with our magic header to distinguish it from other, similar
+      // protocols (e.g., the minecraft protocol uses the same framing as we do)
+      var magic = in.readableBytes() > 3 ? in.readMedium() : 0;
+      if (magic != NetworkConstants.MAGIC_PACKET_HEADER) {
+        ctx.channel().close();
+        LOGGER.warn(
+          "Received invalid packet from {} (not prefixed by magic header), closing connection",
+          ctx.channel().remoteAddress());
+        return;
+      }
+
       // read the required base data from the buffer
       var channel = NettyUtil.readVarInt(in);
       var prioritized = in.readBoolean();
@@ -69,7 +81,15 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
       ctx.fireChannelRead(packet);
     } catch (Exception exception) {
-      LOGGER.error("Exception while decoding packet", exception);
+      LOGGER.error("Exception decoding packet from {}", ctx.channel().localAddress(), exception);
+    } finally {
+      // ByteToMessageDecoder will start cumulating if there are remaining bytes in the buffer, we
+      // don't want that - just discard left-over bytes in the buffer (should only happen in case of
+      // a decoding failure as not everything was read in that case)
+      var remainingReadableBytes = in.readableBytes();
+      if (remainingReadableBytes > 0) {
+        in.skipReadableBytes(remainingReadableBytes);
+      }
     }
   }
 }
