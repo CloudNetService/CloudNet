@@ -51,7 +51,6 @@
         "cpw.mods:modlauncher", // can be removed when sponge updated to v9
         "org.spongepowered:spongeapi", // we want to leave the oldest version we support as the dependency
         "io.github.juliarn:npc-lib-**", // currently unstable and will be updated manually
-        "net.minestom:minestom-snapshots", // extremely weird version handling, updates are done manually
         "dev.waterdog.waterdogpe:waterdog", // we don't support v2 and v1 doesn't receive any updates anymore
         "org.incendo:cloud-processors-confirmation", // currently unstable and will be updated manually
       ],

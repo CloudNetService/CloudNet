@@ -104,8 +104,10 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     eventHandler.call(pingEvent);
 
     // init the bridge properties
-    serviceHelper.motd().set(legacySection().serialize(pingEvent.getResponseData().getDescription()));
-    serviceHelper.maxPlayers().set(pingEvent.getResponseData().getMaxPlayer());
+    var status = pingEvent.getStatus();
+    var playerInfo = status.playerInfo();
+    serviceHelper.motd().set(legacySection().serialize(status.description()));
+    serviceHelper.maxPlayers().set(playerInfo == null ? 0 : playerInfo.maxPlayers());
   }
 
   @Override
