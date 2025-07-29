@@ -27,13 +27,7 @@ tasks.shadowJar.configure {
   manifest {
     attributes["paperweight-mappings-namespace"] = "mojang"
   }
-}
 
-tasks.withType<JavaCompile>().configureEach {
-  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/npcs.aero")
-}
-
-tasks.withType<ShadowJar>().configureEach {
   relocate("net.kyori", "eu.cloudnetservice.modules.npc.relocate.net.kyori")
   relocate("io.papermc.lib", "eu.cloudnetservice.modules.npc.relocate.paperlib")
   relocate("io.leangen.geantyref", "eu.cloudnetservice.modules.npc.relocate.geantyref")
@@ -41,13 +35,16 @@ tasks.withType<ShadowJar>().configureEach {
   relocate("com.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.com.packetevents")
   relocate("com.github.juliarn.npclib", "eu.cloudnetservice.modules.npc.relocate.com.github.juliarn.npclib")
 
-  archiveClassifier.set(null as String?)
   dependencies {
     exclude("plugin.yml")
     // excludes the META-INF directory, module infos & html files of all dependencies
     // this includes for example maven lib files & multi-release module-json files
     exclude("META-INF/**", "**/*.html", "module-info.*")
   }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/npcs.aero")
 }
 
 repositories {
