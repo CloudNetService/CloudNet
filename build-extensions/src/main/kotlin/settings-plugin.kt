@@ -40,22 +40,27 @@ import org.gradle.language.jvm.tasks.ProcessResources
 class SettingsPlugin : Plugin<Settings> {
   override fun apply(settings: Settings) {
     settings.gradle.lifecycle.beforeProject {
-      println("configuring ${this.path}") // TODO remove, this is temporary to better debug any configuration done (configure-on-demand)
       plugins.apply(AllProjects::class)
-      if (this != this.rootProject) {
+      if (this != this.rootProject && !isHelperProject(this.path)) {
+        println("configuring ${this.path}") // TODO remove, this is temporary to better debug any configuration done (configure-on-demand)
         plugins.apply(JavaProjects::class)
       }
     }
   }
 }
 
-fun isJavaConfiguredProject(name: String): Boolean {
-  if (isHelperProject(name)) return false
+fun isJavaConfiguredProject(name: String, path: String): Boolean {
+  if (isHelperProject(path)) return false
   return name != "bom"
 }
 
-fun isHelperProject(name: String): Boolean {
-  return name == "modules" || name == "plugins" || name == "ext" || name == "launcher"
+fun isHelperProject(path: String): Boolean {
+  val guaranteedHelper =
+    path == ":modules" || path == ":plugins" || path == ":ext" || path == ":launcher" || path == ":node" || path == ":driver" || path == ":wrapper-jvm"
+  if (guaranteedHelper) return true
+  val couldBeHelper = path.startsWith(":modules:") || path.startsWith(":node:") || path.startsWith(":wrapper-jvm:")
+  val apiOrImpl = path.endsWith("-api") || path.endsWith("-impl")
+  return couldBeHelper && !apiOrImpl
 }
 
 object CustomConfigurations {
@@ -84,13 +89,6 @@ internal val Project.libs: Provider<VersionCatalog>
 class JavaProjects : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
-
-
-      // these are top level projects which are configured separately
-      if (isHelperProject(name)) {
-        return@run
-      }
-
       // these are the plugins which we need to apply to all projects
       apply(plugin = "signing")
       apply(plugin = "maven-publish")
@@ -98,7 +96,7 @@ class JavaProjects : Plugin<Project> {
       // skip further applying to bom - this project is a bit special as we're not allowed to
       // apply the java plugin to it (that's why we need to stop here, but we need to publish
       // at well (that's why we're applying the publish plugin)
-      if (!isJavaConfiguredProject(name)) {
+      if (!isJavaConfiguredProject(name, path)) {
         return@run
       }
 
@@ -106,6 +104,19 @@ class JavaProjects : Plugin<Project> {
       apply(plugin = "java-library")
       apply(plugin = "com.diffplug.spotless")
       apply(plugin = "net.kyori.indra.git")
+
+      // declare repositories before plugins/modules sub-plugins
+      repositories {
+        releasesOnly(mavenCentral())
+        snapshotsOnly(maven("https://central.sonatype.com/repository/maven-snapshots/"))
+
+        // ensure that we use these repositories for snapshots/releases only (improves lookup times)
+        releasesOnly(maven("https://repository.derklaro.dev/releases/"))
+        snapshotsOnly(maven("https://repository.derklaro.dev/snapshots/"))
+
+        // must be after sonatype as sponge mirrors sonatype which leads to outdated dependencies
+        maven("https://repo.spongepowered.org/maven/")
+      }
 
       if (path.startsWith(":plugins:")) {
         apply<PluginGradlePlugin>()
@@ -219,7 +230,10 @@ class JavaProjects : Plugin<Project> {
       }
 
       // all these projects are publishing their java artifacts
-      configurePublishing("java")
+      // must happen after repository/dependency declaration
+      afterEvaluate {
+        configurePublishing("java")
+      }
 
       // create consumable artifacts for global javadoc
       configurations.consumable(CustomConfigurations.GLOBAL_JAVADOC_SOURCES) {
@@ -238,18 +252,6 @@ class AllProjects : Plugin<Project> {
       this.version = Versions.cloudNet
       this.group = "eu.cloudnetservice.cloudnet"
       this.description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
-
-      this.repositories {
-        releasesOnly(mavenCentral())
-        snapshotsOnly(maven("https://central.sonatype.com/repository/maven-snapshots/"))
-
-        // ensure that we use these repositories for snapshots/releases only (improves lookup times)
-        releasesOnly(maven("https://repository.derklaro.dev/releases/"))
-        snapshotsOnly(maven("https://repository.derklaro.dev/snapshots/"))
-
-        // must be after sonatype as sponge mirrors sonatype which leads to outdated dependencies
-        maven("https://repo.spongepowered.org/maven/")
-      }
     }
   }
 }

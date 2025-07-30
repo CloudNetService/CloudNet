@@ -55,7 +55,7 @@ nexusPublishing {
 
 dependencies {
   subprojects.map { it.isolated }.forEach { project ->
-    if (!isJavaConfiguredProject(project.name)) return@forEach
+    if (!isJavaConfiguredProject(project.name, project.path)) return@forEach
     globalJavadocSources(this.project(project.path)) {
       targetConfiguration = CustomConfigurations.GLOBAL_JAVADOC_SOURCES
     }
