@@ -21,6 +21,7 @@
 .gradle/
 build/
 /.kotlin
+/build-extensions/.kotlin
 
 # gradle build scans
 /gradle.tos.agree
