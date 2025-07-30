@@ -125,7 +125,7 @@ develocity {
     // named "gradle.tos.agree" in the root directory with the ToS URL
     // as content.
     val file = rootDir.resolve("gradle.tos.agree")
-    val agree = if (file.exists() && file.readText() == "https://gradle.com/help/legal-terms-of-use") "yes" else ""
+    val agree = if (file.exists() && file.readText().trim() == "https://gradle.com/help/legal-terms-of-use") "yes" else ""
     termsOfUseAgree = agree
     termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
     gradle.settingsEvaluated {
