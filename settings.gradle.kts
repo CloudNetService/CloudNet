@@ -21,16 +21,11 @@ pluginManagement {
   includeBuild("build-extensions")
   repositories {
     gradlePluginPortal()
-//    maven("https://repo.stellardrift.ca/repository/snapshots/") {
+    // TODO wait for indra to be configuration cache compatible
+    // maven("https://repo.stellardrift.ca/repository/snapshots/") {
     mavenLocal {
       content {
         includeGroup("net.kyori")
-      }
-    }
-    mavenLocal {
-      content {
-        includeGroup("eu.cloudnetservice.juppiter")
-        includeGroup("eu.cloudnetservice.gradle")
       }
     }
     maven {
