@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin.Companion.shadowJar
+
 /*
  * Copyright 2019-2024 CloudNetService team & contributors
  *
@@ -24,7 +26,7 @@ val includeInJar = configurations.register("includeInJar") {
   isTransitive = false
 }
 
-tasks.withType<Jar>().configureEach {
+tasks.jar {
   // copy over the final output file
   from(includeInJar)
 }
