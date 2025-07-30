@@ -21,19 +21,32 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.external.javadoc.JavadocMemberLevel
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 
 fun Project.configurePublishing(publishedComponent: String) {
   extensions.configure<PublishingExtension> {
+    // pull this out because of configuration cache
+    val projectName = project.name
+    val projectDescription = project.description
+
+    data class Repository(val id: String, val url: String)
+
+    val selectedRepositories = project.repositories.filterIsInstance<MavenArtifactRepository>().filter {
+      it.url.scheme == "https"
+    }.map {
+      Repository(it.name, it.url.toString())
+    }
+
     publications.apply {
-      create("maven", MavenPublication::class.java).apply {
+      register<MavenPublication>("maven") {
         from(components.getByName(publishedComponent))
 
         pom.apply {
-          name.set(project.name)
-          description.set(project.description)
+          name.set(projectName)
+          description.set(projectDescription)
           url.set("https://cloudnetservice.eu")
 
           developers {
@@ -76,12 +89,10 @@ fun Project.configurePublishing(publishedComponent: String) {
 
           withXml {
             val repositories = asNode().appendNode("repositories")
-            project.repositories.forEach {
-              if (it is MavenArtifactRepository && it.url.toString().startsWith("https://")) {
-                val repo = repositories.appendNode("repository")
-                repo.appendNode("id", it.name)
-                repo.appendNode("url", it.url.toString())
-              }
+            selectedRepositories.forEach {
+              val repo = repositories.appendNode("repository")
+              repo.appendNode("id", it.id)
+              repo.appendNode("url", it.url)
             }
           }
         }
@@ -103,9 +114,11 @@ fun Project.configurePublishing(publishedComponent: String) {
     sign(extensions.getByType(PublishingExtension::class.java).publications.getByName("maven"))
   }
 
+  // pull this out because of configuration cache
+  val version = rootProject.version
   tasks.withType<Sign>().configureEach {
     onlyIf {
-      !rootProject.version.toString().endsWith("-SNAPSHOT")
+      !version.toString().endsWith("-SNAPSHOT")
     }
   }
 }
