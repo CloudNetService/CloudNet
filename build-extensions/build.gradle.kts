@@ -25,14 +25,11 @@ kotlin.jvmToolchain(21)
 repositories {
   gradlePluginPortal()
   mavenCentral()
-  maven("https://repo.stellardrift.ca/repository/snapshots/") {
-    content {
-      includeGroup("net.kyori")
-    }
-  }
+  // TODO wait for indra to be configuration cache compatible
+  // maven("https://repo.stellardrift.ca/repository/snapshots/") {
   mavenLocal {
     content {
-      includeModule("eu.cloudnetservice.gradle", "juppiter")
+      includeGroup("net.kyori")
     }
   }
 }
