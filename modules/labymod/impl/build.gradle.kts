@@ -24,7 +24,6 @@ tasks.shadowJar.configure {
 }
 
 dependencies {
-  "compileOnly"(projects.wrapperJvm)
   "compileOnly"(projects.node.nodeImpl)
   "compileOnly"(projects.driver.driverImpl)
   "compileOnly"(libs.bundles.proxyPlatform)
