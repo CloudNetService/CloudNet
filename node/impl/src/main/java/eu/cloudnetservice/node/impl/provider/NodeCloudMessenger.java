@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
+import eu.cloudnetservice.driver.impl.channel.BaseCloudMessenger;
 import eu.cloudnetservice.driver.impl.network.standard.ChannelMessagePacket;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
@@ -29,7 +30,6 @@ import eu.cloudnetservice.node.impl.service.defaults.provider.EmptySpecificCloud
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.utils.base.concurrent.CountingTask;
-import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -41,12 +41,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,11 +53,10 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 @Provides(CloudMessenger.class)
-public class NodeCloudMessenger implements CloudMessenger {
+public class NodeCloudMessenger extends BaseCloudMessenger {
 
   protected static final Type CHANNEL_MESSAGE_LIST_TYPE =
     TypeFactory.parameterizedClass(List.class, ChannelMessage.class);
-  protected static final long DEFAULT_QUERY_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(20);
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeCloudMessenger.class);
 
@@ -88,101 +83,10 @@ public class NodeCloudMessenger implements CloudMessenger {
   /**
    * {@inheritDoc}
    */
-  @Override
-  public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    var done = new AtomicBoolean();
-    return this.sendChannelMessageQueryAsync(channelMessage, true)
-      .thenApply(responses -> {
-        // it might be that the timeout defined in the next step was already hit, therefore
-        // this method already returned to the caller before a response is received. in this
-        // case, we release the response we got immediately as it would leak otherwise
-        var didComplete = done.compareAndSet(false, true);
-        if (didComplete) {
-          return responses;
-        } else {
-          responses.forEach(ChannelMessage::close);
-          throw new IllegalStateException("received responses after downstream already completed");
-        }
-      })
-      // hack: get a new incomplete future here so that the previous thenApply step runs as well.
-      // the following orTimeout completes the future it's called on, so the releasing step would never run
-      .thenApply(Function.identity())
-      .orTimeout(DEFAULT_QUERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
-      .whenComplete((_, _) -> done.set(true))
-      .join();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    var done = new AtomicBoolean();
-    return this.sendSingleChannelMessageQueryAsync(channelMessage)
-      .thenApply(response -> {
-        // it might be that the timeout defined in the next step was already hit, therefore
-        // this method already returned to the caller before a response is received. in this
-        // case, we release the response we got immediately as it would leak otherwise
-        var didComplete = done.compareAndSet(false, true);
-        if (didComplete) {
-          return response;
-        } else {
-          response.close();
-          throw new IllegalStateException("received response after downstream already completed");
-        }
-      })
-      // hack: get a new incomplete future here so that the previous thenApply step runs as well.
-      // the following orTimeout completes the future it's called on, so the releasing step would never run
-      .thenApply(Function.identity())
-      .orTimeout(DEFAULT_QUERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
-      .whenComplete((_, _) -> done.set(true))
-      .join();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
-    return TaskUtil.supplyAsync(() -> {
-      this.sendChannelMessage(channelMessage);
-      return null;
-    });
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   @NonNull
   @Override
   public CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage message) {
     return this.sendChannelMessageQueryAsync(message, true);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @NonNull
-  @Override
-  public CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
-    return this.sendChannelMessageQueryAsync(channelMessage).thenApply(responses -> {
-      var responseCount = responses.size();
-      return switch (responseCount) {
-        case 0 -> null;
-        case 1 -> Iterables.getOnlyElement(responses);
-        default -> {
-          // there were more than one response, so we need to close the
-          // other responses to prevent leaking their content
-          var responsesArray = responses.toArray(ChannelMessage[]::new);
-          for (var index = 1; index < responsesArray.length; index++) {
-            var response = responsesArray[index];
-            response.close();
-          }
-
-          yield responsesArray[0];
-        }
-      };
-    });
   }
 
   /**

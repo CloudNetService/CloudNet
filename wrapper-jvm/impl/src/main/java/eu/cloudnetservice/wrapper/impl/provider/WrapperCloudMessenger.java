@@ -16,13 +16,12 @@
 
 package eu.cloudnetservice.wrapper.impl.provider;
 
-import com.google.common.collect.Iterables;
 import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.impl.channel.BaseCloudMessenger;
 import eu.cloudnetservice.driver.impl.network.standard.ChannelMessagePacket;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
-import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -32,11 +31,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 @Singleton
 @Provides(CloudMessenger.class)
-public class WrapperMessenger implements CloudMessenger {
+public class WrapperCloudMessenger extends BaseCloudMessenger {
 
   private static final Type CHANNEL_MESSAGE_LIST_TYPE =
     TypeFactory.parameterizedClass(List.class, ChannelMessage.class);
@@ -44,7 +42,7 @@ public class WrapperMessenger implements CloudMessenger {
   private final NetworkClient networkClient;
 
   @Inject
-  public WrapperMessenger(@NonNull NetworkClient networkClient) {
+  public WrapperCloudMessenger(@NonNull NetworkClient networkClient) {
     this.networkClient = networkClient;
   }
 
@@ -64,30 +62,6 @@ public class WrapperMessenger implements CloudMessenger {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return this.sendChannelMessageQueryAsync(channelMessage).join();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
-    return this.sendSingleChannelMessageQueryAsync(channelMessage).join();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull CompletableFuture<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
-    return TaskUtil.runAsync(() -> this.sendChannelMessage(channelMessage));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public @NonNull CompletableFuture<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message
   ) {
@@ -96,37 +70,11 @@ public class WrapperMessenger implements CloudMessenger {
       .thenApply(response -> {
         var packetContent = response.content();
         try {
-          return Objects.requireNonNullElse(packetContent.readObject(CHANNEL_MESSAGE_LIST_TYPE), List.of());
+          Collection<ChannelMessage> responses = packetContent.readObject(CHANNEL_MESSAGE_LIST_TYPE);
+          return Objects.requireNonNullElse(responses, List.of());
         } finally {
           packetContent.forceRelease();
         }
       });
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull CompletableFuture<ChannelMessage> sendSingleChannelMessageQueryAsync(
-    @NonNull ChannelMessage message
-  ) {
-    return this.sendChannelMessageQueryAsync(message).thenApply(responses -> {
-      var responseCount = responses.size();
-      return switch (responseCount) {
-        case 0 -> null;
-        case 1 -> Iterables.getOnlyElement(responses);
-        default -> {
-          // there were more than one response, so we need to close the
-          // other responses to prevent leaking their content
-          var responsesArray = responses.toArray(ChannelMessage[]::new);
-          for (var index = 1; index < responsesArray.length; index++) {
-            var response = responsesArray[index];
-            response.close();
-          }
-
-          yield responsesArray[0];
-        }
-      };
-    });
   }
 }
