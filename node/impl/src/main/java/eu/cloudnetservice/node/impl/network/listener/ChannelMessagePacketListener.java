@@ -29,7 +29,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -122,7 +121,6 @@ public final class ChannelMessagePacketListener implements PacketListener {
     var isQuery = packet.uniqueId() != null;
     if (isQuery) {
       this.messenger.sendChannelMessageQueryAsync(message, comesFromWrapper)
-        .orTimeout(20, TimeUnit.SECONDS)
         .whenComplete((responses, _) -> {
           responses = Objects.requireNonNullElseGet(responses, ArrayList::new);
           if (localResponse != null) {
