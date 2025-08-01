@@ -15,7 +15,6 @@
  */
 
 plugins {
-  id("cloudnet.parent-build-logic")
   id("cloudnet")
   id("java-base")
   alias(libs.plugins.nexusPublish)
