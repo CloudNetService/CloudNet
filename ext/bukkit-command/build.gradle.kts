@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+}
+
 repositories {
   maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
 }

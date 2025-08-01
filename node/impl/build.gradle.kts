@@ -16,11 +16,12 @@
 
 plugins {
   alias(libs.plugins.shadow)
+  id("cloudnet-java")
 }
 
 val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
   fileName = Files.nodeCnl
-  setResolvedArtifacts(configurations.runtimeClasspath.get())
+  setResolvedArtifacts(configurations.runtimeClasspath)
 }
 val exportLanguageFileInformation = tasks.register<ExportLanguageFileInformation>("exportLanguageFileInformation") {
   languageFiles.from(project.projectDir.resolve("src/main/resources/lang").listFiles())

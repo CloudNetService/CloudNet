@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
   alias(libs.plugins.shadow)
+  id("cloudnet-modules")
 }
 
 tasks.shadowJar.configure {

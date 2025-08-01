@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+}
+
 dependencies {
   "api"(libs.vavr)
   "implementation"(libs.guava)

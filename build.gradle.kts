@@ -16,6 +16,8 @@
 
 plugins {
   id("cloudnet.parent-build-logic")
+  id("cloudnet")
+  id("java-base")
   alias(libs.plugins.nexusPublish)
   alias(libs.plugins.shadow) apply false // must be here to enforce the bundled asm version
   alias(libs.plugins.spotless) apply false
@@ -28,6 +30,8 @@ val globalJavadocClasspath = configurations.register("globalJavadocClasspath")
 
 tasks.register("globalJavaDoc", Javadoc::class) {
   val options = options as? StandardJavadocDocletOptions ?: return@register
+  javadocTool = javaToolchains.javadocToolFor { configureFor(Versions.javaVersion) }
+  options.source = Versions.javaVersion.asInt().toString()
 
   title = "CloudNet JavaDocs"
   setDestinationDir(layout.buildDirectory.dir("javadocs").get().asFile)
@@ -56,12 +60,8 @@ nexusPublishing {
 dependencies {
   subprojects.map { it.isolated }.forEach { project ->
     if (!isJavaConfiguredProject(project.name, project.path)) return@forEach
-    globalJavadocSources(this.project(project.path)) {
-      targetConfiguration = CustomConfigurations.GLOBAL_JAVADOC_SOURCES
-    }
-    globalJavadocClasspath(this.project(project.path)) {
-      targetConfiguration = CustomConfigurations.GLOBAL_JAVADOC_CLASSPATH
-    }
+    globalJavadocSources(this.project(project.path, CustomConfigurations.GLOBAL_JAVADOC_SOURCES))
+    globalJavadocClasspath(this.project(project.path, CustomConfigurations.GLOBAL_JAVADOC_CLASSPATH))
   }
 }
 
@@ -78,5 +78,12 @@ gradle.projectsEvaluated {
     doLast {
       generateUpdaterInformation()
     }
+  }
+}
+
+// Adapted from https://stackoverflow.com/a/75923728 to fix running inside IDE
+gradle.taskGraph.whenReady {
+  allTasks.filterIsInstance<JavaExec>().forEach {
+    it.setExecutable(it.javaLauncher.get().executablePath.asFile.absolutePath)
   }
 }

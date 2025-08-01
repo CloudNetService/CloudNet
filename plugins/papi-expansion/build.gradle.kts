@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-plugins")
+}
+
 tasks.jar.configure {
   archiveFileName.set(Files.papiExpansion)
 }

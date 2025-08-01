@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+}
+
 dependencies {
   "compileOnly"(libs.adventureApi)
   "compileOnly"(libs.adventureSerializerLegacy)

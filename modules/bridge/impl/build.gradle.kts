@@ -22,7 +22,7 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.Files as NioFiles
 
 plugins {
-  alias(libs.plugins.shadow)
+  id("cloudnet-modules")
 }
 
 configurations {

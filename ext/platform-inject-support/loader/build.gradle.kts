@@ -16,6 +16,10 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin.Companion.sha
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+}
+
 dependencies {
   "api"(projects.ext.platformInjectSupport.platformInjectApi)
   "implementation"(projects.utils.utilsBase)

@@ -16,6 +16,7 @@
 
 plugins {
   id("java-platform")
+  id("cloudnet-publish")
 }
 
 dependencies {

@@ -35,6 +35,7 @@ repositories {
 }
 
 dependencies {
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
   implementation("net.kyori", "indra-git", "4.0.0-SNAPSHOT")
   implementation("com.google.code.gson", "gson", "2.13.1")
 
@@ -45,9 +46,37 @@ dependencies {
 
 gradlePlugin {
   plugins {
-    register("settings-plugin") {
-      id = "settings-plugin"
-      implementationClass = "SettingsPlugin"
+    register("cloudnet") {
+      id = "cloudnet"
+      implementationClass = "CloudNetPlugin"
+    }
+    register("cloudnet-settings") {
+      id = "cloudnet-settings"
+      implementationClass = "CloudNetSettingsPlugin"
+    }
+    register("cloudnet-publish") {
+      id = "cloudnet-publish"
+      implementationClass = "CloudNetPublishPlugin"
+    }
+    register("cloudnet-java") {
+      id = "cloudnet-java"
+      implementationClass = "CloudNetJavaPlugin"
+    }
+    register("cloudnet-java-api") {
+      id = "cloudnet-java-api"
+      implementationClass = "CloudNetJavaApiPlugin"
+    }
+    register("cloudnet-modules") {
+      id = "cloudnet-modules"
+      implementationClass = "CloudNetModulesPlugin"
+    }
+    register("cloudnet-modules-api") {
+      id = "cloudnet-modules-api"
+      implementationClass = "CloudNetModulesApiPlugin"
+    }
+    register("cloudnet-plugins") {
+      id = "cloudnet-plugins"
+      implementationClass = "CloudNetPluginsPlugin"
     }
   }
 }

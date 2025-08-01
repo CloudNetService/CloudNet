@@ -16,6 +16,7 @@
 
 plugins {
   alias(libs.plugins.shadow)
+  id("cloudnet-java")
 }
 
 tasks.shadowJar.configure {
