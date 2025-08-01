@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import net.fabricmc.loom.task.RemapJarTask
-
 plugins {
   alias(libs.plugins.fabricLoom)
+  id("cloudnet-modules")
 }
 
 configurations {

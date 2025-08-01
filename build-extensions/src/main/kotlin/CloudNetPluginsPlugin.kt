@@ -14,30 +14,20 @@
  * limitations under the License.
  */
 
-import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.Sync
-import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.*
 
-class ModuleGradlePlugin : Plugin<Project> {
+class CloudNetPluginsPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
-      if (name.endsWith("impl")) {
-        apply(plugin = "eu.cloudnetservice.juppiter")
-
-        configurations {
-          getByName("testImplementation").extendsFrom(getByName("moduleLibrary"))
-        }
-      }
+      apply<CloudNetJavaPlugin>()
 
       repositories {
         maven("https://repo.waterdog.dev/releases/")
         maven("https://repo.waterdog.dev/snapshots/")
+        maven("https://repo.spongepowered.org/maven/")
         maven("https://repo.loohpjames.com/repository")
-        maven("https://repo.md-5.net/repository/releases/")
-        maven("https://repo.md-5.net/repository/snapshots/")
         maven("https://repo.opencollab.dev/maven-releases/")
         maven("https://repo.opencollab.dev/maven-snapshots/")
         maven("https://repo.papermc.io/repository/maven-public/")
@@ -45,27 +35,14 @@ class ModuleGradlePlugin : Plugin<Project> {
       }
 
       dependencies {
-        "compileOnly"(project(":node:node-api"))
-        "testImplementation"(project(":node:node-api"))
+        "implementation"(libs.library("guava"))
 
         // generation for platform main classes
         "compileOnly"(project(":ext:platform-inject-support:platform-inject-api"))
         "annotationProcessor"(project(":ext:platform-inject-support:platform-inject-processor"))
-
-        "compileOnly"(libs.library("guava"))
       }
 
-      tasks.register<Sync>("processSources") {
-        inputs.property("version", project.version)
-        from(sourceSets().getByName("main").java)
-        into(layout.buildDirectory.dir("src"))
-        filter(ReplaceTokens::class, mapOf("tokens" to mapOf("version" to rootProject.version)))
-      }
-
-      tasks.named<JavaCompile>("compileJava") {
-        dependsOn(tasks.getByName("processSources"))
-        source = tasks.getByName("processSources").outputs.files.asFileTree
-      }
+      registerProcessSources()
     }
   }
 }

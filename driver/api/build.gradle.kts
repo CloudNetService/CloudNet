@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java-api")
+}
+
 dependencies {
   "api"(libs.vavr)
   "api"(libs.slf4jApi)

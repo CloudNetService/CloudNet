@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
   alias(libs.plugins.shadow)
+  id("cloudnet-modules")
 }
 
 tasks.shadowJar.configure {

@@ -16,11 +16,15 @@
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.JavadocMemberLevel
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.hasPlugin
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
@@ -115,11 +119,26 @@ fun Project.configurePublishing(publishedComponent: String) {
   }
 
   // pull this out because of configuration cache
-  val version = rootProject.version
+  val version = this.version
   tasks.withType<Sign>().configureEach {
     onlyIf {
       !version.toString().endsWith("-SNAPSHOT")
     }
+  }
+
+  if (plugins.hasPlugin(JavaBasePlugin::class)) {
+    extensions.configure<JavaPluginExtension> {
+      withSourcesJar()
+      withJavadocJar()
+    }
+    configureJavadoc()
+  }
+}
+
+private fun Project.configureJavadoc() {
+  tasks.withType<Javadoc>().configureEach {
+    val options = options as? StandardJavadocDocletOptions ?: return@configureEach
+    applyDefaultJavadocOptions(options)
   }
 }
 
@@ -127,7 +146,6 @@ fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions) {
   options.use()
   options.encoding = "UTF-8"
   options.memberLevel = JavadocMemberLevel.PRIVATE
-  options.addStringOption("source", "24")
   options.addBooleanOption("-enable-preview", true)
   options.addBooleanOption("Xdoclint:-missing", true)
   options.links(

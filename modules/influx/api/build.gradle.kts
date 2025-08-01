@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-modules-api")
+}
+
 dependencies {
   "compileOnly"(libs.influxClient)
 }

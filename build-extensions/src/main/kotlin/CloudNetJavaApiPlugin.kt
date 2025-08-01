@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 
-plugins {
-  id("cloudnet-modules-api")
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.withType
+
+class CloudNetJavaApiPlugin: Plugin<Project> {
+  override fun apply(project: Project) {
+    project.run {
+      apply<CloudNetJavaPlugin>()
+
+      tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = Versions.javaVersionApi.asInt().toString()
+        targetCompatibility = Versions.javaVersionApi.asInt().toString()
+      }
+    }
+  }
 }

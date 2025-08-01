@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+}
+
 dependencies {
   "implementation"(projects.driver.driverApi)
 }

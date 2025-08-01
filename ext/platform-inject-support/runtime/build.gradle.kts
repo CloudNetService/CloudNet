@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+}
+
 repositories {
   maven("https://repo.waterdog.dev/releases/")
   maven("https://repo.loohpjames.com/repository")

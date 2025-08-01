@@ -18,6 +18,7 @@ import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
   alias(libs.plugins.shadow)
+  id("cloudnet-modules")
 }
 
 tasks.shadowJar.configure {

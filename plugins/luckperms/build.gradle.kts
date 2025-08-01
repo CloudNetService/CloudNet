@@ -1,5 +1,3 @@
-import net.fabricmc.loom.task.RemapJarTask
-
 /*
  * Copyright 2019-2023 CloudNetService team & contributors
  *
@@ -18,8 +16,8 @@ import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
   alias(libs.plugins.fabricLoom)
+  id("cloudnet-plugins")
 }
-
 
 dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
