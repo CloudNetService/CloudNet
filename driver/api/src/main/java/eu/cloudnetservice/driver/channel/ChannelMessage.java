@@ -169,8 +169,9 @@ public record ChannelMessage(
 
   /**
    * Sends this channel message as a query and blocks until all target components have responded to the query or the
-   * query timeout is exceeded.This method is a shortcut for
-   * {@link CloudMessenger#sendChannelMessageQuery(ChannelMessage)}.
+   * timeout of {@link CloudMessenger#SYNC_CHANNEL_MESSAGE_QUERY_TIMEOUT_MS} is exceeded. If more control over the
+   * timeout is required, an async method with a custom timeout applied must be used instead. This method is a shortcut
+   * for {@link CloudMessenger#sendChannelMessageQuery(ChannelMessage)}.
    * <p>
    * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
    * is crucial that the caller closes the responses to prevent memory leaks. Example:
@@ -195,9 +196,10 @@ public record ChannelMessage(
 
   /**
    * Sends this channel message as a query and blocks until one of the target component responded to this message or the
-   * query timeout is exceeded. This is in particular useful if there is only one target, or you are only expecting one
-   * of the target components to respond. This is a shortcut method for
-   * {@link CloudMessenger#sendSingleChannelMessageQuery(ChannelMessage)}.
+   * timeout of {@link CloudMessenger#SYNC_CHANNEL_MESSAGE_QUERY_TIMEOUT_MS} is exceeded. If more control over the
+   * timeout is required, an async method with a custom timeout applied must be used instead. This is in particular
+   * useful if there is only one target, or you are only expecting one of the target components to respond. This is a
+   * shortcut method for {@link CloudMessenger#sendSingleChannelMessageQuery(ChannelMessage)}.
    * <p>
    * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
    * is crucial that the caller closes the response to prevent memory leaks. Example:
