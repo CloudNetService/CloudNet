@@ -64,19 +64,17 @@ dependencies {
   }
 }
 
-gradle.projectsEvaluated {
-  tasks.register("genUpdaterInformation") {
-    subprojects.forEach {
-      // check if we need to depend on the plugin
-      // TODO this breaks isolated projects
-      if (!it.plugins.hasPlugin("java")) return@forEach
-      // depend this task on the build output of each subproject
-      dependsOn("${it.path}:build")
-    }
-    // generate the updater information
-    doLast {
-      generateUpdaterInformation()
-    }
+tasks.register("genUpdaterInformation") {
+  subprojects.forEach {
+    // check if we need to depend on the plugin
+    // TODO this breaks isolated projects
+    if (!it.plugins.hasPlugin("java")) return@forEach
+    // depend this task on the build output of each subproject
+    dependsOn("${it.path}:build")
+  }
+  // generate the updater information
+  doLast {
+    generateUpdaterInformation()
   }
 }
 
