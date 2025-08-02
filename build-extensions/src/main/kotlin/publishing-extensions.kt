@@ -126,7 +126,7 @@ fun Project.configurePublishing(publishedComponent: String) {
     }
   }
 
-  if (plugins.hasPlugin(JavaBasePlugin::class)) {
+  plugins.withId("java") {
     extensions.configure<JavaPluginExtension> {
       withSourcesJar()
       withJavadocJar()

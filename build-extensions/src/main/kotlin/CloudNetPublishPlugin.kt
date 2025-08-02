@@ -33,7 +33,7 @@ class CloudNetPublishPlugin : Plugin<Project> {
       // all these projects are publishing their java artifacts
       // must happen after repository/dependency declaration
       afterEvaluate {
-        if (plugins.hasPlugin(JavaBasePlugin::class)) {
+        plugins.withId("java") {
           configurePublishing("java")
 
           // create consumable artifacts for global javadoc
