@@ -21,7 +21,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import javax.inject.Inject
 
-class GitPlugin : Plugin<Project> {
+class CloudNetGitPlugin : Plugin<Project> {
   companion object {
     private const val EXTENSION_NAME = "git"
     private const val SERVICE_NAME = "gitService"
@@ -33,13 +33,14 @@ class GitPlugin : Plugin<Project> {
       parameters.projectDirectory.set(rootDir)
     }
 
-    project.extensions.create(GitExtension::class.java, EXTENSION_NAME, GitExtensionImpl::class.java, service)
+    project.extensions.create(GitExtension::class.java, EXTENSION_NAME, GitExtensionImpl::class.java, service, project)
   }
 }
 
 interface GitExtension {
+  val project: Project
   val service: Provider<GitService>
 }
 
-internal abstract class GitExtensionImpl @Inject constructor(final override val service: Provider<GitService>) :
+internal abstract class GitExtensionImpl @Inject constructor(final override val service: Provider<GitService>, final override val project: Project) :
   GitExtension

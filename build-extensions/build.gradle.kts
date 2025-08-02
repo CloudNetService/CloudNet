@@ -43,6 +43,10 @@ gradlePlugin {
       id = "cloudnet"
       implementationClass = "CloudNetPlugin"
     }
+    register("cloudnet-git") {
+      id = "cloudnet-git"
+      implementationClass = "git.CloudNetGitPlugin"
+    }
     register("cloudnet-settings") {
       id = "cloudnet-settings"
       implementationClass = "CloudNetSettingsPlugin"

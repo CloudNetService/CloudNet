@@ -16,6 +16,7 @@
 
 plugins {
   id("cloudnet-java")
+  id("cloudnet-git")
 }
 
 tasks.jar.configure {
@@ -27,4 +28,4 @@ tasks.withType<JavaCompile>().configureEach {
   targetCompatibility = JavaVersion.VERSION_17.toString()
 }
 
-applyJarMetadata("eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher")
+git.applyJarMetadata("eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher")
