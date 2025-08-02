@@ -172,7 +172,7 @@ private fun Project.configureCompileJava() {
 }
 
 private fun Project.configureShadow() {
-  if (plugins.hasPlugin(ShadowJavaPlugin::class)) {
+  plugins.withId("com.gradleup.shadow") {
     tasks.named("assemble").configure {
       dependsOn(tasks.named("shadowJar"))
     }
