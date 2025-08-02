@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 /*
  * Copyright 2019-2025 CloudNetService team & contributors
  *
@@ -29,8 +31,10 @@ val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
 val exportLanguageFileInformation = tasks.register<ExportLanguageFileInformation>("exportLanguageFileInformation") {
   languageFiles.from(project.projectDir.resolve("src/main/resources/lang").listFiles())
 }
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.wrapper)
+
+// intermediate task to take advantage of build cache when checking out another branch
+val intermediateShadowJar = tasks.register<ShadowJar>("intermediateShadowJar") {
+  this.configurations.set(project.configurations.runtimeClasspath.map { setOf(it) })
 
   // do not shade dependencies which we don't need to shade
 
@@ -50,6 +54,14 @@ tasks.shadowJar.configure {
 
   from(exportLanguageFileInformation)
   from(exportCnlFile)
+
+  destinationDirectory = temporaryDir
+}
+tasks.shadowJar.configure {
+  archiveFileName.set(Files.wrapper)
+
+  configurations.empty()
+  from(intermediateShadowJar)
 }
 
 tasks.withType<JavaCompile>().configureEach {
@@ -76,6 +88,7 @@ dependencies {
 }
 
 git.applyJarMetadata(
+  tasks.jar,
   "eu.cloudnetservice.wrapper.impl.Main",
   "eu.cloudnetservice.wrapper",
   "eu.cloudnetservice.wrapper.impl.Premain")

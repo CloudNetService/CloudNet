@@ -92,4 +92,4 @@ dependencies {
   wrapperJar(projects.wrapperJvm.wrapperJvmImpl) { targetConfiguration = "shadow" }
 }
 
-git.applyJarMetadata("eu.cloudnetservice.node.impl.boot.Bootstrap", "eu.cloudnetservice.node")
+git.applyJarMetadata(tasks.jar, "eu.cloudnetservice.node.impl.boot.Bootstrap", "eu.cloudnetservice.node")

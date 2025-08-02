@@ -21,39 +21,37 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.attributes
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.the
 
-fun GitExtension.applyJarMetadata(mainClass: String, module: String) {
-  applyJarMetadata(mainClass, module, null)
+fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String, module: String) {
+  applyJarMetadata(task, mainClass, module, null)
 }
 
-fun GitExtension.applyJarMetadata(mainClass: String, module: String, preMain: String?) {
+fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String, module: String, preMain: String?) {
   project.run {
-    if ("jar" in tasks.names) {
-      tasks.named<Jar>("jar") {
-        val service = git()?.service
-        service?.let { usesService(it) }
+    task.configure {
+      val service = git()?.service
+      service?.let { usesService(it) }
 
-        manifest.attributes(
-          "Main-Class" to mainClass,
-          "Automatic-Module-Name" to module,
-          "Implementation-Vendor" to "CloudNetService",
-          "Implementation-Title" to Versions.cloudNetCodeName,
-          "Implementation-Version" to project.version.toString() + "-${service.shortCommitHash()}"
-        )
-        // apply the pre-main class if given
-        if (preMain != null) {
-          manifest.attributes("Premain-Class" to preMain)
-        }
-        // apply git information to manifest
-        service?.run { get() }?.let { service ->
-          service.commit?.name?.substring(0, 8)?.let { manifest.attributes("Git-Commit" to it) }
-          service.branchName?.let { manifest.attributes("Git-Branch" to it) }
-        }
+      manifest.attributes(
+        "Main-Class" to mainClass,
+        "Automatic-Module-Name" to module,
+        "Implementation-Vendor" to "CloudNetService",
+        "Implementation-Title" to Versions.cloudNetCodeName,
+        "Implementation-Version" to project.version.toString() + "-${service.shortCommitHash()}"
+      )
+      // apply the pre-main class if given
+      if (preMain != null) {
+        manifest.attributes("Premain-Class" to preMain)
+      }
+      // apply git information to manifest
+      service?.run { get() }?.let { service ->
+        service.commit?.name?.substring(0, 8)?.let { manifest.attributes("Git-Commit" to it) }
+        service.branchName?.let { manifest.attributes("Git-Branch" to it) }
       }
     }
   }
@@ -66,9 +64,6 @@ fun Provider<GitService>?.shortCommitHash(): String {
 fun Project.git(): GitExtension? = extensions.findByType()
 
 fun Project.sourceSets(): SourceSetContainer = the<JavaPluginExtension>().sourceSets
-
-fun Project.mavenRepositories(): Iterable<MavenArtifactRepository> =
-  repositories.filterIsInstance<MavenArtifactRepository>()
 
 fun releasesOnly(repository: MavenArtifactRepository) {
   repository.mavenContent {

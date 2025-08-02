@@ -29,4 +29,4 @@ dependencies {
   "implementation"(projects.launcher.java8)
 }
 
-git.applyJarMetadata("eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")
+git.applyJarMetadata(tasks.shadowJar, "eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")
