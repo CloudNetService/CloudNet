@@ -21,13 +21,6 @@ pluginManagement {
   includeBuild("build-extensions")
   repositories {
     gradlePluginPortal()
-    // TODO wait for indra to be configuration cache compatible
-    // maven("https://repo.stellardrift.ca/repository/snapshots/") {
-    mavenLocal {
-      content {
-        includeGroup("net.kyori")
-      }
-    }
     maven {
       name = "Fabric"
       url = uri("https://maven.fabricmc.net/")

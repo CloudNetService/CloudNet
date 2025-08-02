@@ -25,18 +25,11 @@ kotlin.jvmToolchain(21)
 repositories {
   gradlePluginPortal()
   mavenCentral()
-  // TODO wait for indra to be configuration cache compatible
-  // maven("https://repo.stellardrift.ca/repository/snapshots/") {
-  mavenLocal {
-    content {
-      includeGroup("net.kyori")
-    }
-  }
 }
 
 dependencies {
+  implementation("org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-  implementation("net.kyori", "indra-git", "4.0.0-SNAPSHOT")
   implementation("com.google.code.gson", "gson", "2.13.1")
 
   implementation("com.diffplug.spotless", "spotless-plugin-gradle", libs.versions.spotless.get())

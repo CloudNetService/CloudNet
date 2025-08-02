@@ -56,7 +56,6 @@ class CloudNetJavaPlugin : Plugin<Project> {
       apply(plugin = "checkstyle")
       apply(plugin = "java-library")
       apply(plugin = "com.diffplug.spotless")
-//      apply(plugin = "net.kyori.indra.git")
 
       // Add common repositories required in all projects
       this.addDefaultRepositories()
