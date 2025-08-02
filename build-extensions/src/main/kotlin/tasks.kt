@@ -82,7 +82,7 @@ abstract class ExportCnlFile : DefaultTask() {
     // Evaluate group lazily
     projectGroup.set(project.provider { project.group.toString() })
     outputFile.convention(layout.file(fileName.map { temporaryDir.resolve(it) }))
-    mavenRepositories.convention(project.mavenRepositories().map { CacheableMavenRepository(it) }.toList())
+    mavenRepositories.convention(project.repositories.filterIsInstance<MavenArtifactRepository>().map { CacheableMavenRepository(it) }.toList())
   }
 
   fun setResolvedArtifacts(runtimeClasspath: Provider<Configuration>) {
