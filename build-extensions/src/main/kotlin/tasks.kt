@@ -103,11 +103,7 @@ abstract class ExportCnlFile : DefaultTask() {
 
   @TaskAction
   fun run() {
-//    this.dependencies.get().dependents.forEach {
-//      println(it)
-//    }
     val resolvedArtifacts = ArrayList<ResolvedArtifact>()
-    println("---------------------")
     val projectGroup = projectGroup.get()
     dependencies.get().forEach { it ->
       val id = it.id
@@ -199,11 +195,6 @@ data class ResolvedArtifact(
 
 data class CacheableMavenRepository(@Input val name: String, @Input val url: String) {
   constructor(repository: MavenArtifactRepository) : this(repository.name, repository.url.toString())
-}
-
-
-abstract class ResolveRepository : WorkAction<ResolveRepository.Params> {
-  interface Params : WorkParameters {}
 }
 
 private suspend fun resolveRepository(
