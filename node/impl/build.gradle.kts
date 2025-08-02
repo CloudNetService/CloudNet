@@ -17,6 +17,7 @@
 plugins {
   alias(libs.plugins.shadow)
   id("cloudnet-java")
+  id("cloudnet-git")
 }
 
 val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
@@ -91,4 +92,4 @@ dependencies {
   wrapperJar(projects.wrapperJvm.wrapperJvmImpl) { targetConfiguration = "shadow" }
 }
 
-applyJarMetadata("eu.cloudnetservice.node.impl.boot.Bootstrap", "eu.cloudnetservice.node")
+git.applyJarMetadata("eu.cloudnetservice.node.impl.boot.Bootstrap", "eu.cloudnetservice.node")

@@ -17,6 +17,7 @@
 plugins {
   alias(libs.plugins.shadow)
   id("cloudnet-java")
+  id("cloudnet-git")
 }
 
 val ignoredGroupIds = listOf("com.google.guava", "com.google.code.gson")
@@ -74,7 +75,7 @@ dependencies {
   "annotationProcessor"(projects.driver.driverAp)
 }
 
-applyJarMetadata(
+git.applyJarMetadata(
   "eu.cloudnetservice.wrapper.impl.Main",
   "eu.cloudnetservice.wrapper",
   "eu.cloudnetservice.wrapper.impl.Premain")

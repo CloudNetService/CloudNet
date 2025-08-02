@@ -17,6 +17,7 @@
 plugins {
   alias(libs.plugins.shadow)
   id("cloudnet-java")
+  id("cloudnet-git")
 }
 
 tasks.shadowJar.configure {
@@ -28,4 +29,4 @@ dependencies {
   "implementation"(projects.launcher.java8)
 }
 
-applyJarMetadata("eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")
+git.applyJarMetadata("eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")
