@@ -1,5 +1,3 @@
-import java.util.*
-
 /*
  * Copyright 2019-2024 CloudNetService team & contributors
  *
@@ -16,7 +14,7 @@ import java.util.*
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.Files
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
   alias(libs.plugins.shadow)

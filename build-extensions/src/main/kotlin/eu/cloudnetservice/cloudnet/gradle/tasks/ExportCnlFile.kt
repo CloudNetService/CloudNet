@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-@file:Suppress("LeakingThis")
-
-package eu.cloudnetservice.cloudnet.gradle
+package eu.cloudnetservice.cloudnet.gradle.tasks
 
 import eu.cloudnetservice.cloudnet.gradle.util.ChecksumHelper
+import eu.cloudnetservice.cloudnet.gradle.util.Versions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -31,7 +30,6 @@ import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.artifacts.result.ResolvedVariantResult
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.artifacts.repositories.resolver.MavenUniqueSnapshotComponentIdentifier
@@ -40,7 +38,14 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.component.external.model.DefaultModuleComponentArtifactIdentifier
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
@@ -83,7 +88,9 @@ abstract class ExportCnlFile : DefaultTask() {
     // Evaluate group lazily
     projectGroup.set(project.provider { project.group.toString() })
     outputFile.convention(layout.file(fileName.map { temporaryDir.resolve(it) }))
-    mavenRepositories.convention(project.repositories.filterIsInstance<MavenArtifactRepository>().map { CacheableMavenRepository(it) }.toList())
+    mavenRepositories.convention(
+      project.repositories.filterIsInstance<MavenArtifactRepository>().map { CacheableMavenRepository(it) }.toList()
+    )
   }
 
   fun setResolvedArtifacts(runtimeClasspath: Provider<Configuration>) {
@@ -177,66 +184,47 @@ abstract class ExportCnlFile : DefaultTask() {
     // write to the output file
     outputFile.get().asFile.writeText(stringBuilder.toString())
   }
-}
 
-data class CacheableResolvedArtifact(
-  @Input val id: ComponentArtifactIdentifier, @Input val variant: ResolvedVariantResult,
-  @InputFile
-  @PathSensitive(PathSensitivity.RELATIVE) val file: File
-)
+  data class CacheableResolvedArtifact(
+    @Input val id: ComponentArtifactIdentifier,
+    @Input val variant: ResolvedVariantResult,
+    @InputFile @PathSensitive(PathSensitivity.RELATIVE) val file: File
+  )
 
-data class ResolvedArtifact(
-  val group: String,
-  val name: String,
-  val version: String,
-  val timestampedVersion: String,
-  val classifier: String?,
-  val file: File
-)
+  private data class ResolvedArtifact(
+    val group: String,
+    val name: String,
+    val version: String,
+    val timestampedVersion: String,
+    val classifier: String?,
+    val file: File
+  )
 
-data class CacheableMavenRepository(@Input val name: String, @Input val url: String) {
-  constructor(repository: MavenArtifactRepository) : this(repository.name, repository.url.toString())
-}
+  data class CacheableMavenRepository(@Input val name: String, @Input val url: String) {
+    constructor(repository: MavenArtifactRepository) : this(repository.name, repository.url.toString())
+  }
 
-private suspend fun resolveRepository(
-  testUrlPath: String, repositories: Iterable<CacheableMavenRepository>
-): CacheableMavenRepository? {
-  return withContext(Dispatchers.IO) {
-    repositories.firstOrNull {
-      val url = URI.create(it.url).resolve(testUrlPath).toURL()
-      with(url.openConnection() as HttpURLConnection) {
-        useCaches = false
-        readTimeout = 30000
-        connectTimeout = 30000
-        instanceFollowRedirects = true
+  private suspend fun resolveRepository(
+    testUrlPath: String, repositories: Iterable<CacheableMavenRepository>
+  ): CacheableMavenRepository? {
+    return withContext(Dispatchers.IO) {
+      repositories.firstOrNull {
+        val url = URI.create(it.url).resolve(testUrlPath).toURL()
+        with(url.openConnection() as HttpURLConnection) {
+          useCaches = false
+          readTimeout = 30000
+          connectTimeout = 30000
+          instanceFollowRedirects = true
 
-        setRequestProperty(
-          "User-Agent",
-          "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"
-        )
+          setRequestProperty(
+            "User-Agent",
+            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"
+          )
 
-        connect()
-        responseCode == 200
+          connect()
+          responseCode == 200
+        }
       }
     }
-  }
-}
-
-@CacheableTask
-abstract class ExportLanguageFileInformation : DefaultTask() {
-  @get:InputFiles
-  @get:PathSensitive(PathSensitivity.RELATIVE)
-  abstract val languageFiles: ConfigurableFileCollection
-
-  @get:OutputFile
-  abstract val outputFile: RegularFileProperty
-
-  init {
-    outputFile.convention { temporaryDir.resolve("languages.txt") }
-  }
-
-  @TaskAction
-  fun run() {
-    outputFile.asFile.get().writeText(languageFiles.files.joinToString(separator = "\n") { it.name })
   }
 }

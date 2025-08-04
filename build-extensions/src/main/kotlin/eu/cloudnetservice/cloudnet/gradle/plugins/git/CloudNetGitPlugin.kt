@@ -33,14 +33,13 @@ class CloudNetGitPlugin : Plugin<Project> {
       parameters.projectDirectory.set(rootDir)
     }
 
-    project.extensions.create(GitExtension::class.java, EXTENSION_NAME, GitExtensionImpl::class.java, service, project)
+    project.extensions.create(GitExtension::class.java, EXTENSION_NAME, GitExtensionImpl::class.java, service)
   }
 }
 
 interface GitExtension {
-  val project: Project
   val service: Provider<GitService>
 }
 
-internal abstract class GitExtensionImpl @Inject constructor(final override val service: Provider<GitService>, final override val project: Project) :
+internal abstract class GitExtensionImpl @Inject constructor(final override val service: Provider<GitService>) :
   GitExtension

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.Files
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
   id("cloudnet-plugins")

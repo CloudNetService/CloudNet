@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle
+package eu.cloudnetservice.cloudnet.gradle.util
 
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-
-object Versions {
-
-  // internal versions
-  const val cloudNet = "4.0.0-RC15-SNAPSHOT"
-  const val cloudNetCodeName = "Blizzard"
-
-  val javaVersionApi = JavaLanguageVersion.of(17)
-  val javaVersion = JavaLanguageVersion.of(24)
+object CustomConfigurations {
+  const val GLOBAL_JAVADOC_SOURCES = "globalJavadocSources"
+  const val GLOBAL_JAVADOC_CLASSPATH = "globalJavadocClasspath"
 }

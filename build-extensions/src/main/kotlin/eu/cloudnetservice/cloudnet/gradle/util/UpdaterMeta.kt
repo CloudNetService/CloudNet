@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle.plugins.updater
+package eu.cloudnetservice.cloudnet.gradle.util
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
@@ -25,20 +25,20 @@ import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import java.io.Serializable
 
-data class Meta(
+data class UpdaterMeta(
   val type: Type,
   val data: Data
 ) : Serializable {
   companion object {
-    val gson = GsonBuilder().registerTypeHierarchyAdapter(Meta::class.java, MetaAdapter).create()
+    val gson = GsonBuilder().registerTypeHierarchyAdapter(UpdaterMeta::class.java, MetaAdapter).create()
   }
 
   /**
    * Custom serializer to support the Data interface
    */
-  object MetaAdapter : JsonSerializer<Meta>, JsonDeserializer<Meta> {
+  object MetaAdapter : JsonSerializer<UpdaterMeta>, JsonDeserializer<UpdaterMeta> {
     override fun serialize(
-      src: Meta,
+      src: UpdaterMeta,
       typeOfSrc: java.lang.reflect.Type,
       context: JsonSerializationContext
     ): JsonElement {
@@ -49,10 +49,10 @@ data class Meta(
     }
 
     override fun deserialize(
-      json: JsonElement,
-      typeOfT: java.lang.reflect.Type,
-      context: JsonDeserializationContext
-    ): Meta {
+        json: JsonElement,
+        typeOfT: java.lang.reflect.Type,
+        context: JsonDeserializationContext
+    ): UpdaterMeta {
       val json = json.asJsonObject
       val type = context.deserialize<Type>(json.get("type"), Type::class.java)
       val dataClass = when (type) {
@@ -63,44 +63,44 @@ data class Meta(
         Type.EMPTY -> Data.Empty::class
       }
       val data = context.deserialize<Data>(json.get("data"), dataClass.java)
-      return Meta(type, data)
+      return UpdaterMeta(type, data)
     }
   }
-}
 
-enum class Type : Serializable {
-  MODULE,
-  NODE,
-  LAUNCHER,
-  LAUNCHER_PATCHER,
+  enum class Type : Serializable {
+    MODULE,
+    NODE,
+    LAUNCHER,
+    LAUNCHER_PATCHER,
 
-  /**
-   * Empty type. Should in reality never be used and will print a warning when detected.
-   * This is useful because it allows for nice conventions and better initial setup/troubleshooting.
-   */
-  EMPTY
-}
+    /**
+     * Empty type. Should in reality never be used and will print a warning when detected.
+     * This is useful because it allows for nice conventions and better initial setup/troubleshooting.
+     */
+    EMPTY
+  }
 
-sealed interface Data : Serializable {
-  data class Module(
-    val archiveName: String,
-    val moduleJsonName: String
-  ) : Data
+  sealed interface Data : Serializable {
+    data class Module(
+      val archiveName: String,
+      val moduleJsonName: String
+    ) : Data
 
-  data class Node(
-    val archiveName: String,
-  ) : Data
+    data class Node(
+      val archiveName: String,
+    ) : Data
 
-  data class Launcher(
-    val archiveName: String
-  ) : Data
+    data class Launcher(
+      val archiveName: String
+    ) : Data
 
-  data class LauncherPatcher(
-    val archiveName: String
-  ) : Data
+    data class LauncherPatcher(
+      val archiveName: String
+    ) : Data
 
-  object Empty : Data {
-    @Suppress("unused") // kotlin wants this
-    private fun readResolve(): Any = Empty
+    object Empty : Data {
+      @Suppress("unused") // kotlin wants this
+      private fun readResolve(): Any = Empty
+    }
   }
 }

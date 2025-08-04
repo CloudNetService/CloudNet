@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle.plugins
+package eu.cloudnetservice.cloudnet.gradle.util
 
-import eu.cloudnetservice.cloudnet.gradle.util.Versions
-import org.gradle.api.Plugin
-import org.gradle.api.Project
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 
-class CloudNetPlugin : Plugin<Project> {
-  override fun apply(project: Project) {
-    project.run {
-      this.version = Versions.cloudNet
-      this.group = "eu.cloudnetservice.cloudnet"
-      this.description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
-    }
-  }
+object Versions {
+
+  // internal versions
+  const val cloudNet = "4.0.0-RC15-SNAPSHOT"
+  const val cloudNetCodeName = "Blizzard"
+
+  val javaVersionApi = JavaLanguageVersion.of(17)
+  val javaVersion = JavaLanguageVersion.of(24)
 }

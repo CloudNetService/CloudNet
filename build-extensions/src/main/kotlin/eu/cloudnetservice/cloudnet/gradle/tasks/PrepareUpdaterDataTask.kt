@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle.plugins.updater
+package eu.cloudnetservice.cloudnet.gradle.tasks
 
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
@@ -27,13 +30,13 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask
 @CacheableTask
 abstract class PrepareUpdaterDataTask : Sync() {
   @get:Input
-  abstract val meta: Property<Meta>
+  abstract val meta: Property<UpdaterMeta>
 
   init {
-    meta.convention(project.provider { Meta(Type.EMPTY, Data.Empty) })
+    meta.convention(project.provider { UpdaterMeta(Type.EMPTY, Data.Empty) })
 
     val metaResource = meta.map {
-      project.resources.text.fromString(Meta.gson.toJson(it))
+      project.resources.text.fromString(UpdaterMeta.Companion.gson.toJson(it))
     }
 
     from(metaResource) { rename { "meta.json" } }

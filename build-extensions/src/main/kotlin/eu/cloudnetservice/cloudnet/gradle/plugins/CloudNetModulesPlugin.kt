@@ -17,7 +17,9 @@
 package eu.cloudnetservice.cloudnet.gradle.plugins
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
-import eu.cloudnetservice.cloudnet.gradle.plugins.updater.*
+import eu.cloudnetservice.cloudnet.gradle.plugins.updater.CloudNetUpdaterPlugin
+import eu.cloudnetservice.cloudnet.gradle.tasks.PrepareUpdaterDataTask
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
 import eu.cloudnetservice.gradle.juppiter.GenerateModuleJson
 import eu.cloudnetservice.gradle.juppiter.JuppiterPlugin
 import org.gradle.api.Plugin
@@ -53,7 +55,7 @@ class CloudNetModulesPlugin : Plugin<Project> {
 
         meta.set(archiveFileName.flatMap { archiveName ->
           moduleJsonName.map { moduleJsonName ->
-            Meta(Type.MODULE, Data.Module(archiveName, moduleJsonName))
+            UpdaterMeta(UpdaterMeta.Type.MODULE, UpdaterMeta.Data.Module(archiveName, moduleJsonName))
           }
         })
       }

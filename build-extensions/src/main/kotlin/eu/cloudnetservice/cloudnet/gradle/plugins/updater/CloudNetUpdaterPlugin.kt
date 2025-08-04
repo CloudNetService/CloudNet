@@ -17,6 +17,8 @@
 package eu.cloudnetservice.cloudnet.gradle.plugins.updater
 
 import eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetJavaPlugin
+import eu.cloudnetservice.cloudnet.gradle.tasks.GenerateUpdaterInformationTask
+import eu.cloudnetservice.cloudnet.gradle.tasks.PrepareUpdaterDataTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration

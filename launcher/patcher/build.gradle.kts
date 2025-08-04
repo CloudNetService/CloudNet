@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.Files
 import eu.cloudnetservice.cloudnet.gradle.applyJarMetadata
-import eu.cloudnetservice.cloudnet.gradle.plugins.updater.Data
-import eu.cloudnetservice.cloudnet.gradle.plugins.updater.Meta
-import eu.cloudnetservice.cloudnet.gradle.plugins.updater.Type
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
 
 plugins {
   id("cloudnet-java")
@@ -32,7 +32,7 @@ tasks.jar.configure {
 
 tasks.prepareUpdaterData {
   val archiveName = fromArchive(tasks.jar)
-  meta.set(archiveName.map { Meta(Type.LAUNCHER_PATCHER, Data.Node(it)) })
+  meta.set(archiveName.map { UpdaterMeta(Type.LAUNCHER_PATCHER, Data.Node(it)) })
 }
 
 tasks.withType<JavaCompile>().configureEach {

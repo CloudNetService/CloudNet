@@ -24,10 +24,7 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByName
 
-object CustomConfigurations {
-  const val GLOBAL_JAVADOC_SOURCES = "globalJavadocSources"
-  const val GLOBAL_JAVADOC_CLASSPATH = "globalJavadocClasspath"
-}
+
 
 internal fun Provider<VersionCatalog>.library(name: String): Provider<MinimalExternalModuleDependency> {
   return flatMap {

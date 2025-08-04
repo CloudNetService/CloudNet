@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle.plugins.updater
+package eu.cloudnetservice.cloudnet.gradle.tasks
 
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import eu.cloudnetservice.cloudnet.gradle.util.ChecksumHelper
-import eu.cloudnetservice.cloudnet.gradle.Versions
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
+import eu.cloudnetservice.cloudnet.gradle.util.Versions
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
@@ -63,7 +66,7 @@ abstract class GenerateUpdaterInformationTask : DefaultTask() {
     val checksums = Properties()
 
     artifacts.forEach { directory ->
-      val meta = directory.resolve("meta.json").readText().run { Meta.gson.fromJson(this, Meta::class.java) }
+      val meta = directory.resolve("meta.json").readText().run { UpdaterMeta.Companion.gson.fromJson(this, UpdaterMeta::class.java) }
       val data = meta.data
       when (meta.type) {
         Type.MODULE -> {
