@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.lang.AutoCloseable
 import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlin.io.path.isDirectory
 import kotlin.io.path.notExists
 import kotlin.io.path.useLines
@@ -61,20 +61,24 @@ abstract class GitService : BuildService<GitService.Params>, AutoCloseable {
   private class GitInstance(private val dir: Path) : Closeable {
     companion object {
       val logger: Logger = LoggerFactory.getLogger(GitInstance::class.java)
-      const val GIT_DIR = ".eu.cloudnetservice.cloudnet.gradle.git"
+      const val GIT_DIR = ".git"
       const val GITDIR_PREFIX = "gitdir:"
     }
 
-    private val usable = AtomicBoolean(false)
-    private val closed = AtomicBoolean(false)
-    private val wrapper = AtomicReference<Wrapper?>()
+    private val lock = ReentrantLock()
+    private var opened = false
+    private var closed = false
+    private var wrapper: Wrapper? = null
 
     val git: Git?
       get() = resolve()?.git
 
     private fun resolve(): Wrapper? {
-      if (closed.get()) return null
-      if (usable.compareAndSet(false, true)) {
+      lock.withLock {
+        if (closed) return null
+        if (opened) return wrapper
+        opened = true
+
         var targetDir: Path? = dir
         while (targetDir?.resolve(GIT_DIR)?.notExists() ?: false) {
           targetDir = targetDir.parent
@@ -82,21 +86,16 @@ abstract class GitService : BuildService<GitService.Params>, AutoCloseable {
 
         val gitDir = targetDir?.let { resolveGitDirectory(it) }
         if (targetDir == null || gitDir == null) {
-          logger.info("[Git] Unable to find repository for $dir")
+          logger.warn("[Git] Unable to find repository for $dir")
+          return null
         } else {
           val repository =
             RepositoryBuilder().setWorkTree(dir.toFile()).setGitDir(gitDir.toFile()).setMustExist(true).build()
           val git = Git.wrap(repository)
-          val wrapper = Wrapper(git, repository)
-          if (this.wrapper.compareAndSet(null, wrapper)) {
-            return wrapper
-          } else {
-            wrapper.close()
-            return this.wrapper.get()
-          }
+          this.wrapper = Wrapper(git, repository)
+          return this.wrapper
         }
       }
-      return wrapper.get()
     }
 
     private data class Wrapper(val git: Git, val repository: Repository) : Closeable {
@@ -126,8 +125,11 @@ abstract class GitService : BuildService<GitService.Params>, AutoCloseable {
     }
 
     override fun close() {
-      if (closed.compareAndSet(false, true)) {
-        wrapper.getAndSet(null)?.close()
+      lock.withLock {
+        if (closed) return
+        closed = true
+        wrapper?.close()
+        wrapper = null
       }
     }
   }
