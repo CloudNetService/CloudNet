@@ -69,18 +69,19 @@ class CloudNetUpdaterPlugin : Plugin<Project> {
       }
     }
 
-
     subprojects.map { it.isolated }.forEach {
-      println(it.name)
       dependencies.add(
         updaterDependencies.name, dependencies.project(path = it.path)
       )
     }
 
     val view = updaterDependencies.map { it.incoming.artifactView { isLenient = true } }
-    val artifacts = view.flatMap { it.artifacts.resolvedArtifacts }
-    val genUpdaterInformation = tasks.register<GenerateUpdaterInformationTask>("genUpdaterInformation", artifacts)
+    val artifacts = view.flatMap { it.artifacts.resolvedArtifacts }.map { artifacts ->
+      artifacts.map { it.file }
+    }
+    val genUpdaterInformation = tasks.register<GenerateUpdaterInformationTask>("genUpdaterInformation")
     genUpdaterInformation.configure {
+      this.artifacts.from(artifacts)
       this.destinationDirectory.set(project.layout.projectDirectory.dir(".launchermeta"))
     }
   }

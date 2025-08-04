@@ -36,7 +36,8 @@ val exportLanguageFileInformation = tasks.register<ExportLanguageFileInformation
   languageFiles.from(project.projectDir.resolve("src/main/resources/lang").listFiles())
 }
 
-// intermediate task to take advantage of build cache when checking out another branch
+// intermediate task to take advantage of build cache when checking out another branch/commiting
+// The git information is only included in the "shadowJar" task, so this won't have to rerun
 val intermediateShadowJar = tasks.register<ShadowJar>("intermediateShadowJar") {
   this.configurations.set(project.configurations.runtimeClasspath.map { setOf(it) })
 
@@ -61,11 +62,14 @@ val intermediateShadowJar = tasks.register<ShadowJar>("intermediateShadowJar") {
 
   destinationDirectory = temporaryDir
 }
+
 tasks.shadowJar.configure {
   archiveFileName.set(Files.wrapper)
 
   configurations.empty()
-  from(intermediateShadowJar)
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  dependsOn(intermediateShadowJar)
+  from(intermediateShadowJar.map { zipTree(it.archiveFile) })
 }
 
 tasks.withType<JavaCompile>().configureEach {
