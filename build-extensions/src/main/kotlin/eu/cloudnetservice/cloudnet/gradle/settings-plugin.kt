@@ -24,20 +24,6 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByName
 
-fun isJavaConfiguredProject(name: String, path: String): Boolean {
-  if (isHelperProject(path)) return false
-  return name != "bom"
-}
-
-fun isHelperProject(path: String): Boolean {
-  val guaranteedHelper =
-    path == ":modules" || path == ":plugins" || path == ":ext" || path == ":launcher" || path == ":node" || path == ":driver" || path == ":wrapper-jvm" || path == ":utils" || path == ":ext:platform-inject-support"
-  if (guaranteedHelper) return true
-  val couldBeHelper = path.startsWith(":modules:") || path.startsWith(":node:") || path.startsWith(":wrapper-jvm:")
-  val apiOrImpl = path.endsWith("-api") || path.endsWith("-impl")
-  return couldBeHelper && !apiOrImpl
-}
-
 object CustomConfigurations {
   const val GLOBAL_JAVADOC_SOURCES = "globalJavadocSources"
   const val GLOBAL_JAVADOC_CLASSPATH = "globalJavadocClasspath"
