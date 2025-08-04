@@ -49,7 +49,7 @@ public record ThreadSnapshot(
    */
   public static @NonNull ThreadSnapshot from(@NonNull Thread thread) {
     return new ThreadSnapshot(
-      thread.getId(),
+      thread.threadId(),
       thread.getPriority(),
       thread.isDaemon(),
       thread.getName(),
