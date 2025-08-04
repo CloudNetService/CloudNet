@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.plugins.configureFor
+import eu.cloudnetservice.cloudnet.gradle.CustomConfigurations
 import eu.cloudnetservice.cloudnet.gradle.Versions
 import eu.cloudnetservice.cloudnet.gradle.applyDefaultJavadocOptions
-import eu.cloudnetservice.cloudnet.gradle.isJavaConfiguredProject
-import eu.cloudnetservice.cloudnet.gradle.CustomConfigurations
+import eu.cloudnetservice.cloudnet.gradle.plugins.configureFor
+import eu.cloudnetservice.cloudnet.gradle.plugins.updater.lenientView
 
 plugins {
   id("cloudnet")
@@ -45,9 +45,9 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   // options
   applyDefaultJavadocOptions(options)
   options.windowTitle = "CloudNet JavaDocs"
-  // set the sources
-  source(globalJavadocSources)
-  classpath = globalJavadocClasspath.get()
+  // set the sources. We are using lenientView to ignore subprojects that shouldn't be included
+  source(globalJavadocSources.map { it.lenientView.files })
+  classpath = globalJavadocClasspath.map { it.lenientView.files }.get()
 }
 
 nexusPublishing {
@@ -66,7 +66,6 @@ nexusPublishing {
 
 dependencies {
   subprojects.map { it.isolated }.forEach { project ->
-    if (!isJavaConfiguredProject(project.name, project.path)) return@forEach
     globalJavadocSources(this.project(project.path, CustomConfigurations.GLOBAL_JAVADOC_SOURCES))
     globalJavadocClasspath(this.project(project.path, CustomConfigurations.GLOBAL_JAVADOC_CLASSPATH))
   }

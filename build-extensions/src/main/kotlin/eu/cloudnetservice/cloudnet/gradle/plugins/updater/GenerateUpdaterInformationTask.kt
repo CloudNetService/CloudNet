@@ -79,6 +79,7 @@ abstract class GenerateUpdaterInformationTask : DefaultTask() {
             addProperty("version", moduleJson.get("version").asString)
             addProperty("sha3256", ChecksumHelper.fileShaSum(moduleFile))
             addProperty("description", moduleJson.get("description").asString)
+            addProperty("url", "https://github.com/%updateRepo%/raw/%updateBranch%/modules/${data.archiveName}")
 
             add("maintainers", JsonArray(1).apply { add(moduleJson.get("author").asString) })
             add("releaseNotes", JsonArray(1).apply { add("Working with CloudNet ${Versions.cloudNet}") })
