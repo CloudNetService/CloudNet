@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.cloudnet.gradle.plugins
 
-import eu.cloudnetservice.cloudnet.gradle.configurePublishing
-import eu.cloudnetservice.cloudnet.gradle.sourceSets
 import eu.cloudnetservice.cloudnet.gradle.util.CustomConfigurations
+import eu.cloudnetservice.cloudnet.gradle.util.configurePublishing
+import eu.cloudnetservice.cloudnet.gradle.util.sourceSets
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply

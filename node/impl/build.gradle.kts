@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.applyJarMetadata
 import eu.cloudnetservice.cloudnet.gradle.tasks.ExportCnlFile
 import eu.cloudnetservice.cloudnet.gradle.tasks.ExportLanguageFileInformation
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
+import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
 
 plugins {
   alias(libs.plugins.shadow)
@@ -106,4 +106,4 @@ dependencies {
   wrapperJar(projects.wrapperJvm.wrapperJvmImpl) { targetConfiguration = "shadow" }
 }
 
-git.applyJarMetadata(tasks.jar, "eu.cloudnetservice.node.impl.boot.Bootstrap", "eu.cloudnetservice.node")
+tasks.jar.applyJarMetadata(git, "eu.cloudnetservice.node.impl.boot.Bootstrap", "eu.cloudnetservice.node")

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.configurePublishing
+import eu.cloudnetservice.cloudnet.gradle.util.configurePublishing
 
 plugins {
   id("java-platform")
