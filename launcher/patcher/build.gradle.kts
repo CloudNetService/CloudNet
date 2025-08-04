@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.applyJarMetadata
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
+import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
 
 plugins {
   id("cloudnet-java")
@@ -40,6 +40,6 @@ tasks.withType<JavaCompile>().configureEach {
   targetCompatibility = JavaVersion.VERSION_17.toString()
 }
 
-git.applyJarMetadata(
-  tasks.jar, "eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher"
+tasks.jar.applyJarMetadata(
+  git, "eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher"
 )

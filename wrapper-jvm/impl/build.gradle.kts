@@ -15,10 +15,10 @@
  */
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import eu.cloudnetservice.cloudnet.gradle.applyJarMetadata
 import eu.cloudnetservice.cloudnet.gradle.tasks.ExportCnlFile
 import eu.cloudnetservice.cloudnet.gradle.tasks.ExportLanguageFileInformation
 import eu.cloudnetservice.cloudnet.gradle.util.Files
+import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
 
 plugins {
   alias(libs.plugins.shadow)
@@ -95,8 +95,8 @@ dependencies {
   "annotationProcessor"(projects.driver.driverAp)
 }
 
-git.applyJarMetadata(
-  tasks.jar,
+tasks.jar.applyJarMetadata(
+  git,
   "eu.cloudnetservice.wrapper.impl.Main",
   "eu.cloudnetservice.wrapper",
   "eu.cloudnetservice.wrapper.impl.Premain")

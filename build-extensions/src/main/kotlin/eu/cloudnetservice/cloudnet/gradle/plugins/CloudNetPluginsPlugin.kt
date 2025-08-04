@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.cloudnet.gradle.plugins
 
-import eu.cloudnetservice.cloudnet.gradle.library
-import eu.cloudnetservice.cloudnet.gradle.libs
+import eu.cloudnetservice.cloudnet.gradle.util.library
+import eu.cloudnetservice.cloudnet.gradle.util.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply

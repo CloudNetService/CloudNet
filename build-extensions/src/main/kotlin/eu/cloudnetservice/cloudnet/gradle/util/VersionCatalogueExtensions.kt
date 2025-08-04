@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle
+package eu.cloudnetservice.cloudnet.gradle.util
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ExternalModuleDependencyBundle
@@ -23,8 +23,6 @@ import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByName
-
-
 
 internal fun Provider<VersionCatalog>.library(name: String): Provider<MinimalExternalModuleDependency> {
   return flatMap {

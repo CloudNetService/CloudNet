@@ -17,13 +17,13 @@
 package eu.cloudnetservice.cloudnet.gradle.plugins
 
 import com.diffplug.gradle.spotless.SpotlessExtension
-import eu.cloudnetservice.cloudnet.gradle.bundle
-import eu.cloudnetservice.cloudnet.gradle.library
-import eu.cloudnetservice.cloudnet.gradle.libs
-import eu.cloudnetservice.cloudnet.gradle.releasesOnly
-import eu.cloudnetservice.cloudnet.gradle.snapshotsOnly
-import eu.cloudnetservice.cloudnet.gradle.sourceSets
 import eu.cloudnetservice.cloudnet.gradle.util.Versions
+import eu.cloudnetservice.cloudnet.gradle.util.bundle
+import eu.cloudnetservice.cloudnet.gradle.util.library
+import eu.cloudnetservice.cloudnet.gradle.util.libs
+import eu.cloudnetservice.cloudnet.gradle.util.releasesOnly
+import eu.cloudnetservice.cloudnet.gradle.util.snapshotsOnly
+import eu.cloudnetservice.cloudnet.gradle.util.sourceSets
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -101,12 +101,12 @@ private val cloudNetJvmArgs = arrayOf(
 
 private fun Project.addDefaultRepositories() {
   repositories {
-    releasesOnly(mavenCentral())
-    snapshotsOnly(maven("https://central.sonatype.com/repository/maven-snapshots/"))
+    mavenCentral().releasesOnly()
+    maven("https://central.sonatype.com/repository/maven-snapshots/").snapshotsOnly()
 
     // ensure that we use these repositories for snapshots/releases only (improves lookup times)
-    releasesOnly(maven("https://repository.derklaro.dev/releases/"))
-    snapshotsOnly(maven("https://repository.derklaro.dev/snapshots/"))
+    maven("https://repository.derklaro.dev/releases/").releasesOnly()
+    maven("https://repository.derklaro.dev/snapshots/").snapshotsOnly()
 
     // must be after sonatype as sponge mirrors sonatype which leads to outdated dependencies
     maven("https://repo.spongepowered.org/maven/")

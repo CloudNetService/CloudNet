@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle
+package eu.cloudnetservice.cloudnet.gradle.util
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -128,17 +128,14 @@ fun Project.configurePublishing(publishedComponent: String) {
 
   plugins.withId("java") {
     extensions.configure<JavaPluginExtension> {
+      // when we publish a component, we also want sources and javadoc
       withSourcesJar()
       withJavadocJar()
     }
-    configureJavadoc()
-  }
-}
-
-private fun Project.configureJavadoc() {
-  tasks.withType<Javadoc>().configureEach {
-    val options = options as? StandardJavadocDocletOptions ?: return@configureEach
-    applyDefaultJavadocOptions(options)
+    tasks.withType<Javadoc>().configureEach {
+      val options = options as? StandardJavadocDocletOptions ?: return@configureEach
+      applyDefaultJavadocOptions(options)
+    }
   }
 }
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.applyJarMetadata
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
+import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
 
 plugins {
   alias(libs.plugins.shadow)
@@ -41,4 +41,4 @@ dependencies {
   "implementation"(projects.launcher.java8)
 }
 
-git.applyJarMetadata(tasks.shadowJar, "eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")
+tasks.shadowJar.applyJarMetadata(git, "eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")

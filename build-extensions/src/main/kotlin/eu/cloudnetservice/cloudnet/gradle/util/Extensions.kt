@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle
+package eu.cloudnetservice.cloudnet.gradle.util
 
 import eu.cloudnetservice.cloudnet.gradle.plugins.git.GitExtension
 import eu.cloudnetservice.cloudnet.gradle.plugins.git.GitService
-import eu.cloudnetservice.cloudnet.gradle.util.Versions
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPluginExtension
@@ -27,17 +26,17 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.attributes
-import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.the
 import java.util.*
 import java.util.function.Function
 
-fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String, module: String) {
-  applyJarMetadata(task, mainClass, module, null)
+fun TaskProvider<out Jar>.applyJarMetadata(git: GitExtension, mainClass: String, module: String) {
+  applyJarMetadata(git, mainClass, module, null)
 }
 
-fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String, module: String, preMain: String?) {
-  task.configure {
+fun TaskProvider<out Jar>.applyJarMetadata(git: GitExtension, mainClass: String, module: String, preMain: String?) {
+  val service = git.service
+  this.configure {
     val serviceOrEmpty = (service.map { Optional.of(it) })
     usesService(service)
 
@@ -73,18 +72,7 @@ fun Provider<Optional<GitService>>.shortCommitHash(): Provider<String> {
   return map("unknown") { it.commit?.name?.substring(0, 8) }
 }
 
-fun Project.git(): GitExtension? = extensions.findByType()
-
 fun Project.sourceSets(): SourceSetContainer = the<JavaPluginExtension>().sourceSets
 
-fun releasesOnly(repository: MavenArtifactRepository) {
-  repository.mavenContent {
-    releasesOnly()
-  }
-}
-
-fun snapshotsOnly(repository: MavenArtifactRepository) {
-  repository.mavenContent {
-    snapshotsOnly()
-  }
-}
+fun MavenArtifactRepository.releasesOnly() = apply { mavenContent { releasesOnly() } }
+fun MavenArtifactRepository.snapshotsOnly() = apply { mavenContent { snapshotsOnly() } }
