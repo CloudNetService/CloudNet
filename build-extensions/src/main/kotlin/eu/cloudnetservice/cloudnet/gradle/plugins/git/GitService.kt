@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package git
+package eu.cloudnetservice.cloudnet.gradle.plugins.git
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.*
@@ -27,6 +27,7 @@ import java.io.Closeable
 import java.lang.AutoCloseable
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.isDirectory
 import kotlin.io.path.notExists
 import kotlin.io.path.useLines
@@ -54,41 +55,60 @@ abstract class GitService : BuildService<GitService.Params>, AutoCloseable {
     get() = head?.run { if (!this.isSymbolic) null else this.target }
 
   /**
-   * Currently has no support for git submodules.
+   * Currently has no support for eu.cloudnetservice.cloudnet.gradle.git submodules.
    * We don't use them so it should be ok
    */
-  private class GitInstance(dir: Path) : Closeable {
+  private class GitInstance(private val dir: Path) : Closeable {
     companion object {
       val logger: Logger = LoggerFactory.getLogger(GitInstance::class.java)
-      const val GIT_DIR = ".git"
+      const val GIT_DIR = ".eu.cloudnetservice.cloudnet.gradle.git"
       const val GITDIR_PREFIX = "gitdir:"
     }
 
     private val usable = AtomicBoolean(false)
-    val repository: Repository?
+    private val closed = AtomicBoolean(false)
+    private val wrapper = AtomicReference<Wrapper?>()
+
     val git: Git?
+      get() = resolve()?.git
 
-    init {
-      var targetDir: Path? = dir
-      while (targetDir?.resolve(GIT_DIR)?.notExists() ?: false) {
-        targetDir = targetDir.parent
+    private fun resolve(): Wrapper? {
+      if (closed.get()) return null
+      if (usable.compareAndSet(false, true)) {
+        var targetDir: Path? = dir
+        while (targetDir?.resolve(GIT_DIR)?.notExists() ?: false) {
+          targetDir = targetDir.parent
+        }
+
+        val gitDir = targetDir?.let { resolveGitDirectory(it) }
+        if (targetDir == null || gitDir == null) {
+          logger.info("[Git] Unable to find repository for $dir")
+        } else {
+          val repository =
+            RepositoryBuilder().setWorkTree(dir.toFile()).setGitDir(gitDir.toFile()).setMustExist(true).build()
+          val git = Git.wrap(repository)
+          val wrapper = Wrapper(git, repository)
+          if (this.wrapper.compareAndSet(null, wrapper)) {
+            return wrapper
+          } else {
+            wrapper.close()
+            return this.wrapper.get()
+          }
+        }
       }
+      return wrapper.get()
+    }
 
-      val gitDir = targetDir?.let { resolveGitDirectory(it) }
-      if (targetDir == null || gitDir == null) {
-        logger.info("[Git] Unable to find repository for $dir")
-        repository = null
-        git = null
-      } else {
-        repository =
-          RepositoryBuilder().setWorkTree(dir.toFile()).setGitDir(gitDir.toFile()).setMustExist(true).build()
-        git = Git.wrap(repository)
+    private data class Wrapper(val git: Git, val repository: Repository) : Closeable {
+      override fun close() {
+        git.close()
+        repository.close()
       }
     }
 
     private fun resolveGitDirectory(projectDir: Path): Path? {
       // https://git-scm.com/docs/gitrepository-layout
-      // .git file is allowed with 'gitdir:' reference
+      // .eu.cloudnetservice.cloudnet.gradle.git file is allowed with 'gitdir:' reference
       projectDir.run {
         if (fileName.toString() == GIT_DIR) projectDir else projectDir.resolve(GIT_DIR)
       }.run {
@@ -100,14 +120,14 @@ abstract class GitService : BuildService<GitService.Params>, AutoCloseable {
             }
           }
         }
-        logger.warn("[Git] Could not determine git directory for $projectDir")
+        logger.warn("[Git] Could not determine eu.cloudnetservice.cloudnet.gradle.git directory for $projectDir")
         return null
       }
     }
 
     override fun close() {
-      if (usable.compareAndSet(true, false)) {
-        repository!!.close()
+      if (closed.compareAndSet(false, true)) {
+        wrapper.getAndSet(null)?.close()
       }
     }
   }

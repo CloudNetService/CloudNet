@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.cloudnet.gradle.plugins
+
 import com.diffplug.gradle.spotless.SpotlessExtension
-import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
+import eu.cloudnetservice.cloudnet.gradle.Versions
+import eu.cloudnetservice.cloudnet.gradle.bundle
+import eu.cloudnetservice.cloudnet.gradle.library
+import eu.cloudnetservice.cloudnet.gradle.libs
+import eu.cloudnetservice.cloudnet.gradle.releasesOnly
+import eu.cloudnetservice.cloudnet.gradle.snapshotsOnly
+import eu.cloudnetservice.cloudnet.gradle.sourceSets
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -33,19 +41,7 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.jvm.toolchain.JavaToolchainSpec
 import org.gradle.jvm.toolchain.JvmVendorSpec
-import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.assign
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.exclude
-import org.gradle.kotlin.dsl.filter
-import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.hasPlugin
-import org.gradle.kotlin.dsl.maven
-import org.gradle.kotlin.dsl.named
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.repositories
-import org.gradle.kotlin.dsl.withType
+import org.gradle.kotlin.dsl.*
 
 class CloudNetJavaPlugin : Plugin<Project> {
   override fun apply(project: Project) {
@@ -72,10 +68,7 @@ class CloudNetJavaPlugin : Plugin<Project> {
 
       this.configureCompileJava()
 
-      afterEvaluate {
-        // Configure shadow after the subproject has been able to even apply it
-        this.configureShadow()
-      }
+      this.configureShadow()
 
       this.configureCheckstyle()
 
@@ -178,7 +171,7 @@ private fun Project.configureShadow() {
     }
     tasks.named<Jar>("jar").configure {
       // we use the shadow jar task, so move the jar into the task's temporary dir to avoid clutter
-      destinationDirectory = temporaryDir
+      destinationDirectory.convention(project.layout.dir(project.provider { temporaryDir }))
     }
   }
 }

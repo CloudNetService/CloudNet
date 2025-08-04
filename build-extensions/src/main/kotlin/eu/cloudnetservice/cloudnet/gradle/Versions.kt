@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-import org.gradle.api.Plugin
-import org.gradle.api.initialization.Settings
+package eu.cloudnetservice.cloudnet.gradle
 
-class CloudNetSettingsPlugin : Plugin<Settings> {
-  override fun apply(target: Settings) {
-  }
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
+object Versions {
+
+  // internal versions
+  const val cloudNet = "4.0.0-RC14-SNAPSHOT"
+  const val cloudNetCodeName = "Blizzard"
+
+  val javaVersionApi = JavaLanguageVersion.of(17)
+  val javaVersion = JavaLanguageVersion.of(24)
 }

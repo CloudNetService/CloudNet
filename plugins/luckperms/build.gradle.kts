@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.Files
+
 plugins {
   alias(libs.plugins.fabricLoom)
   id("cloudnet-plugins")

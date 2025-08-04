@@ -15,6 +15,7 @@
  */
 
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
+import eu.cloudnetservice.cloudnet.gradle.Files
 
 plugins {
   alias(libs.plugins.shadow)

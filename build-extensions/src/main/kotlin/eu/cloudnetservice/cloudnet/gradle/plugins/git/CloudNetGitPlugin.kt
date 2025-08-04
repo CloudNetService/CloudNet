@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package git
+package eu.cloudnetservice.cloudnet.gradle.plugins.git
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project

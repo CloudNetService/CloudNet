@@ -16,6 +16,8 @@ import java.util.*
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.Files
+
 plugins {
   alias(libs.plugins.shadow)
   id("cloudnet-modules")

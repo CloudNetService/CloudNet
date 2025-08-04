@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.cloudnet.gradle.plugins
+
+import eu.cloudnetservice.cloudnet.gradle.Versions
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile

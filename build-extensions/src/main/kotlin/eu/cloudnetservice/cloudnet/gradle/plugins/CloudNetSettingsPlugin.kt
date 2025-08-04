@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-2025 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-import org.gradle.jvm.toolchain.JavaLanguageVersion
+package eu.cloudnetservice.cloudnet.gradle.plugins
 
-object Versions {
+import org.gradle.api.Plugin
+import org.gradle.api.initialization.Settings
 
-  // internal versions
-  const val cloudNet = "4.0.0-RC14-SNAPSHOT"
-  const val cloudNetCodeName = "Blizzard"
-
-  val javaVersionApi = JavaLanguageVersion.of(17)
-  val javaVersion = JavaLanguageVersion.of(24)
+class CloudNetSettingsPlugin : Plugin<Settings> {
+  override fun apply(target: Settings) {
+  }
 }

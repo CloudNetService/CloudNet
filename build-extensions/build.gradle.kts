@@ -41,39 +41,43 @@ gradlePlugin {
   plugins {
     register("cloudnet") {
       id = "cloudnet"
-      implementationClass = "CloudNetPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetPlugin"
     }
     register("cloudnet-git") {
       id = "cloudnet-git"
-      implementationClass = "git.CloudNetGitPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.git.CloudNetGitPlugin"
+    }
+    register("cloudnet-updater") {
+      id = "cloudnet-updater"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.updater.CloudNetUpdaterPlugin"
     }
     register("cloudnet-settings") {
       id = "cloudnet-settings"
-      implementationClass = "CloudNetSettingsPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetSettingsPlugin"
     }
     register("cloudnet-publish") {
       id = "cloudnet-publish"
-      implementationClass = "CloudNetPublishPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetPublishPlugin"
     }
     register("cloudnet-java") {
       id = "cloudnet-java"
-      implementationClass = "CloudNetJavaPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetJavaPlugin"
     }
     register("cloudnet-java-api") {
       id = "cloudnet-java-api"
-      implementationClass = "CloudNetJavaApiPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetJavaApiPlugin"
     }
     register("cloudnet-modules") {
       id = "cloudnet-modules"
-      implementationClass = "CloudNetModulesPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetModulesPlugin"
     }
     register("cloudnet-modules-api") {
       id = "cloudnet-modules-api"
-      implementationClass = "CloudNetModulesApiPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetModulesApiPlugin"
     }
     register("cloudnet-plugins") {
       id = "cloudnet-plugins"
-      implementationClass = "CloudNetPluginsPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetPluginsPlugin"
     }
   }
 }
