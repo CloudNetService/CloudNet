@@ -55,14 +55,15 @@ fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String
         "Automatic-Module-Name" to module,
         "Implementation-Vendor" to "CloudNetService",
         "Implementation-Title" to Versions.cloudNetCodeName,
-        "Implementation-Version" to serviceOrEmpty.shortCommitHash().map { "$projectVersion-$it" },
-        "Git-Commit" to commit,
-        "Git-Branch" to branch
+        "Implementation-Version" to serviceOrEmpty.shortCommitHash().map { "$projectVersion-$it" }
       )
       // apply the pre-main class if given
       preMain?.let {
         manifest.attributes("Premain-Class" to it)
       }
+
+      // add git information
+      manifest.attributes("Git-Commit" to commit, "Git-Branch" to branch)
     }
   }
 }
