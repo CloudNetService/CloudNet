@@ -16,14 +16,13 @@
 
 package eu.cloudnetservice.cloudnet.gradle.plugins.updater
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
 import eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetJavaPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
-import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.project
@@ -75,10 +74,8 @@ class CloudNetUpdaterPlugin : Plugin<Project> {
       )
     }
 
-    val view = updaterDependencies.map { it.incoming.artifactView { isLenient = true } }
-    val artifacts = view.flatMap { it.artifacts.resolvedArtifacts }.map { artifacts ->
-      artifacts.map { it.file }
-    }
+    val view = updaterDependencies.map { it.lenientView }
+    val artifacts = view.map { it.files }
     val genUpdaterInformation = tasks.register<GenerateUpdaterInformationTask>("genUpdaterInformation")
     genUpdaterInformation.configure {
       this.artifacts.from(artifacts)
@@ -86,3 +83,6 @@ class CloudNetUpdaterPlugin : Plugin<Project> {
     }
   }
 }
+
+val Configuration.lenientView
+  get() = this.incoming.artifactView { isLenient = true }
