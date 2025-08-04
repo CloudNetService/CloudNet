@@ -23,19 +23,19 @@ import com.google.gson.JsonParser
 import eu.cloudnetservice.cloudnet.gradle.ChecksumHelper
 import eu.cloudnetservice.cloudnet.gradle.Versions
 import org.gradle.api.DefaultTask
-import org.gradle.api.artifacts.result.ResolvedArtifactResult
-import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.util.Properties
-import javax.inject.Inject
+import java.util.*
 
-abstract class GenerateUpdaterInformationTask @Inject constructor(private val artifacts: Provider<Set<ResolvedArtifactResult>>) :
-  DefaultTask() {
+abstract class GenerateUpdaterInformationTask : DefaultTask() {
+
+  @get:InputFiles
+  abstract val artifacts: ConfigurableFileCollection
 
   @get:OutputDirectory
   abstract val destinationDirectory: DirectoryProperty
@@ -50,7 +50,6 @@ abstract class GenerateUpdaterInformationTask @Inject constructor(private val ar
 
   @TaskAction
   fun run() {
-    val artifacts = artifacts.get()
     val destination = destinationDirectory.get().asFile
     destination.deleteRecursively()
     destination.mkdirs()
@@ -63,7 +62,7 @@ abstract class GenerateUpdaterInformationTask @Inject constructor(private val ar
 
     val checksums = Properties()
 
-    artifacts.map { it.file }.forEach { directory ->
+    artifacts.forEach { directory ->
       val meta = directory.resolve("meta.json").readText().run { Meta.gson.fromJson(this, Meta::class.java) }
       val data = meta.data
       when (meta.type) {
@@ -96,21 +95,21 @@ abstract class GenerateUpdaterInformationTask @Inject constructor(private val ar
         Type.NODE -> {
           data as Data.Node
           val nodeFile = directory.resolve(data.archiveName)
-          nodeFile.copyTo(destination.resolve(nodeFile.name))
+          nodeFile.copyTo(destination.resolve("node.jar"))
           checksums.setProperty("node", ChecksumHelper.fileShaSum(nodeFile))
         }
 
         Type.LAUNCHER -> {
           data as Data.Launcher
           val launcherFile = directory.resolve(data.archiveName)
-          launcherFile.copyTo(destination.resolve(launcherFile.name))
+          launcherFile.copyTo(destination.resolve("launcher.jar"))
           checksums.setProperty("launcher", ChecksumHelper.fileShaSum(launcherFile))
         }
 
         Type.LAUNCHER_PATCHER -> {
           data as Data.LauncherPatcher
           val launcherPatcherFile = directory.resolve(data.archiveName)
-          launcherPatcherFile.copyTo(destination.resolve(launcherPatcherFile.name))
+          launcherPatcherFile.copyTo(destination.resolve("launcher-patcher.jar"))
           checksums.setProperty("launcher-patcher", ChecksumHelper.fileShaSum(launcherPatcherFile))
         }
 
