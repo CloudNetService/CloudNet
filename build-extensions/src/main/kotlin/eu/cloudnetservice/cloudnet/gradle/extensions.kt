@@ -44,14 +44,19 @@ fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String
 
       val projectVersion = project.version.toString()
 
+      val commit = serviceOrEmpty.map("unknown") { it.commit?.name }
+      val branch = serviceOrEmpty.map("unknown") { it.branchName }
+      inputs.property("commit", commit)
+      inputs.property("branch", branch)
+
       manifest.attributes(
         "Main-Class" to mainClass,
         "Automatic-Module-Name" to module,
         "Implementation-Vendor" to "CloudNetService",
         "Implementation-Title" to Versions.cloudNetCodeName,
         "Implementation-Version" to serviceOrEmpty.shortCommitHash().map { "$projectVersion-$it" },
-        "Git-Commit" to serviceOrEmpty.map("unknown") { it.commit?.name },
-        "Git-Branch" to serviceOrEmpty.map("unknown") { it.branchName }
+        "Git-Commit" to commit,
+        "Git-Branch" to branch
       )
       // apply the pre-main class if given
       preMain?.let {
