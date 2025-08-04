@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.gradle
 
 import eu.cloudnetservice.cloudnet.gradle.plugins.git.GitExtension
 import eu.cloudnetservice.cloudnet.gradle.plugins.git.GitService
+import eu.cloudnetservice.cloudnet.gradle.util.Versions
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPluginExtension
@@ -36,35 +37,32 @@ fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String
 }
 
 fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String, module: String, preMain: String?) {
-  project.run {
-    task.configure {
-      val service = git()?.service
-      val serviceOrEmpty = (service?.map { Optional.of(it) }) ?: provider { Optional.empty<GitService>() }
-      service?.let { usesService(it) }
+  task.configure {
+    val serviceOrEmpty = (service.map { Optional.of(it) })
+    usesService(service)
 
-      val projectVersion = project.version.toString()
+    val projectVersion = project.version.toString()
 
-      val commit = serviceOrEmpty.map("unknown") { it.commit?.name }
-      val branch = serviceOrEmpty.map("unknown") { it.branchName }
-      inputs.property("projectVersion", projectVersion)
-      inputs.property("commit", commit)
-      inputs.property("branch", branch)
+    val commit = serviceOrEmpty.map("unknown") { it.commit?.name }
+    val branch = serviceOrEmpty.map("unknown") { it.branchName }
+    inputs.property("projectVersion", projectVersion)
+    inputs.property("commit", commit)
+    inputs.property("branch", branch)
 
-      manifest.attributes(
-        "Main-Class" to mainClass,
-        "Automatic-Module-Name" to module,
-        "Implementation-Vendor" to "CloudNetService",
-        "Implementation-Title" to Versions.cloudNetCodeName,
-        "Implementation-Version" to serviceOrEmpty.shortCommitHash().map { "$projectVersion-$it" }
-      )
-      // apply the pre-main class if given
-      preMain?.let {
-        manifest.attributes("Premain-Class" to it)
-      }
-
-      // add git information
-      manifest.attributes("Git-Commit" to commit, "Git-Branch" to branch)
+    manifest.attributes(
+      "Main-Class" to mainClass,
+      "Automatic-Module-Name" to module,
+      "Implementation-Vendor" to "CloudNetService",
+      "Implementation-Title" to Versions.cloudNetCodeName,
+      "Implementation-Version" to serviceOrEmpty.shortCommitHash().map { "$projectVersion-$it" }
+    )
+    // apply the pre-main class if given
+    preMain?.let {
+      manifest.attributes("Premain-Class" to it)
     }
+
+    // add git information
+    manifest.attributes("Git-Commit" to commit, "Git-Branch" to branch)
   }
 }
 

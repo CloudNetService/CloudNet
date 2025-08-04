@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle.plugins
+package eu.cloudnetservice.cloudnet.gradle.util
 
-import eu.cloudnetservice.cloudnet.gradle.util.Versions
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-
-class CloudNetPlugin : Plugin<Project> {
-  override fun apply(project: Project) {
-    project.run {
-      this.version = Versions.cloudNet
-      this.group = "eu.cloudnetservice.cloudnet"
-      this.description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
-    }
-  }
+object CustomConfigurations {
+  const val GLOBAL_JAVADOC_SOURCES = "globalJavadocSources"
+  const val GLOBAL_JAVADOC_CLASSPATH = "globalJavadocClasspath"
 }

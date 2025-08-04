@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.ExportCnlFile
-import eu.cloudnetservice.cloudnet.gradle.ExportLanguageFileInformation
-import eu.cloudnetservice.cloudnet.gradle.Files
 import eu.cloudnetservice.cloudnet.gradle.applyJarMetadata
-import eu.cloudnetservice.cloudnet.gradle.plugins.updater.Data
-import eu.cloudnetservice.cloudnet.gradle.plugins.updater.Meta
-import eu.cloudnetservice.cloudnet.gradle.plugins.updater.Type
+import eu.cloudnetservice.cloudnet.gradle.tasks.ExportCnlFile
+import eu.cloudnetservice.cloudnet.gradle.tasks.ExportLanguageFileInformation
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
 
 plugins {
   alias(libs.plugins.shadow)
@@ -55,7 +55,7 @@ tasks.shadowJar {
 
 tasks.prepareUpdaterData {
   val archiveName = fromArchive(tasks.shadowJar)
-  meta.set(archiveName.map { Meta(Type.NODE, Data.Node(it)) })
+  meta.set(archiveName.map { UpdaterMeta(Type.NODE, Data.Node(it)) })
 }
 
 tasks.withType<JavaCompile>().configureEach {

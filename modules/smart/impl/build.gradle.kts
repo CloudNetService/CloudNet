@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
-import eu.cloudnetservice.cloudnet.gradle.Files
 
 plugins {
   alias(libs.plugins.shadow)

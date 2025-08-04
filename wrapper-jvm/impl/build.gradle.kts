@@ -15,10 +15,10 @@
  */
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import eu.cloudnetservice.cloudnet.gradle.Files
-import eu.cloudnetservice.cloudnet.gradle.ExportCnlFile
-import eu.cloudnetservice.cloudnet.gradle.ExportLanguageFileInformation
 import eu.cloudnetservice.cloudnet.gradle.applyJarMetadata
+import eu.cloudnetservice.cloudnet.gradle.tasks.ExportCnlFile
+import eu.cloudnetservice.cloudnet.gradle.tasks.ExportLanguageFileInformation
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
   alias(libs.plugins.shadow)

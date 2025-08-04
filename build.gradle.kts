@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.CustomConfigurations
-import eu.cloudnetservice.cloudnet.gradle.Versions
 import eu.cloudnetservice.cloudnet.gradle.applyDefaultJavadocOptions
 import eu.cloudnetservice.cloudnet.gradle.plugins.configureFor
 import eu.cloudnetservice.cloudnet.gradle.plugins.updater.lenientView
+import eu.cloudnetservice.cloudnet.gradle.util.CustomConfigurations
+import eu.cloudnetservice.cloudnet.gradle.util.Versions
 
 plugins {
   id("cloudnet")
