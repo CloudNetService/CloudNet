@@ -14,10 +14,24 @@
  * limitations under the License.
  */
 
-import org.gradle.api.Plugin
-import org.gradle.api.initialization.Settings
+package eu.cloudnetservice.cloudnet.gradle.plugins
 
-class CloudNetSettingsPlugin : Plugin<Settings> {
-  override fun apply(target: Settings) {
+import eu.cloudnetservice.cloudnet.gradle.Versions
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.withType
+
+class CloudNetJavaApiPlugin: Plugin<Project> {
+  override fun apply(project: Project) {
+    project.run {
+      apply<CloudNetJavaPlugin>()
+
+      tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = Versions.javaVersionApi.asInt().toString()
+        targetCompatibility = Versions.javaVersionApi.asInt().toString()
+      }
+    }
   }
 }

@@ -16,6 +16,8 @@
 
 @file:Suppress("LeakingThis")
 
+package eu.cloudnetservice.cloudnet.gradle
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -42,8 +44,6 @@ import org.gradle.internal.component.external.model.DefaultModuleComponentArtifa
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.setProperty
-import org.gradle.workers.WorkAction
-import org.gradle.workers.WorkParameters
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI

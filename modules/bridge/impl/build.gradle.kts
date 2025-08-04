@@ -20,6 +20,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file.StandardCopyOption
 import java.nio.file.Files as NioFiles
+import eu.cloudnetservice.cloudnet.gradle.Files
 
 plugins {
   id("cloudnet-modules")

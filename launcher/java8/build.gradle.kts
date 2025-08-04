@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.plugins.configureJavaVersion
+
 plugins {
   id("cloudnet-java")
 }

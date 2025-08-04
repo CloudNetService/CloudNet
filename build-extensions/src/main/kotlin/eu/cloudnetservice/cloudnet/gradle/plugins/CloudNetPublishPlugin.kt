@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.cloudnet.gradle.plugins
+
+import eu.cloudnetservice.cloudnet.gradle.CustomConfigurations
+import eu.cloudnetservice.cloudnet.gradle.configurePublishing
+import eu.cloudnetservice.cloudnet.gradle.sourceSets
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.hasPlugin
 
 class CloudNetPublishPlugin : Plugin<Project> {
   override fun apply(project: Project) {

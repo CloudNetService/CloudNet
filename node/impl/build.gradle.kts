@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.ExportCnlFile
+import eu.cloudnetservice.cloudnet.gradle.ExportLanguageFileInformation
+import eu.cloudnetservice.cloudnet.gradle.Files
+import eu.cloudnetservice.cloudnet.gradle.applyJarMetadata
+import eu.cloudnetservice.cloudnet.gradle.plugins.updater.Data
+import eu.cloudnetservice.cloudnet.gradle.plugins.updater.Meta
+import eu.cloudnetservice.cloudnet.gradle.plugins.updater.Type
+
 plugins {
   alias(libs.plugins.shadow)
   id("cloudnet-java")
   id("cloudnet-git")
+  id("cloudnet-updater")
 }
 
 val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
@@ -42,6 +51,11 @@ tasks.shadowJar {
 
   from(exportCnlFile)
   from(exportLanguageFileInformation)
+}
+
+tasks.prepareUpdaterData {
+  val archiveName = fromArchive(tasks.shadowJar)
+  meta.set(archiveName.map { Meta(Type.NODE, Data.Node(it)) })
 }
 
 tasks.withType<JavaCompile>().configureEach {

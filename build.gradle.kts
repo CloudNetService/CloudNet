@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.plugins.configureFor
+import eu.cloudnetservice.cloudnet.gradle.Versions
+import eu.cloudnetservice.cloudnet.gradle.applyDefaultJavadocOptions
+import eu.cloudnetservice.cloudnet.gradle.isJavaConfiguredProject
+import eu.cloudnetservice.cloudnet.gradle.CustomConfigurations
+
 plugins {
   id("cloudnet")
+  id("cloudnet-updater")
   id("java-base")
   alias(libs.plugins.nexusPublish)
   alias(libs.plugins.shadow) apply false // must be here to enforce the bundled asm version
@@ -33,7 +40,7 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   options.source = Versions.javaVersion.asInt().toString()
 
   title = "CloudNet JavaDocs"
-  setDestinationDir(layout.buildDirectory.dir("javadocs").get().asFile)
+  destinationDir = layout.buildDirectory.dir("javadocs").get().asFile
   // options
   applyDefaultJavadocOptions(options)
   options.windowTitle = "CloudNet JavaDocs"
@@ -61,20 +68,6 @@ dependencies {
     if (!isJavaConfiguredProject(project.name, project.path)) return@forEach
     globalJavadocSources(this.project(project.path, CustomConfigurations.GLOBAL_JAVADOC_SOURCES))
     globalJavadocClasspath(this.project(project.path, CustomConfigurations.GLOBAL_JAVADOC_CLASSPATH))
-  }
-}
-
-tasks.register("genUpdaterInformation") {
-  subprojects.forEach {
-    // check if we need to depend on the plugin
-    // TODO this breaks isolated projects
-    if (!it.plugins.hasPlugin("java")) return@forEach
-    // depend this task on the build output of each subproject
-    dependsOn("${it.path}:build")
-  }
-  // generate the updater information
-  doLast {
-    generateUpdaterInformation()
   }
 }
 

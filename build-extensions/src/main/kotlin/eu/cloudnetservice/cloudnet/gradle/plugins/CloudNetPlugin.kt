@@ -14,29 +14,18 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.gradle.juppiter.JuppiterPlugin
+package eu.cloudnetservice.cloudnet.gradle.plugins
+
+import eu.cloudnetservice.cloudnet.gradle.Versions
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.invoke
-import org.gradle.kotlin.dsl.maven
-import org.gradle.kotlin.dsl.project
-import org.gradle.kotlin.dsl.repositories
 
-class CloudNetModulesPlugin : Plugin<Project> {
+class CloudNetPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
-      apply<CloudNetJavaPlugin>()
-      apply<JuppiterPlugin>()
-
-      configurations {
-        named("testImplementation").configure {
-          extendsFrom(getByName("moduleLibrary"))
-        }
-      }
-
-      configureModules()
+      this.version = Versions.cloudNet
+      this.group = "eu.cloudnetservice.cloudnet"
+      this.description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
     }
   }
 }
