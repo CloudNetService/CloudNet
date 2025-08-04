@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle
+package eu.cloudnetservice.cloudnet.gradle.util
 
 import java.io.File
 import java.io.IOException
