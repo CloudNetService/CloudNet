@@ -46,6 +46,7 @@ fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String
 
       val commit = serviceOrEmpty.map("unknown") { it.commit?.name }
       val branch = serviceOrEmpty.map("unknown") { it.branchName }
+      inputs.property("projectVersion", projectVersion)
       inputs.property("commit", commit)
       inputs.property("branch", branch)
 
