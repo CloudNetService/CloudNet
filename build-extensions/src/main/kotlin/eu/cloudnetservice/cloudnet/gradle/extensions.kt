@@ -50,7 +50,7 @@ fun GitExtension.applyJarMetadata(task: TaskProvider<out Jar>, mainClass: String
         "Implementation-Vendor" to "CloudNetService",
         "Implementation-Title" to Versions.cloudNetCodeName,
         "Implementation-Version" to serviceOrEmpty.shortCommitHash().map { "$projectVersion-$it" },
-        "Git-Commit" to serviceOrEmpty.shortCommitHash(),
+        "Git-Commit" to serviceOrEmpty.map("unknown") { it.commit?.name },
         "Git-Branch" to serviceOrEmpty.map("unknown") { it.branchName }
       )
       // apply the pre-main class if given
