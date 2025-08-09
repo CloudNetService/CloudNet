@@ -1,10 +1,9 @@
 [versions]
 
 # plugins
-shadow = "8.3.8"
+shadow = "9.0.1"
 juppiter = "0.4.0"
 spotless = "7.2.1"
-fabricLoom = "1.11.4"
 nexusPublish = "2.0.0"
 checkstyleTools = "10.26.1"
 
@@ -76,9 +75,6 @@ packetEvents = "2.9.4"
 placeholderApi = "2.11.6"
 adventure-serializer-bungee = "4.4.1"
 luckPermsApi = "5.5"
-
-# fabric platform special dependencies
-minecraft = "1.21.8"
 fabricLoader = "0.17.0"
 
 
@@ -194,9 +190,6 @@ npcLib = { group = "io.github.juliarn", name = "npc-lib-bukkit", version.ref = "
 packetEvents = { group = "com.github.retrooper", name = "packetevents-spigot", version.ref = "packetEvents" }
 npcLibLabymod = { group = "io.github.juliarn", name = "npc-lib-labymod", version.ref = "npcLib" }
 luckPermsApi = { group = "net.luckperms", name = "api", version.ref = "luckPermsApi" }
-
-# fabric platform special dependencies
-minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
 fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }
 
 # dummy versions, just here for renovate to detect that there is something to update
@@ -226,7 +219,6 @@ serverPlatform = ["spigot", "sponge", "nukkitX", "minestom", "minestomExtensions
 
 [plugins]
 
-fabricLoom = { id = "fabric-loom", version.ref = "fabricLoom" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }

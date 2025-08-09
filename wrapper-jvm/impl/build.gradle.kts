@@ -6,7 +6,6 @@ plugins {
 
 tasks.withType<ShadowJar> {
   archiveFileName.set(Files.wrapper)
-  archiveVersion.set(null as String?)
 
   // do not shade dependencies which we don't need to shade
   val ignoredGroupIds = arrayOf("com.google.guava", "com.google.code.gson")
@@ -22,6 +21,11 @@ tasks.withType<ShadowJar> {
 
   // drop unused classes which are making the jar bigger
   minimize()
+
+  // exclude some config files that are pulled in by dependencies
+  exclude("META-INF/LICENSE")
+  exclude("META-INF/maven/**")
+  exclude("META-INF/proguard/**")
 
   doFirst {
     // Note: included dependencies will not be resolved, they must be available from the node resolution already
@@ -56,4 +60,5 @@ dependencies {
 applyJarMetadata(
   "eu.cloudnetservice.wrapper.impl.Main",
   "eu.cloudnetservice.wrapper",
-  "eu.cloudnetservice.wrapper.impl.Premain")
+  "eu.cloudnetservice.wrapper.impl.Premain"
+)

@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-import net.fabricmc.loom.task.RemapJarTask
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import java.net.URI
+import java.nio.charset.StandardCharsets
+import java.nio.file.StandardCopyOption
+import java.nio.file.Files as NioFiles
 
 plugins {
-  alias(libs.plugins.fabricLoom)
+  alias(libs.plugins.shadow)
 }
 
 configurations {
-  // custom configuration for later dependency resolution
-  create("runtimeImpl") {
-    configurations.getByName("api").extendsFrom(this)
-  }
+  val shaded = register("shaded")
+  getByName("compileOnlyApi").extendsFrom(shaded.get())
 }
 
 tasks.withType<JavaCompile> {
@@ -38,46 +41,97 @@ dependencies {
   "compileOnly"(projects.node.nodeImpl)
   "compileOnly"(projects.utils.utilsBase)
   "compileOnly"(projects.driver.driverImpl)
+  "compileOnly"(libs.fabricLoader)
   "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
 
-  "runtimeImpl"(libs.bundles.adventure)
-  "runtimeImpl"(projects.ext.adventureHelper)
-  "runtimeImpl"(libs.adventureSerializerBungee)
-  "runtimeImpl"(projects.modules.bridge.bridgeApi)
+  "shaded"(projects.ext.adventureHelper)
+  "shaded"(projects.modules.bridge.bridgeApi)
+  "shaded"(libs.bundles.adventure)
+  "shaded"(libs.adventureSerializerBungee)
 
   // processing
   "annotationProcessor"(libs.aerogelAuto)
   "annotationProcessor"(projects.driver.driverAp)
-
-  "minecraft"(libs.minecraft)
-  "modCompileOnly"(libs.fabricLoader)
-  "mappings"(loom.officialMojangMappings())
 }
 
-tasks.withType<Jar> {
+// Downloads the versioned fabric mods zip from CloudNetService/cloudnet-bridge-fabric
+// These are unpacked and transferred into the final jar in a subsequent task
+val zipFileName = "cloudnet_fabric_version_bridge_all.zip"
+val nestedZipFile = layout.buildDirectory.file("download/$zipFileName")
+val downloadVersionedFabricMods by tasks.registering {
+  outputs.upToDateWhen { false } // permanent download url, cannot be cached
+  val downloadUrl = "https://github.com/CloudNetService/cloudnet-bridge-fabric/releases/latest/download/$zipFileName"
+  doLast {
+    val out = nestedZipFile.get().asFile
+    out.parentFile.mkdirs()
+    URI(downloadUrl).toURL().openStream().use { input ->
+      NioFiles.copy(input, out.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    }
+  }
+}
+
+// unpacks the previously downloaded versioned mods zip into the target directory
+val nestedUnpackDir = layout.buildDirectory.dir("generated/fabric_mods_nested")
+val unpackVersionedFabricMods by tasks.registering(Copy::class) {
+  dependsOn(downloadVersionedFabricMods)
+  from(zipTree(nestedZipFile))
+  into(nestedUnpackDir)
+}
+
+//
+val apOutputModJson = layout.buildDirectory.file("classes/java/main/fabric.mod.json.temp")
+val modJsonWithNestedJars = layout.buildDirectory.file("generated/fabric.mod.json")
+val addNestedJarsToFabricModJson by tasks.registering {
+  dependsOn(tasks.getByName("compileJava"), unpackVersionedFabricMods)
+
+  inputs.file(apOutputModJson)
+  inputs.dir(nestedUnpackDir)
+  outputs.file(modJsonWithNestedJars)
+
+  doLast {
+    val apOutputJsonFile = apOutputModJson.get().asFile
+    val jsonData = JsonSlurper().parse(apOutputJsonFile) as Map<*, *>
+    val nestedJars = nestedUnpackDir.get().asFile
+      .listFiles { file -> file.name.endsWith(".jar") }
+      ?.map { file -> file.name }
+      ?.map { fileName -> mapOf("file" to "bridge_mods_nested/$fileName") }
+      ?: listOf()
+    val mergedJson = HashMap(jsonData).apply {
+      this["jars"] = nestedJars
+    }
+
+    val modJsonWithNestedJarsFile = modJsonWithNestedJars.get().asFile
+    modJsonWithNestedJarsFile.parentFile.mkdirs()
+    modJsonWithNestedJarsFile.writeText(JsonOutput.toJson(mergedJson), StandardCharsets.UTF_8)
+  }
+}
+
+tasks.shadowJar {
+  archiveFileName = Files.bridge
+  configurations = setOf(project.configurations["shaded"])
+  dependencies {
+    exclude(dependency("com.google.code.gson:gson"))
+  }
+
+  // exclude our template plugin manifest template files from the final jar
+  exclude("**/*.template")
+  exclude("fabric.mod.json.temp")
+
+  // depend on nested jar download, copy the nested jars into the final jar
+  dependsOn(unpackVersionedFabricMods, addNestedJarsToFabricModJson)
+  from(nestedUnpackDir) {
+    into("bridge_mods_nested")
+  }
+  from(modJsonWithNestedJars) {
+    into("")
+  }
+
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   manifest {
     attributes["paperweight-mappings-namespace"] = "mojang"
   }
-
-  // depend on adventure helper jar task
-  dependsOn(":ext:adventure-helper:jar")
-  dependsOn(":modules:bridge:bridge-api:jar")
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-  // includes all dependencies of runtimeImpl but excludes gson because we don't need it
-  from(configurations.getByName("runtimeImpl").map { if (it.isDirectory) it else zipTree(it) })
-  exclude {
-    it.file.absolutePath.contains(setOf("com", "google", "gson").joinToString(separator = File.separator))
-  }
-}
-
-tasks.withType<RemapJarTask> {
-  archiveFileName.set(Files.bridge)
-}
-
-loom {
-  accessWidenerPath.set(project.file("src/main/resources/cloudnet_bridge.accesswidener"))
 }
 
 moduleJson {

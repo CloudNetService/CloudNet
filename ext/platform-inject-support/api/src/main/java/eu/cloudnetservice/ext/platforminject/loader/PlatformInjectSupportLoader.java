@@ -16,10 +16,44 @@
 
 package eu.cloudnetservice.ext.platforminject.loader;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
-// marker class, see loader project for implementation
+/**
+ * Internal marker class used by code generation during compilation. Just redirects all made calls to the actual runtime
+ * implementation. Only intended to be used in generated code.
+ *
+ * @since 4.0
+ */
+@ApiStatus.Internal
 public final class PlatformInjectSupportLoader {
+
+  private static final MethodHandle LOAD_PLUGIN;
+  private static final MethodHandle DISABLE_PLUGIN;
+
+  static {
+    try {
+      var lookup = MethodHandles.publicLookup();
+      var runtimeLoader = Class.forName("eu.cloudnetservice.ext.platforminject.loader.PlatformInjectSupportLoaderImpl");
+
+      // PlatformInjectSupportLoaderImpl.loadPlugin() [same signature]
+      var loadPluginMt = MethodType.methodType(void.class, String.class, Class.class, Object.class, ClassLoader.class);
+      LOAD_PLUGIN = lookup.findStatic(runtimeLoader, "loadPlugin", loadPluginMt);
+
+      // PlatformInjectSupportLoaderImpl.disablePlugin() [same signature]
+      var disablePluginMt = MethodType.methodType(void.class, String.class, Object.class);
+      DISABLE_PLUGIN = lookup.findStatic(runtimeLoader, "disablePlugin", disablePluginMt);
+    } catch (Throwable throwable) {
+      throw new ExceptionInInitializerError(throwable);
+    }
+  }
+
+  private PlatformInjectSupportLoader() {
+    throw new UnsupportedOperationException();
+  }
 
   public static void loadPlugin(
     @NonNull String platform,
@@ -27,8 +61,18 @@ public final class PlatformInjectSupportLoader {
     @NonNull Object platformData,
     @NonNull ClassLoader platformClassLoader
   ) {
+    try {
+      LOAD_PLUGIN.invokeExact(platform, pluginClass, platformData, platformClassLoader);
+    } catch (Throwable throwable) {
+      throw new RuntimeException("Exception while loading plugin", throwable);
+    }
   }
 
   public static void disablePlugin(@NonNull String platform, @NonNull Object platformData) {
+    try {
+      DISABLE_PLUGIN.invokeExact(platform, platformData);
+    } catch (Throwable throwable) {
+      throw new RuntimeException("Exception while disabling plugin", throwable);
+    }
   }
 }
