@@ -111,6 +111,8 @@ val addNestedJarsToFabricModJson by tasks.registering {
 tasks.shadowJar {
   archiveFileName = Files.bridge
   configurations = setOf(project.configurations["shaded"])
+
+  // pulled in by adventure but is present on the classpath anyway
   dependencies {
     exclude(dependency("com.google.code.gson:gson"))
   }
