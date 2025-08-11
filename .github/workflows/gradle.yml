@@ -34,13 +34,6 @@ jobs:
           cache-cleanup: on-success
           cache-read-only: ${{ github.ref != 'refs/heads/nightly' }}
 
-      - name: Setup Loom cache
-        uses: actions/cache@v4
-        with:
-          path: '.gradle/loom-cache'
-          restore-keys: ${{ runner.os }}-gradle-loom-
-          key: ${{ runner.os }}-gradle-loom-${{ hashFiles('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
-
       - name: Execute build and tests
         run: ./gradlew build test shadowJar genUpdaterInformation --stacktrace
 
