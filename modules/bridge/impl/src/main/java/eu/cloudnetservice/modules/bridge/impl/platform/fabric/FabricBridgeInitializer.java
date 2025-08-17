@@ -16,13 +16,17 @@
 
 package eu.cloudnetservice.modules.bridge.impl.platform.fabric;
 
-import eu.cloudnetservice.driver.impl.module.ModuleHelper;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Dependency;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
+import net.fabricmc.loader.api.FabricLoader;
 
 @Singleton
 @PlatformPlugin(
@@ -30,23 +34,42 @@ import lombok.NonNull;
   name = "CloudNet-Bridge",
   version = "@version@",
   dependencies = {
-    @Dependency(name = "fabricloader", version = ">=0.16.6"),
-    @Dependency(name = "minecraft", version = "~1.21.6"),
+    @Dependency(name = "fabricloader", version = ">=0.17.0"),
+    @Dependency(name = "minecraft", version = "*"),
     @Dependency(name = "java", version = "24")
   },
-  authors = "CloudNetService"
+  authors = "CloudNetService",
+  pluginFileNames = "fabric.mod.json.temp"
 )
 public final class FabricBridgeInitializer implements PlatformEntrypoint {
 
-  private final ModuleHelper moduleHelper;
+  private final EventManager eventManager;
+  private final ServiceInfoHolder serviceInfoHolder;
 
   @Inject
-  public FabricBridgeInitializer(@NonNull ModuleHelper moduleHelper) {
-    this.moduleHelper = moduleHelper;
+  public FabricBridgeInitializer(@NonNull EventManager eventManager, @NonNull ServiceInfoHolder serviceInfoHolder) {
+    this.eventManager = eventManager;
+    this.serviceInfoHolder = serviceInfoHolder;
   }
 
   @Override
-  public void onDisable() {
-    this.moduleHelper.unregisterAll(this.getClass().getClassLoader());
+  public void onLoad() {
+    // check if a version bridge was loaded. if that is not the case, we need to set the bridge as
+    // online manually, to allow for players to connect. this is done after a small delay to allow
+    // the server to boot before players try to connect to it
+    var noVersionBrideLoaded = FabricLoader.getInstance().getModContainer("cloudnet_version_bridge").isEmpty();
+    if (noVersionBrideLoaded) {
+      var defaultRegistrationDelay = TimeUnit.SECONDS.toMillis(10);
+      var configuredDelay = Long.getLong("cloudnet.fabric.fallback-registration-delay-ms", defaultRegistrationDelay);
+      var registrationDelay = Math.max(0, configuredDelay);
+      FabricLoaderLogger.info("No version bridge found, triggering manual registration in %s ms", registrationDelay);
+
+      var delayedExecutor = CompletableFuture.delayedExecutor(registrationDelay, TimeUnit.MILLISECONDS);
+      delayedExecutor.execute(() -> {
+        this.eventManager.registerListener(FabricFallbackEventListener.class);
+        this.serviceInfoHolder.publishServiceInfoUpdate();
+        FabricLoaderLogger.debug("Manual service registration complete");
+      });
+    }
   }
 }

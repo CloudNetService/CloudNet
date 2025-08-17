@@ -1,5 +1,3 @@
-import net.fabricmc.loom.task.RemapJarTask
-
 /*
  * Copyright 2019-2023 CloudNetService team & contributors
  *
@@ -16,25 +14,16 @@ import net.fabricmc.loom.task.RemapJarTask
  * limitations under the License.
  */
 
-plugins {
-  alias(libs.plugins.fabricLoom)
-}
-
-
 dependencies {
+  "compileOnly"(libs.fabricLoader)
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
 
   "compileOnly"(libs.luckPermsApi)
   "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
   "compileOnly"(projects.modules.bridge.bridgeApi)
-
-  "minecraft"(libs.minecraft)
-  "modCompileOnly"(libs.fabricLoader)
-  "mappings"(loom.officialMojangMappings())
 }
 
-tasks.withType<RemapJarTask> {
-  // base setup
+tasks.withType<Jar> {
   archiveFileName.set(Files.luckPermsPlugin)
 }
