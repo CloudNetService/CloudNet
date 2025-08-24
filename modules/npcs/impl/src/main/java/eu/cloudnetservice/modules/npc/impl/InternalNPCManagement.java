@@ -29,5 +29,4 @@ public interface InternalNPCManagement extends NPCManagement {
   void handleInternalNPCRemove(@NonNull WorldPosition position);
 
   void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration);
-
 }

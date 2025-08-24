@@ -60,7 +60,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.util.NumberConversions;
 
 @Singleton
 @ProvidesFor(platform = "bukkit", types = {
@@ -121,63 +120,8 @@ public class BukkitPlatformNPCManagement extends
         .build();
     }
 
-    // start the emote player
     this.startEmoteTask(false);
-    // start the knock back task
-    this.knockBackTask = this.scheduler.runTaskTimer(plugin, () -> {
-      var configEntry = this.applicableNPCConfigurationEntry();
-      if (configEntry != null) {
-        // check if knock back is enabled
-        var distance = configEntry.knockbackDistance();
-        var strength = configEntry.knockbackStrength();
-        if (distance > 0 && strength > 0) {
-          // select the knockback emote id now (sometimes we need to play them sync for all npcs)
-          var labyModEmotes = configEntry.emoteConfiguration().onKnockbackEmoteIds();
-          var emoteId = this.randomEmoteId(configEntry.emoteConfiguration(), labyModEmotes);
-          //
-          for (var value : this.trackedEntities.values()) {
-            if (value.spawned()) {
-              // select all nearby entities of each spawned mob
-              var nearbyEntities = value.location().getWorld().getNearbyEntities(
-                value.location(),
-                distance,
-                distance,
-                distance);
-              // loop over all entities and knock them back
-              if (!nearbyEntities.isEmpty()) {
-                for (var entity : nearbyEntities) {
-                  // check if the entity is a player
-                  if (entity instanceof Player player && !entity.hasPermission("cloudnet.npcs.knockback.bypass")) {
-                    // apply the strength to the curren vector
-                    var vector = player.getLocation().toVector().subtract(value.location().toVector())
-                      .normalize()
-                      .multiply(strength)
-                      .setY(0.2);
-                    if (NumberConversions.isFinite(vector.getX()) && NumberConversions.isFinite(vector.getZ())) {
-                      // apply the velocity
-                      player.setVelocity(vector);
-                      // check if we should send a labymod emote
-                      if (value instanceof NPCBukkitPlatformSelector npcSelector) {
-                        if (emoteId == -1) {
-                          var emote = labyModEmotes[ThreadLocalRandom.current().nextInt(0, labyModEmotes.length)];
-                          LabyModExtension
-                            .createEmotePacket(this.npcPlatform.packetFactory(), emote)
-                            .schedule(player, npcSelector.handleNPC());
-                        } else {
-                          LabyModExtension
-                            .createEmotePacket(this.npcPlatform.packetFactory(), emoteId)
-                            .schedule(player, npcSelector.handleNPC());
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }, 20, 5);
+    this.knockBackTask = this.scheduler.runTaskTimer(plugin, new BukkitNPCKnockbackTask(this), 20, 5);
   }
 
   @Override
@@ -242,7 +186,6 @@ public class BukkitPlatformNPCManagement extends
   @Override
   public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
     super.handleInternalNPCConfigUpdate(configuration);
-    // re-schedule the emote task if it's not yet running
     this.startEmoteTask(false);
   }
 
@@ -251,42 +194,52 @@ public class BukkitPlatformNPCManagement extends
   }
 
   protected void startEmoteTask(boolean force) {
-    // only start the task if not yet running
-    if (this.npcEmoteTask == null || force) {
-      var ent = this.applicableNPCConfigurationEntry();
-      if (ent != null && ent.emoteConfiguration().minEmoteDelayTicks() > 0) {
-        // get the delay for the next npc emote play
-        long delay;
-        if (ent.emoteConfiguration().maxEmoteDelayTicks() > ent.emoteConfiguration().minEmoteDelayTicks()) {
-          delay = ThreadLocalRandom.current().nextLong(
-            ent.emoteConfiguration().minEmoteDelayTicks(),
-            ent.emoteConfiguration().maxEmoteDelayTicks());
-        } else {
-          delay = ent.emoteConfiguration().minEmoteDelayTicks();
-        }
-        // run the task
-        this.npcEmoteTask = this.scheduler.runTaskLaterAsynchronously(this.plugin, () -> {
-          // select an emote to play
-          var emotes = ent.emoteConfiguration().emoteIds();
-          var emoteId = this.randomEmoteId(ent.emoteConfiguration(), emotes);
-          // check if we can select an emote
-          if (emoteId >= -1) {
-            // play the emote on each npc
-            for (var npc : this.npcPlatform.npcTracker().trackedNpcs()) {
-              if (emoteId == -1) {
-                var emote = emotes[ThreadLocalRandom.current().nextInt(0, emotes.length)];
-                LabyModExtension.createEmotePacket(this.npcPlatform.packetFactory(), emote).scheduleForTracked(npc);
-              } else {
-                LabyModExtension.createEmotePacket(this.npcPlatform.packetFactory(), emoteId).scheduleForTracked(npc);
-              }
-            }
-          }
-          // re-schedule
-          this.startEmoteTask(true);
-        }, delay);
-      } else {
+    var currentTask = this.npcEmoteTask;
+    if (currentTask == null || force) {
+      if (currentTask != null) {
+        // always cancel the current task, even if we're not going to restart it
+        currentTask.cancel();
         this.npcEmoteTask = null;
       }
+
+      var configEntry = this.applicableNPCConfigurationEntry();
+      if (configEntry == null) {
+        return;
+      }
+
+      // -1 is used to indicate a random emote, positive value a fixed emote id
+      var labyModEmotes = configEntry.emoteConfiguration().emoteIds();
+      var emoteId = this.randomEmoteId(configEntry.emoteConfiguration(), labyModEmotes);
+      if (emoteId < -1) {
+        return;
+      }
+
+      var emoteConfig = configEntry.emoteConfiguration();
+      var minDelayTicks = emoteConfig.minEmoteDelayTicks();
+      var maxDelayTicks = emoteConfig.maxEmoteDelayTicks();
+      if (minDelayTicks <= 0) {
+        return;
+      }
+
+      var delayTicks = maxDelayTicks > minDelayTicks
+        ? ThreadLocalRandom.current().nextLong(minDelayTicks, maxDelayTicks)
+        : minDelayTicks;
+      this.npcEmoteTask = this.scheduler.runTaskLaterAsynchronously(this.plugin, () -> {
+        var random = ThreadLocalRandom.current();
+        for (var entity : this.trackedEntities.values()) {
+          if (entity.spawned() && entity instanceof NPCBukkitPlatformSelector npcSelector) {
+            var libNpc = npcSelector.handleNPC();
+            var emote = switch (emoteId) {
+              case -1 -> labyModEmotes[random.nextInt(0, labyModEmotes.length)];
+              case int id -> id;
+            };
+            LabyModExtension.createEmotePacket(this.npcPlatform.packetFactory(), emote).scheduleForTracked(libNpc);
+          }
+        }
+
+        // re-schedule the task to send the next emote with a new delay
+        this.startEmoteTask(true);
+      }, delayTicks);
     }
   }
 

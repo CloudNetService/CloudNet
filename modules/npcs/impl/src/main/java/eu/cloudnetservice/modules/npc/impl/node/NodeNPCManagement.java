@@ -97,7 +97,6 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
         .anyMatch(entry -> service.serviceConfiguration().groups().contains(entry.targetGroup())),
       (service, $) -> {
         var protocolLibPath = service.pluginDirectory().resolve("ProtocolLib.jar");
-        // make sure to only copy the cached protocollib jar if it exists
         if (Files.exists(PROTOCOL_LIB_CACHE_PATH)) {
           FileUtil.copy(PROTOCOL_LIB_CACHE_PATH, protocolLibPath);
         }

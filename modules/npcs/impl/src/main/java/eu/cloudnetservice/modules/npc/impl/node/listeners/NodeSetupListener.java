@@ -68,12 +68,8 @@ public final class NodeSetupListener {
       if (taskName != null && generateNPCConfig) {
         var entries = this.management.npcConfiguration().entries();
         if (entries.stream().noneMatch(entry -> entry.targetGroup().equals(taskName))) {
-          // add the new entry
           entries.add(NPCConfigurationEntry.builder().targetGroup(taskName).build());
-          // update the config
-          this.management.npcConfiguration(NPCConfiguration.builder()
-            .entries(entries)
-            .build());
+          this.management.npcConfiguration(NPCConfiguration.builder().entries(entries).build());
         }
       }
     }

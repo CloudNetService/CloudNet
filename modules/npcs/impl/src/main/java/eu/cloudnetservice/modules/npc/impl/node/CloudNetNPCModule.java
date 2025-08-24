@@ -94,7 +94,6 @@ public class CloudNetNPCModule extends DriverModule {
               .build())
             .build())
           .collect(Collectors.toSet());
-        // write the new config
         Document.newJsonDocument()
           .appendTree(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder()
             .entries(newEntries)
@@ -103,12 +102,11 @@ public class CloudNetNPCModule extends DriverModule {
       } else {
         // we have to read the config manually as we have to upgrade it
         var config = this.readConfig(DocumentFactory.json());
-        List<Document> entries = config.readObject(
-          "entries",
-          TypeFactory.parameterizedClass(List.class, Document.class));
+        var listDocumentType = TypeFactory.parameterizedClass(List.class, Document.class);
+        List<Document> entries = config.readObject("entries", listDocumentType);
 
         for (var entry : entries) {
-          // check if the ingameLayout is missing - upgrade if its the case
+          // check if the ingameLayout is missing - upgrade if it's the case
           var inventoryConfig = entry.readDocument("inventoryConfiguration").readMutableDocument("defaultItems");
           if (!inventoryConfig.contains("ingameLayout")) {
             inventoryConfig.append("ingameLayout", ItemLayout.builder()
@@ -135,12 +133,9 @@ public class CloudNetNPCModule extends DriverModule {
     var npcStore = db.get("npc_store");
     if (npcStore != null) {
       Collection<CloudNPC> theOldOnes = npcStore.readObject("npcs", NPCConstants.NPC_COLLECTION_TYPE);
-      // remove the old entries
       db.delete("npc_store");
       if (theOldOnes != null) {
-        // get the new database
         var target = databaseProvider.database(DATABASE_NAME);
-        // convert the old entries
         theOldOnes.stream()
           .map(npc -> NPC.builder()
             .profileProperties(npc.profileProperties().stream()
@@ -172,7 +167,7 @@ public class CloudNetNPCModule extends DriverModule {
 
           // make the old display name - if present - the first (0th) info line
           if (displayName != null) {
-            npc.infoLines().add(0, displayName);
+            npc.infoLines().addFirst(displayName);
             npcBuilder.infoLines(npc.infoLines());
           }
 
@@ -189,14 +184,12 @@ public class CloudNetNPCModule extends DriverModule {
     @NonNull CommandProvider commandProvider,
     @NonNull @Named("module") InjectionLayer<?> injectionLayer
   ) {
-    // management init
     this.readConfigAndInstantiate(
       injectionLayer,
       eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.class,
       () -> eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder().build(),
       NodeNPCManagement.class,
       DocumentFactory.json());
-    // register the npc module command
     commandProvider.register(NPCCommand.class);
   }
 

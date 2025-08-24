@@ -86,7 +86,7 @@ public final class BukkitFunctionalityListener implements Listener {
       npc.rotate(requestedPosition.yaw(), requestedPosition.pitch()).schedule(player);
     }
 
-    // enable all skin players
+    // enable all skin layers
     npc.changeMetadata(EntityMetadataFactory.skinLayerMetaFactory(), true).schedule(player);
 
     // applies the settings made to the selector entity (the stored CloudNet entity)

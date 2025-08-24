@@ -64,8 +64,6 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
     @NonNull WrapperConfiguration wrapperConfiguration
   ) {
     super(loadNPCConfiguration(componentInfo), eventManager);
-
-    // assign the fields
     this.componentInfo = componentInfo;
     this.cloudServiceProvider = cloudServiceProvider;
     this.currentServiceConfiguration = wrapperConfiguration.serviceConfiguration();
@@ -76,7 +74,6 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
       this.npcs.put(npc.location(), npc);
     }
 
-    // register the listeners
     eventManager.registerListener(new CloudNetServiceListener(this));
   }
 
@@ -157,26 +154,26 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
 
   @Override
   public void handleInternalNPCCreate(@NonNull NPC npc) {
-    // check if the npc is on this group
     if (this.currentServiceConfiguration.groups().contains(npc.location().group())) {
       super.handleInternalNPCCreate(npc);
+
       // remove the old selector npc
-      var entity = this.trackedEntities.remove(npc.location());
-      if (entity != null && entity.spawned()) {
-        entity.remove();
+      var previousNpc = this.trackedEntities.remove(npc.location());
+      if (previousNpc != null && previousNpc.spawned()) {
+        previousNpc.remove();
       }
+
       // create and spawn a new selector npc
-      entity = this.createSelectorEntity(npc);
-      // spawn the npc if possible
-      if (entity.canSpawn()) {
-        entity.spawn();
+      var newNpc = this.createSelectorEntity(npc);
+      this.trackedEntities.put(npc.location(), newNpc);
+      if (newNpc.canSpawn()) {
+        newNpc.spawn();
       }
-      // start tracking the npc
-      this.trackedEntities.put(npc.location(), entity);
+
       // apply the tracked services
       for (var service : this.trackedServices.values()) {
-        if (service.configuration().groups().contains(entity.npc().targetGroup())) {
-          entity.trackService(service);
+        if (service.configuration().groups().contains(npc.targetGroup())) {
+          newNpc.trackService(service);
         }
       }
     }
@@ -185,7 +182,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
   @Override
   public void handleInternalNPCRemove(@NonNull WorldPosition position) {
     super.handleInternalNPCRemove(position);
-    // remove the platform npc if spawned
+
     var entity = this.trackedEntities.remove(position);
     if (entity != null && entity.spawned()) {
       entity.remove();
@@ -194,9 +191,14 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
 
   @Override
   public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
-    super.handleInternalNPCConfigUpdate(configuration);
-    // update all selector entities
-    this.trackedEntities.values().forEach(PlatformSelectorEntity::update);
+    // only apply the config change if the current service still has a config entry in the new configuration
+    var groupStillHasConfigEntry = configuration.entries()
+      .stream()
+      .anyMatch(entry -> this.currentServiceConfiguration.groups().contains(entry.targetGroup()));
+    if (groupStillHasConfigEntry) {
+      super.handleInternalNPCConfigUpdate(configuration);
+      this.trackedEntities.values().forEach(PlatformSelectorEntity::update);
+    }
   }
 
   @Override
@@ -208,11 +210,10 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
   }
 
   public void initialize() {
-    // start tracking all entities
     for (var value : this.npcs.values()) {
       this.trackedEntities.put(value.location(), this.createSelectorEntity(value));
     }
-    // initialize the services now
+
     this.cloudServiceProvider.servicesAsync().thenAccept(services -> {
       for (var service : services) {
         if (this.shouldTrack(service)) {
@@ -236,12 +237,10 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
   }
 
   public @NonNull InventoryConfiguration inventoryConfiguration() {
-    // get the npc configuration entry
     var entry = this.applicableNPCConfigurationEntry();
     if (entry == null) {
       throw new IllegalStateException("no npc config entry for the current service groups found");
     }
-    // find an inventory configuration which explicitly targets a group of the snapshot
     return entry.inventoryConfiguration();
   }
 
@@ -251,7 +250,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
         entity.trackService(service);
       }
     }
-    // mark the service as tracked
+
     this.trackedServices.put(service.serviceId().uniqueId(), service);
   }
 
@@ -261,7 +260,7 @@ public abstract class PlatformNPCManagement<L, P, M, I, S> extends AbstractNPCMa
         entity.stopTrackingService(service);
       }
     }
-    // stop tracking the service
+
     this.trackedServices.remove(service.serviceId().uniqueId());
   }
 

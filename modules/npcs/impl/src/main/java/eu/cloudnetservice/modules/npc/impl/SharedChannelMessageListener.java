@@ -36,24 +36,22 @@ public final class SharedChannelMessageListener {
   public void handle(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME)) {
       switch (event.message()) {
-        // a new npc was created
-        case AbstractNPCManagement.NPC_CREATED -> this.npcManagement.handleInternalNPCCreate(
-          event.content().readObject(NPC.class));
-
-        // a npc was deleted
-        case AbstractNPCManagement.NPC_DELETED -> this.npcManagement.handleInternalNPCRemove(
-          event.content().readObject(WorldPosition.class));
-
-        // multiple npcs were deleted - remove then one by one
+        case AbstractNPCManagement.NPC_CREATED -> {
+          var npc = event.content().readObject(NPC.class);
+          this.npcManagement.handleInternalNPCCreate(npc);
+        }
+        case AbstractNPCManagement.NPC_DELETED -> {
+          var position = event.content().readObject(WorldPosition.class);
+          this.npcManagement.handleInternalNPCRemove(position);
+        }
         case AbstractNPCManagement.NPC_BULK_DELETE -> {
           Collection<WorldPosition> positions = event.content().readObject(WorldPosition.COL_TYPE);
           positions.forEach(this.npcManagement::handleInternalNPCRemove);
         }
-        // the npc configuration was updated
-        case AbstractNPCManagement.NPC_CONFIGURATION_UPDATE -> this.npcManagement.handleInternalNPCConfigUpdate(
-          event.content().readObject(NPCConfiguration.class));
-
-        // not our business
+        case AbstractNPCManagement.NPC_CONFIGURATION_UPDATE -> {
+          var config = event.content().readObject(NPCConfiguration.class);
+          this.npcManagement.handleInternalNPCConfigUpdate(config);
+        }
         default -> {
         }
       }

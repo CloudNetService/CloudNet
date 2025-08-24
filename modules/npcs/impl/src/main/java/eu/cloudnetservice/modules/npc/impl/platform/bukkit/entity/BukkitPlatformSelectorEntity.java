@@ -79,7 +79,7 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected final Set<Integer> infoLineEntityIds = new HashSet<>();
   protected final Set<InfoLineWrapper> infoLines = new HashSet<>();
-  protected final Map<UUID, ServiceItemWrapper> serviceItems = new LinkedHashMap<>();
+  protected final Map<UUID, ServiceItemWrapper> serviceItems = ;//new LinkedHashMap<>(); TODO: accessed concurrently, fix this
 
   protected volatile Inventory inventory;
   protected volatile Location npcLocation;
