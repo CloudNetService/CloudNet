@@ -24,7 +24,6 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
@@ -202,7 +201,7 @@ public class CloudNetNPCModule extends DriverModule {
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
-  public void handleReload(@Nullable @Service NPCManagement management) {
+  public void handleReload(@Nullable NPCManagement management) {
     if (management != null) {
       management.npcConfiguration(this.loadConfig());
     }

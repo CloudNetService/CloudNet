@@ -24,7 +24,6 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
@@ -103,7 +102,7 @@ public class CloudNetSignsModule extends DriverModule {
   @ModuleTask(order = 20)
   public void handleDatabaseConvert(
     @NonNull DatabaseProvider databaseProvider,
-    @NonNull @Service SignManagement signManagement
+    @NonNull SignManagement signManagement
   ) {
     this.convertDatabaseIfNecessary(databaseProvider, signManagement);
   }
@@ -114,7 +113,7 @@ public class CloudNetSignsModule extends DriverModule {
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
-  public void handleReload(@Nullable @Service SignManagement management) {
+  public void handleReload(@Nullable SignManagement management) {
     if (management != null) {
       management.signsConfiguration(NodeSignsConfigurationHelper.read(this.configPath()));
     }
