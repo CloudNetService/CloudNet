@@ -131,6 +131,11 @@ enum ValueTypeKind {
    * @throws NullPointerException if the given type is null.
    */
   static @NonNull ValueTypeKind of(@NonNull Class<?> type) {
+    if (!type.isPrimitive()) {
+      // optimization to prevent expensive string operations in Class#descriptorString()
+      return REF;
+    }
+
     return switch (type.descriptorString()) {
       case "B" -> BYTE;
       case "Z" -> BOOL;
@@ -140,7 +145,7 @@ enum ValueTypeKind {
       case "J" -> LONG;
       case "F" -> FLOAT;
       case "D" -> DOUBLE;
-      default -> REF;
+      default -> throw new AssertionError();
     };
   }
 

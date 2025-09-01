@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 final class FieldOffsetOps {
 
   private static final int FIELD_COUNT_IN_CLASS = Class.class.getDeclaredFields().length;
-  private static final Map<FieldCacheKey, Field> FIELD_LOOKUP_CACHE = new ConcurrentHashMap<>(16, 0.9f, 1);
+  private static final Map<FieldCacheKey, FieldAccessor> FIELD_LOOKUP_CACHE = new ConcurrentHashMap<>();
 
   private FieldOffsetOps() {
     throw new UnsupportedOperationException();
@@ -106,7 +106,7 @@ final class FieldOffsetOps {
    * @return the field with the given offset in the given base.
    * @throws NullPointerException if the given base is null.
    */
-  public static @Nullable Field fieldFromOffset(@NonNull Object base, long offset) {
+  public static @Nullable FieldAccessor fieldFromOffset(@NonNull Object base, long offset) {
     if (offset < 0) {
       // bail out early, a field with a negative offset cannot exist
       return null;
@@ -135,7 +135,8 @@ final class FieldOffsetOps {
       for (var c : classHierarchy.reversed()) {
         var fields = c.getDeclaredFields();
         if (remaining < fields.length) {
-          return fields[(int) remaining];
+          var field = fields[(int) remaining];
+          return FieldAccessor.make(field);
         }
 
         remaining -= fields.length;

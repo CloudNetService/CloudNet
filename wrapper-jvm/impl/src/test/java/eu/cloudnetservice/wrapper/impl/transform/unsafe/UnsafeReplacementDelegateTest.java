@@ -349,8 +349,9 @@ public class UnsafeReplacementDelegateTest {
         case true -> UnsafeReplacementDelegate.unsafeStaticFieldBase(field);
         case false -> inst;
       };
-      var resolvedField = FieldOffsetOps.fieldFromOffset(base, offset);
-      Assertions.assertEquals(field, resolvedField);
+      var resolved = FieldOffsetOps.fieldFromOffset(base, offset);
+      Assertions.assertNotNull(resolved);
+      Assertions.assertEquals(field, resolved.wrappedField());
     }
   }
 
@@ -376,8 +377,9 @@ public class UnsafeReplacementDelegateTest {
           case true -> UnsafeReplacementDelegate.unsafeStaticFieldBase(field);
           case false -> inst;
         };
-        var resolvedField = FieldOffsetOps.fieldFromOffset(base, offset);
-        Assertions.assertEquals(field, resolvedField);
+        var resolved = FieldOffsetOps.fieldFromOffset(base, offset);
+        Assertions.assertNotNull(resolved);
+        Assertions.assertEquals(field, resolved.wrappedField());
       }
     } while ((current = current.getSuperclass()) != null);
   }
