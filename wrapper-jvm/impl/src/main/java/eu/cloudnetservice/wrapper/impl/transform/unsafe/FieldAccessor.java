@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
 /**
+ * An accessor for a field in a class.
+ *
  * @since 4.0
  */
 final class FieldAccessor {
@@ -40,8 +42,11 @@ final class FieldAccessor {
   private final MethodHandle putMethodHandle; // null if VarHandle can support set (field is not trusted final)
 
   /**
+   * Constructs a new field accessor from the given field.
    *
-   * @param field
+   * @param field the field to construct the accessor for.
+   * @throws NullPointerException         if the given field is null.
+   * @throws ReflectiveOperationException if an exception occurs while getting the required reflective values.
    */
   private FieldAccessor(@NonNull Field field) throws ReflectiveOperationException {
     this.fieldType = field.getType();
@@ -74,9 +79,11 @@ final class FieldAccessor {
   }
 
   /**
+   * Constructs a new field accessor from the given field.
    *
-   * @param field
-   * @return
+   * @param field the field to construct the accessor for.
+   * @throws NullPointerException  if the given field is null.
+   * @throws IllegalStateException if an exception occurs while getting the required reflective values.
    */
   public static @NonNull FieldAccessor make(@NonNull Field field) {
     try {
@@ -287,8 +294,10 @@ final class FieldAccessor {
   }
 
   /**
+   * Get the field that was used to create this accessor. Note that the return value might be null in case the field was
+   * garbage collected. Only intended for use in tests.
    *
-   * @return
+   * @return the field that was used to create this accessor.
    */
   @VisibleForTesting
   public @Nullable Field wrappedField() {
