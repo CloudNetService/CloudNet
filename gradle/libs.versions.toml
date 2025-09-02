@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-shadow = "9.0.2"
+shadow = "9.1.0"
 juppiter = "0.4.0"
 spotless = "7.2.1"
 nexusPublish = "2.0.0"
