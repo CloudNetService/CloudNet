@@ -16,11 +16,12 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Arrays;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +33,25 @@ import org.jetbrains.annotations.Nullable;
 final class FieldOffsetOps {
 
   private static final int FIELD_COUNT_IN_CLASS = Class.class.getDeclaredFields().length;
-  private static final Map<FieldCacheKey, Field> FIELD_LOOKUP_CACHE = new ConcurrentHashMap<>(16, 0.9f, 1);
+  private static final ClassValue<PerClassFieldCache> CLASS_FIELD_CACHE = new ClassValue<>() {
+    @Override
+    protected @NonNull PerClassFieldCache computeValue(@NonNull Class<?> type) {
+      return new PerClassFieldCache();
+    }
+  };
+
+  private static final VarHandle SLOT_CACHE; // access to PerClassFieldCache.accessorsPerFieldSlot
+  private static final VarHandle SLOT_ELEMENT; // access to elements in PerClassFieldCache.accessorsPerFieldSlot
+
+  static {
+    try {
+      var lookup = MethodHandles.lookup();
+      SLOT_CACHE = lookup.findVarHandle(PerClassFieldCache.class, "accessorsPerFieldSlot", FieldAccessor[].class);
+      SLOT_ELEMENT = MethodHandles.arrayElementVarHandle(FieldAccessor[].class);
+    } catch (NoSuchFieldException | IllegalAccessException exception) {
+      throw new ExceptionInInitializerError(exception);
+    }
+  }
 
   private FieldOffsetOps() {
     throw new UnsupportedOperationException();
@@ -106,52 +125,93 @@ final class FieldOffsetOps {
    * @return the field with the given offset in the given base.
    * @throws NullPointerException if the given base is null.
    */
-  public static @Nullable Field fieldFromOffset(@NonNull Object base, long offset) {
-    if (offset < 0) {
-      // bail out early, a field with a negative offset cannot exist
+  public static @Nullable FieldAccessor fieldFromOffset(@NonNull Object base, long offset) {
+    var offsetAsInt = (int) offset;
+    if (offset < 0 || offset != offsetAsInt) {
+      // bail out early, a field with such an index is impossible
       return null;
     }
 
     var clazz = base instanceof Class<?> c ? c : base.getClass();
-    var cacheKey = new FieldCacheKey(clazz, offset);
-    return FIELD_LOOKUP_CACHE.computeIfAbsent(cacheKey, _ -> {
-      var classHierarchy = new ArrayList<Class<?>>();
-      for (var c = clazz; c != null; c = c.getSuperclass()) {
-        if (base instanceof Class<?> && c == Object.class) {
-          // special case handling: if a class was provided as the instance to operate
-          // on, this can have 2 meanings: either the caller requests a static field or
-          // an instance field in the class "Class" which does usually not appear in
-          // instance.getDeclaredFields() [which is intended as the fields in Class are
-          // not inherited into whatever the given class is when looking though the
-          // reflection api] - we therefore need to insert the class "Class" into the
-          // hierarchy manually here to allow finding fields in there too
-          classHierarchy.add(Class.class);
+    var perClassCache = CLASS_FIELD_CACHE.get(clazz);
+    for (; ; ) {
+      var slots = perClassCache.accessorsPerFieldSlot;
+      if (offsetAsInt < slots.length) {
+        // check if the accessor was already computed and is cached
+        var accessor = (FieldAccessor) SLOT_ELEMENT.getVolatile(slots, offsetAsInt);
+        if (accessor != null) {
+          return accessor;
         }
 
-        classHierarchy.add(c);
+        // accessor is not yet cached, insert into cache
+        var newAccessor = resolveFieldAccessor(clazz, base, offsetAsInt);
+        var storedAccessor = (FieldAccessor) SLOT_ELEMENT.compareAndExchange(slots, offsetAsInt, null, newAccessor);
+        return storedAccessor != null ? storedAccessor : newAccessor;
       }
 
-      var remaining = offset;
-      for (var c : classHierarchy.reversed()) {
-        var fields = c.getDeclaredFields();
-        if (remaining < fields.length) {
-          return fields[(int) remaining];
-        }
-
-        remaining -= fields.length;
-      }
-
-      return null;
-    });
+      // slow path: expand array to insert new accessor into slot, then continue the loop
+      var newArrayLength = Math.max(offsetAsInt + 1, Math.max(8, slots.length << 1));
+      var resizedSlots = Arrays.copyOf(slots, newArrayLength);
+      SLOT_CACHE.compareAndSet(perClassCache, slots, resizedSlots);
+    }
   }
 
   /**
-   * A cache key for a resolved field based on the base class and field offset.
+   * Resolves a field accessor for the field in the given class with the given field offset.
    *
-   * @param clazz  the class in which the field was resolved.
-   * @param offset the offset of the field that was resolved.
+   * @param clazz  the class to find the field in.
+   * @param base   the field base to get the field based of.
+   * @param offset the offset of the field to find.
+   * @return an accessor for the field in the given class at the given offset.
+   * @throws NullPointerException     if the given class or base is null.
+   * @throws IllegalArgumentException if an invalid offset was given.
    */
-  private record FieldCacheKey(@NonNull Class<?> clazz, long offset) {
+  private static @NonNull FieldAccessor resolveFieldAccessor(
+    @NonNull Class<?> clazz,
+    @NonNull Object base,
+    int offset
+  ) {
+    var classHierarchy = new ArrayList<Class<?>>();
+    for (var c = clazz; c != null; c = c.getSuperclass()) {
+      if (base instanceof Class<?> && c == Object.class) {
+        // special case handling: if a class was provided as the instance to operate
+        // on, this can have 2 meanings: either the caller requests a static field or
+        // an instance field in the class "Class" which does usually not appear in
+        // instance.getDeclaredFields() [which is intended as the fields in Class are
+        // not inherited into whatever the given class is when looking though the
+        // reflection api] - we therefore need to insert the class "Class" into the
+        // hierarchy manually here to allow finding fields in there too
+        classHierarchy.add(Class.class);
+      }
 
+      classHierarchy.add(c);
+    }
+
+    var remaining = offset;
+    for (var c : classHierarchy.reversed()) {
+      var fields = c.getDeclaredFields();
+      if (remaining < fields.length) {
+        var field = fields[remaining];
+        return FieldAccessor.make(field);
+      }
+
+      remaining -= fields.length;
+    }
+
+    throw new IllegalArgumentException("caller provided invalid field offset");
+  }
+
+  /**
+   * Cache for field accessors within a specific class.
+   *
+   * @since 4.0
+   */
+  private static final class PerClassFieldCache {
+
+    /**
+     * Array mapping of field slot to field accessor.
+     */
+    @SuppressWarnings("FieldMayBeFinal") // modified via VarHandle
+    private volatile FieldAccessor[] accessorsPerFieldSlot = new FieldAccessor[0];
   }
 }

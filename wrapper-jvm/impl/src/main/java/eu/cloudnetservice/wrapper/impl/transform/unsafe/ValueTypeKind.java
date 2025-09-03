@@ -130,18 +130,40 @@ enum ValueTypeKind {
    * @return the value type kind for the given type.
    * @throws NullPointerException if the given type is null.
    */
+  // IMPL NOTE: very hot path, readability doesn't really matter here
   static @NonNull ValueTypeKind of(@NonNull Class<?> type) {
-    return switch (type.descriptorString()) {
-      case "B" -> BYTE;
-      case "Z" -> BOOL;
-      case "C" -> CHAR;
-      case "S" -> SHORT;
-      case "I" -> INT;
-      case "J" -> LONG;
-      case "F" -> FLOAT;
-      case "D" -> DOUBLE;
-      default -> REF;
-    };
+    if (!type.isPrimitive()) {
+      // optimization to prevent the comparisons below
+      return REF;
+    }
+
+    if (type == byte.class) {
+      return BYTE;
+    }
+    if (type == boolean.class) {
+      return BOOL;
+    }
+    if (type == char.class) {
+      return CHAR;
+    }
+    if (type == short.class) {
+      return SHORT;
+    }
+    if (type == int.class) {
+      return INT;
+    }
+    if (type == long.class) {
+      return LONG;
+    }
+    if (type == float.class) {
+      return FLOAT;
+    }
+    if (type == double.class) {
+      return DOUBLE;
+    }
+
+    // can only reach here when called with void which should not happen
+    throw new AssertionError();
   }
 
   /**
