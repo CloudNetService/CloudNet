@@ -144,14 +144,9 @@ final class FieldOffsetOps {
         }
 
         // accessor is not yet cached, insert into cache
-        var resolvedAccessor = resolveFieldAccessor(clazz, base, offsetAsInt);
-        var didInsert = SLOT_ELEMENT.compareAndSet(slots, offsetAsInt, null, resolvedAccessor);
-        if (didInsert) {
-          return resolvedAccessor;
-        }
-
-        // another thread did insert already, read it again
-        return (FieldAccessor) SLOT_ELEMENT.getVolatile(slots, offsetAsInt);
+        var newAccessor = resolveFieldAccessor(clazz, base, offsetAsInt);
+        var storedAccessor = (FieldAccessor) SLOT_ELEMENT.compareAndExchange(slots, offsetAsInt, null, newAccessor);
+        return storedAccessor != null ? storedAccessor : newAccessor;
       }
 
       // slow path: expand array to insert new accessor into slot, then continue the loop
