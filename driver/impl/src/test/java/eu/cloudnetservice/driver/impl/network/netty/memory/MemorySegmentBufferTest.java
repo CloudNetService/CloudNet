@@ -767,6 +767,29 @@ public class MemorySegmentBufferTest {
 
   @ParameterizedTest
   @MethodSource("bufferTypes")
+  void testCopyWithInternalOffset(Buffer buffer) {
+    buffer.implicitCapacityLimit(18); // only needing 18 bytes at max
+
+    buffer.writeShort((short) 8943);
+    buffer.writeLong(987654321123456789L);
+    buffer.writeLong(-2784823473287483223L);
+    Assertions.assertEquals(0, buffer.readerOffset());
+    Assertions.assertEquals(18, buffer.writerOffset());
+
+    buffer.split(Short.BYTES); // move MemSeg offset to 2
+    Assertions.assertEquals(0, buffer.readerOffset());
+
+    var longTarget = new byte[8];
+    buffer.copyInto(8, longTarget, 0, 8);
+    Assertions.assertEquals(-2784823473287483223L, BYTE_ARRAY_AS_LONG.get(longTarget, 0));
+
+    var longTargetBB = ByteBuffer.allocate(8);
+    buffer.copyInto(8, longTargetBB, 0, 8);
+    Assertions.assertEquals(-2784823473287483223L, longTargetBB.getLong());
+  }
+
+  @ParameterizedTest
+  @MethodSource("bufferTypes")
   void testTransferToWritableByteChannel(Buffer buffer) throws IOException {
     buffer.implicitCapacityLimit(18); // only needing 18 bytes at max
 
