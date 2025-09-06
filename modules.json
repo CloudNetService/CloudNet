@@ -5,7 +5,7 @@
       "name": "CloudNet-Rest",
       "website": "https://github.com/CloudNetService/module-rest",
       "version": "0.4.0",
-      "sha3256": "cffa5d4e68a579c7506f13fa116e8811630631bee9cce809efdd3b473c814ffa",
+      "sha3256": "6765a7788d64bf9ca68dbf1df2cb68c1c1b01d20d86007c0568f22d0f18ca51e",
       "description": "Module which provides a REST API for managing resources within the CloudNet system",
       "url": "https://github.com/CloudNetService/module-rest/releases/download/0.4.0/cloudnet-rest.jar",
       "maintainers": [
