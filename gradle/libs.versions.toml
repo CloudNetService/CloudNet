@@ -18,11 +18,11 @@ junitLauncher = "1.13.4"
 testcontainers = "1.21.3"
 
 # compile time processing
-lombok = "1.18.38"
+lombok = "1.18.40"
 javapoet = "1.13.0"
 
 # console
-jline = "3.30.5"
+jline = "3.30.6"
 cloud = "2.0.0-cn1"
 cloudApi = "2.0.0"
 cloudConfirmation = "1.0.0-rc.1"
