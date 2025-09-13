@@ -138,7 +138,10 @@ public final class ClusterCommand {
   }
 
   @Parser(suggestions = "networkClusterNode")
-  public @NonNull NetworkClusterNode defaultNetworkClusterNodeParser(@NonNull CommandInput input, @NonNull I18n i18n) {
+  public @NonNull NetworkClusterNode defaultNetworkClusterNodeParser(
+    @NonNull CommandInput input,
+    @NonNull @Service I18n i18n
+  ) {
     var nodeId = input.readString();
     var clusterNode = this.clusterNodeProvider.node(nodeId);
     if (clusterNode == null) {
