@@ -94,19 +94,19 @@ abstract class ExportCnlFile : DefaultTask() {
   }
 
   fun setResolvedArtifacts(runtimeClasspath: Provider<Configuration>) {
-    val resolved = runtimeClasspath.flatMap { it.incoming.artifacts.resolvedArtifacts }
-
-    dependencies.set(resolved.map { set ->
-      set.map {
-        val file = it.file
-        val id = it.id
-        val variant = it.variant
-        CacheableResolvedArtifact(id, variant, file)
-      }.filter {
-        // Filter out all subprojects
-        it.id.componentIdentifier !is ProjectComponentIdentifier
+    val artifactsProvider = runtimeClasspath.map { cfg ->
+      val view = cfg.incoming.artifactView {
+        isLenient = true
+        componentFilter { id -> id !is ProjectComponentIdentifier }
       }
-    })
+      view.artifacts.artifacts
+    }
+    val mapped = artifactsProvider.map { set ->
+      set.map { ar ->
+        CacheableResolvedArtifact(id = ar.id, variant = ar.variant, file = ar.file)
+      }
+    }
+    dependencies.set(mapped)
   }
 
   @TaskAction
