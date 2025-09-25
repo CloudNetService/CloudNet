@@ -23,7 +23,7 @@ import org.gradle.api.Project
 class CloudNetPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
-      this.version = Versions.cloudNet
+      this.version = Versions.CLOUDNET
       this.group = "eu.cloudnetservice.cloudnet"
       this.description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
     }

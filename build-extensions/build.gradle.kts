@@ -22,19 +22,14 @@ plugins {
 // fabric requires jvm 21, so we can do so too
 kotlin.jvmToolchain(21)
 
-repositories {
-  gradlePluginPortal()
-  mavenCentral()
-}
-
 dependencies {
-  implementation("org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r")
+  implementation("com.google.code.gson:gson:2.13.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-  implementation("com.google.code.gson", "gson", "2.13.1")
 
-  implementation("com.diffplug.spotless", "spotless-plugin-gradle", libs.versions.spotless.get())
-  implementation("com.gradleup.shadow", "shadow-gradle-plugin", libs.versions.shadow.get())
-  implementation("eu.cloudnetservice.gradle", "juppiter", libs.versions.juppiter.get())
+  implementation("net.kyori:indra-git:${libs.versions.indra.get()}")
+  implementation("eu.cloudnetservice.gradle:juppiter:${libs.versions.juppiter.get()}")
+  implementation("com.gradleup.shadow:shadow-gradle-plugin:${libs.versions.shadow.get()}")
+  implementation("com.diffplug.spotless:spotless-plugin-gradle:${libs.versions.spotless.get()}")
 }
 
 gradlePlugin {
@@ -43,17 +38,9 @@ gradlePlugin {
       id = "cloudnet"
       implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetPlugin"
     }
-    register("cloudnet-git") {
-      id = "cloudnet-git"
-      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.git.CloudNetGitPlugin"
-    }
     register("cloudnet-updater") {
       id = "cloudnet-updater"
-      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.updater.CloudNetUpdaterPlugin"
-    }
-    register("cloudnet-settings") {
-      id = "cloudnet-settings"
-      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetSettingsPlugin"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetUpdaterPlugin"
     }
     register("cloudnet-publish") {
       id = "cloudnet-publish"

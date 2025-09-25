@@ -28,7 +28,7 @@ jobs:
           add-job-summary: always
 
       - name: Publish release to central portal
-        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --no-daemon
         env:
           CENTRAL_USER: "${{ secrets.CENTRAL_USER }}"
           CENTRAL_PASSWORD: "${{ secrets.CENTRAL_PASSWORD }}"

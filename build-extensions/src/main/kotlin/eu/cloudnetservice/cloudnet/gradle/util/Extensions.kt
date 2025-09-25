@@ -16,60 +16,49 @@
 
 package eu.cloudnetservice.cloudnet.gradle.util
 
-import eu.cloudnetservice.cloudnet.gradle.plugins.git.GitExtension
-import eu.cloudnetservice.cloudnet.gradle.plugins.git.GitService
+import net.kyori.indra.git.IndraGitExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.attributes
 import org.gradle.kotlin.dsl.the
-import java.util.*
-import java.util.function.Function
 
-fun TaskProvider<out Jar>.applyJarMetadata(git: GitExtension, mainClass: String, module: String) {
-  applyJarMetadata(git, mainClass, module, null)
+fun TaskProvider<out Jar>.applyJarMetadata(git: IndraGitExtension, mainClass: String, automaticModuleName: String) {
+  applyJarMetadata(git, mainClass, automaticModuleName, null)
 }
 
-fun TaskProvider<out Jar>.applyJarMetadata(git: GitExtension, mainClass: String, module: String, preMain: String?) {
-  val service = git.service
+fun TaskProvider<out Jar>.applyJarMetadata(
+  git: IndraGitExtension,
+  mainClass: String,
+  automaticModuleName: String,
+  preMain: String?
+) {
   this.configure {
-    val serviceOrEmpty = (service.map { Optional.of(it) })
-    usesService(service)
-
     val projectVersion = project.version.toString()
-
-    val commit = serviceOrEmpty.map("unknown") { it.commit?.name }
-    val branch = serviceOrEmpty.map("unknown") { it.branchName }
     inputs.property("projectVersion", projectVersion)
-    inputs.property("commit", commit)
-    inputs.property("branch", branch)
 
     manifest.attributes(
       "Main-Class" to mainClass,
-      "Automatic-Module-Name" to module,
+      "Automatic-Module-Name" to automaticModuleName,
       "Implementation-Vendor" to "CloudNetService",
-      "Implementation-Title" to Versions.cloudNetCodeName,
-      "Implementation-Version" to serviceOrEmpty.shortCommitHash().map { "$projectVersion-$it" }
+      "Implementation-Title" to Versions.CLOUDNET_CODE_NAME,
+      "Implementation-Version" to Versions.CLOUDNET,
     )
+
     // apply the pre-main class if given
     preMain?.let {
       manifest.attributes("Premain-Class" to it)
     }
 
-    // add git information
-    manifest.attributes("Git-Commit" to commit, "Git-Branch" to branch)
+    // this executes git and must therefore run at execution time,
+    // not at configuration time (execution is not supported at that time)
+    doFirst {
+      git.applyVcsInformationToManifest(manifest)
+    }
   }
-}
-
-fun Provider<Optional<GitService>>.map(empty: String, function: Function<GitService, String?>) =
-  map { o -> o.map { function.apply(it) }.orElse(empty) }
-
-fun Provider<Optional<GitService>>.shortCommitHash(): Provider<String> {
-  return map("unknown") { it.commit?.name?.substring(0, 8) }
 }
 
 fun Project.sourceSets(): SourceSetContainer = the<JavaPluginExtension>().sourceSets

@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.plugins.JAVA_CORE_COMPATIBILITY
 import eu.cloudnetservice.cloudnet.gradle.plugins.configureFor
-import eu.cloudnetservice.cloudnet.gradle.plugins.updater.lenientView
+import eu.cloudnetservice.cloudnet.gradle.plugins.lenientView
 import eu.cloudnetservice.cloudnet.gradle.util.CustomConfigurations
-import eu.cloudnetservice.cloudnet.gradle.util.Versions
-import eu.cloudnetservice.cloudnet.gradle.util.applyDefaultJavadocOptions
+import eu.cloudnetservice.cloudnet.gradle.util.applyJavadocOptions
 
 plugins {
   id("cloudnet")
   id("cloudnet-updater")
   id("java-base")
   alias(libs.plugins.nexusPublish)
+  alias(libs.plugins.indra) apply false
   alias(libs.plugins.shadow) apply false // must be here to enforce the bundled asm version
   alias(libs.plugins.spotless) apply false
 }
@@ -36,14 +37,15 @@ val globalJavadocClasspath = configurations.register("globalJavadocClasspath")
 
 tasks.register("globalJavaDoc", Javadoc::class) {
   val options = options as? StandardJavadocDocletOptions ?: return@register
-  javadocTool = javaToolchains.javadocToolFor { configureFor(Versions.javaVersion) }
-  options.source = Versions.javaVersion.asInt().toString()
+  javadocTool = javaToolchains.javadocToolFor { configureFor(JAVA_CORE_COMPATIBILITY) }
 
   title = "CloudNet JavaDocs"
   destinationDir = layout.buildDirectory.dir("javadocs").get().asFile
-  // options
-  applyDefaultJavadocOptions(options)
+
+  applyJavadocOptions(options)
   options.windowTitle = "CloudNet JavaDocs"
+  options.source = JAVA_CORE_COMPATIBILITY.toString()
+
   // set the sources. We are using lenientView to ignore subprojects that shouldn't be included
   source(globalJavadocSources.map { it.lenientView.files })
   classpath = globalJavadocClasspath.map { it.lenientView.files }.get()

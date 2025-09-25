@@ -16,26 +16,27 @@
 
 plugins {
   id("cloudnet-java")
+  id("cloudnet-publish")
 }
 
 dependencies {
-  "implementation"(projects.utils.utilsBase)
-  "implementation"(projects.driver.driverApi)
-  "implementation"(projects.ext.updater)
+  implementation(projects.utils.utilsBase)
+  implementation(projects.driver.driverApi)
+  implementation(projects.ext.updater)
 
-  "implementation"(libs.gson)
-  "implementation"(libs.guava)
-  "implementation"(libs.caffeine)
-  "implementation"(libs.reflexion)
-  "implementation"(libs.bundles.unirest)
+  implementation(libs.gson)
+  implementation(libs.guava)
+  implementation(libs.caffeine)
+  implementation(libs.reflexion)
+  implementation(libs.bundles.unirest)
 
-  "implementation"(libs.bundles.netty)
-  "implementation"(libs.nettyNativeKqueue)
-  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
-  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
+  implementation(libs.bundles.netty)
+  implementation(libs.nettyNativeKqueue)
+  implementation(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
+  implementation(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
 
-  "annotationProcessor"(libs.aerogelAuto)
-  "annotationProcessor"(projects.driver.driverAp)
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.driver.driverAp)
 }
 
 tasks.withType<JavaCompile>().configureEach {

@@ -17,26 +17,22 @@
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.databaseMysql)
+  alias(libs.plugins.shadow)
 }
 
 dependencies {
-  "moduleLibrary"(libs.bundles.mysql) {
+  moduleLibrary(libs.bundles.mysql) {
     exclude("com.google.protobuf")
   }
 
-  "compileOnly"(libs.caffeine)
-  "compileOnly"(projects.node.nodeImpl)
+  compileOnly(libs.caffeine)
+  compileOnly(projects.node.nodeImpl)
+  api(projects.modules.databaseMysql.databaseMysqlApi)
+}
 
-  "api"(projects.modules.databaseMysql.databaseMysqlApi)
-
-  "testCompileOnly"(libs.caffeine)
-  "testImplementation"(projects.node.nodeImpl)
+tasks.shadowJar.configure {
+  archiveFileName = Files.databaseMysql
 }
 
 moduleJson {

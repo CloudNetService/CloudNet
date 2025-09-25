@@ -34,7 +34,6 @@ fun collectSubProjects(root: Project, paths: MutableList<String>): List<String> 
     paths.add(it.path)
     collectSubProjects(it, paths)
   }
-  // just to make it look cleaner :)
   return paths
 }
 

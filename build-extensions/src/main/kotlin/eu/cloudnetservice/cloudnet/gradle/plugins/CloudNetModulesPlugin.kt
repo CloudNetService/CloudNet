@@ -17,7 +17,6 @@
 package eu.cloudnetservice.cloudnet.gradle.plugins
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
-import eu.cloudnetservice.cloudnet.gradle.plugins.updater.CloudNetUpdaterPlugin
 import eu.cloudnetservice.cloudnet.gradle.tasks.PrepareUpdaterDataTask
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
 import eu.cloudnetservice.gradle.juppiter.GenerateModuleJson
@@ -44,15 +43,13 @@ class CloudNetModulesPlugin : Plugin<Project> {
       }
 
       val generateModuleJson = tasks.named<GenerateModuleJson>("genModuleJson")
-
       val archiveFileName = project.objects.property<String>()
+
       val prepareUpdaterData = tasks.named<PrepareUpdaterDataTask>("prepareUpdaterData") {
         dependsOn(generateModuleJson)
-
         from(generateModuleJson.flatMap { it.outputDirectory.file(it.fileName) })
 
         val moduleJsonName = generateModuleJson.flatMap { it.fileName }
-
         meta.set(archiveFileName.flatMap { archiveName ->
           moduleJsonName.map { moduleJsonName ->
             UpdaterMeta(UpdaterMeta.Type.MODULE, UpdaterMeta.Data.Module(archiveName, moduleJsonName))
@@ -61,20 +58,18 @@ class CloudNetModulesPlugin : Plugin<Project> {
       }
 
       afterEvaluate {
-        val archiveProducer = (if (plugins.hasPlugin(ShadowJavaPlugin::class.java)) {
+        val archiveProducer = if (plugins.hasPlugin(ShadowJavaPlugin::class.java)) {
           tasks.named<Jar>("shadowJar")
-        } else if (plugins.hasPlugin("fabric-loom")) {
-          tasks.named<Jar>("remapJar")
         } else {
           tasks.named<Jar>("jar")
-        })
+        }
 
         prepareUpdaterData.configure {
           archiveFileName.convention(fromArchive(archiveProducer))
         }
       }
 
-      configureModules()
+      registerProcessSources()
     }
   }
 }

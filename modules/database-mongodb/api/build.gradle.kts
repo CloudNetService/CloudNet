@@ -17,3 +17,7 @@
 plugins {
   id("cloudnet-modules-api")
 }
+
+dependencies {
+  compileOnly(libs.guava)
+}

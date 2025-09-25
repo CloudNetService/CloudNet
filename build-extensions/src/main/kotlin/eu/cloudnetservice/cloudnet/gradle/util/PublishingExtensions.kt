@@ -56,7 +56,7 @@ fun Project.configurePublishing(publishedComponent: String) {
           developers {
             developer {
               id.set("derklaro")
-              email.set("git@derklaro.dev")
+              email.set("me@derklaro.dev")
               timezone.set("Europe/Berlin")
             }
 
@@ -118,7 +118,6 @@ fun Project.configurePublishing(publishedComponent: String) {
     sign(extensions.getByType(PublishingExtension::class.java).publications.getByName("maven"))
   }
 
-  // pull this out because of configuration cache
   val version = this.version
   tasks.withType<Sign>().configureEach {
     onlyIf {
@@ -134,12 +133,12 @@ fun Project.configurePublishing(publishedComponent: String) {
     }
     tasks.withType<Javadoc>().configureEach {
       val options = options as? StandardJavadocDocletOptions ?: return@configureEach
-      applyDefaultJavadocOptions(options)
+      applyJavadocOptions(options)
     }
   }
 }
 
-fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions) {
+fun applyJavadocOptions(options: StandardJavadocDocletOptions) {
   options.use()
   options.encoding = "UTF-8"
   options.memberLevel = JavadocMemberLevel.PRIVATE

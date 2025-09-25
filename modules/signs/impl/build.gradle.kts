@@ -18,39 +18,49 @@ import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
+  alias(libs.plugins.shadow)
 }
 
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.signs)
+repositories {
+  maven("https://repo.opencollab.dev/maven-releases/")
+  maven("https://repo.opencollab.dev/maven-snapshots/")
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+}
 
-  manifest {
-    attributes["paperweight-mappings-namespace"] = "mojang"
-  }
+dependencies {
+  compileOnly(libs.spigot)
+  compileOnly(libs.sponge)
+  compileOnly(libs.nukkitX)
+  compileOnly(libs.minestom)
+  compileOnly(libs.reflexion)
+  compileOnly(libs.minestomExtensions)
+
+  compileOnly(projects.node.nodeImpl)
+  compileOnly(projects.utils.utilsBase)
+  compileOnly(projects.ext.adventureHelper)
+  compileOnly(projects.wrapperJvm.wrapperJvmApi)
+  compileOnly(projects.modules.bridge.bridgeApi)
+  compileOnly(projects.modules.bridge.bridgeImpl)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
+
+  api(projects.modules.signs.signsApi)
+  implementation(projects.ext.bukkitCommand)
+
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
 }
 
 tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/signs.aero")
 }
 
-dependencies {
-  "compileOnly"(libs.reflexion)
+tasks.shadowJar.configure {
+  archiveFileName = Files.signs
 
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.utils.utilsBase)
-  "compileOnly"(projects.ext.adventureHelper)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
-  "compileOnly"(projects.modules.bridge.bridgeApi)
-  "compileOnly"(projects.modules.bridge.bridgeImpl)
-
-  "implementation"(projects.ext.bukkitCommand)
-  "implementation"(projects.modules.signs.signsApi)
-
-  // processing
-  "annotationProcessor"(libs.aerogelAuto)
-
-  "compileOnly"(libs.bundles.serverPlatform)
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
 }
 
 moduleJson {

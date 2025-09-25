@@ -27,8 +27,6 @@ class CloudNetPublishPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
       apply<CloudNetPlugin>()
-
-      // these are the plugins which we need to apply to all projects
       apply(plugin = "signing")
       apply(plugin = "maven-publish")
 

@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.gradle.util
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -30,7 +31,11 @@ data class UpdaterMeta(
   val data: Data
 ) : Serializable {
   companion object {
-    val gson = GsonBuilder().registerTypeHierarchyAdapter(UpdaterMeta::class.java, MetaAdapter).create()
+    val gson: Gson = GsonBuilder()
+      .serializeNulls()
+      .disableHtmlEscaping()
+      .registerTypeHierarchyAdapter(UpdaterMeta::class.java, MetaAdapter)
+      .create()
   }
 
   /**
@@ -49,9 +54,9 @@ data class UpdaterMeta(
     }
 
     override fun deserialize(
-        json: JsonElement,
-        typeOfT: java.lang.reflect.Type,
-        context: JsonDeserializationContext
+      json: JsonElement,
+      typeOfT: java.lang.reflect.Type,
+      context: JsonDeserializationContext
     ): UpdaterMeta {
       val json = json.asJsonObject
       val type = context.deserialize<Type>(json.get("type"), Type::class.java)

@@ -14,47 +14,61 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file.StandardCopyOption
 import java.nio.file.Files as NioFiles
-import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
   id("cloudnet-modules")
+  alias(libs.plugins.shadow)
 }
 
-configurations {
-  val shaded = register("shaded")
-  getByName("compileOnlyApi").extendsFrom(shaded.get())
+val shaded = configurations.register("shaded")
+configurations.named("compileOnlyApi") {
+  extendsFrom(shaded.get())
+}
+
+repositories {
+  maven("https://repo.waterdog.dev/releases/")
+  maven("https://repo.waterdog.dev/snapshots/")
+  maven("https://repo.loohpjames.com/repository")
+  maven("https://repo.md-5.net/repository/releases/")
+  maven("https://repo.md-5.net/repository/snapshots/")
+  maven("https://repo.opencollab.dev/maven-releases/")
+  maven("https://repo.opencollab.dev/maven-snapshots/")
+  maven("https://repo.papermc.io/repository/maven-public/")
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+}
+
+dependencies {
+  compileOnly(projects.node.nodeImpl)
+  compileOnly(projects.utils.utilsBase)
+  compileOnly(projects.driver.driverImpl)
+  compileOnly(projects.wrapperJvm.wrapperJvmApi)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
+
+  compileOnly(libs.guava)
+  compileOnly(libs.reflexion)
+  compileOnly(libs.fabricLoader)
+  compileOnly(libs.bundles.proxyPlatform)
+  compileOnly(libs.bundles.serverPlatform)
+
+  shaded(projects.ext.adventureHelper)
+  shaded(projects.modules.bridge.bridgeApi)
+  shaded(libs.bundles.adventure)
+  shaded(libs.adventureSerializerBungee)
+
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.driver.driverAp)
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
 }
 
 tasks.withType<JavaCompile> {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/bridge.aero")
-}
-
-dependencies {
-  "api"(projects.modules.bridge.bridgeApi)
-
-  "compileOnly"(libs.reflexion)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.utils.utilsBase)
-  "compileOnly"(projects.driver.driverImpl)
-  "compileOnly"(libs.fabricLoader)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(libs.bundles.serverPlatform)
-
-  "shaded"(projects.ext.adventureHelper)
-  "shaded"(projects.modules.bridge.bridgeApi)
-  "shaded"(libs.bundles.adventure)
-  "shaded"(libs.adventureSerializerBungee)
-
-  // processing
-  "annotationProcessor"(libs.aerogelAuto)
-  "annotationProcessor"(projects.driver.driverAp)
 }
 
 // Downloads the versioned fabric mods zip from CloudNetService/cloudnet-bridge-fabric
@@ -63,6 +77,7 @@ val zipFileName = "cloudnet_fabric_version_bridge_all.zip"
 val nestedZipFile = layout.buildDirectory.file("download/$zipFileName")
 val downloadVersionedFabricMods by tasks.registering {
   outputs.upToDateWhen { false } // permanent download url, cannot be cached
+  outputs.file(nestedZipFile)
   val downloadUrl = "https://github.com/CloudNetService/cloudnet-bridge-fabric/releases/latest/download/$zipFileName"
   doLast {
     val out = nestedZipFile.get().asFile
@@ -76,17 +91,16 @@ val downloadVersionedFabricMods by tasks.registering {
 // unpacks the previously downloaded versioned mods zip into the target directory
 val nestedUnpackDir = layout.buildDirectory.dir("generated/fabric_mods_nested")
 val unpackVersionedFabricMods by tasks.registering(Copy::class) {
-  dependsOn(downloadVersionedFabricMods)
+  inputs.file(nestedZipFile)
+  outputs.dir(nestedUnpackDir)
   from(zipTree(nestedZipFile))
   into(nestedUnpackDir)
 }
 
-//
+// updates the fabric.mod.json file to include the nested jar paths
 val apOutputModJson = layout.buildDirectory.file("classes/java/main/fabric.mod.json.temp")
 val modJsonWithNestedJars = layout.buildDirectory.file("generated/fabric.mod.json")
 val addNestedJarsToFabricModJson by tasks.registering {
-  dependsOn(tasks.getByName("compileJava"), unpackVersionedFabricMods)
-
   inputs.file(apOutputModJson)
   inputs.dir(nestedUnpackDir)
   outputs.file(modJsonWithNestedJars)
@@ -123,7 +137,6 @@ tasks.shadowJar {
   exclude("fabric.mod.json.temp")
 
   // depend on nested jar download, copy the nested jars into the final jar
-  dependsOn(unpackVersionedFabricMods, addNestedJarsToFabricModJson)
   from(nestedUnpackDir) {
     into("bridge_mods_nested")
   }

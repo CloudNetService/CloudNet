@@ -16,14 +16,11 @@
 
 plugins {
   id("cloudnet-java")
+  id("cloudnet-publish")
 }
 
 dependencies {
-  "compileOnly"(libs.adventureApi)
-  "compileOnly"(libs.adventureSerializerLegacy)
-  "compileOnly"(libs.bungeecordChat)
-}
-
-configurations {
-  named("testImplementation").get().extendsFrom(named("compileOnly").get())
+  compileOnly(libs.adventureApi)
+  compileOnly(libs.adventureSerializerLegacy)
+  compileOnly(libs.bungeecordChat)
 }

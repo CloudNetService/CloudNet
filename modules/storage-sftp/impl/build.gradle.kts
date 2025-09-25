@@ -17,18 +17,19 @@
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.storageSftp)
+  alias(libs.plugins.shadow)
 }
 
 dependencies {
-  "moduleLibrary"(libs.sshj)
-  "compileOnly"(projects.utils.utilsBase)
-  "implementation"(projects.modules.storageSftp.storageSftpApi)
+  moduleLibrary(libs.sshj)
+  compileOnly(projects.node.nodeApi)
+  compileOnly(projects.utils.utilsBase)
+  api(projects.modules.storageSftp.storageSftpApi)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.storageSftp
 }
 
 moduleJson {

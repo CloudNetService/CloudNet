@@ -17,19 +17,19 @@
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.dockerizedServices)
+  alias(libs.plugins.shadow)
 }
 
 dependencies {
-  "compileOnly"(projects.utils.utilsBase)
-  "compileOnly"(projects.node.nodeImpl)
-  "moduleLibrary"(libs.bundles.dockerJava)
-  "api"(projects.modules.dockerizedServices.dockerizedServicesApi)
+  compileOnly(projects.utils.utilsBase)
+  compileOnly(projects.node.nodeImpl)
+  moduleLibrary(libs.bundles.dockerJava)
+  api(projects.modules.dockerizedServices.dockerizedServicesApi)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.dockerizedServices
 }
 
 moduleJson {

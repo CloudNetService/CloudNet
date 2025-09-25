@@ -16,4 +16,5 @@
 
 plugins {
   id("cloudnet-java")
+  id("cloudnet-publish")
 }

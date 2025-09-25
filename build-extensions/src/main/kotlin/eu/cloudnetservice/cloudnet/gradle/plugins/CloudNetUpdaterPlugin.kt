@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle.plugins.updater
+package eu.cloudnetservice.cloudnet.gradle.plugins
 
-import eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetJavaPlugin
 import eu.cloudnetservice.cloudnet.gradle.tasks.GenerateUpdaterInformationTask
 import eu.cloudnetservice.cloudnet.gradle.tasks.PrepareUpdaterDataTask
 import org.gradle.api.Plugin
@@ -48,8 +47,8 @@ class CloudNetUpdaterPlugin : Plugin<Project> {
 
     val updaterData = configurations.register("updaterData") {
       attributes {
-        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
         attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
         attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(UPDATER_DATA))
       }
     }
@@ -64,8 +63,8 @@ class CloudNetUpdaterPlugin : Plugin<Project> {
   fun Project.configureRootProject() {
     val updaterDependencies = configurations.register("updaterDependencies") {
       attributes {
-        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
         attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
         attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(UPDATER_DATA))
       }
     }

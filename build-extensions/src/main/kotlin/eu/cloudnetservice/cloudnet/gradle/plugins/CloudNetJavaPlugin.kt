@@ -17,7 +17,6 @@
 package eu.cloudnetservice.cloudnet.gradle.plugins
 
 import com.diffplug.gradle.spotless.SpotlessExtension
-import eu.cloudnetservice.cloudnet.gradle.util.Versions
 import eu.cloudnetservice.cloudnet.gradle.util.bundle
 import eu.cloudnetservice.cloudnet.gradle.util.library
 import eu.cloudnetservice.cloudnet.gradle.util.libs
@@ -54,39 +53,37 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.repositories
 import org.gradle.kotlin.dsl.withType
 
+/**
+ * Java version compatibility to apply to all non-api projects.
+ */
+val JAVA_CORE_COMPATIBILITY = JavaLanguageVersion.of(24)
+
 class CloudNetJavaPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
       apply<CloudNetPlugin>()
-      apply<CloudNetPublishPlugin>()
 
       apply(plugin = "checkstyle")
       apply(plugin = "java-library")
+      apply(plugin = "net.kyori.indra.git")
       apply(plugin = "com.diffplug.spotless")
 
-      // Add common repositories required in all projects
       this.addDefaultRepositories()
-      // Add common dependencies required in all projects
       this.addDefaultDependencies()
 
       this.includeLicenseInJar()
 
       // By default, all projects use the latest java version.
       // This may be overwritten by API-projects
-      this.configureJavaVersion(Versions.javaVersion)
+      this.configureJavaVersion()
 
       this.configureTestTasks()
-
       this.configureCompileJava()
-
       this.configureShadow()
-
       this.configureCheckstyle()
-
       this.configureSpotless()
-
-      // TODO find a better name
-      this.configureJavaVersionTasks()
+      this.applyJavaLauncher()
+      this.extendTestImplementationFromCompileOnly()
     }
   }
 }
@@ -96,7 +93,8 @@ private val cloudNetJvmArgs = arrayOf(
   "--enable-preview",
   "-XX:+EnableDynamicAgentLoading",
   "--enable-native-access=ALL-UNNAMED",
-  "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
+  "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",
+  "-Dio.netty5.noUnsafe=true",
 )
 
 private fun Project.addDefaultRepositories() {
@@ -113,20 +111,15 @@ private fun Project.addDefaultRepositories() {
   }
 }
 
-/**
- * Adds default dependencies like annotation processors and testing
- */
 private fun Project.addDefaultDependencies() {
   val libs = this.libs
 
   afterEvaluate {
     dependencies {
-      // lombok
       "compileOnly"(libs.library("lombok"))
       "annotationProcessor"(libs.library("lombok"))
-      // annotations
       "compileOnly"(libs.library("annotations"))
-      // testing
+
       "testImplementation"(libs.library("mockito"))
       "testRuntimeOnly"(libs.library("junitLauncher"))
       "testImplementation"(libs.bundle("junit"))
@@ -135,7 +128,6 @@ private fun Project.addDefaultDependencies() {
   }
 
   configurations.configureEach {
-    // unsure why but every project loves them, and they literally have an import for every letter I type - beware
     exclude("org.checkerframework", "checker-qual")
   }
 }
@@ -154,10 +146,7 @@ private fun Project.configureTestTasks() {
       events("started", "passed", "skipped", "failed")
     }
 
-    // allow dynamic agent loading for mockito
     jvmArgs(*cloudNetJvmArgs)
-
-    // always pass down all given system properties
     systemProperties(System.getProperties().mapKeys { it.key.toString() })
   }
 }
@@ -167,10 +156,17 @@ private fun Project.configureCompileJava() {
     options.encoding = "UTF-8"
     options.isIncremental = true
 
-    if (project.path != ":launcher:java8" && project.path != ":launcher:patcher" && !project.path.contains("api")) {
-      options.compilerArgs.add("--enable-preview")
-      options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
+    if (project.path != ":launcher:launcher-patcher" && !project.plugins.hasPlugin("cloudnet-java-api")) {
       options.compilerArgs.add("-proc:full")
+      options.compilerArgs.add("--enable-preview")
+      options.compilerArgs.addAll(
+        listOf(
+          "-Xlint:all",         // enable all warnings
+          "-Xlint:-preview",    // reduce warning size for the following warning types
+          "-Xlint:-unchecked",
+          "-Xlint:-processing",
+        )
+      )
     }
   }
 }
@@ -187,19 +183,14 @@ private fun Project.configureShadow() {
   }
 }
 
-/**
- * This may seem somewhat odd.
- * When running JavaExec tasks from IntelliJ, sometimes to quickly run a snippet of code with a main() method,
- * the JavaExec tasks will often have the wrong java version and fail. So we override them
- */
-private fun Project.configureJavaVersionTasks() {
+private fun Project.applyJavaLauncher() {
   // This must be inside withPlugin("java-base") or else the extensions won't be registered yet
   pluginManager.withPlugin("java-base") {
-    val extension = extensions.getByType<JavaPluginExtension>()
     val service = extensions.getByType<JavaToolchainService>()
+    val extension = extensions.getByType<JavaPluginExtension>()
     val launcher = service.launcherFor(extension.toolchain)
-    val latestLauncher = service.launcherFor { this.configureFor(Versions.javaVersion) }
-    val javadoc = service.javadocToolFor { this.configureFor(Versions.javaVersion) }
+    val javadoc = service.javadocToolFor { this.configureFor(JAVA_CORE_COMPATIBILITY) }
+    val latestLauncher = service.launcherFor { this.configureFor(JAVA_CORE_COMPATIBILITY) }
 
     tasks.withType<Checkstyle>().configureEach {
       javaLauncher = latestLauncher
@@ -216,24 +207,20 @@ private fun Project.configureJavaVersionTasks() {
 
     tasks.withType<Javadoc>().configureEach {
       javadocTool = javadoc
-      options.source = Versions.javaVersion.asInt().toString()
+      options.source = JAVA_CORE_COMPATIBILITY.toString()
     }
   }
 }
 
 private fun Project.configureCheckstyle() {
-
   tasks.withType<Checkstyle>().configureEach {
     maxErrors = 0
     maxWarnings = 0
     configFile = project.isolated.rootProject.projectDirectory.file("checkstyle.xml").asFile
   }
 
-  // TODO investigate why this afterEvaluate exists
-  afterEvaluate {
-    extensions.configure<CheckstyleExtension> {
-      toolVersion = libs.map { it.findVersion("checkstyleTools").orElseThrow().requiredVersion }.get()
-    }
+  extensions.configure<CheckstyleExtension> {
+    toolVersion = libs.map { it.findVersion("checkstyleTools").orElseThrow().requiredVersion }.get()
   }
 }
 
@@ -245,9 +232,13 @@ private fun Project.configureSpotless() {
   }
 }
 
-// ----------------------------------------------------
-// -          helpers used in other plugins           -
-// ----------------------------------------------------
+private fun Project.extendTestImplementationFromCompileOnly() {
+  pluginManager.withPlugin("java-base") {
+    configurations.named("testImplementation").configure {
+      extendsFrom(configurations.named("compileOnly").get())
+    }
+  }
+}
 
 internal fun Project.registerProcessSources() {
   val processSources = tasks.register<Sync>("processSources") {
@@ -262,13 +253,13 @@ internal fun Project.registerProcessSources() {
   }
 }
 
-// ----------------------------------------------------
-// -               publicly visible api               -
-// ----------------------------------------------------
-
 fun JavaToolchainSpec.configureFor(version: JavaLanguageVersion) {
   this.languageVersion = version
-  this.vendor = JvmVendorSpec.ADOPTIUM
+  this.vendor = JvmVendorSpec.AZUL
+}
+
+fun Project.configureJavaVersion() {
+  this.configureJavaVersion(JAVA_CORE_COMPATIBILITY)
 }
 
 fun Project.configureJavaVersion(version: JavaLanguageVersion) {

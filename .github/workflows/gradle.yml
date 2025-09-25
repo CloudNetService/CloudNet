@@ -35,7 +35,7 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/nightly' }}
 
       - name: Execute build and tests
-        run: ./gradlew build test shadowJar genUpdaterInformation --stacktrace
+        run: ./gradlew build genUpdaterInformation --no-daemon
 
       - name: Publish test summary
         if: ${{ always() }}
@@ -71,7 +71,7 @@ jobs:
 
       - name: Publish snapshot to central portal
         if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') }}
-        run: ./gradlew publish
+        run: ./gradlew publish --no-daemon
         env:
           CENTRAL_USER: "${{ secrets.CENTRAL_USER }}"
           CENTRAL_PASSWORD: "${{ secrets.CENTRAL_PASSWORD }}"

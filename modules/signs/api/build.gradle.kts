@@ -19,5 +19,7 @@ plugins {
 }
 
 dependencies {
-  "compileOnly"(projects.modules.bridge.bridgeApi)
+  compileOnly(libs.guava)
+  compileOnly(libs.geantyref)
+  compileOnly(projects.modules.bridge.bridgeApi)
 }

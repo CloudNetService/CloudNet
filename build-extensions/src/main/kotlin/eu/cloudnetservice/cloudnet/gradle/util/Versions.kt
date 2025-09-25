@@ -16,14 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.gradle.util
 
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-
 object Versions {
-
-  // internal versions
-  const val cloudNet = "4.0.0-RC15-SNAPSHOT"
-  const val cloudNetCodeName = "Blizzard"
-
-  val javaVersionApi = JavaLanguageVersion.of(17)
-  val javaVersion = JavaLanguageVersion.of(24)
+  const val CLOUDNET = "4.0.0-RC15-SNAPSHOT"
+  const val CLOUDNET_CODE_NAME = "Blizzard"
 }

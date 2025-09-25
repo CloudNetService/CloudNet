@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin.Companion.shadowJar
-
 /*
  * Copyright 2019-2024 CloudNetService team & contributors
  *
@@ -18,23 +16,20 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin.Companion.sha
 
 plugins {
   id("cloudnet-java")
+  id("cloudnet-publish")
+}
+
+val bundled = configurations.register("bundled") {
+  isTransitive = false
+  isCanBeConsumed = false
 }
 
 dependencies {
-  "api"(projects.ext.platformInjectSupport.platformInjectApi)
-  "implementation"(projects.utils.utilsBase)
-}
-
-val includeInJar = configurations.register("includeInJar") {
-  isCanBeConsumed = false;
-  isTransitive = false
+  implementation(projects.utils.utilsBase)
+  api(projects.ext.platformInjectSupport.platformInjectApi)
+  bundled(projects.ext.platformInjectSupport.platformInjectRuntime)
 }
 
 tasks.jar {
-  // copy over the final output file
-  from(includeInJar)
-}
-
-dependencies {
-  includeInJar(projects.ext.platformInjectSupport.platformInjectRuntime)
+  from(bundled)
 }

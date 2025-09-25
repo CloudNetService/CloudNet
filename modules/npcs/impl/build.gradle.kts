@@ -18,34 +18,8 @@ import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.npcs)
-
-  manifest {
-    attributes["paperweight-mappings-namespace"] = "mojang"
-  }
-
-  relocate("net.kyori", "eu.cloudnetservice.modules.npc.relocate.net.kyori")
-  relocate("io.papermc.lib", "eu.cloudnetservice.modules.npc.relocate.paperlib")
-  relocate("io.leangen.geantyref", "eu.cloudnetservice.modules.npc.relocate.geantyref")
-  relocate("io.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.io.packetevents")
-  relocate("com.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.com.packetevents")
-  relocate("com.github.juliarn.npclib", "eu.cloudnetservice.modules.npc.relocate.com.github.juliarn.npclib")
-
-  dependencies {
-    exclude("plugin.yml")
-    // excludes the META-INF directory, module infos & html files of all dependencies
-    // this includes for example maven lib files & multi-release module-json files
-    exclude("META-INF/**", "**/*.html", "module-info.*")
-  }
-}
-
-tasks.withType<JavaCompile>().configureEach {
-  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/npcs.aero")
+  alias(libs.plugins.shadow)
 }
 
 repositories {
@@ -59,25 +33,52 @@ repositories {
       includeGroup("com.github.retrooper")
     }
   }
+  maven("https://repo.papermc.io/repository/maven-public/")
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
 }
 
 dependencies {
-  "compileOnly"(libs.unirest)
-  "compileOnly"(libs.reflexion)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.utils.utilsBase)
-  "compileOnly"(libs.bundles.serverPlatform)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
-  "compileOnly"(projects.modules.bridge.bridgeImpl)
+  compileOnly(libs.spigot)
+  compileOnly(libs.unirest)
+  compileOnly(libs.reflexion)
+  compileOnly(projects.node.nodeImpl)
+  compileOnly(projects.utils.utilsBase)
+  compileOnly(projects.wrapperJvm.wrapperJvmApi)
+  compileOnly(projects.modules.bridge.bridgeImpl)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 
-  "implementation"(projects.modules.npcs.npcsApi)
-  "implementation"(projects.ext.bukkitCommand)
+  implementation(libs.packetEvents)
+  implementation(projects.ext.bukkitCommand)
 
-  "implementation"(libs.packetEvents)
-  "implementation"(projects.ext.bukkitCommand)
+  api(libs.bundles.npcLib)
+  api(projects.modules.npcs.npcsApi)
 
-  "api"(libs.bundles.npcLib)
-  "annotationProcessor"(libs.aerogelAuto)
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.npcs
+
+  relocate("net.kyori", "eu.cloudnetservice.modules.npc.relocate.net.kyori")
+  relocate("io.papermc.lib", "eu.cloudnetservice.modules.npc.relocate.paperlib")
+  relocate("io.leangen.geantyref", "eu.cloudnetservice.modules.npc.relocate.geantyref")
+  relocate("io.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.io.packetevents")
+  relocate("com.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.com.packetevents")
+  relocate("com.github.juliarn.npclib", "eu.cloudnetservice.modules.npc.relocate.com.github.juliarn.npclib")
+
+  dependencies {
+    exclude("plugin.yml")
+    exclude("META-INF/**", "**/*.html", "module-info.*")
+  }
+
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/npcs.aero")
 }
 
 moduleJson {

@@ -17,20 +17,19 @@
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.storageS3)
+  alias(libs.plugins.shadow)
 }
 
 dependencies {
-  "moduleLibrary"(libs.awsSdk)
-  "compileOnly"(projects.utils.utilsBase)
-  "implementation"(projects.modules.storageS3.storageS3Api)
+  moduleLibrary(libs.awsSdk)
+  compileOnly(projects.node.nodeApi)
+  compileOnly(projects.utils.utilsBase)
+  api(projects.modules.storageS3.storageS3Api)
+}
 
-  "testImplementation"(projects.utils.utilsBase)
+tasks.shadowJar.configure {
+  archiveFileName = Files.storageS3
 }
 
 moduleJson {

@@ -16,8 +16,9 @@
 
 plugins {
   id("cloudnet-java-api")
+  id("cloudnet-publish")
 }
 
 dependencies {
-  "compileOnlyApi"(projects.driver.driverApi)
+  compileOnlyApi(projects.driver.driverApi)
 }

@@ -56,6 +56,7 @@ abstract class GenerateUpdaterInformationTask : DefaultTask() {
     val destination = destinationDirectory.get().asFile
     destination.deleteRecursively()
     destination.mkdirs()
+
     val modulesDirectory = destination.resolve("modules")
     modulesDirectory.mkdirs()
 
@@ -64,9 +65,8 @@ abstract class GenerateUpdaterInformationTask : DefaultTask() {
     }
 
     val checksums = Properties()
-
     artifacts.forEach { directory ->
-      val meta = directory.resolve("meta.json").readText().run { UpdaterMeta.Companion.gson.fromJson(this, UpdaterMeta::class.java) }
+      val meta = directory.resolve("meta.json").readText().run { UpdaterMeta.gson.fromJson(this, UpdaterMeta::class.java) }
       val data = meta.data
       when (meta.type) {
         Type.MODULE -> {
@@ -85,7 +85,7 @@ abstract class GenerateUpdaterInformationTask : DefaultTask() {
             addProperty("url", "https://github.com/%updateRepo%/raw/%updateBranch%/modules/${data.archiveName}")
 
             add("maintainers", JsonArray(1).apply { add(moduleJson.get("author").asString) })
-            add("releaseNotes", JsonArray(1).apply { add("Working with CloudNet ${Versions.cloudNet}") })
+            add("releaseNotes", JsonArray(1).apply { add("Working with CloudNet ${Versions.CLOUDNET}") })
 
             add("dependingModules", JsonArray().apply {
               val dependencies = moduleJson.get("dependencies")?.asJsonArray ?: JsonArray()
@@ -130,7 +130,7 @@ abstract class GenerateUpdaterInformationTask : DefaultTask() {
     checksums.setProperty("modules-json", ChecksumHelper.fileShaSum(modulesJsonFile))
 
     destination.resolve("checksums.properties").bufferedWriter().use {
-      checksums.store(it, "Checksums for CloudNet ${Versions.cloudNet}-${Versions.cloudNetCodeName}")
+      checksums.store(it, "Checksums for CloudNet ${Versions.CLOUDNET}-${Versions.CLOUDNET_CODE_NAME}")
     }
   }
 }

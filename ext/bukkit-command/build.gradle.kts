@@ -16,6 +16,7 @@
 
 plugins {
   id("cloudnet-java")
+  id("cloudnet-publish")
 }
 
 repositories {
@@ -23,5 +24,5 @@ repositories {
 }
 
 dependencies {
-  "compileOnly"(libs.spigot)
+  compileOnly(libs.spigot)
 }

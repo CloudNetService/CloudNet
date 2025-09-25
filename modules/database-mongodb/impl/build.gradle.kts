@@ -17,24 +17,19 @@
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.databaseMongo)
+  alias(libs.plugins.shadow)
 }
 
 dependencies {
-  "moduleLibrary"(libs.mongodb)
+  moduleLibrary(libs.mongodb)
+  compileOnly(libs.caffeine)
+  compileOnly(projects.node.nodeImpl)
+  api(projects.modules.databaseMongodb.databaseMongodbApi)
+}
 
-  "compileOnly"(libs.caffeine)
-  "compileOnly"(projects.node.nodeImpl)
-
-  "testCompileOnly"(libs.caffeine)
-  "testImplementation"(projects.node.nodeImpl)
-
-  "implementation"(projects.modules.databaseMongodb.databaseMongodbApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.databaseMongo
 }
 
 moduleJson {

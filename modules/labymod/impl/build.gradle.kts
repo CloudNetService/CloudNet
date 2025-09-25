@@ -18,21 +18,31 @@ import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
+  alias(libs.plugins.shadow)
 }
 
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.labymod)
+repositories {
+  maven("https://repo.md-5.net/repository/releases/")
+  maven("https://repo.md-5.net/repository/snapshots/")
+  maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.driver.driverImpl)
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(projects.modules.bridge.bridgeImpl)
+  compileOnly(libs.velocity)
+  compileOnly(libs.bungeecord)
 
-  "implementation"(projects.modules.labymod.labymodApi)
+  compileOnly(projects.node.nodeImpl)
+  compileOnly(projects.driver.driverImpl)
+  compileOnly(projects.modules.bridge.bridgeImpl)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
+
+  api(projects.modules.labymod.labymodApi)
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.labymod
 }
 
 moduleJson {

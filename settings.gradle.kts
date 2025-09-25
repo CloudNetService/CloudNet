@@ -21,113 +21,135 @@ pluginManagement {
   repositories {
     gradlePluginPortal()
     maven {
-      name = "Fabric"
-      url = uri("https://maven.fabricmc.net/")
+      name = "Paper-Snapshots"
+      url = uri("https://repo.papermc.io/repository/maven-snapshots/")
     }
   }
 }
+
 plugins {
   id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-  id("com.gradle.develocity") version ("4.1")
-  id("cloudnet-settings")
 }
 
-rootProject.name = "cloudnet-root"
+rootProject.name = "cloudnet-parent"
 
-// top level projects
+registerSubProjects(
+  root = "ext",
+  subProjects = arrayOf("adventure-helper", "bukkit-command", "modlauncher", "updater"),
+)
+registerSubProjects(
+  root = "ext:platform-inject-support",
+  prefix = "platform-inject",
+  subProjects = arrayOf("api", "loader", "processor", "runtime"),
+)
+registerSubProjects(
+  root = "utils",
+  prefix = "utils",
+  subProjects = arrayOf("base"),
+)
+
+registerSubProjects(
+  root = "driver",
+  prefix = "driver",
+  subProjects = arrayOf("ap", "api", "impl"),
+)
+registerSubProjects(
+  root = "wrapper-jvm",
+  prefix = "wrapper-jvm",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "node",
+  prefix = "node",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "launcher",
+  prefix = "launcher",
+  subProjects = arrayOf("java8", "java22", "patcher"),
+)
+
+registerSubProjects(
+  root = "modules:bridge",
+  prefix = "bridge",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:cloudflare",
+  prefix = "cloudflare",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:database-mongodb",
+  prefix = "database-mongodb",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:database-mysql",
+  prefix = "database-mysql",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:dockerized-services",
+  prefix = "dockerized-services",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:influx",
+  prefix = "influx",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:labymod",
+  prefix = "labymod",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:npcs",
+  prefix = "npcs",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:report",
+  prefix = "report",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:signs",
+  prefix = "signs",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:smart",
+  prefix = "smart",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:storage-s3",
+  prefix = "storage-s3",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:storage-sftp",
+  prefix = "storage-sftp",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:syncproxy",
+  prefix = "syncproxy",
+  subProjects = arrayOf("api", "impl"),
+)
+
 include("bom")
+include("plugins:luckperms")
+include("plugins:papi-expansion")
 
-// external lib helpers
-initializeSubProjects("ext",
-  "modlauncher",
-  "adventure-helper",
-  "bukkit-command",
-  "updater",
-  "platform-inject-support")
-// inject support
-initializePrefixedSubProjects(
-  "ext:platform-inject-support",
-  "platform-inject",
-  "api", "loader", "processor", "runtime")
-// plugins
-initializeSubProjects("plugins", "papi-expansion", "luckperms")
-// modules
-initializeSubProjects("modules",
-  "bridge",
-  "report",
-  "cloudflare",
-  "database-mongodb",
-  "database-mysql",
-  "signs",
-  "storage-sftp",
-  "syncproxy",
-  "smart",
-  "labymod",
-  "npcs",
-  "storage-s3",
-  "dockerized-services",
-  "influx")
-// launcher
-initializeSubProjects("launcher", "java8", "java22", "patcher")
-
-// driver-api, driver-impl
-initializePrefixedSubProjects("utils", "utils", "base")
-initializePrefixedSubProjects("node", "node", "api", "impl")
-initializePrefixedSubProjects("driver", "driver", "api", "impl", "ap")
-initializePrefixedSubProjects("wrapper-jvm", "wrapper-jvm", "api", "impl")
-initializePrefixedSubProjects("modules:npcs", "npcs", "api", "impl")
-initializePrefixedSubProjects("modules:signs", "signs", "api", "impl")
-initializePrefixedSubProjects("modules:smart", "smart", "api", "impl")
-initializePrefixedSubProjects("modules:report", "report", "api", "impl")
-initializePrefixedSubProjects("modules:bridge", "bridge", "api", "impl")
-initializePrefixedSubProjects("modules:influx", "influx", "api", "impl")
-initializePrefixedSubProjects("modules:labymod", "labymod", "api", "impl")
-initializePrefixedSubProjects("modules:syncproxy", "syncproxy", "api", "impl")
-initializePrefixedSubProjects("modules:cloudflare", "cloudflare", "api", "impl")
-initializePrefixedSubProjects("modules:storage-s3", "storage-s3", "api", "impl")
-initializePrefixedSubProjects("modules:storage-sftp", "storage-sftp", "api", "impl")
-initializePrefixedSubProjects("modules:database-mysql", "database-mysql", "api", "impl")
-initializePrefixedSubProjects("modules:database-mongodb", "database-mongodb", "api", "impl")
-initializePrefixedSubProjects("modules:dockerized-services", "dockerized-services", "api", "impl")
-
-fun initializeSubProjects(rootProject: String, vararg names: String) {
-  names.forEach {
-    include("$rootProject:$it")
-    project(":$rootProject:$it").name = it
-  }
-}
-
-fun initializePrefixedSubProjects(rootProject: String, prefix: String, vararg names: String) {
-  names.forEach {
-    include("$rootProject:$it")
-    project(":$rootProject:$it").name = "$prefix-$it"
-  }
-}
-
-val isCI = System.getenv("CI") != null
-
-develocity {
-  buildScan {
-    // auto publishing build scans can be enabled by creating a file
-    // named "gradle.tos.agree" in the root directory with the ToS URL
-    // as content.
-    val file = rootDir.resolve("gradle.tos.agree")
-    val agree = if (file.exists() && file.readText().trim() == "https://gradle.com/help/legal-terms-of-use") "yes" else ""
-    termsOfUseAgree = agree
-    termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
-    gradle.settingsEvaluated {
-      // IntelliJ overrides this in windows using an init script %TEMP%/ejNoScan1.gradle
-      // We agree with the file, so we override IntelliJ again.
-      termsOfUseAgree = agree
-    }
-    publishing.onlyIf { termsOfUseAgree.get() == "yes" }
-
-    uploadInBackground = !isCI
-    obfuscation {
-      ipAddresses { listOf("0.0.0.0") }
-      hostname { "removed" }
-      externalProcessName { "hidden-process-name" }
-      username { "hidden-username" }
-    }
+//
+private fun registerSubProjects(root: String, prefix: String? = null, vararg subProjects: String) {
+  val subProjectNamePrefix = if (prefix.isNullOrBlank()) "" else "$prefix-"
+  subProjects.forEach {
+    val projectPath = "$root:$it"
+    include(projectPath)
+    project(":$projectPath").name = "$subProjectNamePrefix$it"
   }
 }

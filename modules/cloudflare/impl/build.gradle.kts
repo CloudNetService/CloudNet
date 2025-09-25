@@ -17,20 +17,19 @@
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.cloudflare)
+  alias(libs.plugins.shadow)
 }
 
 dependencies {
-  "compileOnly"(libs.bundles.unirest)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.utils.utilsBase)
+  compileOnly(libs.bundles.unirest)
+  compileOnly(projects.node.nodeImpl)
+  compileOnly(projects.utils.utilsBase)
+  api(projects.modules.cloudflare.cloudflareApi)
+}
 
-  "implementation"(projects.modules.cloudflare.cloudflareApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.cloudflare
 }
 
 moduleJson {

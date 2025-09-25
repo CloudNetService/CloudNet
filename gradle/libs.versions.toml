@@ -1,6 +1,7 @@
 [versions]
 
 # plugins
+indra = "4.0.0-SNAPSHOT"
 shadow = "9.2.1"
 juppiter = "0.5.0-beta.2"
 spotless = "7.2.1"
@@ -219,6 +220,7 @@ serverPlatform = ["spigot", "sponge", "nukkitX", "minestom", "minestomExtensions
 
 [plugins]
 
+indra = { id = "net.kyori.indra.git", version.ref = "indra" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }

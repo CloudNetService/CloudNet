@@ -22,7 +22,6 @@ import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
 
 plugins {
   id("cloudnet-java")
-  id("cloudnet-git")
   id("cloudnet-updater")
 }
 
@@ -41,5 +40,7 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 tasks.jar.applyJarMetadata(
-  git, "eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher"
+  indraGit,
+  mainClass = "eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher",
+  automaticModuleName = "eu.cloudnetservice.launcher",
 )

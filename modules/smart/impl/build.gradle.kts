@@ -18,17 +18,19 @@ import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.smart)
+  alias(libs.plugins.shadow)
 }
 
 dependencies {
-  "compileOnly"(projects.modules.bridge.bridgeApi)
-  "implementation"(projects.modules.smart.smartApi)
+  compileOnly(libs.guava)
+  compileOnly(projects.node.nodeApi)
+  compileOnly(projects.modules.bridge.bridgeApi)
+  api(projects.modules.smart.smartApi)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.smart
 }
 
 moduleJson {

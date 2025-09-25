@@ -34,11 +34,7 @@ abstract class PrepareUpdaterDataTask : Sync() {
 
   init {
     meta.convention(project.provider { UpdaterMeta(Type.EMPTY, Data.Empty) })
-
-    val metaResource = meta.map {
-      project.resources.text.fromString(UpdaterMeta.Companion.gson.toJson(it))
-    }
-
+    val metaResource = meta.map { project.resources.text.fromString(UpdaterMeta.gson.toJson(it)) }
     from(metaResource) { rename { "meta.json" } }
   }
 

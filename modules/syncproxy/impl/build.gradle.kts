@@ -18,29 +18,40 @@ import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
+  alias(libs.plugins.shadow)
+}
+
+repositories {
+  maven("https://repo.waterdog.dev/releases/")
+  maven("https://repo.waterdog.dev/snapshots/")
+  maven("https://repo.md-5.net/repository/releases/")
+  maven("https://repo.md-5.net/repository/snapshots/")
+  maven("https://repo.opencollab.dev/maven-releases/")
+  maven("https://repo.opencollab.dev/maven-snapshots/")
+  maven("https://repo.papermc.io/repository/maven-public/")
+}
+
+dependencies {
+  compileOnly(libs.bundles.proxyPlatform)
+  compileOnly(projects.node.nodeImpl)
+  compileOnly(projects.ext.adventureHelper)
+  compileOnly(projects.wrapperJvm.wrapperJvmApi)
+  compileOnly(projects.modules.bridge.bridgeApi)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
+
+  api(projects.modules.syncproxy.syncproxyApi)
+
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
 }
 
 tasks.shadowJar.configure {
-  archiveFileName.set(Files.syncproxy)
+  archiveFileName = Files.syncproxy
 }
 
 tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/syncproxy.aero")
-}
-
-dependencies {
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.modules.bridge.bridgeApi)
-  "compileOnly"(projects.ext.adventureHelper)
-
-  // processing
-  "annotationProcessor"(libs.aerogelAuto)
-
-  "implementation"(projects.modules.syncproxy.syncproxyApi)
 }
 
 moduleJson {

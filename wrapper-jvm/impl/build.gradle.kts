@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import eu.cloudnetservice.cloudnet.gradle.tasks.ExportCnlFile
 import eu.cloudnetservice.cloudnet.gradle.tasks.ExportLanguageFileInformation
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-java")
-  id("cloudnet-git")
+  id("cloudnet-publish")
+  alias(libs.plugins.shadow)
 }
 
 val ignoredGroupIds = listOf("com.google.guava", "com.google.code.gson")
+
 val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
   fileName = "wrapper.cnl"
   ignoredDependencyGroups = ignoredGroupIds
@@ -36,19 +36,17 @@ val exportLanguageFileInformation = tasks.register<ExportLanguageFileInformation
   languageFiles.from(project.projectDir.resolve("src/main/resources/lang").listFiles())
 }
 
-// intermediate task to take advantage of build cache when checking out another branch/commiting
-// The git information is only included in the "shadowJar" task, so this won't have to rerun
-val intermediateShadowJar = tasks.register<ShadowJar>("intermediateShadowJar") {
-  this.configurations.set(project.configurations.runtimeClasspath.map { setOf(it) })
+tasks.shadowJar.configure {
+  archiveFileName = Files.wrapper
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  configurations = project.configurations.runtimeClasspath.map { setOf(it) }
 
   // do not shade dependencies which we don't need to shade
-
   dependencies {
     exclude {
       it.moduleGroup != rootProject.group && !ignoredGroupIds.contains(it.moduleGroup)
     }
   }
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
   // google lib relocation
   relocate("com.google.gson", "eu.cloudnetservice.relocate.gson")
@@ -57,19 +55,13 @@ val intermediateShadowJar = tasks.register<ShadowJar>("intermediateShadowJar") {
   // drop unused classes which are making the jar bigger
   minimize()
 
-  from(exportLanguageFileInformation)
+  // exclude some config files that are pulled in by dependencies
+  exclude("META-INF/LICENSE")
+  exclude("META-INF/maven/**")
+  exclude("META-INF/proguard/**")
+
   from(exportCnlFile)
-
-  destinationDirectory = temporaryDir
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.wrapper)
-
-  configurations.empty()
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-  dependsOn(intermediateShadowJar)
-  from(intermediateShadowJar.map { zipTree(it.archiveFile) })
+  from(exportLanguageFileInformation)
 }
 
 tasks.withType<JavaCompile>().configureEach {
@@ -77,26 +69,27 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
-  "api"(projects.ext.modlauncher)
-  "api"(projects.driver.driverApi)
-  "api"(projects.driver.driverImpl)
-  "api"(projects.wrapperJvm.wrapperJvmApi)
-  "api"(projects.ext.platformInjectSupport.platformInjectLoader)
+  // api(projects.ext.modlauncher)
+  api(projects.driver.driverApi)
+  api(projects.driver.driverImpl)
+  api(projects.wrapperJvm.wrapperJvmApi)
+  api(projects.ext.platformInjectSupport.platformInjectLoader)
 
   // internal libraries
-  "implementation"(libs.gson)
-  "implementation"(libs.guava)
-  "implementation"(libs.logbackCore)
-  "implementation"(libs.logbackClassic)
-  "implementation"(projects.utils.utilsBase)
+  implementation(libs.gson)
+  implementation(libs.guava)
+  implementation(libs.logbackCore)
+  implementation(libs.logbackClassic)
+  implementation(projects.utils.utilsBase)
 
   // processing
-  "annotationProcessor"(libs.aerogelAuto)
-  "annotationProcessor"(projects.driver.driverAp)
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.driver.driverAp)
 }
 
 tasks.jar.applyJarMetadata(
-  git,
-  "eu.cloudnetservice.wrapper.impl.Main",
-  "eu.cloudnetservice.wrapper",
-  "eu.cloudnetservice.wrapper.impl.Premain")
+  indraGit,
+  mainClass = "eu.cloudnetservice.wrapper.impl.Main",
+  automaticModuleName = "eu.cloudnetservice.wrapper",
+  preMain = "eu.cloudnetservice.wrapper.impl.Premain",
+)

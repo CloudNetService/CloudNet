@@ -19,6 +19,7 @@ plugins {
 }
 
 dependencies {
-  "api"(libs.adventureApi)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
+  api(libs.adventureApi)
+  compileOnly(libs.guava)
+  compileOnly(projects.wrapperJvm.wrapperJvmApi)
 }

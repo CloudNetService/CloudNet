@@ -18,6 +18,7 @@ import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
   id("cloudnet-java")
+  id("cloudnet-publish")
 }
 
 repositories {
@@ -32,9 +33,9 @@ repositories {
 }
 
 dependencies {
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(libs.bundles.serverPlatform)
-  "compileOnly"(projects.ext.platformInjectSupport.platformInjectApi)
+  compileOnly(libs.bundles.proxyPlatform)
+  compileOnly(libs.bundles.serverPlatform)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 }
 
 tasks.jar.configure {

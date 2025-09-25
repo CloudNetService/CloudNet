@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.plugins.configureJavaVersion
-
 plugins {
-  id("cloudnet-java")
+  id("java")
 }
 
-configureJavaVersion(JavaLanguageVersion.of(8))
+tasks.withType<JavaCompile>().configureEach {
+  sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+  targetCompatibility = JavaVersion.VERSION_1_8.toString()
+}

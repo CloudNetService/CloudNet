@@ -21,26 +21,15 @@ import java.io.IOException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
-// Copies from the updater to keep consistent when generating checksums
 object ChecksumHelper {
   @Throws(IOException::class)
   fun fileShaSum(path: File): String {
     return newSha3256Digest().run {
       update(path.readBytes())
-      bytesToHex(digest())
+      digest().toHexString()
     }
   }
 
   @Throws(NoSuchAlgorithmException::class)
   private fun newSha3256Digest(): MessageDigest = MessageDigest.getInstance("SHA3-256")
-
-  private fun bytesToHex(input: ByteArray): String {
-    val buffer = StringBuilder()
-    for (b in input) {
-      buffer.append(Character.forDigit(b.toInt() shr 4 and 0xF, 16))
-      buffer.append(Character.forDigit(b.toInt() and 0xF, 16))
-    }
-    // convert to a string
-    return buffer.toString()
-  }
 }

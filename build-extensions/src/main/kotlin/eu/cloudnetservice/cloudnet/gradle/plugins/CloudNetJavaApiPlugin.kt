@@ -16,21 +16,26 @@
 
 package eu.cloudnetservice.cloudnet.gradle.plugins
 
-import eu.cloudnetservice.cloudnet.gradle.util.Versions
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.withType
 
-class CloudNetJavaApiPlugin: Plugin<Project> {
+/**
+ * Java version compatibility to apply to all api projects.
+ */
+val JAVA_API_COMPATIBILITY = JavaLanguageVersion.of(17)
+
+class CloudNetJavaApiPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
       apply<CloudNetJavaPlugin>()
 
       tasks.withType<JavaCompile>().configureEach {
-        sourceCompatibility = Versions.javaVersionApi.asInt().toString()
-        targetCompatibility = Versions.javaVersionApi.asInt().toString()
+        sourceCompatibility = JAVA_API_COMPATIBILITY.toString()
+        targetCompatibility = JAVA_API_COMPATIBILITY.toString()
       }
     }
   }

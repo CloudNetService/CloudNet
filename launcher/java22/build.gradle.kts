@@ -21,10 +21,14 @@ import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
 import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-java")
-  id("cloudnet-git")
   id("cloudnet-updater")
+  alias(libs.plugins.shadow)
+}
+
+dependencies {
+  implementation(projects.ext.updater)
+  implementation(projects.launcher.launcherJava8)
 }
 
 tasks.shadowJar.configure {
@@ -36,9 +40,8 @@ tasks.prepareUpdaterData {
   meta.set(archiveName.map { UpdaterMeta(Type.LAUNCHER, Data.Node(it)) })
 }
 
-dependencies {
-  "implementation"(projects.ext.updater)
-  "implementation"(projects.launcher.java8)
-}
-
-tasks.shadowJar.applyJarMetadata(git, "eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")
+tasks.shadowJar.applyJarMetadata(
+  indraGit,
+  mainClass = "eu.cloudnetservice.launcher.java8.Launcher",
+  automaticModuleName = "eu.cloudnetservice.launcher",
+)

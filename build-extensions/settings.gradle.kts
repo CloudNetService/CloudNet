@@ -15,9 +15,19 @@
  */
 
 dependencyResolutionManagement {
+  repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+  repositories {
+    mavenCentral()
+    gradlePluginPortal()
+    maven {
+      name = "Paper-Snapshots"
+      url = uri("https://repo.papermc.io/repository/maven-snapshots/")
+    }
+  }
+
   versionCatalogs {
     register("libs") {
-      from(files("./../gradle/libs.versions.toml"))
+      from(files("../gradle/libs.versions.toml"))
     }
   }
 }

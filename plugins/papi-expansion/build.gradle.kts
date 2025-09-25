@@ -20,11 +20,8 @@ plugins {
   id("cloudnet-plugins")
 }
 
-tasks.jar.configure {
-  archiveFileName.set(Files.papiExpansion)
-}
-
 repositories {
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
@@ -33,4 +30,8 @@ dependencies {
   compileOnly(libs.placeholderApi)
   compileOnly(projects.wrapperJvm.wrapperJvmApi)
   compileOnly(projects.modules.bridge.bridgeApi)
+}
+
+tasks.jar.configure {
+  archiveFileName = Files.papiExpansion
 }

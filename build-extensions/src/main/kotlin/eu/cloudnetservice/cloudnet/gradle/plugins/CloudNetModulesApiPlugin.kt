@@ -16,49 +16,15 @@
 
 package eu.cloudnetservice.cloudnet.gradle.plugins
 
-import eu.cloudnetservice.cloudnet.gradle.util.library
-import eu.cloudnetservice.cloudnet.gradle.util.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.maven
-import org.gradle.kotlin.dsl.project
-import org.gradle.kotlin.dsl.repositories
 
 class CloudNetModulesApiPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
       apply<CloudNetJavaApiPlugin>()
-
-      configureModules()
+      registerProcessSources()
     }
   }
-}
-
-internal fun Project.configureModules() {
-  repositories {
-    maven("https://repo.waterdog.dev/releases/")
-    maven("https://repo.waterdog.dev/snapshots/")
-    maven("https://repo.loohpjames.com/repository")
-    maven("https://repo.md-5.net/repository/releases/")
-    maven("https://repo.md-5.net/repository/snapshots/")
-    maven("https://repo.opencollab.dev/maven-releases/")
-    maven("https://repo.opencollab.dev/maven-snapshots/")
-    maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-  }
-
-  dependencies {
-    "compileOnly"(project(":node:node-api"))
-    "testImplementation"(project(":node:node-api"))
-
-    // generation for platform main classes
-    "compileOnly"(project(":ext:platform-inject-support:platform-inject-api"))
-    "annotationProcessor"(project(":ext:platform-inject-support:platform-inject-processor"))
-
-    "compileOnly"(libs.library("guava"))
-  }
-
-  registerProcessSources()
 }

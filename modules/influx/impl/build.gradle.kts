@@ -18,20 +18,20 @@ import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.influx)
+  alias(libs.plugins.shadow)
 }
 
 dependencies {
-  "moduleLibrary"(libs.influxClient)
-  "compileOnly"(projects.node.nodeApi)
-  "compileOnly"(projects.modules.bridge.bridgeApi)
-  "annotationProcessor"(projects.driver.driverAp)
-  "implementation"(projects.modules.influx.influxApi)
+  moduleLibrary(libs.influxClient)
+  compileOnly(projects.node.nodeApi)
+  api(projects.modules.influx.influxApi)
+  compileOnly(projects.modules.bridge.bridgeApi)
+  annotationProcessor(projects.driver.driverAp)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.influx
 }
 
 moduleJson {

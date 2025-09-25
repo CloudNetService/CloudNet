@@ -17,21 +17,23 @@
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
-  alias(libs.plugins.shadow)
   id("cloudnet-modules")
-}
-
-tasks.shadowJar.configure {
-  archiveFileName.set(Files.report)
+  alias(libs.plugins.shadow)
 }
 
 dependencies {
-  "moduleLibrary"(libs.oshi)
-  "compileOnly"(libs.unirest)
-  "compileOnly"(projects.utils.utilsBase)
-  "implementation"(projects.modules.report.reportApi)
+  moduleLibrary(libs.oshi)
+  compileOnly(libs.guava)
+  compileOnly(libs.unirest)
+  compileOnly(projects.node.nodeApi)
+  compileOnly(projects.utils.utilsBase)
+  api(projects.modules.report.reportApi)
 
-  "annotationProcessor"(projects.driver.driverAp)
+  annotationProcessor(projects.driver.driverAp)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.report
 }
 
 moduleJson {
