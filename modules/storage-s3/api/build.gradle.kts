@@ -15,6 +15,7 @@
  */
 
 plugins {
+  id("cloudnet-publish")
   id("cloudnet-modules-api")
 }
 

@@ -19,6 +19,7 @@ import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
   id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 

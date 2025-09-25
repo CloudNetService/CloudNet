@@ -18,6 +18,7 @@ import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
   id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 

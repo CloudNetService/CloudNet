@@ -24,6 +24,7 @@ import java.nio.file.Files as NioFiles
 
 plugins {
   id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
