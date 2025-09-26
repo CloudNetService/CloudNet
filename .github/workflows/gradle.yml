@@ -32,7 +32,7 @@ jobs:
         with:
           add-job-summary: always
           cache-cleanup: on-success
-          cache-read-only: ${{ github.ref != 'refs/heads/nightly' }}
+#          cache-read-only: ${{ github.ref != 'refs/heads/nightly' }}
 
       - name: Execute build and tests
         run: ./gradlew build genUpdaterInformation --no-daemon
