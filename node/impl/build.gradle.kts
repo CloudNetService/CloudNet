@@ -65,9 +65,8 @@ tasks.withType<JavaCompile>().configureEach {
 dependencies {
   api(projects.ext.updater)
   api(projects.node.nodeApi)
+  api(projects.utils.utilsBase)
   api(projects.driver.driverImpl)
-
-  implementation(projects.utils.utilsBase)
 
   // dependencies which are available for modules
   api(libs.guava)

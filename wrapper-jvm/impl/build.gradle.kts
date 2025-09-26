@@ -73,6 +73,7 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
+  api(projects.utils.utilsBase)
   api(projects.driver.driverApi)
   api(projects.driver.driverImpl)
   api(projects.wrapperJvm.wrapperJvmApi)
@@ -82,7 +83,6 @@ dependencies {
   implementation(libs.guava)
   implementation(libs.logbackCore)
   implementation(libs.logbackClassic)
-  implementation(projects.utils.utilsBase)
   implementation(projects.ext.modlauncher)
   implementation(projects.ext.platformInjectSupport.platformInjectLoader)
 

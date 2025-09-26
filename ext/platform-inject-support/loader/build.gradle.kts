@@ -25,7 +25,7 @@ val bundled = configurations.register("bundled") {
 }
 
 dependencies {
-  implementation(projects.utils.utilsBase)
+  api(projects.utils.utilsBase)
   api(projects.ext.platformInjectSupport.platformInjectApi)
   bundled(projects.ext.platformInjectSupport.platformInjectRuntime)
 }
