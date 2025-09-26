@@ -32,7 +32,7 @@ jobs:
         with:
           add-job-summary: always
           cache-cleanup: on-success
-          cache-read-only: ${{ github.ref == 'refs/heads/nightly' }}
+          cache-read-only: ${{ github.ref != 'refs/heads/nightly' }}
           cache-encryption-key: ${{ secrets.GRADLE_CONFIG_CACHE_SECRET }}
           # automatically publishes build scans on nightly
           build-scan-publish: ${{ github.ref == 'refs/heads/nightly' }}
@@ -75,7 +75,7 @@ jobs:
           fi
 
       - name: Publish snapshot to central portal
-#        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') }}
+        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') }}
         run: ./gradlew publish --no-daemon
         env:
           CENTRAL_USER: "${{ secrets.CENTRAL_USER }}"
