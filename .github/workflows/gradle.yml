@@ -32,7 +32,11 @@ jobs:
         with:
           add-job-summary: always
           cache-cleanup: on-success
-#          cache-read-only: ${{ github.ref != 'refs/heads/nightly' }}
+          cache-read-only: ${{ github.ref == 'refs/heads/nightly' }}
+          # automatically publishes build scans on nightly
+          build-scan-publish: ${{ github.ref == 'refs/heads/nightly' }}
+          build-scan-terms-of-use-agree: yes
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
 
       - name: Execute build and tests
         run: ./gradlew build genUpdaterInformation --no-daemon
