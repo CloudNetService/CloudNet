@@ -15,6 +15,7 @@
  */
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+enableFeaturePreview("INTERNAL_BUILD_SERVICE_USAGE")
 
 pluginManagement {
   includeBuild("build-extensions")
