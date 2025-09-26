@@ -76,4 +76,5 @@ atlassian-ide-plugin.xml
 */src/main/lombok
 
 # CloudNet
-.launchermeta/
+/temp/
+/.launchermeta/
