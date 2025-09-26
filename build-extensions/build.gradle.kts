@@ -23,7 +23,7 @@ plugins {
 kotlin.jvmToolchain(21)
 
 dependencies {
-  implementation("com.google.code.gson:gson:2.13.1")
+  implementation(libs.gson)
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
   implementation("net.kyori:indra-git:${libs.versions.indra.get()}")
