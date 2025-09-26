@@ -22,6 +22,6 @@ plugins {
 dependencies {
   compileOnly(libs.guava)
   compileOnly(libs.geantyref)
-  compileOnly(projects.driver.driverApi)
-  compileOnly(projects.modules.bridge.bridgeApi)
+  compileOnlyApi(projects.driver.driverApi)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
 }

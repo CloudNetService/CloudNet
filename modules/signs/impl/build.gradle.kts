@@ -37,12 +37,12 @@ dependencies {
   compileOnly(libs.reflexion)
   compileOnly(libs.minestomExtensions)
 
-  compileOnly(projects.node.nodeImpl)
-  compileOnly(projects.utils.utilsBase)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
+  compileOnlyApi(projects.wrapperJvm.wrapperJvmApi)
+  compileOnlyApi(projects.modules.bridge.bridgeImpl)
+
   compileOnly(projects.ext.adventureHelper)
-  compileOnly(projects.wrapperJvm.wrapperJvmApi)
-  compileOnly(projects.modules.bridge.bridgeApi)
-  compileOnly(projects.modules.bridge.bridgeImpl)
   compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 
   api(projects.modules.signs.signsApi)

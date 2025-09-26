@@ -42,10 +42,11 @@ dependencies {
   compileOnly(libs.spigot)
   compileOnly(libs.unirest)
   compileOnly(libs.reflexion)
-  compileOnly(projects.node.nodeImpl)
-  compileOnly(projects.utils.utilsBase)
-  compileOnly(projects.wrapperJvm.wrapperJvmApi)
-  compileOnly(projects.modules.bridge.bridgeImpl)
+
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
+  compileOnlyApi(projects.wrapperJvm.wrapperJvmApi)
+  compileOnlyApi(projects.modules.bridge.bridgeImpl)
   compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 
   implementation(libs.packetEvents)

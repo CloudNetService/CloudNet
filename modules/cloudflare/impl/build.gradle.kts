@@ -24,8 +24,8 @@ plugins {
 
 dependencies {
   compileOnly(libs.bundles.unirest)
-  compileOnly(projects.node.nodeImpl)
-  compileOnly(projects.utils.utilsBase)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
   api(projects.modules.cloudflare.cloudflareApi)
 }
 

@@ -22,5 +22,5 @@ plugins {
 dependencies {
   api(libs.adventureApi)
   compileOnly(libs.guava)
-  compileOnly(projects.wrapperJvm.wrapperJvmApi)
+  compileOnlyApi(projects.wrapperJvm.wrapperJvmApi)
 }

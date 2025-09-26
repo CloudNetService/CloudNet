@@ -20,8 +20,8 @@ plugins {
 }
 
 dependencies {
-  implementation(projects.utils.utilsBase)
-  implementation(projects.driver.driverApi)
+  api(projects.utils.utilsBase)
+  api(projects.driver.driverApi)
   implementation(projects.ext.updater)
 
   implementation(libs.gson)

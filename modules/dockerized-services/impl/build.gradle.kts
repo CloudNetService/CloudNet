@@ -23,9 +23,9 @@ plugins {
 }
 
 dependencies {
-  compileOnly(projects.utils.utilsBase)
-  compileOnly(projects.node.nodeImpl)
   moduleLibrary(libs.bundles.dockerJava)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
   api(projects.modules.dockerizedServices.dockerizedServicesApi)
 }
 

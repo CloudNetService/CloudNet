@@ -25,7 +25,7 @@ plugins {
 dependencies {
   moduleLibrary(libs.mongodb)
   compileOnly(libs.caffeine)
-  compileOnly(projects.node.nodeImpl)
+  compileOnlyApi(projects.node.nodeImpl)
   api(projects.modules.databaseMongodb.databaseMongodbApi)
 }
 

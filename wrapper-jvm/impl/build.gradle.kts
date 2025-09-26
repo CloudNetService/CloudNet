@@ -53,7 +53,11 @@ tasks.shadowJar.configure {
   relocate("com.google.common", "eu.cloudnetservice.relocate.guava")
 
   // drop unused classes which are making the jar bigger
-  minimize()
+  minimize {
+    exclude {
+      it.moduleGroup == rootProject.group
+    }
+  }
 
   // exclude some config files that are pulled in by dependencies
   exclude("META-INF/LICENSE")
@@ -69,11 +73,9 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
-  // api(projects.ext.modlauncher)
   api(projects.driver.driverApi)
   api(projects.driver.driverImpl)
   api(projects.wrapperJvm.wrapperJvmApi)
-  api(projects.ext.platformInjectSupport.platformInjectLoader)
 
   // internal libraries
   implementation(libs.gson)
@@ -81,13 +83,15 @@ dependencies {
   implementation(libs.logbackCore)
   implementation(libs.logbackClassic)
   implementation(projects.utils.utilsBase)
+  implementation(projects.ext.modlauncher)
+  implementation(projects.ext.platformInjectSupport.platformInjectLoader)
 
   // processing
   annotationProcessor(libs.aerogelAuto)
   annotationProcessor(projects.driver.driverAp)
 }
 
-tasks.jar.applyJarMetadata(
+tasks.shadowJar.applyJarMetadata(
   indraGit,
   mainClass = "eu.cloudnetservice.wrapper.impl.Main",
   automaticModuleName = "eu.cloudnetservice.wrapper",

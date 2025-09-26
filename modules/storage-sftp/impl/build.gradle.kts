@@ -24,8 +24,8 @@ plugins {
 
 dependencies {
   moduleLibrary(libs.sshj)
-  compileOnly(projects.node.nodeApi)
-  compileOnly(projects.utils.utilsBase)
+  compileOnlyApi(projects.node.nodeApi)
+  compileOnlyApi(projects.utils.utilsBase)
   api(projects.modules.storageSftp.storageSftpApi)
 }
 

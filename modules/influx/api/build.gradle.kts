@@ -20,6 +20,6 @@ plugins {
 }
 
 dependencies {
-  compileOnly(libs.influxClient)
-  compileOnly(projects.driver.driverApi)
+  compileOnlyApi(libs.influxClient)
+  compileOnlyApi(projects.driver.driverApi)
 }

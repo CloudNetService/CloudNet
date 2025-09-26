@@ -35,10 +35,11 @@ repositories {
 
 dependencies {
   compileOnly(libs.bundles.proxyPlatform)
-  compileOnly(projects.node.nodeImpl)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.wrapperJvm.wrapperJvmApi)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
+
   compileOnly(projects.ext.adventureHelper)
-  compileOnly(projects.wrapperJvm.wrapperJvmApi)
-  compileOnly(projects.modules.bridge.bridgeApi)
   compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 
   api(projects.modules.syncproxy.syncproxyApi)

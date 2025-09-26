@@ -46,10 +46,10 @@ repositories {
 }
 
 dependencies {
-  compileOnly(projects.node.nodeImpl)
-  compileOnly(projects.utils.utilsBase)
-  compileOnly(projects.driver.driverImpl)
-  compileOnly(projects.wrapperJvm.wrapperJvmApi)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
+  compileOnlyApi(projects.driver.driverImpl)
+  compileOnlyApi(projects.wrapperJvm.wrapperJvmApi)
   compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 
   compileOnly(libs.guava)

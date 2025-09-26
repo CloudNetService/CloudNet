@@ -20,5 +20,5 @@ plugins {
 }
 
 dependencies {
-  compileOnly(projects.driver.driverApi)
+  compileOnlyApi(projects.driver.driverApi)
 }

@@ -33,9 +33,9 @@ dependencies {
   compileOnly(libs.velocity)
   compileOnly(libs.bungeecord)
 
-  compileOnly(projects.node.nodeImpl)
-  compileOnly(projects.driver.driverImpl)
-  compileOnly(projects.modules.bridge.bridgeImpl)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.driver.driverImpl)
+  compileOnlyApi(projects.modules.bridge.bridgeImpl)
   compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 
   api(projects.modules.labymod.labymodApi)

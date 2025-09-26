@@ -25,8 +25,8 @@ plugins {
 
 dependencies {
   compileOnly(libs.guava)
-  compileOnly(projects.node.nodeApi)
-  compileOnly(projects.modules.bridge.bridgeApi)
+  compileOnlyApi(projects.node.nodeApi)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
   api(projects.modules.smart.smartApi)
 }
 

@@ -25,9 +25,9 @@ plugins {
 
 dependencies {
   moduleLibrary(libs.influxClient)
-  compileOnly(projects.node.nodeApi)
+  compileOnlyApi(projects.node.nodeApi)
   api(projects.modules.influx.influxApi)
-  compileOnly(projects.modules.bridge.bridgeApi)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
   annotationProcessor(projects.driver.driverAp)
 }
 

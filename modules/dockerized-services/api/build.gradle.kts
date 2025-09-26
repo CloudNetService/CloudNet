@@ -21,5 +21,5 @@ plugins {
 
 dependencies {
   compileOnly(libs.guava)
-  compileOnly(projects.driver.driverApi)
+  compileOnlyApi(projects.driver.driverApi)
 }
