@@ -134,7 +134,6 @@ dockerJavaHttpclient5 = { group = "com.github.docker-java", name = "docker-java-
 nettyHandler = { group = "io.netty", name = "netty5-handler", version.ref = "netty" }
 nettyNativeEpoll = { group = "io.netty", name = "netty5-transport-native-epoll", version.ref = "netty" }
 nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue", version.ref = "netty" }
-nettyBufferMemorySegment = { group = "io.netty", name = "netty5-buffer-memory-segment", version.ref = "netty" }
 
 # logging
 slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
