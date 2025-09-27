@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,6 +48,12 @@ import org.jetbrains.annotations.Nullable;
 public interface CloudMessenger {
 
   /**
+   * The timeout (in milliseconds) that is applied to all sync query messaging methods. If no response is received
+   * within the timespan, an exception is thrown by the method instead.
+   */
+  long SYNC_CHANNEL_MESSAGE_QUERY_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(30);
+
+  /**
    * Sends the given channel message to all of its targets. This method will not wait for the target component to
    * respond (it doesn't even expect a response) but for the handling component to send the message.
    * <p>
@@ -59,8 +66,9 @@ public interface CloudMessenger {
   void sendChannelMessage(@NonNull ChannelMessage channelMessage);
 
   /**
-   * Sends the given channel message as a query and blocks until all target components have responded to the query or
-   * the query timeout is exceeded.
+   * Sends the given channel message as a query and blocks until all target components have responded or the timeout of
+   * {@link #SYNC_CHANNEL_MESSAGE_QUERY_TIMEOUT_MS} is exceeded. If more control over the timeout is required, an async
+   * method with a custom timeout applied must be used instead.
    * <p>
    * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
    * is crucial that the caller closes the responses to prevent memory leaks. Example:
@@ -86,8 +94,9 @@ public interface CloudMessenger {
 
   /**
    * Sends the given channel message as a query and blocks until one of the target component responded to the message or
-   * the query timeout is exceeded. This is in particular useful if there is only one target, or you are only expecting
-   * one of the target components to respond.
+   * the timeout of {@link #SYNC_CHANNEL_MESSAGE_QUERY_TIMEOUT_MS} is exceeded. If more control over the timeout is
+   * required, an async method with a custom timeout applied must be used instead. This is in particular useful if there
+   * is only one target, or you are only expecting one of the target components to respond.
    * <p>
    * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
    * is crucial that the caller closes the response to prevent memory leaks. Example:

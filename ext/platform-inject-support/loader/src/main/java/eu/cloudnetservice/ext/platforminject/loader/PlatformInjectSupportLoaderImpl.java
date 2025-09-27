@@ -20,9 +20,9 @@ import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.spi.PlatformPluginManagerRegistry;
 import lombok.NonNull;
 
-public final class PlatformInjectSupportLoader {
+public final class PlatformInjectSupportLoaderImpl {
 
-  private PlatformInjectSupportLoader() {
+  private PlatformInjectSupportLoaderImpl() {
     throw new UnsupportedOperationException();
   }
 

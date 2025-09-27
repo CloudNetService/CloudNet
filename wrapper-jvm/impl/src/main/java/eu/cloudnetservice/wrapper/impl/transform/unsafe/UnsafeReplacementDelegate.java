@@ -303,8 +303,8 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetOps.fieldFromOffset(object, offset);
-      return field == null ? null : FieldOps.fieldGet(field, object, op);
+      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
+      return fieldAccessor == null ? null : fieldAccessor.get(object, op);
     } catch (Throwable throwable) {
       UnsafeLogUtil.debug("Unable to unsafe get: [obj={}, offset={}, op={}]", object, offset, op, throwable);
       return null;
@@ -593,10 +593,9 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetOps.fieldFromOffset(object, offset);
-      if (field != null) {
-        var typeKind = ValueTypeKind.of(field.getType());
-        FieldOps.fieldPut(typeKind, field, object, value, op);
+      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
+      if (fieldAccessor != null) {
+        fieldAccessor.put(object, value, op);
       }
     } catch (Throwable throwable) {
       UnsafeLogUtil.debug(
@@ -862,10 +861,9 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetOps.fieldFromOffset(object, offset);
-      if (field != null) {
-        var typeKind = ValueTypeKind.of(field.getType());
-        return FieldOps.fieldComparePut(typeKind, field, object, expected, value);
+      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
+      if (fieldAccessor != null) {
+        return fieldAccessor.compareAndSet(object, expected, value);
       }
 
       return false;
@@ -920,10 +918,9 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetOps.fieldFromOffset(object, offset);
-      if (field != null) {
-        var typeKind = ValueTypeKind.of(field.getType());
-        return FieldOps.fieldGetAdd(typeKind, field, object, delta);
+      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
+      if (fieldAccessor != null) {
+        return fieldAccessor.getAndAdd(object, delta);
       }
 
       return null;
@@ -975,10 +972,9 @@ public final class UnsafeReplacementDelegate {
       }
 
       // requested read of static or instance field
-      var field = FieldOffsetOps.fieldFromOffset(object, offset);
-      if (field != null) {
-        var typeKind = ValueTypeKind.of(field.getType());
-        return FieldOps.fieldGetPut(typeKind, field, object, value);
+      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
+      if (fieldAccessor != null) {
+        return fieldAccessor.getAndPut(object, value);
       }
 
       return null;

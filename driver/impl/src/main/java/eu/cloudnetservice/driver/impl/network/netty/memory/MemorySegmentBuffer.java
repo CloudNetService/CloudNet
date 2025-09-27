@@ -300,7 +300,8 @@ final class MemorySegmentBuffer
 
     if (this.hasReadableArray()) {
       var srcArray = this.readableArray();
-      System.arraycopy(srcArray, srcPos, dest, destPos, length);
+      var srcArrayOff = Math.toIntExact(this.readSegment.address());
+      System.arraycopy(srcArray, srcArrayOff + srcPos, dest, destPos, length);
     } else {
       var destSegment = MemorySegment.ofArray(dest);
       MemorySegment.copy(this.readSegment, srcPos, destSegment, destPos, length);
@@ -320,9 +321,10 @@ final class MemorySegmentBuffer
 
     if (dest.hasArray() && this.hasReadableArray()) {
       var srcArray = this.readableArray();
+      var srcArrayOff = Math.toIntExact(this.readSegment.address());
       var destArray = dest.array();
-      var destFrom = dest.arrayOffset() + destPos;
-      System.arraycopy(srcArray, srcPos, destArray, destFrom, length);
+      var destArrayOff = dest.arrayOffset();
+      System.arraycopy(srcArray, srcArrayOff + srcPos, destArray, destArrayOff + destPos, length);
     } else {
       var cleanedBuffer = dest.duplicate().clear();
       var destSegment = MemorySegment.ofBuffer(cleanedBuffer);

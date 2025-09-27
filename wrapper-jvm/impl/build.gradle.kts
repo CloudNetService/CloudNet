@@ -33,7 +33,7 @@ val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
   setResolvedArtifacts(configurations.runtimeClasspath)
 }
 val exportLanguageFileInformation = tasks.register<ExportLanguageFileInformation>("exportLanguageFileInformation") {
-  languageFiles.from(project.projectDir.resolve("src/main/resources/lang").listFiles())
+  languageFiles.from(projectDir.resolve("src/main/resources/lang").listFiles())
 }
 
 // intermediate task to take advantage of build cache when checking out another branch/commiting
@@ -42,13 +42,11 @@ val intermediateShadowJar = tasks.register<ShadowJar>("intermediateShadowJar") {
   this.configurations.set(project.configurations.runtimeClasspath.map { setOf(it) })
 
   // do not shade dependencies which we don't need to shade
-
   dependencies {
     exclude {
       it.moduleGroup != rootProject.group && !ignoredGroupIds.contains(it.moduleGroup)
     }
   }
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
   // google lib relocation
   relocate("com.google.gson", "eu.cloudnetservice.relocate.gson")
@@ -56,6 +54,11 @@ val intermediateShadowJar = tasks.register<ShadowJar>("intermediateShadowJar") {
 
   // drop unused classes which are making the jar bigger
   minimize()
+
+  // exclude some config files that are pulled in by dependencies
+  exclude("META-INF/LICENSE")
+  exclude("META-INF/maven/**")
+  exclude("META-INF/proguard/**")
 
   from(exportLanguageFileInformation)
   from(exportCnlFile)
@@ -67,7 +70,6 @@ tasks.shadowJar.configure {
   archiveFileName.set(Files.wrapper)
 
   configurations.empty()
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   dependsOn(intermediateShadowJar)
   from(intermediateShadowJar.map { zipTree(it.archiveFile) })
 }
@@ -99,4 +101,5 @@ tasks.jar.applyJarMetadata(
   git,
   "eu.cloudnetservice.wrapper.impl.Main",
   "eu.cloudnetservice.wrapper",
-  "eu.cloudnetservice.wrapper.impl.Premain")
+  "eu.cloudnetservice.wrapper.impl.Premain"
+)

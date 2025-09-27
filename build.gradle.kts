@@ -26,8 +26,7 @@ plugins {
   id("java-base")
   alias(libs.plugins.nexusPublish)
   alias(libs.plugins.spotless) apply false
-  alias(libs.plugins.shadow) apply false
-  alias(libs.plugins.fabricLoom) apply false
+  alias(libs.plugins.shadow) apply false // must be here to enforce the bundled asm version
 }
 
 defaultTasks("build")

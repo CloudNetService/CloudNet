@@ -94,6 +94,7 @@ abstract class ExportCnlFile : DefaultTask() {
   }
 
   fun setResolvedArtifacts(runtimeClasspath: Provider<Configuration>) {
+    dependsOn(runtimeClasspath)
     val resolved = runtimeClasspath.flatMap { it.incoming.artifacts.resolvedArtifacts }
 
     dependencies.set(resolved.map { set ->

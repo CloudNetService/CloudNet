@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin.Companion.shadowJar
-
 /*
  * Copyright 2019-2024 CloudNetService team & contributors
  *

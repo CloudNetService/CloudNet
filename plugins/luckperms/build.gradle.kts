@@ -17,24 +17,19 @@
 import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
-  alias(libs.plugins.fabricLoom)
   id("cloudnet-plugins")
 }
 
 dependencies {
+  "compileOnly"(libs.fabricLoader)
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
 
   "compileOnly"(libs.luckPermsApi)
   "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
   "compileOnly"(projects.modules.bridge.bridgeApi)
-
-  "minecraft"(libs.minecraft)
-  "modCompileOnly"(libs.fabricLoader)
-  "mappings"(loom.officialMojangMappings())
 }
 
-tasks.remapJar.configure {
-  // base setup
+tasks.jar.configure {
   archiveFileName.set(Files.luckPermsPlugin)
 }

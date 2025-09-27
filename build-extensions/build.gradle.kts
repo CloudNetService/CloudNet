@@ -19,7 +19,7 @@ plugins {
   id("java-gradle-plugin")
 }
 
-// fabric requires jvm 21, so we can do so too
+// we are using gradle daemon jvm 25, so this can safely be 21 for potential future compatibility
 kotlin.jvmToolchain(21)
 
 repositories {
@@ -30,11 +30,11 @@ repositories {
 dependencies {
   implementation("org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-  implementation("com.google.code.gson", "gson", "2.13.1")
+  implementation("com.google.code.gson:gson:2.13.1")
 
-  implementation("com.diffplug.spotless", "spotless-plugin-gradle", libs.versions.spotless.get())
-  implementation("com.gradleup.shadow", "shadow-gradle-plugin", libs.versions.shadow.get())
-  implementation("eu.cloudnetservice.gradle", "juppiter", libs.versions.juppiter.get())
+  implementation("com.diffplug.spotless:spotless-plugin-gradle:" + libs.versions.spotless.get())
+  implementation("com.gradleup.shadow:shadow-gradle-plugin:" + libs.versions.shadow.get())
+  implementation("eu.cloudnetservice.gradle:juppiter:" + libs.versions.juppiter.get())
 }
 
 gradlePlugin {
