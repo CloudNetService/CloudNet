@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.tasks.IncludeNestedModJarsTask
 import eu.cloudnetservice.cloudnet.gradle.util.Files
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-import java.net.URI
-import java.nio.charset.StandardCharsets
-import java.nio.file.StandardCopyOption
-import java.nio.file.Files as NioFiles
 
 plugins {
   id("cloudnet-modules")
@@ -72,56 +67,18 @@ tasks.withType<JavaCompile> {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/bridge.aero")
 }
 
-// Downloads the versioned fabric mods zip from CloudNetService/cloudnet-bridge-fabric
-// These are unpacked and transferred into the final jar in a subsequent task
+val nestedModsPath = "generated/fabric_mods_nested"
+val finalModJsonPath = "generated/fabric.mod.json"
 val zipFileName = "cloudnet_fabric_version_bridge_all.zip"
-val nestedZipFile = layout.buildDirectory.file("download/$zipFileName")
-val downloadVersionedFabricMods by tasks.registering {
-  outputs.upToDateWhen { false } // permanent download url, cannot be cached
-  outputs.file(nestedZipFile)
-  val downloadUrl = "https://github.com/CloudNetService/cloudnet-bridge-fabric/releases/latest/download/$zipFileName"
-  doLast {
-    val out = nestedZipFile.get().asFile
-    out.parentFile.mkdirs()
-    URI(downloadUrl).toURL().openStream().use { input ->
-      NioFiles.copy(input, out.toPath(), StandardCopyOption.REPLACE_EXISTING)
-    }
-  }
-}
+val downloadUrl = "https://github.com/CloudNetService/cloudnet-bridge-fabric/releases/latest/download/$zipFileName"
+val includeNestedModJars by tasks.register<IncludeNestedModJarsTask>("includeNestedModJars") {
+  dependsOn(tasks.compileJava)
 
-// unpacks the previously downloaded versioned mods zip into the target directory
-val nestedUnpackDir = layout.buildDirectory.dir("generated/fabric_mods_nested")
-val unpackVersionedFabricMods by tasks.registering(Copy::class) {
-  inputs.file(nestedZipFile)
-  outputs.dir(nestedUnpackDir)
-  from(zipTree(nestedZipFile))
-  into(nestedUnpackDir)
-}
-
-// updates the fabric.mod.json file to include the nested jar paths
-val apOutputModJson = layout.buildDirectory.file("classes/java/main/fabric.mod.json.temp")
-val modJsonWithNestedJars = layout.buildDirectory.file("generated/fabric.mod.json")
-val addNestedJarsToFabricModJson by tasks.registering {
-  inputs.file(apOutputModJson)
-  inputs.dir(nestedUnpackDir)
-  outputs.file(modJsonWithNestedJars)
-
-  doLast {
-    val apOutputJsonFile = apOutputModJson.get().asFile
-    val jsonData = JsonSlurper().parse(apOutputJsonFile) as Map<*, *>
-    val nestedJars = nestedUnpackDir.get().asFile
-      .listFiles { file -> file.name.endsWith(".jar") }
-      ?.map { file -> file.name }
-      ?.map { fileName -> mapOf("file" to "bridge_mods_nested/$fileName") }
-      ?: listOf()
-    val mergedJson = HashMap(jsonData).apply {
-      this["jars"] = nestedJars
-    }
-
-    val modJsonWithNestedJarsFile = modJsonWithNestedJars.get().asFile
-    modJsonWithNestedJarsFile.parentFile.mkdirs()
-    modJsonWithNestedJarsFile.writeText(JsonOutput.toJson(mergedJson), StandardCharsets.UTF_8)
-  }
+  nestedZipDownloadUrl.set(downloadUrl)
+  outputModJson.set(layout.buildDirectory.file(finalModJsonPath))
+  nestedModsDirectory.set(layout.buildDirectory.dir(nestedModsPath))
+  nestedZipDownloadTarget.set(layout.buildDirectory.file("download/$zipFileName"))
+  baseModJson.set(layout.buildDirectory.file("classes/java/main/fabric.mod.json.temp"))
 }
 
 tasks.shadowJar {
@@ -138,12 +95,11 @@ tasks.shadowJar {
   exclude("fabric.mod.json.temp")
 
   // depend on nested jar download, copy the nested jars into the final jar
-  from(nestedUnpackDir) {
+  dependsOn(includeNestedModJars)
+  from(layout.buildDirectory.dir(nestedModsPath)) {
     into("bridge_mods_nested")
   }
-  from(modJsonWithNestedJars) {
-    into("")
-  }
+  from(layout.buildDirectory.file(finalModJsonPath))
 
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   manifest {
