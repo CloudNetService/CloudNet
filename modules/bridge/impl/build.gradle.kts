@@ -67,17 +67,15 @@ tasks.withType<JavaCompile> {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/bridge.aero")
 }
 
-val nestedModsPath = "generated/fabric_mods_nested"
-val finalModJsonPath = "generated/fabric.mod.json"
 val zipFileName = "cloudnet_fabric_version_bridge_all.zip"
 val downloadUrl = "https://github.com/CloudNetService/cloudnet-bridge-fabric/releases/latest/download/$zipFileName"
-val includeNestedModJars by tasks.register<IncludeNestedModJarsTask>("includeNestedModJars") {
+val includeNestedModJars by tasks.registering(IncludeNestedModJarsTask::class) {
   dependsOn(tasks.compileJava)
 
   nestedZipDownloadUrl.set(downloadUrl)
-  outputModJson.set(layout.buildDirectory.file(finalModJsonPath))
-  nestedModsDirectory.set(layout.buildDirectory.dir(nestedModsPath))
+  outputModJson.set(layout.buildDirectory.file("generated/fabric.mod.json"))
   nestedZipDownloadTarget.set(layout.buildDirectory.file("download/$zipFileName"))
+  nestedModsDirectory.set(layout.buildDirectory.dir("generated/fabric_mods_nested"))
   baseModJson.set(layout.buildDirectory.file("classes/java/main/fabric.mod.json.temp"))
 }
 
@@ -96,10 +94,10 @@ tasks.shadowJar {
 
   // depend on nested jar download, copy the nested jars into the final jar
   dependsOn(includeNestedModJars)
-  from(layout.buildDirectory.dir(nestedModsPath)) {
+  from(includeNestedModJars.map { it.nestedModsDirectory }) {
     into("bridge_mods_nested")
   }
-  from(layout.buildDirectory.file(finalModJsonPath))
+  from(includeNestedModJars.map { it.outputModJson })
 
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   manifest {
