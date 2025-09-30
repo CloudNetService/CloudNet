@@ -14,31 +14,46 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.syncproxy)
-}
-
-tasks.withType<JavaCompile> {
-  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/syncproxy.aero")
+repositories {
+  maven("https://repo.waterdog.dev/releases/")
+  maven("https://repo.waterdog.dev/snapshots/")
+  maven("https://repo.md-5.net/repository/releases/")
+  maven("https://repo.md-5.net/repository/snapshots/")
+  maven("https://repo.opencollab.dev/maven-releases/")
+  maven("https://repo.opencollab.dev/maven-snapshots/")
+  maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.modules.bridge.bridgeApi)
-  "compileOnly"(projects.ext.adventureHelper)
+  compileOnly(libs.bundles.proxyPlatform)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.wrapperJvm.wrapperJvmApi)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
 
-  // processing
-  "annotationProcessor"(libs.aerogelAuto)
+  compileOnly(projects.ext.adventureHelper)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 
-  "implementation"(projects.modules.syncproxy.syncproxyApi)
+  api(projects.modules.syncproxy.syncproxyApi)
+
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.syncproxy
+}
+
+tasks.withType<JavaCompile>().configureEach {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/syncproxy.aero")
 }
 
 moduleJson {

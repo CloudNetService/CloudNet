@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.cloudflare)
+dependencies {
+  compileOnly(libs.bundles.unirest)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
+  api(projects.modules.cloudflare.cloudflareApi)
 }
 
-dependencies {
-  "compileOnly"(libs.bundles.unirest)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.utils.utilsBase)
-
-  "implementation"(projects.modules.cloudflare.cloudflareApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.cloudflare
 }
 
 moduleJson {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-2025 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-object Versions {
+package eu.cloudnetservice.cloudnet.gradle.util
 
-  // internal versions
-  const val cloudNet = "4.0.0-RC15-SNAPSHOT"
-  const val cloudNetCodeName = "Blizzard"
+object CustomConfigurations {
+  const val GLOBAL_JAVADOC_SOURCES = "globalJavadocSources"
+  const val GLOBAL_JAVADOC_CLASSPATH = "globalJavadocClasspath"
 }

@@ -13,7 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+plugins {
+  id("cloudnet-publish")
+  id("cloudnet-modules-api")
+}
+
 dependencies {
-  "api"(libs.adventureApi)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
+  api(libs.adventureApi)
+  compileOnly(libs.guava)
+  compileOnlyApi(projects.wrapperJvm.wrapperJvmApi)
 }

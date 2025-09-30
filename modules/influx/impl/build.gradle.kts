@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.influx)
+dependencies {
+  moduleLibrary(libs.influxClient)
+  compileOnlyApi(projects.node.nodeApi)
+  api(projects.modules.influx.influxApi)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
+  annotationProcessor(projects.driver.driverAp)
 }
 
-dependencies {
-  "moduleLibrary"(libs.influxClient)
-  "compileOnly"(projects.node.nodeApi)
-  "compileOnly"(projects.modules.bridge.bridgeApi)
-  "annotationProcessor"(projects.driver.driverAp)
-  "implementation"(projects.modules.influx.influxApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.influx
 }
 
 moduleJson {

@@ -14,16 +14,40 @@
  * limitations under the License.
  */
 
-dependencies {
-  "compileOnly"(libs.fabricLoader)
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(libs.bundles.serverPlatform)
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 
-  "compileOnly"(libs.luckPermsApi)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
-  "compileOnly"(projects.modules.bridge.bridgeApi)
+plugins {
+  id("cloudnet-plugins")
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.luckPermsPlugin)
+repositories {
+  maven("https://repo.waterdog.dev/releases/")
+  maven("https://repo.waterdog.dev/snapshots/")
+  maven("https://repo.loohpjames.com/repository")
+  maven("https://repo.md-5.net/repository/releases/")
+  maven("https://repo.md-5.net/repository/snapshots/")
+  maven("https://repo.opencollab.dev/maven-releases/")
+  maven("https://repo.opencollab.dev/maven-snapshots/")
+  maven("https://repo.papermc.io/repository/maven-public/")
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+}
+
+dependencies {
+  compileOnly(libs.fabricLoader)
+  compileOnly(libs.bundles.proxyPlatform)
+  compileOnly(libs.bundles.serverPlatform)
+
+  compileOnly(libs.luckPermsApi)
+  compileOnly(projects.wrapperJvm.wrapperJvmApi)
+  compileOnly(projects.modules.bridge.bridgeApi)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
+
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
+}
+
+tasks.jar.configure {
+  archiveFileName = Files.luckPermsPlugin
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
 }

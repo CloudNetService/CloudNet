@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-2025 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,3 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package eu.cloudnetservice.cloudnet.gradle.plugins
+
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.apply
+
+class CloudNetModulesApiPlugin : Plugin<Project> {
+  override fun apply(project: Project) {
+    project.run {
+      apply<CloudNetJavaApiPlugin>()
+      registerProcessSources()
+    }
+  }
+}

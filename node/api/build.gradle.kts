@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java-api")
+  id("cloudnet-publish")
+}
+
 dependencies {
   api(projects.driver.driverApi)
   compileOnlyApi(libs.bundles.cloud)

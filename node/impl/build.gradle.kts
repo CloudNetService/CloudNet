@@ -14,64 +14,98 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.node)
-  from(projects.node.nodeApi.sourceSets()["main"].output)
-  from(projects.utils.utilsBase.sourceSets()["main"].output)
-  from(projects.driver.driverApi.sourceSets()["main"].output)
-  from(projects.driver.driverImpl.sourceSets()["main"].output)
+import eu.cloudnetservice.cloudnet.gradle.tasks.ExportCnlFile
+import eu.cloudnetservice.cloudnet.gradle.tasks.ExportLanguageFileInformation
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
+import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
 
-  dependsOn(":wrapper-jvm:wrapper-jvm-impl:shadowJar")
-
-  from("../../wrapper-jvm/impl/build/libs") {
-    include(Files.wrapper)
-  }
-
-  doFirst {
-    from(exportCnlFile(Files.nodeCnl))
-    from(exportLanguageFileInformation())
-  }
+plugins {
+  id("cloudnet-java")
+  id("cloudnet-updater")
+  id("cloudnet-publish")
+  alias(libs.plugins.shadow)
 }
 
-tasks.withType<JavaCompile> {
+val exportCnlFile = tasks.register<ExportCnlFile>("exportCnlFile") {
+  fileName = Files.nodeCnl
+  setResolvedArtifacts(configurations.runtimeClasspath)
+}
+val generateLanguageFileList = tasks.register<ExportLanguageFileInformation>("exportLanguageFileInformation") {
+  languageFiles.from(project.projectDir.resolve("src/main/resources/lang").listFiles())
+}
+
+val shaded = configurations.register("shaded") { isTransitive = false }
+val wrapperJar = configurations.register("wrapperJar") { isTransitive = false }
+
+tasks.shadowJar {
+  archiveFileName = Files.node
+  configurations = listOf(shaded.get())
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+  from(wrapperJar.get()) {
+    rename { Files.wrapper }
+  }
+
+  from(exportCnlFile)
+  from(generateLanguageFileList)
+}
+
+tasks.prepareUpdaterData {
+  val archiveName = fromArchive(tasks.shadowJar)
+  meta.set(archiveName.map { UpdaterMeta(Type.NODE, Data.Node(it)) })
+}
+
+tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/node.aero")
 }
 
 dependencies {
-  "api"(projects.driver.driverImpl)
-  "api"(projects.node.nodeApi)
-  "api"(projects.ext.updater)
-
-  "implementation"(projects.utils.utilsBase)
+  api(projects.ext.updater)
+  api(projects.node.nodeApi)
+  api(projects.utils.utilsBase)
+  api(projects.driver.driverImpl)
 
   // dependencies which are available for modules
-  "api"(libs.guava)
-  "api"(libs.bundles.cloud) {
+  api(libs.guava)
+  api(libs.bundles.cloud) {
     exclude(group = "org.incendo", module = "cloud-core")
   }
 
   // processing
-  "annotationProcessor"(libs.aerogelAuto)
-  "annotationProcessor"(projects.driver.driverAp)
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.driver.driverAp)
 
   // internal libraries
+  implementation(libs.h2)
+  implementation(libs.gson)
+  implementation(libs.gulf)
+  implementation(libs.xodus)
+  implementation(libs.jansi)
+  implementation(libs.caffeine)
+  implementation(libs.bundles.jline)
+  implementation(libs.bundles.cloud)
+  implementation(libs.bundles.unirest)
+  implementation(libs.stringSimilarity)
+  implementation(libs.bundles.nightConfig)
 
-  "implementation"(libs.h2)
-  "implementation"(libs.gson)
-  "implementation"(libs.gulf)
-  "implementation"(libs.xodus)
-  "implementation"(libs.jansi)
-  "implementation"(libs.caffeine)
-  "implementation"(libs.bundles.jline)
-  "implementation"(libs.bundles.cloud)
-  "implementation"(libs.bundles.unirest)
-  "implementation"(libs.stringSimilarity)
-  "implementation"(libs.bundles.nightConfig)
+  implementation(libs.logbackCore)
+  implementation(libs.logbackClassic)
 
-  "implementation"(libs.logbackCore)
-  "implementation"(libs.logbackClassic)
+  compileOnly(libs.bundles.netty)
 
-  "compileOnly"(libs.bundles.netty)
+  shaded(projects.node.nodeApi)
+  shaded(projects.utils.utilsBase)
+  shaded(projects.driver.driverApi)
+  shaded(projects.driver.driverImpl)
+
+  wrapperJar(projects.wrapperJvm.wrapperJvmImpl) { targetConfiguration = "shadow" }
 }
 
-applyJarMetadata("eu.cloudnetservice.node.impl.boot.Bootstrap", "eu.cloudnetservice.node")
+tasks.jar.applyJarMetadata(
+  indraGit,
+  mainClass = "eu.cloudnetservice.node.impl.boot.Bootstrap",
+  automaticModuleName = "eu.cloudnetservice.node",
+)

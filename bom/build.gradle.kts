@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.configurePublishing
+
 plugins {
   id("java-platform")
+  id("cloudnet-publish")
 }
 
-dependencies {
-  constraints {
-    collectSubProjects(rootProject, mutableListOf()).forEach {
-      api(project(it))
-    }
-  }
-}
+val bomProject = project
+rootProject.subprojects {
+  val project = this
+  if (project == bomProject) return@subprojects
 
-fun collectSubProjects(root: Project, paths: MutableList<String>): List<String> {
-  root.subprojects.forEach {
-    paths.add(it.path)
-    collectSubProjects(it, paths)
+  pluginManager.withPlugin("cloudnet-publish") {
+    bomProject.dependencies.constraints.add(
+      JavaPlatformPlugin.API_CONFIGURATION_NAME,
+      "${project.group}:${project.name}:${project.version}",
+    )
   }
-  // just to make it look cleaner :)
-  return paths
 }
 
 configurePublishing("javaPlatform")

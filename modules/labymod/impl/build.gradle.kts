@@ -13,24 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.labymod)
+repositories {
+  maven("https://repo.md-5.net/repository/releases/")
+  maven("https://repo.md-5.net/repository/snapshots/")
+  maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
-  "compileOnly"(projects.wrapperJvm)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.driver.driverImpl)
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(projects.modules.bridge.bridgeImpl)
+  compileOnly(libs.velocity)
+  compileOnly(libs.bungeecord)
 
-  "implementation"(projects.modules.labymod.labymodApi)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.driver.driverImpl)
+  compileOnlyApi(projects.modules.bridge.bridgeImpl)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
+
+  api(projects.modules.labymod.labymodApi)
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.labymod
 }
 
 moduleJson {

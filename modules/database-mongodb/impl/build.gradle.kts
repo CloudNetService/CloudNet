@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.databaseMongo)
+dependencies {
+  moduleLibrary(libs.mongodb)
+  compileOnly(libs.caffeine)
+  compileOnlyApi(projects.node.nodeImpl)
+  api(projects.modules.databaseMongodb.databaseMongodbApi)
 }
 
-dependencies {
-  "moduleLibrary"(libs.mongodb)
-
-  "compileOnly"(libs.caffeine)
-  "compileOnly"(projects.node.nodeImpl)
-
-  "testCompileOnly"(libs.caffeine)
-  "testImplementation"(projects.node.nodeImpl)
-
-  "implementation"(projects.modules.databaseMongodb.databaseMongodbApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.databaseMongo
 }
 
 moduleJson {

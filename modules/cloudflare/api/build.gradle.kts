@@ -13,3 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+plugins {
+  id("cloudnet-publish")
+  id("cloudnet-modules-api")
+}

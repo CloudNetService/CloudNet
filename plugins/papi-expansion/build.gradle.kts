@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.papiExpansion)
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
+plugins {
+  id("cloudnet-plugins")
 }
 
 repositories {
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
@@ -27,4 +30,8 @@ dependencies {
   compileOnly(libs.placeholderApi)
   compileOnly(projects.wrapperJvm.wrapperJvmApi)
   compileOnly(projects.modules.bridge.bridgeApi)
+}
+
+tasks.jar.configure {
+  archiveFileName = Files.papiExpansion
 }

@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+  id("cloudnet-publish")
+}
+
 dependencies {
-  "implementation"(libs.javapoet)
-  "implementation"(libs.bundles.nightConfig)
-  "implementation"(projects.ext.platformInjectSupport.platformInjectApi)
+  implementation(libs.javapoet)
+  implementation(libs.bundles.nightConfig)
+  implementation(projects.ext.platformInjectSupport.platformInjectApi)
 }

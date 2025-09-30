@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.smart)
+dependencies {
+  compileOnly(libs.guava)
+  compileOnlyApi(projects.node.nodeApi)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
+  api(projects.modules.smart.smartApi)
 }
 
-dependencies {
-  "compileOnly"(projects.modules.bridge.bridgeApi)
-  "implementation"(projects.modules.smart.smartApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.smart
 }
 
 moduleJson {

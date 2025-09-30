@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.storageSftp)
+dependencies {
+  moduleLibrary(libs.sshj)
+  compileOnlyApi(projects.node.nodeApi)
+  compileOnlyApi(projects.utils.utilsBase)
+  api(projects.modules.storageSftp.storageSftpApi)
 }
 
-dependencies {
-  "moduleLibrary"(libs.sshj)
-  "compileOnly"(projects.utils.utilsBase)
-  "implementation"(projects.modules.storageSftp.storageSftpApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.storageSftp
 }
 
 moduleJson {

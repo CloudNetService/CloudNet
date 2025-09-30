@@ -14,17 +14,34 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
+import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
+
 plugins {
+  id("cloudnet-java")
+  id("cloudnet-updater")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
+dependencies {
+  implementation(projects.ext.updater)
+  implementation(projects.launcher.launcherJava8)
+}
+
+tasks.shadowJar.configure {
   archiveFileName.set(Files.launcher)
 }
 
-dependencies {
-  "implementation"(projects.ext.updater)
-  "implementation"(projects.launcher.java8)
+tasks.prepareUpdaterData {
+  val archiveName = fromArchive(tasks.shadowJar)
+  meta.set(archiveName.map { UpdaterMeta(Type.LAUNCHER, Data.Node(it)) })
 }
 
-applyJarMetadata("eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")
+tasks.shadowJar.applyJarMetadata(
+  indraGit,
+  mainClass = "eu.cloudnetservice.launcher.java8.Launcher",
+  automaticModuleName = "eu.cloudnetservice.launcher",
+)

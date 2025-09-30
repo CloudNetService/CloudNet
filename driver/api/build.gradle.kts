@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java-api")
+  id("cloudnet-publish")
+}
+
 dependencies {
-  "api"(libs.vavr)
-  "api"(libs.slf4jApi)
-  "api"(libs.geantyref)
-  "api"(libs.bundles.aerogelApi)
-  "implementation"(libs.guava)
+  api(libs.vavr)
+  api(libs.slf4jApi)
+  api(libs.geantyref)
+  api(libs.bundles.aerogelApi)
+  implementation(libs.guava)
 }

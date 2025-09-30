@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-publish")
+  id("cloudnet-modules-api")
+}
+
 dependencies {
-  "compileOnly"(projects.modules.bridge.bridgeApi)
+  compileOnly(libs.guava)
+  compileOnly(libs.geantyref)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
 }

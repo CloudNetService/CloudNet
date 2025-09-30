@@ -13,6 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+plugins {
+  id("cloudnet-publish")
+  id("cloudnet-modules-api")
+}
+
 dependencies {
-  "compileOnly"(projects.modules.bridge.bridgeApi)
+  compileOnly(libs.guava)
+  compileOnlyApi(projects.driver.driverApi)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
 }

@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+  id("cloudnet-publish")
+}
+
 repositories {
   maven("https://repo.spongepowered.org/maven/")
 }
 
 dependencies {
-  "compileOnly"(libs.modLauncher)
+  compileOnly(libs.modLauncher)
 }

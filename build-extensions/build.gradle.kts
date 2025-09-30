@@ -16,13 +16,55 @@
 
 plugins {
   `kotlin-dsl`
+  id("java-gradle-plugin")
 }
 
-repositories {
-  gradlePluginPortal()
-}
+// fabric requires jvm 21, so we can do so too
+kotlin.jvmToolchain(21)
 
 dependencies {
-  implementation("net.kyori", "indra-common", "3.1.3")
-  implementation("com.google.code.gson", "gson", "2.13.1")
+  implementation(libs.gson)
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+
+  implementation("net.kyori:indra-git:${libs.versions.indra.get()}")
+  implementation("eu.cloudnetservice.gradle:juppiter:${libs.versions.juppiter.get()}")
+  implementation("com.gradleup.shadow:shadow-gradle-plugin:${libs.versions.shadow.get()}")
+  implementation("com.diffplug.spotless:spotless-plugin-gradle:${libs.versions.spotless.get()}")
+}
+
+gradlePlugin {
+  plugins {
+    register("cloudnet") {
+      id = "cloudnet"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetPlugin"
+    }
+    register("cloudnet-updater") {
+      id = "cloudnet-updater"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetUpdaterPlugin"
+    }
+    register("cloudnet-publish") {
+      id = "cloudnet-publish"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetPublishPlugin"
+    }
+    register("cloudnet-java") {
+      id = "cloudnet-java"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetJavaPlugin"
+    }
+    register("cloudnet-java-api") {
+      id = "cloudnet-java-api"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetJavaApiPlugin"
+    }
+    register("cloudnet-modules") {
+      id = "cloudnet-modules"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetModulesPlugin"
+    }
+    register("cloudnet-modules-api") {
+      id = "cloudnet-modules-api"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetModulesApiPlugin"
+    }
+    register("cloudnet-plugins") {
+      id = "cloudnet-plugins"
+      implementationClass = "eu.cloudnetservice.cloudnet.gradle.plugins.CloudNetPluginsPlugin"
+    }
+  }
 }

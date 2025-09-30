@@ -42,16 +42,16 @@ public record S3TemplateStorageConfig(
     if (this.endpointOverride != null) {
       try {
         var uri = URI.create(this.endpointOverride);
-        // validate the given uri
         if (uri.getScheme() != null) {
           return uri;
         }
+
         LOGGER.error("Endpoint override for s3 config must contain a valid scheme: {}", this.endpointOverride);
       } catch (IllegalArgumentException exception) {
         LOGGER.error("Unable to parse uri for s3 endpoint override: {}", this.endpointOverride);
       }
     }
-    // illegal uri or not given
+
     return null;
   }
 }

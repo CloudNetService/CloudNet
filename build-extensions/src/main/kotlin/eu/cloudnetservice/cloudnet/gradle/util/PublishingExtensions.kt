@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-2025 CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +14,49 @@
  * limitations under the License.
  */
 
+package eu.cloudnetservice.cloudnet.gradle.util
+
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.JavadocMemberLevel
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
-import org.gradle.internal.impldep.com.amazonaws.util.XpathUtils.asNode
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 
-fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource: Boolean = false) {
+fun Project.configurePublishing(publishedComponent: String) {
   extensions.configure<PublishingExtension> {
+    // pull this out because of configuration cache
+    val projectName = project.name
+    val projectDescription = project.description
+
+    data class Repository(val id: String, val url: String)
+
+    val selectedRepositories = project.repositories.filterIsInstance<MavenArtifactRepository>().filter {
+      it.url.scheme == "https"
+    }.map {
+      Repository(it.name, it.url.toString())
+    }
+
     publications.apply {
-      create("maven", MavenPublication::class.java).apply {
+      register<MavenPublication>("maven") {
         from(components.getByName(publishedComponent))
 
-        if (withJavadocAndSource) {
-          artifact(tasks.getByName("sourcesJar"))
-          artifact(tasks.getByName("javadocJar"))
-        }
-
         pom.apply {
-          name.set(project.name)
-          description.set(project.description)
+          name.set(projectName)
+          description.set(projectDescription)
           url.set("https://cloudnetservice.eu")
 
           developers {
             developer {
               id.set("derklaro")
-              email.set("git@derklaro.dev")
+              email.set("me@derklaro.dev")
               timezone.set("Europe/Berlin")
             }
 
@@ -65,29 +76,27 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
 
           scm {
             tag.set("HEAD")
-            url.set("git@github.com:CloudNetService/CloudNet-v3.git")
-            connection.set("scm:git:git@github.com:CloudNetService/CloudNet-v3.git")
-            developerConnection.set("scm:git:git@github.com:CloudNetService/CloudNet-v3.git")
+            url.set("git@github.com:CloudNetService/CloudNet.git")
+            connection.set("scm:git:git@github.com:CloudNetService/CloudNet.git")
+            developerConnection.set("scm:git:git@github.com:CloudNetService/CloudNet.git")
           }
 
           issueManagement {
             system.set("GitHub Issues")
-            url.set("https://github.com/CloudNetService/CloudNet-v3/issues")
+            url.set("https://github.com/CloudNetService/CloudNet/issues")
           }
 
           ciManagement {
             system.set("GitHub Actions")
-            url.set("https://github.com/CloudNetService/CloudNet-v3/actions")
+            url.set("https://github.com/CloudNetService/CloudNet/actions")
           }
 
           withXml {
             val repositories = asNode().appendNode("repositories")
-            project.repositories.forEach {
-              if (it is MavenArtifactRepository && it.url.toString().startsWith("https://")) {
-                val repo = repositories.appendNode("repository")
-                repo.appendNode("id", it.name)
-                repo.appendNode("url", it.url.toString())
-              }
+            selectedRepositories.forEach {
+              val repo = repositories.appendNode("repository")
+              repo.appendNode("id", it.id)
+              repo.appendNode("url", it.url)
             }
           }
         }
@@ -109,18 +118,30 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
     sign(extensions.getByType(PublishingExtension::class.java).publications.getByName("maven"))
   }
 
-  tasks.withType<Sign> {
+  val version = this.version
+  tasks.withType<Sign>().configureEach {
     onlyIf {
-      !rootProject.version.toString().endsWith("-SNAPSHOT")
+      !version.toString().endsWith("-SNAPSHOT")
+    }
+  }
+
+  plugins.withId("java") {
+    extensions.configure<JavaPluginExtension> {
+      // when we publish a component, we also want sources and javadoc
+      withSourcesJar()
+      withJavadocJar()
+    }
+    tasks.withType<Javadoc>().configureEach {
+      val options = options as? StandardJavadocDocletOptions ?: return@configureEach
+      applyJavadocOptions(options)
     }
   }
 }
 
-fun applyDefaultJavadocOptions(options: StandardJavadocDocletOptions) {
+fun applyJavadocOptions(options: StandardJavadocDocletOptions) {
   options.use()
   options.encoding = "UTF-8"
   options.memberLevel = JavadocMemberLevel.PRIVATE
-  options.addStringOption("source", "24")
   options.addBooleanOption("-enable-preview", true)
   options.addBooleanOption("Xdoclint:-missing", true)
   options.links(

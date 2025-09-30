@@ -33,15 +33,20 @@ jobs:
           add-job-summary: always
           cache-cleanup: on-success
           cache-read-only: ${{ github.ref != 'refs/heads/nightly' }}
+          cache-encryption-key: ${{ secrets.GRADLE_CONFIG_CACHE_SECRET }}
+          # automatically publishes build scans on nightly
+          build-scan-publish: ${{ github.ref == 'refs/heads/nightly' }}
+          build-scan-terms-of-use-agree: yes
+          build-scan-terms-of-use-url: 'https://gradle.com/terms-of-service'
 
       - name: Execute build and tests
-        run: ./gradlew build test shadowJar genUpdaterInformation --stacktrace
+        run: ./gradlew build genUpdaterInformation --no-daemon
 
       - name: Publish test summary
         if: ${{ always() }}
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          files: "**/build/test-results/test/TEST-*.xml"
+          files: '**/build/test-results/test/TEST-*.xml'
           comment_mode: ${{ github.event_name == 'pull_request' && 'always' || 'off' }}
 
       - name: Get branch name
@@ -71,7 +76,7 @@ jobs:
 
       - name: Publish snapshot to central portal
         if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') }}
-        run: ./gradlew publish
+        run: ./gradlew publish --no-daemon
         env:
           CENTRAL_USER: "${{ secrets.CENTRAL_USER }}"
           CENTRAL_PASSWORD: "${{ secrets.CENTRAL_PASSWORD }}"

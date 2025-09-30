@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-publish")
+  id("cloudnet-modules-api")
+}
+
 dependencies {
-  "compileOnly"(libs.influxClient)
+  compileOnlyApi(libs.influxClient)
+  compileOnlyApi(projects.driver.driverApi)
 }
