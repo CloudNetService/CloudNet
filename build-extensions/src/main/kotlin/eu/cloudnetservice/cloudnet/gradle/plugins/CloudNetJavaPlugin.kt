@@ -147,7 +147,6 @@ private fun Project.configureTestTasks() {
     }
 
     jvmArgs(*cloudNetJvmArgs)
-    systemProperties(System.getProperties().mapKeys { it.key.toString() })
   }
 }
 
