@@ -9,7 +9,7 @@ nexusPublish = "2.0.0"
 checkstyleTools = "11.0.1"
 
 # google libs
-gson = "2.13.1"
+gson = "2.13.2"
 guava = "33.4.8-jre"
 
 # testing
@@ -19,7 +19,7 @@ junitLauncher = "1.13.4"
 testcontainers = "1.21.3"
 
 # compile time processing
-lombok = "1.18.40"
+lombok = "1.18.42"
 javapoet = "1.13.0"
 
 # console
@@ -55,7 +55,7 @@ gulf = "1.0.0-SNAPSHOT"
 
 # logging
 slf4j = "2.0.17"
-logback = "1.5.18"
+logback = "1.5.19"
 
 # platform api versions
 sponge = "9.0.0"
@@ -65,7 +65,7 @@ nukkitX = "1.0-SNAPSHOT"
 minestom = "2025.08.29-1.21.8"
 minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
-bungeecord = "1.21-R0.4-SNAPSHOT"
+bungeecord = "1.21-R0.5-SNAPSHOT"
 limboloohp = "0.7.9-ALPHA"
 
 # platform extensions
