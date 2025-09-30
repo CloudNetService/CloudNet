@@ -36,28 +36,29 @@ fun TaskProvider<out Jar>.applyJarMetadata(
   automaticModuleName: String,
   preMain: String?
 ) {
-  this.configure {
-    val projectVersion = project.version.toString()
-    inputs.property("projectVersion", projectVersion)
-
+  configure {
     manifest.attributes(
       "Main-Class" to mainClass,
       "Automatic-Module-Name" to automaticModuleName,
       "Implementation-Vendor" to "CloudNetService",
       "Implementation-Title" to Versions.CLOUDNET_CODE_NAME,
-      "Implementation-Version" to Versions.CLOUDNET,
     )
+    preMain?.let { manifest.attributes("Premain-Class" to it) }
 
-    // apply the pre-main class if given
-    preMain?.let {
-      manifest.attributes("Premain-Class" to it)
-    }
+    val commit = git.commit()
+    val branchName = git.branchName()
+    inputs.property("branch", branchName.orElse("detached"))
+    inputs.property("commit", commit.map { it.name }.orElse("unknown"))
+    inputs.property("version", Versions.CLOUDNET)
 
-    // this executes git and must therefore run at execution time,
-    // not at configuration time (execution is not supported at that time)
-    doFirst {
-      git.applyVcsInformationToManifest(manifest)
-    }
+    val projectVersion = project.provider { Versions.CLOUDNET }
+    val shortCommitOrUnknown = commit.map { it.abbreviate(8).name() }.orElse("unknown")
+    val implementationVersion = projectVersion.zip(shortCommitOrUnknown) { version, commit -> "$version-$commit" }
+    manifest.attributes(
+      "Implementation-Version" to implementationVersion,
+      IndraGitExtension.MANIFEST_ATTRIBUTE_GIT_BRANCH to branchName,
+      IndraGitExtension.MANIFEST_ATTRIBUTE_GIT_COMMIT to commit.map { it.name },
+    )
   }
 }
 
