@@ -19,8 +19,10 @@ plugins {
   id("java-gradle-plugin")
 }
 
-// fabric requires jvm 21, so we can do so too
-kotlin.jvmToolchain(21)
+kotlin.jvmToolchain {
+  vendor = JvmVendorSpec.AZUL
+  languageVersion = JavaLanguageVersion.of(21)
+}
 
 dependencies {
   implementation(libs.gson)
