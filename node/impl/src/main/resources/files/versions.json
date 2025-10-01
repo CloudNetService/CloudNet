@@ -488,7 +488,7 @@
       "versions": [
         {
           "name": "1.21.9",
-          "url": "https://s3.mcjars.app/spigot/1.21.9/4536/server.jar"
+          "url": "https://s3.mcjars.app/spigot/1.21.9/4537/server.jar"
         },
         {
           "name": "1.21.8",
@@ -801,6 +801,10 @@
         "DOWNLOAD"
       ],
       "versions": [
+        {
+          "name": "1.21.9",
+          "url": "https://s3.mcjars.app/loohp-limbo/1.21.9/60/server.jar"
+        },
         {
           "name": "1.21.8",
           "url": "https://s3.mcjars.app/loohp-limbo/1.21.8/59/server.jar"
