@@ -488,84 +488,84 @@
       "versions": [
         {
           "name": "1.21.9",
-          "url": "https://s3.mcjars.app/spigot/1.21.9/4537/server.jar"
+          "url": "https://files.mcjars.app/spigot/1.21.9/4537/server.jar"
         },
         {
           "name": "1.21.8",
-          "url": "https://s3.mcjars.app/spigot/1.21.8/4534/server.jar"
+          "url": "https://files.mcjars.app/spigot/1.21.8/4534/server.jar"
         },
         {
           "name": "1.21.6",
-          "url": "https://s3.mcjars.app/spigot/1.21.6/4518/server.jar"
+          "url": "https://files.mcjars.app/spigot/1.21.6/4518/server.jar"
         },
         {
           "name": "1.21.5",
-          "url": "https://s3.mcjars.app/spigot/1.21.5/4504/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.21.5/4504/server.jar",
           "deprecated": true
         },
         {
           "name": "1.20.6",
-          "url": "https://s3.mcjars.app/spigot/1.20.6/4135/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.20.6/4135/server.jar",
           "deprecated": true
         },
         {
           "name": "1.19.4",
-          "url": "https://s3.mcjars.app/spigot/1.19.4/3763/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.19.4/3763/server.jar",
           "deprecated": true
         },
         {
           "name": "1.18.2",
-          "url": "https://s3.mcjars.app/spigot/1.18.2/3498/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.18.2/3498/server.jar",
           "deprecated": true
         },
         {
           "name": "1.17.1",
-          "url": "https://s3.mcjars.app/spigot/1.17.1/3284/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.17.1/3284/server.jar",
           "deprecated": true
         },
         {
           "name": "1.16.5",
-          "url": "https://s3.mcjars.app/spigot/1.16.5/3096/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.16.5/3096/server.jar",
           "deprecated": true
         },
         {
           "name": "1.15.2",
-          "url": "https://s3.mcjars.app/spigot/1.15.2/2703/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.15.2/2703/server.jar",
           "deprecated": true
         },
         {
           "name": "1.14.4",
-          "url": "https://s3.mcjars.app/spigot/1.14.4/2502/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.14.4/2502/server.jar",
           "deprecated": true
         },
         {
           "name": "1.13.2",
-          "url": "https://s3.mcjars.app/spigot/1.13.2/2148/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.13.2/2148/server.jar",
           "deprecated": true
         },
         {
           "name": "1.12.2",
-          "url": "https://s3.mcjars.app/spigot/1.12.2/1573/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.12.2/1573/server.jar",
           "deprecated": true
         },
         {
           "name": "1.11.2",
-          "url": "https://s3.mcjars.app/spigot/1.11.2/1251/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.11.2/1251/server.jar",
           "deprecated": true
         },
         {
           "name": "1.10.2",
-          "url": "https://s3.mcjars.app/spigot/1.10.2/986/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.10.2/986/server.jar",
           "deprecated": true
         },
         {
           "name": "1.9.4",
-          "url": "https://s3.mcjars.app/spigot/1.9.4/849/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.9.4/849/server.jar",
           "deprecated": true
         },
         {
           "name": "1.8.8",
-          "url": "https://s3.mcjars.app/spigot/1.8.8/582/server.jar",
+          "url": "https://files.mcjars.app/spigot/1.8.8/582/server.jar",
           "deprecated": true
         }
       ]
@@ -803,35 +803,35 @@
       "versions": [
         {
           "name": "1.21.9",
-          "url": "https://s3.mcjars.app/loohp-limbo/1.21.9/60/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.9/60/server.jar"
         },
         {
           "name": "1.21.8",
-          "url": "https://s3.mcjars.app/loohp-limbo/1.21.8/59/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.8/59/server.jar"
         },
         {
           "name": "1.21.6",
-          "url": "https://s3.mcjars.app/loohp-limbo/1.21.6/54/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.6/54/server.jar"
         },
         {
           "name": "1.21.5",
-          "url": "https://s3.mcjars.app/loohp-limbo/1.21.5/52/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.5/52/server.jar"
         },
         {
           "name": "1.21.4",
-          "url": "https://s3.mcjars.app/loohp-limbo/1.21.4/51/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.4/51/server.jar"
         },
         {
           "name": "1.21.3",
-          "url": "https://s3.mcjars.app/loohp-limbo/1.21.3/47/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.3/47/server.jar"
         },
         {
           "name": "1.21.1",
-          "url": "https://s3.mcjars.app/loohp-limbo/1.21.1/46/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.1/46/server.jar"
         },
         {
           "name": "1.20.6",
-          "url": "https://s3.mcjars.app/loohp-limbo/1.20.6/43/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.20.6/43/server.jar"
         }
       ]
     }
