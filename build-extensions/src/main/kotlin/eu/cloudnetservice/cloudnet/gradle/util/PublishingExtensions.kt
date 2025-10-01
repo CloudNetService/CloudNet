@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.gradle.util
 
+import eu.cloudnetservice.cloudnet.gradle.plugins.JAVA_CORE_COMPATIBILITY
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPluginExtension
@@ -147,8 +148,10 @@ fun applyJavadocOptions(options: StandardJavadocDocletOptions) {
   options.links(
     "https://projectlombok.org/api/",
     "https://jd.advntr.dev/api/latest/",
-    "https://javadoc.io/doc/com.konghq/unirest-java/latest/",
+    "https://javadoc.io/doc/io.vavr/vavr/0.10.7/",
+    "https://javadoc.io/doc/org.incendo/cloud-core/latest/",
     "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
-    "https://javadoc.io/doc/org.incendo/cloud-core/latest/"
+    "https://javadoc.io/doc/dev.derklaro.aerogel/aerogel/latest/",
+    "https://docs.oracle.com/en/java/javase/${JAVA_CORE_COMPATIBILITY.asInt()}/docs/api/"
   )
 }
