@@ -13,9 +13,8 @@ gson = "2.13.2"
 guava = "33.5.0-jre"
 
 # testing
-junit = "5.13.4"
+junit = "6.0.0"
 mockito = "5.20.0"
-junitLauncher = "1.13.4"
 testcontainers = "1.21.3"
 
 # compile time processing
@@ -113,7 +112,7 @@ cloudAnnotationsApi = { group = "org.incendo", name = "cloud-annotations", versi
 junitApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
 junitParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
 junitEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
-junitLauncher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitLauncher" }
+junitLauncher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
 
 # general testing
 mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
