@@ -10,7 +10,7 @@ checkstyleTools = "11.1.0"
 
 # google libs
 gson = "2.13.2"
-guava = "33.4.8-jre"
+guava = "33.5.0-jre"
 
 # testing
 junit = "5.13.4"
