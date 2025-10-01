@@ -145,7 +145,7 @@ vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
-oshi = { group = "com.github.oshi", name = "oshi-core-java11", version.ref = "oshi" }
+oshi = { group = "com.github.oshi", name = "oshi-core-java25", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
 geantyref = { group = "io.leangen.geantyref", name = "geantyref", version.ref = "geantyref" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
