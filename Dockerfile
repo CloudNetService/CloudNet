@@ -1,11 +1,11 @@
-FROM azul/zulu-openjdk:24-jre-headless AS build
+FROM azul/zulu-openjdk-debian:25-latest AS build
 
 COPY . /home/cloudnet-build
 WORKDIR /home/cloudnet-build
 
 RUN chmod +x gradlew && ./gradlew -x test --no-daemon --stacktrace
 
-FROM azul/zulu-openjdk:24-jre-headless
+FROM azul/zulu-openjdk-alpine:25-jre-headless-latest
 
 RUN mkdir -p /cloudnet
 WORKDIR /cloudnet

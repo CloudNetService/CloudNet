@@ -56,7 +56,7 @@ import org.gradle.kotlin.dsl.withType
 /**
  * Java version compatibility to apply to all non-api projects.
  */
-val JAVA_CORE_COMPATIBILITY = JavaLanguageVersion.of(24)
+val JAVA_CORE_COMPATIBILITY = JavaLanguageVersion.of(25)
 
 class CloudNetJavaPlugin : Plugin<Project> {
   override fun apply(project: Project) {
