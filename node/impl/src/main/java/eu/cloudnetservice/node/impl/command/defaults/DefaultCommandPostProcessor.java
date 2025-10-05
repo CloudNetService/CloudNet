@@ -29,7 +29,7 @@ import org.incendo.cloud.execution.postprocessor.CommandPostprocessingContext;
 import org.incendo.cloud.execution.postprocessor.CommandPostprocessor;
 
 /**
- * {@inheritDoc}
+ * Default command post processor implementation.
  */
 @Singleton
 final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandSource> {

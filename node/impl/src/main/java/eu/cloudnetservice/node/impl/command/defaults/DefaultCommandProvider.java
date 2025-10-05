@@ -80,7 +80,7 @@ import org.incendo.cloud.suggestion.Suggestion;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * {@inheritDoc}
+ * Default implementation of the command provider.
  */
 @Singleton
 @Provides(CommandProvider.class)

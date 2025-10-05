@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.network.object.ObjectMapper;
 import lombok.NonNull;
 
 /**
- * The blueprint of the internally generated class to serialize & deserialize the fields of an object into a buffer.
+ * The blueprint of the internally generated class to serialize and deserialize the fields of an object into a buffer.
  *
  * @since 4.0
  */

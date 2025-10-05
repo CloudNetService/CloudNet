@@ -30,7 +30,7 @@ import org.incendo.cloud.execution.preprocessor.CommandPreprocessor;
 import org.incendo.cloud.services.type.ConsumerService;
 
 /**
- * {@inheritDoc}
+ * Default command pre processor implementation.
  */
 @Singleton
 final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSource> {
