@@ -29,9 +29,7 @@
     },
     {
       "matchPackageNames": [
-        "net.kyori:adventure-api",
-        "net.kyori:adventure-text-serializer-gson",
-        "net.kyori:adventure-text-serializer-legacy",
+        "net.kyori:adventure-**",
       ],
       "groupName": "adventure monorepo",
     },
@@ -41,6 +39,18 @@
         "com.google.guava:guava",
       ],
       "versioning": "regex:^(?<major>\\d+)(\\.(?<minor>\\d+))?(\\.(?<patch>\\d+))?(-(?<compatibility>.*))?$",
+    },
+    {
+      "description": "Schedule aws-sdk patch updates on sunday night",
+      "matchUpdateTypes": [
+        "patch",
+      ],
+      "matchPackageNames": [
+        "software.amazon.awssdk:s3",
+      ],
+      "schedule": [
+        "* 20-23 * * 0",
+      ],
     },
     {
       "description": "Dependencies whose updates shouldn't be done automatically",
