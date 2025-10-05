@@ -83,6 +83,7 @@ dependencies {
   implementation(libs.guava)
   implementation(libs.logbackCore)
   implementation(libs.logbackClassic)
+  implementation(libs.bundles.aerogel)
   implementation(projects.ext.modlauncher)
   implementation(projects.ext.platformInjectSupport.platformInjectLoader)
 

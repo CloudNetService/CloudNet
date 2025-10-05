@@ -88,6 +88,7 @@ dependencies {
   implementation(libs.bundles.jline)
   implementation(libs.bundles.cloud)
   implementation(libs.bundles.unirest)
+  implementation(libs.bundles.aerogel)
   implementation(libs.stringSimilarity)
   implementation(libs.bundles.nightConfig)
 

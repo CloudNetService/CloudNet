@@ -36,7 +36,7 @@ import net.fabricmc.loader.api.FabricLoader;
   dependencies = {
     @Dependency(name = "fabricloader", version = ">=0.17.0"),
     @Dependency(name = "minecraft", version = "*"),
-    @Dependency(name = "java", version = "24")
+    @Dependency(name = "java", version = "25")
   },
   authors = "CloudNetService",
   pluginFileNames = "fabric.mod.json.temp"

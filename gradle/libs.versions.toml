@@ -39,7 +39,7 @@ mysqlConnector = "9.4.0"
 oshi = "6.9.0"
 vavr = "0.10.7"
 sshj = "0.40.0"
-aerogel = "3.0.1"
+aerogel = "3.1.0"
 awsSdk = "2.34.7"
 unirest = "4.5.1"
 caffeine = "3.2.2"
@@ -144,7 +144,7 @@ vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
-oshi = { group = "com.github.oshi", name = "oshi-core-java11", version.ref = "oshi" }
+oshi = { group = "com.github.oshi", name = "oshi-core-java25", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
 geantyref = { group = "io.leangen.geantyref", name = "geantyref", version.ref = "geantyref" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }

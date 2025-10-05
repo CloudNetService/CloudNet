@@ -32,7 +32,7 @@ import net.luckperms.api.LuckPermsProvider;
   dependencies = {
     @Dependency(name = "fabricloader", version = ">=0.16.6"),
     @Dependency(name = "minecraft", version = "*"),
-    @Dependency(name = "java", version = "24"),
+    @Dependency(name = "java", version = "25"),
     @Dependency(name = "LuckPerms")
   },
   authors = "CloudNetService",
