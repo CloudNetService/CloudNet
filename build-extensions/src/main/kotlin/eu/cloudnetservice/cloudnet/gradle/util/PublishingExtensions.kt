@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.gradle.util
 
+import eu.cloudnetservice.cloudnet.gradle.plugins.JAVA_CORE_COMPATIBILITY
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPluginExtension
@@ -29,6 +30,17 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
+
+// map of link (must end with trailing slash) -> cache directory name; links are applied in CloudNetPlugin
+val EXTERNAL_JAVADOC_LINKS = mapOf(
+  "https://projectlombok.org/api/" to "lombok",
+  "https://jd.advntr.dev/api/latest/" to "adventure",
+  "https://javadoc.io/doc/io.vavr/vavr/0.10.7/" to "vavr",
+  "https://javadoc.io/doc/org.incendo/cloud-core/latest/" to "cloud-core",
+  "https://javadoc.io/doc/org.jetbrains/annotations/latest/" to "jb-annotations",
+  "https://javadoc.io/doc/dev.derklaro.aerogel/aerogel/latest/" to "aerogel",
+  "https://docs.oracle.com/en/java/javase/${JAVA_CORE_COMPATIBILITY.asInt()}/docs/api/" to "java"
+)
 
 fun Project.configurePublishing(publishedComponent: String) {
   extensions.configure<PublishingExtension> {
@@ -140,15 +152,11 @@ fun Project.configurePublishing(publishedComponent: String) {
 
 fun applyJavadocOptions(options: StandardJavadocDocletOptions) {
   options.use()
+  options.locale = "en"
   options.encoding = "UTF-8"
   options.memberLevel = JavadocMemberLevel.PRIVATE
+  options.addBooleanOption("quiet", true)
   options.addBooleanOption("-enable-preview", true)
-  options.addBooleanOption("Xdoclint:-missing", true)
-  options.links(
-    "https://projectlombok.org/api/",
-    "https://jd.advntr.dev/api/latest/",
-    "https://javadoc.io/doc/com.konghq/unirest-java/latest/",
-    "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
-    "https://javadoc.io/doc/org.incendo/cloud-core/latest/"
-  )
+  options.addBooleanOption("Xdoclint:all,-missing", true)
+  options.addStringOption("-link-modularity-mismatch", "info")
 }

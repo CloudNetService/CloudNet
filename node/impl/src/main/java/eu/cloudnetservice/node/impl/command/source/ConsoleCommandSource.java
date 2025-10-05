@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@inheritDoc}
+ * Command source implementation representing the console. This source can execute every command unconditionally.
  */
 @Singleton
 @AutoService(services = CommandSource.class, name = "console")

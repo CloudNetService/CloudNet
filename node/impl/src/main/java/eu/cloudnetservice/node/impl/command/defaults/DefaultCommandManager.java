@@ -28,7 +28,7 @@ import org.incendo.cloud.meta.CommandMeta;
 import org.incendo.cloud.meta.SimpleCommandMeta;
 
 /**
- * {@inheritDoc}
+ * Default implementation of the command manager.
  */
 @Singleton
 final class DefaultCommandManager extends CommandManager<CommandSource> {

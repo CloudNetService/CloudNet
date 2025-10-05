@@ -34,7 +34,7 @@ import org.incendo.cloud.suggestion.Suggestion;
 import org.incendo.cloud.suggestion.SuggestionProcessor;
 
 /**
- * {@inheritDoc}
+ * Default implementation of the suggestion processor.
  */
 @Singleton
 final class DefaultSuggestionProcessor implements SuggestionProcessor<CommandSource> {

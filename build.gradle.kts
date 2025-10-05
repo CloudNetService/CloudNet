@@ -18,6 +18,7 @@ import eu.cloudnetservice.cloudnet.gradle.plugins.JAVA_CORE_COMPATIBILITY
 import eu.cloudnetservice.cloudnet.gradle.plugins.configureFor
 import eu.cloudnetservice.cloudnet.gradle.plugins.lenientView
 import eu.cloudnetservice.cloudnet.gradle.util.CustomConfigurations
+import eu.cloudnetservice.cloudnet.gradle.util.EXTERNAL_JAVADOC_LINKS
 import eu.cloudnetservice.cloudnet.gradle.util.applyJavadocOptions
 
 plugins {
@@ -45,6 +46,7 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   applyJavadocOptions(options)
   options.windowTitle = "CloudNet JavaDocs"
   options.source = JAVA_CORE_COMPATIBILITY.toString()
+  options.links(*EXTERNAL_JAVADOC_LINKS.keys.toTypedArray())
 
   // set the sources. We are using lenientView to ignore subprojects that shouldn't be included
   source(globalJavadocSources.map { it.lenientView.files })
