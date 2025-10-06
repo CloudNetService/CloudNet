@@ -29,7 +29,6 @@ import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
-import eu.cloudnetservice.modules.npc.configuration.NPCPoolOptions;
 import eu.cloudnetservice.modules.npc.impl._deprecated.CloudNPC;
 import eu.cloudnetservice.modules.npc.impl._deprecated.NPCConstants;
 import eu.cloudnetservice.modules.npc.impl._deprecated.configuration.NPCConfiguration;
@@ -86,11 +85,6 @@ public class CloudNetNPCModule extends DriverModule {
                 .map(mapEntry -> new Tuple2<>(mapEntry.getKey(), this.convertItemLayout(mapEntry.getValue())))
                 .collect(Collectors.toMap(Tuple2::_1, Tuple2::_2)))
               .inventorySize(entry.inventorySize())
-              .build())
-            .npcPoolOptions(NPCPoolOptions.builder()
-              .tabListRemoveTicks(entry.npcTabListRemoveTicks() > Integer.MAX_VALUE
-                ? Integer.MAX_VALUE
-                : (int) entry.npcTabListRemoveTicks())
               .build())
             .build())
           .collect(Collectors.toSet());

@@ -70,7 +70,7 @@ limboloohp = "0.7.9-ALPHA"
 # platform extensions
 adventure = "4.24.0"
 modlauncher = "8.1.3"
-npcLib = "3.0.0-beta.14"
+npcLib = "3.0.0-beta.15"
 packetEvents = "2.9.5"
 placeholderApi = "2.11.6"
 adventure-serializer-bungee = "4.4.1"
