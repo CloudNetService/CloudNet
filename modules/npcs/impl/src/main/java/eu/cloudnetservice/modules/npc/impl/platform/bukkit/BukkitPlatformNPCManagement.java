@@ -108,8 +108,7 @@ public class BukkitPlatformNPCManagement extends
         .debug(true)
         .actionController(builder -> builder
           .flag(NpcActionController.SPAWN_DISTANCE, entry.npcPoolOptions().spawnDistance())
-          .flag(NpcActionController.IMITATE_DISTANCE, entry.npcPoolOptions().actionDistance())
-          .flag(NpcActionController.TAB_REMOVAL_TICKS, entry.npcPoolOptions().tabListRemoveTicks()))
+          .flag(NpcActionController.IMITATE_DISTANCE, entry.npcPoolOptions().actionDistance()))
         .worldAccessor(BukkitWorldAccessor.nameBasedAccessor())
         .packetFactory(this.resolvePacketAdapter())
         .build();

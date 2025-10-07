@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.npc.configuration;
 
 import lombok.NonNull;
 
-public record NPCPoolOptions(int spawnDistance, int actionDistance, int tabListRemoveTicks) {
+public record NPCPoolOptions(int spawnDistance, int actionDistance) {
 
   public static @NonNull Builder builder() {
     return new Builder();
@@ -27,15 +27,13 @@ public record NPCPoolOptions(int spawnDistance, int actionDistance, int tabListR
   public static @NonNull Builder builder(@NonNull NPCPoolOptions options) {
     return builder()
       .spawnDistance(options.spawnDistance())
-      .actionDistance(options.actionDistance())
-      .tabListRemoveTicks(options.tabListRemoveTicks());
+      .actionDistance(options.actionDistance());
   }
 
   public static final class Builder {
 
     private int spawnDistance = 50;
     private int actionDistance = 20;
-    private int tabListRemoveTicks = 30;
 
     public @NonNull Builder spawnDistance(int spawnDistance) {
       this.spawnDistance = spawnDistance;
@@ -47,13 +45,8 @@ public record NPCPoolOptions(int spawnDistance, int actionDistance, int tabListR
       return this;
     }
 
-    public @NonNull Builder tabListRemoveTicks(int tabListRemoveTicks) {
-      this.tabListRemoveTicks = tabListRemoveTicks;
-      return this;
-    }
-
     public @NonNull NPCPoolOptions build() {
-      return new NPCPoolOptions(this.spawnDistance, this.actionDistance, this.tabListRemoveTicks);
+      return new NPCPoolOptions(this.spawnDistance, this.actionDistance);
     }
   }
 }
