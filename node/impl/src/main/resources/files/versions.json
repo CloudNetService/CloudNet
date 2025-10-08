@@ -857,6 +857,10 @@
       ],
       "versions": [
         {
+          "name": "1.21.10",
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.10/63/server.jar"
+        },
+        {
           "name": "1.21.9",
           "url": "https://files.mcjars.app/loohp-limbo/1.21.9/62/server.jar"
         },
