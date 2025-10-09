@@ -29,8 +29,7 @@ final class OpConstants {
   /**
    * Supplier of the jvm-static trusted lookup instance, only initialized on the first access.
    */
-  @SuppressWarnings("deprecation") // fine until stable values are available
-  static final Supplier<MethodHandles.Lookup> TRUSTED_LOOKUP = new LazyMemoizingSupplier<>(() -> {
+  static final Supplier<MethodHandles.Lookup> TRUSTED_LOOKUP = StableValue.supplier(() -> {
     try {
       var trustedLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
       trustedLookupField.setAccessible(true);
