@@ -26,7 +26,6 @@ import org.jetbrains.annotations.ApiStatus;
  * @since 4.0
  */
 @ApiStatus.Internal
-@SuppressWarnings("deprecation")
 public final class UnsafeUsageTraceLogger {
 
   /**
@@ -37,7 +36,7 @@ public final class UnsafeUsageTraceLogger {
    * Stack walker to get the caller of the unsafe replacement method.
    */
   private static final Supplier<StackWalker> CALLER_GET_STACK_WALKER =
-    new LazyMemoizingSupplier<>(() -> StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE));
+    StableValue.supplier(() -> StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE));
 
   private UnsafeUsageTraceLogger() {
     throw new UnsupportedOperationException();

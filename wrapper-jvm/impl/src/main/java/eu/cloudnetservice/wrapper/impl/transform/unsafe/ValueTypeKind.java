@@ -32,43 +32,42 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation") // uses LazyMemoizingSupplier
 enum ValueTypeKind {
 
   // CHECKSTYLE.OFF: checkstyle isn't really helping here
   BYTE(
     (left, right) -> (byte) left == (byte) right,
-    new LazyMemoizingSupplier<>(() -> MethodHandles.arrayElementVarHandle(byte[].class)),
+    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(byte[].class)),
     arr -> MemorySegment.ofArray((byte[]) arr),
     ValueLayout.JAVA_BYTE),
   SHORT(
     (left, right) -> (short) left == (short) right,
-    new LazyMemoizingSupplier<>(() -> MethodHandles.arrayElementVarHandle(short[].class)),
+    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(short[].class)),
     arr -> MemorySegment.ofArray((short[]) arr),
     ValueLayout.JAVA_SHORT),
   INT(
     (left, right) -> (int) left == (int) right,
-    new LazyMemoizingSupplier<>(() -> MethodHandles.arrayElementVarHandle(int[].class)),
+    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(int[].class)),
     arr -> MemorySegment.ofArray((int[]) arr),
     ValueLayout.JAVA_INT),
   LONG(
     (left, right) -> (long) left == (long) right,
-    new LazyMemoizingSupplier<>(() -> MethodHandles.arrayElementVarHandle(long[].class)),
+    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(long[].class)),
     arr -> MemorySegment.ofArray((long[]) arr),
     ValueLayout.JAVA_LONG),
   FLOAT(
     (left, right) -> (float) left == (float) right,
-    new LazyMemoizingSupplier<>(() -> MethodHandles.arrayElementVarHandle(float[].class)),
+    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(float[].class)),
     arr -> MemorySegment.ofArray((float[]) arr),
     ValueLayout.JAVA_FLOAT),
   DOUBLE(
     (left, right) -> (double) left == (double) right,
-    new LazyMemoizingSupplier<>(() -> MethodHandles.arrayElementVarHandle(double[].class)),
+    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(double[].class)),
     arr -> MemorySegment.ofArray((double[]) arr),
     ValueLayout.JAVA_DOUBLE),
   BOOL(
     (left, right) -> (boolean) left == (boolean) right,
-    new LazyMemoizingSupplier<>(() -> MethodHandles.arrayElementVarHandle(boolean[].class)),
+    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(boolean[].class)),
     arr -> {
       // boolean arrays aren't natively supported, but they are basically byte arrays with 0/1 values
       var boolArray = (boolean[]) arr;
@@ -81,12 +80,12 @@ enum ValueTypeKind {
     ValueLayout.JAVA_BOOLEAN),
   CHAR(
     (left, right) -> (char) left == (char) right,
-    new LazyMemoizingSupplier<>(() -> MethodHandles.arrayElementVarHandle(char[].class)),
+    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(char[].class)),
     arr -> MemorySegment.ofArray((char[]) arr),
     ValueLayout.JAVA_CHAR),
   REF(
     (left, right) -> left == right,
-    new LazyMemoizingSupplier<>(() -> MethodHandles.arrayElementVarHandle(Object[].class)),
+    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(Object[].class)),
     null,
     null);
   // CHECKSTYLE.ON

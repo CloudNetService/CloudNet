@@ -31,6 +31,7 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
@@ -41,9 +42,8 @@ import org.jetbrains.annotations.VisibleForTesting;
  * methods in {@code sun.misc.Unsafe} have a safe replacement within the jdk, use those instead!
  *
  * @since 4.0
- * @deprecated should not be used in new user code, use safe replacements like the ffm api or var handles instead.
  */
-@Deprecated
+@ApiStatus.Internal
 public final class UnsafeReplacementDelegate {
 
   // accessor for cleaning up direct byte buffers
@@ -55,7 +55,7 @@ public final class UnsafeReplacementDelegate {
 
   // accessor for the operating system mx bean
   private static final Supplier<OperatingSystemMXBean> OS_MX_BEAN =
-    new LazyMemoizingSupplier<>(ManagementFactory::getOperatingSystemMXBean);
+    StableValue.supplier(ManagementFactory::getOperatingSystemMXBean);
 
   // method handle to define a class in any class loader, takes the target class loader as the first argument
   // method descriptor: ClassLoader.defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
@@ -76,7 +76,7 @@ public final class UnsafeReplacementDelegate {
    * @return a supplier for a method handle to invoke {@code ClassLoader.defineClass}.
    */
   private static @NonNull Supplier<MethodHandle> createClassDefineMethodHandleSupplier() {
-    return new LazyMemoizingSupplier<>(() -> {
+    return StableValue.supplier(() -> {
       try {
         // resolves the method handle for: Class<?> defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
         var lookup = OpConstants.TRUSTED_LOOKUP.get();
@@ -103,7 +103,7 @@ public final class UnsafeReplacementDelegate {
    * @return a supplier that creates a consumer to clean a direct byte buffer.
    */
   private static @NonNull Supplier<Consumer<ByteBuffer>> createByteBufferCleaner() {
-    return new LazyMemoizingSupplier<>(() -> {
+    return StableValue.supplier(() -> {
       try {
         var lookup = OpConstants.TRUSTED_LOOKUP.get();
 
