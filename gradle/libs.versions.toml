@@ -40,7 +40,7 @@ oshi = "6.9.0"
 vavr = "0.10.7"
 sshj = "0.40.0"
 aerogel = "3.1.0"
-awsSdk = "2.35.0"
+awsSdk = "2.35.5"
 unirest = "4.5.1"
 caffeine = "3.2.2"
 reflexion = "2.0.0"
@@ -75,7 +75,7 @@ packetEvents = "2.9.5"
 placeholderApi = "2.11.6"
 adventure-serializer-bungee = "4.4.1"
 luckPermsApi = "5.5"
-fabricLoader = "0.17.2"
+fabricLoader = "0.17.3"
 
 
 [libraries]
