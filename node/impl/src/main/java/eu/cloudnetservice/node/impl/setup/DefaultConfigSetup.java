@@ -126,15 +126,6 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
           .possibleResults(addresses.stream().map(addr -> addr + ":1410").toList())
           .parser(this.parsers.assignableHostAndPort(true)))
         .build(),
-      // web server host
-      QuestionListEntry.<HostAndPort>builder()
-        .key("webHost")
-        .translatedQuestion("cloudnet-init-setup-web-host")
-        .answerType(QuestionAnswerType.<HostAndPort>builder()
-          .recommendation(NetworkUtil.localAddress() + ":2812")
-          .possibleResults(addresses.stream().map(addr -> addr + ":2812").toList())
-          .parser(this.parsers.assignableHostAndPort(true)))
-        .build(),
       // service bind host address
       QuestionListEntry.<HostAndPort>builder()
         .key("hostAddress")
