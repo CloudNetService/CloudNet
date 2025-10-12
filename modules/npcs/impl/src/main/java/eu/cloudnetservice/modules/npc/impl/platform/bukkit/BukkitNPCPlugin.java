@@ -28,6 +28,7 @@ import eu.cloudnetservice.modules.npc.impl.platform.bukkit.listener.BukkitWorldL
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
+import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -65,6 +66,11 @@ public final class BukkitNPCPlugin implements PlatformEntrypoint {
   @Inject
   private void registerNPCManagement() {
     this.npcManagement.initialize();
+  }
+
+  @Inject
+  private void registerChannels(@NonNull Server server, @NonNull Plugin plugin) {
+    server.getMessenger().registerOutgoingPluginChannel(plugin, "labymod:neo");
   }
 
   @Inject
