@@ -69,7 +69,7 @@ public final class BukkitNPCPlugin implements PlatformEntrypoint {
   }
 
   @Inject
-  private void registerChannels(@NonNull Server server, @NonNull Plugin plugin) {
+  private void registerLabyModPluginChannel(@NonNull Server server, @NonNull Plugin plugin) {
     server.getMessenger().registerOutgoingPluginChannel(plugin, "labymod:neo");
   }
 
