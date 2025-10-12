@@ -71,3 +71,11 @@ jobs:
             BRANCH=${{ github.ref_name }}
             VERSION=${{ steps.resolve_variables.outputs.version }}
             CREATED=${{ steps.resolve_variables.outputs.build_time }}
+
+      - name: Update Dockerhub Description
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: "cloudnetservice/cloudnet"
+          enable-url-completion: true
