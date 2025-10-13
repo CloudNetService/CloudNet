@@ -271,7 +271,7 @@ public interface PlayerManager {
    * @throws NullPointerException if the given unique id is null.
    */
   @NonNull
-  CompletableFuture<CloudPlayer> onlinePlayersAsync(@NonNull UUID uniqueId);
+  CompletableFuture<CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId);
 
   /**
    * Gets the first cloud player that is online and has the given case-insensitive name asynchronously.
