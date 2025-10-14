@@ -289,7 +289,7 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   @Override
-  public @NonNull CompletableFuture<CloudPlayer> onlinePlayersAsync(@NonNull UUID uniqueId) {
+  public @NonNull CompletableFuture<CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId) {
     return TaskUtil.supplyAsync(() -> this.onlinePlayer(uniqueId));
   }
 
