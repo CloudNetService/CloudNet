@@ -25,8 +25,8 @@ javapoet = "1.13.0"
 jline = "3.30.6"
 cloud = "2.0.0-cn1"
 cloudApi = "2.0.0"
-cloudConfirmation = "1.0.0-rc.1"
 stringSimilarity = "2.0.0"
+cloudConfirmation = "1.0.0-rc.1"
 
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
@@ -37,6 +37,7 @@ mysqlConnector = "9.4.0"
 
 # general
 oshi = "6.9.0"
+gulf = "0.0.1"
 vavr = "0.10.7"
 sshj = "0.40.0"
 aerogel = "3.1.0"
@@ -50,7 +51,6 @@ nightConfig = "3.8.3"
 annotations = "26.0.2-1"
 influxClient = "7.3.0"
 netty = "5.0.0.Alpha6-SNAPSHOT"
-gulf = "1.0.0-SNAPSHOT"
 
 # logging
 slf4j = "2.0.17"
@@ -204,7 +204,7 @@ unirest = ["unirest", "unirestGson"]
 mysql = ["mysqlConnector", "hikariCp"]
 jline = ["jlineReader", "jlineTerminal"]
 cloud = ["cloudCore", "cloudAnnotations", "cloudConfirmationProcessor"]
-cloudApi = ["cloudCoreApi", "cloudAnnotationsApi"]
+cloudApi = ["cloudCoreApi", "cloudAnnotationsApi", "cloudConfirmationProcessor"]
 netty = ["nettyHandler"]
 junit = ["junitApi", "junitParams", "junitEngine"]
 dockerJava = ["dockerJavaApi", "dockerJavaHttpclient5"]
