@@ -21,5 +21,5 @@ plugins {
 
 dependencies {
   api(projects.driver.driverApi)
-  compileOnlyApi(libs.bundles.cloud)
+  compileOnlyApi(libs.bundles.cloudApi)
 }
