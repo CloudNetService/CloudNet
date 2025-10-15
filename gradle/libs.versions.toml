@@ -15,7 +15,7 @@ guava = "33.5.0-jre"
 # testing
 junit = "6.0.0"
 mockito = "5.20.0"
-testcontainers = "1.21.3"
+testcontainers = "2.0.0"
 
 # compile time processing
 lombok = "1.18.42"
@@ -119,7 +119,7 @@ mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref =
 
 # testcontainers
 testContainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
-testContainersJunit = { group = "org.testcontainers", name = "junit-jupiter", version.ref = "testcontainers" }
+testContainersJunit = { group = "org.testcontainers", name = "testcontainers-junit-jupiter", version.ref = "testcontainers" }
 
 # unirest
 unirest = { group = "com.konghq", name = "unirest-java-core", version.ref = "unirest" }
