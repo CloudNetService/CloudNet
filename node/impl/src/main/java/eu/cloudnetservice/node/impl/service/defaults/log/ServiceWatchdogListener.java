@@ -33,9 +33,13 @@ public final class ServiceWatchdogListener {
   @EventListener
   private void handleCloudServicePreForceStop(@NonNull CloudServicePreForceStopEvent event) {
     var connectionTime = event.serviceInfo().connectedTime();
-    if (System.currentTimeMillis() - connectionTime < SERVICE_LOG_THRESHOLD_MILLIS) {
+    if (SERVICE_LOG_THRESHOLD_MILLIS <= 0) {
+      return;
+    }
+
+    if (connectionTime == -1 || System.currentTimeMillis() - connectionTime < SERVICE_LOG_THRESHOLD_MILLIS) {
       for (var cachedLogMessage : event.service().cachedLogMessages()) {
-        LOGGER.debug("[{} - Watchdog] {}", event.serviceInfo().name(), cachedLogMessage);
+        LOGGER.debug("[{}/WATCHDOG] {}", event.serviceInfo().name(), cachedLogMessage);
       }
     }
   }

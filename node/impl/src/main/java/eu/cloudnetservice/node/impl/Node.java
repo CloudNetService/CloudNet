@@ -55,6 +55,7 @@ import eu.cloudnetservice.node.impl.module.updater.ModuleUpdater;
 import eu.cloudnetservice.node.impl.module.updater.ModuleUpdaterRegistry;
 import eu.cloudnetservice.node.impl.network.chunk.FileDeployCallbackListener;
 import eu.cloudnetservice.node.impl.network.chunk.FileQueryChannelMessageListener;
+import eu.cloudnetservice.node.impl.service.defaults.log.ServiceWatchdogListener;
 import eu.cloudnetservice.node.impl.setup.DefaultInstallation;
 import eu.cloudnetservice.node.impl.template.LocalTemplateStorage;
 import eu.cloudnetservice.node.impl.tick.DefaultShutdownHandler;
@@ -484,6 +485,7 @@ public final class Node {
     eventManager.registerListener(callbackListener);
     eventManager.callEvent(new CloudNetNodePostInitializationEvent());
     eventManager.registerListener(FileQueryChannelMessageListener.class);
+    eventManager.registerListener(ServiceWatchdogListener.class);
 
     // notify that we are done & start the main tick loop
     LOGGER.info(i18n.translate("start-done", Duration.between(startInstant, Instant.now()).toMillis()));

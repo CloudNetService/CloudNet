@@ -51,7 +51,6 @@ import eu.cloudnetservice.node.impl.service.defaults.config.VanillaServiceConfig
 import eu.cloudnetservice.node.impl.service.defaults.config.VelocityConfigurationPreparer;
 import eu.cloudnetservice.node.impl.service.defaults.config.WaterdogPEConfigurationPreparer;
 import eu.cloudnetservice.node.impl.service.defaults.factory.JVMLocalCloudServiceFactory;
-import eu.cloudnetservice.node.impl.service.defaults.log.ServiceWatchdogListener;
 import eu.cloudnetservice.node.impl.service.defaults.provider.EmptySpecificCloudServiceProvider;
 import eu.cloudnetservice.node.impl.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import eu.cloudnetservice.node.service.CloudService;
@@ -193,8 +192,6 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
       }
       return null;
     }, Duration.ofMillis(SERVICE_WATCHDOG_INTERVAL_MILLIS));
-
-    eventManager.registerListener(ServiceWatchdogListener.class);
   }
 
   @Override
