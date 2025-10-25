@@ -93,7 +93,7 @@ jobs:
           find plugins/ -type f -regex '.*/build/libs/.*\.jar' ! -name '*-javadoc.jar' ! -name '*-sources.jar' -exec cp {} temp/plugins \;
 
       - name: Upload artifacts zip
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CloudNet
           path: temp/
