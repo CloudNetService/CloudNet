@@ -88,9 +88,8 @@ import org.slf4j.LoggerFactory;
 @Provides({InternalCloudServiceManager.class, CloudServiceManager.class, CloudServiceProvider.class})
 public class DefaultCloudServiceManager implements InternalCloudServiceManager {
 
-  protected static final int SERVICE_WATCHDOG_INTERVAL_MILLIS = Integer.getInteger(
-    "cloudnet.service-watchdog-interval",
-    1000);
+  protected static final int SERVICE_WATCHDOG_INTERVAL_MILLIS =
+    Integer.getInteger("cloudnet.service-watchdog-interval-millis", 1000);
 
   protected static final Path TEMP_SERVICE_DIR = Path.of(
     System.getProperty("cloudnet.tempDir.services", "temp/services"));

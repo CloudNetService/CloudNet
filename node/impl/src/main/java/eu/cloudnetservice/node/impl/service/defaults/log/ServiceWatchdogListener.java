@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.impl.service.defaults.log;
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.node.event.service.CloudServicePreForceStopEvent;
 import jakarta.inject.Singleton;
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +28,8 @@ import org.slf4j.LoggerFactory;
 public final class ServiceWatchdogListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceWatchdogListener.class);
-  private static final int SERVICE_LOG_THRESHOLD_MILLIS =
-    Integer.getInteger("cloudnet.service-watchdog-threshold", 5) * 1000;
+  private static final long SERVICE_LOG_THRESHOLD_MILLIS =
+    TimeUnit.SECONDS.toMillis(Integer.getInteger("cloudnet.service-watchdog-threshold-seconds", 5));
 
   @EventListener
   private void handleCloudServicePreForceStop(@NonNull CloudServicePreForceStopEvent event) {
