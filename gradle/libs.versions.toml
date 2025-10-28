@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-indra = "4.0.0-SNAPSHOT"
+indra = "4.0.0"
 shadow = "9.2.2"
 juppiter = "0.5.0-beta.2"
 spotless = "8.0.0"
@@ -15,7 +15,7 @@ guava = "33.5.0-jre"
 # testing
 junit = "6.0.0"
 mockito = "5.20.0"
-testcontainers = "2.0.0"
+testcontainers = "2.0.1"
 
 # compile time processing
 lombok = "1.18.42"
@@ -36,14 +36,14 @@ hikariCp = "7.0.2"
 mysqlConnector = "9.4.0"
 
 # general
-oshi = "6.9.0"
+oshi = "6.9.1"
 gulf = "0.0.1"
 vavr = "0.10.7"
 sshj = "0.40.0"
 aerogel = "3.1.0"
 awsSdk = "2.35.5"
 unirest = "4.5.1"
-caffeine = "3.2.2"
+caffeine = "3.2.3"
 reflexion = "2.0.0"
 geantyref = "2.0.1"
 dockerJava = "3.6.0"
@@ -54,14 +54,14 @@ netty = "5.0.0.Alpha6-SNAPSHOT"
 
 # logging
 slf4j = "2.0.17"
-logback = "1.5.19"
+logback = "1.5.20"
 
 # platform api versions
 sponge = "9.0.0"
 velocity = "3.4.0-SNAPSHOT"
 waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
-minestom = "2025.10.11-1.21.10"
+minestom = "2025.10.18-1.21.10"
 minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.21-R0.5-SNAPSHOT"
