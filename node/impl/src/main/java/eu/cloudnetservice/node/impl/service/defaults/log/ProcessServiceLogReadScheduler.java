@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.impl.service.defaults.log;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,11 +34,12 @@ public final class ProcessServiceLogReadScheduler {
   private final ScheduledThreadPoolExecutor executor;
 
   public ProcessServiceLogReadScheduler() {
-    var threadFactory = new ThreadFactoryBuilder()
-      .setDaemon(true)
-      .setPriority(Thread.NORM_PRIORITY)
-      .setNameFormat("process-log-reader-%d")
-      .build();
+    var threadFactory = Thread.ofPlatform()
+      .daemon(true)
+      .priority(Thread.NORM_PRIORITY)
+      .inheritInheritableThreadLocals(true)
+      .name("process-log-reader-", 0L)
+      .factory();
     this.executor = new ScheduledThreadPoolExecutor(1, threadFactory, new ThreadPoolExecutor.DiscardPolicy());
     this.runningReaderActions = new AtomicInteger(0);
   }
