@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.impl.network.netty;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.impl.network.scheduler.NetworkTaskScheduler;
 import eu.cloudnetservice.driver.impl.network.scheduler.ScalingNetworkTaskScheduler;
@@ -35,7 +34,6 @@ import io.netty5.handler.ssl.OpenSsl;
 import io.netty5.handler.ssl.SslProvider;
 import io.netty5.util.ResourceLeakDetector;
 import io.netty5.util.concurrent.DefaultThreadFactory;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -128,11 +126,12 @@ public final class NettyUtil {
     var defaultEnvThreadCount = driverEnvironment.equals(DriverEnvironment.NODE) ? 12 : 4;
     var maximumPoolSize = overriddenCountOrDefault(PACKET_DISPATCH_THREADS, defaultEnvThreadCount);
 
-    var threadFactory = new ThreadFactoryBuilder()
-      .setDaemon(true)
-      .setNameFormat("CloudNet-Packet-Dispatcher-%d")
-      .setThreadFactory(Executors.defaultThreadFactory())
-      .build();
+    var threadFactory = Thread.ofPlatform()
+      .daemon(true)
+      .priority(Thread.NORM_PRIORITY)
+      .inheritInheritableThreadLocals(true)
+      .name("CloudNet-Packet-Dispatcher-", 0L)
+      .factory();
     return new ScalingNetworkTaskScheduler(threadFactory, maximumPoolSize);
   }
 

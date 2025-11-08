@@ -17,7 +17,6 @@
 package eu.cloudnetservice.wrapper.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.wrapper.impl.transform.ClassTransformerRegistry;
@@ -53,10 +52,12 @@ public final class Main {
     bootInjectLayer.install(builder.bind(org.slf4j.Logger.class).qualifiedWithName("root").toInstance(rootLogger));
     bootInjectLayer.install(builder.bind(Instant.class).qualifiedWithName("startInstant").toInstance(startInstant));
 
-    var threadFactory = new ThreadFactoryBuilder()
-      .setDaemon(true)
-      .setNameFormat("CloudNet-TaskScheduler-Thread-%d")
-      .build();
+    var threadFactory = Thread.ofPlatform()
+      .daemon(true)
+      .priority(Thread.NORM_PRIORITY)
+      .inheritInheritableThreadLocals(true)
+      .name("CloudNet-TaskScheduler-Thread-", 0L)
+      .factory();
     bootInjectLayer.install(builder
       .bind(ScheduledExecutorService.class)
       .qualifiedWithName("taskScheduler")
