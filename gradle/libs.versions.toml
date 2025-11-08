@@ -50,7 +50,7 @@ dockerJava = "3.6.0"
 nightConfig = "3.8.3"
 annotations = "26.0.2-1"
 influxClient = "7.3.0"
-netty = "5.0.0.Alpha6-SNAPSHOT"
+netty = "2025.11.08-3a259e91"
 
 # logging
 slf4j = "2.0.17"
