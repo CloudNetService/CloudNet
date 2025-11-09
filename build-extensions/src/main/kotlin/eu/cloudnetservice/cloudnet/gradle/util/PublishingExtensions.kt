@@ -157,6 +157,7 @@ fun applyJavadocOptions(options: StandardJavadocDocletOptions) {
   options.memberLevel = JavadocMemberLevel.PRIVATE
   options.addBooleanOption("quiet", true)
   options.addBooleanOption("-enable-preview", true)
+  options.jFlags("-Duser.language=en", "-Duser.country=US")
   options.addBooleanOption("Xdoclint:all,-missing", true)
   options.addStringOption("-link-modularity-mismatch", "info")
 }
