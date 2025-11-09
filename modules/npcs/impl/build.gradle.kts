@@ -34,7 +34,6 @@ repositories {
       includeGroup("com.github.retrooper")
     }
   }
-  maven("https://repo.papermc.io/repository/maven-public/")
   maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
 }
 
@@ -63,7 +62,6 @@ tasks.shadowJar.configure {
   archiveFileName = Files.npcs
 
   relocate("net.kyori", "eu.cloudnetservice.modules.npc.relocate.net.kyori")
-  relocate("io.papermc.lib", "eu.cloudnetservice.modules.npc.relocate.paperlib")
   relocate("io.leangen.geantyref", "eu.cloudnetservice.modules.npc.relocate.geantyref")
   relocate("io.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.io.packetevents")
   relocate("com.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.com.packetevents")
