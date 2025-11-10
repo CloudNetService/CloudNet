@@ -159,4 +159,5 @@ fun applyJavadocOptions(options: StandardJavadocDocletOptions) {
   options.addBooleanOption("-enable-preview", true)
   options.addBooleanOption("Xdoclint:all,-missing", true)
   options.addStringOption("-link-modularity-mismatch", "info")
+  options.jFlags("-Duser.language=en", "-Duser.country=US")
 }
