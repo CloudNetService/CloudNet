@@ -33,7 +33,7 @@ h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "5.6.1"
 hikariCp = "7.0.2"
-mysqlConnector = "9.4.0"
+mysqlConnector = "9.5.0"
 
 # general
 oshi = "6.9.1"
