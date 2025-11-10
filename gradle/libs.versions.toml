@@ -75,7 +75,7 @@ packetEvents = "2.10.1"
 placeholderApi = "2.11.7"
 adventure-serializer-bungee = "4.4.1"
 luckPermsApi = "5.5"
-fabricLoader = "0.17.3"
+fabricLoader = "0.18.0"
 
 
 [libraries]
