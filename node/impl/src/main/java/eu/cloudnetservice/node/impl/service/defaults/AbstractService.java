@@ -830,20 +830,32 @@ public abstract class AbstractService implements InternalCloudService {
   }
 
   protected @NonNull HostAndPort selectConnectListener(@NonNull List<HostAndPort> listeners) {
-    // select a listener for the service to connect to, randomly
-    var listener = listeners.get(ThreadLocalRandom.current().nextInt(listeners.size()));
-    // rewrite 0.0.0.0 to 127.0.0.1 (or ::0 to ::1) to prevent unexpected connection issues (wrapper to node connection)
-    // if InetAddresses.forString throws an exception that is OK as the connection will fail anyway then
-    var address = InetAddresses.forString(listener.host());
-    if (address.isAnyLocalAddress()) {
-      // rewrites ipv6 to an ipv6 local address
-      return address instanceof Inet6Address
-        ? new HostAndPort("::1", listener.port())
-        : new HostAndPort("127.0.0.1", listener.port());
-    } else {
-      // no need to change anything
-      return listener;
-    }
+    return listeners.stream()
+      .map(listener -> {
+        var address = InetAddresses.forString(listener.host());
+        if (address.isLoopbackAddress()) {
+          return listener;
+        }
+
+        if (address.isAnyLocalAddress()) {
+          // rewrite 0.0.0.0 to 127.0.0.1 (or ::0 to ::1) to allow the wrapper to connect
+          // to the listener (and not use e.g. 0.0.0.0 for the connection attempt)
+          return address instanceof Inet6Address
+            ? new HostAndPort("::1", listener.port())
+            : new HostAndPort("127.0.0.1", listener.port());
+        }
+
+        // returns null here to prefer any of the options that can use a loopback address
+        // if no loopback listener exists a random one is chosen instead after checking all
+        return null;
+      })
+      .filter(Objects::nonNull)
+      .findFirst()
+      .orElseGet(() -> {
+        // if no local listener is available just select a random one from the available listeners
+        var randomListenerIndex = ThreadLocalRandom.current().nextInt(listeners.size());
+        return listeners.get(randomListenerIndex);
+      });
   }
 
   protected @NonNull Document prepareSslConfiguration(@NonNull SSLConfiguration configuration) {
