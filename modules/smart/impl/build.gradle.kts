@@ -25,13 +25,21 @@ plugins {
 
 dependencies {
   compileOnly(libs.guava)
-  compileOnlyApi(projects.node.nodeApi)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
   compileOnlyApi(projects.modules.bridge.bridgeApi)
+
+  annotationProcessor(libs.aerogelAuto)
+
   api(projects.modules.smart.smartApi)
 }
 
 tasks.shadowJar.configure {
   archiveFileName = Files.smart
+}
+
+tasks.withType<JavaCompile>().configureEach {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/smart.aero")
 }
 
 moduleJson {

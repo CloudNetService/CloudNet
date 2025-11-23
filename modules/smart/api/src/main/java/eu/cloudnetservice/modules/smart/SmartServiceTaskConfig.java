@@ -16,9 +16,11 @@
 
 package eu.cloudnetservice.modules.smart;
 
+import java.util.Objects;
 import lombok.NonNull;
 
 public record SmartServiceTaskConfig(
+  @NonNull String targetTask,
   boolean enabled,
   int priority,
   int maxServices,
@@ -39,6 +41,8 @@ public record SmartServiceTaskConfig(
 
   public static @NonNull Builder builder(@NonNull SmartServiceTaskConfig config) {
     return builder()
+      .targetTask(config.targetTask())
+
       .enabled(config.enabled())
       .priority(config.priority())
 
@@ -72,6 +76,8 @@ public record SmartServiceTaskConfig(
 
   public static class Builder {
 
+    private String targetTask;
+
     private boolean enabled = false;
     private int priority = 10;
 
@@ -88,6 +94,11 @@ public record SmartServiceTaskConfig(
 
     private int forAnewInstanceDelayTimeInSeconds = 300;
     private int percentOfPlayersForANewServiceByInstance = 100;
+
+    public @NonNull Builder targetTask(@NonNull String targetTask) {
+      this.targetTask = targetTask;
+      return this;
+    }
 
     public @NonNull Builder enabled(boolean enabled) {
       this.enabled = enabled;
@@ -150,7 +161,10 @@ public record SmartServiceTaskConfig(
     }
 
     public @NonNull SmartServiceTaskConfig build() {
+      Objects.requireNonNull(this.targetTask, "targetTask must be set");
+
       return new SmartServiceTaskConfig(
+        this.targetTask,
         this.enabled,
         this.priority,
         this.maxServices,
