@@ -53,7 +53,6 @@ public final class NodeSmartServiceManagement implements SmartServiceManagement 
   ) {
     this.dataDirectory = dataDirectory;
 
-    this.loadSmartConfigurations();
     syncRegistry.registerHandler(DefaultDataSyncHandler.<SmartServiceTaskConfig>builder()
         .key("smart-configs")
         .nameExtractor(SmartServiceTaskConfig::targetTask)
@@ -62,6 +61,7 @@ public final class NodeSmartServiceManagement implements SmartServiceManagement 
         .currentGetter(config -> this.smartServiceTaskConfig(config.targetTask()))
         .writer(this::addSmartServiceTaskConfigSilently)
       .build());
+    this.loadSmartConfigurations();
   }
 
   /**
@@ -119,6 +119,8 @@ public final class NodeSmartServiceManagement implements SmartServiceManagement 
   }
 
   void loadSmartConfigurations() {
+    this.smartConfigs.clear();
+
     FileUtil.walkFileTree(this.dataDirectory, (_, file) -> {
       var config = DocumentFactory.json().parse(file).toInstanceOf(SmartServiceTaskConfig.class);
       var taskName = file.getFileName().toString().replace(".json", "");
@@ -126,7 +128,7 @@ public final class NodeSmartServiceManagement implements SmartServiceManagement 
         FileUtil.move(file, this.smartConfigFile(config.targetTask()), StandardCopyOption.REPLACE_EXISTING);
       }
 
-      this.smartConfigs.put(config.targetTask(), config);
+      this.addSmartServiceTaskConfig(config);
     }, false, "*.json");
   }
 

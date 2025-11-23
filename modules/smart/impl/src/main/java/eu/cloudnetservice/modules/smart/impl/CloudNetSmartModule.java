@@ -116,4 +116,9 @@ public class CloudNetSmartModule extends DriverModule {
 
     commandProvider.register(SmartCommand.class);
   }
+
+  @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
+  public void reload(@NonNull NodeSmartServiceManagement management) {
+    management.loadSmartConfigurations();
+  }
 }
