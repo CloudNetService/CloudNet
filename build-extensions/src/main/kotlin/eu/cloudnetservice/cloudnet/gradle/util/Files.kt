@@ -19,7 +19,6 @@ package eu.cloudnetservice.cloudnet.gradle.util
 object Files {
 
   const val driver = "driver.jar"
-  const val common = "common.jar"
   const val wrapper = "wrapper.jar"
   const val launcher = "launcher.jar"
   const val launcherPatcher = "launcher-patcher.jar"
@@ -43,7 +42,6 @@ object Files {
   const val report = "cloudnet-report.jar"
   const val storageSftp = "cloudnet-sftp.jar"
   const val storageS3 = "cloudnet-s3.jar"
-  const val influx = "cloudnet-influx.jar"
   const val node = "cloudnet.jar"
   const val nodeCnl = "cloudnet.cnl"
 }

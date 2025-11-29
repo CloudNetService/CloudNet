@@ -192,11 +192,11 @@ public final class CloudNetBridgeModule extends DriverModule {
     // register the cluster sync handler
     dataSyncRegistry.registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
       .key("bridge-config")
-      .nameExtractor($ -> "Bridge Config")
+      .nameExtractor(_ -> "Bridge Config")
       .convertObject(BridgeConfiguration.class)
       .writer(management::configuration)
       .singletonCollector(management::configuration)
-      .currentGetter($ -> management.configuration())
+      .currentGetter(_ -> management.configuration())
       .build());
   }
 

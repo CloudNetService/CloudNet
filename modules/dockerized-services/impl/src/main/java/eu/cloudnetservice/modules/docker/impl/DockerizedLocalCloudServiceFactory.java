@@ -30,6 +30,7 @@ import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -38,6 +39,7 @@ import lombok.NonNull;
 public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
 
   protected final I18n i18n;
+  protected final MeterRegistry meterRegistry;
   protected final DefaultTickLoop mainThread;
   protected final EventManager eventManager;
   protected final DockerClient dockerClient;
@@ -50,6 +52,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     @NonNull @Service I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
+    @NonNull MeterRegistry meterRegistry,
     @NonNull CloudServiceManager cloudServiceManager,
     @NonNull EventManager eventManager,
     @NonNull ServiceVersionProvider versionProvider,
@@ -60,6 +63,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     super(nodeConfig, versionProvider);
     this.i18n = i18n;
     this.mainThread = tickLoop;
+    this.meterRegistry = meterRegistry;
     this.eventManager = eventManager;
     this.cloudServiceManager = cloudServiceManager;
     this.dockerClient = dockerClient;
@@ -81,6 +85,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
       this.i18n,
       this.mainThread,
       this.configuration,
+      this.meterRegistry,
       config,
       (InternalCloudServiceManager) manager,
       this.eventManager,

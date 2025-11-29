@@ -49,8 +49,11 @@ geantyref = "2.0.1"
 dockerJava = "3.7.0"
 nightConfig = "3.8.3"
 annotations = "26.0.2-1"
-influxClient = "7.3.0"
 netty = "2025.11.08-3a259e91"
+
+# metrics & observability
+micrometer = "1.16.0"
+microHttp = "0.11"
 
 # logging
 slf4j = "2.0.17"
@@ -149,7 +152,11 @@ annotations = { group = "org.jetbrains", name = "annotations", version.ref = "an
 geantyref = { group = "io.leangen.geantyref", name = "geantyref", version.ref = "geantyref" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
 reflexion = { group = "dev.derklaro.reflexion", name = "reflexion-core", version.ref = "reflexion" }
-influxClient = { group = "com.influxdb", name = "influxdb-client-java", version.ref = "influxClient" }
+
+# micrometer & adapters
+micrometerCore = { group = "io.micrometer", name = "micrometer-core", version.ref = "micrometer" }
+micrometerRegistryPrometheus = { group = "io.micrometer", name = "micrometer-registry-prometheus", version.ref = "micrometer" }
+microHttp = { group = "org.microhttp", name = "microhttp", version.ref = "microHttp" }
 
 # aerogel
 aerogel = { group = "dev.derklaro.aerogel", name = "aerogel", version.ref = "aerogel" }

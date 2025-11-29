@@ -63,6 +63,21 @@ import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.io.LogOutputStream;
 import eu.cloudnetservice.utils.base.resource.ResourceResolver;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmCompilationMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmHeapPressureMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmInfoMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
+import io.micrometer.core.instrument.binder.system.DiskSpaceMetrics;
+import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.core.instrument.binder.system.UptimeMetrics;
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
@@ -75,6 +90,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
@@ -174,6 +190,35 @@ public final class Node {
   ) {
     moduleProvider.moduleProviderHandler(providerHandler);
     moduleProvider.moduleDependencyLoader(new DefaultModuleDependencyLoader(launcherDirectory.resolve("libs")));
+  }
+
+  @Inject
+  @Order(225)
+  private void installMicrometer(
+    @NonNull InjectionLayer<?> layer,
+    @NonNull Configuration configuration,
+    @NonNull CloudNetVersion version
+  ) {
+    var registry = new CompositeMeterRegistry();
+    registry.config()
+      .commonTags(List.of(Tag.of("node", configuration.identity().uniqueId()), Tag.of("version", version.toString())))
+      .namingConvention(((name, _, _) -> "cloudnet_" + name));
+
+    var builder = layer.injector().createBindingBuilder();
+    layer.install(builder.bind(MeterRegistry.class).andBind(CompositeMeterRegistry.class).toInstance(registry));
+    new LogbackMetrics().bindTo(registry);
+    new UptimeMetrics().bindTo(registry);
+    new ProcessorMetrics().bindTo(registry);
+    new FileDescriptorMetrics().bindTo(registry);
+    new DiskSpaceMetrics(new File(".")).bindTo(registry);
+
+    new ClassLoaderMetrics().bindTo(registry);
+    new JvmCompilationMetrics().bindTo(registry);
+    new JvmGcMetrics().bindTo(registry);
+    new JvmHeapPressureMetrics().bindTo(registry);
+    new JvmInfoMetrics().bindTo(registry);
+    new JvmMemoryMetrics().bindTo(registry);
+    new JvmThreadMetrics().bindTo(registry);
   }
 
   @Inject

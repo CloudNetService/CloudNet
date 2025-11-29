@@ -49,6 +49,7 @@ import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.List;
@@ -92,6 +93,7 @@ public class NodePlayerManager implements PlayerManager {
 
   @Inject
   public NodePlayerManager(
+    @NonNull MeterRegistry meterRegistry,
     @NonNull EventManager eventManager,
     @NonNull RPCFactory providerFactory,
     @NonNull CommandProvider commandProvider,
@@ -124,6 +126,8 @@ public class NodePlayerManager implements PlayerManager {
       .currentGetter(player -> this.onlinePlayers.get(player.uniqueId()))
       .writer(player -> this.onlinePlayers.put(player.uniqueId(), player))
       .build());
+
+    meterRegistry.gauge("bridge_online_players", this.onlinePlayers, Map::size);
   }
 
   @Inject

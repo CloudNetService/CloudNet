@@ -51,6 +51,7 @@ import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.utils.base.StringUtil;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -108,6 +109,7 @@ public class DockerizedService extends JVMService {
     @NonNull @Service I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
+    @NonNull MeterRegistry meterRegistry,
     @NonNull ServiceConfiguration configuration,
     @NonNull InternalCloudServiceManager manager,
     @NonNull EventManager eventManager,
@@ -122,6 +124,7 @@ public class DockerizedService extends JVMService {
       i18n,
       tickLoop,
       nodeConfig,
+      meterRegistry,
       configuration,
       manager,
       eventManager,

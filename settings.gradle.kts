@@ -96,9 +96,9 @@ registerSubProjects(
   subProjects = arrayOf("api", "impl"),
 )
 registerSubProjects(
-  root = "modules:influx",
-  prefix = "influx",
-  subProjects = arrayOf("api", "impl"),
+  root = "modules:micrometer-prometheus",
+  prefix = "micrometer-prometheus",
+  subProjects = arrayOf("impl"),
 )
 registerSubProjects(
   root = "modules:labymod",

@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.influx;
+plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
+}
 
-import eu.cloudnetservice.driver.network.HostAndPort;
-import lombok.NonNull;
+dependencies {
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
 
-public record InfluxConfiguration(
-  @NonNull HostAndPort databaseAddress,
-  @NonNull String token,
-  @NonNull String org,
-  @NonNull String bucket,
-  int publishDelaySeconds
-) {
+  moduleLibrary(libs.microHttp)
+  moduleLibrary(libs.micrometerRegistryPrometheus)
+}
 
-  public @NonNull String connectUrl() {
-    // ignore ports < 0
-    if (this.databaseAddress.validPort()) {
-      return this.databaseAddress.toString();
-    } else {
-      return this.databaseAddress.host();
-    }
-  }
+moduleJson {
+  name = "CloudNet-Prometheus"
+  author = "CloudNetService"
+  main = "eu.cloudnetservice.modules.prometheus.impl.PrometheusModule"
+  description = "CloudNet extension which adds NPCs for server selection"
 }

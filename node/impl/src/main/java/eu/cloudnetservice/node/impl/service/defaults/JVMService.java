@@ -35,6 +35,7 @@ import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.vavr.CheckedFunction1;
 import io.vavr.Tuple2;
 import java.io.File;
@@ -78,6 +79,7 @@ public class JVMService extends AbstractService {
     @NonNull I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
+    @NonNull MeterRegistry meterRegistry,
     @NonNull ServiceConfiguration configuration,
     @NonNull InternalCloudServiceManager manager,
     @NonNull EventManager eventManager,
@@ -90,6 +92,7 @@ public class JVMService extends AbstractService {
       i18n,
       tickLoop,
       nodeConfig,
+      meterRegistry,
       configuration,
       manager,
       eventManager,
@@ -102,6 +105,7 @@ public class JVMService extends AbstractService {
     @NonNull I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
+    @NonNull MeterRegistry meterRegistry,
     @NonNull ServiceConfiguration configuration,
     @NonNull InternalCloudServiceManager manager,
     @NonNull EventManager eventManager,
@@ -113,6 +117,7 @@ public class JVMService extends AbstractService {
       i18n,
       tickLoop,
       nodeConfig,
+      meterRegistry,
       configuration,
       manager,
       eventManager,

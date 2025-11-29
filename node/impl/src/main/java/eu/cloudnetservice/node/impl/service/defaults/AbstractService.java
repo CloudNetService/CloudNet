@@ -60,6 +60,9 @@ import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.resource.CpuUsageResolver;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.vavr.Tuple2;
 import java.net.Inet6Address;
 import java.nio.charset.StandardCharsets;
@@ -131,6 +134,7 @@ public abstract class AbstractService implements InternalCloudService {
     @NonNull I18n i18n,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
+    @NonNull MeterRegistry meterRegistry,
     @NonNull ServiceConfiguration configuration,
     @NonNull InternalCloudServiceManager manager,
     @NonNull EventManager eventManager,
@@ -163,6 +167,7 @@ public abstract class AbstractService implements InternalCloudService {
       configuration.propertyHolder().immutableCopy());
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED, false);
     this.initStandardServiceLogHandler();
+    this.registerMetrics(meterRegistry);
 
     // register the service locally for now
     manager.registerUnacceptedService(this);
@@ -912,6 +917,35 @@ public abstract class AbstractService implements InternalCloudService {
         }
       }
     });
+  }
+
+  protected void registerMetrics(@NonNull MeterRegistry meterRegistry) {
+    var serviceId = this.serviceId();
+    var tags = Tags.of(
+      "id", serviceId.uniqueId().toString(),
+      "name", serviceId.name(),
+      "task", serviceId.taskName(),
+      "environment", serviceId.environmentName(),
+      "groups", String.join(",", this.serviceConfiguration.groups()));
+
+    Gauge.builder("service_state", () -> this.currentServiceInfo.lifeCycle().ordinal())
+      .tags(tags)
+      .register(meterRegistry);
+    Gauge.builder("service_cpu_usage", () -> this.currentServiceInfo.processSnapshot().cpuUsage())
+      .tags(tags)
+      .register(meterRegistry);
+    Gauge.builder("service_max_heap_memory", () -> this.currentServiceInfo.processSnapshot().maxHeapMemory())
+      .tags(tags)
+      .register(meterRegistry);
+    Gauge.builder("service_used_heap_memory", () -> this.currentServiceInfo.processSnapshot().heapUsageMemory())
+      .tags(tags)
+      .register(meterRegistry);
+    Gauge.builder("service_off_heap_memory", () -> this.currentServiceInfo.processSnapshot().noHeapUsageMemory())
+      .tags(tags)
+      .register(meterRegistry);
+    Gauge.builder("service_thread_count", () -> this.currentServiceInfo.processSnapshot().threads().size())
+      .tags(tags)
+      .register(meterRegistry);
   }
 
   protected abstract void startProcess();

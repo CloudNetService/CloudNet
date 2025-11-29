@@ -20,6 +20,7 @@ plugins {
 }
 
 dependencies {
+  api(libs.micrometerCore)
   api(projects.driver.driverApi)
   compileOnlyApi(libs.bundles.cloudApi)
 }

@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.node.impl.service.defaults.log;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -33,7 +35,8 @@ public final class ProcessServiceLogReadScheduler {
   private final AtomicInteger runningReaderActions;
   private final ScheduledThreadPoolExecutor executor;
 
-  public ProcessServiceLogReadScheduler() {
+  @Inject
+  public ProcessServiceLogReadScheduler(@NonNull MeterRegistry meterRegistry) {
     var threadFactory = Thread.ofPlatform()
       .daemon(true)
       .priority(Thread.NORM_PRIORITY)
@@ -42,6 +45,9 @@ public final class ProcessServiceLogReadScheduler {
       .factory();
     this.executor = new ScheduledThreadPoolExecutor(1, threadFactory, new ThreadPoolExecutor.DiscardPolicy());
     this.runningReaderActions = new AtomicInteger(0);
+
+    meterRegistry.gauge("process_service_workers", this.executor, ScheduledThreadPoolExecutor::getCorePoolSize);
+    meterRegistry.gauge("process_service_running_readers", this.runningReaderActions);
   }
 
   public void schedule(@NonNull ProcessServiceLogCache logCache) {

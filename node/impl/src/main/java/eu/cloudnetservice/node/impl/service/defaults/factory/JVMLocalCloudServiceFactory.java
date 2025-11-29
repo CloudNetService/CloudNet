@@ -28,6 +28,7 @@ import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -36,6 +37,7 @@ import lombok.NonNull;
 public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
 
   protected final I18n i18n;
+  protected final MeterRegistry meterRegistry;
   protected final DefaultTickLoop mainThread;
   protected final EventManager eventManager;
   protected final CloudServiceManager cloudServiceManager;
@@ -44,6 +46,7 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
   @Inject
   public JVMLocalCloudServiceFactory(
     @NonNull @Service I18n i18n,
+    @NonNull MeterRegistry meterRegistry,
     @NonNull DefaultTickLoop tickLoop,
     @NonNull Configuration nodeConfig,
     @NonNull CloudServiceManager cloudServiceManager,
@@ -53,6 +56,7 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
   ) {
     super(nodeConfig, versionProvider);
     this.i18n = i18n;
+    this.meterRegistry = meterRegistry;
     this.mainThread = tickLoop;
     this.eventManager = eventManager;
     this.cloudServiceManager = cloudServiceManager;
@@ -70,6 +74,7 @@ public class JVMLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
       this.i18n,
       this.mainThread,
       this.configuration,
+      this.meterRegistry,
       config,
       (InternalCloudServiceManager) manager,
       this.eventManager,
