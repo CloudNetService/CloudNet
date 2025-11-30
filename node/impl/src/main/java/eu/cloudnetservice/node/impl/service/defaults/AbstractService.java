@@ -930,21 +930,27 @@ public abstract class AbstractService implements InternalCloudService {
 
     Gauge.builder("service_state", () -> this.currentServiceInfo.lifeCycle().ordinal())
       .tags(tags)
+      .strongReference(false)
       .register(meterRegistry);
     Gauge.builder("service_cpu_usage", () -> this.currentServiceInfo.processSnapshot().cpuUsage())
       .tags(tags)
+      .strongReference(false)
       .register(meterRegistry);
     Gauge.builder("service_max_heap_memory", () -> this.currentServiceInfo.processSnapshot().maxHeapMemory())
       .tags(tags)
+      .strongReference(false)
       .register(meterRegistry);
     Gauge.builder("service_used_heap_memory", () -> this.currentServiceInfo.processSnapshot().heapUsageMemory())
       .tags(tags)
+      .strongReference(false)
       .register(meterRegistry);
     Gauge.builder("service_off_heap_memory", () -> this.currentServiceInfo.processSnapshot().noHeapUsageMemory())
       .tags(tags)
+      .strongReference(false)
       .register(meterRegistry);
     Gauge.builder("service_thread_count", () -> this.currentServiceInfo.processSnapshot().threads().size())
       .tags(tags)
+      .strongReference(false)
       .register(meterRegistry);
   }
 

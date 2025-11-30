@@ -35,6 +35,7 @@ import eu.cloudnetservice.modules.bridge.impl.node.listener.NodeSetupListener;
 import eu.cloudnetservice.modules.bridge.impl.node.network.NodeBridgeChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.node.impl.module.listener.PluginIncludeListener;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collections;
@@ -57,6 +58,7 @@ public class NodeBridgeManagement implements InternalBridgeManagement {
     @NonNull EventManager eventManager,
     @NonNull RPCFactory providerFactory,
     @NonNull PlayerManager playerManager,
+    @NonNull MeterRegistry meterRegistry,
     @NonNull ServiceTaskProvider taskProvider,
     @NonNull CloudNetBridgeModule bridgeModule,
     @NonNull BridgeConfiguration configuration,
