@@ -42,15 +42,20 @@ public class CloudNetSmartModule extends DriverModule {
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.STARTED, order = Byte.MAX_VALUE)
-  public void rewriteOldSmartTaskEntries(@NonNull ServiceTaskProvider taskProvider) {
+  public void rewriteOldSmartTaskEntries(
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull NodeSmartServiceManagement management
+  ) {
     for (var task : taskProvider.serviceTasks()) {
       // check if the task had a smart config entry previously
       if (task.propertyHolder().contains("smartConfig")) {
+        SmartServiceTaskConfig config = null;
+
         // check if the task still uses the old format
         var smartEntry = task.propertyHolder().readDocument("smartConfig");
         if (smartEntry.contains("dynamicMemoryAllocationRange")) {
           // rewrite the old config
-          var config = SmartServiceTaskConfig.builder()
+          config = SmartServiceTaskConfig.builder()
             .targetTask(task.name())
             .enabled(smartEntry.getBoolean("enabled"))
             .priority(smartEntry.getInt("priority"))
@@ -70,38 +75,20 @@ public class CloudNetSmartModule extends DriverModule {
             .percentOfPlayersForANewServiceByInstance(smartEntry.getInt("percentOfPlayersForANewServiceByInstance"))
 
             .build();
-
-          // append the new smart entry and update the service
-          var newTask = ServiceTask.builder(task)
-            .modifyProperties(properties -> properties.append("smartConfig", config))
-            .build();
-          taskProvider.addServiceTask(newTask);
         } else if (!smartEntry.containsNonNull("targetTask")) {
           var newEntry = smartEntry.mutableCopy().append("targetTask", task.name());
-          var newTask = ServiceTask.builder(task)
-            .modifyProperties(properties -> properties.append("smartConfig", newEntry))
-            .build();
-          taskProvider.addServiceTask(newTask);
+          config = newEntry.toInstanceOf(SmartServiceTaskConfig.class);
         }
-      }
-    }
-  }
 
-  @ModuleTask(lifecycle = ModuleLifeCycle.STARTED, order = 64)
-  public void moveSmartConfig(
-    @NonNull ServiceTaskProvider taskProvider,
-    @NonNull NodeSmartServiceManagement management
-  ) {
-    for (var serviceTask : taskProvider.serviceTasks()) {
-      var config = serviceTask.propertyHolder().readObject("smartConfig", SmartServiceTaskConfig.class);
-      if (config != null) {
-        var updatedTask = ServiceTask.builder(serviceTask)
-          .modifyProperties(properties -> properties.remove("smartConfig"))
-          .build();
-        taskProvider.addServiceTask(updatedTask);
+        if (config != null) {
+          var updatedTask = ServiceTask.builder(task)
+            .modifyProperties(properties -> properties.remove("smartConfig"))
+            .build();
+          taskProvider.addServiceTask(updatedTask);
 
-        if (config.enabled()) {
-          management.addSmartServiceTaskConfigSilently(config);
+          if (config.enabled()) {
+            management.addSmartServiceTaskConfigSilently(config);
+          }
         }
       }
     }
