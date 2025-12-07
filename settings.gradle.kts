@@ -140,6 +140,11 @@ registerSubProjects(
   prefix = "syncproxy",
   subProjects = arrayOf("api", "impl"),
 )
+registerSubProjects(
+  root = "modules:replacer",
+  prefix = "replacer",
+  subProjects = arrayOf("api", "impl"),
+)
 
 include("bom")
 include("plugins:luckperms")
