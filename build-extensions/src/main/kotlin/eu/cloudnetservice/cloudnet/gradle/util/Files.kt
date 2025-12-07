@@ -34,6 +34,7 @@ object Files {
   const val dockerizedServices = "cloudnet-dockerized-services.jar"
   const val databaseMongo = "cloudnet-database-mongodb.jar"
   const val databaseMysql = "cloudnet-database-mysql.jar"
+  const val databasePostgres = "cloudnet-database-postgres.jar"
   const val labymod = "cloudnet-labymod.jar"
   const val npcs = "cloudnet-npcs.jar"
   const val rest = "cloudnet-rest.jar"
