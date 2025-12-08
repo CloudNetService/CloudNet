@@ -178,6 +178,7 @@ public class I18nTest {
   void testAdvancedMessageFormatPatternsArePickedUp() {
     var properties = new Properties();
     properties.put("1", "Hello {0$name$}, your status is {1, choice, 0#deactivated|1#active$status$}");
+    properties.put("2", "{0} {1$name$} {2,number,integer$an int$} {3,choice,0#hello|1#world|2#test$some description$}");
     var provider = PropertiesTranslationProvider.fromProperties(properties);
 
     var i18n = I18n.i18n();
@@ -185,5 +186,8 @@ public class I18nTest {
 
     Assertions.assertEquals("Hello Rob, your status is active", i18n.translate("1", "Rob", 1));
     Assertions.assertEquals("Hello Klaro, your status is deactivated", i18n.translate("1", "Klaro", 0));
+
+    Assertions.assertEquals("World Rob 56,789 test", provider.translate("2", "World", "Rob", 56789, 2));
+    Assertions.assertEquals("Hello World 1,234,568 world", provider.translate("2", "Hello", "World", 1234567.89, 1));
   }
 }
