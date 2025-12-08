@@ -173,4 +173,17 @@ public class I18nTest {
     Assertions.assertEquals("<missing translation for 1 in en-US>", i18n.translate("1"));
     Assertions.assertEquals("<missing translation for 2 in en-US>", i18n.translate("2"));
   }
+
+  @Test
+  void testAdvancedMessageFormatPatternsArePickedUp() {
+    var properties = new Properties();
+    properties.put("1", "Hello {0$name$}, your status is {1, choice, 0#deactivated|1#active$status$}");
+    var provider = PropertiesTranslationProvider.fromProperties(properties);
+
+    var i18n = I18n.i18n();
+    i18n.registerProvider(i18n.selectedLanguage(), provider);
+
+    Assertions.assertEquals("Hello Rob, your status is active", i18n.translate("1", "Rob", 1));
+    Assertions.assertEquals("Hello Klaro, your status is deactivated", i18n.translate("1", "Klaro", 0));
+  }
 }
