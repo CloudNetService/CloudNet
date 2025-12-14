@@ -38,7 +38,7 @@ mysqlConnector = "9.5.0"
 # general
 oshi = "6.9.1"
 gulf = "0.0.1"
-vavr = "0.10.7"
+vavr = "0.11.0"
 sshj = "0.40.0"
 aerogel = "3.1.0"
 awsSdk = "2.39.2"
