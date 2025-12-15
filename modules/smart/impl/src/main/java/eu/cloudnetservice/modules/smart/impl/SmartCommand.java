@@ -103,7 +103,7 @@ public class SmartCommand {
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "newSmartConfigs") String taskName
   ) {
-    this.updateSmart(SmartServiceTaskConfig.builder().targetTask(taskName).build(), Function.identity());
+    this.updateSmartConfig(SmartServiceTaskConfig.builder().targetTask(taskName).build(), Function.identity());
     source.sendMessage(i18n.translate("module-smart-command-task-created", taskName));
   }
 
@@ -124,7 +124,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateSmart(config, builder -> builder.enabled(enabled));
+    this.updateSmartConfig(config, builder -> builder.enabled(enabled));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "enabled", config.targetTask(),
@@ -138,7 +138,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("priority") int priority
   ) {
-    this.updateSmart(config, builder -> builder.priority(priority));
+    this.updateSmartConfig(config, builder -> builder.priority(priority));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "priority",
@@ -153,7 +153,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("amount") int maxServices
   ) {
-    this.updateSmart(config, builder -> builder.maxServices(maxServices));
+    this.updateSmartConfig(config, builder -> builder.maxServices(maxServices));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "maxServices",
@@ -168,7 +168,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("amount") int preparedServices
   ) {
-    this.updateSmart(config, builder -> builder.preparedServices(preparedServices));
+    this.updateSmartConfig(config, builder -> builder.preparedServices(preparedServices));
     source.sendMessage(
       i18n.translate(
         "command-tasks-set-property-success",
@@ -184,7 +184,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("amount") int smartMinServiceCount
   ) {
-    this.updateSmart(config, builder -> builder.smartMinServiceCount(smartMinServiceCount));
+    this.updateSmartConfig(config, builder -> builder.smartMinServiceCount(smartMinServiceCount));
     source.sendMessage(
       i18n.translate(
         "command-tasks-set-property-success",
@@ -200,7 +200,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateSmart(config, builder -> builder.splitLogicallyOverNodes(enabled));
+    this.updateSmartConfig(config, builder -> builder.splitLogicallyOverNodes(enabled));
     source.sendMessage(
       i18n.translate(
         "command-tasks-set-property-success",
@@ -216,7 +216,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateSmart(config, builder -> builder.directTemplatesAndInclusionsSetup(enabled));
+    this.updateSmartConfig(config, builder -> builder.directTemplatesAndInclusionsSetup(enabled));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "directTemplatesAndInclusionsSetup",
@@ -231,7 +231,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @NonNull @Argument("installer") SmartServiceTaskConfig.TemplateInstaller installer
   ) {
-    this.updateSmart(config, builder -> builder.templateInstaller(installer));
+    this.updateSmartConfig(config, builder -> builder.templateInstaller(installer));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "templateInstaller",
@@ -246,7 +246,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("seconds") int seconds
   ) {
-    this.updateSmart(config, builder -> builder.autoStopTimeByUnusedServiceInSeconds(seconds));
+    this.updateSmartConfig(config, builder -> builder.autoStopTimeByUnusedServiceInSeconds(seconds));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "autoStopTimeByUnusedServiceInSeconds",
@@ -261,7 +261,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("percent") @Range(min = "0", max = "100") int percent
   ) {
-    this.updateSmart(config, builder -> builder.percentOfPlayersToCheckShouldStop(percent));
+    this.updateSmartConfig(config, builder -> builder.percentOfPlayersToCheckShouldStop(percent));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "percentOfPlayersToCheckShouldStop",
@@ -276,7 +276,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("seconds") int seconds
   ) {
-    this.updateSmart(config, builder -> builder.forAnewInstanceDelayTimeInSeconds(seconds));
+    this.updateSmartConfig(config, builder -> builder.forAnewInstanceDelayTimeInSeconds(seconds));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "forAnewInstanceDelayTimeInSeconds",
@@ -291,7 +291,7 @@ public class SmartCommand {
     @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("percent") @Range(min = "0", max = "100") int percent
   ) {
-    this.updateSmart(config, builder -> builder.percentOfPlayersForANewServiceByInstance(percent));
+    this.updateSmartConfig(config, builder -> builder.percentOfPlayersForANewServiceByInstance(percent));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "percentOfPlayersForANewServiceByInstance",
@@ -299,7 +299,7 @@ public class SmartCommand {
       percent));
   }
 
-  private void updateSmart(
+  private void updateSmartConfig(
     @NonNull SmartServiceTaskConfig config,
     @NonNull Function<SmartServiceTaskConfig.Builder, SmartServiceTaskConfig.Builder> modifier
   ) {
