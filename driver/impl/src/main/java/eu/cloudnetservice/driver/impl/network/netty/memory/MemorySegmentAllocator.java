@@ -72,7 +72,9 @@ final class MemorySegmentAllocator {
    */
   public static @NonNull MemorySegment malloc(long byteCount) {
     try {
-      var segment = (MemorySegment) MALLOC.invokeExact(byteCount);
+      // on malloc(0), implementations of malloc(3) have the choice to return either NULL or a unique non-null pointer.
+      // to ensure that we always get a unique non-null pointer we allocate at least one byte
+      var segment = (MemorySegment) MALLOC.invokeExact(Math.max(byteCount, 1L));
       validateAllocatedSegment(segment, byteCount);
       return segment.reinterpret(byteCount).fill((byte) 0);
     } catch (Throwable throwable) {
