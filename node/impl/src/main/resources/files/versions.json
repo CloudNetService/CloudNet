@@ -393,6 +393,21 @@
       ],
       "versions": [
         {
+          "name": "1.21.11",
+          "url": "https://api.purpurmc.org/v2/purpur/1.21.11/latest/download",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
           "name": "1.21.10",
           "url": "https://api.purpurmc.org/v2/purpur/1.21.10/latest/download",
           "cacheFiles": false,
@@ -535,11 +550,11 @@
       "versions": [
         {
           "name": "1.21.11",
-          "url": "https://files.mcjars.app/spigot/1.21.11/4573/server.jar"
+          "url": "https://files.mcjars.app/spigot/1.21.11/4578/server.jar"
         },
         {
           "name": "1.21.10",
-          "url": "https://files.mcjars.app/spigot/1.21.10/4570/server.jar"
+          "url": "https://files.mcjars.app/spigot/1.21.10/4571/server.jar"
         },
         {
           "name": "1.21.9",
