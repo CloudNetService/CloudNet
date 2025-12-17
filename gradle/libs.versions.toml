@@ -2,7 +2,7 @@
 
 # plugins
 indra = "4.0.0"
-shadow = "9.2.2"
+shadow = "9.3.0"
 juppiter = "0.5.0-beta.2"
 spotless = "8.1.0"
 nexusPublish = "2.0.0"
