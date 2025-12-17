@@ -43,8 +43,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class PropertiesTranslationProvider implements TranslationProvider {
 
-  // https://regex101.com/r/FaX3tj/1
-  private static final Pattern TRANSLATION_ARG_FORMAT_PATTERN = Pattern.compile("\\{(\\d+)\\$.+?\\$}");
+  // https://regex101.com/r/Xs7lNp/1
+  private static final Pattern TRANSLATION_ARG_FORMAT_PATTERN = Pattern.compile("\\{(\\d+|\\d+,.+?)\\$.+?\\$}");
 
   // a lock that must be held when using a MessageFormat to format a translation
   // this is due to the fact that MessageFormats are not thread safe, but we don't expect
