@@ -23,8 +23,8 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
+import eu.cloudnetservice.modules.smart.SmartServiceManagement;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
-import eu.cloudnetservice.modules.smart.impl.CloudNetSmartModule;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePrePrepareEvent;
 import eu.cloudnetservice.node.service.CloudService;
@@ -40,17 +40,17 @@ import lombok.NonNull;
 @Singleton
 public final class CloudNetLocalServiceListener {
 
-  private final CloudNetSmartModule module;
   private final ServiceTaskProvider taskProvider;
+  private final SmartServiceManagement management;
   private final CloudServiceProvider cloudServiceProvider;
 
   @Inject
   public CloudNetLocalServiceListener(
-    @NonNull CloudNetSmartModule module,
     @NonNull ServiceTaskProvider taskProvider,
+    @NonNull SmartServiceManagement management,
     @NonNull CloudServiceProvider cloudServiceProvider
   ) {
-    this.module = module;
+    this.management = management;
     this.taskProvider = taskProvider;
     this.cloudServiceProvider = cloudServiceProvider;
   }
@@ -65,7 +65,7 @@ public final class CloudNetLocalServiceListener {
       }
 
       // include templates and inclusions if configured
-      var config = this.module.smartConfig(task);
+      var config = this.management.smartServiceTaskConfig(task.name());
       if (config != null && config.enabled() && config.directTemplatesAndInclusionsSetup()) {
         this.installTemplates(config, task, event.service());
 
@@ -90,7 +90,7 @@ public final class CloudNetLocalServiceListener {
       return;
     }
 
-    var config = this.module.smartConfig(task);
+    var config = this.management.smartServiceTaskConfig(task.name());
     if (config != null && config.enabled()) {
       if (config.directTemplatesAndInclusionsSetup()) {
         // remove all initial templates & inclusions from the waiting templates, as they

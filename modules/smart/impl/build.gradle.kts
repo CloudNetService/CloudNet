@@ -25,8 +25,12 @@ plugins {
 
 dependencies {
   compileOnly(libs.guava)
-  compileOnlyApi(projects.node.nodeApi)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
   compileOnlyApi(projects.modules.bridge.bridgeApi)
+
+  annotationProcessor(libs.aerogelAuto)
+
   api(projects.modules.smart.smartApi)
 }
 
@@ -34,12 +38,15 @@ tasks.shadowJar.configure {
   archiveFileName = Files.smart
 }
 
+tasks.withType<JavaCompile>().configureEach {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/smart.aero")
+}
+
 moduleJson {
   name = "CloudNet-Smart"
   author = "CloudNetService"
   main = "eu.cloudnetservice.modules.smart.impl.CloudNetSmartModule"
   description = "CloudNet extension, which implement smart network handling and automatic services providing"
-  runtimeModule = true
   // depend on internal modules
   dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {
     needsRepoResolve = false
