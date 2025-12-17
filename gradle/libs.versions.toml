@@ -15,7 +15,7 @@ guava = "33.5.0-jre"
 # testing
 junit = "6.0.1"
 mockito = "5.21.0"
-testcontainers = "2.0.1"
+testcontainers = "2.0.3"
 
 # compile time processing
 lombok = "1.18.42"
@@ -31,7 +31,7 @@ cloudConfirmation = "1.0.0-rc.1"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "5.6.1"
+mongodb = "5.6.2"
 hikariCp = "7.0.2"
 mysqlConnector = "9.5.0"
 
@@ -54,7 +54,7 @@ netty = "2025.11.08-3a259e91"
 
 # logging
 slf4j = "2.0.17"
-logback = "1.5.20"
+logback = "1.5.22"
 
 # platform api versions
 sponge = "9.0.0"
@@ -75,7 +75,7 @@ packetEvents = "2.10.1"
 placeholderApi = "2.11.7"
 adventure-serializer-bungee = "4.4.1"
 luckPermsApi = "5.5"
-fabricLoader = "0.18.0"
+fabricLoader = "0.18.3"
 
 
 [libraries]
