@@ -107,7 +107,7 @@ public final class BungeeComponentUtil {
     }
 
     // only set extra components if we really constructed some, bungee only
-    // checks if extra is null during serialisation, not if the list is empty
+    // checks if extra is null during serialization, not if the list is empty
     // which results in a decoding error on the client later on
     if (!newExtra.isEmpty()) {
       modifiedComponent.setExtra(newExtra);

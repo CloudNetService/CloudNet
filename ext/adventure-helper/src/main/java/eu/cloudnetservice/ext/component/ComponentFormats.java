@@ -22,10 +22,10 @@ import net.md_5.bungee.api.chat.BaseComponent;
 public final class ComponentFormats {
 
   public static final ComponentFormat<Component> ADVENTURE = new AdventureComponentFormat();
-  public static final ComponentFormat<BaseComponent[]> BUNGEE = new BungeeComponentFormat();
+  public static final ComponentFormat<BaseComponent> BUNGEE = new BungeeComponentFormat();
 
-  public static final ComponentConverter<BaseComponent[]> BUNGEE_TO_BUNGEE = BUNGEE.converterTo(BUNGEE);
-  public static final ComponentConverter<BaseComponent[]> ADVENTURE_TO_BUNGEE = ADVENTURE.converterTo(BUNGEE)
+  public static final ComponentConverter<BaseComponent> BUNGEE_TO_BUNGEE = BUNGEE.converterTo(BUNGEE);
+  public static final ComponentConverter<BaseComponent> ADVENTURE_TO_BUNGEE = ADVENTURE.converterTo(BUNGEE)
     .andThen(BUNGEE_TO_BUNGEE);
 
   public static final ComponentConverter<Component> ADVENTURE_TO_ADVENTURE = ADVENTURE.converterTo(ADVENTURE);

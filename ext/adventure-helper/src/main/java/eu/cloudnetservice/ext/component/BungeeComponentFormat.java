@@ -20,7 +20,7 @@ import lombok.NonNull;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-final class BungeeComponentFormat extends JavaEditionComponentFormat<BaseComponent[]> {
+final class BungeeComponentFormat extends JavaEditionComponentFormat<BaseComponent> {
 
   private static final char HEX_CHAR = 'x';
   private static final int HEX_SEG_LENGTH = 14;
@@ -48,7 +48,7 @@ final class BungeeComponentFormat extends JavaEditionComponentFormat<BaseCompone
   }
 
   @Override
-  public @NonNull BaseComponent[] encodeStringToComponent(@NonNull String text) {
-    return TextComponent.fromLegacyText(text);
+  public @NonNull BaseComponent encodeStringToComponent(@NonNull String text) {
+    return TextComponent.fromLegacy(text);
   }
 }

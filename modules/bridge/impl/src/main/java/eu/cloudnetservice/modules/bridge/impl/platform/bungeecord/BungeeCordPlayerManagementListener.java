@@ -245,22 +245,20 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     @NonNull BaseComponent kickReason,
     @NonNull String messageKey
   ) {
-    var rawReasonMessage = this.management.configuration().findMessage(
+    var reasonMessage = this.management.configuration().findMessage(
       player.getLocale(),
       messageKey,
       ComponentFormats.ADVENTURE_TO_BUNGEE::convert,
       null,
       true);
-    if (rawReasonMessage == null) {
+    if (reasonMessage == null) {
       // if no message is configured in the bridge config, fall back to the kick
       // reason provided by the server, as we do need a message to prevent a
       // possible disconnection by the velocity
       return kickReason;
     } else {
-      var component = rawReasonMessage.length == 1 ? rawReasonMessage[0] : new TextComponent(rawReasonMessage);
-      component = BungeeComponentUtil.replaceText(component, KICK_REASON, kickReason);
-      component = BungeeComponentUtil.replaceText(component, SERVER_NAME, new TextComponent(kickedFrom.getName()));
-      return component;
+      reasonMessage = BungeeComponentUtil.replaceText(reasonMessage, KICK_REASON, kickReason);
+      return BungeeComponentUtil.replaceText(reasonMessage, SERVER_NAME, new TextComponent(kickedFrom.getName()));
     }
   }
 }
