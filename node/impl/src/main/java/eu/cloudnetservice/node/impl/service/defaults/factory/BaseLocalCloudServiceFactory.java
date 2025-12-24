@@ -126,6 +126,11 @@ public abstract class BaseLocalCloudServiceFactory implements LocalCloudServiceF
       }
     }
 
+    // skip OS-level port check for addresses outside our network namespace (e.g. containerized environments)
+    if (!NetworkUtil.isBindableAddress(hostAddress)) {
+      return false;
+    }
+
     // validate that the port is free
     return NetworkUtil.isInUse(hostAddress, port);
   }

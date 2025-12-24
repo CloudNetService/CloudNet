@@ -95,6 +95,35 @@ public final class NetworkUtil {
     }
   }
 
+  /**
+   * Checks if the given host address is bindable in the current network namespace.
+   */
+  public static boolean isBindableAddress(@NonNull String hostAddress) {
+    // resolve the address to check against available addresses
+    String resolvedAddress;
+    try {
+      // try to parse as IP address first
+      var address = InetAddresses.forString(hostAddress);
+      // wildcard addresses are always bindable
+      if (address.isAnyLocalAddress()) {
+        return true;
+      }
+      resolvedAddress = extractHostAddress(address);
+    } catch (IllegalArgumentException exception) {
+      // not a raw IP address, try to resolve as hostname
+      try {
+        var address = InetAddress.getByName(hostAddress);
+        resolvedAddress = extractHostAddress(address);
+      } catch (UnknownHostException e) {
+        // cannot resolve hostname, not bindable
+        return false;
+      }
+    }
+
+    // check if the resolved address is available on this system
+    return availableIPAddresses().contains(resolvedAddress);
+  }
+
   public static @Nullable HostAndPort parseAssignableHostAndPort(@NonNull String address, boolean withPort) {
     // try to parse host and port from the given string
     var hostAndPort = parseHostAndPort(address, withPort);
