@@ -38,8 +38,11 @@ public record DockerConfiguration(
   @Nullable String registryPassword,
   @Nullable String registryUrl,
   @Nullable String user,
-  @Nullable HostAndPort nodeHostOverride
+  @Nullable HostAndPort nodeHostOverride,
+  @Nullable String portBindAddress
 ) {
+
+  public static final String AUTO_PORT_BIND_ADDRESS = "auto";
 
   public static @NonNull Builder builder() {
     return new Builder();
@@ -59,7 +62,9 @@ public record DockerConfiguration(
       .registryEmail(configuration.registryEmail())
       .registryPassword(configuration.registryPassword())
       .registryUrl(configuration.registryUrl())
-      .user(configuration.user());
+      .user(configuration.user())
+      .nodeHostOverride(configuration.nodeHostOverride())
+      .portBindAddress(configuration.portBindAddress());
   }
 
   public static final class Builder {
@@ -82,6 +87,7 @@ public record DockerConfiguration(
 
     private String user;
     private HostAndPort nodeHostOverride;
+    private String portBindAddress;
 
     public @NonNull Builder javaImage(@NonNull DockerImage javaImage) {
       this.javaImage = javaImage;
@@ -168,6 +174,11 @@ public record DockerConfiguration(
       return this;
     }
 
+    public @NonNull Builder portBindAddress(@Nullable String portBindAddress) {
+      this.portBindAddress = portBindAddress;
+      return this;
+    }
+
     public @NonNull DockerConfiguration build() {
       Preconditions.checkNotNull(this.javaImage, "Java docker image must be given");
       return new DockerConfiguration(
@@ -184,7 +195,8 @@ public record DockerConfiguration(
         this.registryPassword,
         this.registryUrl,
         this.user,
-        this.nodeHostOverride);
+        this.nodeHostOverride,
+        this.portBindAddress);
     }
   }
 }

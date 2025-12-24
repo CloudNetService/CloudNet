@@ -29,6 +29,7 @@ import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.InternetProtocol;
 import com.github.dockerjava.api.model.LogConfig;
+import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
 import eu.cloudnetservice.driver.document.property.DocProperty;
@@ -54,6 +55,8 @@ import eu.cloudnetservice.utils.base.StringUtil;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -229,6 +232,36 @@ public class DockerizedService extends JVMService {
       // an isolated, single java installation available which is always accessible via 'java'
       arguments.set(0, "java");
 
+      // build host configuration
+      var hostConfig = HostConfig.newHostConfig()
+        .withBinds(binds)
+        .withCapDrop(DROPPED_CAPABILITIES)
+        .withRestartPolicy(RestartPolicy.noRestart())
+        .withNetworkMode(this.configuration.network())
+        .withLogConfig(new LogConfig(LogConfig.LoggingType.LOCAL, LOGGING_OPTIONS));
+
+      // add port bindings if configured and not using host network mode
+      var portBindAddress = this.configuration.portBindAddress();
+      if (portBindAddress != null && !"host".equals(this.configuration.network())) {
+        var servicePort = this.serviceConfiguration.port();
+
+        // resolve the bind address if it's set to "auto" (uses hostAddress)
+        String resolvedBindAddress;
+        if (DockerConfiguration.AUTO_PORT_BIND_ADDRESS.equals(portBindAddress)) {
+          resolvedBindAddress = this.resolveHostAddress(this.serviceConfiguration.hostAddress());
+        } else {
+          resolvedBindAddress = portBindAddress;
+        }
+
+        // only add port bindings if we have a valid bind address
+        if (resolvedBindAddress != null) {
+          var portBindings = new Ports();
+          portBindings.bind(ExposedPort.tcp(servicePort), Ports.Binding.bindIpAndPort(resolvedBindAddress, servicePort));
+          portBindings.bind(ExposedPort.udp(servicePort), Ports.Binding.bindIpAndPort(resolvedBindAddress, servicePort));
+          hostConfig.withPortBindings(portBindings);
+        }
+      }
+
       // create the container and store the container id
       this.containerId = this.dockerClient.createContainerCmd(image.imageName())
         .withEnv(env)
@@ -243,12 +276,7 @@ public class DockerizedService extends JVMService {
         .withExposedPorts(exposedPorts)
         .withName(this.serviceId().name() + "_" + this.serviceId().uniqueId())
         .withWorkingDir(this.serviceDirectory.toAbsolutePath().toString())
-        .withHostConfig(HostConfig.newHostConfig()
-          .withBinds(binds)
-          .withCapDrop(DROPPED_CAPABILITIES)
-          .withRestartPolicy(RestartPolicy.noRestart())
-          .withNetworkMode(this.configuration.network())
-          .withLogConfig(new LogConfig(LogConfig.LoggingType.LOCAL, LOGGING_OPTIONS)))
+        .withHostConfig(hostConfig)
         .withLabels(Map.of(
           "Service", "CloudNet",
           "Name", this.serviceId().name(),
@@ -400,6 +428,22 @@ public class DockerizedService extends JVMService {
 
   protected @NonNull Bind bindFromPath(@NonNull String path, @NonNull AccessMode accessMode) {
     return new Bind(path, new Volume(path), accessMode);
+  }
+
+  protected @Nullable String resolveHostAddress(@NonNull String hostAddress) {
+    try {
+      var inetAddress = InetAddress.getByName(hostAddress);
+      var resolvedAddress = inetAddress.getHostAddress();
+      // remove IPv6 scope identifier if present (e.g., fe80::1%eth0 -> fe80::1)
+      var scopeIndex = resolvedAddress.indexOf('%');
+      if (scopeIndex != -1) {
+        resolvedAddress = resolvedAddress.substring(0, scopeIndex);
+      }
+      return resolvedAddress;
+    } catch (UnknownHostException exception) {
+      LOGGER.warn("Unable to resolve host address {} for port binding", hostAddress, exception);
+      return null;
+    }
   }
 
   public final class ServiceLogCacheAdapter extends ResultCallback.Adapter<Frame> {
