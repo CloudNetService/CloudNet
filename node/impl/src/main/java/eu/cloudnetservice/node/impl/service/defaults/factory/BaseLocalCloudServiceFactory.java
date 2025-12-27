@@ -119,19 +119,29 @@ public abstract class BaseLocalCloudServiceFactory implements LocalCloudServiceF
 
   protected boolean isPortInUse(@NonNull CloudServiceManager manager, @NonNull String hostAddress, int port) {
     // check if any local service has the port
+    if (this.isPortUsedByLocalService(manager, hostAddress, port)) {
+      return true;
+    }
+
+    // validate that the port is free at OS level
+    return this.isPortInUseAtOsLevel(hostAddress, port);
+  }
+
+  protected boolean isPortUsedByLocalService(
+    @NonNull CloudServiceManager manager,
+    @NonNull String hostAddress,
+    int port
+  ) {
     for (var cloudService : manager.localCloudServices()) {
       var address = cloudService.serviceInfo().address();
       if (address.host().equals(hostAddress) && address.port() == port) {
         return true;
       }
     }
+    return false;
+  }
 
-    // skip OS-level port check for addresses outside our network namespace (e.g. containerized environments)
-    if (!NetworkUtil.isBindableAddress(hostAddress)) {
-      return false;
-    }
-
-    // validate that the port is free
+  protected boolean isPortInUseAtOsLevel(@NonNull String hostAddress, int port) {
     return NetworkUtil.isInUse(hostAddress, port);
   }
 }

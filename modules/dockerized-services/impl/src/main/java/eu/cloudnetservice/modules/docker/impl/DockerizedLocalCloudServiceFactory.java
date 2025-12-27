@@ -27,6 +27,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.impl.service.defaults.factory.BaseLocalCloudServiceFactory;
 import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
+import eu.cloudnetservice.node.impl.util.NetworkUtil;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
@@ -94,5 +95,16 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
   @Override
   public @NonNull String name() {
     return this.dockerConfiguration.factoryName();
+  }
+
+  @Override
+  protected boolean isPortInUseAtOsLevel(@NonNull String hostAddress, int port) {
+    // only do OS-level port check if we can actually reach this address
+    // this handles the case where CloudNet runs in a container with an external address configured
+    if (!NetworkUtil.isBindableAddress(hostAddress)) {
+      return false;
+    }
+
+    return super.isPortInUseAtOsLevel(hostAddress, port);
   }
 }
