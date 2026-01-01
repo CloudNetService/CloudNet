@@ -6,7 +6,7 @@ shadow = "9.3.0"
 juppiter = "0.5.0-beta.2"
 spotless = "8.1.0"
 nexusPublish = "2.0.0"
-checkstyleTools = "12.3.0"
+checkstyleTools = "12.3.1"
 
 # google libs
 gson = "2.13.2"
@@ -54,7 +54,7 @@ netty = "2025.11.08-3a259e91"
 
 # logging
 slf4j = "2.0.17"
-logback = "1.5.22"
+logback = "1.5.23"
 
 # platform api versions
 sponge = "9.0.0"
@@ -75,7 +75,7 @@ packetEvents = "2.11.1"
 placeholderApi = "2.11.7"
 adventure-serializer-bungee = "4.4.1"
 luckPermsApi = "5.5"
-fabricLoader = "0.18.3"
+fabricLoader = "0.18.4"
 
 
 [libraries]
