@@ -348,6 +348,10 @@ public abstract class AbstractService implements InternalCloudService {
   }
 
   protected void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle, boolean switchToDeletedOnStop) {
+    updateLifecycle(lifeCycle, switchToDeletedOnStop, true);
+  }
+
+  protected void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle, boolean switchToDeletedOnStop, boolean removeFiles) {
     try {
       // prevent multiple service updates at the same time
       this.lifecycleLock.lock();
@@ -389,7 +393,9 @@ public abstract class AbstractService implements InternalCloudService {
               LOGGER.info(this.i18n.translate("cloudnet-service-post-stop-message", this.serviceReplacement()));
             } else if (this.lifeCycle() == ServiceLifeCycle.RUNNING) {
               this.stopProcess();
-              this.doRemoveFilesAfterStop();
+              if (removeFiles) {
+                this.doRemoveFilesAfterStop();
+              }
               // reset the service lifecycle to prepared
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
             }
@@ -413,7 +419,7 @@ public abstract class AbstractService implements InternalCloudService {
 
   @Override
   public void restart() {
-    this.updateLifecycle(ServiceLifeCycle.STOPPED, false);
+    this.updateLifecycle(ServiceLifeCycle.STOPPED, false, false);
     this.updateLifecycle(ServiceLifeCycle.RUNNING);
   }
 
