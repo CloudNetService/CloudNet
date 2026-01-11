@@ -17,6 +17,6 @@
 package eu.cloudnetservice.cloudnet.gradle.util
 
 object Versions {
-  const val CLOUDNET = "4.0.0-RC16-SNAPSHOT"
+  const val CLOUDNET = "4.0.0-RC16"
   const val CLOUDNET_CODE_NAME = "Blizzard"
 }
