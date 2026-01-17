@@ -383,6 +383,35 @@
       ]
     },
     {
+      "name": "folia",
+      "environmentType": "MINECRAFT_SERVER",
+      "website": "https://papermc.io/software/folia/",
+      "installSteps": [
+        "PAPER_API",
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
+      ],
+      "versions": [
+        {
+          "name": "1.21.11",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.21.11"
+          }
+        }
+      ]
+    },
+    {
       "name": "purpur",
       "environmentType": "MINECRAFT_SERVER",
       "website": "https://purpurmc.org/",
