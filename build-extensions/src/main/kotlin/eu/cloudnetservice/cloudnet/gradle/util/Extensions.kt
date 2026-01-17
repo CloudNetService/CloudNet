@@ -43,7 +43,14 @@ fun TaskProvider<out Jar>.applyJarMetadata(
       "Implementation-Vendor" to "CloudNetService",
       "Implementation-Title" to Versions.CLOUDNET_CODE_NAME,
     )
-    preMain?.let { manifest.attributes("Premain-Class" to it) }
+    preMain?.let {
+      manifest.attributes(
+        "Premain-Class" to it,
+        "Can-Redefine-Classes" to true,
+        "Can-Retransform-Classes" to true,
+        "Can-Set-Native-Method-Prefix" to true
+      )
+    }
 
     val commit = git.commit()
     val branchName = git.branchName()

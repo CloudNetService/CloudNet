@@ -19,6 +19,7 @@ eu.cloudnetservice.wrapper.impl.transform.bukkit.BukkitJavaVersionCheckTransform
 eu.cloudnetservice.wrapper.impl.transform.bukkit.PaperConfigTransformer
 eu.cloudnetservice.wrapper.impl.transform.bukkit.FAWEConfigTransformer
 eu.cloudnetservice.wrapper.impl.transform.bukkit.FAWEReflectionUtilsTransformer
+eu.cloudnetservice.wrapper.impl.transform.bukkit.PaperclipClassLoaderTransformer
 eu.cloudnetservice.wrapper.impl.transform.bukkit.WorldEditJava8DetectorTransformer
 eu.cloudnetservice.wrapper.impl.transform.bukkit.FAWEWorldEditDownloadURLTransformer
 eu.cloudnetservice.wrapper.impl.transform.netty.OldEpollDisableTransformer
