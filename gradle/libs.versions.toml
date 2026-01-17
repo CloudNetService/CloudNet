@@ -66,6 +66,7 @@ minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.21-R0.5-SNAPSHOT"
 limboloohp = "0.7.9-ALPHA"
+folia = "1.21.11-R0.1-SNAPSHOT"
 
 # platform extensions
 adventure = "4.26.1"
@@ -173,6 +174,7 @@ minestomExtensions = { group = "dev.hollowcube", name = "minestom-ce-extensions"
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 waterdogpe = { group = "dev.waterdog.waterdogpe", name = "waterdog", version.ref = "waterdogpe" }
 limboloohp = { group = "com.loohp", name = "Limbo", version.ref = "limboloohp" }
+folia = { group = "dev.folia", name = "folia-api", version.ref = "folia" }
 
 # adventure
 adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
