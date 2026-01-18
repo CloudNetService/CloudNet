@@ -21,7 +21,6 @@ import eu.cloudnetservice.wrapper.impl.transform.ClassTransformerRegistry;
 import eu.cloudnetservice.wrapper.impl.transform.DefaultClassTransformerRegistry;
 import eu.cloudnetservice.wrapper.impl.transform.unsafe.UnsafeTransformer;
 import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 final class Premain {
 
-  public static void premain(@Nullable String agentArgs, @NonNull Instrumentation inst) {
+  public static void premain(@Nullable String agentArgs, @NonNull Instrumentation inst) throws Exception {
     var transformerRegistry = new DefaultClassTransformerRegistry(inst);
 
     // init and registers the unsafe transformer very early in the process. this is done here
@@ -42,6 +41,7 @@ final class Premain {
       transformerRegistry.registerTransformer(new UnsafeTransformer());
     }
 
+    invokePremain(inst);
     bootstrapWrapper(transformerRegistry);
   }
 
@@ -88,34 +88,27 @@ final class Premain {
       var agentClass = Class.forName(agentClassName, true, Premain.class.getClassLoader());
 
       // agentmain(String, Instrumentation)
-      var method = agentMethodOrNull(agentClass, String.class, Instrumentation.class);
-      if (method != null) {
-        invokeAgentMainMethod(method, "", instrumentation);
+      if (invokeAgentMain(agentClass, instrumentation)) {
         return;
       }
       // agentmain(String)
-      method = agentMethodOrNull(agentClass, String.class);
-      if (method != null) {
-        invokeAgentMainMethod(method, "");
-        return;
-      }
-      // the given agent class has no agent main methods - this should never happen
-      throw new IllegalArgumentException("Agent Class " + agentClassName + " has no agent main methods");
+      invokeAgentMain(agentClass, null);
     } catch (ClassNotFoundException ignored) {
       // the agent main class is not available - this should not happen, but we don't care
     }
   }
 
-  private static void invokeAgentMainMethod(@NonNull Method method, Object... args) throws Exception {
-    method.setAccessible(true);
-    method.invoke(null, args);
-  }
+  private static boolean invokeAgentMain(@NonNull Class<?> source, @Nullable Instrumentation inst) throws Exception {
+    var args = inst != null ? new Class<?>[]{String.class, Instrumentation.class} : new Class<?>[]{String.class};
+    var invokeArgs = inst != null ? new Object[]{"", inst} : new Object[]{""};
 
-  private static @Nullable Method agentMethodOrNull(@NonNull Class<?> source, Class<?>... args) {
     try {
-      return source.getDeclaredMethod("agentmain", args);
+      var method = source.getDeclaredMethod("agentmain", args);
+      method.setAccessible(true);
+      method.invoke(null, invokeArgs);
+      return true;
     } catch (NoSuchMethodException exception) {
-      return null;
+      return false;
     }
   }
 }
