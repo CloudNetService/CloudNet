@@ -22,6 +22,7 @@ import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.event.service.CloudServiceJvmClassPathConstructEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePostProcessStartEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.node.impl.service.InternalCloudServiceManager;
@@ -40,12 +41,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -142,11 +143,17 @@ public class JVMService extends AbstractService {
     }
 
     // prepare the full wrapper class path
-    var classPathBuilder = new StringJoiner(File.pathSeparator);
+    List<Path> classPathBuilder = new ArrayList<>();
     this.computeWrapperClassPath(classPathBuilder, wrapperInformation.path());
-    classPathBuilder.add(wrapperInformation.path().toAbsolutePath().normalize().toString());
-    classPathBuilder.add(applicationInformation.path().toAbsolutePath().normalize().toString());
-    var classPath = classPathBuilder.toString();
+    classPathBuilder.add(wrapperInformation.path());
+    classPathBuilder.add(applicationInformation.path());
+    this.eventManager.callEvent(new CloudServiceJvmClassPathConstructEvent(this, classPathBuilder));
+    var classPath = classPathBuilder.stream()
+      .map(Path::toAbsolutePath)
+      .map(Path::normalize)
+      .map(Path::toString)
+      .distinct()
+      .collect(Collectors.joining(File.pathSeparator));
 
     // prepare the service startup
     List<String> arguments = new LinkedList<>();
@@ -366,7 +373,7 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected void computeWrapperClassPath(@NonNull StringJoiner classPathBuilder, @NonNull Path wrapperPath) {
+  protected void computeWrapperClassPath(@NonNull Collection<Path> classPath, @NonNull Path wrapperPath) {
     FileUtil.openZipFile(wrapperPath, fs -> {
       var wrapperCnl = fs.getPath("wrapper.cnl");
       if (Files.exists(wrapperCnl)) {
@@ -385,7 +392,7 @@ public class JVMService extends AbstractService {
               parts[5],
               parts.length == 8 ? "-" + parts[7] : "");
             return LIB_PATH.resolve(path);
-          }).forEach(path -> classPathBuilder.add(path.toAbsolutePath().normalize().toString()));
+          }).forEach(classPath::add);
       }
     });
   }
