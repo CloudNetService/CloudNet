@@ -136,11 +136,7 @@ public class JVMService extends AbstractService {
     }
 
     // get the agent class of the application (if any)
-    var agentClass = applicationInformation.mainAttributes().getValue("Premain-Class");
-    if (agentClass == null) {
-      // some old versions named the agent class 'Launcher-Agent-Class' - try that
-      agentClass = applicationInformation.mainAttributes().getValue("Launcher-Agent-Class");
-    }
+    var agentClass = applicationInformation.mainAttributes().getValue("Launcher-Agent-Class");
 
     // prepare the full wrapper class path
     List<Path> classPathBuilder = new ArrayList<>();
