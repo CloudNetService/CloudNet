@@ -28,6 +28,7 @@ import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.node.impl.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.impl.service.defaults.log.ProcessServiceLogCache;
 import eu.cloudnetservice.node.impl.service.defaults.log.ProcessServiceLogReadScheduler;
+import eu.cloudnetservice.node.impl.service.defaults.wrapper.WrapperFileProvider;
 import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
@@ -40,7 +41,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,7 +67,6 @@ public class JVMService extends AbstractService {
     "-Djline.terminal=jline.UnsupportedTerminal");
 
   protected static final Path LIB_PATH = Path.of("launcher", "libs");
-  protected static final Path WRAPPER_TEMP_FILE = FileUtil.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
 
   protected volatile Process process;
 
@@ -281,28 +280,14 @@ public class JVMService extends AbstractService {
     }
   }
 
+
   protected @Nullable JarFileData prepareWrapperFile() {
-    // check if the wrapper file is there - unpack it if not
-    if (Files.notExists(WRAPPER_TEMP_FILE)) {
-      FileUtil.createDirectory(WRAPPER_TEMP_FILE.getParent());
-      try (var stream = JVMService.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
-        // ensure that the wrapper file is there
-        if (stream == null) {
-          throw new IllegalStateException("Build-in \"wrapper.jar\" missing, unable to start jvm based services");
-        }
-        // copy the wrapper file to the output directory
-        Files.copy(stream, WRAPPER_TEMP_FILE, StandardCopyOption.REPLACE_EXISTING);
-      } catch (IOException exception) {
-        LOGGER.error("Unable to copy \"wrapper.jar\" to {}", WRAPPER_TEMP_FILE, exception);
-      }
-    }
-    // read the main class
+    var wrapperTempPath = WrapperFileProvider.unpackWrapperFile();
     var mainAttributes = this.completeJarAttributeInformation(
-      WRAPPER_TEMP_FILE,
+      wrapperTempPath,
       file -> file.getManifest().getMainAttributes());
     Objects.requireNonNull(mainAttributes, "Wrapper jar does not contain a manifest");
-
-    return new JarFileData(WRAPPER_TEMP_FILE, mainAttributes);
+    return new JarFileData(wrapperTempPath, mainAttributes);
   }
 
   protected @Nullable JarFileData prepareApplicationFile(
