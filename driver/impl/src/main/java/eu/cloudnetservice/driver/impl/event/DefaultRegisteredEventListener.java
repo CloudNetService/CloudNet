@@ -87,7 +87,7 @@ final class DefaultRegisteredEventListener implements RegisteredEventListener {
    */
   @Override
   public void fireEvent(@NonNull Event event) {
-    LOGGER.debug(
+    LOGGER.trace(
       "Calling event {} on listener {}",
       event.getClass().getName(),
       this.instance().getClass().getName());
