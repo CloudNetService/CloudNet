@@ -180,7 +180,7 @@ public class JVMService extends AbstractService {
     // add the class path and the main class of the application
     arguments.add("-cp");
     arguments.add(classPath);
-    arguments.add(applicationInformation.mainAttributes().getValue("Main-Class"));
+    arguments.add(applicationInformation.mainAttributes().getValue(Attributes.Name.MAIN_CLASS));
 
     // add all process parameters
     arguments.addAll(environmentType.defaultProcessArguments());
@@ -283,7 +283,7 @@ public class JVMService extends AbstractService {
 
   protected @Nullable JarFileData prepareWrapperFile() {
     var wrapperTempPath = WrapperFileProvider.unpackWrapperFile();
-    var mainAttributes = this.extractJarFromPath(
+    var mainAttributes = this.extractFromJarFile(
       wrapperTempPath,
       file -> file.getManifest().getMainAttributes());
     Objects.requireNonNull(mainAttributes, "Wrapper jar does not contain a manifest");
@@ -321,7 +321,7 @@ public class JVMService extends AbstractService {
           return false;
         })
         .map(path -> {
-          var manifest = this.extractJarFromPath(path, JarFile::getManifest);
+          var manifest = this.extractFromJarFile(path, JarFile::getManifest);
           Objects.requireNonNull(manifest, "Application jar does not contain a manifest");
 
           var mainClass = manifest.getMainAttributes().getValue("Main-Class");
@@ -341,7 +341,7 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected @Nullable <T> T extractJarFromPath(
+  protected @Nullable <T> T extractFromJarFile(
     @NonNull Path jarFilePath,
     @NonNull CheckedFunction1<JarFile, T> mapper
   ) {
