@@ -283,7 +283,7 @@ public class JVMService extends AbstractService {
 
   protected @Nullable JarFileData prepareWrapperFile() {
     var wrapperTempPath = WrapperFileProvider.unpackWrapperFile();
-    var mainAttributes = this.completeJarAttributeInformation(
+    var mainAttributes = this.extractJarFromPath(
       wrapperTempPath,
       file -> file.getManifest().getMainAttributes());
     Objects.requireNonNull(mainAttributes, "Wrapper jar does not contain a manifest");
@@ -321,7 +321,7 @@ public class JVMService extends AbstractService {
           return false;
         })
         .map(path -> {
-          var manifest = this.completeJarAttributeInformation(path, JarFile::getManifest);
+          var manifest = this.extractJarFromPath(path, JarFile::getManifest);
           Objects.requireNonNull(manifest, "Application jar does not contain a manifest");
 
           var mainClass = manifest.getMainAttributes().getValue("Main-Class");
@@ -341,7 +341,7 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected @Nullable <T> T completeJarAttributeInformation(
+  protected @Nullable <T> T extractJarFromPath(
     @NonNull Path jarFilePath,
     @NonNull CheckedFunction1<JarFile, T> mapper
   ) {

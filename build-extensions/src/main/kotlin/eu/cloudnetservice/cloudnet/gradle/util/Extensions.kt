@@ -48,7 +48,7 @@ fun TaskProvider<out Jar>.applyJarMetadata(
         "Premain-Class" to it,
         "Can-Redefine-Classes" to true,
         "Can-Retransform-Classes" to true,
-        "Can-Set-Native-Method-Prefix" to true
+        "Can-Set-Native-Method-Prefix" to true,
       )
     }
 
