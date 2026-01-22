@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.impl.platform.bukkit;
 
-import eu.cloudnetservice.ext.scheduler.PlatformScheduler;
+import eu.cloudnetservice.ext.scheduler.BukkitPlatformScheduler;
 import eu.cloudnetservice.modules.bridge.impl.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.impl.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -84,8 +84,7 @@ public final class BukkitPlayerManagementListener implements Listener {
     this.serverPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
       this.management.createPlayerInformation(event.getPlayer()));
-    // update the service info in the next tick
-    PlatformScheduler.scheduler().globalRun(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
+    BukkitPlatformScheduler.bukkitScheduler().globalRun(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 
   @EventHandler
@@ -93,7 +92,6 @@ public final class BukkitPlayerManagementListener implements Listener {
     this.serverPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
-    // update the service info in the next tick
-    PlatformScheduler.scheduler().globalRun(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
+    BukkitPlatformScheduler.bukkitScheduler().globalRun(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 }

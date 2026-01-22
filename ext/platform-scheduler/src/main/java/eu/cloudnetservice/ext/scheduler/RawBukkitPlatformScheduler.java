@@ -16,28 +16,24 @@
 
 package eu.cloudnetservice.ext.scheduler;
 
-import io.papermc.paper.threadedregions.scheduler.AsyncScheduler;
-import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
-import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.Nullable;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
 
 /**
- * Folia implementation of a platform scheduler.
+ * Bukkit implementation of a platform scheduler.
  *
  * @since 4.0
  */
-final class FoliaPlatformScheduler implements BukkitPlatformScheduler {
+final class RawBukkitPlatformScheduler implements BukkitPlatformScheduler {
 
-  private static final AsyncScheduler ASYNC_SCHEDULER = Bukkit.getAsyncScheduler();
-  private static final RegionScheduler REGION_SCHEDULER = Bukkit.getRegionScheduler();
-  private static final GlobalRegionScheduler GLOBAL_REGION_SCHEDULER = Bukkit.getGlobalRegionScheduler();
+  @SuppressWarnings("deprecation") // deprecated in folia, but it's used on non-folia platforms
+  private static final BukkitScheduler SCHEDULER = Bukkit.getScheduler();
 
   /**
    * {@inheritDoc}
@@ -48,8 +44,8 @@ final class FoliaPlatformScheduler implements BukkitPlatformScheduler {
     @NonNull Runnable task,
     long delayTicks
   ) {
-    var scheduledTask = GLOBAL_REGION_SCHEDULER.runDelayed(plugin, _ -> task.run(), delayTicks);
-    return new TaskWrapper(scheduledTask);
+    var bukkitTask = SCHEDULER.runTaskLater(plugin, task, delayTicks);
+    return new TaskWrapper(bukkitTask);
   }
 
   /**
@@ -62,8 +58,8 @@ final class FoliaPlatformScheduler implements BukkitPlatformScheduler {
     long initialDelayTicks,
     long periodTicks
   ) {
-    var scheduledTask = GLOBAL_REGION_SCHEDULER.runAtFixedRate(plugin, _ -> task.run(), initialDelayTicks, periodTicks);
-    return new TaskWrapper(scheduledTask);
+    var bukkitTask = SCHEDULER.runTaskTimer(plugin, task, initialDelayTicks, periodTicks);
+    return new TaskWrapper(bukkitTask);
   }
 
   /**
@@ -78,8 +74,7 @@ final class FoliaPlatformScheduler implements BukkitPlatformScheduler {
     @NonNull Runnable task,
     long delayTicks
   ) {
-    var scheduledTask = REGION_SCHEDULER.runDelayed(plugin, world, chunkX, chunkZ, _ -> task.run(), delayTicks);
-    return new TaskWrapper(scheduledTask);
+    return this.globalRunDelayed(plugin, task, delayTicks);
   }
 
   /**
@@ -95,27 +90,16 @@ final class FoliaPlatformScheduler implements BukkitPlatformScheduler {
     long initialDelayTicks,
     long periodTicks
   ) {
-    var scheduledTask = REGION_SCHEDULER.runAtFixedRate(
-      plugin,
-      world,
-      chunkX,
-      chunkZ,
-      _ -> task.run(),
-      initialDelayTicks,
-      periodTicks);
-    return new TaskWrapper(scheduledTask);
+    return this.globalRunAtFixedRate(plugin, task, initialDelayTicks, periodTicks);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ScheduledPlatformTask asyncRunNow(
-    @NonNull Plugin plugin,
-    @NonNull Runnable task
-  ) {
-    var scheduledTask = ASYNC_SCHEDULER.runNow(plugin, _ -> task.run());
-    return new TaskWrapper(scheduledTask);
+  public @NonNull ScheduledPlatformTask asyncRunNow(@NonNull Plugin plugin, @NonNull Runnable task) {
+    var bukkitTask = SCHEDULER.runTaskAsynchronously(plugin, task);
+    return new TaskWrapper(bukkitTask);
   }
 
   /**
@@ -128,8 +112,9 @@ final class FoliaPlatformScheduler implements BukkitPlatformScheduler {
     long delay,
     @NonNull TimeUnit unit
   ) {
-    var scheduledTask = ASYNC_SCHEDULER.runDelayed(plugin, _ -> task.run(), delay, unit);
-    return new TaskWrapper(scheduledTask);
+    var delayTicks = SchedulerUtil.convertToTicks(unit, delay);
+    var bukkitTask = SCHEDULER.runTaskLaterAsynchronously(plugin, task, delayTicks);
+    return new TaskWrapper(bukkitTask);
   }
 
   /**
@@ -143,47 +128,45 @@ final class FoliaPlatformScheduler implements BukkitPlatformScheduler {
     long period,
     @NonNull TimeUnit unit
   ) {
-    var scheduledTask = ASYNC_SCHEDULER.runAtFixedRate(plugin, _ -> task.run(), initialDelay, period, unit);
-    return new TaskWrapper(scheduledTask);
+    var initialDelayTicks = SchedulerUtil.convertToTicks(unit, initialDelay);
+    var periodTicks = SchedulerUtil.convertToTicks(unit, period);
+    var bukkitTask = SCHEDULER.runTaskTimerAsynchronously(plugin, task, initialDelayTicks, periodTicks);
+    return new TaskWrapper(bukkitTask);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable ScheduledPlatformTask entityRunDelayed(
+  public @NonNull ScheduledPlatformTask entityRunDelayed(
     @NonNull Plugin plugin,
     @NonNull Entity entity,
     @NonNull Runnable task,
     long delayTicks
   ) {
-    var scheduler = entity.getScheduler();
-    var scheduledTask = scheduler.runDelayed(plugin, _ -> task.run(), task, delayTicks);
-    return scheduledTask == null ? null : new TaskWrapper(scheduledTask);
+    return this.globalRunDelayed(plugin, task, delayTicks);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable ScheduledPlatformTask entityRunAtFixedRate(
+  public @NonNull ScheduledPlatformTask entityRunAtFixedRate(
     @NonNull Plugin plugin,
     @NonNull Entity entity,
     @NonNull Runnable task,
     long initialDelayTicks,
     long periodTicks
   ) {
-    var scheduler = entity.getScheduler();
-    var scheduledTask = scheduler.runAtFixedRate(plugin, _ -> task.run(), task, initialDelayTicks, periodTicks);
-    return scheduledTask == null ? null : new TaskWrapper(scheduledTask);
+    return this.globalRunAtFixedRate(plugin, task, initialDelayTicks, periodTicks);
   }
 
   /**
-   * Wrapper for a task scheduled on a folia task scheduler.
+   * Wrapper for a task scheduled on a bukkit scheduler.
    *
    * @param task the wrapped task.
    */
-  private record TaskWrapper(@NonNull ScheduledTask task) implements ScheduledPlatformTask {
+  private record TaskWrapper(@NonNull BukkitTask task) implements ScheduledPlatformTask {
 
     /**
      * {@inheritDoc}

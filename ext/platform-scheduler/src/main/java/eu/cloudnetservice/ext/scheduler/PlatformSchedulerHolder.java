@@ -25,12 +25,22 @@ import java.util.function.Supplier;
  */
 final class PlatformSchedulerHolder {
 
-  static final Supplier<PlatformScheduler> INSTANCE = StableValue.supplier(() -> {
-    try {
-      Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+  static final Supplier<PlatformScheduler<?, ?, ?>> HOLDER = StableValue.supplier(() -> {
+    // recommended way to check for Folia, see https://docs.papermc.io/paper/dev/folia-support/#checking-for-folia
+    var isFolia = SchedulerUtil.isClassPresent("io.papermc.paper.threadedregions.RegionizedServer");
+    if (isFolia) {
       return new FoliaPlatformScheduler();
-    } catch (ClassNotFoundException e) {
-      return new BukkitPlatformScheduler();
     }
+
+    var isBukkit = SchedulerUtil.isClassPresent("org.bukkit.scheduler.BukkitScheduler");
+    if (isBukkit) {
+      return new RawBukkitPlatformScheduler();
+    }
+
+    throw new UnsupportedOperationException("No scheduler present for the current platform");
   });
+
+  private PlatformSchedulerHolder() {
+    throw new UnsupportedOperationException();
+  }
 }

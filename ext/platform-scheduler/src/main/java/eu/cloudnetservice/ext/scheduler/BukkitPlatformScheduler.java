@@ -16,153 +16,32 @@
 
 package eu.cloudnetservice.ext.scheduler;
 
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitScheduler;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * Bukkit implementation of a platform scheduler.
+ * Base type for all scheduler implementations that target a platform that implements the bukkit api.
  *
  * @since 4.0
  */
-final class BukkitPlatformScheduler implements PlatformScheduler {
-
-  private static final BukkitScheduler SCHEDULER = Bukkit.getScheduler();
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull ScheduledPlatformTask globalRunDelayed(
-    @NonNull Plugin plugin,
-    @NonNull Runnable task,
-    long delayTicks
-  ) {
-    var bukkitTask = SCHEDULER.runTaskLater(plugin, task, delayTicks);
-    return new BukkitScheduledPlatformTask(bukkitTask);
-  }
+public sealed interface BukkitPlatformScheduler
+  extends PlatformScheduler<Plugin, World, Entity>
+  permits RawBukkitPlatformScheduler, FoliaPlatformScheduler {
 
   /**
-   * {@inheritDoc}
+   * Get the selected bukkit platform scheduler instance.
+   *
+   * @return the selected bukkit platform scheduler instance.
+   * @throws UnsupportedOperationException if the current platform is not a bukkit platform.
    */
-  @Override
-  public @NonNull ScheduledPlatformTask globalRunAtFixedRate(
-    @NonNull Plugin plugin,
-    @NonNull Runnable task,
-    long initialDelayTicks,
-    long periodTicks
-  ) {
-    var bukkitTask = SCHEDULER.runTaskTimer(plugin, task, initialDelayTicks, periodTicks);
-    return new BukkitScheduledPlatformTask(bukkitTask);
-  }
+  static @NonNull BukkitPlatformScheduler bukkitScheduler() {
+    var scheduler = PlatformScheduler.scheduler();
+    if (!(scheduler instanceof BukkitPlatformScheduler bukkitPlatformScheduler)) {
+      throw new UnsupportedOperationException("Selected platform scheduler impl is not a bukkit platform scheduler");
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull ScheduledPlatformTask regionRunDelayed(
-    @NonNull Plugin plugin,
-    @NonNull World world,
-    int chunkX,
-    int chunkZ,
-    @NonNull Runnable task,
-    long delayTicks
-  ) {
-    return this.globalRunDelayed(plugin, task, delayTicks);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull ScheduledPlatformTask regionRunAtFixedRate(
-    @NonNull Plugin plugin,
-    @NonNull World world,
-    int chunkX,
-    int chunkZ,
-    @NonNull Runnable task,
-    long initialDelayTicks,
-    long periodTicks
-  ) {
-    return this.globalRunAtFixedRate(plugin, task, initialDelayTicks, periodTicks);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull ScheduledPlatformTask asyncRunNow(@NonNull Plugin plugin, @NonNull Runnable task) {
-    var bukkitTask = SCHEDULER.runTaskAsynchronously(plugin, task);
-    return new BukkitScheduledPlatformTask(bukkitTask);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull ScheduledPlatformTask asyncRunDelayed(
-    @NonNull Plugin plugin,
-    @NonNull Runnable task,
-    long delay,
-    @NonNull TimeUnit unit
-  ) {
-    var bukkitTask = SCHEDULER.runTaskLaterAsynchronously(
-      plugin,
-      task,
-      unit.toMillis(delay) / 50);
-    return new BukkitScheduledPlatformTask(bukkitTask);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull ScheduledPlatformTask asyncRunAtFixedRate(
-    @NonNull Plugin plugin,
-    @NonNull Runnable task,
-    long initialDelay,
-    long period,
-    @NonNull TimeUnit unit
-  ) {
-    var bukkitTask = SCHEDULER.runTaskTimerAsynchronously(
-      plugin,
-      task,
-      unit.toMillis(initialDelay) / 50,
-      unit.toMillis(period) / 50);
-    return new BukkitScheduledPlatformTask(bukkitTask);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @Nullable ScheduledPlatformTask entityRunDelayed(
-    @NonNull Entity entity,
-    @NonNull Plugin plugin,
-    @NonNull Runnable task,
-    @Nullable Runnable retired,
-    long delayTicks
-  ) {
-    return this.globalRunDelayed(plugin, task, delayTicks);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @Nullable ScheduledPlatformTask entityRunAtFixedRate(
-    @NonNull Entity entity,
-    @NonNull Plugin plugin,
-    @NonNull Runnable task,
-    @Nullable Runnable retired,
-    long initialDelayTicks,
-    long periodTicks
-  ) {
-    return this.globalRunAtFixedRate(plugin, task, initialDelayTicks, periodTicks);
+    return bukkitPlatformScheduler;
   }
 }
