@@ -883,7 +883,7 @@
           "cacheFiles": false,
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "3.4.0-SNAPSHOT"
+            "versionGroup": "3.5.0-SNAPSHOT"
           }
         }
       ]
