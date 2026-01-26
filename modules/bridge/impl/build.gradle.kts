@@ -54,6 +54,7 @@ dependencies {
   compileOnly(libs.bundles.serverPlatform)
 
   shaded(projects.ext.adventureHelper)
+  shaded(projects.ext.platformScheduler)
   shaded(projects.modules.bridge.bridgeApi)
   shaded(libs.bundles.adventure)
   shaded(libs.adventureSerializerBungee)
