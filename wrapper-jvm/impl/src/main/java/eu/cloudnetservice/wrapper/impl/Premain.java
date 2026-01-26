@@ -16,27 +16,21 @@
 
 package eu.cloudnetservice.wrapper.impl;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.wrapper.impl.transform.ClassTransformerRegistry;
 import eu.cloudnetservice.wrapper.impl.transform.DefaultClassTransformerRegistry;
 import eu.cloudnetservice.wrapper.impl.transform.unsafe.UnsafeTransformer;
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
+import java.time.Instant;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 final class Premain {
 
-  static Instrumentation instrumentation;
-  static ClassTransformerRegistry transformerRegistry;
-
-  public static void premain(@Nullable String agentArgs, @NonNull Instrumentation inst) {
-    Premain.instrumentation = inst;
-    Premain.transformerRegistry = new DefaultClassTransformerRegistry(inst);
+  public static void premain(@Nullable String agentArgs, @NonNull Instrumentation inst) throws Exception {
+    var transformerRegistry = new DefaultClassTransformerRegistry(inst);
 
     // init and registers the unsafe transformer very early in the process. this is done here
     // as we usually don't allow transformers to be registered so early as they're intended to
@@ -44,79 +38,77 @@ final class Premain {
     var unsafeTransformerDisabled = Boolean.getBoolean("cloudnet.wrapper.unsafe-transform-disabled");
     if (!unsafeTransformerDisabled) {
       UnsafeTransformer.init(inst);
-      Premain.transformerRegistry.registerTransformer(new UnsafeTransformer());
+      transformerRegistry.registerTransformer(new UnsafeTransformer());
     }
+
+    invokePremain(inst);
+    bootstrapWrapper(transformerRegistry);
   }
 
-  public static void preloadClasses(@NonNull Path file, @NonNull ClassLoader loader) {
-    try (var stream = new JarInputStream(Files.newInputStream(file))) {
-      JarEntry entry;
-      while ((entry = stream.getNextJarEntry()) != null) {
-        // only resolve class files
-        if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-          // canonicalize the class name
-          var className = entry.getName().replace('/', '.').replace(".class", "");
-          // load the class
-          try {
-            Class.forName(className, false, loader);
-          } catch (ClassNotFoundException ignored) {
-            // ignore
-          }
-        }
-      }
-    } catch (IOException exception) {
-      throw new IllegalStateException("Unable to preload classes in app file", exception);
-    }
+  private static void bootstrapWrapper(@NonNull ClassTransformerRegistry transformerRegistry) {
+    var startInstant = Instant.now();
+
+    // initialize injector & install all autoconfigure bindings
+    var bootInjectLayer = InjectionLayer.boot();
+    bootInjectLayer.installAutoConfigureBindings(Wrapper.class.getClassLoader(), "driver");
+    bootInjectLayer.installAutoConfigureBindings(Wrapper.class.getClassLoader(), "wrapper");
+
+    // initial bindings which we cannot (or it makes no sense to) construct
+    var builder = bootInjectLayer.injector().createBindingBuilder();
+    bootInjectLayer.install(builder.bind(Instant.class).qualifiedWithName("startInstant").toInstance(startInstant));
+
+    var threadFactory = Thread.ofPlatform()
+      .daemon(true)
+      .priority(Thread.NORM_PRIORITY)
+      .inheritInheritableThreadLocals(true)
+      .name("CloudNet-TaskScheduler-Thread-", 0L)
+      .factory();
+    bootInjectLayer.install(builder
+      .bind(ScheduledExecutorService.class)
+      .qualifiedWithName("taskScheduler")
+      .toInstance(Executors.newScheduledThreadPool(2, threadFactory)));
+
+    // bind the transformer registry here - we *could* provided it by constructing, but we don't
+    // want to expose the Instrumentation instance
+    bootInjectLayer.install(builder.bind(ClassTransformerRegistry.class).toInstance(transformerRegistry));
+
+    // boot the wrapper
+    bootInjectLayer.instance(Wrapper.class);
   }
 
-  public static void invokePremain(@NonNull String premainClass, @NonNull ClassLoader loader) throws Exception {
-    if (!premainClass.equals("null")) {
-      try {
-        var agentClass = Class.forName(premainClass, true, loader);
-        // find any possible premain method as defined in:
-        // ~ https://docs.oracle.com/en/java/javase/11/docs/api/java.instrument/java/lang/instrument/package-summary.html
-        // agentmain(String, Instrumentation)
-        var method = methodOrNull(agentClass, "agentmain", String.class, Instrumentation.class);
-        if (method != null) {
-          invokeAgentMainMethod(method, "", Premain.instrumentation);
-          return;
-        }
-        // agentmain(String)
-        method = methodOrNull(agentClass, "agentmain", String.class);
-        if (method != null) {
-          invokeAgentMainMethod(method, "");
-          return;
-        }
-        // premain(String, Instrumentation)
-        method = methodOrNull(agentClass, "premain", String.class, Instrumentation.class);
-        if (method != null) {
-          invokeAgentMainMethod(method, "", Premain.instrumentation);
-          return;
-        }
-        // premain(String)
-        method = methodOrNull(agentClass, "premain", String.class);
-        if (method != null) {
-          invokeAgentMainMethod(method, "");
-          return;
-        }
-        // the given agent class has no agent main methods - this should never happen
-        throw new IllegalArgumentException("Agent Class " + premainClass + " has no agent main methods");
-      } catch (ClassNotFoundException ignored) {
-        // the agent main class is not available - this should not happen, but we don't care
-      }
-    }
-  }
-
-  private static void invokeAgentMainMethod(@NonNull Method method, Object... args) throws Exception {
-    method.setAccessible(true);
-    method.invoke(null, args);
-  }
-
-  private static @Nullable Method methodOrNull(@NonNull Class<?> source, @NonNull String name, Class<?>... args) {
+  public static void invokePremain(@NonNull Instrumentation instrumentation) throws Exception {
     try {
-      return source.getDeclaredMethod(name, args);
+      var agentClassName = System.getProperty("cloudnet.wrapper.launcher-agent-class");
+      if (agentClassName == null || agentClassName.isBlank()) {
+        return;
+      }
+
+      // find any possible premain method as defined in:
+      // ~ https://docs.oracle.com/en/java/javase/25/docs/api/java.instrument/java/lang/instrument/package-summary.html
+      var agentClass = Class.forName(agentClassName, true, Premain.class.getClassLoader());
+
+      // agentmain(String, Instrumentation)
+      if (invokeAgentMain(agentClass, instrumentation)) {
+        return;
+      }
+      // agentmain(String)
+      invokeAgentMain(agentClass, null);
+    } catch (ClassNotFoundException ignored) {
+      // the agent main class is not available - this should not happen, but we don't care
+    }
+  }
+
+  private static boolean invokeAgentMain(@NonNull Class<?> source, @Nullable Instrumentation inst) throws Exception {
+    var args = inst != null ? new Class<?>[]{String.class, Instrumentation.class} : new Class<?>[]{String.class};
+    var invokeArgs = inst != null ? new Object[]{"", inst} : new Object[]{""};
+
+    try {
+      var method = source.getDeclaredMethod("agentmain", args);
+      method.setAccessible(true);
+      method.invoke(null, invokeArgs);
+      return true;
     } catch (NoSuchMethodException exception) {
-      return null;
+      return false;
     }
   }
 }

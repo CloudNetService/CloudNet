@@ -2,18 +2,18 @@
 
 # plugins
 indra = "4.0.0"
-shadow = "9.3.0"
+shadow = "9.3.1"
 juppiter = "0.5.0-beta.2"
 spotless = "8.1.0"
 nexusPublish = "2.0.0"
-checkstyleTools = "12.3.1"
+checkstyleTools = "13.0.0"
 
 # google libs
 gson = "2.13.2"
 guava = "33.5.0-jre"
 
 # testing
-junit = "6.0.1"
+junit = "6.0.2"
 mockito = "5.21.0"
 testcontainers = "2.0.3"
 
@@ -41,8 +41,8 @@ gulf = "0.0.1"
 vavr = "0.11.0"
 sshj = "0.40.0"
 aerogel = "3.1.0"
-awsSdk = "2.41.0"
-unirest = "4.7.0"
+awsSdk = "2.41.11"
+unirest = "4.7.4"
 caffeine = "3.2.3"
 reflexion = "2.0.0"
 geantyref = "2.0.1"
@@ -54,14 +54,14 @@ netty = "2025.11.08-3a259e91"
 
 # logging
 slf4j = "2.0.17"
-logback = "1.5.23"
+logback = "1.5.25"
 
 # platform api versions
 sponge = "9.0.0"
 velocity = "3.4.0-SNAPSHOT"
 waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
-minestom = "2026.01.01-1.21.11"
+minestom = "2026.01.08-1.21.11"
 minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.21-R0.5-SNAPSHOT"
