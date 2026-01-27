@@ -1,0 +1,170 @@
+/*
+ * Copyright 2019-present CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package eu.cloudnetservice.modules.mysql.impl;
+
+import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.node.impl.database.AbstractDatabase;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
+import org.jooq.Condition;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.JSONB;
+import org.jooq.Name;
+import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.Table;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
+
+public class JooqDatabase extends AbstractDatabase {
+
+  private static final Name KEY_FIELD_NAME = DSL.name("Name");
+  private static final Field<String> KEY_FIELD = DSL.field(KEY_FIELD_NAME, String.class);
+  private static final Name DOCUMENT_FIELD_NAME = DSL.name("Document");
+  private static final Field<Document> DOCUMENT_FIELD = DSL
+    .field(DOCUMENT_FIELD_NAME, JSONB.class)
+    .convert(DocumentConverter.INSTANCE);
+
+  protected final Name dslName;
+  protected final Table<Record> dslTable;
+  protected final DSLContext dslContext;
+
+  protected JooqDatabase(
+    @NonNull String name,
+    @NonNull JooqProvider databaseProvider,
+    @NonNull DSLContext dslContext
+  ) {
+    super(name, databaseProvider);
+
+    this.dslName = DSL.name(name);
+    this.dslTable = DSL.table(this.dslName);
+    this.dslContext = dslContext;
+
+    this.dslContext.createTableIfNotExists(this.dslTable)
+      .column(KEY_FIELD, SQLDataType.VARCHAR(512).notNull())
+      .column(DOCUMENT_FIELD, SQLDataType.JSONB.notNull())
+      .primaryKey(KEY_FIELD)
+      .execute();
+  }
+
+  @Override
+  public @Nullable Map<String, Document> readChunk(long beginIndex, int chunkSize) {
+    return this.dslContext.select(DSL.asterisk())
+      .from(this.dslTable)
+      .limit(chunkSize)
+      .offset(beginIndex)
+      .fetchMap(KEY_FIELD, DOCUMENT_FIELD);
+  }
+
+  @Override
+  public boolean insert(@NonNull String key, @NonNull Document document) {
+    return this.dslContext.insertInto(this.dslTable)
+      .set(KEY_FIELD, key)
+      .set(DOCUMENT_FIELD, document)
+      .onDuplicateKeyUpdate()
+      .set(DOCUMENT_FIELD, document)
+      .execute() > 0;
+  }
+
+  @Override
+  public boolean contains(@NonNull String key) {
+    return this.dslContext.fetchExists(this.dslContext.selectOne().from(this.dslTable).where(KEY_FIELD.eq(key)));
+  }
+
+  @Override
+  public boolean delete(@NonNull String key) {
+    return this.dslContext.delete(this.dslTable).where(KEY_FIELD.eq(key)).execute() > 0;
+  }
+
+  @Override
+  public @Nullable Document get(@NonNull String key) {
+    return this.dslContext
+      .select(DOCUMENT_FIELD)
+      .from(this.dslTable)
+      .where(KEY_FIELD.eq(key))
+      .fetchOptional()
+      .map(Record1::value1)
+      .orElse(null);
+  }
+
+  @Override
+  public @NonNull Collection<Document> find(@NonNull String fieldName, @Nullable String fieldValue) {
+    Map<String, String> filters = HashMap.newHashMap(1);
+    filters.put(fieldName, fieldValue);
+    return this.find(filters);
+  }
+
+  @Override
+  public @NonNull Collection<Document> find(@NonNull Map<String, String> filters) {
+    List<Condition> conditions = new ArrayList<>();
+    for (var entry : filters.entrySet()) {
+      var jsonAttribute = DSL.jsonbGetAttributeAsText(DSL.field(DOCUMENT_FIELD_NAME, JSONB.class), entry.getKey());
+      conditions.add(jsonAttribute.eq(entry.getValue()));
+    }
+
+    return this.dslContext
+      .select(DOCUMENT_FIELD)
+      .from(this.dslTable)
+      .where(conditions)
+      .fetch()
+      .getValues(DOCUMENT_FIELD);
+  }
+
+  @Override
+  public @NonNull Collection<String> keys() {
+    return this.dslContext
+      .select(KEY_FIELD)
+      .from(this.dslName)
+      .fetch()
+      .getValues(KEY_FIELD);
+  }
+
+  @Override
+  public @NonNull Collection<Document> documents() {
+    return this.dslContext.select(DOCUMENT_FIELD).from(this.dslTable).fetch().getValues(DOCUMENT_FIELD);
+  }
+
+  @Override
+  public @NonNull Map<String, Document> entries() {
+    return this.dslContext.select(DSL.asterisk()).from(this.dslTable).fetchMap(KEY_FIELD, DOCUMENT_FIELD);
+  }
+
+  @Override
+  public void clear() {
+    this.dslContext.truncate(this.name).execute();
+  }
+
+  @Override
+  public long documentCount() {
+    return this.dslContext.fetchCount(DSL.table(this.dslName));
+  }
+
+  @Override
+  public boolean synced() {
+    return true;
+  }
+
+  @Override
+  public void close() {
+  }
+}

@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -201,21 +200,6 @@ public final class H2Database extends SQLDatabase {
 
         return map;
       }, Map.of());
-  }
-
-  @Override
-  public void iterate(@NonNull BiConsumer<String, Document> consumer) {
-    this.databaseProvider.executeQuery(
-      String.format("SELECT * FROM `%s`;", this.name),
-      resultSet -> {
-        while (resultSet.next()) {
-          var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL));
-          consumer.accept(key, document);
-        }
-
-        return null;
-      }, null);
   }
 
   @Override

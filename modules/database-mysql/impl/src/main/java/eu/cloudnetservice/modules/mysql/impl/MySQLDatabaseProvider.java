@@ -28,7 +28,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -40,10 +39,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   private final MySQLConfiguration config;
   private volatile HikariDataSource hikariDataSource;
 
-  public MySQLDatabaseProvider(
-    @NonNull MySQLConfiguration config,
-    @Nullable ExecutorService executorService
-  ) {
+  public MySQLDatabaseProvider(@NonNull MySQLConfiguration config) {
     super(DEFAULT_REMOVAL_LISTENER);
     this.config = config;
   }

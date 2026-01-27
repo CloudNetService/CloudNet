@@ -18,8 +18,8 @@ package eu.cloudnetservice.modules.mysql.impl;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.network.HostAndPort;
-import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
-import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
+import eu.cloudnetservice.modules.mysql.config.DatabaseType;
+import eu.cloudnetservice.modules.mysql.config.JooqConfigurationEntry;
 import eu.cloudnetservice.modules.mysql.impl.junit.EnableServicesInject;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @EnableServicesInject
 @Testcontainers(disabledWithoutDocker = true)
-class MySQLDatabaseTest {
+class JooqDatabaseTest {
 
   @Container
   private final GenericContainer<?> mysqlContainer = new GenericContainer<>("mariadb:latest")
@@ -45,17 +45,19 @@ class MySQLDatabaseTest {
     .withEnv("MYSQL_DATABASE", "cn_testing")
     .withCommand("mariadbd", "--ssl=0");
 
-  private MySQLDatabaseProvider databaseProvider;
+  private JooqProvider databaseProvider;
 
   @BeforeEach
   void setup() {
-    this.databaseProvider = new MySQLDatabaseProvider(new MySQLConfiguration(
-      "test",
-      "test",
+    var config = new JooqConfigurationEntry(
+      DatabaseType.MARIADB,
       "mysql",
-      List.of(new MySQLConnectionEndpoint(
-        "cn_testing",
-        new HostAndPort(this.mysqlContainer.getHost(), this.mysqlContainer.getFirstMappedPort())))));
+      "cn_testing",
+      "test",
+      "test",
+      new HostAndPort(this.mysqlContainer.getHost(), this.mysqlContainer.getFirstMappedPort()),
+      null);
+    this.databaseProvider = new JooqProvider(config);
     this.databaseProvider.init();
   }
 

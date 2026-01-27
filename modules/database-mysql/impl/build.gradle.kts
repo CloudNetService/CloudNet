@@ -30,6 +30,11 @@ dependencies {
   compileOnly(libs.caffeine)
   compileOnlyApi(projects.node.nodeImpl)
   api(projects.modules.databaseMysql.databaseMysqlApi)
+
+  implementation("org.jooq:jooq:3.20.10")
+  implementation("org.postgresql:postgresql:42.7.9")
+  implementation("com.mysql:mysql-connector-j:9.5.0")
+  implementation("org.mariadb.jdbc:mariadb-java-client:3.5.7")
 }
 
 tasks.shadowJar.configure {

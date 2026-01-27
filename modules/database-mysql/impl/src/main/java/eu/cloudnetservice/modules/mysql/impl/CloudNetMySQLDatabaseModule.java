@@ -64,7 +64,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
     serviceRegistry.registerProvider(
       NodeDatabaseProvider.class,
       this.configuration.databaseServiceName(),
-      new MySQLDatabaseProvider(this.configuration, null));
+      new MySQLDatabaseProvider(this.configuration));
   }
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STOPPED)
