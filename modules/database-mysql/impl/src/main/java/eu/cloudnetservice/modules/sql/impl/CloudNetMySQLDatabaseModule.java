@@ -75,6 +75,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
             .column(JooqDatabase.KEY_FIELD, SQLDataType.VARCHAR(512)
               .notNull()
               .collation(DSL.collation("utf8mb4_bin")))
+            .column(JooqDatabase.DOCUMENT_FIELD, SQLDataType.JSONB.notNull())
             .execute();
         }), entry));
     }
