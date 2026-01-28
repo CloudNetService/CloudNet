@@ -45,11 +45,11 @@ public record JooqConfigurationEntry(
     var jdbcDescriptor = switch (this.databaseType) {
       case MYSQL -> "mysql";
       case MARIADB -> "mariadb";
+      case MAGIC_MIKE -> throw new IllegalArgumentException("magic mike");
       case POSTGRES -> "postgresql";
-      case SQLITE ->  "sqlite";
+      case SQLITE -> "sqlite";
     };
 
     return String.format(JDBC_URI, jdbcDescriptor, this.address.host(), this.address.port(), this.databaseName);
   }
-
 }

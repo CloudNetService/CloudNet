@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql.impl;
+package eu.cloudnetservice.modules.sql.impl;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.node.impl.database.AbstractDatabase;
@@ -34,14 +34,13 @@ import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Table;
 import org.jooq.impl.DSL;
-import org.jooq.impl.SQLDataType;
 
 public class JooqDatabase extends AbstractDatabase {
 
-  private static final Name KEY_FIELD_NAME = DSL.name("Name");
-  private static final Field<String> KEY_FIELD = DSL.field(KEY_FIELD_NAME, String.class);
-  private static final Name DOCUMENT_FIELD_NAME = DSL.name("Document");
-  private static final Field<Document> DOCUMENT_FIELD = DSL
+  static final Name KEY_FIELD_NAME = DSL.name("Name");
+  static final Field<String> KEY_FIELD = DSL.field(KEY_FIELD_NAME, String.class);
+  static final Name DOCUMENT_FIELD_NAME = DSL.name("Document");
+  static final Field<Document> DOCUMENT_FIELD = DSL
     .field(DOCUMENT_FIELD_NAME, JSONB.class)
     .convert(DocumentConverter.INSTANCE);
 
@@ -49,7 +48,7 @@ public class JooqDatabase extends AbstractDatabase {
   protected final Table<Record> dslTable;
   protected final DSLContext dslContext;
 
-  protected JooqDatabase(
+  public JooqDatabase(
     @NonNull String name,
     @NonNull JooqProvider databaseProvider,
     @NonNull DSLContext dslContext
@@ -59,21 +58,16 @@ public class JooqDatabase extends AbstractDatabase {
     this.dslName = DSL.name(name);
     this.dslTable = DSL.table(this.dslName);
     this.dslContext = dslContext;
-
-    this.dslContext.createTableIfNotExists(this.dslTable)
-      .column(KEY_FIELD, SQLDataType.VARCHAR(512).notNull())
-      .column(DOCUMENT_FIELD, SQLDataType.JSONB.notNull())
-      .primaryKey(KEY_FIELD)
-      .execute();
   }
 
   @Override
   public @Nullable Map<String, Document> readChunk(long beginIndex, int chunkSize) {
-    return this.dslContext.select(DSL.asterisk())
+    var chunk = this.dslContext.select(KEY_FIELD, DOCUMENT_FIELD)
       .from(this.dslTable)
       .limit(chunkSize)
       .offset(beginIndex)
       .fetchMap(KEY_FIELD, DOCUMENT_FIELD);
+    return chunk.isEmpty() ? null : chunk;
   }
 
   @Override
@@ -81,7 +75,8 @@ public class JooqDatabase extends AbstractDatabase {
     return this.dslContext.insertInto(this.dslTable)
       .set(KEY_FIELD, key)
       .set(DOCUMENT_FIELD, document)
-      .onDuplicateKeyUpdate()
+      .onConflict(KEY_FIELD)
+      .doUpdate()
       .set(DOCUMENT_FIELD, document)
       .execute() > 0;
   }
@@ -146,7 +141,7 @@ public class JooqDatabase extends AbstractDatabase {
 
   @Override
   public @NonNull Map<String, Document> entries() {
-    return this.dslContext.select(DSL.asterisk()).from(this.dslTable).fetchMap(KEY_FIELD, DOCUMENT_FIELD);
+    return this.dslContext.select(KEY_FIELD, DOCUMENT_FIELD).from(this.dslTable).fetchMap(KEY_FIELD, DOCUMENT_FIELD);
   }
 
   @Override

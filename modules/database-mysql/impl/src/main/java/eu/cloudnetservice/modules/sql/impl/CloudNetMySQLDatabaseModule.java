@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql.impl;
+package eu.cloudnetservice.modules.sql.impl;
 
-import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
-import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
+import eu.cloudnetservice.modules.mysql.config.DatabaseType;
+import eu.cloudnetservice.modules.mysql.config.JooqConfigurationEntry;
+import eu.cloudnetservice.modules.mysql.config.SQLModuleConfiguration;
 import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
-import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.util.List;
 import lombok.NonNull;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 
 @Singleton
 public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
-  private volatile MySQLConfiguration configuration;
+  private volatile SQLModuleConfiguration configuration;
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
-    var config = this.readConfig(DocumentFactory.json());
+    /*var config = this.readConfig(DocumentFactory.json());
     if (config.contains("addresses")) {
       // convert all entries
       this.writeConfig(Document.newJsonDocument().appendTree(new MySQLConfiguration(
@@ -47,31 +48,45 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
         config.getString("database"),
         config.readObject("addresses", TypeFactory.parameterizedClass(List.class, MySQLConnectionEndpoint.class))
       )));
-    }
+    }*/
   }
 
   @ModuleTask(order = 125, lifecycle = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
     this.configuration = this.readConfig(
-      MySQLConfiguration.class,
-      () -> new MySQLConfiguration(
-        "root",
-        "123456",
-        "mysql",
-        List.of(new MySQLConnectionEndpoint("cloudnet", new HostAndPort("127.0.0.1", 3306)))),
+      SQLModuleConfiguration.class,
+      () -> new SQLModuleConfiguration(List.of(new JooqConfigurationEntry(
+        DatabaseType.MAGIC_MIKE,
+        "sql",
+        "cloudnet",
+        "cloudnet",
+        "password",
+        new HostAndPort("127.0.0.1", 3306),
+        null
+      ))),
       DocumentFactory.json());
 
-    serviceRegistry.registerProvider(
-      NodeDatabaseProvider.class,
-      this.configuration.databaseServiceName(),
-      new MySQLDatabaseProvider(this.configuration));
+    for (var entry : this.configuration.entries()) {
+      serviceRegistry.registerProvider(
+        NodeDatabaseProvider.class,
+        entry.databaseServiceName(),
+        new JooqProvider(((dslContext, name) -> {
+          dslContext.createTableIfNotExists(DSL.name(name))
+            .column(JooqDatabase.KEY_FIELD, SQLDataType.VARCHAR(512)
+              .notNull()
+              .collation(DSL.collation("utf8mb4_bin")))
+            .execute();
+        }), entry));
+    }
   }
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
-    var service = serviceRegistry.registration(NodeDatabaseProvider.class, this.configuration.databaseServiceName());
-    if (service != null) {
-      service.unregister();
+    for (var entry : this.configuration.entries()) {
+      var service = serviceRegistry.registration(NodeDatabaseProvider.class, entry.databaseServiceName());
+      if (service != null) {
+        service.unregister();
+      }
     }
   }
 }

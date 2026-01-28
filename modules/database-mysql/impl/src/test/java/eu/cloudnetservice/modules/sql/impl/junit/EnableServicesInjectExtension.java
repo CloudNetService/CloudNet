@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql.impl.junit;
+package eu.cloudnetservice.modules.sql.impl.junit;
 
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.impl.registry.DefaultServiceRegistry;

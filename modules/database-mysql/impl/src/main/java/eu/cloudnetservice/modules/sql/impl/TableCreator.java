@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql.config;
+package eu.cloudnetservice.modules.sql.impl;
 
-import eu.cloudnetservice.driver.network.HostAndPort;
 import lombok.NonNull;
+import org.jooq.DSLContext;
 
-public record MySQLConnectionEndpoint(@NonNull String database, @NonNull HostAndPort address) {
+@FunctionalInterface
+public interface TableCreator {
+
+  void createTable(
+    @NonNull DSLContext dslContext,
+    @NonNull String name);
 
 }

@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql.impl;
+package eu.cloudnetservice.modules.sql.impl;
 
 import eu.cloudnetservice.modules.mysql.config.DatabaseType;
 import lombok.NonNull;
 import org.jooq.SQLDialect;
 
 public enum JooqDatabaseType {
-  MYSQL("mysql", "com.mysql.cj.jdbc.Driver", SQLDialect.MYSQL),
-  MARIADB("mariadb", "org.mariadb.jdbc.Driver", SQLDialect.MARIADB),
-  POSTGRESQL("postgresql", "org.postgresql.Driver", SQLDialect.POSTGRES),
-  SQLITE("file", "org.sqlite.JDBC", SQLDialect.SQLITE);
+  MYSQL("com.mysql.cj.jdbc.Driver", SQLDialect.MYSQL),
+  MARIADB("org.mariadb.jdbc.Driver", SQLDialect.MARIADB),
+  POSTGRESQL("org.postgresql.Driver", SQLDialect.POSTGRES),
+  SQLITE("org.sqlite.JDBC", SQLDialect.SQLITE);
 
-  private final String jdbcDescriptor;
   private final String driverClassName;
   private final SQLDialect jooqDialect;
 
-  JooqDatabaseType(@NonNull String jdbcDescriptor, @NonNull String driverClassName, @NonNull SQLDialect jooqDialect) {
-    this.jdbcDescriptor = jdbcDescriptor;
+  JooqDatabaseType(@NonNull String driverClassName, @NonNull SQLDialect jooqDialect) {
     this.driverClassName = driverClassName;
     this.jooqDialect = jooqDialect;
   }
@@ -42,11 +40,8 @@ public enum JooqDatabaseType {
       case MARIADB -> MARIADB;
       case POSTGRES -> POSTGRESQL;
       case SQLITE -> SQLITE;
+      case MAGIC_MIKE -> throw new IllegalArgumentException("magic mix");
     };
-  }
-
-  public @NonNull String jdbcDescriptor() {
-    return this.jdbcDescriptor;
   }
 
   public @NonNull String driverClassName() {

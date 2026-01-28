@@ -17,22 +17,8 @@
 package eu.cloudnetservice.modules.mysql.config;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 
-public record MySQLConfiguration(
-  @NonNull String username,
-  @NonNull String password,
-  @NonNull String databaseServiceName,
-  @NonNull List<MySQLConnectionEndpoint> endpoints
-) {
+public record SQLModuleConfiguration(@NonNull List<JooqConfigurationEntry> entries) {
 
-  public @NonNull MySQLConnectionEndpoint randomEndpoint() {
-    // check if there are any endpoints
-    if (this.endpoints.isEmpty()) {
-      throw new IllegalStateException("No mysql connection endpoints available");
-    }
-    // return a random stream
-    return this.endpoints.get(ThreadLocalRandom.current().nextInt(0, this.endpoints.size()));
-  }
 }

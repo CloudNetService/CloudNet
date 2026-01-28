@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql.impl.junit;
+package eu.cloudnetservice.modules.sql.impl.junit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

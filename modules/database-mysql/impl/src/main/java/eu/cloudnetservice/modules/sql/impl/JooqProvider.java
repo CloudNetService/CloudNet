@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql.impl;
+package eu.cloudnetservice.modules.sql.impl;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -24,17 +24,22 @@ import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jooq.DSLContext;
-import org.jooq.Named;
+import org.jooq.Table;
+import org.jooq.TableOptions;
 import org.jooq.impl.DSL;
 
 public class JooqProvider extends AbstractNodeDatabaseProvider {
 
-  private final JooqConfigurationEntry config;
-  private DSLContext dslContext;
+  protected final TableCreator tableCreator;
+  protected final JooqConfigurationEntry config;
 
-  protected JooqProvider(@NonNull JooqConfigurationEntry config) {
+  protected DSLContext dslContext;
+  protected HikariDataSource dataSource;
+
+  protected JooqProvider(@NonNull TableCreator tableCreator, @NonNull JooqConfigurationEntry config) {
     super(DEFAULT_REMOVAL_LISTENER);
 
+    this.tableCreator = tableCreator;
     this.config = config;
   }
 
@@ -66,12 +71,14 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
     hikariConfig.setConnectionTimeout(10_000);
     hikariConfig.setValidationTimeout(10_000);
 
-    this.dslContext = DSL.using(new HikariDataSource(hikariConfig), databaseType.jooqDialect());
+    this.dataSource = new HikariDataSource(hikariConfig);
+    this.dslContext = DSL.using(this.dataSource, databaseType.jooqDialect());
     return true;
   }
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
+    this.tableCreator.createTable(this.dslContext, name);
     return new JooqDatabase(name, this, this.dslContext);
   }
 
@@ -87,11 +94,24 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
 
   @Override
   public @NonNull Collection<String> databaseNames() {
-    return this.dslContext.meta().getTables().stream().map(Named::getName).toList();
+    return this.dslContext.meta()
+      .getTables()
+      .stream()
+      .filter(table -> table.getTableType() == TableOptions.TableType.TABLE)
+      .filter(table -> table.field(JooqDatabase.KEY_FIELD_NAME) != null)
+      .filter(table -> table.field(JooqDatabase.DOCUMENT_FIELD_NAME) != null)
+      .map(Table::getName)
+      .toList();
   }
 
   @Override
   public @NonNull String name() {
     return this.config.databaseServiceName();
+  }
+
+  @Override
+  public void close() throws Exception {
+    super.close();
+    this.dataSource.close();
   }
 }

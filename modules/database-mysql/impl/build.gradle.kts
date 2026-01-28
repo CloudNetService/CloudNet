@@ -32,6 +32,7 @@ dependencies {
   api(projects.modules.databaseMysql.databaseMysqlApi)
 
   implementation("org.jooq:jooq:3.20.10")
+  implementation("org.xerial:sqlite-jdbc:3.51.1.0")
   implementation("org.postgresql:postgresql:42.7.9")
   implementation("com.mysql:mysql-connector-j:9.5.0")
   implementation("org.mariadb.jdbc:mariadb-java-client:3.5.7")
@@ -44,7 +45,7 @@ tasks.shadowJar.configure {
 moduleJson {
   author = "CloudNetService"
   name = "CloudNet-Database-MySQL"
-  main = "eu.cloudnetservice.modules.mysql.impl.CloudNetMySQLDatabaseModule"
+  main = "eu.cloudnetservice.modules.sql.impl.CloudNetMySQLDatabaseModule"
   description = "CloudNet extension, which includes the database support for MySQL and MariaDB"
   minJavaVersionId = JavaVersion.VERSION_11
   runtimeModule = true
