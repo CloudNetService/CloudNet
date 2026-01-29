@@ -29,11 +29,15 @@ stringSimilarity = "2.0.0"
 cloudConfirmation = "1.0.0-rc.1"
 
 # databases
+jooq = "3.20.10"
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "5.6.2"
 hikariCp = "7.0.2"
 mysqlConnector = "9.5.0"
+sqliteConnector = "3.51.1.0"
+postgresqlConnector = "42.7.9"
+mariadbConnector = "3.5.7"
 
 # general
 oshi = "6.9.2"
@@ -158,11 +162,15 @@ aerogelAuto = { group = "dev.derklaro.aerogel", name = "aerogel-auto", version.r
 aerogelScopedValues = { group = "dev.derklaro.aerogel", name = "aerogel-scoped-value-context-scope", version.ref = "aerogel" }
 
 # databases
+jooq = { group = "org.jooq", name = "jooq", version.ref = "jooq" }
 h2 = { group = "com.h2database", name = "h2", version.ref = "h2" }
 hikariCp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariCp" }
 mongodb = { group = "org.mongodb", name = "mongodb-driver-sync", version.ref = "mongodb" }
 xodus = { group = "org.jetbrains.xodus", name = "xodus-environment", version.ref = "xodus" }
 mysqlConnector = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysqlConnector" }
+sqliteConnector = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqliteConnector" }
+postgresqlConnector = { group = "org.postgresql", name = "postgresql", version.ref = "postgresqlConnector" }
+mariadbConnector = { group = "org.mariadb.jdbc", name = "mariadb-java-client", version.ref = "mariadbConnector" }
 
 # platform api
 nukkitX = { group = "cn.nukkit", name = "nukkit", version.ref = "nukkitX" }
@@ -203,7 +211,7 @@ aerogel = ["aerogel", "aerogelScopedValues", "aerogelAuto"]
 aerogelApi = ["aerogel", "aerogelAuto"]
 npcLib = ["npcLib", "npcLibLabymod"]
 unirest = ["unirest", "unirestGson"]
-mysql = ["mysqlConnector", "hikariCp"]
+sql = ["mysqlConnector", "hikariCp", "postgresqlConnector", "sqliteConnector", "mariadbConnector", "jooq"]
 jline = ["jlineReader", "jlineTerminal"]
 cloud = ["cloudCore", "cloudAnnotations", "cloudConfirmationProcessor"]
 cloudApi = ["cloudCoreApi", "cloudAnnotationsApi", "cloudConfirmationProcessor"]

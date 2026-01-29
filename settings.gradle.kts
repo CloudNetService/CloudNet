@@ -86,8 +86,8 @@ registerSubProjects(
   subProjects = arrayOf("api", "impl"),
 )
 registerSubProjects(
-  root = "modules:database-mysql",
-  prefix = "database-mysql",
+  root = "modules:database-sql",
+  prefix = "database-sql",
   subProjects = arrayOf("api", "impl"),
 )
 registerSubProjects(
