@@ -46,6 +46,15 @@ import lombok.NonNull;
 public interface DatabaseProvider {
 
   /**
+   * Gets if this database provider produces databases that are synced to the cluster. This means that every change made
+   * to the database will be directly visible to all components in the cluster rather than requiring a special sync.
+   * Normally synced databases are databases which are running as an external process, like MySQL or MongoDB.
+   *
+   * @return true if all modify operations are directly visible to all components in a cluster, false otherwise.
+   */
+  boolean synced();
+
+  /**
    * Retrieves or creates non-blocking a facade for a database to write and read data to. The name of the database
    * should be unique for later identification.
    *

@@ -17,9 +17,7 @@
 package eu.cloudnetservice.modules.sql.impl.sqlite;
 
 import eu.cloudnetservice.modules.sql.config.JooqConfigurationEntry;
-import eu.cloudnetservice.modules.sql.impl.JooqDatabase;
 import eu.cloudnetservice.modules.sql.impl.JooqProvider;
-import eu.cloudnetservice.node.database.LocalDatabase;
 import lombok.NonNull;
 
 public class SQLiteDatabaseProvider extends JooqProvider {
@@ -29,7 +27,7 @@ public class SQLiteDatabaseProvider extends JooqProvider {
   }
 
   @Override
-  public @NonNull LocalDatabase database(@NonNull String name) {
-    return new JooqDatabase(name, this, super.dslContext);
+  public boolean synced() {
+    return false;
   }
 }

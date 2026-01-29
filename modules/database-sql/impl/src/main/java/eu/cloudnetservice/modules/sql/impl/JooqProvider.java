@@ -67,12 +67,17 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
     hikariConfig.addDataSourceProperty("maintainTimeStats", "false");
 
     hikariConfig.setMinimumIdle(2);
-    hikariConfig.setMaximumPoolSize(100);
+    hikariConfig.setMaximumPoolSize(10);
     hikariConfig.setConnectionTimeout(10_000);
     hikariConfig.setValidationTimeout(10_000);
 
     this.dataSource = new HikariDataSource(hikariConfig);
     this.dslContext = DSL.using(this.dataSource, databaseType.jooqDialect());
+    return true;
+  }
+
+  @Override
+  public boolean synced() {
     return true;
   }
 

@@ -156,7 +156,7 @@ public class JooqDatabase extends AbstractDatabase {
 
   @Override
   public boolean synced() {
-    return true;
+    return this.databaseProvider.synced();
   }
 
   @Override

@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.sql.impl;
 
 import eu.cloudnetservice.modules.sql.config.DatabaseType;
 import lombok.NonNull;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jooq.SQLDialect;
 
 public enum JooqDatabaseType {
@@ -34,7 +35,7 @@ public enum JooqDatabaseType {
     this.jooqDialect = jooqDialect;
   }
 
-  public static @NonNull JooqDatabaseType fromDatabaseType(@NonNull DatabaseType databaseType) {
+  public static @NonNull JooqDatabaseType fromDatabaseType(@UnknownNullability DatabaseType databaseType) {
     return switch (databaseType) {
       case MYSQL -> MYSQL;
       case MARIADB -> MARIADB;
