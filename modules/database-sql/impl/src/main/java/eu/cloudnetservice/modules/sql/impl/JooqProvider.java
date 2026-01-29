@@ -18,7 +18,8 @@ package eu.cloudnetservice.modules.sql.impl;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import eu.cloudnetservice.modules.sql.config.JooqConfigurationEntry;
+import eu.cloudnetservice.modules.sql.config.SQLConfigurationEntry;
+import eu.cloudnetservice.modules.sql.impl.table.TableCreator;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import java.util.Collection;
@@ -31,15 +32,21 @@ import org.jooq.impl.DSL;
 public class JooqProvider extends AbstractNodeDatabaseProvider {
 
   protected final TableCreator tableCreator;
-  protected final JooqConfigurationEntry config;
+  protected final JooqDatabaseType databaseType;
+  protected final SQLConfigurationEntry config;
 
   protected DSLContext dslContext;
   protected HikariDataSource dataSource;
 
-  protected JooqProvider(@NonNull TableCreator tableCreator, @NonNull JooqConfigurationEntry config) {
+  protected JooqProvider(
+    @NonNull TableCreator tableCreator,
+    @NonNull JooqDatabaseType databaseType,
+    @NonNull SQLConfigurationEntry config
+  ) {
     super(DEFAULT_REMOVAL_LISTENER);
 
     this.tableCreator = tableCreator;
+    this.databaseType = databaseType;
     this.config = config;
   }
 
@@ -48,10 +55,8 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
     var hikariConfig = new HikariConfig();
     var endpoint = this.config.buildConnectionUri();
 
-    var databaseType = JooqDatabaseType.fromDatabaseType(this.config.databaseType());
-
     hikariConfig.setJdbcUrl(endpoint);
-    hikariConfig.setDriverClassName(databaseType.driverClassName());
+    hikariConfig.setDriverClassName(this.databaseType.driverClassName());
     hikariConfig.setUsername(this.config.username());
     hikariConfig.setPassword(this.config.password());
 
@@ -72,18 +77,22 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
     hikariConfig.setValidationTimeout(10_000);
 
     this.dataSource = new HikariDataSource(hikariConfig);
-    this.dslContext = DSL.using(this.dataSource, databaseType.jooqDialect());
+    this.dslContext = DSL.using(this.dataSource, this.databaseType.jooqDialect());
     return true;
   }
 
   @Override
   public boolean synced() {
-    return true;
+    return this.databaseType.synced();
   }
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
-    this.tableCreator.createTable(this.dslContext, name);
+    this.tableCreator.createTable(
+      this.dslContext,
+      name,
+      JooqDatabase.KEY_FIELD,
+      JooqDatabase.DOCUMENT_FIELD);
     return new JooqDatabase(name, this, this.dslContext);
   }
 

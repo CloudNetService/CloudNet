@@ -24,7 +24,7 @@ import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.sql.config.DatabaseType;
-import eu.cloudnetservice.modules.sql.config.JooqConfigurationEntry;
+import eu.cloudnetservice.modules.sql.config.SQLConfigurationEntry;
 import eu.cloudnetservice.modules.sql.config.SQLModuleConfiguration;
 import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import io.leangen.geantyref.TypeFactory;
@@ -32,8 +32,6 @@ import jakarta.inject.Singleton;
 import java.util.List;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.jooq.impl.DSL;
-import org.jooq.impl.SQLDataType;
 
 @Singleton
 public final class CloudNetSQLDatabaseModule extends DriverModule {
@@ -50,43 +48,42 @@ public final class CloudNetSQLDatabaseModule extends DriverModule {
     var serviceName = config.getString("databaseServiceName");
     var username = config.getString("username");
     var password = config.getString("password");
+
+    String database;
+    HostAndPort address;
     if (config.contains("addresses")) {
       List<LegacyConnectionEndpoint> addresses = config.readObject(
         "addresses",
         TypeFactory.parameterizedClass(List.class, LegacyConnectionEndpoint.class));
-      var convertedConfig = new JooqConfigurationEntry(
-        DatabaseType.MYSQL,
-        serviceName,
-        config.getString("database"),
-        username,
-        password,
-        addresses.isEmpty() ? new HostAndPort("127.0.0.1", 3306) : addresses.getFirst().address(),
-        null);
-      this.writeConfig(Document.newJsonDocument().appendTree(convertedConfig));
-    } else if (config.contains("endpoints")) {
+      database = config.getString("database");
+      address = addresses.isEmpty() ? new HostAndPort("127.0.0.1", 3306) : addresses.getFirst().address();
+    } else {
       List<LegacyConnectionEndpoint> endpoints = config.readObject(
         "endpoints",
         TypeFactory.parameterizedClass(List.class, LegacyConnectionEndpoint.class));
       var endpoint = endpoints.isEmpty()
         ? new LegacyConnectionEndpoint("cloudnet", new HostAndPort("127.0.0.1", 3306))
         : endpoints.getFirst();
-      var convertedConfig = new JooqConfigurationEntry(
-        DatabaseType.MYSQL,
-        serviceName,
-        endpoint.database(),
-        username,
-        password,
-        endpoint.address(),
-        null);
-      this.writeConfig(Document.newJsonDocument().appendTree(convertedConfig));
+      database = endpoint.database();
+      address = endpoint.address();
     }
+
+    var convertedConfig = new SQLConfigurationEntry(
+      DatabaseType.MYSQL,
+      serviceName,
+      database,
+      username,
+      password,
+      address,
+      null);
+    this.writeConfig(Document.newJsonDocument().appendTree(convertedConfig));
   }
 
   @ModuleTask(order = 125, lifecycle = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
     this.configuration = this.readConfig(
       SQLModuleConfiguration.class,
-      () -> new SQLModuleConfiguration(List.of(new JooqConfigurationEntry(
+      () -> new SQLModuleConfiguration(List.of(new SQLConfigurationEntry(
         DatabaseType.MAGIC_MIKE,
         "sql",
         "cloudnet",
@@ -98,17 +95,11 @@ public final class CloudNetSQLDatabaseModule extends DriverModule {
       DocumentFactory.json());
 
     for (var entry : this.configuration.entries()) {
+      var databaseType = JooqDatabaseType.fromDatabaseType(entry.databaseType());
       serviceRegistry.registerProvider(
         NodeDatabaseProvider.class,
         entry.databaseServiceName(),
-        new JooqProvider(((dslContext, name) -> {
-          dslContext.createTableIfNotExists(DSL.name(name))
-            .column(JooqDatabase.KEY_FIELD, SQLDataType.VARCHAR(512)
-              .notNull()
-              .collation(DSL.collation("utf8mb4_bin")))
-            .column(JooqDatabase.DOCUMENT_FIELD, SQLDataType.JSONB.notNull())
-            .execute();
-        }), entry));
+        databaseType.createProvider(entry));
     }
   }
 

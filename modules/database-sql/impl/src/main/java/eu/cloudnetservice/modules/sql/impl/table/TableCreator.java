@@ -14,11 +14,20 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.sql.config;
+package eu.cloudnetservice.modules.sql.impl.table;
 
-import java.util.List;
+import eu.cloudnetservice.driver.document.Document;
 import lombok.NonNull;
+import org.jooq.DSLContext;
+import org.jooq.Field;
 
-public record SQLModuleConfiguration(@NonNull List<SQLConfigurationEntry> entries) {
+@FunctionalInterface
+public interface TableCreator {
+
+  void createTable(
+    @NonNull DSLContext dslContext,
+    @NonNull String name,
+    @NonNull Field<String> keyField,
+    @NonNull Field<Document> documentField);
 
 }

@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.sql.impl.sqlite;
+package eu.cloudnetservice.modules.sql.impl.table;
 
-import eu.cloudnetservice.modules.sql.config.JooqConfigurationEntry;
-import eu.cloudnetservice.modules.sql.impl.JooqProvider;
+import eu.cloudnetservice.driver.document.Document;
 import lombok.NonNull;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 
-public class SQLiteDatabaseProvider extends JooqProvider {
-
-  protected SQLiteDatabaseProvider(@NonNull JooqConfigurationEntry config) {
-    super((_, _) -> {}, config);
-  }
+public class SQLiteTableCreator implements TableCreator {
 
   @Override
-  public boolean synced() {
-    return false;
+  public void createTable(
+    @NonNull DSLContext dslContext,
+    @NonNull String name,
+    @NonNull Field<String> keyField,
+    @NonNull Field<Document> documentField
+  ) {
+    dslContext.createTableIfNotExists(DSL.name(name))
+      .column(keyField, SQLDataType.VARCHAR(512).notNull())
+      .column(documentField, SQLDataType.JSON.notNull())
+      .primaryKey(keyField)
+      .execute();
   }
 }

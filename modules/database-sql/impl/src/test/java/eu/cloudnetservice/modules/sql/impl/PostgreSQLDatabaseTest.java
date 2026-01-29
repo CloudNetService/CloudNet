@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.sql.impl;
 
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.sql.config.DatabaseType;
-import eu.cloudnetservice.modules.sql.config.JooqConfigurationEntry;
+import eu.cloudnetservice.modules.sql.config.SQLConfigurationEntry;
 import eu.cloudnetservice.modules.sql.impl.junit.EnableServicesInject;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.GenericContainer;
@@ -39,7 +39,7 @@ public class PostgreSQLDatabaseTest extends SQLDatabaseTest {
 
   @BeforeAll
   static void setup() throws Exception {
-    var config = new JooqConfigurationEntry(
+    var config = new SQLConfigurationEntry(
       DatabaseType.POSTGRES,
       "postgres",
       "cn_testing",
@@ -47,7 +47,7 @@ public class PostgreSQLDatabaseTest extends SQLDatabaseTest {
       "test",
       new HostAndPort(postgresContainer.getHost(), postgresContainer.getFirstMappedPort()),
       null);
-    databaseProvider = new JooqProvider(config);
+    databaseProvider = JooqDatabaseType.POSTGRESQL.createProvider(config);
     databaseProvider.init();
   }
 }

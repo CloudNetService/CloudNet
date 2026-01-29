@@ -14,16 +14,30 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.sql.impl;
+package eu.cloudnetservice.modules.sql.impl.table;
 
+import eu.cloudnetservice.driver.document.Document;
 import lombok.NonNull;
 import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 
-@FunctionalInterface
-public interface TableCreator {
+public class PostgreSQLTableCreator implements TableCreator {
 
-  void createTable(
+  @Override
+  public void createTable(
     @NonNull DSLContext dslContext,
-    @NonNull String name);
+    @NonNull String name,
+    @NonNull Field<String> keyField,
+    @NonNull Field<Document> documentField
+  ) {
+    dslContext.createTableIfNotExists(DSL.name(name))
+      .column(keyField, SQLDataType.VARCHAR(512).notNull())
+      .column(documentField, SQLDataType.JSONB.notNull())
+      .primaryKey(keyField)
+      .execute();
 
+    dslContext.execute("CREATE INDEX IF NOT EXISTS ")
+  }
 }

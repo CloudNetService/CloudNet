@@ -21,7 +21,7 @@ import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public record JooqConfigurationEntry(
+public record SQLConfigurationEntry(
   @NonNull DatabaseType databaseType,
   @NonNull String databaseServiceName,
   @Nullable String databaseName,

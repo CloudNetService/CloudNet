@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.sql.impl;
 
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.sql.config.DatabaseType;
-import eu.cloudnetservice.modules.sql.config.JooqConfigurationEntry;
+import eu.cloudnetservice.modules.sql.config.SQLConfigurationEntry;
 import eu.cloudnetservice.modules.sql.impl.junit.EnableServicesInject;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.GenericContainer;
@@ -40,7 +40,7 @@ public class MariaDBDatabaseTest extends SQLDatabaseTest {
 
   @BeforeAll
   static void setup() throws Exception {
-    var config = new JooqConfigurationEntry(
+    var config = new SQLConfigurationEntry(
       DatabaseType.MARIADB,
       "mariadb",
       "cn_testing",
@@ -48,7 +48,7 @@ public class MariaDBDatabaseTest extends SQLDatabaseTest {
       "test",
       new HostAndPort(mariaContainer.getHost(), mariaContainer.getFirstMappedPort()),
       null);
-    databaseProvider = new JooqProvider(config);
+    databaseProvider = JooqDatabaseType.MARIADB.createProvider(config);
     databaseProvider.init();
   }
 }

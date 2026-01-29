@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.sql.impl;
 
 import eu.cloudnetservice.modules.sql.config.DatabaseType;
-import eu.cloudnetservice.modules.sql.config.JooqConfigurationEntry;
+import eu.cloudnetservice.modules.sql.config.SQLConfigurationEntry;
 import eu.cloudnetservice.modules.sql.impl.junit.EnableServicesInject;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -26,7 +26,7 @@ public class SQLiteDatabaseTest extends SQLDatabaseTest {
 
   @BeforeAll
   static void setup() throws Exception {
-    var config = new JooqConfigurationEntry(
+    var config = new SQLConfigurationEntry(
       DatabaseType.SQLITE,
       "sqlite",
       "cn_testing",
@@ -34,7 +34,7 @@ public class SQLiteDatabaseTest extends SQLDatabaseTest {
       null,
       null,
       "jdbc:sqlite::memory:");
-    databaseProvider = new JooqProvider(config);
+    databaseProvider = JooqDatabaseType.SQLITE.createProvider(config);
     databaseProvider.init();
   }
 }
