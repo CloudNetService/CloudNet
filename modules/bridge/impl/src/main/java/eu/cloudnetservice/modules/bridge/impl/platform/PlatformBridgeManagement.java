@@ -194,21 +194,18 @@ public abstract class PlatformBridgeManagement<P, I> implements InternalBridgeMa
   }
 
   public void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot) {
-    // if the service is not yet cached check if we need to cache it
-    if (!this.cachedServices.containsKey(snapshot.serviceId().uniqueId())) {
-      // check if we should cache it
-      if (this.cacheTester.test(snapshot)) {
+    var serviceUniqueId = snapshot.serviceId().uniqueId();
+    if (this.cacheTester.test(snapshot)) {
+      var previous = this.cachedServices.put(serviceUniqueId, snapshot);
+      if (previous == null) {
         this.cacheRegisterListener.accept(snapshot);
-        this.cachedServices.put(snapshot.serviceId().uniqueId(), snapshot);
       }
-    } else {
-      // if the service is already cached we need to check if we should still cache it
-      if (this.cacheTester.test(snapshot)) {
-        this.cachedServices.replace(snapshot.serviceId().uniqueId(), snapshot);
-      } else {
-        this.cacheUnregisterListener.accept(snapshot);
-        this.cachedServices.remove(snapshot.serviceId().uniqueId());
-      }
+      return;
+    }
+
+    var cachedService = this.cachedServices.remove(serviceUniqueId);
+    if (cachedService != null) {
+      this.cacheUnregisterListener.accept(snapshot);
     }
   }
 
