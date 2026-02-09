@@ -27,7 +27,6 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.impl.service.defaults.factory.BaseLocalCloudServiceFactory;
 import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
-import eu.cloudnetservice.node.impl.util.NetworkUtil;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
@@ -37,6 +36,8 @@ import lombok.NonNull;
 
 @Singleton
 public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFactory {
+
+  private static final String DOCKER_HOST_NETWORK = "host";
 
   protected final I18n i18n;
   protected final DefaultTickLoop mainThread;
@@ -99,70 +100,10 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
 
   @Override
   protected boolean isPortInUse(@NonNull CloudServiceManager manager, @NonNull String hostAddress, int port) {
-    // check if any local CloudNet service has the port
-    if (this.isPortUsedByLocalService(manager, hostAddress, port)) {
-      return true;
-    }
-
-    // check if any Docker container has this port binding
-    if (this.isPortBoundInDocker(hostAddress, port)) {
-      return true;
-    }
-
-    // validate that the port is free at OS level
-    return this.isPortInUseAtOsLevel(hostAddress, port);
-  }
-
-  @Override
-  protected boolean isPortInUseAtOsLevel(@NonNull String hostAddress, int port) {
-    // only do OS-level port check if we can actually reach this address
-    // this handles the case where CloudNet runs in a container with an external address configured
-    if (!NetworkUtil.isBindableAddress(hostAddress)) {
+    if (!DOCKER_HOST_NETWORK.equalsIgnoreCase(this.dockerConfiguration.network())) {
       return false;
     }
 
-    return super.isPortInUseAtOsLevel(hostAddress, port);
-  }
-
-  /**
-   * Checks if any running Docker container has a port binding that would conflict
-   * with the desired host address and port.
-   */
-  protected boolean isPortBoundInDocker(@NonNull String hostAddress, int port) {
-    var containers = this.dockerClient.listContainersCmd()
-      .withShowAll(false) // only running containers hold port bindings
-      .exec();
-
-    for (var container : containers) {
-      var ports = container.getPorts();
-      if (ports == null) {
-        continue;
-      }
-
-      for (var binding : ports) {
-        var publicPort = binding.getPublicPort();
-        if (publicPort == null || publicPort != port) {
-          continue;
-        }
-
-        var bindIp = binding.getIp();
-        if (bindIp == null) {
-          // exposed but not published to host - no conflict
-          continue;
-        }
-
-        // conflict if:
-        // 1. exact address match
-        // 2. container binds all interfaces (0.0.0.0)
-        // 3. we want all interfaces and container has any binding
-        if (bindIp.equals(hostAddress)
-            || "0.0.0.0".equals(bindIp)
-            || "0.0.0.0".equals(hostAddress)) {
-          return true;
-        }
-      }
-    }
-
-    return false;
+    return super.isPortInUse(manager, hostAddress, port);
   }
 }
