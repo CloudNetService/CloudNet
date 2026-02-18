@@ -79,13 +79,13 @@ dependencies {
   annotationProcessor(projects.driver.driverAp)
 
   // internal libraries
-<<<<<<< HEAD
   implementation(libs.h2)
   implementation(libs.gson)
   implementation(libs.gulf)
   implementation(libs.xodus)
   implementation(libs.jansi)
   implementation(libs.caffeine)
+  implementation(libs.semver4j)
   implementation(libs.bundles.jline)
   implementation(libs.bundles.cloud)
   implementation(libs.bundles.unirest)
@@ -95,20 +95,6 @@ dependencies {
 
   implementation(libs.logbackCore)
   implementation(libs.logbackClassic)
-=======
-  "implementation"(libs.h2)
-  "implementation"(libs.gson)
-  "implementation"(libs.gulf)
-  "implementation"(libs.xodus)
-  "implementation"(libs.jansi)
-  "implementation"(libs.caffeine)
-  "implementation"(libs.semver4j)
-  "implementation"(libs.bundles.jline)
-  "implementation"(libs.bundles.cloud)
-  "implementation"(libs.bundles.unirest)
-  "implementation"(libs.stringSimilarity)
-  "implementation"(libs.bundles.nightConfig)
->>>>>>> 2762714fa (move stuff)
 
   compileOnly(libs.bundles.netty)
 

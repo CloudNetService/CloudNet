@@ -1,9 +1,5 @@
 /*
-<<<<<<< HEAD:driver/api/src/main/java/eu/cloudnetservice/driver/module/ModuleManager.java
  * Copyright 2019-present CloudNetService team & contributors
-=======
- * Copyright 2019-2025 CloudNetService team & contributors
->>>>>>> 2762714fa (move stuff):node/api/src/main/java/eu/cloudnetservice/node/module/ModuleManager.java
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
