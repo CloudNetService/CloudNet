@@ -21,7 +21,8 @@ import java.nio.file.Path;
 import lombok.NonNull;
 
 /**
- * A loader for external module dependencies.
+ * A loader for external module dependencies. Loader instances are retrieved based on their name from the service
+ * registry.
  *
  * @since 4.0
  */

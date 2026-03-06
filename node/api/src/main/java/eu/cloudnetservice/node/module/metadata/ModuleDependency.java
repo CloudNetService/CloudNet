@@ -48,10 +48,5 @@ public record ModuleDependency(
      * Marks that the other module is suggested to unlock additional functionality but not a hard requirement.
      */
     SUGGESTED,
-    /**
-     * Marks that the other module conflicts with the current module in the specified version range. When the other
-     * module is present with a matching version the module loading process cannot continue.
-     */
-    CONFLICTED,
   }
 }

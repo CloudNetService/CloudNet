@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2025 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.module.repository;
+package eu.cloudnetservice.node.impl.module.classloader;
+
+import lombok.NonNull;
 
 /**
- * @since 4.0
+ *
  */
-public interface ModuleRepository {
+public final class ModuleClassTransformer {
 
+  byte[] transformClass(@NonNull String name, byte[] classFileBytes) {
+
+  }
 }

@@ -16,29 +16,28 @@
 
 package eu.cloudnetservice.node.module.metadata;
 
-import eu.cloudnetservice.node.module.locator.ModuleResource;
+import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * A parser for a module metadata. Different parsers can, for example, read different metadata file formats.
  *
- * @param <R> the type of module resource that is required to use this parser.
  * @since 4.0
  */
 @FunctionalInterface
-public interface ModuleMetadataParser<R extends ModuleResource> {
+public interface ModuleMetadataParser {
 
   /**
-   * Parses the module metadata from the given module resource. If the resource does not contain a metadata or is
-   * rejected, the method can return null. The null return type is used to not interrupt the module loading while
-   * throwing an exception will cause the module loading process to be interrupted.
+   * Parses the module metadata from the given path. If the resource does not contain a metadata or is rejected, the
+   * method can return null. The null return type is used to not interrupt the module loading while throwing an
+   * exception will cause the module loading process to be interrupted.
    *
-   * @param moduleResource the resolved module resource of which the module metadata should be parsed.
-   * @return the parsed module metadata, can be null if the given resource does not contain a valid metadata file.
-   * @throws NullPointerException if the given module resource is null.
+   * @param modulePath the path to the module file of which the module metadata should be parsed.
+   * @return the parsed module metadata, can be null if the given path does not contain a valid metadata file.
+   * @throws NullPointerException if the given module path is null.
    * @throws Exception            if any exception occurs during the metadata parsing.
    */
   @Nullable
-  ModuleMetadata parseModuleMetadata(@NonNull R moduleResource) throws Exception;
+  ModuleMetadata parseModuleMetadata(@NonNull Path modulePath) throws Exception;
 }

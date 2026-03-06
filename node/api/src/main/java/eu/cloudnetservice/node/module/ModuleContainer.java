@@ -17,8 +17,8 @@
 package eu.cloudnetservice.node.module;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
-import eu.cloudnetservice.node.module.locator.ModuleResource;
 import eu.cloudnetservice.node.module.metadata.ModuleMetadata;
+import java.nio.file.Path;
 import lombok.NonNull;
 
 /**
@@ -29,21 +29,20 @@ import lombok.NonNull;
 public interface ModuleContainer {
 
   /**
-   * The constructed main instance of the module. This instance is singleton for the module and only available after the
-   * constructor in the module main entrypoint was invoked.
+   * Get the current state of the module.
    *
-   * @return the constructed main instance of the module.
+   * @return the current state of the module.
    */
   @NonNull
-  Object instance();
+  ModuleState state();
 
   /**
-   * Get the module resource from which the module was loaded.
+   * Get the path from which the module was loaded.
    *
-   * @return the module resource from which the module was loaded.
+   * @return the path from which the module was loaded.
    */
   @NonNull
-  ModuleResource resource();
+  Path source();
 
   /**
    * Get the parsed module metadata of the module which is contained in the module resource.
@@ -62,10 +61,50 @@ public interface ModuleContainer {
   ClassLoader classLoader();
 
   /**
+   * The constructed main instance of the module. This instance is singleton for the module and only available after the
+   * constructor in the module main entrypoint was invoked.
+   *
+   * @return the constructed main instance of the module.
+   * @throws IllegalStateException if the module is not loaded and therefore no instance being present.
+   */
+  @NonNull
+  Object instance();
+
+  /**
    * Get the injection layer used for the module.
    *
    * @return the injection layer used for the module.
+   * @throws IllegalStateException if the module is not loaded and therefore no injection layer being present.
    */
   @NonNull
   InjectionLayer<?> injectionLayer();
+
+  /**
+   * Loads this module if this module is in the unloaded state. Otherwise, this method does nothing.
+   *
+   * @return true if the module was loaded as a result of this method call, false otherwise.
+   */
+  boolean load();
+
+  /**
+   * Reloads this module if this module is in the running state. Otherwise, this method does nothing.
+   *
+   * @return true if the module was reloaded as a result of this method call, false otherwise.
+   */
+  boolean reload();
+
+  /**
+   * Unloads this module if it is in the running state. Otherwise, this method does nothing.
+   *
+   * @return true if the module was unloaded as a result of the method call, false otherwise.
+   */
+  boolean unload();
+
+  /**
+   * Removes this module if it is in the unloaded state. If the module is in the running state, it will be unloaded and
+   * then removed. A removed module cannot be loaded anymore.
+   *
+   * @return true if the module was removed as a result of this call, false otherwise.
+   */
+  boolean remove();
 }

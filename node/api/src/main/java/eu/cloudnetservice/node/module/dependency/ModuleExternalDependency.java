@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.module.dependency;
 
-import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DocPropertyHolder;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * @since 4.0
  */
-public interface ModuleExternalDependency {
+public interface ModuleExternalDependency extends DocPropertyHolder {
 
   /**
    * Get the name of the loader that is responsible for loading this dependency. If the loader cannot be resolved but
@@ -60,13 +60,4 @@ public interface ModuleExternalDependency {
   @NonNull
   @Unmodifiable
   Collection<String> environments();
-
-  /**
-   * Get the additional information about this dependency which the loader uses to resolve the external data. This can
-   * for example contain a download url or maven dependency coordinates.
-   *
-   * @return the additional information about this dependency for the loader.
-   */
-  @NonNull
-  Document additionalInformation();
 }

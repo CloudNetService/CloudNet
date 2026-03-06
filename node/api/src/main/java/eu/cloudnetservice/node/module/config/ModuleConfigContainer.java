@@ -93,6 +93,9 @@ public sealed interface ModuleConfigContainer<T> permits SingleModuleConfigConta
   ModuleConfigContainer<T> reload(boolean forceLoadAll);
 
   /**
+   * Enables auto-reloading of configuration files from the underlying storage. If auto reload was already enabled, this
+   * method does nothing.
+   *
    * @return this container, for chaining.
    * @throws UnsupportedOperationException if the storage does not support watching or this container is read-only.
    */

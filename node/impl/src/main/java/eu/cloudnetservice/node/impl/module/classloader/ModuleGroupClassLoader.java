@@ -14,32 +14,25 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.module;
+package eu.cloudnetservice.node.impl.module.classloader;
 
-import eu.cloudnetservice.node.module.locator.ModuleResource;
 import eu.cloudnetservice.node.module.metadata.ModuleMetadata;
-import lombok.NonNull;
+import java.security.SecureClassLoader;
 
 /**
- * A candidate of a module that is not yet loaded, but passed the first checks if it could be loaded.
  *
- * @since 4.0
  */
-public interface ModuleCandidate<R extends ModuleResource> {
+public final class ModuleGroupClassLoader extends SecureClassLoader {
 
-  /**
-   * Get the resource which is the basis of this candidate.
-   *
-   * @return the resource which is the basis of this candidate.
-   */
-  @NonNull
-  R resource();
+  static {
+    ClassLoader.registerAsParallelCapable();
+  }
 
-  /**
-   * Get the module metadata which was parsed from the resolved module resource.
-   *
-   * @return the module metadata which was parsed from the resolved module resource.
-   */
-  @NonNull
-  ModuleMetadata metadata();
+  private final ModuleMetadata moduleMetadata;
+  private final ModuleClassLoaderGroup classLoaderGroup;
+
+  @Override
+  protected Class<?> findClass(String name) throws ClassNotFoundException {
+    return super.findClass(name);
+  }
 }

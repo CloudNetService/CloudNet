@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.module.metadata;
 
-import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.document.property.DocPropertyHolder;
 import eu.cloudnetservice.node.module.dependency.ModuleExternalDependency;
 import java.util.Collection;
 import lombok.NonNull;
@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * @since 4.0
  */
-public interface ModuleMetadata {
+public interface ModuleMetadata extends DocPropertyHolder {
 
   /**
    * Get the id of the module, which must match the pattern {@code ^[a-z][a-z0-9-.]{4,63}$}.
@@ -107,13 +107,6 @@ public interface ModuleMetadata {
   Collection<ModuleExternalDependency> externalDependencies();
 
   /**
-   * Indicates if this module wants to expose its external dependencies to other modules. Defaults to false.
-   *
-   * @return true if this module wants to expose its external dependencies to other modules, false otherwise.
-   */
-  boolean exposeExternalDependencies();
-
-  /**
    * Get the main authors of this module.
    *
    * @return the main authors of this module.
@@ -131,12 +124,4 @@ public interface ModuleMetadata {
   @NonNull
   @Unmodifiable
   Collection<ModuleContributor> contributors();
-
-  /**
-   * Get the custom keys that are defined by the module in the module metadata file.
-   *
-   * @return the custom keys that are defined by the module in the module metadata file.
-   */
-  @NonNull
-  Document customValues();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2025 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.module.metadata;
+package eu.cloudnetservice.node.impl.module.classloader;
 
-import eu.cloudnetservice.driver.base.Named;
-import eu.cloudnetservice.driver.document.property.DocPropertyHolder;
+import eu.cloudnetservice.node.module.ModuleDependencyTree;
+import java.util.Map;
 
 /**
- * Information about someone that contributed to the module.
- *
- * @since 4.0
+ * A collection of module class loaders.
  */
-public interface ModuleContributor extends Named, DocPropertyHolder {
+public final class ModuleClassLoaderGroup {
+
+  private final ModuleDependencyTree dependencyTree;
+  private final Map<String, ModuleClassLoader> classLoadersByModuleId;
 
 }
