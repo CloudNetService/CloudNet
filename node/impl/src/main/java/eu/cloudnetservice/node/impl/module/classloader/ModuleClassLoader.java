@@ -227,6 +227,15 @@ public final class ModuleClassLoader extends SecureClassLoader implements Closea
   }
 
   /**
+   * Get the metadata of the module this class loader was constructed for.
+   *
+   * @return the metadata of the module this class loader was constructed for.
+   */
+  public @NonNull ModuleMetadata moduleMetadata() {
+    return this.moduleMetadata;
+  }
+
+  /**
    * Holder for attributes that can be defined in the manifest of a jar.
    *
    * @since 4.0

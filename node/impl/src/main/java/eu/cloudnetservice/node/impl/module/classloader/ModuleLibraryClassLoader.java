@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  *
  */
-public final class LibraryClassLoader extends URLClassLoader {
+public final class ModuleLibraryClassLoader extends URLClassLoader {
 
   static {
     ClassLoader.registerAsParallelCapable();
@@ -37,7 +37,7 @@ public final class LibraryClassLoader extends URLClassLoader {
    * @param name
    * @param parent
    */
-  public LibraryClassLoader(@Nullable String name, @NonNull ClassLoader parent) {
+  public ModuleLibraryClassLoader(@Nullable String name, @NonNull ClassLoader parent) {
     super(name, new URL[0], parent);
   }
 
