@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.module.condition;
 
-import eu.cloudnetservice.node.module.ModuleManager;
 import eu.cloudnetservice.node.module.metadata.ModuleMetadata;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
@@ -52,14 +51,6 @@ public interface ConditionContext {
    */
   @NonNull
   MethodTypeDesc targetMethodDescriptor();
-
-  /**
-   * Get the module manager that is currently executing the module loading process.
-   *
-   * @return the module manager.
-   */
-  @NonNull
-  ModuleManager moduleManager();
 
   /**
    * Get the metadata of the module that is currently being loaded and which holds the current target class.

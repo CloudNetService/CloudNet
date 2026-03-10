@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.impl.module.classloader;
 
+import eu.cloudnetservice.node.impl.module.classloader.transformer.ModuleClassTransformer;
 import eu.cloudnetservice.node.module.metadata.ModuleMetadata;
 import java.io.Closeable;
 import java.io.IOException;
@@ -30,7 +31,8 @@ import lombok.NonNull;
 
 /**
  * Class loader that is able to resolve classes in the module jar. External classes, such as classes from libraries or
- * classes from other modules are resolved by other loaders higher up in the hierarchy.
+ * classes from other modules are resolved by other loaders higher up in the hierarchy. Note that this loader prefers
+ * classes from the module file over classes from one of the parent class loaders.
  *
  * @since 4.0
  */
@@ -64,7 +66,7 @@ public final class ModuleClassLoader extends SecureClassLoader implements Closea
     @NonNull ModuleClassTransformer classTransformer,
     @NonNull ClassLoader parent
   ) throws IOException {
-    super("module:" + moduleMetadata.id(), parent);
+    super("module-cl:" + moduleMetadata.id(), parent);
 
     this.moduleJarUrl = moduleJarUrl;
     this.moduleJarFile = moduleJarFile;
@@ -78,38 +80,21 @@ public final class ModuleClassLoader extends SecureClassLoader implements Closea
    */
   @Override
   protected @NonNull Class<?> loadClass(@NonNull String name, boolean resolve) throws ClassNotFoundException {
-    return this.loadClass(name, resolve, true);
-  }
-
-  /**
-   * Finds and loads the class with the given binary name, if not done already. The parent class loader is only checked
-   * if the specifically requested using the {@code checkParent} flag. If {@code resolve} is set to {@code true}, the
-   * resulting class is resolved (linked) by invoking the {@link #resolveClass(Class)} method.
-   *
-   * @param name        the binary name of the class to load.
-   * @param resolve     if the resulting class should be resolved (linked).
-   * @param checkParent if the parent class loader should be checked for the given class.
-   * @return the resulting class object.
-   * @throws NullPointerException   if the given name is null.
-   * @throws ClassNotFoundException if the class could was not found or a loading error occurred.
-   */
-  @NonNull
-  Class<?> loadClass(@NonNull String name, boolean resolve, boolean checkParent) throws ClassNotFoundException {
     var classLoadingLock = super.getClassLoadingLock(name);
     synchronized (classLoadingLock) {
       var result = super.findLoadedClass(name);
-      if (result == null && checkParent) {
-        // try to load the class from the parent class loader
+      if (result == null) {
+        // try to find the class in the module file
         try {
-          var parent = super.getParent();
-          result = parent.loadClass(name);
+          result = this.findClass(name);
         } catch (ClassNotFoundException _) {
         }
       }
 
       if (result == null) {
-        // try to find the class in the module file
-        result = this.findClass(name);
+        // try to load the class from the parent class loader
+        var parent = super.getParent();
+        result = parent.loadClass(name);
       }
 
       if (resolve) {
@@ -151,7 +136,7 @@ public final class ModuleClassLoader extends SecureClassLoader implements Closea
     }
 
     // apply transformers to the raw class file
-    var transformedClassFile = this.classTransformer.transformClass(name, rawClassFile);
+    var transformedClassFile = this.classTransformer.transformClass(rawClassFile, this, this.moduleMetadata);
 
     // define the package in which the class is located
     var lastPackageDelimPos = name.lastIndexOf('.');
