@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Unmodifiable;
 public interface ModuleMetadata extends DocPropertyHolder {
 
   /**
-   * Get the id of the module, which must match the pattern {@code ^[a-z][a-z0-9-.]{4,63}$}.
+   * Get the id of the module, which must match the pattern {@code ^[a-z][a-z0-9-.]{3,63}$}.
    *
    * @return the id of the mod.
    */
@@ -46,7 +46,7 @@ public interface ModuleMetadata extends DocPropertyHolder {
   String displayName();
 
   /**
-   * Get the description of the module. Cannot be blank.
+   * Get the description of the module. Might be an empty string.
    *
    * @return the description of the module.
    */

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.node.module.metadata;
 
-import java.nio.file.Path;
+import java.util.jar.JarFile;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,11 +33,12 @@ public interface ModuleMetadataParser {
    * method can return null. The null return type is used to not interrupt the module loading while throwing an
    * exception will cause the module loading process to be interrupted.
    *
-   * @param modulePath the path to the module file of which the module metadata should be parsed.
+   * @param moduleJarFile the jar file from which the module metadata should be loaded.
    * @return the parsed module metadata, can be null if the given path does not contain a valid metadata file.
-   * @throws NullPointerException if the given module path is null.
-   * @throws Exception            if any exception occurs during the metadata parsing.
+   * @throws NullPointerException           if the given module path is null.
+   * @throws InvalidModuleMetadataException if the metadata file content is invalid.
+   * @throws Exception                      if any exception occurs during the metadata parsing.
    */
   @Nullable
-  ModuleMetadata parseModuleMetadata(@NonNull Path modulePath) throws Exception;
+  ModuleMetadata parseModuleMetadata(@NonNull JarFile moduleJarFile) throws Exception;
 }

@@ -41,8 +41,8 @@ public final class UnknownModuleVersion implements ModuleVersion {
     .thenComparing(ModuleVersion::patch);
 
   private static final Pattern NON_SEPERATOR_NUMBER_PATTERN = Pattern.compile("[^0-9_,-]");
-  private static final CharMatcher SEPERATOR_CHAR_MATCHER = CharMatcher.anyOf("_,-");
-  private static final Splitter SEPERATOR_SPLITTER = Splitter.on(SEPERATOR_CHAR_MATCHER).omitEmptyStrings();
+  private static final CharMatcher SEPARATOR_CHAR_MATCHER = CharMatcher.anyOf("_,-");
+  private static final Splitter SEPERATOR_SPLITTER = Splitter.on(SEPARATOR_CHAR_MATCHER).omitEmptyStrings();
 
   private final int major;
   private final int minor;
@@ -76,7 +76,7 @@ public final class UnknownModuleVersion implements ModuleVersion {
    * @throws NullPointerException if the given version string is null.
    */
   public static @NonNull UnknownModuleVersion parse(@NonNull String version) {
-    // remove all non-number, non-seperator chars from the version string
+    // remove all non-number, non-separator chars from the version string
     var matcher = NON_SEPERATOR_NUMBER_PATTERN.matcher(version);
     var cleanedVersion = matcher.replaceAll("");
     if (cleanedVersion.isEmpty()) {
