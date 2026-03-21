@@ -16,9 +16,10 @@
 
 package eu.cloudnetservice.node.impl.module.dependency;
 
+import com.google.common.collect.Iterables;
 import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
+import com.google.common.graph.Traverser;
 import eu.cloudnetservice.node.module.ModuleDependencyTree;
 import eu.cloudnetservice.node.module.metadata.ModuleMetadata;
 import java.util.List;
@@ -136,8 +137,9 @@ public final class DefaultModuleDependencyTree implements ModuleDependencyTree {
   @Override
   public boolean transitiveDependingOn(@NonNull ModuleMetadata owner, @NonNull ModuleMetadata other) {
     if (this.dependencyGraph.nodes().contains(owner.id())) {
-      var reachableNodes = Graphs.reachableNodes(this.dependencyGraph, owner.id());
-      return reachableNodes.contains(other.id());
+      var reachableNodes = Traverser.forGraph(this.dependencyGraph).breadthFirst(owner.id());
+      var reachableNodesWithoutRoot = Iterables.skip(reachableNodes, 1);
+      return Iterables.contains(reachableNodesWithoutRoot, other.id());
     }
 
     return false;

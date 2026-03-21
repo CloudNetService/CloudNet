@@ -56,7 +56,7 @@ public final class DefaultModuleMetadataParser implements ModuleMetadataParser {
   private static final Pattern ID_PATTERN = Pattern.compile("^[a-z][a-z0-9-.]{3,63}$");
   private static final Pattern NAME_PATTERN = Pattern.compile("^[\\p{L}\\p{N}-_]{4,64}$");
   private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("^[^\\p{Cntrl}<>]{0,128}$");
-  private static final Pattern ENTRYPOINT_PATTERN = Pattern.compile("^([a-zA-Z0-9_]+\\.)*[A-Z][A-Za-z0-9_]*$");
+  private static final Pattern ENTRYPOINT_PATTERN = Pattern.compile("^([a-zA-Z0-9_]+\\.)*[A-Za-z0-9_]*$");
 
   private static final Type LIST_STRING_TYPE = TypeFactory.parameterizedClass(List.class, String.class);
   private static final Type LIST_DOCUMENT_TYPE = TypeFactory.parameterizedClass(List.class, Document.class);

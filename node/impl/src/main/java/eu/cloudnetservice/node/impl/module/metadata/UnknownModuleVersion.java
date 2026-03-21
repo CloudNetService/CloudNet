@@ -40,8 +40,8 @@ public final class UnknownModuleVersion implements ModuleVersion {
     .thenComparing(ModuleVersion::minor)
     .thenComparing(ModuleVersion::patch);
 
-  private static final Pattern NON_SEPERATOR_NUMBER_PATTERN = Pattern.compile("[^0-9_,-]");
-  private static final CharMatcher SEPARATOR_CHAR_MATCHER = CharMatcher.anyOf("_,-");
+  private static final Pattern NON_SEPERATOR_NUMBER_PATTERN = Pattern.compile("[^0-9_,.-]");
+  private static final CharMatcher SEPARATOR_CHAR_MATCHER = CharMatcher.anyOf("_,-.");
   private static final Splitter SEPERATOR_SPLITTER = Splitter.on(SEPARATOR_CHAR_MATCHER).omitEmptyStrings();
 
   private final int major;
@@ -88,7 +88,7 @@ public final class UnknownModuleVersion implements ModuleVersion {
       return new UnknownModuleVersion(0, 0, 0, version);
     }
 
-    // compact down everything after the patch version into a single path version number
+    // compact down everything after the patch version into a single patch version number
     if (parts.size() > 3) {
       var trailingParts = parts.subList(2, parts.size());
       var trailingPart = String.join("", trailingParts);

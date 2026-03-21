@@ -45,8 +45,16 @@ public record ModuleDependency(
      */
     REQUIRED,
     /**
-     * Marks that the other module is suggested to unlock additional functionality but not a hard requirement.
+     * Marks that the other module is suggested to unlock additional functionality but not a hard requirement. This
+     * dependency type will print a notification for the other into the console if the dependency is not present. If no
+     * notification is desired use the dependency type {@link #OPTIONAL} instead.
      */
     SUGGESTED,
+    /**
+     * Marks that the other module is suggested to unlock additional functionality but not a hard requirement. This
+     * dependency type will not print a notification into the console about the missing dependency, in contrast to
+     * {@link #SUGGESTED}.
+     */
+    OPTIONAL,
   }
 }

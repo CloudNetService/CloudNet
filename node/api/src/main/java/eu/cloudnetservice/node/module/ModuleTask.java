@@ -76,7 +76,8 @@ public @interface ModuleTask {
   ModuleState[] states();
 
   /**
-   * Get the priority of this module task. Defaults to medium priority.
+   * Get the priority of this module task. Defaults to medium priority. Tasks with a higher priority (for example
+   * {@code 1000}) are executed before module tasks with a low priority (for example {@code 10}).
    *
    * @return the priority of this module task.
    */
