@@ -237,8 +237,8 @@ public final class FileUtil {
       try {
         // remove the directory or the file
         Files.delete(path);
-      } catch (IOException ignored) {
-        // ignore these exceptions
+      } catch (IOException exception) {
+        LOGGER.debug("Exception while deleting file at '{}'", path, exception);
       }
     }
   }
