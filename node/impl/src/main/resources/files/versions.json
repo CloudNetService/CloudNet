@@ -89,6 +89,22 @@
       "website": "https://papermc.io",
       "versions": [
         {
+          "name": "26.1.1",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "26.1.1"
+          }
+        },
+        {
           "name": "1.21.11",
           "cacheFiles": false,
           "properties": {
@@ -579,7 +595,7 @@
       "versions": [
         {
           "name": "1.21.11",
-          "url": "https://files.mcjars.app/spigot/1.21.11/4578/server.jar"
+          "url": "https://files.mcjars.app/spigot/26.1.1/4617/server.jar"
         },
         {
           "name": "1.21.10",
@@ -680,6 +696,26 @@
       ],
       "website": "https://fabricmc.net",
       "versions": [
+        {
+          "name": "26.1.1",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "fabric-server-launch\\.jar": "fabric.jar",
+              "libraries/.*": "/",
+              "versions/.*": "/",
+              "server\\.jar": "server.jar"
+            },
+            "parameters": [
+              "server",
+              "-mcversion",
+              "%version%",
+              "-downloadMinecraft"
+            ],
+            "fetchOverFabricApi": true
+          },
+          "minJavaVersion": 21
+        },
         {
           "name": "1.21.11",
           "cacheFiles": false,
@@ -941,8 +977,12 @@
       ],
       "versions": [
         {
+          "name": "26.1.1",
+          "url": "https://files.mcjars.app/loohp-limbo/26.1.1/73/server.jar"
+        },
+        {
           "name": "1.21.11",
-          "url": "https://files.mcjars.app/loohp-limbo/1.21.11/66/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.11/71/server.jar"
         },
         {
           "name": "1.21.10",
