@@ -41,8 +41,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class S3TemplateStorageTest {
 
-  // default localstack port, maps all services to that port
-  private static final int PORT = 4566;
+  // default rustfs port
+  private static final int PORT = 9000;
   private static final ServiceTemplate TEMPLATE = ServiceTemplate.builder()
     .prefix("global")
     .name("proxy")
@@ -50,10 +50,12 @@ class S3TemplateStorageTest {
     .build();
 
   @Container
-  private static final GenericContainer<?> S3 = new GenericContainer<>("localstack/localstack:4.14")
+  private static final GenericContainer<?> S3 = new GenericContainer<>("rustfs/rustfs:latest")
     .withExposedPorts(PORT)
-    .withEnv("SERVICES", "s3")
-    .waitingFor(Wait.forLogMessage(".*Ready\\.\n", 1));
+    .withEnv("RUSTFS_ACCESS_KEY", "accesskey")
+    .withEnv("RUSTFS_SECRET_KEY", "secretkey")
+    .withEnv("RUSTFS_ADDRESS", ":" + PORT)
+    .waitingFor(Wait.forListeningPort());
 
   private static S3TemplateStorage storage;
 
