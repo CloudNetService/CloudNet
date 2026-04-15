@@ -48,7 +48,7 @@ reflexion = "2.0.0"
 geantyref = "2.0.1"
 dockerJava = "3.7.0"
 nightConfig = "3.8.3"
-annotations = "26.0.2-1"
+annotations = "26.1.0"
 influxClient = "7.4.0"
 netty = "2025.11.08-3a259e91"
 
