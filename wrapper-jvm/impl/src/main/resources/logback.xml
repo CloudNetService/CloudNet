@@ -18,6 +18,7 @@
   <import class="ch.qos.logback.core.ConsoleAppender"/>
   <import class="ch.qos.logback.classic.filter.LevelFilter"/>
   <import class="ch.qos.logback.classic.filter.ThresholdFilter"/>
+  <import class="ch.qos.logback.classic.turbo.MarkerFilter"/>
   <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
   <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
   <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
@@ -32,6 +33,13 @@
 
   <!-- allow configuring log levels using properties file -->
   <propertiesConfigurator optional="true" file="${cloudnet.log.properties.file}"/>
+
+  <!-- discards mc related packets with NETWORK_PACKETS marker -->
+  <turboFilter class="MarkerFilter">
+    <Marker>${cloudnet.wrapper.log.packet-filter.marker:-NETWORK_PACKETS}</Marker>
+    <OnMatch>${cloudnet.wrapper.log.packet-filter.on-match:-DENY}</OnMatch>
+    <OnMismatch>NEUTRAL</OnMismatch>
+  </turboFilter>
 
   <property name="LOG_PATTERN" value="[%d{dd.MM HH:mm:ss.SSS}] %-5level: %msg%n"/>
   <appender name="Rolling" class="RollingFileAppender">
