@@ -16,9 +16,9 @@
 
 <configuration>
   <import class="ch.qos.logback.core.ConsoleAppender"/>
+  <import class="ch.qos.logback.classic.turbo.MarkerFilter"/>
   <import class="ch.qos.logback.classic.filter.LevelFilter"/>
   <import class="ch.qos.logback.classic.filter.ThresholdFilter"/>
-  <import class="ch.qos.logback.classic.turbo.MarkerFilter"/>
   <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
   <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
   <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
