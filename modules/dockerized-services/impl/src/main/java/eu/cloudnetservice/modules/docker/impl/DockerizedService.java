@@ -353,11 +353,11 @@ public class DockerizedService extends JVMService {
       ))
       .toList());
 
-    // get the task specific volumes and concat them with the named volumes
+    // get the task specific named volumes and concat them with the default named volumes
     var taskVolumes = Objects.requireNonNullElse(
       this.readFromTaskConfig(config, TaskDockerConfig::volumes),
       Set.<String>of());
-    Stream.concat(this.configuration.volumes().stream(), taskVolumes.stream())
+    Stream.concat(taskVolumes.stream(), this.configuration.volumes().stream())
       .map(DockerMountParser::parseVolume)
       .filter(DockerMountParser.ParsedVolume::hasSource)
       .map(parsed -> new Bind(
